@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BinaryInput.html" title=""></a>
-                        <a href="BinaryInput.html" title="">BinaryInput</a>
+                        <a class="object" href="BinaryInput$.html" title=""></a>
+                        <a class="class" href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree."></a>
+                        <a href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree.">BinaryInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BinaryOutput.html" title="A resource for binary output."></a>
@@ -137,6 +137,14 @@
                         <span class="separator"></span>
                         <a class="trait" href="InputReader.html" title=""></a>
                         <a href="InputReader.html" title="">InputReader</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTreeBuilder instances."></a>
+                        <a class="class" href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
+                        <a href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">InputTree</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees."></a>
+                        <a href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees.">InputTreeBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="OutputWriter.html" title=""></a>
@@ -189,10 +197,6 @@
                         <a class="object" href="TextOutput$.html" title=""></a>
                         <a class="class" href="TextOutput.html" title="Character output for the various renderers of this library"></a>
                         <a href="TextOutput.html" title="Character output for the various renderers of this library">TextOutput</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="TreeInput$.html" title="Factory methods for creating InputCollections."></a>
-                        <a class="class" href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
-                        <a href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">TreeInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="TreeOutput.html" title="A (virtual) tree of output documents."></a>
@@ -355,6 +359,22 @@ like EPUB.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.io.model.ParsedTree#addStaticDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="addStaticDocuments(newStaticDocs:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.ParsedTree[F]"></a><a id="addStaticDocuments(Seq[BinaryInput[F]]):ParsedTree[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/ParsedTree.html#addStaticDocuments(newStaticDocs:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.ParsedTree[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addStaticDocuments</span><span class="params">(<span name="newStaticDocs">newStaticDocs: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.ParsedTree.F">F</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.model.ParsedTree.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds the specified static documents to this instance.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -522,6 +542,38 @@ like EPUB.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.model.ParsedTree#removeStaticDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removeStaticDocuments(filter:laika.ast.Path=&gt;Boolean):laika.io.model.ParsedTree[F]"></a><a id="removeStaticDocuments((Path)⇒Boolean):ParsedTree[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/ParsedTree.html#removeStaticDocuments(filter:laika.ast.Path=&gt;Boolean):laika.io.model.ParsedTree[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeStaticDocuments</span><span class="params">(<span name="filter">filter: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.model.ParsedTree.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Removes all static documents of this instance that match the specified filter.</p>
+    </li><li name="laika.io.model.ParsedTree#replaceStaticDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="replaceStaticDocuments(newStaticDocs:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.ParsedTree[F]"></a><a id="replaceStaticDocuments(Seq[BinaryInput[F]]):ParsedTree[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/ParsedTree.html#replaceStaticDocuments(newStaticDocs:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.ParsedTree[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">replaceStaticDocuments</span><span class="params">(<span name="newStaticDocs">newStaticDocs: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.ParsedTree.F">F</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.io.model.ParsedTree">ParsedTree</a>[<span class="extype" name="laika.io.model.ParsedTree.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Removes all static documents of this instance and replaces them with the specified alternatives.</p>
     </li><li name="laika.io.model.ParsedTree#root" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="root:laika.ast.DocumentTreeRoot"></a><a id="root:DocumentTreeRoot"></a>
       <span class="permalink">

@@ -123,6 +123,7 @@
   via its headline text. The headline does not have to be unique, as long as the directive can identify
   a section that is closer than the others with the same headline.
 - <code>api</code>: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+- <code>source</code>: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
 - <code>fragment</code>: Marks a block in a markup document as being separate from the main content,
   so that it can be placed separately in templates.
 - <code>for</code>: Accesses a value from the context and sets it as the reference context for its
@@ -133,11 +134,16 @@
 - <code>format</code>: Process the body element only when the output format matches the format
   specified in the directive (e.g. <code>pdf</code> or <code>html</code>).
 - <code>style</code>: Adds a style property to the body element.
-- <code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree
+- <code>linkCSS</code>: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
+- <code>linkJS</code>: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
 - <code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
   content, to be rendered in different locations of the output, like headers, footers or sidebars.
+- <code>relativePath</code>: Translates an absolute or relative path from the perspective of a template
+  to a path relative to the document the template had been applied to
 - <code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
   output, like XSL-FO or PDF.
+- <code>todo</code>: simple directive that accepts a string argument that will be ignored by renderers,
+  overcoming the limitation that Markdown does not have a native comment syntax.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.directive">directive</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
@@ -159,10 +165,6 @@
                         <a class="object" href="StandardDirectives$$NavigationNodeConfig$.html" title="Companion with a decoder for obtaining instances from HOCON."></a>
                         <a class="trait" href="" title="Represents the configuration for a single node in a navigation tree."></a>
                         <a href="" title="Represents the configuration for a single node in a navigation tree.">NavigationNodeConfig</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="StandardDirectives$$StyleLinks$.html" title="Template resolver that inserts links to all CSS inputs found in the document tree, using a path relative to the currently processed document."></a>
-                        <a href="StandardDirectives$$StyleLinks$.html" title="Template resolver that inserts links to all CSS inputs found in the document tree, using a path relative to the currently processed document.">StyleLinks</a>
                       </li>
               </ul>
             </div>

@@ -249,12 +249,44 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="TreeResultBuilder$$ConfigResult.html"><span class="name">ConfigResult</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="TreeResultBuilder$$ConfigResult.html"><span class="name">ConfigResult</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.io.runtime.TreeResultBuilder.DocumentResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentResultextendsTreeResultBuilder.TreeContentResultwithProductwithSerializable"></a><a id="DocumentResult:DocumentResult"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$DocumentResult.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TreeResultBuilder$$DocumentResult.html"><span class="name">DocumentResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.io.runtime.TreeResultBuilder.HoconResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HoconResultextendsTreeResultBuilder.ParserResultwithProductwithSerializable"></a><a id="HoconResult:HoconResult"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$HoconResult.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TreeResultBuilder$$HoconResult.html"><span class="name">HoconResult</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
     </li><li name="laika.io.runtime.TreeResultBuilder.MarkupResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="MarkupResultextendsTreeResultBuilder.ParserResultwithProductwithSerializable"></a><a id="MarkupResult:MarkupResult"></a>
+      <a id="MarkupResultextendsTreeResultBuilder.TreeContentResultwithProductwithSerializable"></a><a id="MarkupResult:MarkupResult"></a>
       <span class="permalink">
       <a href="../../../laika/io/runtime/TreeResultBuilder$$MarkupResult.html" title="Permalink">
         <i class="material-icons"></i>
@@ -265,7 +297,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="TreeResultBuilder$$MarkupResult.html"><span class="name">MarkupResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="TreeResultBuilder$$MarkupResult.html"><span class="name">MarkupResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -297,7 +329,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="TreeResultBuilder$$StyleResult.html"><span class="name">StyleResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="TreeResultBuilder$$StyleResult.html"><span class="name">StyleResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -313,12 +345,28 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="TreeResultBuilder$$TemplateResult.html"><span class="name">TemplateResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="TreeResultBuilder$$TemplateResult.html"><span class="name">TemplateResult</span></a><span class="params">(<span name="doc">doc: <a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.io.runtime.TreeResultBuilder.TreeContentResult" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TreeContentResultextendsTreeResultBuilder.ParserResult"></a><a id="TreeContentResult:TreeContentResult"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeContentResult.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TreeResultBuilder$$TreeContentResult.html"><span class="name">TreeContentResult</span></a><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a></span>
       </span>
       
       
     </li><li name="laika.io.runtime.TreeResultBuilder.TreeResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TreeResultextendsTreeResultBuilder.ParserResultwithProductwithSerializable"></a><a id="TreeResult:TreeResult"></a>
+      <a id="TreeResultextendsTreeResultBuilder.TreeContentResultwithProductwithSerializable"></a><a id="TreeResult:TreeResult"></a>
       <span class="permalink">
       <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html" title="Permalink">
         <i class="material-icons"></i>
@@ -329,7 +377,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="TreeResultBuilder$$TreeResult.html"><span class="name">TreeResult</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>, <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a>]]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="configs">configs: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="TreeResultBuilder$$TreeResult.html"><span class="name">TreeResult</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a>]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="hocon">hocon: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$HoconResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.HoconResult">HoconResult</a>]</span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -652,6 +700,22 @@
       </span>
       <span class="symbol">
         <span class="name">resolveConfig</span><span class="params">(<span name="result">result: <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>, <span name="titleDocName">titleDocName: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="resolveConfig(Document,Config,IncludeMap):Either[ConfigError,Document]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resolveConfig</span><span class="params">(<span name="doc">doc: <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
       </span>
       
       

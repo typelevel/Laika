@@ -123,24 +123,16 @@
                         <a href="" title="API for specifying the output for a binary format like EPUB or PDF.">BinaryOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
+                        <a class="class" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
                         <a href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type.">IOBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
-                        <a href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">ParallelInputOps</a>
+                        <a class="trait" href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
+                        <a href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">InputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
-                        <a href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">ParallelTextOutputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation."></a>
-                        <a href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation.">SequentialInputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation."></a>
-                        <a href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation.">SequentialTextOutputOps</a>
+                        <a class="trait" href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
+                        <a href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">TextOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TreeMapperOps.html" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering."></a>
@@ -184,7 +176,7 @@ in terms of the only abstract method <code>toOutput</code>.
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="../binary/ParallelRenderer$$OutputOps.html" class="extype" name="laika.io.binary.ParallelRenderer.OutputOps">OutputOps</a>, <a href="../binary/ParallelTransformer$$OutputOps.html" class="extype" name="laika.io.binary.ParallelTransformer.OutputOps">OutputOps</a>, <a href="../binary/SequentialRenderer$$OutputOps.html" class="extype" name="laika.io.binary.SequentialRenderer.OutputOps">OutputOps</a>, <a href="../binary/SequentialTransformer$$OutputOps.html" class="extype" name="laika.io.binary.SequentialTransformer.OutputOps">OutputOps</a></div>
+            <div class="subClasses hiddenContent"><a href="../api/BinaryTreeRenderer$$OutputOps.html" class="extype" name="laika.io.api.BinaryTreeRenderer.OutputOps">OutputOps</a>, <a href="../api/BinaryTreeTransformer$$OutputOps.html" class="extype" name="laika.io.api.BinaryTreeTransformer.OutputOps">OutputOps</a></div>
           </div></div>
         
 
@@ -254,9 +246,9 @@ in terms of the only abstract method <code>toOutput</code>.
         <div class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="laika.io.ops.BinaryOutputOps#F" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="F:cats.effect.Async[F]"></a><a id="F:Async[F]"></a>
+      <a id="F:cats.effect.Sync[F]"></a><a id="F:Sync[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/BinaryOutputOps.html#F:cats.effect.Async[F]" title="Permalink">
+      <a href="../../../laika/io/ops/BinaryOutputOps.html#F:cats.effect.Sync[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -265,7 +257,7 @@ in terms of the only abstract method <code>toOutput</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">F</span><span class="result">: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.BinaryOutputOps.F">F</span>]</span>
+        <span class="name">F</span><span class="result">: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.BinaryOutputOps.F">F</span>]</span>
       </span>
       
       

@@ -495,9 +495,9 @@ as parallel and sequential execution.
               
         </dd></dl></div>
     </li><li name="laika.io.runtime.TransformerRuntime#run" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="run[F[_]](op:laika.io.binary.ParallelTransformer.Op[F])(implicitevidence$7:cats.effect.Async[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="run[F[_]](Op[F])(Async[F],Runtime[F]):F[Unit]"></a>
+      <a id="run[F[_]](op:laika.io.api.BinaryTreeTransformer.Op[F])(implicitevidence$4:cats.effect.Sync[F],implicitevidence$5:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="run[F[_]](Op[F])(Sync[F],Runtime[F]):F[Unit]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.binary.ParallelTransformer.Op[F])(implicitevidence$7:cats.effect.Async[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
+      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.api.BinaryTreeTransformer.Op[F])(implicitevidence$4:cats.effect.Sync[F],implicitevidence$5:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -506,15 +506,14 @@ as parallel and sequential execution.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../binary/ParallelTransformer$$Op.html" class="extype" name="laika.io.binary.ParallelTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../api/BinaryTreeTransformer$$Op.html" class="extype" name="laika.io.api.BinaryTreeTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Process the specified transform operation for an entire input tree and
-a binary output format.</p>
+      <p class="shortcomment cmt">Process the specified transform operation for an entire input tree and a binary output format.</p>
     </li><li name="laika.io.runtime.TransformerRuntime#run" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="run[F[_]](op:laika.io.binary.SequentialTransformer.Op[F])(implicitevidence$5:cats.effect.Async[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="run[F[_]](Op[F])(Async[F],Runtime[F]):F[Unit]"></a>
+      <a id="run[F[_]](op:laika.io.api.TreeTransformer.Op[F])(implicitevidence$2:cats.effect.Sync[F],implicitevidence$3:laika.io.runtime.Runtime[F]):F[laika.io.model.RenderedTreeRoot[F]]"></a><a id="run[F[_]](Op[F])(Sync[F],Runtime[F]):F[RenderedTreeRoot[F]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.binary.SequentialTransformer.Op[F])(implicitevidence$5:cats.effect.Async[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
+      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.api.TreeTransformer.Op[F])(implicitevidence$2:cats.effect.Sync[F],implicitevidence$3:laika.io.runtime.Runtime[F]):F[laika.io.model.RenderedTreeRoot[F]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -523,45 +522,10 @@ a binary output format.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../binary/SequentialTransformer$$Op.html" class="extype" name="laika.io.binary.SequentialTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../api/TreeTransformer$$Op.html" class="extype" name="laika.io.api.TreeTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<a href="../model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Process the specified transform operation for a single input document and
-a binary output format.</p>
-    </li><li name="laika.io.runtime.TransformerRuntime#run" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="run[F[_]](op:laika.io.text.ParallelTransformer.Op[F])(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[laika.io.model.RenderedTreeRoot[F]]"></a><a id="run[F[_]](Op[F])(Async[F],Runtime[F]):F[RenderedTreeRoot[F]]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.text.ParallelTransformer.Op[F])(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[laika.io.model.RenderedTreeRoot[F]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../text/ParallelTransformer$$Op.html" class="extype" name="laika.io.text.ParallelTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<a href="../model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Process the specified transform operation for an entire input tree and
-a character output format.</p>
-    </li><li name="laika.io.runtime.TransformerRuntime#run" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="run[F[_]](op:laika.io.text.SequentialTransformer.Op[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[String]"></a><a id="run[F[_]](Op[F])(Async[F],Runtime[F]):F[String]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TransformerRuntime$.html#run[F[_]](op:laika.io.text.SequentialTransformer.Op[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[String]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">run</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="op">op: <a href="../text/SequentialTransformer$$Op.html" class="extype" name="laika.io.text.SequentialTransformer.Op">Op</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.TransformerRuntime.run.F">F</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Process the specified transform operation for a single input document and
-a character output format.</p>
+      <p class="shortcomment cmt">Process the specified transform operation for an entire input tree and a character output format.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

@@ -139,6 +139,14 @@
                         <a href="" title="">ConfigResult</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="class" href="TreeResultBuilder$$DocumentResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$DocumentResult.html" title="">DocumentResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="class" href="TreeResultBuilder$$HoconResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$HoconResult.html" title="">HoconResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="class" href="TreeResultBuilder$$MarkupResult.html" title=""></a>
                         <a href="TreeResultBuilder$$MarkupResult.html" title="">MarkupResult</a>
                       </li><li class="current-entities indented4">
@@ -153,6 +161,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TreeResultBuilder$$TemplateResult.html" title=""></a>
                         <a href="TreeResultBuilder$$TemplateResult.html" title="">TemplateResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="trait" href="TreeResultBuilder$$TreeContentResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$TreeContentResult.html" title="">TreeContentResult</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="class" href="TreeResultBuilder$$TreeResult.html" title=""></a>
@@ -180,7 +192,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -236,9 +248,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.runtime.TreeResultBuilder.ConfigResult#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,config:laika.config.ConfigParser,sourceFile:Option[java.io.File]):laika.io.runtime.TreeResultBuilder.ConfigResult"></a><a id="&lt;init&gt;:ConfigResult"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,config:laika.config.Config):laika.io.runtime.TreeResultBuilder.ConfigResult"></a><a id="&lt;init&gt;:ConfigResult"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#&lt;init&gt;(path:laika.ast.Path,config:laika.config.ConfigParser,sourceFile:Option[java.io.File]):laika.io.runtime.TreeResultBuilder.ConfigResult" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#&lt;init&gt;(path:laika.ast.Path,config:laika.config.Config):laika.io.runtime.TreeResultBuilder.ConfigResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -247,7 +259,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span>
+        <span class="name">ConfigResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span>
       </span>
       
       
@@ -350,9 +362,9 @@
               
         </dd></dl></div>
     </li><li name="laika.io.runtime.TreeResultBuilder.ConfigResult#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="config:laika.config.ConfigParser"></a><a id="config:ConfigParser"></a>
+      <a id="config:laika.config.Config"></a><a id="config:Config"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#config:laika.config.ConfigParser" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$ConfigResult.html#config:laika.config.Config" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -361,7 +373,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">config</span><span class="result">: <a href="../../config/ConfigParser.html" class="extype" name="laika.config.ConfigParser">ConfigParser</a></span>
+        <span class="name">config</span><span class="result">: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>
       </span>
       
       

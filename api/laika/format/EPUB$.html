@@ -152,7 +152,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">EPUB</span><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">EPUB</span><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -182,7 +182,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>], <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -208,7 +208,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.EPUB"><span>EPUB</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.EPUB"><span>EPUB</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="laika.factory.Format"><span>Format</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -242,12 +242,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configuration options for the generated EPUB output." href="EPUB$$BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration options for the generated EPUB output." href="EPUB$$BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="fonts">fonts: <span class="extype" name="scala.Seq">Seq</span>[<a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configuration options for the generated EPUB output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated EPUB output.</p><p>The duplication of the existing <code>BookConfig</code> instance from laika-core happens to have a different
 implicit key association with the EPUB-specific instance.
-</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">fonts</dt><dd class="cmt"><p>the fonts that should be embedded in the EPUB container</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -344,7 +344,7 @@ implicit key association with the EPUB-specific instance.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.factory.TwoPhaseRenderFormat#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.factory.Format#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="description:String"></a>
       <span class="permalink">
       <a href="../../laika/format/EPUB$.html#description:String" title="Permalink">
@@ -359,8 +359,8 @@ implicit key association with the EPUB-specific instance.
         <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Short string describing the output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the output format for tooling and logging.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
+      <p class="shortcomment cmt">Short string describing the markup or output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the markup or output format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -522,27 +522,9 @@ implicit key association with the EPUB-specific instance.
               
         </dd></dl></div>
     </li><li name="laika.format.EPUB#postProcessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="postProcessor:laika.factory.BinaryPostProcessor"></a><a id="postProcessor:BinaryPostProcessor"></a>
+      <a id="postProcessor:laika.factory.BinaryPostProcessorBuilder"></a><a id="postProcessor:BinaryPostProcessorBuilder"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#postProcessor:laika.factory.BinaryPostProcessor" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Produces an EPUB container from the specified result tree.</p><div class="fullcomment"><div class="comment cmt"><p>Produces an EPUB container from the specified result tree.</p><p> It includes the following files in the container:</p><ul><li>All text markup in the provided document tree, transformed to HTML by the specified render function.</li><li>All static content in the provided document tree, copied to the same relative path within the EPUB container.</li><li>Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
-   and the configuration of this instance.
-</li></ul></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
-    </li><li name="laika.format.EPUB#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareTree(tree:laika.ast.DocumentTreeRoot):Either[Throwable,laika.ast.DocumentTreeRoot]"></a><a id="prepareTree(DocumentTreeRoot):Either[Throwable,DocumentTreeRoot]"></a>
-      <span class="permalink">
-      <a href="../../laika/format/EPUB$.html#prepareTree(tree:laika.ast.DocumentTreeRoot):Either[Throwable,laika.ast.DocumentTreeRoot]" title="Permalink">
+      <a href="../../laika/format/EPUB$.html#postProcessor:laika.factory.BinaryPostProcessorBuilder" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -551,7 +533,25 @@ implicit key association with the EPUB-specific instance.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
+        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Produces an EPUB container from the specified result tree.</p><div class="fullcomment"><div class="comment cmt"><p>Produces an EPUB container from the specified result tree.</p><p> It includes the following files in the container:</p><ul><li>All text markup in the provided document tree, transformed to HTML by the specified render function.</li><li>All static content in the provided document tree, copied to the same relative path within the EPUB container.</li><li>Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
+   and the configuration of this instance.
+</li></ul></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB">EPUB</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
+    </li><li name="laika.format.EPUB#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="prepareTree(root:laika.ast.DocumentTreeRoot):Either[Throwable,laika.ast.DocumentTreeRoot]"></a><a id="prepareTree(DocumentTreeRoot):Either[Throwable,DocumentTreeRoot]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/EPUB$.html#prepareTree(root:laika.ast.DocumentTreeRoot):Either[Throwable,laika.ast.DocumentTreeRoot]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Adds a cover image (if specified in the configuration)
@@ -697,7 +697,9 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="laika.factory.TwoPhaseRenderFormat">
-              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</h3>
+              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>]</h3>
+            </div><div class="parent" name="laika.factory.Format">
+              <h3>Inherited from <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

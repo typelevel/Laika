@@ -135,8 +135,8 @@
                         <a href="DocumentTypeMatcher$.html" title="The default implementations for determining the document type of the input based on its path.">DocumentTypeMatcher</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ExtensionBundle$.html" title="Provides default ExtensionBundle instances."></a>
-                        <a class="trait" href="" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations."></a>
-                        <a href="" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
+                        <a class="trait" href="" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations."></a>
+                        <a href="" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="MarkupExtensions.html" title="Bundles extensions for the text markup parsers defined for the host language to support additional syntax not recognized by the base parsers."></a>
@@ -163,8 +163,8 @@
                         <a href="Precedence.html" title="Indicates whether a parser should be applied before the base parsers of the host language (high precedence) or after them (low precedence).">Precedence</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
-                        <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
+                        <a class="trait" href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes."></a>
+                        <a href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes.">RenderOverrides</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
@@ -215,7 +215,7 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An extension bundle is a collection of parser extensions, rewrite rules, render themes
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An extension bundle is a collection of parser extensions, rewrite rules, render overrides
 and other features to be applied to parse, render and transform operations. It serves
 as a central registry for all of Laika's extension and customization hooks.</p><p>The base trait contains empty implementations for all these features, therefore any bundle
 implementation only needs to override the relevant members.</p><p>If the bundle implementation is not parameterized, the most convenient choice for users would
@@ -676,6 +676,24 @@ is a registry for directives which needs to pass all its registered directives t
 bundle which deals with finally creating all the directive parsers.</p><p>The partial function should match only on the types of bundles it intends to process
 and is then allowed to return a new, modified instance of that bundle.
 </p></div></div>
+    </li><li name="laika.bundle.ExtensionBundle#renderOverrides" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderOverrides:Seq[laika.bundle.RenderOverrides]"></a><a id="renderOverrides:Seq[RenderOverrides]"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/ExtensionBundle.html#renderOverrides:Seq[laika.bundle.RenderOverrides]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderOverrides</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderOverrides.html" class="extype" name="laika.bundle.RenderOverrides">RenderOverrides</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The overrides for renderers defined by this bundle.</p><div class="fullcomment"><div class="comment cmt"><p>The overrides for renderers defined by this bundle.</p><p>An override is always specific to a particular output format like HTML or PDF.
+A bundle can contain multiple overrides for the same output format which will be merged before use.
+</p></div></div>
     </li><li name="laika.bundle.ExtensionBundle#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]"></a><a id="rewriteRules:Seq[(DocumentCursor)⇒RewriteRules]"></a>
       <span class="permalink">
@@ -737,27 +755,6 @@ that becomes part of the final URL or identifier (depending on output format).</
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.bundle.ExtensionBundle#themes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="themes:Seq[laika.bundle.RenderTheme]"></a><a id="themes:Seq[RenderTheme]"></a>
-      <span class="permalink">
-      <a href="../../laika/bundle/ExtensionBundle.html#themes:Seq[laika.bundle.RenderTheme]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">themes</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The themes defined by this bundle, which are a collection of templates, styles
-and custom render functions.</p><div class="fullcomment"><div class="comment cmt"><p>The themes defined by this bundle, which are a collection of templates, styles
-and custom render functions.</p><p>A theme is always specific to a particular output format like HTML or PDF.
-A bundle can contain multiple themes for the same output format which will be
-merged before use.
-</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

@@ -512,9 +512,9 @@
               
         </dd></dl></div>
     </li><li name="laika.io.runtime.Runtime#parallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="parallel[F[_]](blockerParam:cats.effect.Blocker,parallelismParam:Int)(implicitevidence$4:cats.effect.Async[F],implicitevidence$5:cats.Parallel[F],implicitevidence$6:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]"></a><a id="parallel[F[_]](Blocker,Int)(Async[F],Parallel[F],ContextShift[F]):Runtime[F]"></a>
+      <a id="parallel[F[_]](blockerParam:cats.effect.Blocker,parallelismParam:Int)(implicitevidence$4:cats.effect.Sync[F],implicitevidence$5:cats.Parallel[F],implicitevidence$6:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]"></a><a id="parallel[F[_]](Blocker,Int)(Sync[F],Parallel[F],ContextShift[F]):Runtime[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/Runtime$.html#parallel[F[_]](blockerParam:cats.effect.Blocker,parallelismParam:Int)(implicitevidence$4:cats.effect.Async[F],implicitevidence$5:cats.Parallel[F],implicitevidence$6:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]" title="Permalink">
+      <a href="../../../laika/io/runtime/Runtime$.html#parallel[F[_]](blockerParam:cats.effect.Blocker,parallelismParam:Int)(implicitevidence$4:cats.effect.Sync[F],implicitevidence$5:cats.Parallel[F],implicitevidence$6:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -523,15 +523,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="blockerParam">blockerParam: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>, <span name="parallelismParam">parallelismParam: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>)</span><span class="result">: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>
+        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="blockerParam">blockerParam: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>, <span name="parallelismParam">parallelismParam: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>)</span><span class="result">: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.Runtime.parallel.F">F</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a Runtime instance for parallel execution based on the specified
 contexts for CPU-bound and blocking operations.</p>
     </li><li name="laika.io.runtime.Runtime#sequential" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sequential[F[_]](blockerParam:cats.effect.Blocker)(implicitevidence$2:cats.effect.Async[F],implicitevidence$3:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]"></a><a id="sequential[F[_]](Blocker)(Async[F],ContextShift[F]):Runtime[F]"></a>
+      <a id="sequential[F[_]](blockerParam:cats.effect.Blocker)(implicitevidence$2:cats.effect.Sync[F],implicitevidence$3:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]"></a><a id="sequential[F[_]](Blocker)(Sync[F],ContextShift[F]):Runtime[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/Runtime$.html#sequential[F[_]](blockerParam:cats.effect.Blocker)(implicitevidence$2:cats.effect.Async[F],implicitevidence$3:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]" title="Permalink">
+      <a href="../../../laika/io/runtime/Runtime$.html#sequential[F[_]](blockerParam:cats.effect.Blocker)(implicitevidence$2:cats.effect.Sync[F],implicitevidence$3:cats.effect.ContextShift[F]):laika.io.runtime.Runtime[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -540,7 +540,7 @@ contexts for CPU-bound and blocking operations.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sequential</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="blockerParam">blockerParam: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>)</span><span class="result">: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>
+        <span class="name">sequential</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="blockerParam">blockerParam: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>)</span><span class="result">: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.Runtime.sequential.F">F</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a Runtime instance for sequential execution based on the specified

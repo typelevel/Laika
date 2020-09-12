@@ -139,8 +139,16 @@
                         <a href="FOConcatenation$.html" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
-                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
+                        <a class="object" href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF."></a>
+                        <a href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.">FopFactoryBuilder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in."></a>
+                        <a href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in.">FopResourceResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements."></a>
+                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="PDFRenderer.html" title="Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream that represents the entire document and its navigation elements."></a>
@@ -208,7 +216,32 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.render.pdf.PDFRenderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="laika.render.pdf.FopResourceResolver" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="FopResourceResolver[F[_]]extendsResourceResolver"></a><a id="FopResourceResolver[F[_]]:FopResourceResolver[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/render/pdf/FopResourceResolver.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in." href="FopResourceResolver.html"><span class="name">FopResourceResolver</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="org.apache.xmlgraphics.io.ResourceResolver">ResourceResolver</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream
+from its static input documents, including in-memory content or classpath resources,
+for which FOP does not have any support built in.</p><div class="fullcomment"><div class="comment cmt"><p>Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream
+from its static input documents, including in-memory content or classpath resources,
+for which FOP does not have any support built in.</p><p>The synchronous, blocking, and non-RT APIs of Apache FOP require some compromise in the modelling,
+namely that the <code>BinaryInput</code> type does not carry a <code>Resource[F, InputStream]</code>,
+but merely a function <code>() =&gt; InputStream</code>, so that the effect-wrapping can be handled on a higher level
+when Java callbacks are involved.</p><p>Note that this involves a small risk of resources leaking as Laika has to rely on Apache FOP for
+closing the InputStream, there is no way to know when it would be safe to do that within Laika.
+</p></div></div>
+    </li><li name="laika.render.pdf.PDFRenderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PDFRendererextendsAnyRef"></a><a id="PDFRenderer:PDFRenderer"></a>
       <span class="permalink">
       <a href="../../../laika/render/pdf/PDFRenderer.html" title="Permalink">
@@ -223,9 +256,8 @@
         <a title="Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream that represents the entire document and its navigation elements." href="PDFRenderer.html"><span class="name">PDFRenderer</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">Responsible for the final step in producing the binary PDF format from
-a single XSL-FO input stream that represents the entire document and
-its navigation elements.</p>
+      <p class="shortcomment cmt">Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream
+that represents the entire document and its navigation elements.</p>
     </li></ol>
             </div>
 
@@ -251,6 +283,23 @@ its navigation elements.</p>
       
       <p class="shortcomment cmt">Concatenates the XSL-FO that serves as a basis for producing the final PDF output
 and applies the default XSL-FO template to the entire result.</p>
+    </li><li name="laika.render.pdf.FopFactoryBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FopFactoryBuilder"></a><a id="FopFactoryBuilder:FopFactoryBuilder"></a>
+      <span class="permalink">
+      <a href="../../../laika/render/pdf/FopFactoryBuilder$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF." href="FopFactoryBuilder$.html"><span class="name">FopFactoryBuilder</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into
+the PDF.</p>
     </li><li name="laika.render.pdf.PDFNavigation" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PDFNavigation"></a><a id="PDFNavigation:PDFNavigation"></a>
       <span class="permalink">
@@ -263,11 +312,10 @@ and applies the default XSL-FO template to the entire result.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents." href="PDFNavigation$.html"><span class="name">PDFNavigation</span></a>
+        <a title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements." href="PDFNavigation$.html"><span class="name">PDFNavigation</span></a>
       </span>
       
-      <p class="shortcomment cmt">Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements,
-like PDF bookmarks or table of contents.</p>
+      <p class="shortcomment cmt">Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.</p>
     </li>
               </ol>
             </div>

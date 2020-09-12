@@ -3,92 +3,136 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-
-    <title>Laika</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
-    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
-
-    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link rel="stylesheet" href="../icons/icofont.min.css">
-    <link href="../css/container.css" rel="stylesheet">
-    <link href="../css/content.css" rel="stylesheet">
-    <link href="../css/nav.css" rel="stylesheet">
-    <link href="../css/code.css" rel="stylesheet">
-
-    <script src="../js/theme.js"></script>
+    <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+    <title>The Document AST</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
     <script> /* for avoiding page load transitions */ </script>
-
   </head>
 
   <body>
 
+    <header id="top-bar">
+  
+      <a id="nav-icon">
+        <i class="icofont-laika">&#xefa2;</i>
+      </a>
+  
+      <a href="../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
     <nav id="sidebar">
 
-      <a id="close-nav-icon">
-        <i class="icofont-close-circled icofont-xlg"></i>
-      </a>
-
-      <ul class="nav nav-list">
-
-        
-        <li><a href="../table-of-contents.html">Table of Contents</a></li>
-        <li class="nav-header">About Laika</li>
-        <li><a href="../01-about-laika/01-features.html">Features</a></li>
-        <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
-        <li class="nav-header">Running Laika</li>
-        <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
-        <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
-        <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
-        <li class="nav-header">Preparing Content</li>
-        <li><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
-        <li><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
-        <li><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
-        <li><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
-        <li class="nav-header">Customizing Laika</li>
-        <li><a href="01-overview.html">Overview</a></li>
-        <li><a href="03-creating-templates.html">Creating Templates</a></li>
-        <li class="active"><a href="#">The Document AST</a></li>
-        <li><a href="05-ast-rewriting.html">AST Rewriting</a></li>
-        <li><a href="06-overriding-renderers.html">Overriding Renderers</a></li>
-        <li class="nav-header">Extending Laika</li>
-        <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
-        <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
-        <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
-        <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
-        <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
-        <li class="nav-header">Sub-Modules</li>
-        <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
-        <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
-        <li class="nav-header">Reference</li>
-        <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
-        <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
-        <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
-        <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
-        <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
-        
-        <li class="nav-header">Project Links</li>
-        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-        <li><a href="../api/laika/api/">API Documentation</a></li>
-        <li><a href="http://planet42.org/">Demo App</a></li>
-        
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li class="level2"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+        <li class="level2"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="01-overview.html">Overview</a></li>
+        <li class="level2"><a href="03-creating-templates.html">Creating Templates</a></li>
+        <li class="level2 active"><a href="#">The Document AST</a></li>
+        <li class="level2"><a href="05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2"><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
       </ul>
-
+      
     </nav>
 
     <div id="container">
 
-      <a id="open-nav-icon">
-        <i class="icofont-navigation-menu icofont-xlg"></i>
-      </a>
+      <nav id="page-nav">
+        <p class="header"><a href="#">The Document AST</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#trait-hierarchy">Trait Hierarchy</a></li>
+          <li class="level2"><a href="#base-traits">Base Traits</a></li>
+          <li class="level2"><a href="#containers">Containers</a></li>
+          <li class="level2"><a href="#special-types">Special Types</a></li>
+          <li class="level1"><a href="#container-elements">Container Elements</a></li>
+          <li class="level2"><a href="#lists">Lists</a></li>
+          <li class="level2"><a href="#block-containers">Block Containers</a></li>
+          <li class="level2"><a href="#links-and-references">Links and References</a></li>
+          <li class="level2"><a href="#span-containers">Span Containers</a></li>
+          <li class="level2"><a href="#text-containers">Text Containers</a></li>
+          <li class="level1"><a href="#other-elements">Other Elements</a></li>
+          <li class="level2"><a href="#block-elements">Block Elements</a></li>
+          <li class="level2"><a href="#span-elements">Span Elements</a></li>
+          <li class="level2"><a href="#template-spans">Template Spans</a></li>
+          <li class="level1"><a href="#ast-element-companions">AST Element Companions</a></li>
+          <li class="level1"><a href="#document-trees">Document Trees</a></li>
+          <li class="level2"><a href="#the-document-type">The Document Type</a></li>
+          <li class="level2"><a href="#the-documenttree-type">The DocumentTree Type</a></li>
+          <li class="level1"><a href="#cursors">Cursors</a></li>
+          <li class="level1"><a href="#ast-transformation-phases">AST Transformation Phases</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/04-customizing-laika/04-document-ast.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
 
       <main class="content">
 
-        <div class="page-header">
         <h1 id="the-document-ast" class="title">The Document AST</h1>
-        </div>
         <p>Laika decouples the semantics of the various markup formats and those of the supported output formats
         by representing every document in a generic AST between parsing and rendering.
         This allows to add custom processing logic only operating on the document structure itself, 
@@ -96,7 +140,7 @@
         <p>This chapter gives a brief overview over the hierarchy of the main base traits for AST nodes
         as well as short listings for about 80% of available node types.</p>
         
-        <h2 id="trait-hierarchy" class="section">Trait Hierarchy</h2>
+        <h2 id="trait-hierarchy" class="section">Trait Hierarchy<a class="anchor-link right" href="#trait-hierarchy"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>All AST nodes extend one of the base traits from the hierarchy as well as optionally various additional mixins.</p>
         <p>Providing a rich collection of traits that assist with classification and optional functionality
         helps with developing generic processing logic that does not need to know all available concrete types.
@@ -104,9 +148,11 @@
         about their concrete implementation.</p>
         <p>The traits are not sealed as the model is designed to be extensible.</p>
         
-        <h3 id="base-traits" class="section">Base Traits</h3>
+        <h3 id="base-traits" class="section">Base Traits<a class="anchor-link right" href="#base-traits"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>At the top of the hierarchy the AST contains the following node types:</p>
-        <p><img src="../img/document-ast.png" alt="Base Traits of the Document AST" width="872"></p>
+        <div class="default-image-block">
+          <img src="../img/document-ast.png" alt="Base Traits of the Document AST" width="872" height="405">
+        </div>
         <ul>
           <li>
             <p><code>Element</code> is the base trait of the hierarchy. 
@@ -148,7 +194,7 @@
           </li>
         </ul>
         
-        <h3 id="containers" class="section">Containers</h3>
+        <h3 id="containers" class="section">Containers<a class="anchor-link right" href="#containers"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Most element types in the AST are containers.</p>
         <ul>
           <li>
@@ -184,7 +230,7 @@
           </li>
         </ul>
         
-        <h3 id="special-types" class="section">Special Types</h3>
+        <h3 id="special-types" class="section">Special Types<a class="anchor-link right" href="#special-types"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>The first group of types are traits that can be mixed in to a concrete type:</p>
         <ul>
           <li>
@@ -242,13 +288,13 @@
           </li>
         </ul>
         
-        <h2 id="container-elements" class="section">Container Elements</h2>
+        <h2 id="container-elements" class="section">Container Elements<a class="anchor-link right" href="#container-elements"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>Since the document AST is a recursive structure most elements are either a container of other elements
         or a <code>TextContainer</code>. 
         The few that are neither are listed in <a href="#other-elements">Other Elements</a>.</p>
         <p>The following lists describe the majority of the available types, only leaving out some of the more exotic options.</p>
         
-        <h3 id="lists" class="section">Lists</h3>
+        <h3 id="lists" class="section">Lists<a class="anchor-link right" href="#lists"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>There are four different list types in the core AST model. 
         All types listed below have a corresponding <code>ListItem</code> container, e.g. <code>BulletList</code> nodes hold <code>BulletListItem</code>
         children.</p>
@@ -270,7 +316,7 @@
           </li>
         </ul>
         
-        <h3 id="block-containers" class="section">Block Containers</h3>
+        <h3 id="block-containers" class="section">Block Containers<a class="anchor-link right" href="#block-containers"><i class="icofont-laika">&#xef71;</i></a></h3>
         <ul>
           <li>
             <p><code>RootElement</code> represents the root node of a document AST.</p>
@@ -299,7 +345,7 @@
           </li>
         </ul>
         
-        <h3 id="links-and-references" class="section">Links and References</h3>
+        <h3 id="links-and-references" class="section">Links and References<a class="anchor-link right" href="#links-and-references"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Most links and references are also a <code>SpanContainer</code> (for the link text), but a few are not.
         Span containers that are not links or references are listed in the next section.</p>
         <p>The <code>Link</code> types differ from the <code>Reference</code> types in that the former are fully resolved, &quot;ready to render&quot;,
@@ -339,7 +385,7 @@
           </li>
         </ul>
         
-        <h3 id="span-containers" class="section">Span Containers</h3>
+        <h3 id="span-containers" class="section">Span Containers<a class="anchor-link right" href="#span-containers"><i class="icofont-laika">&#xef71;</i></a></h3>
         <ul>
           <li>
             <p><code>Paragraph</code> is the basic span container type. 
@@ -367,7 +413,7 @@
           </li>
         </ul>
         
-        <h3 id="text-containers" class="section">Text Containers</h3>
+        <h3 id="text-containers" class="section">Text Containers<a class="anchor-link right" href="#text-containers"><i class="icofont-laika">&#xef71;</i></a></h3>
         <ul>
           <li>
             <p><code>Text</code> is the node type representing unformatted text.</p>
@@ -388,10 +434,10 @@
           </li>
         </ul>
         
-        <h2 id="other-elements" class="section">Other Elements</h2>
+        <h2 id="other-elements" class="section">Other Elements<a class="anchor-link right" href="#other-elements"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>This section lists the block and span elements that are not containers and the special elements representing templates.</p>
         
-        <h3 id="block-elements" class="section">Block Elements</h3>
+        <h3 id="block-elements" class="section">Block Elements<a class="anchor-link right" href="#block-elements"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Most block elements are either <a href="#span-containers">Span Containers</a> or <a href="#block-containers">Block Containers</a>, but a few are neither:</p>
         <ul>
           <li>
@@ -415,7 +461,7 @@
           </li>
         </ul>
         
-        <h3 id="span-elements" class="section">Span Elements</h3>
+        <h3 id="span-elements" class="section">Span Elements<a class="anchor-link right" href="#span-elements"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Most span elements are either <a href="#span-containers">Span Containers</a> or <a href="#text-containers">Text Containers</a>, but a few are neither:</p>
         <ul>
           <li>
@@ -428,7 +474,7 @@
           </li>
         </ul>
         
-        <h3 id="template-spans" class="section">Template Spans</h3>
+        <h3 id="template-spans" class="section">Template Spans<a class="anchor-link right" href="#template-spans"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Templates get parsed into an AST in a similar way as markup documents, but the model is much simpler.
         The most important element types are listed below.</p>
         <ul>
@@ -453,32 +499,33 @@
           </li>
         </ul>
         
-        <h2 id="ast-element-companions" class="section">AST Element Companions</h2>
+        <h2 id="ast-element-companions" class="section">AST Element Companions<a class="anchor-link right" href="#ast-element-companions"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>Laika includes base traits called <code>BlockContainerCompanion</code> and <code>SpanContainerCompanion</code> 
         for adding companion objects that provide convenient shortcuts for creating containers.</p>
         <p>They allow to shorten constructor invocations for simple use cases, e.g. <code>Paragraph(Seq(Text(&quot;hello&quot;)))</code>
         can be changed to <code>Paragraph(&quot;hello&quot;)</code>. 
         They also add an <code>empty</code> constructor and a vararg constructor for passing the content.</p>
         <p>If you create a custom element type you can use these base traits to get all these shortcuts with a few lines:</p>
-        <pre><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyElement</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">BlockContainerCompanion</span><span> {
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyElement</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">BlockContainerCompanion</span><span> {
   </span><span class="keyword">type</span><span> </span><span class="type-name">ContainerType</span><span> = </span><span class="type-name">MyElement</span><span>
-  </span><span class="keyword">override</span><span> </span><span class="keyword">protected</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">createBlockContainer</span><span> (</span><span class="identifier">blocks</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Block</span><span>]) = </span><span class="type-name">MyElement</span><span>(</span><span class="identifier">blocks</span><span>)
+  </span><span class="keyword">override</span><span> </span><span class="keyword">protected</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">createBlockContainer</span><span> (</span><span class="identifier">blocks</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">Block</span><span>]) = 
+    </span><span class="type-name">MyElement</span><span>(</span><span class="identifier">blocks</span><span>)
 }</span></code></pre>
         
-        <h2 id="document-trees" class="section">Document Trees</h2>
+        <h2 id="document-trees" class="section">Document Trees<a class="anchor-link right" href="#document-trees"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>So far we dealt with <code>Element</code> types which are used to represent the content of a single markup document or template.</p>
         <p>When a transformation of inputs from an entire directory gets processed, the content gets
         assembled into a <code>DocumentTree</code>, consisting of nested <code>DocumentTree</code> nodes and leaf <code>Document</code> nodes.</p>
         
-        <h3 id="the-document-type" class="section">The Document Type</h3>
+        <h3 id="the-document-type" class="section">The Document Type<a class="anchor-link right" href="#the-document-type"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>This is the signature of the <code>Document</code> class:</p>
-        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Document</span><span> (
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Document</span><span> (
   </span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>,
   </span><span class="identifier">content</span><span>: </span><span class="type-name">RootElement</span><span>,
   </span><span class="identifier">fragments</span><span>: </span><span class="type-name">Map</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">Element</span><span>] = </span><span class="type-name">Map</span><span>.</span><span class="identifier">empty</span><span>,
   </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = </span><span class="type-name">Config</span><span>.</span><span class="identifier">empty</span><span>,
-  </span><span class="identifier">position</span><span>: </span><span class="type-name">TreePosition</span><span> = </span><span class="type-name">TreePosition</span><span>(</span><span class="type-name">Seq</span><span>())
-) </span><span class="keyword">extends</span><span> </span><span class="type-name">DocumentStructure</span></code></pre>
+  </span><span class="identifier">position</span><span>: </span><span class="type-name">TreePosition</span><span> = </span><span class="type-name">TreePosition</span><span>.</span><span class="identifier">orphan</span><span>
+) </span><span class="keyword">extends</span><span> </span><span class="type-name">DocumentStructure</span><span> </span><span class="keyword">with</span><span> </span><span class="type-name">TreeContent</span></code></pre>
         <ul>
           <li>
             <p>The <code>path</code> property holds the absolute, virtual path of the document inside the tree.
@@ -518,17 +565,17 @@
           </li>
         </ul>
         
-        <h3 id="the-documenttree-type" class="section">The DocumentTree Type</h3>
+        <h3 id="the-documenttree-type" class="section">The DocumentTree Type<a class="anchor-link right" href="#the-documenttree-type"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>In a multi-input transformation all <code>Document</code> instances get assembled 
         into a recursive structure of <code>DocumentTree</code> instances:</p>
-        <pre><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DocumentTree</span><span> (
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DocumentTree</span><span> (
   </span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>,
   </span><span class="identifier">content</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">TreeContent</span><span>],
   </span><span class="identifier">titleDocument</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">Document</span><span>] = </span><span class="type-name">None</span><span>,
   </span><span class="identifier">templates</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">TemplateDocument</span><span>] = </span><span class="type-name">Nil</span><span>,
   </span><span class="identifier">config</span><span>: </span><span class="type-name">Config</span><span> = </span><span class="type-name">Config</span><span>.</span><span class="identifier">empty</span><span>,
   </span><span class="identifier">position</span><span>: </span><span class="type-name">TreePosition</span><span> = </span><span class="type-name">TreePosition</span><span>.</span><span class="identifier">root</span><span>
-) </span><span class="keyword">extends</span><span> </span><span class="type-name">TreeStructure</span></code></pre>
+) </span><span class="keyword">extends</span><span> </span><span class="type-name">TreeStructure</span><span> </span><span class="keyword">with</span><span> </span><span class="type-name">TreeContent</span></code></pre>
         <ul>
           <li>
             <p>Like with documents, the <code>path</code> property holds the absolute, virtual path of the document inside the tree.
@@ -579,7 +626,7 @@
           </li>
         </ul>
         
-        <h2 id="cursors" class="section">Cursors</h2>
+        <h2 id="cursors" class="section">Cursors<a class="anchor-link right" href="#cursors"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>During an AST transformation the rewrite rule might require access to more than just the AST node passed to it.
         When it is a rule for resolving references or creating a table of contents, it needs access to the AST of other
         documents, too.</p>
@@ -611,7 +658,7 @@
           </li>
         </ul>
         
-        <h2 id="ast-transformation-phases" class="section">AST Transformation Phases</h2>
+        <h2 id="ast-transformation-phases" class="section">AST Transformation Phases<a class="anchor-link right" href="#ast-transformation-phases"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>In most transformations the AST moves through three different phases between parsing and rendering:</p>
         <p>1) The first shape will be the AST produced by the parsers for text markup or templates.
            Since parsers do not have access to the surrounding nodes or the configuration,
@@ -628,9 +675,9 @@
         <p>The result obtained from step 3 is then passed to renderers.
         When rendering the same content to multiple output formats, the steps 1 and 2 are always only executed once.
         Only step 3 has to be repeated for each output format, as each format comes with its own templates.</p>
-        
+
       </main>
-      
+
     </div>
 
   </body>

@@ -126,9 +126,13 @@
                         <a class="class" href="" title="Basic path translator implementation that only replaces the suffix of the path."></a>
                         <a href="" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
                       </li><li class="current-entities indented3">
-                        <a class="object" href="BookConfig$.html" title=""></a>
-                        <a class="class" href="BookConfig.html" title=""></a>
-                        <a href="BookConfig.html" title="">BookConfig</a>
+                        <a class="object" href="ChoiceConfig$.html" title=""></a>
+                        <a class="class" href="ChoiceConfig.html" title="Configuration for a single choice within a selection."></a>
+                        <a href="ChoiceConfig.html" title="Configuration for a single choice within a selection.">ChoiceConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Classifiers.html" title=""></a>
+                        <a href="Classifiers.html" title="">Classifiers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance."></a>
@@ -137,6 +141,14 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigurationException.html" title=""></a>
                         <a href="ConfigurationException.html" title="">ConfigurationException</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="CoverImage$.html" title=""></a>
+                        <a class="class" href="CoverImage.html" title="Configuration for a cover image for e-books (EPUB or PDF)."></a>
+                        <a href="CoverImage.html" title="Configuration for a cover image for e-books (EPUB or PDF).">CoverImage</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="CoverImages$.html" title=""></a>
+                        <a class="class" href="CoverImages.html" title=""></a>
+                        <a href="CoverImages.html" title="">CoverImages</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
@@ -154,13 +166,17 @@
                         <a class="object" href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level."></a>
                         <a href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level.">SectionBuilder</a>
                       </li><li class="current-entities indented3">
+                        <a class="object" href="SelectionConfig$.html" title=""></a>
+                        <a class="class" href="SelectionConfig.html" title="Configuration for a single kind of selection and its choices available for the user."></a>
+                        <a href="SelectionConfig.html" title="Configuration for a single kind of selection and its choices available for the user.">SelectionConfig</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Selections$.html" title="Companion for creating selection config instances that can be passed to Laika configuration and builders that produce configuration of all possible combinations of @:select directives."></a>
+                        <a class="class" href="Selections.html" title="Groups configuration for multiple @:select directives."></a>
+                        <a href="Selections.html" title="Groups configuration for multiple @:select directives.">Selections</a>
+                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees."></a>
                         <a href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees.">TitleDocumentConfig</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="TocGenerator$.html" title=""></a>
-                        <a href="TocGenerator$.html" title="">TocGenerator</a>
                       </li>
               </ul>
             </div>
@@ -184,7 +200,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BasicPathTranslator</span><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BasicPathTranslator</span><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="documentTypeMatcher">documentTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -241,9 +257,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.rewrite.nav.BasicPathTranslator#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(outputSuffix:String):laika.rewrite.nav.BasicPathTranslator"></a><a id="&lt;init&gt;:BasicPathTranslator"></a>
+      <a id="&lt;init&gt;(outputSuffix:String,documentTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType):laika.rewrite.nav.BasicPathTranslator"></a><a id="&lt;init&gt;:BasicPathTranslator"></a>
       <span class="permalink">
-      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html#&lt;init&gt;(outputSuffix:String):laika.rewrite.nav.BasicPathTranslator" title="Permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html#&lt;init&gt;(outputSuffix:String,documentTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType):laika.rewrite.nav.BasicPathTranslator" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -252,7 +268,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BasicPathTranslator</span><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+        <span class="name">BasicPathTranslator</span><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="documentTypeMatcher">documentTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a></span>)</span>
       </span>
       
       
@@ -354,6 +370,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.rewrite.nav.BasicPathTranslator#documentTypeMatcher" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="documentTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType"></a><a id="documentTypeMatcher:(Path)⇒DocumentType"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html#documentTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">documentTypeMatcher</span><span class="result">: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.rewrite.nav.BasicPathTranslator">BasicPathTranslator</a> → <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -411,6 +443,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.rewrite.nav.PathTranslator#isContentPath" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isContentPath(path:laika.ast.Path):Boolean"></a><a id="isContentPath(Path):Boolean"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html#isContentPath(path:laika.ast.Path):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isContentPath</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -547,6 +595,22 @@
       
       <p class="shortcomment cmt">Translates the specified path of an input document to the corresponding output path.</p><div class="fullcomment"><div class="comment cmt"><p>Translates the specified path of an input document to the corresponding output path.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.rewrite.nav.BasicPathTranslator">BasicPathTranslator</a> → <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></dd></dl></div>
+    </li><li name="laika.rewrite.nav.PathTranslator#translate" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="translate(target:laika.ast.InternalTarget):laika.ast.InternalTarget"></a><a id="translate(InternalTarget):InternalTarget"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html#translate(target:laika.ast.InternalTarget):laika.ast.InternalTarget" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">translate</span><span class="params">(<span name="target">target: <a href="../../ast/InternalTarget.html" class="extype" name="laika.ast.InternalTarget">InternalTarget</a></span>)</span><span class="result">: <a href="../../ast/InternalTarget.html" class="extype" name="laika.ast.InternalTarget">InternalTarget</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">

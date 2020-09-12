@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BinaryInput.html" title=""></a>
-                        <a href="BinaryInput.html" title="">BinaryInput</a>
+                        <a class="object" href="BinaryInput$.html" title=""></a>
+                        <a class="class" href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree."></a>
+                        <a href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree.">BinaryInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BinaryOutput.html" title="A resource for binary output."></a>
@@ -137,6 +137,14 @@
                         <span class="separator"></span>
                         <a class="trait" href="InputReader.html" title=""></a>
                         <a href="InputReader.html" title="">InputReader</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTreeBuilder instances."></a>
+                        <a class="class" href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
+                        <a href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">InputTree</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees."></a>
+                        <a href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees.">InputTreeBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="OutputWriter.html" title=""></a>
@@ -190,10 +198,6 @@
                         <a class="class" href="TextOutput.html" title="Character output for the various renderers of this library"></a>
                         <a href="TextOutput.html" title="Character output for the various renderers of this library">TextOutput</a>
                       </li><li class="current-entities indented3">
-                        <a class="object" href="TreeInput$.html" title="Factory methods for creating InputCollections."></a>
-                        <a class="class" href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
-                        <a href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">TreeInput</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="TreeOutput.html" title="A (virtual) tree of output documents."></a>
                         <a href="TreeOutput.html" title="A (virtual) tree of output documents.">TreeOutput</a>
@@ -222,7 +226,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectoryInput</span><span class="params">(<span name="directories">directories: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentTypeMatcher.base</a></span></span></span>, <span name="fileFilter">fileFilter: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="DirectoryInput$.html">DirectoryInput.hiddenFileFilter</a></span></span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">DirectoryInput</span><span class="params">(<span name="directories">directories: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentTypeMatcher.base</a></span></span></span>, <span name="fileFilter">fileFilter: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="DirectoryInput$.html">DirectoryInput.hiddenFileFilter</a></span></span></span>, <span name="mountPoint">mountPoint: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../../index.html">Root</a></span></span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -280,9 +284,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.DirectoryInput#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(directories:Seq[java.io.File],codec:scala.io.Codec,docTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType,fileFilter:java.io.File=&gt;Boolean):laika.io.model.DirectoryInput"></a><a id="&lt;init&gt;:DirectoryInput"></a>
+      <a id="&lt;init&gt;(directories:Seq[java.io.File],codec:scala.io.Codec,docTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType,fileFilter:java.io.File=&gt;Boolean,mountPoint:laika.ast.Path):laika.io.model.DirectoryInput"></a><a id="&lt;init&gt;:DirectoryInput"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/DirectoryInput.html#&lt;init&gt;(directories:Seq[java.io.File],codec:scala.io.Codec,docTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType,fileFilter:java.io.File=&gt;Boolean):laika.io.model.DirectoryInput" title="Permalink">
+      <a href="../../../laika/io/model/DirectoryInput.html#&lt;init&gt;(directories:Seq[java.io.File],codec:scala.io.Codec,docTypeMatcher:laika.ast.Path=&gt;laika.ast.DocumentType,fileFilter:java.io.File=&gt;Boolean,mountPoint:laika.ast.Path):laika.io.model.DirectoryInput" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -291,7 +295,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectoryInput</span><span class="params">(<span name="directories">directories: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentTypeMatcher.base</a></span></span></span>, <span name="fileFilter">fileFilter: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="DirectoryInput$.html">DirectoryInput.hiddenFileFilter</a></span></span></span>)</span>
+        <span class="name">DirectoryInput</span><span class="params">(<span name="directories">directories: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentTypeMatcher.base</a></span></span></span>, <span name="fileFilter">fileFilter: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="DirectoryInput$.html">DirectoryInput.hiddenFileFilter</a></span></span></span>, <span name="mountPoint">mountPoint: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../../index.html">Root</a></span></span></span>)</span>
       </span>
       
       
@@ -530,6 +534,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.io.model.DirectoryInput#mountPoint" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mountPoint:laika.ast.Path"></a><a id="mountPoint:Path"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/DirectoryInput.html#mountPoint:laika.ast.Path" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mountPoint</span><span class="result">: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">

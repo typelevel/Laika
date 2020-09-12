@@ -113,7 +113,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A post processor for EPUB output, based on an interim HTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
@@ -171,14 +171,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BookConfig</span><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BookConfig</span><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="fonts">fonts: <span class="extype" name="scala.Seq">Seq</span>[<a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Configuration options for the generated EPUB output.</p><p>The duplication of the existing <code>BookConfig</code> instance from laika-core happens to have a different
 implicit key association with the EPUB-specific instance.
-</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">fonts</dt><dd class="cmt"><p>the fonts that should be embedded in the EPUB container</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -229,9 +229,9 @@ implicit key association with the EPUB-specific instance.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.format.EPUB.BookConfig#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(metadata:laika.ast.DocumentMetadata,navigationDepth:Option[Int],coverImage:Option[laika.ast.Path]):laika.format.EPUB.BookConfig"></a><a id="&lt;init&gt;:BookConfig"></a>
+      <a id="&lt;init&gt;(metadata:laika.ast.DocumentMetadata,navigationDepth:Option[Int],fonts:Seq[laika.theme.config.FontDefinition],coverImage:Option[laika.ast.Path]):laika.format.EPUB.BookConfig"></a><a id="&lt;init&gt;:BookConfig"></a>
       <span class="permalink">
-      <a href="../../laika/format/EPUB$$BookConfig.html#&lt;init&gt;(metadata:laika.ast.DocumentMetadata,navigationDepth:Option[Int],coverImage:Option[laika.ast.Path]):laika.format.EPUB.BookConfig" title="Permalink">
+      <a href="../../laika/format/EPUB$$BookConfig.html#&lt;init&gt;(metadata:laika.ast.DocumentMetadata,navigationDepth:Option[Int],fonts:Seq[laika.theme.config.FontDefinition],coverImage:Option[laika.ast.Path]):laika.format.EPUB.BookConfig" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -240,10 +240,10 @@ implicit key association with the EPUB-specific instance.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BookConfig</span><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">BookConfig</span><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="fonts">fonts: <span class="extype" name="scala.Seq">Seq</span>[<a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">fonts</dt><dd class="cmt"><p>the fonts that should be embedded in the EPUB container</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -412,6 +412,22 @@ implicit key association with the EPUB-specific instance.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.format.EPUB.BookConfig#fonts" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fonts:Seq[laika.theme.config.FontDefinition]"></a><a id="fonts:Seq[FontDefinition]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/EPUB$$BookConfig.html#fonts:Seq[laika.theme.config.FontDefinition]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fonts</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>]</span>
+      </span>
+      
+      
     </li><li name="laika.format.EPUB.BookConfig#formattedDate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="formattedDate:String"></a>
       <span class="permalink">

@@ -135,8 +135,8 @@
                         <a href="DocumentTypeMatcher$.html" title="The default implementations for determining the document type of the input based on its path.">DocumentTypeMatcher</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ExtensionBundle$.html" title="Provides default ExtensionBundle instances."></a>
-                        <a class="trait" href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations."></a>
-                        <a href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
+                        <a class="trait" href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations."></a>
+                        <a href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="MarkupExtensions.html" title="Bundles extensions for the text markup parsers defined for the host language to support additional syntax not recognized by the base parsers."></a>
@@ -163,8 +163,8 @@
                         <a href="Precedence.html" title="Indicates whether a parser should be applied before the base parsers of the host language (high precedence) or after them (low precedence).">Precedence</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
-                        <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
+                        <a class="trait" href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes."></a>
+                        <a href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes.">RenderOverrides</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
@@ -680,6 +680,25 @@ internally from all the individual bundles.
 it, e.g. support for raw content in the output format which might be security risk
 when entered by the user.</p><p>Another scenario is a parser that needs to supply custom renderers as its
 parsers produce AST nodes which are not known by the built-in renderers.
+</p></div></div>
+    </li><li name="laika.bundle.BundleOrigin.Theme" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Theme"></a><a id="Theme:Theme"></a>
+      <span class="permalink">
+      <a href="../../laika/bundle/BundleOrigin$$Theme$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Indicates that the extension bundle is provided by a theme." href="BundleOrigin$$Theme$.html"><span class="name">Theme</span></a><span class="result"> extends <a href="BundleOrigin.html" class="extype" name="laika.bundle.BundleOrigin">BundleOrigin</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Indicates that the extension bundle is provided by a theme.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates that the extension bundle is provided by a theme.</p><p>A theme usually focuses on pre-populating the input tree with templates,
+styles and configuration, but may in addition also decide to offer lower-level extensions
+such as custom directives or extensions to markup syntax.
 </p></div></div>
     </li><li name="laika.bundle.BundleOrigin.User" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="User"></a><a id="User:User"></a>

@@ -164,7 +164,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a>, <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a>, <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>], <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -190,7 +190,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.format.PDF"><span>PDF</span></li><li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="laika.factory.Format"><span>Format</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -224,12 +224,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configuration options for the generated EPUB output." href="PDF$$BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration options for the generated EPUB output." href="PDF$$BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="fonts">fonts: <span class="extype" name="scala.Seq">Seq</span>[<a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configuration options for the generated EPUB output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated EPUB output.</p><p>The duplication of the existing <code>BookConfig</code> instance from laika-core happens to have a different
 implicit key association with the EPUB-specific instance.
-</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the document</p></dd><dt class="param">navigationDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for</p></dd><dt class="param">fonts</dt><dd class="cmt"><p>the fonts that should be embedded in the PDF output</p></dd><dt class="param">coverImage</dt><dd class="cmt"><p>the path to the cover image within the virtual document tree</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -326,24 +326,6 @@ implicit key association with the EPUB-specific instance.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF#defaultFopFactory" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="defaultFopFactory:org.apache.fop.apps.FopFactory"></a><a id="defaultFopFactory:FopFactory"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF$.html#defaultFopFactory:org.apache.fop.apps.FopFactory" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">defaultFopFactory</span><span class="result">: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">The reusable default instance of the FOP factory
-that the PDF renderer will use if no custom
-factory is specified.</p>
     </li><li name="laika.format.PDF#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="description:String"></a>
       <span class="permalink">
@@ -359,8 +341,8 @@ factory is specified.</p>
         <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Short string describing the output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the output format for tooling and logging.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
+      <p class="shortcomment cmt">Short string describing the markup or output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the markup or output format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -541,23 +523,21 @@ factory is specified.</p>
               
         </dd></dl></div>
     </li><li name="laika.format.PDF#postProcessor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="postProcessor:laika.factory.BinaryPostProcessor"></a><a id="postProcessor:BinaryPostProcessor"></a>
+      <a id="postProcessor:laika.factory.BinaryPostProcessorBuilder"></a><a id="postProcessor:BinaryPostProcessorBuilder"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF$.html#postProcessor:laika.factory.BinaryPostProcessor" title="Permalink">
+      <a href="../../laika/format/PDF$.html#postProcessor:laika.factory.BinaryPostProcessorBuilder" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a></span>
+        <span class="name">postProcessor</span><span class="result">: <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a></span>
       </span>
       
-      <p class="shortcomment cmt">Processes the interim XSL-FO result, transforms it to PDF and writes
-it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the interim XSL-FO result, transforms it to PDF and writes
-it to the specified final output.
+      <p class="shortcomment cmt">Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="laika.format.PDF#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="prepareTree(root:laika.ast.DocumentTreeRoot):Either[Throwable,laika.ast.DocumentTreeRoot]"></a><a id="prepareTree(DocumentTreeRoot):Either[Throwable,DocumentTreeRoot]"></a>
@@ -574,8 +554,10 @@ it to the specified final output.
         <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
+      <p class="shortcomment cmt">Adds a preamble to each document for navigation and replaces the template with a fallback.</p><div class="fullcomment"><div class="comment cmt"><p>Adds a preamble to each document for navigation and replaces the template with a fallback.
 The modified tree will be used for rendering the interim XSL-FO result.
+The original template will only be applied to the concatenated result of the XSL-FO renderer
+in a later step.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a> → <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
@@ -677,28 +659,6 @@ The modified tree will be used for rendering the interim XSL-FO result.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF#withFopFactory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.format.PDF"></a><a id="withFopFactory(FopFactory):PDF"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF$.html#withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.format.PDF" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withFopFactory</span><span class="params">(<span name="fopFactory">fopFactory: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>)</span><span class="result">: <a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Allows to specify a custom FopFactory in case additional configuration
-is required for custom fonts, stemmers or other FOP features.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to specify a custom FopFactory in case additional configuration
-is required for custom fonts, stemmers or other FOP features.</p><p>A <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
-either the <code>FopFactory</code> instance itself or the resulting <code>PDF</code> renderer.
-In case you do not specify a custom factory, Laika ensures that the default
-factory is reused between renderers.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd></dl></div>
     </li><li name="laika.format.PDF.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="BookConfig"></a><a id="BookConfig:BookConfig"></a>
       <span class="permalink">
@@ -721,14 +681,38 @@ factory is reused between renderers.
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.format.PDF#withFopFactory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.format.PDF"></a><a id="withFopFactory(FopFactory):PDF"></a>
+      <span class="permalink">
+      <a href="../../laika/format/PDF$.html#withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.format.PDF" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.16.0) custom fop factories are deprecated as this would bypass laika's font registration">withFopFactory</span><span class="params">(<span name="fopFactory">fopFactory: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>)</span><span class="result">: <a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16.0)</i> custom fop factories are deprecated as this would bypass laika's font registration</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="laika.format.PDF">
               <h3>Inherited from <a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></h3>
             </div><div class="parent" name="laika.factory.TwoPhaseRenderFormat">
-              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>]</h3>
+              <h3>Inherited from <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/FOFormatter.html" class="extype" name="laika.render.FOFormatter">FOFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>]</h3>
+            </div><div class="parent" name="laika.factory.Format">
+              <h3>Inherited from <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

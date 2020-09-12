@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BinaryInput.html" title=""></a>
-                        <a href="BinaryInput.html" title="">BinaryInput</a>
+                        <a class="object" href="BinaryInput$.html" title=""></a>
+                        <a class="class" href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree."></a>
+                        <a href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree.">BinaryInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BinaryOutput.html" title="A resource for binary output."></a>
@@ -137,6 +137,14 @@
                         <span class="separator"></span>
                         <a class="trait" href="InputReader.html" title=""></a>
                         <a href="InputReader.html" title="">InputReader</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTreeBuilder instances."></a>
+                        <a class="class" href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
+                        <a href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">InputTree</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees."></a>
+                        <a href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees.">InputTreeBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="OutputWriter.html" title=""></a>
@@ -190,10 +198,6 @@
                         <a class="class" href="TextOutput.html" title="Character output for the various renderers of this library"></a>
                         <a href="TextOutput.html" title="Character output for the various renderers of this library">TextOutput</a>
                       </li><li class="current-entities indented3">
-                        <a class="object" href="TreeInput$.html" title="Factory methods for creating InputCollections."></a>
-                        <a class="class" href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
-                        <a href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">TreeInput</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="TreeOutput.html" title="A (virtual) tree of output documents."></a>
                         <a href="TreeOutput.html" title="A (virtual) tree of output documents.">TreeOutput</a>
@@ -220,7 +224,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedTreeRoot</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="tree">tree: <a href="RenderedTree.html" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a></span>, <span name="defaultTemplate">defaultTemplate: <a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.RenderedTreeRoot.F">F</span>]] = <span class="symbol">Nil</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">RenderedTreeRoot</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="tree">tree: <a href="RenderedTree.html" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a></span>, <span name="defaultTemplate">defaultTemplate: <a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="styles">styles: <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../../index.html">StyleDeclarationSet.empty</a></span></span></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.RenderedTreeRoot.F">F</span>]] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -228,7 +232,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
 it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
 </p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">defaultTemplate</dt><dd class="cmt"><p>the default template configured for the output format, which may be used by a post-processor</p></dd><dt class="param">config</dt><dd class="cmt"><p>the root configuration of the rendered tree</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates,
-                       and will potentially be embedded or copied as is to the final output, depending on the output format</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl><div class="toggleContainer block">
+                       and will potentially be embedded or copied as is to the final output, depending on the output format</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -279,9 +283,9 @@ it holds additional items like static or cover documents, which may contribute t
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.RenderedTreeRoot#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(tree:laika.io.model.RenderedTree,defaultTemplate:laika.ast.TemplateRoot,config:laika.config.Config,coverDocument:Option[laika.io.model.RenderedDocument],staticDocuments:Seq[laika.io.model.BinaryInput[F]],sourcePaths:Seq[String]):laika.io.model.RenderedTreeRoot[F]"></a><a id="&lt;init&gt;:RenderedTreeRoot[F]"></a>
+      <a id="&lt;init&gt;(tree:laika.io.model.RenderedTree,defaultTemplate:laika.ast.TemplateRoot,config:laika.config.Config,styles:laika.ast.StyleDeclarationSet,coverDocument:Option[laika.io.model.RenderedDocument],staticDocuments:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.RenderedTreeRoot[F]"></a><a id="&lt;init&gt;:RenderedTreeRoot[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/RenderedTreeRoot.html#&lt;init&gt;(tree:laika.io.model.RenderedTree,defaultTemplate:laika.ast.TemplateRoot,config:laika.config.Config,coverDocument:Option[laika.io.model.RenderedDocument],staticDocuments:Seq[laika.io.model.BinaryInput[F]],sourcePaths:Seq[String]):laika.io.model.RenderedTreeRoot[F]" title="Permalink">
+      <a href="../../../laika/io/model/RenderedTreeRoot.html#&lt;init&gt;(tree:laika.io.model.RenderedTree,defaultTemplate:laika.ast.TemplateRoot,config:laika.config.Config,styles:laika.ast.StyleDeclarationSet,coverDocument:Option[laika.io.model.RenderedDocument],staticDocuments:Seq[laika.io.model.BinaryInput[F]]):laika.io.model.RenderedTreeRoot[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -290,11 +294,11 @@ it holds additional items like static or cover documents, which may contribute t
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderedTreeRoot</span><span class="params">(<span name="tree">tree: <a href="RenderedTree.html" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a></span>, <span name="defaultTemplate">defaultTemplate: <a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.RenderedTreeRoot.F">F</span>]] = <span class="symbol">Nil</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span>
+        <span class="name">RenderedTreeRoot</span><span class="params">(<span name="tree">tree: <a href="RenderedTree.html" class="extype" name="laika.io.model.RenderedTree">RenderedTree</a></span>, <span name="defaultTemplate">defaultTemplate: <a href="../../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="styles">styles: <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../../index.html">StyleDeclarationSet.empty</a></span></span></span>, <span name="coverDocument">coverDocument: <span class="extype" name="scala.Option">Option</span>[<a href="RenderedDocument.html" class="extype" name="laika.io.model.RenderedDocument">RenderedDocument</a>] = <span class="symbol">None</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.RenderedTreeRoot.F">F</span>]] = <span class="symbol">Nil</span></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the recursive structure of documents, usually obtained from parsing text markup</p></dd><dt class="param">defaultTemplate</dt><dd class="cmt"><p>the default template configured for the output format, which may be used by a post-processor</p></dd><dt class="param">config</dt><dd class="cmt"><p>the root configuration of the rendered tree</p></dd><dt class="param">coverDocument</dt><dd class="cmt"><p>the cover document (usually used with e-book formats like EPUB and PDF)</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>the paths of documents that were neither identified as text markup, config or templates,
-                       and will potentially be embedded or copied as is to the final output, depending on the output format</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this ast does not originate from the file system</p></dd></dl></div>
+                       and will potentially be embedded or copied as is to the final output, depending on the output format</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -584,22 +588,6 @@ it holds additional items like static or cover documents, which may contribute t
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.model.RenderedTreeRoot#sourcePaths" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sourcePaths:Seq[String]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/model/RenderedTreeRoot.html#sourcePaths:Seq[String]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">sourcePaths</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      
-      
     </li><li name="laika.io.model.RenderedTreeRoot#staticDocuments" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="staticDocuments:Seq[laika.io.model.BinaryInput[F]]"></a><a id="staticDocuments:Seq[BinaryInput[F]]"></a>
       <span class="permalink">
@@ -613,6 +601,22 @@ it holds additional items like static or cover documents, which may contribute t
       </span>
       <span class="symbol">
         <span class="name">staticDocuments</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.io.model.RenderedTreeRoot.F">F</span>]]</span>
+      </span>
+      
+      
+    </li><li name="laika.io.model.RenderedTreeRoot#styles" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="styles:laika.ast.StyleDeclarationSet"></a><a id="styles:StyleDeclarationSet"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/RenderedTreeRoot.html#styles:laika.ast.StyleDeclarationSet" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styles</span><span class="result">: <a href="../../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>
       </span>
       
       

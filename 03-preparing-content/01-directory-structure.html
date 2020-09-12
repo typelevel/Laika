@@ -3,104 +3,136 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-
-    <title>Laika</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
-    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
-
-    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link rel="stylesheet" href="../icons/icofont.min.css">
-    <link href="../css/container.css" rel="stylesheet">
-    <link href="../css/content.css" rel="stylesheet">
-    <link href="../css/nav.css" rel="stylesheet">
-    <link href="../css/code.css" rel="stylesheet">
-
-    <script src="../js/theme.js"></script>
+    <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+    <title>Directory Structure</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
     <script> /* for avoiding page load transitions */ </script>
-
   </head>
 
   <body>
 
+    <header id="top-bar">
+  
+      <a id="nav-icon">
+        <i class="icofont-laika">&#xefa2;</i>
+      </a>
+  
+      <a href="../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
     <nav id="sidebar">
 
-      <a id="close-nav-icon">
-        <i class="icofont-close-circled icofont-xlg"></i>
-      </a>
-
-      <ul class="nav nav-list">
-
-        
-        <li><a href="../table-of-contents.html">Table of Contents</a></li>
-        <li class="nav-header">About Laika</li>
-        <li><a href="../01-about-laika/01-features.html">Features</a></li>
-        <li><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
-        <li class="nav-header">Running Laika</li>
-        <li><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
-        <li><a href="../02-running-laika/02-library-api.html">Library API</a></li>
-        <li><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
-        <li class="nav-header">Preparing Content</li>
-        <li class="active"><a href="#">Directory Structure</a></li>
-        <li><a href="02-navigation.html">Navigation</a></li>
-        <li><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
-        <li><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
-        <li class="nav-header">Customizing Laika</li>
-        <li><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
-        <li><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
-        <li><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
-        <li><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
-        <li><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
-        <li class="nav-header">Extending Laika</li>
-        <li><a href="../05-extending-laika/01-overview.html">Overview</a></li>
-        <li><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
-        <li><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
-        <li><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
-        <li><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
-        <li class="nav-header">Sub-Modules</li>
-        <li><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
-        <li><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
-        <li class="nav-header">Reference</li>
-        <li><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
-        <li><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
-        <li><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
-        <li><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
-        <li><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
-        
-        <li class="nav-header">Project Links</li>
-        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-        <li><a href="../api/laika/api/">API Documentation</a></li>
-        <li><a href="http://planet42.org/">Demo App</a></li>
-        
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li class="level2"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2 active"><a href="#">Directory Structure</a></li>
+        <li class="level2"><a href="02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+        <li class="level2"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+        <li class="level2"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2"><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
       </ul>
-
+      
     </nav>
 
     <div id="container">
 
-      <a id="open-nav-icon">
-        <i class="icofont-navigation-menu icofont-xlg"></i>
-      </a>
+      <nav id="page-nav">
+        <p class="header"><a href="#">Directory Structure</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#document-types">Document Types</a></li>
+          <li class="level2"><a href="#markup-files">Markup Files</a></li>
+          <li class="level2"><a href="#title-documents">Title Documents</a></li>
+          <li class="level2"><a href="#configuration-files">Configuration Files</a></li>
+          <li class="level2"><a href="#template-files">Template Files</a></li>
+          <li class="level2"><a href="#static-files">Static Files</a></li>
+          <li class="level1"><a href="#auto-generated-navigation">Auto-Generated Navigation</a></li>
+          <li class="level1"><a href="#virtual-tree-abstraction">Virtual Tree Abstraction</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/03-preparing-content/01-directory-structure.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
 
       <main class="content">
 
-        <div class="page-header">
         <h1 id="directory-structure" class="title">Directory Structure</h1>
-        </div>
         <p>Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.</p>
-        <p>When you are using the sbt plugin or the parallel transformer from the library API that accepts directories as input,
+        <p>When you are using the sbt plugin or the tree transformer from the library API that accepts directories as input,
         Laika supports additional file types and navigation features on top of just parsing text markup.
         This section describes the supported <a href="#document-types">Document Types</a>, how <a href="#auto-generated-navigation">Auto-Generated Navigation</a> works with
         directory input and how the <a href="#virtual-tree-abstraction">Virtual Tree Abstraction</a> decouples the logic from the file system. </p>
         <p>This set of functionality is not available when you are using a transformer or parser from the library API
         that expects a single input (file, stream or string) for processing.</p>
         
-        <h2 id="document-types" class="section">Document Types</h2>
+        <h2 id="document-types" class="section">Document Types<a class="anchor-link right" href="#document-types"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>The library distinguishes between the following file types:</p>
         
-        <h3 id="markup-files" class="section">Markup Files</h3>
+        <h3 id="markup-files" class="section">Markup Files<a class="anchor-link right" href="#markup-files"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Files with the extensions <code>.md</code>, <code>.markdown</code> or <code>.rst</code> will be parsed and rendered 
         to the target in the same directory structure and with the same file names apart from the suffix,
         which will be replaced depending on the output format (e.g. <code>.html</code>).</p>
@@ -119,33 +151,41 @@
           or your own, custom implementations.</li>
         </ul>
         
-        <h3 id="title-documents" class="section">Title Documents</h3>
+        <h3 id="title-documents" class="section">Title Documents<a class="anchor-link right" href="#title-documents"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Each directory can contain an optional title document. 
         It is recognized by the file name pattern <code>README.&lt;suffix&gt;</code>, e.g. <code>README.md</code>.
         When rendering the name will change to <code>index.&lt;suffix&gt;</code>, e.g. <code>index.html</code>.</p>
         <p>These defaults have been chosen so that markup files appear below directory navigation on GitHub
         and rendered HTML files can serve as index pages. 
         The names can be overridden in Laika&#39;s global configuration (you need to omit the suffix, as it&#39;ll work with all formats):</p>
-        <p><strong>sbt plugin</strong></p>
-        <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
   .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LaikaKeys</span><span>.</span><span class="identifier">titleDocuments</span><span>.</span><span class="identifier">inputName</span><span>, </span><span class="string-literal">&quot;title&quot;</span><span>)
   .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LaikaKeys</span><span>.</span><span class="identifier">titleDocuments</span><span>.</span><span class="identifier">outputName</span><span>, </span><span class="string-literal">&quot;title&quot;</span><span>)</span></code></pre>
-        <p><strong>Library API</strong></p>
-        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
   .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LaikaKeys</span><span>.</span><span class="identifier">titleDocuments</span><span>.</span><span class="identifier">inputName</span><span>, </span><span class="string-literal">&quot;title&quot;</span><span>)
   .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LaikaKeys</span><span>.</span><span class="identifier">titleDocuments</span><span>.</span><span class="identifier">outputName</span><span>, </span><span class="string-literal">&quot;title&quot;</span><span>)
   .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
         <p>Title Documents will also render on a level above the other chapter documents in the navigation,
         (see <a href="#auto-generated-navigation">Auto-Generated Navigation</a> for details) and will be linked in <a href="02-navigation.html#breadcrumbs">Breadcrumbs</a> components.</p>
         
-        <h3 id="configuration-files" class="section">Configuration Files</h3>
+        <h3 id="configuration-files" class="section">Configuration Files<a class="anchor-link right" href="#configuration-files"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Each directory can contain an optional <code>directory.conf</code> file for configuring the directory (and its sub-directories).
         The expected format of the document is HOCON.</p>
         <p>Amongst the most common things you would configure in this kind of file are titles and navigation order:</p>
-        <pre><code class="nohighlight"><span class="attribute-name">laika</span><span> {
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika</span><span> {
 
   </span><span class="attribute-name">title</span><span> = </span><span class="string-literal">Fruits</span><span>
 
@@ -161,18 +201,16 @@
         They would appear in this order in tables of contents and the same order would be applied when autonumbering.</p>
         <p>The default ordering, when not provided explicitly, is alphabetical.</p>
         
-        <h3 id="template-files" class="section">Template Files</h3>
+        <h3 id="template-files" class="section">Template Files<a class="anchor-link right" href="#template-files"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>You can provide a default template per directory with the name <code>default.template.&lt;suffix&gt;</code>,
         where the suffix matches the output format (e.g. <code>.html</code>). 
-        They will also be applied to sub-directories, unless overridden. </p>
+        They will also be applied to sub-directories, unless overridden. 
+        Default templates in one of your input directories always override default template provided by themes.</p>
         <p>Additionally you can add templates with the name pattern <code>*.template.&lt;suffix&gt;</code>, which will only
-        be applied when a markup document explicitly refers to them in its configuration header.
-        (The upcoming 0.16 release will introduce Themes which will provide default templates out of the box. 
-        Until then you need to provide at least one default template in the root directory unless you are fine with the
-        very basic fallback template.)</p>
+        be applied when a markup document explicitly refers to them in its configuration header.</p>
         <p>For more details on the template engine, see the chapter <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a>.</p>
         
-        <h3 id="static-files" class="section">Static Files</h3>
+        <h3 id="static-files" class="section">Static Files<a class="anchor-link right" href="#static-files"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>All other files, like CSS, JavaScript, images, etc., will be handled depending on the output format:</p>
         <ul>
           <li>
@@ -191,7 +229,7 @@
           </li>
         </ul>
         
-        <h2 id="auto-generated-navigation" class="section">Auto-Generated Navigation</h2>
+        <h2 id="auto-generated-navigation" class="section">Auto-Generated Navigation<a class="anchor-link right" href="#auto-generated-navigation"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>The directory structure in a Laika project is not only a way to organize files in a workspace,
         the structure will also be used by various features of the library that auto-generate navigation structures. </p>
         <ul>
@@ -205,24 +243,29 @@
           <li>
             <p><strong>Web Sites</strong>: For HTML output you can use directives like <a href="02-navigation.html#the-navigationtree-directive">The navigationTree Directive</a> in templates to auto-generate
             a navigation structure from the root of your input tree or any other specific sub-node.
-            With the next release (0.16) the library will also contain default themes that provide basic navigation
-            out of the box.</p>
+            The default Helium theme also provides a main navigation tree in the left sidebar and page navigation on the 
+            right out of the box.</p>
           </li>
         </ul>
         <p>The presence of title documents would determine how exactly chapter title are rendered in the navigation structure.</p>
+        
         <p><strong>Example for a structure with title documents</strong> </p>
-        <p><img src="../img/dir-with-title-docs.png" alt="Input Directory with Title Documents" width="680"></p>
+        <div class="default-image-block">
+          <img src="../img/dir-with-title-docs.png" alt="Input Directory with Title Documents" width="680" height="405">
+        </div>
         <p>In this example each directory has a title document. 
         The title of that document is taken from the first header.
         In the navigation tree on the right it is rendered one layer above the other documents in the same directory,
         and the title is linked to the document.</p>
         <p><strong>Example for a structure without title documents</strong> </p>
-        <p><img src="../img/dir-without-title-docs.png" alt="Input Directory without Title Documents" width="680"></p>
+        <div class="default-image-block">
+          <img src="../img/dir-without-title-docs.png" alt="Input Directory without Title Documents" width="680" height="405">
+        </div>
         <p>In this example there are no title documents and chapter titles are taken from the file <code>directory.conf</code>
         in each directory.
         In the navigation tree on the right these titles now only serve as separators and are not linked to any document.</p>
         
-        <h2 id="virtual-tree-abstraction" class="section">Virtual Tree Abstraction</h2>
+        <h2 id="virtual-tree-abstraction" class="section">Virtual Tree Abstraction<a class="anchor-link right" href="#virtual-tree-abstraction"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>While in most scenarios a single directory to provide all input files is probably sufficient, 
         Laika&#39;s functionality is not tied to the file system in any way, but instead builds on top of a
         virtual tree abstraction.</p>
@@ -230,7 +273,9 @@
         or generate additional files programmatically and &quot;mount&quot; them at a specific point in the virtual tree.</p>
         <p>When merged directories contain sub-folders with the same name, those will be merged recursively. 
         Only files with the same name in the same folder are treated as errors.</p>
-        <p><img src="../img/merged-directories.png" alt="Merging Directories" width="564"></p>
+        <div class="medium-image">
+          <img src="../img/merged-directories.png" alt="Merging Directories" width="564" height="718">
+        </div>
         <p>In the example above two directories get merged into a single virtual root (<code>/</code>).
         The <code>images</code> directory exists in both sources, so it will be merged recursively.</p>
         <p>The configuration mechanism for specifying multiple input directories is different for the 
@@ -239,9 +284,9 @@
         <code>laika.ast.RelativePath</code>. These types are used frequently throughout the classes forming the document AST.
         All internal links are expressed with with these virtual paths and not with file system paths.</p>
         
-        
+
       </main>
-      
+
     </div>
 
   </body>

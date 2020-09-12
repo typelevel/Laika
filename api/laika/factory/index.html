@@ -203,6 +203,14 @@
                         <a href="BinaryPostProcessor.html" title="Post processor for the result output of a renderer.">BinaryPostProcessor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="BinaryPostProcessorBuilder.html" title=""></a>
+                        <a href="BinaryPostProcessorBuilder.html" title="">BinaryPostProcessorBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="Format.html" title="Base trait for all types of input and output formats."></a>
+                        <a href="Format.html" title="Base trait for all types of input and output formats.">Format</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format."></a>
                         <a href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format.">MarkupFormat</a>
                       </li><li class="current-entities indented2">
@@ -230,6 +238,22 @@
       </span>
       <span class="symbol">
         <a title="" href="../format/index.html"><span class="name">format</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.helium" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="helium"></a><a id="helium:helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../helium/index.html"><span class="name">helium</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
@@ -329,6 +353,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.theme" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="theme"></a><a id="theme:theme"></a>
+      <span class="permalink">
+      <a href="../../laika/theme/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../theme/index.html"><span class="name">theme</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li name="laika.time" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="time"></a><a id="time:time"></a>
       <span class="permalink">
@@ -403,8 +443,40 @@
  Useful for scenarios where interim formats will be generated
  (e.g. XSL-FO for a PDF target or XHTML for an EPUB target).
 </p></div></div>
+    </li><li name="laika.factory.BinaryPostProcessorBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BinaryPostProcessorBuilderextendsAnyRef"></a><a id="BinaryPostProcessorBuilder:BinaryPostProcessorBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/factory/BinaryPostProcessorBuilder.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BinaryPostProcessorBuilder.html"><span class="name">BinaryPostProcessorBuilder</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      
+    </li><li name="laika.factory.Format" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="FormatextendsAnyRef"></a><a id="Format:Format"></a>
+      <span class="permalink">
+      <a href="../../laika/factory/Format.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Base trait for all types of input and output formats." href="Format.html"><span class="name">Format</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Base trait for all types of input and output formats.</p>
     </li><li name="laika.factory.MarkupFormat" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="MarkupFormatextendsAnyRef"></a><a id="MarkupFormat:MarkupFormat"></a>
+      <a id="MarkupFormatextendsFormat"></a><a id="MarkupFormat:MarkupFormat"></a>
       <span class="permalink">
       <a href="../../laika/factory/MarkupFormat.html" title="Permalink">
         <i class="material-icons"></i>
@@ -415,7 +487,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Responsible for creating parser instances for a specific markup format." href="MarkupFormat.html"><span class="name">MarkupFormat</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Responsible for creating parser instances for a specific markup format." href="MarkupFormat.html"><span class="name">MarkupFormat</span></a><span class="result"> extends <a href="Format.html" class="extype" name="laika.factory.Format">Format</a></span>
       </span>
       
       <p class="shortcomment cmt">Responsible for creating parser instances for a specific markup format.</p><div class="fullcomment"><div class="comment cmt"><p>Responsible for creating parser instances for a specific markup format.
@@ -439,7 +511,7 @@
       <p class="shortcomment cmt">Provides the context for a single render operation.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the context for a single render operation.
 </p></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (virtual) path the output will be rendered to</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">config</dt><dd class="cmt"><p>additional configuration for the renderer</p></dd></dl></div>
     </li><li name="laika.factory.RenderFormat" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="RenderFormat[FMT]extendsAnyRef"></a><a id="RenderFormat[FMT]:RenderFormat[FMT]"></a>
+      <a id="RenderFormat[FMT]extendsFormat"></a><a id="RenderFormat[FMT]:RenderFormat[FMT]"></a>
       <span class="permalink">
       <a href="../../laika/factory/RenderFormat.html" title="Permalink">
         <i class="material-icons"></i>
@@ -450,7 +522,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Responsible for creating renderer instances for a specific output format." href="RenderFormat.html"><span class="name">RenderFormat</span></a><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Responsible for creating renderer instances for a specific output format." href="RenderFormat.html"><span class="name">RenderFormat</span></a><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="result"> extends <a href="Format.html" class="extype" name="laika.factory.Format">Format</a></span>
       </span>
       
       <p class="shortcomment cmt">Responsible for creating renderer instances for a specific output format.</p><div class="fullcomment"><div class="comment cmt"><p>Responsible for creating renderer instances for a specific output format.
@@ -460,7 +532,7 @@
  for custom renderer functions and which is specific to the output format.
 </p></div></div>
     </li><li name="laika.factory.TwoPhaseRenderFormat" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="TwoPhaseRenderFormat[FMT,PP]extendsAnyRef"></a><a id="TwoPhaseRenderFormat[FMT,PP]:TwoPhaseRenderFormat[FMT,PP]"></a>
+      <a id="TwoPhaseRenderFormat[FMT,PP]extendsFormat"></a><a id="TwoPhaseRenderFormat[FMT,PP]:TwoPhaseRenderFormat[FMT,PP]"></a>
       <span class="permalink">
       <a href="../../laika/factory/TwoPhaseRenderFormat.html" title="Permalink">
         <i class="material-icons"></i>
@@ -471,7 +543,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Render format based on a render phase for an interim result and a post processor." href="TwoPhaseRenderFormat.html"><span class="name">TwoPhaseRenderFormat</span></a><span class="tparams">[<span name="FMT">FMT</span>, <span name="PP">PP</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Render format based on a render phase for an interim result and a post processor." href="TwoPhaseRenderFormat.html"><span class="name">TwoPhaseRenderFormat</span></a><span class="tparams">[<span name="FMT">FMT</span>, <span name="PP">PP</span>]</span><span class="result"> extends <a href="Format.html" class="extype" name="laika.factory.Format">Format</a></span>
       </span>
       
       <p class="shortcomment cmt">Render format based on a render phase for an interim result and a post processor.</p><div class="fullcomment"><div class="comment cmt"><p>Render format based on a render phase for an interim result and a post processor.</p><p> Examples for such a format are PDF (with XSL-FO as the interim format)

@@ -142,9 +142,13 @@
                         <a class="class" href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path."></a>
                         <a href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
                       </li><li class="current-entities indented3">
-                        <a class="object" href="BookConfig$.html" title=""></a>
-                        <a class="class" href="BookConfig.html" title=""></a>
-                        <a href="BookConfig.html" title="">BookConfig</a>
+                        <a class="object" href="ChoiceConfig$.html" title=""></a>
+                        <a class="class" href="ChoiceConfig.html" title="Configuration for a single choice within a selection."></a>
+                        <a href="ChoiceConfig.html" title="Configuration for a single choice within a selection.">ChoiceConfig</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Classifiers.html" title=""></a>
+                        <a href="Classifiers.html" title="">Classifiers</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="ConfigurablePathTranslator.html" title="Translates paths of input documents to the corresponding output path, based on a configuration instance."></a>
@@ -153,6 +157,14 @@
                         <span class="separator"></span>
                         <a class="class" href="ConfigurationException.html" title=""></a>
                         <a href="ConfigurationException.html" title="">ConfigurationException</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="CoverImage$.html" title=""></a>
+                        <a class="class" href="CoverImage.html" title="Configuration for a cover image for e-books (EPUB or PDF)."></a>
+                        <a href="CoverImage.html" title="Configuration for a cover image for e-books (EPUB or PDF).">CoverImage</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="CoverImages$.html" title=""></a>
+                        <a class="class" href="CoverImages.html" title=""></a>
+                        <a href="CoverImages.html" title="">CoverImages</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
@@ -170,13 +182,17 @@
                         <a class="object" href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level."></a>
                         <a href="SectionBuilder$.html" title="Rewrite rules responsible for building the section structure of a document based on the header elements it contains and their level.">SectionBuilder</a>
                       </li><li class="current-entities indented3">
+                        <a class="object" href="SelectionConfig$.html" title=""></a>
+                        <a class="class" href="SelectionConfig.html" title="Configuration for a single kind of selection and its choices available for the user."></a>
+                        <a href="SelectionConfig.html" title="Configuration for a single kind of selection and its choices available for the user.">SelectionConfig</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Selections$.html" title="Companion for creating selection config instances that can be passed to Laika configuration and builders that produce configuration of all possible combinations of @:select directives."></a>
+                        <a class="class" href="Selections.html" title="Groups configuration for multiple @:select directives."></a>
+                        <a href="Selections.html" title="Groups configuration for multiple @:select directives.">Selections</a>
+                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees."></a>
                         <a href="TitleDocumentConfig$.html" title="Configuration for the names of title documents in the input and output trees.">TitleDocumentConfig</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="TocGenerator$.html" title=""></a>
-                        <a href="TocGenerator$.html" title="">TocGenerator</a>
                       </li>
               </ul>
             </div>
@@ -268,14 +284,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Basic path translator implementation that only replaces the suffix of the path." href="BasicPathTranslator.html"><span class="name">BasicPathTranslator</span></a><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Basic path translator implementation that only replaces the suffix of the path." href="BasicPathTranslator.html"><span class="name">BasicPathTranslator</span></a><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="documentTypeMatcher">documentTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Basic path translator implementation that only replaces the suffix of the path.</p>
-    </li><li name="laika.rewrite.nav.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookConfigextendsProductwithSerializable"></a><a id="BookConfig:BookConfig"></a>
+    </li><li name="laika.rewrite.nav.ChoiceConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ChoiceConfigextendsProductwithSerializable"></a><a id="ChoiceConfig:ChoiceConfig"></a>
       <span class="permalink">
-      <a href="../../../laika/rewrite/nav/BookConfig.html" title="Permalink">
+      <a href="../../../laika/rewrite/nav/ChoiceConfig.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -284,10 +300,27 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="BookConfig.html"><span class="name">BookConfig</span></a><span class="params">(<span name="metadata">metadata: <a href="../../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a> = <span class="symbol"><span class="name"><a href="../../index.html">DocumentMetadata()</a></span></span></span>, <span name="navigationDepth">navigationDepth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">None</span></span>, <span name="coverImage">coverImage: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration for a single choice within a selection." href="ChoiceConfig.html"><span class="name">ChoiceConfig</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="selected">selected: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
-      <p class="shortcomment cmt"></p>
+      <p class="shortcomment cmt">Configuration for a single choice within a selection.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration for a single choice within a selection.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the selection as used in text markup, e.g. <code>@:choice(name)</code>.</p></dd><dt class="param">label</dt><dd class="cmt"><p>the label to be used on tabs or on download pages describing this choice</p></dd><dt class="param">selected</dt><dd class="cmt"><p>indicates whether this choice is one of the selected choices in the current render operation</p></dd></dl></div>
+    </li><li name="laika.rewrite.nav.Classifiers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClassifiersextendsProductwithSerializable"></a><a id="Classifiers:Classifiers"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/Classifiers.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Classifiers.html"><span class="name">Classifiers</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.rewrite.nav.ConfigurablePathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ConfigurablePathTranslatorextendsPathTranslatorwithProductwithSerializable"></a><a id="ConfigurablePathTranslator:ConfigurablePathTranslator"></a>
       <span class="permalink">
@@ -300,7 +333,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Translates paths of input documents to the corresponding output path, based on a configuration instance." href="ConfigurablePathTranslator.html"><span class="name">ConfigurablePathTranslator</span></a><span class="params">(<span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Translates paths of input documents to the corresponding output path, based on a configuration instance." href="ConfigurablePathTranslator.html"><span class="name">ConfigurablePathTranslator</span></a><span class="params">(<span name="config">config: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="documentTypeMatcher">documentTypeMatcher: (<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>) ⇒ <a href="../../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Translates paths of input documents to the corresponding output path, based on a configuration instance.</p>
@@ -317,6 +350,42 @@
       </span>
       <span class="symbol">
         <a title="" href="ConfigurationException.html"><span class="name">ConfigurationException</span></a><span class="params">(<span name="msg">msg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rewrite.nav.CoverImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="CoverImageextendsProductwithSerializable"></a><a id="CoverImage:CoverImage"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/CoverImage.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Configuration for a cover image for e-books (EPUB or PDF)." href="CoverImage.html"><span class="name">CoverImage</span></a><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="classifier">classifier: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configuration for a cover image for e-books (EPUB or PDF).</p><div class="fullcomment"><div class="comment cmt"><p>Configuration for a cover image for e-books (EPUB or PDF).</p><p>The optional classifier can be used if the <code>@:select</code> directive
+is used to produce multiple e-books with slightly different content.
+The classifier would refer to the name of the configured choice,
+or in case of multiple choices, to the combination of their names concatenated with <code>-</code>.
+</p></div></div>
+    </li><li name="laika.rewrite.nav.CoverImages" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CoverImagesextendsProductwithSerializable"></a><a id="CoverImages:CoverImages"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/CoverImages.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="CoverImages.html"><span class="name">CoverImages</span></a><span class="params">(<span name="default">default: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>, <span name="classified">classified: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -356,6 +425,50 @@ Further translations are allowed to happen based on user configuration.
       </span>
       
       
+    </li><li name="laika.rewrite.nav.SelectionConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SelectionConfigextendsProductwithSerializable"></a><a id="SelectionConfig:SelectionConfig"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/SelectionConfig.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Configuration for a single kind of selection and its choices available for the user." href="SelectionConfig.html"><span class="name">SelectionConfig</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="choices">choices: <span class="extype" name="cats.data.NonEmptyChain">NonEmptyChain</span>[<a href="ChoiceConfig.html" class="extype" name="laika.rewrite.nav.ChoiceConfig">ChoiceConfig</a>]</span>, <span name="separateEbooks">separateEbooks: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configuration for a single kind of selection and its choices available for the user.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration for a single kind of selection and its choices available for the user.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the selection as used in text markup, e.g. <code>@:select(name)</code>.</p></dd><dt class="param">choices</dt><dd class="cmt"><p>the configuration for one or more choices that are available in each of the directives</p></dd><dt class="param">separateEbooks</dt><dd class="cmt"><p>whether the selection should render all its choices in the same output or produce
+                      separate e-books where in each of them only one of the choice is displayed.
+                      This way separate e-books for Scala vs. Java code samples or sbt vs. Maven build
+                      examples can be produced.
+                      Keep in mind that multiple selections having this property set to true would result
+                      in the cartesian product of available e-book versions,
+                      it is therefore unusual to have more than one or two.</p></dd></dl></div>
+    </li><li name="laika.rewrite.nav.Selections" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SelectionsextendsProductwithSerializable"></a><a id="Selections:Selections"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/Selections.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Groups configuration for multiple @:select directives." href="Selections.html"><span class="name">Selections</span></a><span class="params">(<span name="selections">selections: <span class="extype" name="scala.Seq">Seq</span>[<a href="SelectionConfig.html" class="extype" name="laika.rewrite.nav.SelectionConfig">SelectionConfig</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Groups configuration for multiple @:select directives.</p><div class="fullcomment"><div class="comment cmt"><p>Groups configuration for multiple @:select directives.</p><p>The <code>@:select</code> directive is a special directive that allows to create alternative versions of the same documentation,
+for example one with Scala code examples and one with Java.
+Or as in the case of Laika's own documentation, one showing configuration setup with sbt and the other
+through the library API.</p><p>When using the default Helium theme these alternatives will be rendered as tabs in the website.</p><p>While for EPUB and PDF output it triggers the generation of separate books for each of the alternatives
+and offers them on the download page to cater for the fact that tabs do not work well on paper.
+</p></div></div>
     </li></ol>
             </div>
 
@@ -380,10 +493,10 @@ Further translations are allowed to happen based on user configuration.
       </span>
       
       
-    </li><li name="laika.rewrite.nav.BookConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookConfig"></a><a id="BookConfig:BookConfig"></a>
+    </li><li name="laika.rewrite.nav.ChoiceConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ChoiceConfig"></a><a id="ChoiceConfig:ChoiceConfig"></a>
       <span class="permalink">
-      <a href="../../../laika/rewrite/nav/BookConfig$.html" title="Permalink">
+      <a href="../../../laika/rewrite/nav/ChoiceConfig$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -392,7 +505,39 @@ Further translations are allowed to happen based on user configuration.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="" href="BookConfig$.html"><span class="name">BookConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="ChoiceConfig$.html"><span class="name">ChoiceConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rewrite.nav.CoverImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CoverImage"></a><a id="CoverImage:CoverImage"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/CoverImage$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="CoverImage$.html"><span class="name">CoverImage</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rewrite.nav.CoverImages" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CoverImages"></a><a id="CoverImages:CoverImages"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/CoverImages$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="CoverImages$.html"><span class="name">CoverImages</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
@@ -449,6 +594,41 @@ Further translations are allowed to happen based on user configuration.
       <p class="shortcomment cmt">Rewrite rules responsible for building the section structure
  of a document based on the header elements it contains and
  their level.</p>
+    </li><li name="laika.rewrite.nav.SelectionConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SelectionConfig"></a><a id="SelectionConfig:SelectionConfig"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/SelectionConfig$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="SelectionConfig$.html"><span class="name">SelectionConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.rewrite.nav.Selections" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Selections"></a><a id="Selections:Selections"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/Selections$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Companion for creating selection config instances that can be passed to Laika configuration and builders that produce configuration of all possible combinations of @:select directives." href="Selections$.html"><span class="name">Selections</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Companion for creating selection config instances that can be passed to Laika configuration
+and builders that produce configuration of all possible combinations of @:select directives.</p><div class="fullcomment"><div class="comment cmt"><p>Companion for creating selection config instances that can be passed to Laika configuration
+and builders that produce configuration of all possible combinations of @:select directives.</p><p>See the documentation for the <code>@:select</code> directive in the manual for the full context of this feature.
+</p></div></div>
     </li><li name="laika.rewrite.nav.TitleDocumentConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TitleDocumentConfig"></a><a id="TitleDocumentConfig:TitleDocumentConfig"></a>
       <span class="permalink">
@@ -471,29 +651,7 @@ Further translations are allowed to happen based on user configuration.
 
         
 
-        <div class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="laika.rewrite.nav.TocGenerator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TocGenerator"></a><a id="TocGenerator:TocGenerator"></a>
-      <span class="permalink">
-      <a href="../../../laika/rewrite/nav/TocGenerator$.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="TocGenerator$.html"><span class="name deprecated" title="Deprecated: (Since version 0.15.0) use NavigationBuilderConfig instead">TocGenerator</span></a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> use NavigationBuilderConfig instead</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">

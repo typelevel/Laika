@@ -107,6 +107,14 @@
                         <a href="" title="Post processor for the result output of a renderer.">BinaryPostProcessor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="BinaryPostProcessorBuilder.html" title=""></a>
+                        <a href="BinaryPostProcessorBuilder.html" title="">BinaryPostProcessorBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="Format.html" title="Base trait for all types of input and output formats."></a>
+                        <a href="Format.html" title="Base trait for all types of input and output formats.">Format</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format."></a>
                         <a href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format.">MarkupFormat</a>
                       </li><li class="current-entities indented2">
@@ -206,10 +214,10 @@
 
         <div class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="laika.factory.BinaryPostProcessor#process" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="process[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="process[F[_]](RenderedTreeRoot[F],BinaryOutput[F])(Async[F],Runtime[F]):F[Unit]"></a>
+              <ol><li name="laika.factory.BinaryPostProcessor#process" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="process[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F],config:laika.api.builder.OperationConfig)(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="process[F[_]](RenderedTreeRoot[F],BinaryOutput[F],OperationConfig)(Sync[F],Runtime[F]):F[Unit]"></a>
       <span class="permalink">
-      <a href="../../laika/factory/BinaryPostProcessor.html#process[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
+      <a href="../../laika/factory/BinaryPostProcessor.html#process[F[_]](result:laika.io.model.RenderedTreeRoot[F],output:laika.io.model.BinaryOutput[F],config:laika.api.builder.OperationConfig)(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -218,10 +226,11 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">process</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>, <span name="output">output: <a href="../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>, <span name="arg1">arg1: <a href="../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">process</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>, <span name="output">output: <a href="../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>, <span name="config">config: <a href="../api/builder/OperationConfig.html" class="extype" name="laika.api.builder.OperationConfig">OperationConfig</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>, <span name="arg1">arg1: <a href="../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.factory.BinaryPostProcessor.process.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Processes the interim render result and writes it to the specified final output.</p>
+      <p class="shortcomment cmt">Processes the interim render result and writes it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the interim render result and writes it to the specified final output.
+</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the result of the renderer for the interim format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the binary output to render to</p></dd><dt class="param">config</dt><dd class="cmt"><p>the operation config that had been used for the interim result</p></dd></dl></div>
     </li></ol>
             </div>
 

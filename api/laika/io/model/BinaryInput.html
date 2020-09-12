@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="" title=""></a>
-                        <a href="" title="">BinaryInput</a>
+                        <a class="object" href="BinaryInput$.html" title=""></a>
+                        <a class="class" href="" title="A binary input stream and its virtual path within the input tree."></a>
+                        <a href="" title="A binary input stream and its virtual path within the input tree.">BinaryInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BinaryOutput.html" title="A resource for binary output."></a>
@@ -137,6 +137,14 @@
                         <span class="separator"></span>
                         <a class="trait" href="InputReader.html" title=""></a>
                         <a href="InputReader.html" title="">InputReader</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTreeBuilder instances."></a>
+                        <a class="class" href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
+                        <a href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">InputTree</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees."></a>
+                        <a href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees.">InputTreeBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="OutputWriter.html" title=""></a>
@@ -190,10 +198,6 @@
                         <a class="class" href="TextOutput.html" title="Character output for the various renderers of this library"></a>
                         <a href="TextOutput.html" title="Character output for the various renderers of this library">TextOutput</a>
                       </li><li class="current-entities indented3">
-                        <a class="object" href="TreeInput$.html" title="Factory methods for creating InputCollections."></a>
-                        <a class="class" href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
-                        <a href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">TreeInput</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="TreeOutput.html" title="A (virtual) tree of output documents."></a>
                         <a href="TreeOutput.html" title="A (virtual) tree of output documents.">TreeOutput</a>
@@ -204,14 +208,16 @@
           <div id="content">
             <body class="class type">
       <div id="definition">
-        <div class="big-circle class">c</div>
+        <a href="BinaryInput$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
         <p id="owner"><a href="../../index.html" class="extype" name="laika">laika</a>.<a href="../index.html" class="extype" name="laika.io">io</a>.<a href="index.html" class="extype" name="laika.io.model">model</a></p>
-        <h1>BinaryInput<span class="permalink">
+        <h1><a href="BinaryInput$.html" title="See companion object">BinaryInput</a><span class="permalink">
       <a href="../../../laika/io/model/BinaryInput.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="BinaryInput$.html" title="See companion object">object BinaryInput</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -220,12 +226,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BinaryInput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="input">input: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">BinaryInput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="stream">stream: () ⇒ <span class="extype" name="java.io.InputStream">InputStream</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>]</span>)</span><span class="result"> extends <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A binary input stream and its virtual path within the input tree.
+</p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -276,9 +283,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.model.BinaryInput#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,input:cats.effect.Resource[F,java.io.InputStream],sourceFile:Option[java.io.File]):laika.io.model.BinaryInput[F]"></a><a id="&lt;init&gt;:BinaryInput[F]"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,stream:()=&gt;java.io.InputStream,autoClose:Boolean,sourceFile:Option[java.io.File])(implicitevidence$1:cats.effect.Sync[F]):laika.io.model.BinaryInput[F]"></a><a id="&lt;init&gt;:BinaryInput[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/BinaryInput.html#&lt;init&gt;(path:laika.ast.Path,input:cats.effect.Resource[F,java.io.InputStream],sourceFile:Option[java.io.File]):laika.io.model.BinaryInput[F]" title="Permalink">
+      <a href="../../../laika/io/model/BinaryInput.html#&lt;init&gt;(path:laika.ast.Path,stream:()=&gt;java.io.InputStream,autoClose:Boolean,sourceFile:Option[java.io.File])(implicitevidence$1:cats.effect.Sync[F]):laika.io.model.BinaryInput[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -287,7 +294,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">BinaryInput</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="input">input: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">BinaryInput</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="stream">stream: () ⇒ <span class="extype" name="java.io.InputStream">InputStream</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="sourceFile">sourceFile: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>]</span>)</span>
       </span>
       
       
@@ -365,6 +372,39 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.io.model.BinaryInput#asResource" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asResource:cats.effect.Resource[F,java.io.InputStream]"></a><a id="asResource:Resource[F,InputStream]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/BinaryInput.html#asResource:cats.effect.Resource[F,java.io.InputStream]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asResource</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides the InputStream as a cats-effect Resource.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the InputStream as a cats-effect Resource.</p><p>The resource only closes the stream in its tear-down effect when the autoClose property on this instance is true.
+</p></div></div>
+    </li><li name="laika.io.model.BinaryInput#autoClose" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="autoClose:Boolean"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/BinaryInput.html#autoClose:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">autoClose</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -446,22 +486,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.model.BinaryInput#input" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="input:cats.effect.Resource[F,java.io.InputStream]"></a><a id="input:Resource[F,InputStream]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/model/BinaryInput.html#input:cats.effect.Resource[F,java.io.InputStream]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">input</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.model.BinaryInput.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>
-      </span>
-      
-      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -578,6 +602,22 @@
       </span>
       <span class="symbol">
         <span class="name">sourceFile</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.io.File">File</span>]</span>
+      </span>
+      
+      
+    </li><li name="laika.io.model.BinaryInput#stream" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stream:()=&gt;java.io.InputStream"></a><a id="stream:()⇒InputStream"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/model/BinaryInput.html#stream:()=&gt;java.io.InputStream" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stream</span><span class="result">: () ⇒ <span class="extype" name="java.io.InputStream">InputStream</span></span>
       </span>
       
       

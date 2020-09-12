@@ -125,6 +125,10 @@
                         <span class="separator"></span>
                         <a class="object" href="ResourceLoader$.html" title="Internal utility for loading text resources from the file system, the classpath or via its URL."></a>
                         <a href="ResourceLoader$.html" title="Internal utility for loading text resources from the file system, the classpath or via its URL.">ResourceLoader</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="SiteConfig$.html" title="Configuration for special folders in Laika's site output."></a>
+                        <a href="SiteConfig$.html" title="Configuration for special folders in Laika's site output.">SiteConfig</a>
                       </li>
               </ul>
             </div>
@@ -444,9 +448,9 @@ configuration instances.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.io.config.IncludeHandler#load" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="load[F[_]](includes:Seq[laika.io.config.IncludeHandler.RequestedInclude])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.config.Config.IncludeMap]"></a><a id="load[F[_]](Seq[RequestedInclude])(Async[F],Runtime[F]):F[IncludeMap]"></a>
+      <a id="load[F[_]](includes:Seq[laika.io.config.IncludeHandler.RequestedInclude])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.config.Config.IncludeMap]"></a><a id="load[F[_]](Seq[RequestedInclude])(Sync[F],Runtime[F]):F[IncludeMap]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/config/IncludeHandler$.html#load[F[_]](includes:Seq[laika.io.config.IncludeHandler.RequestedInclude])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.config.Config.IncludeMap]" title="Permalink">
+      <a href="../../../laika/io/config/IncludeHandler$.html#load[F[_]](includes:Seq[laika.io.config.IncludeHandler.RequestedInclude])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.config.Config.IncludeMap]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -455,7 +459,7 @@ configuration instances.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">load</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="includes">includes: <span class="extype" name="scala.Seq">Seq</span>[<a href="IncludeHandler$$RequestedInclude.html" class="extype" name="laika.io.config.IncludeHandler.RequestedInclude">RequestedInclude</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>[<a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a>]</span>
+        <span class="name">load</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="includes">includes: <span class="extype" name="scala.Seq">Seq</span>[<a href="IncludeHandler$$RequestedInclude.html" class="extype" name="laika.io.config.IncludeHandler.RequestedInclude">RequestedInclude</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.IncludeHandler.load.F">F</span>[<a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Loads the requested resources and maps them to the request instance for later lookup.</p><div class="fullcomment"><div class="comment cmt"><p>Loads the requested resources and maps them to the request instance for later lookup.</p><p>If a resource is not present (e.g. file does not exist in the file system or HTTP call

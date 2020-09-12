@@ -107,6 +107,14 @@
                         <a href="BinaryPostProcessor.html" title="Post processor for the result output of a renderer.">BinaryPostProcessor</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="BinaryPostProcessorBuilder.html" title=""></a>
+                        <a href="BinaryPostProcessorBuilder.html" title="">BinaryPostProcessorBuilder</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="Format.html" title="Base trait for all types of input and output formats."></a>
+                        <a href="Format.html" title="Base trait for all types of input and output formats.">Format</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format."></a>
                         <a href="MarkupFormat.html" title="Responsible for creating parser instances for a specific markup format.">MarkupFormat</a>
                       </li><li class="current-entities indented2">
@@ -144,7 +152,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">TwoPhaseRenderFormat</span><span class="tparams">[<span name="FMT">FMT</span>, <span name="PP">PP</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">TwoPhaseRenderFormat</span><span class="tparams">[<span name="FMT">FMT</span>, <span name="PP">PP</span>]</span><span class="result"> extends <a href="Format.html" class="extype" name="laika.factory.Format">Format</a></span>
       </span>
       </h4>
 
@@ -155,7 +163,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Format.html" class="extype" name="laika.factory.Format">Format</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
@@ -186,7 +194,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.factory.TwoPhaseRenderFormat"><span>TwoPhaseRenderFormat</span></li><li class="in" name="laika.factory.Format"><span>Format</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -357,7 +365,7 @@ rendering the interim format specified with the <code>format</code> property.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.factory.TwoPhaseRenderFormat#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.factory.Format#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="description:String"></a>
       <span class="permalink">
       <a href="../../laika/factory/TwoPhaseRenderFormat.html#description:String" title="Permalink">
@@ -372,7 +380,8 @@ rendering the interim format specified with the <code>format</code> property.
         <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Short string describing the output format for tooling and logging.</p>
+      <p class="shortcomment cmt">Short string describing the markup or output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the markup or output format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Format.html" class="extype" name="laika.factory.Format">Format</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -645,7 +654,9 @@ rendering the interim format specified with the <code>format</code> property.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="laika.factory.Format">
+              <h3>Inherited from <a href="Format.html" class="extype" name="laika.factory.Format">Format</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

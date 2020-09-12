@@ -118,9 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="BinaryInput.html" title=""></a>
-                        <a href="BinaryInput.html" title="">BinaryInput</a>
+                        <a class="object" href="BinaryInput$.html" title=""></a>
+                        <a class="class" href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree."></a>
+                        <a href="BinaryInput.html" title="A binary input stream and its virtual path within the input tree.">BinaryInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="BinaryOutput.html" title="A resource for binary output."></a>
@@ -137,6 +137,14 @@
                         <span class="separator"></span>
                         <a class="trait" href="InputReader.html" title=""></a>
                         <a href="InputReader.html" title="">InputReader</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTreeBuilder instances."></a>
+                        <a class="class" href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
+                        <a href="InputTree.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">InputTree</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees."></a>
+                        <a href="InputTreeBuilder.html" title="Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings or pre-constructed AST trees.">InputTreeBuilder</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="OutputWriter.html" title=""></a>
@@ -189,10 +197,6 @@
                         <a class="object" href="" title=""></a>
                         <a class="class" href="TextOutput.html" title="Character output for the various renderers of this library"></a>
                         <a href="TextOutput.html" title="Character output for the various renderers of this library">TextOutput</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="TreeInput$.html" title="Factory methods for creating InputCollections."></a>
-                        <a class="class" href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both)."></a>
-                        <a href="TreeInput.html" title="A (virtual) tree of input documents, either obtained from scanning a directory recursively or constructed programmatically (or a mix of both).">TreeInput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="TreeOutput.html" title="A (virtual) tree of output documents."></a>
@@ -427,9 +431,9 @@
               
         </dd></dl></div>
     </li><li name="laika.io.model.TextOutput#forFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forFile[F[_]](path:laika.ast.Path,file:java.io.File,codec:scala.io.Codec)(implicitevidence$2:cats.effect.Async[F]):laika.io.model.TextOutput[F]"></a><a id="forFile[F[_]](Path,File,Codec)(Async[F]):TextOutput[F]"></a>
+      <a id="forFile[F[_]](path:laika.ast.Path,file:java.io.File,codec:scala.io.Codec)(implicitevidence$2:cats.effect.Sync[F]):laika.io.model.TextOutput[F]"></a><a id="forFile[F[_]](Path,File,Codec)(Sync[F]):TextOutput[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/TextOutput$.html#forFile[F[_]](path:laika.ast.Path,file:java.io.File,codec:scala.io.Codec)(implicitevidence$2:cats.effect.Async[F]):laika.io.model.TextOutput[F]" title="Permalink">
+      <a href="../../../laika/io/model/TextOutput$.html#forFile[F[_]](path:laika.ast.Path,file:java.io.File,codec:scala.io.Codec)(implicitevidence$2:cats.effect.Sync[F]):laika.io.model.TextOutput[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -438,14 +442,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.model.TextOutput.forFile.F">F</span>]</span>)</span><span class="result">: <a href="TextOutput.html" class="extype" name="laika.io.model.TextOutput">TextOutput</a>[<span class="extype" name="laika.io.model.TextOutput.forFile.F">F</span>]</span>
+        <span class="name">forFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.model.TextOutput.forFile.F">F</span>]</span>)</span><span class="result">: <a href="TextOutput.html" class="extype" name="laika.io.model.TextOutput">TextOutput</a>[<span class="extype" name="laika.io.model.TextOutput.forFile.F">F</span>]</span>
       </span>
       
       
     </li><li name="laika.io.model.TextOutput#forStream" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="forStream[F[_]](path:laika.ast.Path,stream:F[java.io.OutputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$3:cats.effect.Async[F]):laika.io.model.TextOutput[F]"></a><a id="forStream[F[_]](Path,F[OutputStream],Codec,Boolean)(Async[F]):TextOutput[F]"></a>
+      <a id="forStream[F[_]](path:laika.ast.Path,stream:F[java.io.OutputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$3:cats.effect.Sync[F]):laika.io.model.TextOutput[F]"></a><a id="forStream[F[_]](Path,F[OutputStream],Codec,Boolean)(Sync[F]):TextOutput[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/model/TextOutput$.html#forStream[F[_]](path:laika.ast.Path,stream:F[java.io.OutputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$3:cats.effect.Async[F]):laika.io.model.TextOutput[F]" title="Permalink">
+      <a href="../../../laika/io/model/TextOutput$.html#forStream[F[_]](path:laika.ast.Path,stream:F[java.io.OutputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$3:cats.effect.Sync[F]):laika.io.model.TextOutput[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -454,7 +458,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forStream</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="stream">stream: <span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>[<span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>]</span>)</span><span class="result">: <a href="TextOutput.html" class="extype" name="laika.io.model.TextOutput">TextOutput</a>[<span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>]</span>
+        <span class="name">forStream</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="stream">stream: <span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>[<span class="extype" name="java.io.OutputStream">OutputStream</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>]</span>)</span><span class="result">: <a href="TextOutput.html" class="extype" name="laika.io.model.TextOutput">TextOutput</a>[<span class="extype" name="laika.io.model.TextOutput.forStream.F">F</span>]</span>
       </span>
       
       

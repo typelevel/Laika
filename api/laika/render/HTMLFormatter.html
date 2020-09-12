@@ -158,14 +158,6 @@
                         <a class="object" href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format."></a>
                         <a href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOStyles$.html" title="The default styles for PDF and XSL-FO output."></a>
-                        <a href="FOStyles$.html" title="The default styles for PDF and XSL-FO output.">FOStyles</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="FOTemplate$.html" title="The default template for HTML renderers.">FOTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="HTMLFormatter$.html" title="Default factory for HTMLFormatters, based on a provided RenderContext."></a>
                         <a class="class" href="" title="API for renderers that produce HTML output."></a>
                         <a href="" title="API for renderers that produce HTML output.">HTMLFormatter</a>
@@ -174,15 +166,11 @@
                         <a class="class" href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format."></a>
                         <a href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="HTMLTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="HTMLTemplate$.html" title="The default template for HTML renderers.">HTMLTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Indentation$.html" title="Default Indentation instances."></a>
                         <a class="class" href="Indentation.html" title="Represents the current indentation level of a formatter instance."></a>
                         <a href="Indentation.html" title="Represents the current indentation level of a formatter instance.">Indentation</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="TagFormatter$.html" title=""></a>
                         <a class="class" href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML."></a>
                         <a href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML.">TagFormatter</a>
                       </li><li class="current-entities indented2">
@@ -193,10 +181,6 @@
                         <span class="separator"></span>
                         <a class="object" href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext."></a>
                         <a href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext.">XHTMLFormatter</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="XHTMLRenderer$.html" title=""></a>
-                        <a href="XHTMLRenderer$.html" title="">XHTMLRenderer</a>
                       </li>
               </ul>
             </div>
@@ -222,14 +206,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>, <span name="closeEmptyTags">closeEmptyTags: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a>[<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">HTMLFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>, <span name="closeEmptyTags">closeEmptyTags: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a>[<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for renderers that produce HTML output.
 </p></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">currentElement</dt><dd class="cmt"><p>the active element currently being rendered</p></dd><dt class="param">parents</dt><dd class="cmt"><p>the stack of parent elements of this formatter in recursive rendering,
-               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl><div class="toggleContainer block">
+               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -280,9 +264,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.HTMLFormatter#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(renderChild:(laika.render.HTMLFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter,closeEmptyTags:Boolean):laika.render.HTMLFormatter"></a><a id="&lt;init&gt;:HTMLFormatter"></a>
+      <a id="&lt;init&gt;(renderChild:(laika.render.HTMLFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,path:laika.ast.Path,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter,closeEmptyTags:Boolean):laika.render.HTMLFormatter"></a><a id="&lt;init&gt;:HTMLFormatter"></a>
       <span class="permalink">
-      <a href="../../laika/render/HTMLFormatter.html#&lt;init&gt;(renderChild:(laika.render.HTMLFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter,closeEmptyTags:Boolean):laika.render.HTMLFormatter" title="Permalink">
+      <a href="../../laika/render/HTMLFormatter.html#&lt;init&gt;(renderChild:(laika.render.HTMLFormatter,laika.ast.Element)=&gt;String,currentElement:laika.ast.Element,parents:List[laika.ast.Element],pathTranslator:laika.rewrite.nav.PathTranslator,path:laika.ast.Path,indentation:laika.render.Indentation,messageFilter:laika.ast.MessageFilter,closeEmptyTags:Boolean):laika.render.HTMLFormatter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -291,11 +275,11 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>, <span name="closeEmptyTags">closeEmptyTags: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
+        <span class="name">HTMLFormatter</span><span class="params">(<span name="renderChild">renderChild: (<a href="" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Predef.String">String</span></span>, <span name="currentElement">currentElement: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="parents">parents: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>, <span name="pathTranslator">pathTranslator: <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="indentation">indentation: <a href="Indentation.html" class="extype" name="laika.render.Indentation">Indentation</a></span>, <span name="messageFilter">messageFilter: <a href="../ast/MessageFilter.html" class="extype" name="laika.ast.MessageFilter">MessageFilter</a></span>, <span name="closeEmptyTags">closeEmptyTags: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">renderChild</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">currentElement</dt><dd class="cmt"><p>the active element currently being rendered</p></dd><dt class="param">parents</dt><dd class="cmt"><p>the stack of parent elements of this formatter in recursive rendering,
-               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl></div>
+               with the root element being the last in the list</p></dd><dt class="param">pathTranslator</dt><dd class="cmt"><p>translates paths of input documents to the corresponding output path</p></dd><dt class="param">path</dt><dd class="cmt"><p>the virtual path of the document getting rendered</p></dd><dt class="param">indentation</dt><dd class="cmt"><p>the indentation mechanism for this formatter</p></dd><dt class="param">messageFilter</dt><dd class="cmt"><p>the filter to apply before rendering runtime messages</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -783,8 +767,8 @@ one level to the right of this formatter.
       </span>
       
       <p class="shortcomment cmt">Renders an element with the specified tag name, attributes derived from the style hint
-and content consisting of the provided child elements, all rendered on the same line.</p><div class="fullcomment"><div class="comment cmt"><p>Renders an element with the specified tag name, attributes derived from the style hint
-and content consisting of the provided child elements, all rendered on the same line.
+and indented content consisting of the provided child elements.</p><div class="fullcomment"><div class="comment cmt"><p>Renders an element with the specified tag name, attributes derived from the style hint
+and indented content consisting of the provided child elements.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagFormatter.html" class="extype" name="laika.render.TagFormatter">TagFormatter</a></dd></dl></div>
     </li><li name="laika.render.TagFormatter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="internalLink(path:laika.ast.Path):String"></a><a id="internalLink(Path):String"></a>
@@ -951,6 +935,22 @@ and content consisting of the provided child elements, all rendered on the same 
       </span>
       <span class="symbol">
         <span class="name">parents</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>
+      </span>
+      
+      
+    </li><li name="laika.render.HTMLFormatter#path" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="path:laika.ast.Path"></a><a id="path:Path"></a>
+      <span class="permalink">
+      <a href="../../laika/render/HTMLFormatter.html#path:laika.ast.Path" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">path</span><span class="result">: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>
       </span>
       
       

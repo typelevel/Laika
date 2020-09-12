@@ -159,16 +159,8 @@
                         <a href="TransformerBuilderOps.html" title="API for specifying configuration options that apply to all kinds of operations that contain both, a parsing and a rendering step (only Transform API).">TransformerBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="class" href="TwoPhaseRenderer.html" title="A renderer that operates with two phases, producing an interim result."></a>
-                        <a href="TwoPhaseRenderer.html" title="A renderer that operates with two phases, producing an interim result.">TwoPhaseRenderer</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="class" href="TwoPhaseRendererBuilder.html" title="Builder API for Renderer instances."></a>
                         <a href="TwoPhaseRendererBuilder.html" title="Builder API for Renderer instances.">TwoPhaseRendererBuilder</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="TwoPhaseTransformer.html" title="A transformer that operates with two phases, producing an interim result."></a>
-                        <a href="TwoPhaseTransformer.html" title="A transformer that operates with two phases, producing an interim result.">TwoPhaseTransformer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TwoPhaseTransformerBuilder.html" title="Builder API for Transformer instances."></a>
@@ -408,27 +400,6 @@ to override the renderer for specific elements and other options.
       
       <p class="shortcomment cmt">API for specifying configuration options that apply to all
 kinds of operations that contain both, a parsing and a rendering step (only Transform API).</p>
-    </li><li name="laika.api.builder.TwoPhaseRenderer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TwoPhaseRenderer[PP]extendsProductwithSerializable"></a><a id="TwoPhaseRenderer[PP]:TwoPhaseRenderer[PP]"></a>
-      <span class="permalink">
-      <a href="../../../laika/api/builder/TwoPhaseRenderer.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="A renderer that operates with two phases, producing an interim result." href="TwoPhaseRenderer.html"><span class="name">TwoPhaseRenderer</span></a><span class="tparams">[<span name="PP">PP</span>]</span><span class="params">(<span name="interimRenderer">interimRenderer: <a href="../Renderer.html" class="extype" name="laika.api.Renderer">Renderer</a></span>, <span name="prepareTree">prepareTree: (<a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>) ⇒ <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>, <span name="postProcessor">postProcessor: <span class="extype" name="laika.api.builder.TwoPhaseRenderer.PP">PP</span></span>, <span name="description">description: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">A renderer that operates with two phases, producing an interim result.</p><div class="fullcomment"><div class="comment cmt"><p>A renderer that operates with two phases, producing an interim result.</p><p>Examples for such renderers are EPUB (with XHTML as the interim format)
-and PDF (with XSL-FO as the interim format).</p><p>This instance does not come with its own runtime. Instead its need to be passed
-to a builder API in laika-io that knows how to execute such an operation.
-</p></div><dl class="paramcmts block"><dt class="tparam">PP</dt><dd class="cmt"><p>the type of the post processor</p></dd><dt class="param">interimRenderer</dt><dd class="cmt"><p>the renderer for the 1st phase, producing the interim result</p></dd><dt class="param">prepareTree</dt><dd class="cmt"><p>a hook with which the interim result can be modified before it gets
-                   passed to the post processor</p></dd><dt class="param">postProcessor</dt><dd class="cmt"><p>the processor taking the interim result and producing the final
-                     result, the implementing type may vary from format to format</p></dd><dt class="param">description</dt><dd class="cmt"><p>short string describing the output format for tooling and logging</p></dd></dl></div>
     </li><li name="laika.api.builder.TwoPhaseRendererBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TwoPhaseRendererBuilder[FMT,PP]extendsRendererBuilderOps[FMT]"></a><a id="TwoPhaseRendererBuilder[FMT,PP]:TwoPhaseRendererBuilder[FMT,PP]"></a>
       <span class="permalink">
@@ -447,26 +418,6 @@ to a builder API in laika-io that knows how to execute such an operation.
       <p class="shortcomment cmt">Builder API for Renderer instances.</p><div class="fullcomment"><div class="comment cmt"><p>Builder API for Renderer instances.</p><p>Allows to add ExtensionBundles, to override the renderer for specific elements
 and other options.
 </p></div><dl class="paramcmts block"><dt class="tparam">FMT</dt><dd class="cmt"><p>the formatter API to use which varies depending on the renderer</p></dd><dt class="tparam">PP</dt><dd class="cmt"><p>the type of the post processor</p></dd></dl></div>
-    </li><li name="laika.api.builder.TwoPhaseTransformer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TwoPhaseTransformer[PP]extendsProductwithSerializable"></a><a id="TwoPhaseTransformer[PP]:TwoPhaseTransformer[PP]"></a>
-      <span class="permalink">
-      <a href="../../../laika/api/builder/TwoPhaseTransformer.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="A transformer that operates with two phases, producing an interim result." href="TwoPhaseTransformer.html"><span class="name">TwoPhaseTransformer</span></a><span class="tparams">[<span name="PP">PP</span>]</span><span class="params">(<span name="markupParser">markupParser: <a href="../MarkupParser.html" class="extype" name="laika.api.MarkupParser">MarkupParser</a></span>, <span name="renderer">renderer: <a href="TwoPhaseRenderer.html" class="extype" name="laika.api.builder.TwoPhaseRenderer">TwoPhaseRenderer</a>[<span class="extype" name="laika.api.builder.TwoPhaseTransformer.PP">PP</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">A transformer that operates with two phases, producing an interim result.</p><div class="fullcomment"><div class="comment cmt"><p>A transformer that operates with two phases, producing an interim result.</p><p>Examples for such transformers are EPUB (with XHTML as the interim format)
-and PDF (with XSL-FO as the interim format).</p><p>This instance does not come with its own runtime. Instead its need to be passed
-to a builder API in laika-io that knows how to execute such an operation.
-</p></div><dl class="paramcmts block"><dt class="tparam">PP</dt><dd class="cmt"><p>the type of the post processor</p></dd><dt class="param">markupParser</dt><dd class="cmt"><p>the parser for the markup format, producing the document tree</p></dd><dt class="param">renderer</dt><dd class="cmt"><p>the two phase renderer that first turn the document tree obtained from
-                the parser into an interim format and then passes it to the post processor</p></dd></dl></div>
     </li><li name="laika.api.builder.TwoPhaseTransformerBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="TwoPhaseTransformerBuilder[FMT,PP]extendsTransformerBuilderOps[FMT]"></a><a id="TwoPhaseTransformerBuilder[FMT,PP]:TwoPhaseTransformerBuilder[FMT,PP]"></a>
       <span class="permalink">

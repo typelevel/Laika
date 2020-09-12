@@ -122,21 +122,9 @@
                         <a class="class" href="MarkupParser.html" title="Performs a parse operation from text markup to a document tree without a subsequent render operation."></a>
                         <a href="MarkupParser.html" title="Performs a parse operation from text markup to a document tree without a subsequent render operation.">MarkupParser</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Parse$.html" title=""></a>
-                        <a href="Parse$.html" title="">Parse</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Render$.html" title=""></a>
-                        <a href="Render$.html" title="">Render</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Renderer$.html" title="Entry point for building a Renderer instance."></a>
                         <a class="class" href="" title="Performs a render operation from a document AST to a target format as a string."></a>
                         <a href="" title="Performs a render operation from a document AST to a target format as a string.">Renderer</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Transform$.html" title=""></a>
-                        <a href="Transform$.html" title="">Transform</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="Transformer$.html" title="Entry point for building a Transformer instance."></a>
                         <a class="class" href="Transformer.html" title="Performs a transformation from text markup like Markdown or reStructuredText to a target format like HTML as a String."></a>
@@ -346,27 +334,6 @@ the laika-io module.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Renderer#applyTheme" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="applyTheme(root:laika.ast.DocumentTreeRoot):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]"></a><a id="applyTheme(DocumentTreeRoot):Either[ConfigError,DocumentTreeRoot]"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Renderer.html#applyTheme(root:laika.ast.DocumentTreeRoot):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">applyTheme</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Applies the theme that has been configured for this renderer
-to the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Applies the theme that has been configured for this renderer
-to the specified document tree.</p><p>This is a hook used by renderers and transformers that process
-entire trees of documents. It is usually not invoked by
-application code directly.
-</p></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -477,6 +444,22 @@ application code directly.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Renderer#forInputFormat" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="forInputFormat(markupFormat:laika.factory.MarkupFormat):laika.api.Renderer"></a><a id="forInputFormat(MarkupFormat):Renderer"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Renderer.html#forInputFormat(markupFormat:laika.factory.MarkupFormat):laika.api.Renderer" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">forInputFormat</span><span class="params">(<span name="markupFormat">markupFormat: <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Renderer">Renderer</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -688,24 +671,6 @@ will ignore them.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.api.Renderer#templateFor" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="templateFor(root:laika.ast.DocumentTreeRoot):laika.ast.TemplateRoot"></a><a id="templateFor(DocumentTreeRoot):TemplateRoot"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Renderer.html#templateFor(root:laika.ast.DocumentTreeRoot):laika.ast.TemplateRoot" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">templateFor</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Returns the template to use for the specified document,
-either defined in the tree itself, or if missing obtained
-from the configured theme of this renderer.</p>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

@@ -139,6 +139,14 @@
                         <a href="TreeResultBuilder$$ConfigResult.html" title="">ConfigResult</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
+                        <a class="class" href="TreeResultBuilder$$DocumentResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$DocumentResult.html" title="">DocumentResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="class" href="TreeResultBuilder$$HoconResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$HoconResult.html" title="">HoconResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
                         <a class="class" href="TreeResultBuilder$$MarkupResult.html" title=""></a>
                         <a href="TreeResultBuilder$$MarkupResult.html" title="">MarkupResult</a>
                       </li><li class="current-entities indented4">
@@ -153,6 +161,10 @@
                         <span class="separator"></span>
                         <a class="class" href="TreeResultBuilder$$TemplateResult.html" title=""></a>
                         <a href="TreeResultBuilder$$TemplateResult.html" title="">TemplateResult</a>
+                      </li><li class="current-entities indented4">
+                        <span class="separator"></span>
+                        <a class="trait" href="TreeResultBuilder$$TreeContentResult.html" title=""></a>
+                        <a href="TreeResultBuilder$$TreeContentResult.html" title="">TreeContentResult</a>
                       </li><li class="current-entities indented4">
                         <span class="separator"></span>
                         <a class="class" href="" title=""></a>
@@ -180,7 +192,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TreeResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>, <a href="" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a>]]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="configs">configs: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TreeResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a>]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="hocon">hocon: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$HoconResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.HoconResult">HoconResult</a>]</span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span><span class="result"> extends <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -189,7 +201,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>, <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a>, <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>, <a href="../../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -215,7 +227,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.io.runtime.TreeResultBuilder.TreeResult"><span>TreeResult</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.io.runtime.TreeResultBuilder.ParserResult"><span>ParserResult</span></li><li class="in" name="laika.ast.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.io.runtime.TreeResultBuilder.TreeResult"><span>TreeResult</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.io.runtime.TreeResultBuilder.TreeContentResult"><span>TreeContentResult</span></li><li class="in" name="laika.io.runtime.TreeResultBuilder.ParserResult"><span>ParserResult</span></li><li class="in" name="laika.ast.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -236,9 +248,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.runtime.TreeResultBuilder.TreeResult#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.ast.Path,content:Seq[Either[laika.ast.UnresolvedDocument,laika.io.runtime.TreeResultBuilder.TreeResult]],titleDoc:Option[laika.ast.UnresolvedDocument],templates:Seq[laika.ast.TemplateDocument],configs:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]):laika.io.runtime.TreeResultBuilder.TreeResult"></a><a id="&lt;init&gt;:TreeResult"></a>
+      <a id="&lt;init&gt;(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.TreeContentResult],titleDoc:Option[laika.ast.UnresolvedDocument],templates:Seq[laika.ast.TemplateDocument],hocon:Seq[laika.io.runtime.TreeResultBuilder.HoconResult],config:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]):laika.io.runtime.TreeResultBuilder.TreeResult"></a><a id="&lt;init&gt;:TreeResult"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#&lt;init&gt;(path:laika.ast.Path,content:Seq[Either[laika.ast.UnresolvedDocument,laika.io.runtime.TreeResultBuilder.TreeResult]],titleDoc:Option[laika.ast.UnresolvedDocument],templates:Seq[laika.ast.TemplateDocument],configs:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]):laika.io.runtime.TreeResultBuilder.TreeResult" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#&lt;init&gt;(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.TreeContentResult],titleDoc:Option[laika.ast.UnresolvedDocument],templates:Seq[laika.ast.TemplateDocument],hocon:Seq[laika.io.runtime.TreeResultBuilder.HoconResult],config:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]):laika.io.runtime.TreeResultBuilder.TreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -247,7 +259,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TreeResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>, <a href="" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a>]]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="configs">configs: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span>
+        <span class="name">TreeResult</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a>]</span>, <span name="titleDoc">titleDoc: <span class="extype" name="scala.Option">Option</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>]</span>, <span name="hocon">hocon: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$HoconResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.HoconResult">HoconResult</a>]</span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>)</span>
       </span>
       
       
@@ -349,10 +361,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.runtime.TreeResultBuilder.TreeResult#configs" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="configs:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]"></a><a id="configs:Seq[ConfigResult]"></a>
+    </li><li name="laika.io.runtime.TreeResultBuilder.TreeResult#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="config:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]"></a><a id="config:Seq[ConfigResult]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#configs:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#config:Seq[laika.io.runtime.TreeResultBuilder.ConfigResult]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -361,14 +373,14 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">configs</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>
+        <span class="name">config</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ConfigResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ConfigResult">ConfigResult</a>]</span>
       </span>
       
       
     </li><li name="laika.io.runtime.TreeResultBuilder.TreeResult#content" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="content:Seq[Either[laika.ast.UnresolvedDocument,laika.io.runtime.TreeResultBuilder.TreeResult]]"></a><a id="content:Seq[Either[UnresolvedDocument,TreeResult]]"></a>
+      <a id="content:Seq[laika.io.runtime.TreeResultBuilder.TreeContentResult]"></a><a id="content:Seq[TreeContentResult]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#content:Seq[Either[laika.ast.UnresolvedDocument,laika.io.runtime.TreeResultBuilder.TreeResult]]" title="Permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#content:Seq[laika.io.runtime.TreeResultBuilder.TreeContentResult]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -377,7 +389,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">content</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a>, <a href="" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a>]]</span>
+        <span class="name">content</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a>]</span>
       </span>
       
       
@@ -438,6 +450,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder.TreeResult#hocon" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hocon:Seq[laika.io.runtime.TreeResultBuilder.HoconResult]"></a><a id="hocon:Seq[HoconResult]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$$TreeResult.html#hocon:Seq[laika.io.runtime.TreeResultBuilder.HoconResult]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hocon</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$HoconResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.HoconResult">HoconResult</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -691,6 +719,8 @@
               <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">
+              <h3>Inherited from <a href="TreeResultBuilder$$TreeContentResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeContentResult">TreeContentResult</a></h3>
             </div><div class="parent" name="laika.io.runtime.TreeResultBuilder.ParserResult">
               <h3>Inherited from <a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a></h3>
             </div><div class="parent" name="laika.ast.Navigatable">

@@ -127,14 +127,6 @@
                         <a href="HtmlNavRenderer.html" title="Renders the entire content of an EPUB HTML navigation file.">HtmlNavRenderer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered."></a>
-                        <a href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">HtmlRenderExtensions</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers."></a>
-                        <a href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers.">HtmlTemplate</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="object" href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content."></a>
                         <a href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content.">MimeTypes</a>
                       </li><li class="current-entities indented3">
@@ -157,6 +149,10 @@
                         <span class="separator"></span>
                         <a class="object" href="" title="Processes CSS inputs for EPUB containers."></a>
                         <a href="" title="Processes CSS inputs for EPUB containers.">StyleSupport</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="XHTMLRenderer$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered."></a>
+                        <a href="XHTMLRenderer$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">XHTMLRenderer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="ZipWriter$.html" title=""></a>
@@ -352,26 +348,6 @@
       
       <p class="shortcomment cmt">Collects all CSS inputs (recursively) in the provided document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Collects all CSS inputs (recursively) in the provided document tree.
 CSS inputs are recognized by file suffix).
-</p></div></div>
-    </li><li name="laika.render.epub.StyleSupport#ensureContainsStyles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ensureContainsStyles(root:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot"></a><a id="ensureContainsStyles(DocumentTreeRoot):DocumentTreeRoot"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/epub/StyleSupport$.html#ensureContainsStyles(root:laika.ast.DocumentTreeRoot):laika.ast.DocumentTreeRoot" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ensureContainsStyles</span><span class="params">(<span name="root">root: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>)</span><span class="result">: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Verifies that the specified document tree contains at least one CSS file
-(determined by file suffix).</p><div class="fullcomment"><div class="comment cmt"><p>Verifies that the specified document tree contains at least one CSS file
-(determined by file suffix). If this is the case the tree is returned unchanged,
-otherwise a new tree with a minimal fallback CSS inserted into the root is returned instead.
 </p></div></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>

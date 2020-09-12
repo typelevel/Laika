@@ -118,7 +118,7 @@
       
       <p class="shortcomment cmt">Implicits that add an <code>io</code> method to all builder instances for parsers, renderers and transformers
 from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.</p><div class="fullcomment"><div class="comment cmt"><p>Implicits that add an <code>io</code> method to all builder instances for parsers, renderers and transformers
-from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.</p><p>The requirements for the effect are <code>Async</code> and <code>ContextShift</code> for sequential execution,
+from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.</p><p>The requirements for the effect are <code>Sync</code> and <code>ContextShift</code> for sequential execution,
 and additionally <code>cats.Parallel</code> for parallel execution.</p><p>Example for transforming a file from Markdown to HTML using the <code>sequential</code> builder:</p><pre><span class="kw">implicit</span> <span class="kw">val</span> cs: ContextShift[IO] =
   IO.contextShift(ExecutionContext.global)
 
@@ -387,9 +387,9 @@ The API adjusts to the format in use, e.g. EPUB and PDF transformers will offer 
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyVal → Any</dd></dl></div>
     </li><li name="laika.io.implicits.ImplicitParserOps#io" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="io(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[laika.io.text.SequentialParser.Builder,laika.io.text.ParallelParser.Builder]"></a><a id="io(Blocker):IOBuilderOps[Builder,Builder]"></a>
+      <a id="io(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[laika.io.api.TreeParser.Builder]"></a><a id="io(Blocker):IOBuilderOps[Builder]"></a>
       <span class="permalink">
-      <a href="../../laika/io/implicits$$ImplicitParserOps.html#io(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[laika.io.text.SequentialParser.Builder,laika.io.text.ParallelParser.Builder]" title="Permalink">
+      <a href="../../laika/io/implicits$$ImplicitParserOps.html#io(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[laika.io.api.TreeParser.Builder]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -398,7 +398,7 @@ The API adjusts to the format in use, e.g. EPUB and PDF transformers will offer 
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">io</span><span class="params">(<span name="blocker">blocker: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>)</span><span class="result">: <a href="ops/IOBuilderOps.html" class="extype" name="laika.io.ops.IOBuilderOps">IOBuilderOps</a>[<a href="text/SequentialParser$$Builder.html" class="extype" name="laika.io.text.SequentialParser.Builder">Builder</a>, <a href="text/ParallelParser$$Builder.html" class="extype" name="laika.io.text.ParallelParser.Builder">Builder</a>]</span>
+        <span class="name">io</span><span class="params">(<span name="blocker">blocker: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>)</span><span class="result">: <a href="ops/IOBuilderOps.html" class="extype" name="laika.io.ops.IOBuilderOps">IOBuilderOps</a>[<a href="api/TreeParser$$Builder.html" class="extype" name="laika.io.api.TreeParser.Builder">Builder</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Builder step for specifying the blocker to use for all blocking IO operations.</p>

@@ -158,14 +158,6 @@
                         <a class="object" href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format."></a>
                         <a href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOStyles$.html" title="The default styles for PDF and XSL-FO output."></a>
-                        <a href="FOStyles$.html" title="The default styles for PDF and XSL-FO output.">FOStyles</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="FOTemplate$.html" title="The default template for HTML renderers.">FOTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="HTMLFormatter$.html" title="Default factory for HTMLFormatters, based on a provided RenderContext."></a>
                         <a class="class" href="HTMLFormatter.html" title="API for renderers that produce HTML output."></a>
                         <a href="HTMLFormatter.html" title="API for renderers that produce HTML output.">HTMLFormatter</a>
@@ -174,15 +166,11 @@
                         <a class="class" href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format."></a>
                         <a href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="HTMLTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="HTMLTemplate$.html" title="The default template for HTML renderers.">HTMLTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Indentation$.html" title="Default Indentation instances."></a>
                         <a class="class" href="Indentation.html" title="Represents the current indentation level of a formatter instance."></a>
                         <a href="Indentation.html" title="Represents the current indentation level of a formatter instance.">Indentation</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="TagFormatter$.html" title=""></a>
                         <a class="class" href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML."></a>
                         <a href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML.">TagFormatter</a>
                       </li><li class="current-entities indented2">
@@ -193,10 +181,6 @@
                         <span class="separator"></span>
                         <a class="object" href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext."></a>
                         <a href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext.">XHTMLFormatter</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="XHTMLRenderer$.html" title=""></a>
-                        <a href="XHTMLRenderer$.html" title="">XHTMLRenderer</a>
                       </li>
               </ul>
             </div>
@@ -379,6 +363,23 @@ but only inserted dynamically during the render process to drive features specif
       
       <p class="shortcomment cmt">An internal link to be rendered as a page number.</p><div class="fullcomment"><div class="comment cmt"><p>An internal link to be rendered as a page number.
 </p></div><dl class="paramcmts block"><dt class="param">target</dt><dd class="cmt"><p>the path of the target document containing the local reference</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional render hints</p></dd></dl></div>
+    </li><li name="laika.render.FOFormatter.Preamble" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PreambleextendsElementwithBlockwithProductwithSerializable"></a><a id="Preamble:Preamble"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOFormatter$$Preamble.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A preamble for a document, only used in PDF output where multiple XSL-FO documents get concatenated before being passed to the PDF renderer." href="FOFormatter$$Preamble.html"><span class="name">Preamble</span></a><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A preamble for a document, only used in PDF output where multiple XSL-FO documents get concatenated
+before being passed to the PDF renderer.</p>
     </li></ol>
             </div>
 

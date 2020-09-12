@@ -158,14 +158,6 @@
                         <a class="object" href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format."></a>
                         <a href="FORenderer$.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOStyles$.html" title="The default styles for PDF and XSL-FO output."></a>
-                        <a href="FOStyles$.html" title="The default styles for PDF and XSL-FO output.">FOStyles</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="FOTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="FOTemplate$.html" title="The default template for HTML renderers.">FOTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="HTMLFormatter$.html" title="Default factory for HTMLFormatters, based on a provided RenderContext."></a>
                         <a class="class" href="HTMLFormatter.html" title="API for renderers that produce HTML output."></a>
                         <a href="HTMLFormatter.html" title="API for renderers that produce HTML output.">HTMLFormatter</a>
@@ -174,15 +166,11 @@
                         <a class="class" href="" title="Default renderer implementation for the HTML output format."></a>
                         <a href="" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="HTMLTemplate$.html" title="The default template for HTML renderers."></a>
-                        <a href="HTMLTemplate$.html" title="The default template for HTML renderers.">HTMLTemplate</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Indentation$.html" title="Default Indentation instances."></a>
                         <a class="class" href="Indentation.html" title="Represents the current indentation level of a formatter instance."></a>
                         <a href="Indentation.html" title="Represents the current indentation level of a formatter instance.">Indentation</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="TagFormatter$.html" title=""></a>
                         <a class="class" href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML."></a>
                         <a href="TagFormatter.html" title="Base type for formatters that produce tag-based output formats like XML or HTML.">TagFormatter</a>
                       </li><li class="current-entities indented2">
@@ -193,10 +181,6 @@
                         <span class="separator"></span>
                         <a class="object" href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext."></a>
                         <a href="XHTMLFormatter$.html" title="Default factory for XHTMLFormatters, based on a provided RenderContext.">XHTMLFormatter</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="XHTMLRenderer$.html" title=""></a>
-                        <a href="XHTMLRenderer$.html" title="">XHTMLRenderer</a>
                       </li>
               </ul>
             </div>
@@ -237,7 +221,7 @@
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="HTMLRenderer$.html" class="extype" name="laika.render.HTMLRenderer">HTMLRenderer</a>, <a href="XHTMLRenderer$.html" class="extype" name="laika.render.XHTMLRenderer">XHTMLRenderer</a></div>
+            <div class="subClasses hiddenContent"><a href="HTMLRenderer$.html" class="extype" name="laika.render.HTMLRenderer">HTMLRenderer</a>, <a href="epub/XHTMLRenderer$.html" class="extype" name="laika.render.epub.XHTMLRenderer">XHTMLRenderer</a></div>
           </div></div>
         
 
@@ -284,9 +268,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.HTMLRenderer#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(fileSuffix:String):laika.render.HTMLRenderer"></a><a id="&lt;init&gt;:HTMLRenderer"></a>
+      <a id="&lt;init&gt;(fileSuffix:String,formats:cats.data.NonEmptySet[String]):laika.render.HTMLRenderer"></a><a id="&lt;init&gt;:HTMLRenderer"></a>
       <span class="permalink">
-      <a href="../../laika/render/HTMLRenderer.html#&lt;init&gt;(fileSuffix:String):laika.render.HTMLRenderer" title="Permalink">
+      <a href="../../laika/render/HTMLRenderer.html#&lt;init&gt;(fileSuffix:String,formats:cats.data.NonEmptySet[String]):laika.render.HTMLRenderer" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -295,7 +279,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLRenderer</span><span class="params">(<span name="fileSuffix">fileSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+        <span class="name">HTMLRenderer</span><span class="params">(<span name="fileSuffix">fileSuffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="formats">formats: <span class="extype" name="cats.data.NonEmptySet">NonEmptySet</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
       </span>
       
       

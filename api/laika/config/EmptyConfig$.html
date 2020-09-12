@@ -890,6 +890,23 @@ or from an attribute section in a directive.
 for keys not found in this instance.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new configuration instance using the specified instance as a fallback
 for keys not found in this instance.</p><p>If this instance already has a fallback, the new fallback will be passed further down the chain.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.config.EmptyConfig">EmptyConfig</a> → <a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
+    </li><li name="laika.config.EmptyConfig#withOrigin" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withOrigin(newOrigin:laika.config.Origin):laika.config.Config"></a><a id="withOrigin(Origin):Config"></a>
+      <span class="permalink">
+      <a href="../../laika/config/EmptyConfig$.html#withOrigin(newOrigin:laika.config.Origin):laika.config.Config" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withOrigin</span><span class="params">(<span name="newOrigin">newOrigin: <a href="Origin.html" class="extype" name="laika.config.Origin">Origin</a></span>)</span><span class="result">: <a href="Config.html" class="extype" name="laika.config.Config">Config</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new configuration instance using the specified origin.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new configuration instance using the specified origin.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.config.EmptyConfig">EmptyConfig</a> → <a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd></dl></div>
     </li><li name="laika.config.Config#withValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withValue[T](value:T)(implicitencoder:laika.config.ConfigEncoder[T],implicitdefaultKey:laika.config.DefaultKey[T]):laika.config.ConfigBuilder"></a><a id="withValue[T](T)(ConfigEncoder[T],DefaultKey[T]):ConfigBuilder"></a>
       <span class="permalink">
@@ -956,67 +973,7 @@ a fallback. The returned builder can be used to add further values before callin
 
         
 
-        <div class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="laika.config.Config#get" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="get[T](key:laika.ast.Path,default:=&gt;T)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[T]"></a><a id="get[T](Path,⇒T)(ConfigDecoder[T]):ConfigResult[T]"></a>
-      <span class="permalink">
-      <a href="../../laika/config/EmptyConfig$.html#get[T](key:laika.ast.Path,default:=&gt;T)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[T]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.13.0) use get(Key)">get</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="key">key: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="default">default: ⇒ <span class="extype" name="laika.config.Config.get.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="decoder">decoder: <a href="ConfigDecoder.html" class="extype" name="laika.config.ConfigDecoder">ConfigDecoder</a>[<span class="extype" name="laika.config.Config.get.T">T</span>]</span>)</span><span class="result">: <a href="Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<span class="extype" name="laika.config.Config.get.T">T</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.13.0)</i> use get(Key)</p></dd></dl></div>
-    </li><li name="laika.config.Config#get" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="get[T](key:laika.ast.Path)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[T]"></a><a id="get[T](Path)(ConfigDecoder[T]):ConfigResult[T]"></a>
-      <span class="permalink">
-      <a href="../../laika/config/EmptyConfig$.html#get[T](key:laika.ast.Path)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[T]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.13.0) use get(Key)">get</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="key">key: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="decoder">decoder: <a href="ConfigDecoder.html" class="extype" name="laika.config.ConfigDecoder">ConfigDecoder</a>[<span class="extype" name="laika.config.Config.get.T">T</span>]</span>)</span><span class="result">: <a href="Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<span class="extype" name="laika.config.Config.get.T">T</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.13.0)</i> use get(Key)</p></dd></dl></div>
-    </li><li name="laika.config.Config#getOpt" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getOpt[T](key:laika.ast.Path)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[Option[T]]"></a><a id="getOpt[T](Path)(ConfigDecoder[T]):ConfigResult[Option[T]]"></a>
-      <span class="permalink">
-      <a href="../../laika/config/EmptyConfig$.html#getOpt[T](key:laika.ast.Path)(implicitdecoder:laika.config.ConfigDecoder[T]):laika.config.Config.ConfigResult[Option[T]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.13.0) use getOpt(Key)">getOpt</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="key">key: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="decoder">decoder: <a href="ConfigDecoder.html" class="extype" name="laika.config.ConfigDecoder">ConfigDecoder</a>[<span class="extype" name="laika.config.Config.getOpt.T">T</span>]</span>)</span><span class="result">: <a href="Config$.html#ConfigResult[T]=Either[laika.config.ConfigError,T]" class="extmbr" name="laika.config.Config.ConfigResult">ConfigResult</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="laika.config.Config.getOpt.T">T</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Config.html" class="extype" name="laika.config.Config">Config</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.13.0)</i> use getOpt(Key)</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">

@@ -138,6 +138,10 @@
                         <a class="class" href="DocumentTargets.html" title="Collects all tree elements from a document that can be referenced from other elements, like images, footnotes, citations and other inline targets."></a>
                         <a href="DocumentTargets.html" title="Collects all tree elements from a document that can be referenced from other elements, like images, footnotes, citations and other inline targets.">DocumentTargets</a>
                       </li><li class="current-entities indented3">
+                        <a class="object" href="InternalLinkMapping$.html" title=""></a>
+                        <a class="class" href="InternalLinkMapping.html" title=""></a>
+                        <a href="InternalLinkMapping.html" title="">InternalLinkMapping</a>
+                      </li><li class="current-entities indented3">
                         <a class="object" href="LinkAliasResolver$.html" title=""></a>
                         <a class="class" href="LinkAliasResolver.html" title=""></a>
                         <a href="LinkAliasResolver.html" title="">LinkAliasResolver</a>
@@ -177,6 +181,10 @@
                         <span class="separator"></span>
                         <a class="object" href="SlugBuilder$.html" title="Default implementation for the logic that transforms section titles, document names and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names."></a>
                         <a href="SlugBuilder$.html" title="Default implementation for the logic that transforms section titles, document names and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.">SlugBuilder</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="SourceLinks$.html" title=""></a>
+                        <a class="class" href="SourceLinks.html" title=""></a>
+                        <a href="SourceLinks.html" title="">SourceLinks</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TargetDefinition.html" title=""></a>
@@ -317,6 +325,22 @@
       
       <p class="shortcomment cmt">Collects all tree elements from a document that can be referenced from other elements,
 like images, footnotes, citations and other inline targets.</p>
+    </li><li name="laika.rewrite.link.InternalLinkMapping" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InternalLinkMappingextendsProductwithSerializable"></a><a id="InternalLinkMapping:InternalLinkMapping"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/link/InternalLinkMapping.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="InternalLinkMapping.html"><span class="name">InternalLinkMapping</span></a><span class="params">(<span name="internalPath">internalPath: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="externalBaseUrl">externalBaseUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.rewrite.link.LinkAliasResolver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LinkAliasResolverextendsTargetResolverwithProductwithSerializable"></a><a id="LinkAliasResolver:LinkAliasResolver"></a>
       <span class="permalink">
@@ -345,7 +369,7 @@ like images, footnotes, citations and other inline targets.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="LinkConfig.html"><span class="name">LinkConfig</span></a><span class="params">(<span name="targets">targets: <span class="extype" name="scala.Seq">Seq</span>[<a href="TargetDefinition.html" class="extype" name="laika.rewrite.link.TargetDefinition">TargetDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="excludeFromValidation">excludeFromValidation: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="apiLinks">apiLinks: <span class="extype" name="scala.Seq">Seq</span>[<a href="ApiLinks.html" class="extype" name="laika.rewrite.link.ApiLinks">ApiLinks</a>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="LinkConfig.html"><span class="name">LinkConfig</span></a><span class="params">(<span name="targets">targets: <span class="extype" name="scala.Seq">Seq</span>[<a href="TargetDefinition.html" class="extype" name="laika.rewrite.link.TargetDefinition">TargetDefinition</a>] = <span class="symbol">Nil</span></span>, <span name="excludeFromValidation">excludeFromValidation: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>] = <span class="symbol">Nil</span></span>, <span name="internalLinkMappings">internalLinkMappings: <span class="extype" name="scala.Seq">Seq</span>[<a href="InternalLinkMapping.html" class="extype" name="laika.rewrite.link.InternalLinkMapping">InternalLinkMapping</a>] = <span class="symbol">Nil</span></span>, <span name="apiLinks">apiLinks: <span class="extype" name="scala.Seq">Seq</span>[<a href="ApiLinks.html" class="extype" name="laika.rewrite.link.ApiLinks">ApiLinks</a>] = <span class="symbol">Nil</span></span>, <span name="sourceLinks">sourceLinks: <span class="extype" name="scala.Seq">Seq</span>[<a href="SourceLinks.html" class="extype" name="laika.rewrite.link.SourceLinks">SourceLinks</a>] = <span class="symbol">Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt"></p>
@@ -459,6 +483,22 @@ and the actual inline span that is representing the link.</p>
       </span>
       
       <p class="shortcomment cmt">A selector that can be used for a sequence of targets.</p>
+    </li><li name="laika.rewrite.link.SourceLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SourceLinksextendsProductwithSerializable"></a><a id="SourceLinks:SourceLinks"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/link/SourceLinks.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="SourceLinks.html"><span class="name">SourceLinks</span></a><span class="params">(<span name="baseUri">baseUri: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="suffix">suffix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="packagePrefix">packagePrefix: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;*&quot;</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.rewrite.link.TargetDefinition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TargetDefinitionextendsProductwithSerializable"></a><a id="TargetDefinition:TargetDefinition"></a>
       <span class="permalink">
@@ -635,6 +675,22 @@ like images, footnotes, citations and other inline targets.</p>
       </span>
       
       <p class="shortcomment cmt">An auto-symbol selector (usually matched by position).</p>
+    </li><li name="laika.rewrite.link.InternalLinkMapping" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InternalLinkMapping"></a><a id="InternalLinkMapping:InternalLinkMapping"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/link/InternalLinkMapping$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="InternalLinkMapping$.html"><span class="name">InternalLinkMapping</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.rewrite.link.LinkAliasResolver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LinkAliasResolver"></a><a id="LinkAliasResolver:LinkAliasResolver"></a>
       <span class="permalink">
@@ -700,6 +756,22 @@ like images, footnotes, citations and other inline targets.</p>
       
       <p class="shortcomment cmt">Default implementation for the logic that transforms section titles, document names
  and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.</p>
+    </li><li name="laika.rewrite.link.SourceLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SourceLinks"></a><a id="SourceLinks:SourceLinks"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/link/SourceLinks$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="SourceLinks$.html"><span class="name">SourceLinks</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li><li name="laika.rewrite.link.TargetReplacer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TargetReplacer"></a><a id="TargetReplacer:TargetReplacer"></a>
       <span class="permalink">

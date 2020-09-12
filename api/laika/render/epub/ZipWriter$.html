@@ -127,14 +127,6 @@
                         <a href="HtmlNavRenderer.html" title="Renders the entire content of an EPUB HTML navigation file.">HtmlNavRenderer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered."></a>
-                        <a href="HtmlRenderExtensions$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">HtmlRenderExtensions</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers."></a>
-                        <a href="HtmlTemplate$.html" title="The default template for EPUB XHTML renderers.">HtmlTemplate</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="object" href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content."></a>
                         <a href="MimeTypes$.html" title="Lists the supported file types that get inserted into the EPUB container in addition to the dynamically rendered HTML content.">MimeTypes</a>
                       </li><li class="current-entities indented3">
@@ -157,6 +149,10 @@
                         <span class="separator"></span>
                         <a class="object" href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers."></a>
                         <a href="StyleSupport$.html" title="Processes CSS inputs for EPUB containers.">StyleSupport</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="XHTMLRenderer$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered."></a>
+                        <a href="XHTMLRenderer$.html" title="Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.">XHTMLRenderer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="" title=""></a>
@@ -597,9 +593,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.epub.ZipWriter#zipEPUB" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="zipEPUB[F[_]](inputFs:Seq[laika.io.model.BinaryInput[F]],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="zipEPUB[F[_]](Seq[BinaryInput[F]],BinaryOutput[F])(Async[F],Runtime[F]):F[Unit]"></a>
+      <a id="zipEPUB[F[_]](inputFs:Seq[laika.io.model.BinaryInput[F]],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="zipEPUB[F[_]](Seq[BinaryInput[F]],BinaryOutput[F])(Sync[F],Runtime[F]):F[Unit]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/epub/ZipWriter$.html#zipEPUB[F[_]](inputFs:Seq[laika.io.model.BinaryInput[F]],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
+      <a href="../../../laika/render/epub/ZipWriter$.html#zipEPUB[F[_]](inputFs:Seq[laika.io.model.BinaryInput[F]],output:laika.io.model.BinaryOutput[F])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -608,7 +604,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">zipEPUB</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="inputFs">inputFs: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]]</span>, <span name="output">output: <a href="../../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>, <span name="arg1">arg1: <a href="../../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">zipEPUB</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="inputFs">inputFs: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]]</span>, <span name="output">output: <a href="../../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>, <span name="arg1">arg1: <a href="../../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.render.epub.ZipWriter.zipEPUB.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Writes an EPUB Zip file to the specified output.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an EPUB Zip file to the specified output.

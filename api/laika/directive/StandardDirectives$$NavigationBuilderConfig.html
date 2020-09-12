@@ -123,6 +123,7 @@
   via its headline text. The headline does not have to be unique, as long as the directive can identify
   a section that is closer than the others with the same headline.
 - <code>api</code>: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
+- <code>source</code>: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
 - <code>fragment</code>: Marks a block in a markup document as being separate from the main content,
   so that it can be placed separately in templates.
 - <code>for</code>: Accesses a value from the context and sets it as the reference context for its
@@ -133,11 +134,16 @@
 - <code>format</code>: Process the body element only when the output format matches the format
   specified in the directive (e.g. <code>pdf</code> or <code>html</code>).
 - <code>style</code>: Adds a style property to the body element.
-- <code>styleLink</code>: Adds link elements to HTML output for all CSS files found in the document tree
+- <code>linkCSS</code>: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
+- <code>linkJS</code>: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
 - <code>fragment</code>: Adds the body as a fragment to the target document, separate from the main
   content, to be rendered in different locations of the output, like headers, footers or sidebars.
+- <code>relativePath</code>: Translates an absolute or relative path from the perspective of a template
+  to a path relative to the document the template had been applied to
 - <code>pageBreak</code>: Inserts a page break element into the tree (will only be rendered by page-based
   output, like XSL-FO or PDF.
+- <code>todo</code>: simple directive that accepts a string argument that will be ignored by renderers,
+  overcoming the limitation that Markdown does not have a native comment syntax.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.directive">directive</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
@@ -159,10 +165,6 @@
                         <a class="object" href="StandardDirectives$$NavigationNodeConfig$.html" title="Companion with a decoder for obtaining instances from HOCON."></a>
                         <a class="trait" href="StandardDirectives$$NavigationNodeConfig.html" title="Represents the configuration for a single node in a navigation tree."></a>
                         <a href="StandardDirectives$$NavigationNodeConfig.html" title="Represents the configuration for a single node in a navigation tree.">NavigationNodeConfig</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="StandardDirectives$$StyleLinks$.html" title="Template resolver that inserts links to all CSS inputs found in the document tree, using a path relative to the currently processed document."></a>
-                        <a href="StandardDirectives$$StyleLinks$.html" title="Template resolver that inserts links to all CSS inputs found in the document tree, using a path relative to the currently processed document.">StyleLinks</a>
                       </li>
               </ul>
             </div>
@@ -188,7 +190,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">NavigationBuilderConfig</span><span class="params">(<span name="entries">entries: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>]</span>, <span name="defaultDepth">defaultDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/BlockResolver.html" class="extype" name="laika.ast.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">NavigationBuilderConfig</span><span class="params">(<span name="entries">entries: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>]</span>, <span name="defaultDepth">defaultDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSelf">excludeSelf: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/BlockResolver.html" class="extype" name="laika.ast.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -196,7 +198,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A block resolver that replaces itself with a navigation list according to this instances configuration.
 The resulting navigation tree can either be automatically generated from specified root nodes
 of the input tree or by specifying entries manually (or a combination of both).</p><p>Serves as the implementation for the navigationTree directive, but can also be inserted into the AST manually.
-</p></div><dl class="paramcmts block"><dt class="param">entries</dt><dd class="cmt"><p>the list of manual and automatic entries to insert into the navigation tree</p></dd><dt class="param">defaultDepth</dt><dd class="cmt"><p>the depth for automatically generated entries (unless overridden in the entries' config)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to apply to all navigation items in the list as a render hint</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional styles and/or an id for the final navigation list</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">entries</dt><dd class="cmt"><p>the list of manual and automatic entries to insert into the navigation tree</p></dd><dt class="param">defaultDepth</dt><dd class="cmt"><p>the depth for automatically generated entries (unless overridden in the entries' config)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to apply to all navigation items in the list as a render hint</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSelf</dt><dd class="cmt"><p>indicates whether the current document should be included</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional styles and/or an id for the final navigation list</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -247,9 +249,9 @@ of the input tree or by specifying entries manually (or a combination of both).<
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.directive.StandardDirectives.NavigationBuilderConfig#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(entries:Seq[laika.directive.StandardDirectives.NavigationNodeConfig],defaultDepth:Int,itemStyles:Set[String],excludeRoot:Boolean,excludeSections:Boolean,options:laika.ast.Options):laika.directive.StandardDirectives.NavigationBuilderConfig"></a><a id="&lt;init&gt;:NavigationBuilderConfig"></a>
+      <a id="&lt;init&gt;(entries:Seq[laika.directive.StandardDirectives.NavigationNodeConfig],defaultDepth:Int,itemStyles:Set[String],excludeRoot:Boolean,excludeSections:Boolean,excludeSelf:Boolean,options:laika.ast.Options):laika.directive.StandardDirectives.NavigationBuilderConfig"></a><a id="&lt;init&gt;:NavigationBuilderConfig"></a>
       <span class="permalink">
-      <a href="../../laika/directive/StandardDirectives$$NavigationBuilderConfig.html#&lt;init&gt;(entries:Seq[laika.directive.StandardDirectives.NavigationNodeConfig],defaultDepth:Int,itemStyles:Set[String],excludeRoot:Boolean,excludeSections:Boolean,options:laika.ast.Options):laika.directive.StandardDirectives.NavigationBuilderConfig" title="Permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationBuilderConfig.html#&lt;init&gt;(entries:Seq[laika.directive.StandardDirectives.NavigationNodeConfig],defaultDepth:Int,itemStyles:Set[String],excludeRoot:Boolean,excludeSections:Boolean,excludeSelf:Boolean,options:laika.ast.Options):laika.directive.StandardDirectives.NavigationBuilderConfig" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -258,10 +260,10 @@ of the input tree or by specifying entries manually (or a combination of both).<
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">NavigationBuilderConfig</span><span class="params">(<span name="entries">entries: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>]</span>, <span name="defaultDepth">defaultDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span>
+        <span class="name">NavigationBuilderConfig</span><span class="params">(<span name="entries">entries: <span class="extype" name="scala.Seq">Seq</span>[<a href="StandardDirectives$$NavigationNodeConfig.html" class="extype" name="laika.directive.StandardDirectives.NavigationNodeConfig">NavigationNodeConfig</a>]</span>, <span name="defaultDepth">defaultDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="itemStyles">itemStyles: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Set()</span></span>, <span name="excludeRoot">excludeRoot: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSections">excludeSections: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="excludeSelf">excludeSelf: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">entries</dt><dd class="cmt"><p>the list of manual and automatic entries to insert into the navigation tree</p></dd><dt class="param">defaultDepth</dt><dd class="cmt"><p>the depth for automatically generated entries (unless overridden in the entries' config)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to apply to all navigation items in the list as a render hint</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional styles and/or an id for the final navigation list</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">entries</dt><dd class="cmt"><p>the list of manual and automatic entries to insert into the navigation tree</p></dd><dt class="param">defaultDepth</dt><dd class="cmt"><p>the depth for automatically generated entries (unless overridden in the entries' config)</p></dd><dt class="param">itemStyles</dt><dd class="cmt"><p>the styles to apply to all navigation items in the list as a render hint</p></dd><dt class="param">excludeRoot</dt><dd class="cmt"><p>indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSections</dt><dd class="cmt"><p>indicates whether sections within documents should be excluded in automatic entries (may be overridden in the entries' config)</p></dd><dt class="param">excludeSelf</dt><dd class="cmt"><p>indicates whether the current document should be included</p></dd><dt class="param">options</dt><dd class="cmt"><p>optional styles and/or an id for the final navigation list</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -474,6 +476,22 @@ will be returned as a <code>Left</code>.
       </span>
       <span class="symbol">
         <span class="name">excludeSections</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      
+    </li><li name="laika.directive.StandardDirectives.NavigationBuilderConfig#excludeSelf" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="excludeSelf:Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/StandardDirectives$$NavigationBuilderConfig.html#excludeSelf:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">excludeSelf</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       

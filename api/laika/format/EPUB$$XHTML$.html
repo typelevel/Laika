@@ -113,7 +113,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessor.html" class="extype" name="laika.factory.BinaryPostProcessor">BinaryPostProcessor</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/TwoPhaseRenderFormat.html" class="extype" name="laika.factory.TwoPhaseRenderFormat">TwoPhaseRenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>, <a href="../factory/BinaryPostProcessorBuilder.html" class="extype" name="laika.factory.BinaryPostProcessorBuilder">BinaryPostProcessorBuilder</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A post processor for EPUB output, based on an interim HTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
@@ -180,7 +180,7 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>], <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -206,7 +206,7 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.format.EPUB.XHTML"><span>XHTML</span></li><li class="in" name="laika.factory.RenderFormat"><span>RenderFormat</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.format.EPUB.XHTML"><span>XHTML</span></li><li class="in" name="laika.factory.RenderFormat"><span>RenderFormat</span></li><li class="in" name="laika.factory.Format"><span>Format</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -228,10 +228,10 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.factory.RenderFormat.Theme" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ThemeextendsRenderThemewithProductwithSerializable"></a><a id="Theme:Theme"></a>
+              <ol><li name="laika.factory.RenderFormat.Overrides" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="OverridesextendsRenderOverrideswithProductwithSerializable"></a><a id="Overrides:Overrides"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderFormat$Theme.html" title="Permalink">
+      <a href="../../laika/factory/RenderFormat$Overrides.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -240,7 +240,7 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="../factory/RenderFormat$Theme.html"><span class="name">Theme</span></a><span class="params">(<span name="customRenderer">customRenderer: <a href="../factory/RenderFormat.html#CustomRenderFunction[FMT]=PartialFunction[(FMT,laika.ast.Element),String]" class="extmbr" name="laika.factory.RenderFormat.CustomRenderFunction">CustomRenderFunction</a>[<span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span>] = <span class="symbol">PartialFunction.empty</span></span>, <span name="defaultTemplate">defaultTemplate: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a>] = <span class="symbol">None</span></span>, <span name="defaultStyles">defaultStyles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleDeclarationSet.empty</a></span></span></span>)</span><span class="result"> extends <a href="../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="../factory/RenderFormat$Overrides.html"><span class="name">Overrides</span></a><span class="params">(<span name="value">value: <a href="../factory/RenderFormat.html#CustomRenderFunction[FMT]=PartialFunction[(FMT,laika.ast.Element),String]" class="extmbr" name="laika.factory.RenderFormat.CustomRenderFunction">CustomRenderFunction</a>[<span class="extype" name="laika.factory.RenderFormat.FMT">FMT</span>] = <span class="symbol">PartialFunction.empty</span></span>)</span><span class="result"> extends <a href="../bundle/RenderOverrides.html" class="extype" name="laika.bundle.RenderOverrides">RenderOverrides</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
@@ -375,26 +375,7 @@ It is primarily used internally by the parent <code>EPUB</code> instance.
 It may be overridden by extensions for individual nodes of the AST.</p><p>The function takes both, a formatter instance
 and the element to render and returns a String in the target format.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB.XHTML">XHTML</a> → <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
-    </li><li name="laika.format.EPUB.XHTML#defaultTheme" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="defaultTheme:laika.format.EPUB.XHTML.Theme"></a><a id="defaultTheme:Theme"></a>
-      <span class="permalink">
-      <a href="../../laika/format/EPUB$$XHTML$.html#defaultTheme:laika.format.EPUB.XHTML.Theme" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">defaultTheme</span><span class="result">: <a href="#ThemeextendsRenderThemewithProductwithSerializable" class="extmbr" name="laika.factory.RenderFormat.Theme">Theme</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">The default theme to use if no theme is explicitly specified.</p><div class="fullcomment"><div class="comment cmt"><p>The default theme to use if no theme is explicitly specified.
-It allows to specify a default template and/or static files to include in the output,
-as well as custom overrides per element type for the renderer.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.EPUB.XHTML">XHTML</a> → <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
-    </li><li name="laika.factory.RenderFormat#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.factory.Format#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="description:String"></a>
       <span class="permalink">
       <a href="../../laika/format/EPUB$$XHTML$.html#description:String" title="Permalink">
@@ -409,8 +390,8 @@ as well as custom overrides per element type for the renderer.
         <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <p class="shortcomment cmt">Short string describing the output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the output format for tooling and logging.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a></dd></dl></div>
+      <p class="shortcomment cmt">Short string describing the markup or output format for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the markup or output format for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -730,6 +711,8 @@ will be used when invoking the default renderer.
         <div id="inheritedMembers">
         <div class="parent" name="laika.factory.RenderFormat">
               <h3>Inherited from <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<a href="../render/HTMLFormatter.html" class="extype" name="laika.render.HTMLFormatter">HTMLFormatter</a>]</h3>
+            </div><div class="parent" name="laika.factory.Format">
+              <h3>Inherited from <a href="../factory/Format.html" class="extype" name="laika.factory.Format">Format</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

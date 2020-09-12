@@ -123,24 +123,16 @@
                         <a href="BinaryOutputOps.html" title="API for specifying the output for a binary format like EPUB or PDF.">BinaryOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
+                        <a class="class" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
                         <a href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type.">IOBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
-                        <a href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">ParallelInputOps</a>
+                        <a class="trait" href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
+                        <a href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">InputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
-                        <a href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">ParallelTextOutputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation."></a>
-                        <a href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation.">SequentialInputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation."></a>
-                        <a href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation.">SequentialTextOutputOps</a>
+                        <a class="trait" href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
+                        <a href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">TextOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering."></a>
@@ -187,7 +179,7 @@ which are not available in the pure laika-core module.
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="../binary/ParallelTransformer$$Builder.html" class="extype" name="laika.io.binary.ParallelTransformer.Builder">Builder</a>, <a href="../text/ParallelTransformer$$Builder.html" class="extype" name="laika.io.text.ParallelTransformer.Builder">Builder</a></div>
+            <div class="subClasses hiddenContent"><a href="../api/BinaryTreeTransformer$$Builder.html" class="extype" name="laika.io.api.BinaryTreeTransformer.Builder">Builder</a>, <a href="../api/TreeTransformer$$Builder.html" class="extype" name="laika.io.api.TreeTransformer.Builder">Builder</a>, <a href="../../theme/TreeProcessorBuilder.html" class="extype" name="laika.theme.TreeProcessorBuilder">TreeProcessorBuilder</a></div>
           </div></div>
         
 
@@ -234,9 +226,9 @@ which are not available in the pure laika-core module.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.ops.TreeMapperOps#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;()(implicitevidence$1:cats.effect.Async[F]):laika.io.ops.TreeMapperOps[F]"></a><a id="&lt;init&gt;:TreeMapperOps[F]"></a>
+      <a id="&lt;init&gt;()(implicitevidence$1:cats.effect.Sync[F]):laika.io.ops.TreeMapperOps[F]"></a><a id="&lt;init&gt;:TreeMapperOps[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/TreeMapperOps.html#&lt;init&gt;()(implicitevidence$1:cats.effect.Async[F]):laika.io.ops.TreeMapperOps[F]" title="Permalink">
+      <a href="../../../laika/io/ops/TreeMapperOps.html#&lt;init&gt;()(implicitevidence$1:cats.effect.Sync[F]):laika.io.ops.TreeMapperOps[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -245,7 +237,7 @@ which are not available in the pure laika-core module.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TreeMapperOps</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.TreeMapperOps.F">F</span>]</span>)</span>
+        <span class="name">TreeMapperOps</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.TreeMapperOps.F">F</span>]</span>)</span>
       </span>
       
       
@@ -347,9 +339,9 @@ before rendering.</p>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.io.ops.TreeMapperOps#F" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="F:cats.effect.Async[F]"></a><a id="F:Async[F]"></a>
+      <a id="F:cats.effect.Sync[F]"></a><a id="F:Sync[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/TreeMapperOps.html#F:cats.effect.Async[F]" title="Permalink">
+      <a href="../../../laika/io/ops/TreeMapperOps.html#F:cats.effect.Sync[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -358,7 +350,7 @@ before rendering.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">F</span><span class="result">: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.TreeMapperOps.F">F</span>]</span>
+        <span class="name">F</span><span class="result">: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.TreeMapperOps.F">F</span>]</span>
       </span>
       
       

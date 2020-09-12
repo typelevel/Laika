@@ -514,9 +514,9 @@ that can serve as input for parallel parsers or transformers.
               
         </dd></dl></div>
     </li><li name="laika.io.runtime.DirectoryScanner#scanDirectories" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scanDirectories[F[_]](input:laika.io.model.DirectoryInput)(implicitevidence$1:cats.effect.Async[F]):F[laika.io.model.TreeInput[F]]"></a><a id="scanDirectories[F[_]](DirectoryInput)(Async[F]):F[TreeInput[F]]"></a>
+      <a id="scanDirectories[F[_]](input:laika.io.model.DirectoryInput)(implicitevidence$1:cats.effect.Sync[F]):F[laika.io.model.InputTree[F]]"></a><a id="scanDirectories[F[_]](DirectoryInput)(Sync[F]):F[InputTree[F]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/DirectoryScanner$.html#scanDirectories[F[_]](input:laika.io.model.DirectoryInput)(implicitevidence$1:cats.effect.Async[F]):F[laika.io.model.TreeInput[F]]" title="Permalink">
+      <a href="../../../laika/io/runtime/DirectoryScanner$.html#scanDirectories[F[_]](input:laika.io.model.DirectoryInput)(implicitevidence$1:cats.effect.Sync[F]):F[laika.io.model.InputTree[F]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -525,7 +525,7 @@ that can serve as input for parallel parsers or transformers.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">scanDirectories</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="input">input: <a href="../model/DirectoryInput.html" class="extype" name="laika.io.model.DirectoryInput">DirectoryInput</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>[<a href="../model/TreeInput.html" class="extype" name="laika.io.model.TreeInput">TreeInput</a>[<span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>]]</span>
+        <span class="name">scanDirectories</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="input">input: <a href="../model/DirectoryInput.html" class="extype" name="laika.io.model.DirectoryInput">DirectoryInput</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>[<a href="../model/InputTree.html" class="extype" name="laika.io.model.InputTree">InputTree</a>[<span class="extype" name="laika.io.runtime.DirectoryScanner.scanDirectories.F">F</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">Scans the specified directory and transforms it into a generic InputCollection.</p>

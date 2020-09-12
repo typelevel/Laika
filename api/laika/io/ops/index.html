@@ -101,10 +101,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="laika">laika</a></dd></dl></div>
-    </li><li name="laika.io.binary" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="binary"></a><a id="binary:binary"></a>
+    </li><li name="laika.io.api" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="api"></a><a id="api:api"></a>
       <span class="permalink">
-      <a href="../../../laika/io/binary/index.html" title="Permalink">
+      <a href="../../../laika/io/api/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -113,7 +113,7 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../binary/index.html"><span class="name">binary</span></a>
+        <a title="" href="../api/index.html"><span class="name">api</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
@@ -187,24 +187,16 @@
                         <a href="BinaryOutputOps.html" title="API for specifying the output for a binary format like EPUB or PDF.">BinaryOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
+                        <a class="class" href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
                         <a href="IOBuilderOps.html" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type.">IOBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
-                        <a href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">ParallelInputOps</a>
+                        <a class="trait" href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
+                        <a href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">InputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
-                        <a href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">ParallelTextOutputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation."></a>
-                        <a href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation.">SequentialInputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation."></a>
-                        <a href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation.">SequentialTextOutputOps</a>
+                        <a class="trait" href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
+                        <a href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">TextOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TreeMapperOps.html" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering."></a>
@@ -222,22 +214,6 @@
       </span>
       <span class="symbol">
         <a title="" href="../runtime/index.html"><span class="name">runtime</span></a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
-    </li><li name="laika.io.text" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="text"></a><a id="text:text"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/text/index.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="../text/index.html"><span class="name">text</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.io">io</a></dd></dl></div>
@@ -299,25 +275,25 @@
 in terms of the only abstract method <code>toOutput</code>.
 </p></div></div>
     </li><li name="laika.io.ops.IOBuilderOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="IOBuilderOps[SEQ[_[_]],PAR[_[_]]]extendsAnyRef"></a><a id="IOBuilderOps[SEQ[_[_]],PAR[_[_]]]:IOBuilderOps[SEQ,PAR]"></a>
+      <a id="IOBuilderOps[T[_[_]]]extendsAnyRef"></a><a id="IOBuilderOps[T[_[_]]]:IOBuilderOps[T]"></a>
       <span class="permalink">
       <a href="../../../laika/io/ops/IOBuilderOps.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Builder step that allows to choose between sequential and parallel execution and specify the effect type." href="IOBuilderOps.html"><span class="name">IOBuilderOps</span></a><span class="tparams">[<span name="SEQ">SEQ<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>, <span name="PAR">PAR<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Builder step that allows to choose between sequential and parallel execution and specify the effect type." href="IOBuilderOps.html"><span class="name">IOBuilderOps</span></a><span class="tparams">[<span name="T">T<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
       <p class="shortcomment cmt">Builder step that allows to choose between sequential and parallel execution and specify the effect type.</p>
-    </li><li name="laika.io.ops.ParallelInputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ParallelInputOps[F[_]]extendsAnyRef"></a><a id="ParallelInputOps[F[_]]:ParallelInputOps[F]"></a>
+    </li><li name="laika.io.ops.InputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="InputOps[F[_]]extendsAnyRef"></a><a id="InputOps[F[_]]:InputOps[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/ParallelInputOps.html" title="Permalink">
+      <a href="../../../laika/io/ops/InputOps.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -326,16 +302,16 @@ in terms of the only abstract method <code>toOutput</code>.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="API for specifying the tree of character inputs for a parsing operation." href="ParallelInputOps.html"><span class="name">ParallelInputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="API for specifying the tree of character inputs for a parsing operation." href="InputOps.html"><span class="name">InputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
       <p class="shortcomment cmt">API for specifying the tree of character inputs for a parsing operation.</p><div class="fullcomment"><div class="comment cmt"><p>API for specifying the tree of character inputs for a parsing operation.</p><p>It allows any class merging in this trait to define all input related operations
 in terms of the only abstract method <code>fromInput</code>.
 </p></div></div>
-    </li><li name="laika.io.ops.ParallelTextOutputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ParallelTextOutputOps[F[_]]extendsAnyRef"></a><a id="ParallelTextOutputOps[F[_]]:ParallelTextOutputOps[F]"></a>
+    </li><li name="laika.io.ops.TextOutputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TextOutputOps[F[_]]extendsAnyRef"></a><a id="TextOutputOps[F[_]]:TextOutputOps[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/ParallelTextOutputOps.html" title="Permalink">
+      <a href="../../../laika/io/ops/TextOutputOps.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -344,46 +320,10 @@ in terms of the only abstract method <code>fromInput</code>.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="API for specifying the tree of character outputs for a rendering operation." href="ParallelTextOutputOps.html"><span class="name">ParallelTextOutputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="API for specifying the tree of character outputs for a rendering operation." href="TextOutputOps.html"><span class="name">TextOutputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
       <p class="shortcomment cmt">API for specifying the tree of character outputs for a rendering operation.</p><div class="fullcomment"><div class="comment cmt"><p>API for specifying the tree of character outputs for a rendering operation.</p><p>It allows any class merging in this trait to define all input related operations
-in terms of the only abstract method <code>toOutput</code>.
-</p></div></div>
-    </li><li name="laika.io.ops.SequentialInputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SequentialInputOps[F[_]]extendsAnyRef"></a><a id="SequentialInputOps[F[_]]:SequentialInputOps[F]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/ops/SequentialInputOps.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="API for specifying a single character input for a parsing operation." href="SequentialInputOps.html"><span class="name">SequentialInputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">API for specifying a single character input for a parsing operation.</p><div class="fullcomment"><div class="comment cmt"><p>API for specifying a single character input for a parsing operation.</p><p>It allows any class merging in this trait to define all input related operations
-in terms of the only abstract method <code>fromInput</code>.
-</p></div></div>
-    </li><li name="laika.io.ops.SequentialTextOutputOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SequentialTextOutputOps[F[_]]extendsAnyRef"></a><a id="SequentialTextOutputOps[F[_]]:SequentialTextOutputOps[F]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/ops/SequentialTextOutputOps.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="API for specifying a single character output for a rendering operation." href="SequentialTextOutputOps.html"><span class="name">SequentialTextOutputOps</span></a><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">API for specifying a single character output for a rendering operation.</p><div class="fullcomment"><div class="comment cmt"><p>API for specifying a single character output for a rendering operation.</p><p>It allows any class merging in this trait to define all output related operations
 in terms of the only abstract method <code>toOutput</code>.
 </p></div></div>
     </li><li name="laika.io.ops.TreeMapperOps" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">

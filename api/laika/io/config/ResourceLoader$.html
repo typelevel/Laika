@@ -125,6 +125,10 @@
                         <span class="separator"></span>
                         <a class="object" href="" title="Internal utility for loading text resources from the file system, the classpath or via its URL."></a>
                         <a href="" title="Internal utility for loading text resources from the file system, the classpath or via its URL.">ResourceLoader</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="SiteConfig$.html" title="Configuration for special folders in Laika's site output."></a>
+                        <a href="SiteConfig$.html" title="Configuration for special folders in Laika's site output.">SiteConfig</a>
                       </li>
               </ul>
             </div>
@@ -408,9 +412,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.io.config.ResourceLoader#loadClasspathResource" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="loadClasspathResource[F[_]](resource:String)(implicitevidence$5:cats.effect.Async[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadClasspathResource[F[_]](String)(Async[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
+      <a id="loadClasspathResource[F[_]](resource:String)(implicitevidence$5:cats.effect.Sync[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadClasspathResource[F[_]](String)(Sync[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/config/ResourceLoader$.html#loadClasspathResource[F[_]](resource:String)(implicitevidence$5:cats.effect.Async[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
+      <a href="../../../laika/io/config/ResourceLoader$.html#loadClasspathResource[F[_]](resource:String)(implicitevidence$5:cats.effect.Sync[F],implicitevidence$6:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -419,7 +423,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadClasspathResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="resource">resource: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
+        <span class="name">loadClasspathResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="resource">resource: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadClasspathResource.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
       </span>
       
       <p class="shortcomment cmt">Load the specified classpath resource.</p><div class="fullcomment"><div class="comment cmt"><p>Load the specified classpath resource.</p><p>The resource name is interpreted as absolute and should not start with a leading <code>/</code>.</p><p>If the resource does not exist the result will be <code>None</code>.
@@ -427,9 +431,9 @@ If it does exist, but fails to load or parse correctly the result will be <code>
 successfully parsed resources will be returned as <code>Some(Right(...))</code>.
 </p></div></div>
     </li><li name="laika.io.config.ResourceLoader#loadFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="loadFile[F[_]](file:java.io.File)(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadFile[F[_]](File)(Async[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
+      <a id="loadFile[F[_]](file:java.io.File)(implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadFile[F[_]](File)(Sync[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/config/ResourceLoader$.html#loadFile[F[_]](file:java.io.File)(implicitevidence$3:cats.effect.Async[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
+      <a href="../../../laika/io/config/ResourceLoader$.html#loadFile[F[_]](file:java.io.File)(implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -438,7 +442,7 @@ successfully parsed resources will be returned as <code>Some(Right(...))</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
+        <span class="name">loadFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
       </span>
       
       <p class="shortcomment cmt">Load the specified file (which may be a file on the file system or a classpath resource).</p><div class="fullcomment"><div class="comment cmt"><p>Load the specified file (which may be a file on the file system or a classpath resource).</p><p>If the file does not exist the result will be <code>None</code>.
@@ -446,9 +450,9 @@ If it does exist, but fails to load or parse correctly the result will be <code>
 successfully parsed resources will be returned as <code>Some(Right(...))</code>.
 </p></div></div>
     </li><li name="laika.io.config.ResourceLoader#loadFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="loadFile[F[_]](file:String)(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadFile[F[_]](String)(Async[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
+      <a id="loadFile[F[_]](file:String)(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadFile[F[_]](String)(Sync[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/config/ResourceLoader$.html#loadFile[F[_]](file:String)(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
+      <a href="../../../laika/io/config/ResourceLoader$.html#loadFile[F[_]](file:String)(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -457,7 +461,7 @@ successfully parsed resources will be returned as <code>Some(Right(...))</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
+        <span class="name">loadFile</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadFile.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
       </span>
       
       <p class="shortcomment cmt">Load the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Load the file with the specified name.</p><p>If the file does not exist the result will be <code>None</code>.
@@ -465,9 +469,9 @@ If it does exist, but fails to load or parse correctly the result will be <code>
 successfully parsed resources will be returned as <code>Some(Right(...))</code>.
 </p></div></div>
     </li><li name="laika.io.config.ResourceLoader#loadUrl" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="loadUrl[F[_]](url:java.net.URL)(implicitevidence$7:cats.effect.Async[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadUrl[F[_]](URL)(Async[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
+      <a id="loadUrl[F[_]](url:java.net.URL)(implicitevidence$7:cats.effect.Sync[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]"></a><a id="loadUrl[F[_]](URL)(Sync[F],Runtime[F]):F[Option[Either[ConfigResourceError,String]]]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/config/ResourceLoader$.html#loadUrl[F[_]](url:java.net.URL)(implicitevidence$7:cats.effect.Async[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
+      <a href="../../../laika/io/config/ResourceLoader$.html#loadUrl[F[_]](url:java.net.URL)(implicitevidence$7:cats.effect.Sync[F],implicitevidence$8:laika.io.runtime.Runtime[F]):F[Option[Either[laika.config.ConfigResourceError,String]]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -476,7 +480,7 @@ successfully parsed resources will be returned as <code>Some(Right(...))</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">loadUrl</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="url">url: <span class="extype" name="java.net.URL">URL</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
+        <span class="name">loadUrl</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="url">url: <span class="extype" name="java.net.URL">URL</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.config.ResourceLoader.loadUrl.F">F</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigResourceError.html" class="extype" name="laika.config.ConfigResourceError">ConfigResourceError</a>, <span class="extype" name="scala.Predef.String">String</span>]]]</span>
       </span>
       
       <p class="shortcomment cmt">Load the configuration from the specified URL.</p><div class="fullcomment"><div class="comment cmt"><p>Load the configuration from the specified URL.</p><p>If the resource does not exist (404 response) the result will be <code>None</code>.

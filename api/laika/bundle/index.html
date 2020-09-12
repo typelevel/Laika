@@ -167,8 +167,8 @@
                         <a href="DocumentTypeMatcher$.html" title="The default implementations for determining the document type of the input based on its path.">DocumentTypeMatcher</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ExtensionBundle$.html" title="Provides default ExtensionBundle instances."></a>
-                        <a class="trait" href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations."></a>
-                        <a href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
+                        <a class="trait" href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations."></a>
+                        <a href="ExtensionBundle.html" title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations.">ExtensionBundle</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="MarkupExtensions.html" title="Bundles extensions for the text markup parsers defined for the host language to support additional syntax not recognized by the base parsers."></a>
@@ -195,8 +195,8 @@
                         <a href="Precedence.html" title="Indicates whether a parser should be applied before the base parsers of the host language (high precedence) or after them (low precedence).">Precedence</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format."></a>
-                        <a href="RenderTheme.html" title="Collects templates, styles and custom render functions to form a theme for a specific output format.">RenderTheme</a>
+                        <a class="trait" href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes."></a>
+                        <a href="RenderOverrides.html" title="Collects custom render functions that adjust the rendered output of one or more AST nodes.">RenderOverrides</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="SpanParser$.html" title="Builder API for span parsers."></a>
@@ -297,6 +297,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.helium" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="helium"></a><a id="helium:helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../helium/index.html"><span class="name">helium</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li name="laika.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="io"></a><a id="io:io"></a>
       <span class="permalink">
@@ -390,6 +406,22 @@
       </span>
       <span class="symbol">
         <a title="" href="../rst/index.html"><span class="name">rst</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.theme" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="theme"></a><a id="theme:theme"></a>
+      <span class="permalink">
+      <a href="../../laika/theme/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../theme/index.html"><span class="name">theme</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
@@ -599,11 +631,11 @@ an instance of this trait to a <code>ParserBundle</code> within an <code>Extensi
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="An extension bundle is a collection of parser extensions, rewrite rules, render themes and other features to be applied to parse, render and transform operations." href="ExtensionBundle.html"><span class="name">ExtensionBundle</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="An extension bundle is a collection of parser extensions, rewrite rules, render overrides and other features to be applied to parse, render and transform operations." href="ExtensionBundle.html"><span class="name">ExtensionBundle</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">An extension bundle is a collection of parser extensions, rewrite rules, render themes
-and other features to be applied to parse, render and transform operations.</p><div class="fullcomment"><div class="comment cmt"><p>An extension bundle is a collection of parser extensions, rewrite rules, render themes
+      <p class="shortcomment cmt">An extension bundle is a collection of parser extensions, rewrite rules, render overrides
+and other features to be applied to parse, render and transform operations.</p><div class="fullcomment"><div class="comment cmt"><p>An extension bundle is a collection of parser extensions, rewrite rules, render overrides
 and other features to be applied to parse, render and transform operations. It serves
 as a central registry for all of Laika's extension and customization hooks.</p><p>The base trait contains empty implementations for all these features, therefore any bundle
 implementation only needs to override the relevant members.</p><p>If the bundle implementation is not parameterized, the most convenient choice for users would
@@ -733,10 +765,10 @@ parsers defined for the host language.
       
       <p class="shortcomment cmt">Indicates whether a parser should be applied before the base parsers of
 the host language (high precedence) or after them (low precedence).</p>
-    </li><li name="laika.bundle.RenderTheme" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="RenderThemeextendsAnyRef"></a><a id="RenderTheme:RenderTheme"></a>
+    </li><li name="laika.bundle.RenderOverrides" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RenderOverridesextendsAnyRef"></a><a id="RenderOverrides:RenderOverrides"></a>
       <span class="permalink">
-      <a href="../../laika/bundle/RenderTheme.html" title="Permalink">
+      <a href="../../laika/bundle/RenderOverrides.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -745,11 +777,10 @@ the host language (high precedence) or after them (low precedence).</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Collects templates, styles and custom render functions to form a theme for a specific output format." href="RenderTheme.html"><span class="name">RenderTheme</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Collects custom render functions that adjust the rendered output of one or more AST nodes." href="RenderOverrides.html"><span class="name">RenderOverrides</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">Collects templates, styles and custom render functions to form
-a theme for a specific output format.</p>
+      <p class="shortcomment cmt">Collects custom render functions that adjust the rendered output of one or more AST nodes.</p>
     </li><li name="laika.bundle.SpanParserBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="SpanParserBuilderextendsParserBuilder[laika.bundle.SpanParserDefinition]"></a><a id="SpanParserBuilder:SpanParserBuilder"></a>
       <span class="permalink">

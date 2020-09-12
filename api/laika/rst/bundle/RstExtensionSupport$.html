@@ -631,6 +631,24 @@ is a registry for directives which needs to pass all its registered directives t
 bundle which deals with finally creating all the directive parsers.</p><p>The partial function should match only on the types of bundles it intends to process
 and is then allowed to return a new, modified instance of that bundle.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#renderOverrides" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderOverrides:Seq[laika.bundle.RenderOverrides]"></a><a id="renderOverrides:Seq[RenderOverrides]"></a>
+      <span class="permalink">
+      <a href="../../../laika/rst/bundle/RstExtensionSupport$.html#renderOverrides:Seq[laika.bundle.RenderOverrides]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderOverrides</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../bundle/RenderOverrides.html" class="extype" name="laika.bundle.RenderOverrides">RenderOverrides</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The overrides for renderers defined by this bundle.</p><div class="fullcomment"><div class="comment cmt"><p>The overrides for renderers defined by this bundle.</p><p>An override is always specific to a particular output format like HTML or PDF.
+A bundle can contain multiple overrides for the same output format which will be merged before use.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="laika.rst.bundle.RstExtensionSupport#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rewriteRules:Seq[laika.ast.DocumentCursor=&gt;laika.ast.RewriteRules]"></a><a id="rewriteRules:Seq[(DocumentCursor)⇒ast.RewriteRules]"></a>
       <span class="permalink">
@@ -692,27 +710,6 @@ that becomes part of the final URL or identifier (depending on output format).</
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.bundle.ExtensionBundle#themes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="themes:Seq[laika.bundle.RenderTheme]"></a><a id="themes:Seq[RenderTheme]"></a>
-      <span class="permalink">
-      <a href="../../../laika/rst/bundle/RstExtensionSupport$.html#themes:Seq[laika.bundle.RenderTheme]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">themes</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../bundle/RenderTheme.html" class="extype" name="laika.bundle.RenderTheme">RenderTheme</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">The themes defined by this bundle, which are a collection of templates, styles
-and custom render functions.</p><div class="fullcomment"><div class="comment cmt"><p>The themes defined by this bundle, which are a collection of templates, styles
-and custom render functions.</p><p>A theme is always specific to a particular output format like HTML or PDF.
-A bundle can contain multiple themes for the same output format which will be
-merged before use.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

@@ -123,8 +123,16 @@
                         <a href="FOConcatenation$.html" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
-                        <a href="" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
+                        <a class="object" href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF."></a>
+                        <a href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.">FopFactoryBuilder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in."></a>
+                        <a href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in.">FopResourceResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements."></a>
+                        <a href="" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="PDFRenderer.html" title="Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream that represents the entire document and its navigation elements."></a>
@@ -157,8 +165,7 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements,
-like PDF bookmarks or table of contents.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -264,39 +271,6 @@ like PDF bookmarks or table of contents.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#addDocLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addDocLinks(DocumentTree):DocumentTree"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">addDocLinks</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Adds link targets for each document in the specified tree, including documents in subtrees.</p>
-    </li><li name="laika.render.pdf.PDFNavigation#addTreeLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="addTreeLinks(tree:laika.ast.DocumentTree,titleName:String):laika.ast.DocumentTree"></a><a id="addTreeLinks(DocumentTree,String):DocumentTree"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#addTreeLinks(tree:laika.ast.DocumentTree,titleName:String):laika.ast.DocumentTree" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">addTreeLinks</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="titleName">titleName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Adds link targets for each tree and subtree in the specified root tree
-that does not already contain a title document.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -448,24 +422,6 @@ The configuration key for setting the recursion depth is <code>pdf.bookmarks.dep
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#insertToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertToc(tree:laika.ast.DocumentTree,depth:Option[Int]):laika.ast.DocumentTree"></a><a id="insertToc(DocumentTree,Option[Int]):DocumentTree"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#insertToc(tree:laika.ast.DocumentTree,depth:Option[Int]):laika.ast.DocumentTree" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result">: <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Inserts a table of content into the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts a table of content into the specified document tree.
-The recursion depth can be set with the configuration key <code>pdf.toc.depth</code>.
-</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -536,26 +492,6 @@ The recursion depth can be set with the configuration key <code>pdf.toc.depth</c
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.pdf.PDFNavigation#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.BookConfig):laika.ast.DocumentTreeRoot"></a><a id="prepareTree(DocumentTreeRoot,BookConfig):DocumentTreeRoot"></a>
-      <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFNavigation$.html#prepareTree(root:laika.ast.DocumentTreeRoot,config:laika.format.PDF.BookConfig):laika.ast.DocumentTreeRoot" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">prepareTree</span><span class="params">(<span name="root">root: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>, <span name="config">config: <a href="../../format/PDF$$BookConfig.html" class="extype" name="laika.format.PDF.BookConfig">BookConfig</a></span>)</span><span class="result">: <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Prepares the document tree before rendering the interim XSL-FO
- output.</p><div class="fullcomment"><div class="comment cmt"><p>Prepares the document tree before rendering the interim XSL-FO
- output. Preparation may include insertion of tree or document titles, PDF bookmarks
- and a table of content, depending on configuration.
-</p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

@@ -101,10 +101,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
-    </li><li name="laika.io.binary" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="binary"></a><a id="binary:binary"></a>
+    </li><li name="laika.io.api" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="api"></a><a id="api:api"></a>
       <span class="permalink">
-      <a href="../../laika/io/binary/index.html" title="Permalink">
+      <a href="../../laika/io/api/index.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -113,7 +113,7 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="binary/index.html"><span class="name">binary</span></a>
+        <a title="" href="api/index.html"><span class="name">api</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.io">io</a></dd></dl></div>
@@ -201,22 +201,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.io">io</a></dd></dl></div>
-    </li><li name="laika.io.text" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="text"></a><a id="text:text"></a>
-      <span class="permalink">
-      <a href="../../laika/io/text/index.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="text/index.html"><span class="name">text</span></a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.io">io</a></dd></dl></div>
     </li>
               </ul>
             </div>
@@ -246,7 +230,7 @@
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Implicits that add an <code>io</code> method to all builder instances for parsers, renderers and transformers
-from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.</p><p>The requirements for the effect are <code>Async</code> and <code>ContextShift</code> for sequential execution,
+from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.</p><p>The requirements for the effect are <code>Sync</code> and <code>ContextShift</code> for sequential execution,
 and additionally <code>cats.Parallel</code> for parallel execution.</p><p>Example for transforming a file from Markdown to HTML using the <code>sequential</code> builder:</p><pre><span class="kw">implicit</span> <span class="kw">val</span> cs: ContextShift[IO] =
   IO.contextShift(ExecutionContext.global)
 

@@ -159,16 +159,8 @@
                         <a href="TransformerBuilderOps.html" title="API for specifying configuration options that apply to all kinds of operations that contain both, a parsing and a rendering step (only Transform API).">TransformerBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="class" href="TwoPhaseRenderer.html" title="A renderer that operates with two phases, producing an interim result."></a>
-                        <a href="TwoPhaseRenderer.html" title="A renderer that operates with two phases, producing an interim result.">TwoPhaseRenderer</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="class" href="TwoPhaseRendererBuilder.html" title="Builder API for Renderer instances."></a>
                         <a href="TwoPhaseRendererBuilder.html" title="Builder API for Renderer instances.">TwoPhaseRendererBuilder</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="TwoPhaseTransformer.html" title="A transformer that operates with two phases, producing an interim result."></a>
-                        <a href="TwoPhaseTransformer.html" title="A transformer that operates with two phases, producing an interim result.">TwoPhaseTransformer</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TwoPhaseTransformerBuilder.html" title="Builder API for Transformer instances."></a>
@@ -730,6 +722,22 @@ all defined bundles.</p>
       
       <p class="shortcomment cmt">The filter to apply to runtime messages that should get rendered to the output.</p><div class="fullcomment"><div class="comment cmt"><p>The filter to apply to runtime messages that should get rendered to the output.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.builder.OperationConfig">OperationConfig</a> → <a href="RenderConfig.html" class="extype" name="laika.api.builder.RenderConfig">RenderConfig</a></dd></dl></div>
+    </li><li name="laika.api.builder.OperationConfig#renderOverridesFor" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="renderOverridesFor[FMT](format:laika.factory.RenderFormat[FMT]):format.Overrides"></a><a id="renderOverridesFor[FMT](RenderFormat[FMT]):Overrides"></a>
+      <span class="permalink">
+      <a href="../../../laika/api/builder/OperationConfig.html#renderOverridesFor[FMT](format:laika.factory.RenderFormat[FMT]):format.Overrides" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderOverridesFor</span><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="params">(<span name="format">format: <a href="../../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.builder.OperationConfig.renderOverridesFor.FMT">FMT</span>]</span>)</span><span class="result">: <a href="../../factory/RenderFormat$Overrides.html" class="extype" name="laika.factory.RenderFormat.Overrides">Overrides</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides the overrides for the specified render format.</p>
     </li><li name="laika.api.builder.OperationConfig#rewriteRulesFor" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rewriteRulesFor(doc:laika.ast.Document):laika.ast.RewriteRules"></a><a id="rewriteRulesFor(Document):RewriteRules"></a>
       <span class="permalink">
@@ -841,26 +849,8 @@ and adding a fallback that produces an empty style declaration set if all other 
 (or none if no bundle defines a parser).</p><div class="fullcomment"><div class="comment cmt"><p>Provides the parser for template documents, obtained by merging the parsers defined in all extension bundles
 (or none if no bundle defines a parser). This method does not provide a fallback parser as the lack of any
 defined parser indicates that templates are not supported for this operation. The parse operation should
-therefore ignore all template documents in the input tree and use the default template from the merged theme
-for the renderer for its output.
+therefore ignore all template documents in the input tree and use a fallback template.
 </p></div></div>
-    </li><li name="laika.api.builder.OperationConfig#themeFor" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="themeFor[FMT](format:laika.factory.RenderFormat[FMT]):format.Theme"></a><a id="themeFor[FMT](RenderFormat[FMT]):Theme"></a>
-      <span class="permalink">
-      <a href="../../../laika/api/builder/OperationConfig.html#themeFor[FMT](format:laika.factory.RenderFormat[FMT]):format.Theme" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">themeFor</span><span class="tparams">[<span name="FMT">FMT</span>]</span><span class="params">(<span name="format">format: <a href="../../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.builder.OperationConfig.themeFor.FMT">FMT</span>]</span>)</span><span class="result">: <a href="../../factory/RenderFormat$Theme.html" class="extype" name="laika.factory.RenderFormat.Theme">Theme</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Provides the theme for the specified render format, obtained by merging all themes defined
-for this format and adding the default theme for the format and a fallback theme.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">

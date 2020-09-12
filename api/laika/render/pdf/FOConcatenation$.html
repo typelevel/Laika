@@ -123,8 +123,16 @@
                         <a href="" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
-                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
+                        <a class="object" href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF."></a>
+                        <a href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.">FopFactoryBuilder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in."></a>
+                        <a href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in.">FopResourceResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements."></a>
+                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="PDFRenderer.html" title="Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream that represents the entire document and its navigation elements."></a>
@@ -265,9 +273,9 @@ and applies the default XSL-FO template to the entire result.
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.render.pdf.FOConcatenation#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig):Either[laika.config.ConfigError,String]"></a><a id="apply[F[_]](RenderedTreeRoot[F],BookConfig):Either[ConfigError,String]"></a>
+      <a id="apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig,opConfig:laika.api.builder.OperationConfig):Either[Throwable,String]"></a><a id="apply[F[_]](RenderedTreeRoot[F],BookConfig,OperationConfig):Either[Throwable,String]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/FOConcatenation$.html#apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig):Either[laika.config.ConfigError,String]" title="Permalink">
+      <a href="../../../laika/render/pdf/FOConcatenation$.html#apply[F[_]](result:laika.io.model.RenderedTreeRoot[F],config:laika.format.PDF.BookConfig,opConfig:laika.api.builder.OperationConfig):Either[Throwable,String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -276,13 +284,13 @@ and applies the default XSL-FO template to the entire result.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.FOConcatenation.apply.F">F</span>]</span>, <span name="config">config: <a href="../../format/PDF$$BookConfig.html" class="extype" name="laika.format.PDF.BookConfig">BookConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="result">result: <a href="../../io/model/RenderedTreeRoot.html" class="extype" name="laika.io.model.RenderedTreeRoot">RenderedTreeRoot</a>[<span class="extype" name="laika.render.pdf.FOConcatenation.apply.F">F</span>]</span>, <span name="config">config: <a href="../../format/PDF$$BookConfig.html" class="extype" name="laika.format.PDF.BookConfig">BookConfig</a></span>, <span name="opConfig">opConfig: <a href="../../api/builder/OperationConfig.html" class="extype" name="laika.api.builder.OperationConfig">OperationConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<span class="extype" name="scala.Throwable">Throwable</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Concatenates the XSL-FO that serves as a basis for producing the final PDF output
 and applies the default XSL-FO template to the entire result.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates the XSL-FO that serves as a basis for producing the final PDF output
 and applies the default XSL-FO template to the entire result.
-</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the tree of rendered XSL-FO documents</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration to apply</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO merged to a single String</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>the tree of rendered XSL-FO documents</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration to apply</p></dd><dt class="param">opConfig</dt><dd class="cmt"><p>the operation config that had been used to produce the interim XSL-FO result</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO merged to a single String</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">

@@ -308,9 +308,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.io.runtime.InputRuntime#binaryFileResource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="binaryFileResource[F[_]](file:java.io.File)(implicitevidence$5:cats.effect.Async[F]):cats.effect.Resource[F,java.io.InputStream]"></a><a id="binaryFileResource[F[_]](File)(Async[F]):Resource[F,InputStream]"></a>
+      <a id="binaryFileResource[F[_]](file:java.io.File)(implicitevidence$5:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.InputStream]"></a><a id="binaryFileResource[F[_]](File)(Sync[F]):Resource[F,InputStream]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/InputRuntime$.html#binaryFileResource[F[_]](file:java.io.File)(implicitevidence$5:cats.effect.Async[F]):cats.effect.Resource[F,java.io.InputStream]" title="Permalink">
+      <a href="../../../laika/io/runtime/InputRuntime$.html#binaryFileResource[F[_]](file:java.io.File)(implicitevidence$5:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.InputStream]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -319,7 +319,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">binaryFileResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.InputRuntime.binaryFileResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.binaryFileResource.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>
+        <span class="name">binaryFileResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.InputRuntime.binaryFileResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.binaryFileResource.F">F</span>, <span class="extype" name="java.io.InputStream">InputStream</span>]</span>
       </span>
       
       
@@ -509,10 +509,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.runtime.InputRuntime#readParserInput" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="readParserInput[F[_]](doc:laika.io.model.TextInput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.parse.markup.DocumentParser.ParserInput]"></a><a id="readParserInput[F[_]](TextInput[F])(Async[F],Runtime[F]):F[ParserInput]"></a>
+    </li><li name="laika.io.runtime.InputRuntime#readAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readAll[F[_]](reader:java.io.Reader,sizeHint:Int)(implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[String]"></a><a id="readAll[F[_]](Reader,Int)(Sync[F],Runtime[F]):F[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/InputRuntime$.html#readParserInput[F[_]](doc:laika.io.model.TextInput[F])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.parse.markup.DocumentParser.ParserInput]" title="Permalink">
+      <a href="../../../laika/io/runtime/InputRuntime$.html#readAll[F[_]](reader:java.io.Reader,sizeHint:Int)(implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:laika.io.runtime.Runtime[F]):F[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +521,23 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">readParserInput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="doc">doc: <a href="../model/TextInput.html" class="extype" name="laika.io.model.TextInput">TextInput</a>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>[<a href="../../parse/markup/DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>]</span>
+        <span class="name">readAll</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="reader">reader: <span class="extype" name="java.io.Reader">Reader</span></span>, <span name="sizeHint">sizeHint: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.InputRuntime.readAll.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.InputRuntime.readAll.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.InputRuntime.readAll.F">F</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      
+    </li><li name="laika.io.runtime.InputRuntime#readParserInput" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readParserInput[F[_]](doc:laika.io.model.TextInput[F])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.parse.markup.DocumentParser.ParserInput]"></a><a id="readParserInput[F[_]](TextInput[F])(Sync[F],Runtime[F]):F[ParserInput]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/InputRuntime$.html#readParserInput[F[_]](doc:laika.io.model.TextInput[F])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[laika.parse.markup.DocumentParser.ParserInput]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readParserInput</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="doc">doc: <a href="../model/TextInput.html" class="extype" name="laika.io.model.TextInput">TextInput</a>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>, <span name="arg1">arg1: <a href="Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.runtime.InputRuntime.readParserInput.F">F</span>[<a href="../../parse/markup/DocumentParser$$ParserInput.html" class="extype" name="laika.parse.markup.DocumentParser.ParserInput">ParserInput</a>]</span>
       </span>
       
       
@@ -542,9 +558,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.io.runtime.InputRuntime#textFileResource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="textFileResource[F[_]](file:java.io.File,codec:scala.io.Codec)(implicitevidence$6:cats.effect.Async[F]):cats.effect.Resource[F,java.io.Reader]"></a><a id="textFileResource[F[_]](File,Codec)(Async[F]):Resource[F,Reader]"></a>
+      <a id="textFileResource[F[_]](file:java.io.File,codec:scala.io.Codec)(implicitevidence$6:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.Reader]"></a><a id="textFileResource[F[_]](File,Codec)(Sync[F]):Resource[F,Reader]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/InputRuntime$.html#textFileResource[F[_]](file:java.io.File,codec:scala.io.Codec)(implicitevidence$6:cats.effect.Async[F]):cats.effect.Resource[F,java.io.Reader]" title="Permalink">
+      <a href="../../../laika/io/runtime/InputRuntime$.html#textFileResource[F[_]](file:java.io.File,codec:scala.io.Codec)(implicitevidence$6:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.Reader]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -553,14 +569,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">textFileResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textFileResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textFileResource.F">F</span>, <span class="extype" name="java.io.Reader">Reader</span>]</span>
+        <span class="name">textFileResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textFileResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textFileResource.F">F</span>, <span class="extype" name="java.io.Reader">Reader</span>]</span>
       </span>
       
       
     </li><li name="laika.io.runtime.InputRuntime#textStreamResource" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="textStreamResource[F[_]](inputStream:F[java.io.InputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$7:cats.effect.Async[F]):cats.effect.Resource[F,java.io.Reader]"></a><a id="textStreamResource[F[_]](F[InputStream],Codec,Boolean)(Async[F]):Resource[F,Reader]"></a>
+      <a id="textStreamResource[F[_]](inputStream:F[java.io.InputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$7:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.Reader]"></a><a id="textStreamResource[F[_]](F[InputStream],Codec,Boolean)(Sync[F]):Resource[F,Reader]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/runtime/InputRuntime$.html#textStreamResource[F[_]](inputStream:F[java.io.InputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$7:cats.effect.Async[F]):cats.effect.Resource[F,java.io.Reader]" title="Permalink">
+      <a href="../../../laika/io/runtime/InputRuntime$.html#textStreamResource[F[_]](inputStream:F[java.io.InputStream],codec:scala.io.Codec,autoClose:Boolean)(implicitevidence$7:cats.effect.Sync[F]):cats.effect.Resource[F,java.io.Reader]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -569,7 +585,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">textStreamResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="inputStream">inputStream: <span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>[<span class="extype" name="java.io.InputStream">InputStream</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>, <span class="extype" name="java.io.Reader">Reader</span>]</span>
+        <span class="name">textStreamResource</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="inputStream">inputStream: <span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>[<span class="extype" name="java.io.InputStream">InputStream</span>]</span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="autoClose">autoClose: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="cats.effect.Resource">Resource</span>[<span class="extype" name="laika.io.runtime.InputRuntime.textStreamResource.F">F</span>, <span class="extype" name="java.io.Reader">Reader</span>]</span>
       </span>
       
       

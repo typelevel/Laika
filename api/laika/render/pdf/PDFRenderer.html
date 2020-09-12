@@ -123,8 +123,16 @@
                         <a href="FOConcatenation$.html" title="Concatenates the XSL-FO that serves as a basis for producing the final PDF output and applies the default XSL-FO template to the entire result.">FOConcatenation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents."></a>
-                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting all enabled navigation elements, like PDF bookmarks or table of contents.">PDFNavigation</a>
+                        <a class="object" href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF."></a>
+                        <a href="FopFactoryBuilder$.html" title="Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.">FopFactoryBuilder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in."></a>
+                        <a href="FopResourceResolver.html" title="Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream from its static input documents, including in-memory content or classpath resources, for which FOP does not have any support built in.">FopResourceResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements."></a>
+                        <a href="PDFNavigation$.html" title="Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.">PDFNavigation</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title="Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream that represents the entire document and its navigation elements."></a>
@@ -157,9 +165,8 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Responsible for the final step in producing the binary PDF format from
-a single XSL-FO input stream that represents the entire document and
-its navigation elements.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream
+that represents the entire document and its navigation elements.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -211,9 +218,9 @@ its navigation elements.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.pdf.PDFRenderer#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(fopFactory:Option[org.apache.fop.apps.FopFactory]):laika.render.pdf.PDFRenderer"></a><a id="&lt;init&gt;:PDFRenderer"></a>
+      <a id="&lt;init&gt;(fopFactory:org.apache.fop.apps.FopFactory):laika.render.pdf.PDFRenderer"></a><a id="&lt;init&gt;:PDFRenderer"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFRenderer.html#&lt;init&gt;(fopFactory:Option[org.apache.fop.apps.FopFactory]):laika.render.pdf.PDFRenderer" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFRenderer.html#&lt;init&gt;(fopFactory:org.apache.fop.apps.FopFactory):laika.render.pdf.PDFRenderer" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -222,7 +229,7 @@ its navigation elements.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">PDFRenderer</span><span class="params">(<span name="fopFactory">fopFactory: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span>]</span>)</span>
+        <span class="name">PDFRenderer</span><span class="params">(<span name="fopFactory">fopFactory: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>)</span>
       </span>
       
       
@@ -487,9 +494,9 @@ its navigation elements.
               
         </dd></dl></div>
     </li><li name="laika.render.pdf.PDFRenderer#render" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render[F[_]](foInput:String,output:laika.io.model.BinaryOutput[F],metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="render[F[_]](String,BinaryOutput[F],DocumentMetadata,Option[String],Seq[String])(Async[F],Runtime[F]):F[Unit]"></a>
+      <a id="render[F[_]](foInput:String,output:laika.io.model.BinaryOutput[F],metadata:laika.ast.DocumentMetadata,staticDocuments:Seq[laika.io.model.BinaryInput[F]])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]"></a><a id="render[F[_]](String,BinaryOutput[F],DocumentMetadata,Seq[BinaryInput[F]])(Sync[F],Runtime[F]):F[Unit]"></a>
       <span class="permalink">
-      <a href="../../../laika/render/pdf/PDFRenderer.html#render[F[_]](foInput:String,output:laika.io.model.BinaryOutput[F],metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String])(implicitevidence$1:cats.effect.Async[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
+      <a href="../../../laika/render/pdf/PDFRenderer.html#render[F[_]](foInput:String,output:laika.io.model.BinaryOutput[F],metadata:laika.ast.DocumentMetadata,staticDocuments:Seq[laika.io.model.BinaryInput[F]])(implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:laika.io.runtime.Runtime[F]):F[Unit]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -498,15 +505,11 @@ its navigation elements.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="foInput">foInput: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="output">output: <a href="../../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>, <span name="metadata">metadata: <a href="../../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>, <span name="arg1">arg1: <a href="../../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">render</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="foInput">foInput: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="output">output: <a href="../../io/model/BinaryOutput.html" class="extype" name="laika.io.model.BinaryOutput">BinaryOutput</a>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>, <span name="metadata">metadata: <a href="../../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../io/model/BinaryInput.html" class="extype" name="laika.io.model.BinaryInput">BinaryInput</a>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]] = <span class="symbol">Nil</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>, <span name="arg1">arg1: <a href="../../io/runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.render.pdf.PDFRenderer.render.F">F</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Render the given XSL-FO input as a PDF to the specified
- binary output.</p><div class="fullcomment"><div class="comment cmt"><p>Render the given XSL-FO input as a PDF to the specified
- binary output. The optional <code>sourcePaths</code> argument
- may be used to allow resolving relative paths for
- loading external files like images.
-</p></div><dl class="paramcmts block"><dt class="param">foInput</dt><dd class="cmt"><p>the input in XSL-FO format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the PDF</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title of the document</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths that may contain files like images
+      <p class="shortcomment cmt">Render the given XSL-FO input as a PDF to the specified binary output.</p><div class="fullcomment"><div class="comment cmt"><p>Render the given XSL-FO input as a PDF to the specified binary output.
+</p></div><dl class="paramcmts block"><dt class="param">foInput</dt><dd class="cmt"><p>the input in XSL-FO format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the PDF</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>additional files like fonts or images that the renderer should resolve for FOP
  which will be used to resolve relative paths</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

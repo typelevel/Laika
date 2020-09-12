@@ -3,211 +3,113 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-
-    <title>Laika</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
-    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
-
-    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>  
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    <link rel="stylesheet" href="icons/icofont.min.css">
-    <link href="css/container.css" rel="stylesheet">
-    <link href="css/content.css" rel="stylesheet">
-    <link href="css/nav.css" rel="stylesheet">
-    <link href="css/code.css" rel="stylesheet">
-
-    <script src="js/theme.js"></script>
+    <meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+    <title>Laika</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="css/manual.css" />
+    <link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
+    <script src="helium/laika-helium.js"></script>
     <script> /* for avoiding page load transitions */ </script>
-
   </head>
 
   <body>
 
-    <nav id="sidebar">
-
-      <a id="close-nav-icon">
-        <i class="icofont-close-circled icofont-xlg"></i>
-      </a>
-
-      <ul class="nav nav-list">
-
+    <div id="header">
+      <div id="header-left">
+         <img src="img/laika-dog-big@1.5x.png" alt="Laika Logo" width="327" height="393"> 
         
-        <li><a href="table-of-contents.html">Table of Contents</a></li>
-        <li class="nav-header">About Laika</li>
-        <li><a href="01-about-laika/01-features.html">Features</a></li>
-        <li><a href="01-about-laika/02-design-goals.html">Design Goals</a></li>
-        <li class="nav-header">Running Laika</li>
-        <li><a href="02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
-        <li><a href="02-running-laika/02-library-api.html">Library API</a></li>
-        <li><a href="02-running-laika/03-configuration.html">Configuration</a></li>
-        <li class="nav-header">Preparing Content</li>
-        <li><a href="03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
-        <li><a href="03-preparing-content/02-navigation.html">Navigation</a></li>
-        <li><a href="03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
-        <li><a href="03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
-        <li class="nav-header">Customizing Laika</li>
-        <li><a href="04-customizing-laika/01-overview.html">Overview</a></li>
-        <li><a href="04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
-        <li><a href="04-customizing-laika/04-document-ast.html">The Document AST</a></li>
-        <li><a href="04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
-        <li><a href="04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
-        <li class="nav-header">Extending Laika</li>
-        <li><a href="05-extending-laika/01-overview.html">Overview</a></li>
-        <li><a href="05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
-        <li><a href="05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
-        <li><a href="05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
-        <li><a href="05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
-        <li class="nav-header">Sub-Modules</li>
-        <li><a href="06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
-        <li><a href="06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
-        <li class="nav-header">Reference</li>
-        <li><a href="07-reference/01-standard-directives.html">Standard Directives</a></li>
-        <li><a href="07-reference/02-substitution-variables.html">Substitution Variables</a></li>
-        <li><a href="07-reference/03-spec-compliance.html">Spec Compliance</a></li>
-        <li><a href="07-reference/06-release-notes.html">Release Notes</a></li>
-        <li><a href="07-reference/07-migration-guide.html">Migration Guide</a></li>
+         <h2>Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js</h2> 
+      </div>
+      <div id="header-right">
         
-        <li class="nav-header">Project Links</li>
-        <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-        <li><a href="api/laika/api/">API Documentation</a></li>
-        <li><a href="http://planet42.org/">Demo App</a></li>
+          <p>Latest Release</p>
+          <p class="large">0.16.1</p>
         
-      </ul>
-
-    </nav>
-
-    <div id="container">
-
-      <a id="open-nav-icon">
-        <i class="icofont-navigation-menu icofont-xlg"></i>
-      </a>
-
-      <main class="content">
-
-        <div class="page-header">
-        <h1 id="laika" class="title">Laika</h1>
-        </div>
-        <p>Laika is a customizable and extensible toolkit for transforming lightweight text markup 
-        and template based site and e-book generation.</p>
-        <p>If you wonder about the name of the project and have never heard about Laika, 
-        you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
         
-        <h2 id="latest-release" class="section">Latest Release</h2>
-        <p>The latest release is version <strong>0.15.0</strong>.<br></p>
-        <p>It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.</p>
-        <p>The sbt plugin is published to the sbt plugin repository for sbt 1.x.</p>
-        <p>The last release supporting Scala 2.11 had been 0.10.0, 
-        the last release for Scala 2.10 and sbt 0.13 was 0.7.0.</p>
-        <p>Open Source under the Apache 2.0 License.</p>
+          <p>License</p>
+          <p class="large">Apache 2.0</p>
         
-        <h2 id="features" class="section">Features</h2>
-        <ul>
-          <li>
-            <p>Supported Platforms </p>
+        
+          <div id="docs">
+            <p>Documentation</p>
             <ul>
-              <li>
-                <p>Integrated plugin for sbt 1.x, to run Laika as part of your build or CI pipeline.</p>
-              </li>
-              <li>
-                <p>Purely functional library API for Scala 2.13 and 2.12 and Scala.js 1.0, 
-                with full referential transparency, no exceptions and no runtime reflection.</p>
-              </li>
-              <li>
-                <p>The library API abstracts all effectful computations behind a polymorphic effect type based on 
-                <code>cats-effect</code> typeclasses, so that any compatible library can be used with Laika (<code>cats.IO</code>, <code>Monix</code>, <code>Zio</code>).</p>
-              </li>
-              <li>
-                <p>Full control over ExecutionContexts for blocking IO and CPU-bound processing.</p>
-              </li>
-              <li>
-                <p>All functionality is available without the need to install any external tools.</p>
-              </li>
-              <li>
-                <p>Scaling up to producing complex e-books and sites from dozens of inputs, 
-                to scaling down to transform a snippet of Markdown with three lines of code.</p>
-              </li>
+              
+                <li><a class="text-link" href="01-about-laika/01-features.html">Features</a></li>
+              
+                <li><a class="text-link" href="02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+              
+                <li><a class="text-link" href="02-running-laika/02-library-api.html">Library API</a></li>
+              
+                <li><a class="text-link" href="table-of-content.html">Table of Content</a></li>
+              
+                <li><a class="text-link" href="downloads.html">Download (PDF &amp; EPUB)</a></li>
+              
+                <li><a class="text-link" href="api/laika/api/index.html">API (Scaladoc)</a></li>
+              
             </ul>
-          </li>
-          <li>
-            <p>Supported Formats</p>
-            <ul>
-              <li>
-                <p>Markdown including GitHub Flavor and reStructuredText as input formats</p>
-              </li>
-              <li>
-                <p>HTML, EPUB and PDF as output formats</p>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <p>Content Organization</p>
-            <ul>
-              <li>
-                <p>Convenient navigation with validated internal links, global link definitions, cross-referencing by headline text,
-                auto-generated navigation trees or breadcrumbs with optional auto-numbering.</p>
-              </li>
-              <li>
-                <p>Use integrated parsers for syntax highlighting that work for all output formats. 
-                Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), 
-                HTML, CSS, XML, JSON, HOCON, SQL, EBNF</p>
-              </li>
-              <li>
-                <p>Freely organize and merge content from multiple input directories or generated in-memory 
-                with the library&#39;s virtual path abstraction.</p>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <p>Customizations &amp; Extensibility</p>
-            <ul>
-              <li>
-                <p>Process and transform the Document AST between parsing and rendering.</p>
-              </li>
-              <li>
-                <p>Adjust the rendered output for individual AST node types or control the final output of documents with custom templates. </p>
-              </li>
-              <li>
-                <p>Extend the syntax of text markup languages, either with custom directives or by writing a parser extension.</p>
-              </li>
-            </ul>
-          </li>
-        </ul>
+          </div>
         
-        <h2 id="getting-started" class="section">Getting Started</h2>
-        <ul>
-          <li>
-            <p>Check the detailed list of <a href="#features">Features</a>.</p>
-          </li>
-          <li>
-            <p>Read the introduction for the <a href="02-running-laika/01-sbt-plugin.html#sbt-plugin">sbt Plugin</a> or the <a href="02-running-laika/02-library-api.html#library-api">Library API</a>.</p>
-          </li>
-          <li>
-            <p>Try out Laika with the <a href="http://planet42.org/">Demo App</a>.</p>
-          </li>
-          <li>
-            <p>Browse the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p>
-          </li>
-          <li>
-            <p>Browse the <a href="api/laika/api">API Documentation</a>.</p>
-          </li>
-          <li>
-            <p>Follow on <a href="https://twitter.com/_planet42">Twitter</a> for release announcements.</p>
-          </li>
-          <li>
-            <p>Create <a href="https://github.com/planet42/Laika/issues">Issues</a> here on GitHub for bug reports or enhancement requests.</p>
-          </li>
-          <li>
-            <p>Ask questions on <a href="http://stackoverflow.com/questions/ask?tags=scala%2claika">Stackoverflow</a>, tagging with Laika and Scala.</p>
-          </li>
-        </ul>
-        <p>This manual is written in Markdown and transformed by Laika. 
-        Its source is included in the repository inside the <code>docs</code> folder.</p>
         
-      </main>
-      
+          <p class="medium"><a class="text-link" href="https://github.com/planet42/Laika">Source on GitHub</a></p>
+        
+          <p class="medium"><a class="text-link" href="http://planet42.org">Demo Application</a></p>
+        
+      </div>
     </div>
+    
+      <div class="teasers">
+        
+          <div class="teaser">
+            <h2>No External Tools</h2>
+            <p>Easy setup without any external tools or languages and only minimal library dependencies.</p>
+          </div>
+        
+          <div class="teaser">
+            <h2>Flexible Runtime</h2>
+            <p>Laika can be used as an sbt plugin, as a Scala library for the JVM or in the browser via Scala.js.</p>
+          </div>
+        
+          <div class="teaser">
+            <h2>Purely Functional</h2>
+            <p>Fully referentially transparent, no exceptions or runtime reflection and integration with cats-effect for polymorphic effect handling.</p>
+          </div>
+        
+      </div>
+    
+      <div class="teasers">
+        
+          <div class="teaser">
+            <h2>Rich Feature Set</h2>
+            <p>Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated syntax highlighting and much more.</p>
+          </div>
+        
+          <div class="teaser">
+            <h2>Lightweight Theme</h2>
+            <p>The default Helium theme includes only a minimal amount of handcrafted CSS and JS, no Bootstrap, no frameworks.</p>
+          </div>
+        
+          <div class="teaser">
+            <h2>Highly Extensible</h2>
+            <p>Process the document AST, adjust rendering for individual AST nodes or extend text markup languages with custom directives.</p>
+          </div>
+        
+      </div>
+    
+    
 
   </body>
 </html>

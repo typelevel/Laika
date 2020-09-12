@@ -123,24 +123,16 @@
                         <a href="BinaryOutputOps.html" title="API for specifying the output for a binary format like EPUB or PDF.">BinaryOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
+                        <a class="class" href="" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type."></a>
                         <a href="" title="Builder step that allows to choose between sequential and parallel execution and specify the effect type.">IOBuilderOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
-                        <a href="ParallelInputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">ParallelInputOps</a>
+                        <a class="trait" href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation."></a>
+                        <a href="InputOps.html" title="API for specifying the tree of character inputs for a parsing operation.">InputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
-                        <a href="ParallelTextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">ParallelTextOutputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation."></a>
-                        <a href="SequentialInputOps.html" title="API for specifying a single character input for a parsing operation.">SequentialInputOps</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation."></a>
-                        <a href="SequentialTextOutputOps.html" title="API for specifying a single character output for a rendering operation.">SequentialTextOutputOps</a>
+                        <a class="trait" href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation."></a>
+                        <a href="TextOutputOps.html" title="API for specifying the tree of character outputs for a rendering operation.">TextOutputOps</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="TreeMapperOps.html" title="Operations for builders of transformers that allow to modify the tree or documents between parsing and rendering."></a>
@@ -150,9 +142,9 @@
             </div>
           </div>
           <div id="content">
-            <body class="trait type">
+            <body class="class type">
       <div id="definition">
-        <div class="big-circle trait">t</div>
+        <div class="big-circle class">c</div>
         <p id="owner"><a href="../../index.html" class="extype" name="laika">laika</a>.<a href="../index.html" class="extype" name="laika.io">io</a>.<a href="index.html" class="extype" name="laika.io.ops">ops</a></p>
         <h1>IOBuilderOps<span class="permalink">
       <a href="../../../laika/io/ops/IOBuilderOps.html" title="Permalink">
@@ -164,11 +156,11 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">IOBuilderOps</span><span class="tparams">[<span name="SEQ">SEQ<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>, <span name="PAR">PAR<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">IOBuilderOps</span><span class="tparams">[<span name="T">T<span class="tparams">[<span name="_">_<span class="tparams">[<span name="_">_</span>]</span></span>]</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
 
@@ -222,16 +214,35 @@
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="laika.io.ops.IOBuilderOps#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[T]"></a><a id="&lt;init&gt;:IOBuilderOps[T]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/ops/IOBuilderOps.html#&lt;init&gt;(blocker:cats.effect.Blocker):laika.io.ops.IOBuilderOps[T]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IOBuilderOps</span><span class="params">(<span name="blocker">blocker: <span class="extype" name="cats.effect.Blocker">Blocker</span></span>)</span>
+      </span>
+      
+      
+    </li></ol>
+            </div>
 
         
 
         <div class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="laika.io.ops.IOBuilderOps#parallel" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="parallel[F[_]](parallelism:Int)(implicitevidence$6:cats.effect.Async[F],implicitevidence$7:cats.effect.ContextShift[F],implicitevidence$8:cats.Parallel[F]):PAR[F]"></a><a id="parallel[F[_]](Int)(Async[F],ContextShift[F],Parallel[F]):PAR[F]"></a>
+              <ol><li name="laika.io.ops.IOBuilderOps#build" visbl="prt" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="build[F[_]](implicitevidence$9:cats.effect.Sync[F],implicitevidence$10:laika.io.runtime.Runtime[F]):T[F]"></a><a id="build[F[_]](Sync[F],Runtime[F]):T[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/IOBuilderOps.html#parallel[F[_]](parallelism:Int)(implicitevidence$6:cats.effect.Async[F],implicitevidence$7:cats.effect.ContextShift[F],implicitevidence$8:cats.Parallel[F]):PAR[F]" title="Permalink">
+      <a href="../../../laika/io/ops/IOBuilderOps.html#build[F[_]](implicitevidence$9:cats.effect.Sync[F],implicitevidence$10:laika.io.runtime.Runtime[F]):T[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -240,31 +251,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="parallelism">parallelism: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.PAR">PAR</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>
+        <span class="name">build</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.build.F">F</span>]</span>, <span name="arg1">arg1: <a href="../runtime/Runtime.html" class="extype" name="laika.io.runtime.Runtime">Runtime</a>[<span class="extype" name="laika.io.ops.IOBuilderOps.build.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.T">T</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.build.F">F</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Creates a builder for parallel execution.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for parallel execution.</p><p>The resulting API will offer methods like <code>fromDirectory</code>, <code>toDirectory</code>, etc.,
-in contrast to the sequential builder where you specify individual files or streams as input.</p><p>This builder creates instances with the specified level of parallelism.
-</p></div></div>
-    </li><li name="laika.io.ops.IOBuilderOps#sequential" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="sequential[F[_]](implicitevidence$1:cats.effect.Async[F],implicitevidence$2:cats.effect.ContextShift[F]):SEQ[F]"></a><a id="sequential[F[_]](Async[F],ContextShift[F]):SEQ[F]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/ops/IOBuilderOps.html#sequential[F[_]](implicitevidence$1:cats.effect.Async[F],implicitevidence$2:cats.effect.ContextShift[F]):SEQ[F]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">sequential</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.SEQ">SEQ</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates a builder for sequential execution.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for sequential execution.</p><p>The resulting API will offer methods like <code>fromFile</code>, <code>fromStream</code>, etc.,
-in contrast to the parallel builder where you can specify entire directories as input.</p><p>Despite the name, the calling code can of course create multiple effects of this kind and run
-them in parallel.
-</p></div></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
 
@@ -522,9 +512,9 @@ them in parallel.
               
         </dd></dl></div>
     </li><li name="laika.io.ops.IOBuilderOps#parallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parallel[F[_]](implicitevidence$3:cats.effect.Async[F],implicitevidence$4:cats.effect.ContextShift[F],implicitevidence$5:cats.Parallel[F]):PAR[F]"></a><a id="parallel[F[_]](Async[F],ContextShift[F],Parallel[F]):PAR[F]"></a>
+      <a id="parallel[F[_]](parallelism:Int)(implicitevidence$6:cats.effect.Sync[F],implicitevidence$7:cats.effect.ContextShift[F],implicitevidence$8:cats.Parallel[F]):T[F]"></a><a id="parallel[F[_]](Int)(Sync[F],ContextShift[F],Parallel[F]):T[F]"></a>
       <span class="permalink">
-      <a href="../../../laika/io/ops/IOBuilderOps.html#parallel[F[_]](implicitevidence$3:cats.effect.Async[F],implicitevidence$4:cats.effect.ContextShift[F],implicitevidence$5:cats.Parallel[F]):PAR[F]" title="Permalink">
+      <a href="../../../laika/io/ops/IOBuilderOps.html#parallel[F[_]](parallelism:Int)(implicitevidence$6:cats.effect.Sync[F],implicitevidence$7:cats.effect.ContextShift[F],implicitevidence$8:cats.Parallel[F]):T[F]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -533,12 +523,49 @@ them in parallel.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Async">Async</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.PAR">PAR</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>
+        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span name="parallelism">parallelism: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.T">T</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a builder for parallel execution.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for parallel execution.</p><p>The resulting API will offer methods like <code>fromDirectory</code>, <code>toDirectory</code>, etc.,
+in contrast to the sequential builder where you specify individual files or streams as input.</p><p>This builder creates instances with the specified level of parallelism.
+</p></div></div>
+    </li><li name="laika.io.ops.IOBuilderOps#parallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parallel[F[_]](implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:cats.effect.ContextShift[F],implicitevidence$5:cats.Parallel[F]):T[F]"></a><a id="parallel[F[_]](Sync[F],ContextShift[F],Parallel[F]):T[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/ops/IOBuilderOps.html#parallel[F[_]](implicitevidence$3:cats.effect.Sync[F],implicitevidence$4:cats.effect.ContextShift[F],implicitevidence$5:cats.Parallel[F]):T[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parallel</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>, <span name="arg2">arg2: <span class="extype" name="cats.Parallel">Parallel</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.T">T</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.parallel.F">F</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Creates a builder for parallel execution.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for parallel execution.</p><p>The resulting API will offer methods like <code>fromDirectory</code>, <code>toDirectory</code>, etc.,
 in contrast to the sequential builder where you specify individual files or streams as input.</p><p>This builder creates instances with a level of parallelism matching the available cores.
 For explicit control of parallelism use the other <code>parallel</code> method.
+</p></div></div>
+    </li><li name="laika.io.ops.IOBuilderOps#sequential" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sequential[F[_]](implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:cats.effect.ContextShift[F]):T[F]"></a><a id="sequential[F[_]](Sync[F],ContextShift[F]):T[F]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/ops/IOBuilderOps.html#sequential[F[_]](implicitevidence$1:cats.effect.Sync[F],implicitevidence$2:cats.effect.ContextShift[F]):T[F]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sequential</span><span class="tparams">[<span name="F">F<span class="tparams">[<span name="_">_</span>]</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="cats.effect.Sync">Sync</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.effect.ContextShift">ContextShift</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>)</span><span class="result">: <span class="extype" name="laika.io.ops.IOBuilderOps.T">T</span>[<span class="extype" name="laika.io.ops.IOBuilderOps.sequential.F">F</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates a builder for sequential execution.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a builder for sequential execution.</p><p>The resulting API will offer methods like <code>fromFile</code>, <code>fromStream</code>, etc.,
+in contrast to the parallel builder where you can specify entire directories as input.</p><p>Despite the name, the calling code can of course create multiple effects of this kind and run
+them in parallel.
 </p></div></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

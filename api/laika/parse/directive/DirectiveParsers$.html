@@ -397,9 +397,9 @@
       <p class="shortcomment cmt">Parses a full directive declaration, containing all its attributes,
 but not the body elements.</p>
     </li><li name="laika.parse.directive.DirectiveParsers#directiveParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,legacyBody:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]"></a><a id="directiveParser(BodyParserBuilder,Parser[String],EscapedTextParsers,Boolean):Parser[ParsedDirective]"></a>
+      <a id="directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]"></a><a id="directiveParser(BodyParserBuilder,EscapedTextParsers,Boolean):Parser[ParsedDirective]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,legacyBody:laika.parse.Parser[String],escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]" title="Permalink">
+      <a href="../../../laika/parse/directive/DirectiveParsers$.html#directiveParser(bodyContent:laika.parse.directive.DirectiveParsers.BodyParserBuilder,escapedText:laika.parse.markup.EscapedTextParsers,supportsCustomFence:Boolean):laika.parse.Parser[laika.parse.directive.DirectiveParsers.ParsedDirective]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -408,13 +408,13 @@ but not the body elements.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">directiveParser</span><span class="params">(<span name="bodyContent">bodyContent: <a href="#BodyParserBuilder=laika.parse.directive.DirectiveParsers.DirectiveSpec=&gt;laika.parse.Parser[Option[String]]" class="extmbr" name="laika.parse.directive.DirectiveParsers.BodyParserBuilder">BodyParserBuilder</a></span>, <span name="legacyBody">legacyBody: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>, <span name="supportsCustomFence">supportsCustomFence: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="DirectiveParsers$$ParsedDirective.html" class="extype" name="laika.parse.directive.DirectiveParsers.ParsedDirective">ParsedDirective</a>]</span>
+        <span class="name">directiveParser</span><span class="params">(<span name="bodyContent">bodyContent: <a href="#BodyParserBuilder=laika.parse.directive.DirectiveParsers.DirectiveSpec=&gt;laika.parse.Parser[Option[String]]" class="extmbr" name="laika.parse.directive.DirectiveParsers.BodyParserBuilder">BodyParserBuilder</a></span>, <span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>, <span name="supportsCustomFence">supportsCustomFence: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="DirectiveParsers$$ParsedDirective.html" class="extype" name="laika.parse.directive.DirectiveParsers.ParsedDirective">ParsedDirective</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Parses one directive instance containing its name declaration,
  all attributes and all body elements.</p><div class="fullcomment"><div class="comment cmt"><p>Parses one directive instance containing its name declaration,
  all attributes and all body elements.
-</p></div><dl class="paramcmts block"><dt class="param">bodyContent</dt><dd class="cmt"><p>the parser for the body content which is different for a block directive than for a span or template directive</p></dd><dt class="param">legacyBody</dt><dd class="cmt"><p>the parser for the deprecated directive syntax that is still supported</p></dd><dt class="param">escapedText</dt><dd class="cmt"><p>the parser for escape sequences according to the rules of the host markup language</p></dd><dt class="param">supportsCustomFence</dt><dd class="cmt"><p>indicates whether the directive declaration allows the addition of a custom closing fence</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">bodyContent</dt><dd class="cmt"><p>the parser for the body content which is different for a block directive than for a span or template directive</p></dd><dt class="param">escapedText</dt><dd class="cmt"><p>the parser for escape sequences according to the rules of the host markup language</p></dd><dt class="param">supportsCustomFence</dt><dd class="cmt"><p>indicates whether the directive declaration allows the addition of a custom closing fence</p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -539,58 +539,6 @@ but not the body elements.</p>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.parse.directive.DirectiveParsers#legacyAttributeParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="legacyAttributeParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.hocon.ObjectBuilderValue]"></a><a id="legacyAttributeParser(EscapedTextParsers):Parser[ObjectBuilderValue]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyAttributeParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[laika.parse.hocon.ObjectBuilderValue]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">legacyAttributeParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>]</span>
-      </span>
-      
-      
-    </li><li name="laika.parse.directive.DirectiveParsers#legacyDeclarationParser" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="legacyDeclarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue)]"></a><a id="legacyDeclarationParser(EscapedTextParsers):Parser[(String,ObjectBuilderValue)]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyDeclarationParser(escapedText:laika.parse.markup.EscapedTextParsers):laika.parse.Parser[(String,laika.parse.hocon.ObjectBuilderValue)]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">legacyDeclarationParser</span><span class="params">(<span name="escapedText">escapedText: <a href="../markup/EscapedTextParsers.html" class="extype" name="laika.parse.markup.EscapedTextParsers">EscapedTextParsers</a></span>)</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[(<span class="extype" name="scala.Predef.String">String</span>, <a href="../hocon/ObjectBuilderValue.html" class="extype" name="laika.parse.hocon.ObjectBuilderValue">ObjectBuilderValue</a>)]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses a full directive declaration, containing all its attributes,
- but not the body elements.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full directive declaration, containing all its attributes,
- but not the body elements. This method parses the deprecated syntax where attributes
- are not enclosed in braces.
-</p></div></div>
-    </li><li name="laika.parse.directive.DirectiveParsers#legacyReference" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="legacyReference[T](f:String=&gt;T):laika.parse.text.PrefixedParser[T]"></a><a id="legacyReference[T]((String)⇒T):PrefixedParser[T]"></a>
-      <span class="permalink">
-      <a href="../../../laika/parse/directive/DirectiveParsers$.html#legacyReference[T](f:String=&gt;T):laika.parse.text.PrefixedParser[T]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">legacyReference</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span></span>)</span><span class="result">: <a href="../text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<span class="extype" name="laika.parse.directive.DirectiveParsers.legacyReference.T">T</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses a legacy reference (version 0.1 to 0.11) enclosed between <code>{{</code> and <code>}}</code>.</p>
     </li><li name="laika.parse.directive.DirectiveParsers#nameDecl" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="nameDecl:laika.parse.Parser[String]"></a><a id="nameDecl:Parser[String]"></a>
       <span class="permalink">
