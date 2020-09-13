@@ -175,10 +175,6 @@ object TreeCursor {
   def apply (root: RootCursor): TreeCursor =
     apply(root.target.tree, None, root, root.config, TreePosition.root)
 
-  @deprecated("use one of the other two apply methods that also allow to specify a target format", "0.16.0")
-  def apply (root: DocumentTreeRoot): TreeCursor =
-    apply(RootCursor(root))
-
   def apply (root: DocumentTree, format: Option[String] = None): TreeCursor =
     apply(RootCursor(DocumentTreeRoot(root), format))
 
@@ -302,12 +298,6 @@ object DocumentCursor {
   /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree. */
   def apply (document: Document, targetFormat: Option[String] = None): DocumentCursor =
     apply(document, TreeCursor(DocumentTree(Root, Seq(document)), targetFormat), document.config, document.position)
-
-  @deprecated("no longer useful for current feature set", "0.16.0")
-  def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
-    val emptyDoc = Document(parent.target.path / name, RootElement.empty)
-    apply(emptyDoc, parent, parent.config, TreePosition.root)
-  }
 
   /** Creates a cursor for a document and full context information:
     * its parent, configuration and position within the document tree.

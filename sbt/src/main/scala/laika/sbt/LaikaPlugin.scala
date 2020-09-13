@@ -16,11 +16,10 @@
 
 package laika.sbt
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import laika.bundle.ExtensionBundle
 import laika.helium.Helium
 import laika.theme.ThemeProvider
-import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
 
@@ -132,10 +131,7 @@ object LaikaPlugin extends AutoPlugin {
     val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
     
     val LaikaConfig = laika.sbt.LaikaConfig
-
     
-    @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
-    val fopFactory        = settingKey[Option[FopFactory]]("The FopFactory for the PDF renderer")
   }
 
 
@@ -177,9 +173,6 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaSite / mappings    := Def.sequential(Tasks.site, Tasks.mappings).value,
 
-    
-    fopFactory              := None,
-    
   ) :+ (cleanFiles += (Laika / target).value)
 
 }

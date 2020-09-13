@@ -29,7 +29,7 @@ import laika.io.api.TreeParser
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys.{description, _}
+import sbt.Keys._
 import sbt._
 
 import scala.concurrent.ExecutionContext

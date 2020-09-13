@@ -184,7 +184,7 @@ object Tasks {
           case OutputFormat.AST   => renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
           case OutputFormat.XSLFO => renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
           case OutputFormat.EPUB  => renderWithProcessor(EPUB, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(fopFactory.value.fold[PDF](PDF)(PDF.withFopFactory), "PDF")
+          case OutputFormat.PDF   => renderWithProcessor(PDF, "PDF")
         }
       }
       fun(inputFiles)

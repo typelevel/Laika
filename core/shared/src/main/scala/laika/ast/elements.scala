@@ -1195,9 +1195,7 @@ object Target {
   private[laika] def parseInternal (url: String): Either[RelativeInternalTarget, ExternalTarget] =
     if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) Right(ExternalTarget(url))
     else Left(RelativeInternalTarget(RelativePath.parse(url)))
-
-  @deprecated("use Target.parse instead", "0.16.0")
-  def create(url: String): Target = parse(url)
+  
 }
 object InternalTarget {
 
@@ -1208,12 +1206,6 @@ object InternalTarget {
     case p: Path => AbsoluteInternalTarget(p)
   }
   
-  @deprecated("use InternalTarget(path: PathBase).relativeTo(refPath: Path)", "0.16.0")
-  def fromPath (path: PathBase, refPath: Path): InternalTarget = path match {
-    case p: Path            => ResolvedInternalTarget(p, p.relativeTo(refPath))
-    case p: CurrentDocument => ResolvedInternalTarget(refPath / p, p)
-    case p: RelativePath    => ResolvedInternalTarget(refPath.parent / p, p)
-  }
 }
 
 /** An link element, with the span content representing the text (description) of the link.

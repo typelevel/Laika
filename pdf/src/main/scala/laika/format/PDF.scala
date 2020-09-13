@@ -66,14 +66,12 @@ import org.apache.fop.apps.FopFactory
  * 
  *  @author Jens Halm
  */
-class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Option[FopFactory]) 
-  extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
+object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
 
   override val description: String = "PDF"
 
-  @deprecated("custom fop factories are deprecated as this would bypass laika's font registration", "0.16.0")
-  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, Some(fopFactory))
-  
+  val interimFormat: RenderFormat[FOFormatter] = XSLFO
+
   /** Adds a preamble to each document for navigation and replaces the template with a fallback.
     * The modified tree will be used for rendering the interim XSL-FO result.
     * The original template will only be applied to the concatenated result of the XSL-FO renderer
@@ -93,7 +91,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     
     def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.liftF {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-      fopFactory.fold(FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs))(Sync[F].pure).map { fopFactory =>
+      FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs).map { fopFactory =>
         new BinaryPostProcessor {
           private val renderer = new PDFRenderer(fopFactory)
           override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
@@ -106,12 +104,6 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], fopFactory: Opti
     }
   }
   
-}
-
-/** The default instance of the PDF renderer.
-  */
-object PDF extends PDF(XSLFO, None) {
-
   /** Configuration options for the generated EPUB output.
     *
     * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
