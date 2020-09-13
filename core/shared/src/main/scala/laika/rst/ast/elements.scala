@@ -181,6 +181,34 @@ case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = 
   lazy val unresolvedMessage: String = s"Unresolved table of contents generator with title '$title'"
 }
 
+/** A single item inside a line block.
+  */
+abstract class LineBlockItem extends Block with RewritableContainer {
+  type Self <: LineBlockItem
+}
+
+/** A single line inside a line block.
+  */
+case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlockItem with SpanContainer {
+  type Self = Line
+  def withContent (newContent: Seq[Span]): Line = copy(content = newContent)
+  def withOptions (options: Options): Line = copy(options = options)
+}
+object Line extends SpanContainerCompanion {
+  type ContainerType = Line
+  protected def createSpanContainer (spans: Seq[Span]): Line = Line(spans)
+}
+
+/** A block containing lines which preserve line breaks and optionally nested line blocks.
+  */
+case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with ElementTraversal with RewritableContainer {
+  type Self = LineBlock
+  def rewriteChildren (rules: RewriteRules): LineBlock = copy(content = content.map(_.rewriteChildren(rules)))
+  def withOptions (options: Options): LineBlock = copy(options = options)
+}
+object LineBlock {
+  def apply(item: LineBlockItem, items: LineBlockItem*): LineBlock = LineBlock(item +: items.toList)
+}
 
 /** Represent a reference name.
   *  When resolving references whitespace needs to be normalized

@@ -23,6 +23,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.code.CodeCategory
+import laika.rst.ast.{Line, LineBlock}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -382,18 +383,6 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <hr>
       |    <p>bbb</p>
       |  </div>
-      |</div>""".stripMargin
-    render(elem) should be (html)
-  }
-  
-  it should "render nested line blocks" in {
-    val elem = LineBlock(LineBlock(Line("1"),Line("2")), Line("3"))
-    val html = """<div class="line-block">
-      |  <div class="line-block">
-      |    <div class="line">1</div>
-      |    <div class="line">2</div>
-      |  </div>
-      |  <div class="line">3</div>
       |</div>""".stripMargin
     render(elem) should be (html)
   }

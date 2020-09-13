@@ -19,6 +19,7 @@ package laika.render
 import cats.data.NonEmptySet
 import laika.ast.{InternalTarget, Styles, _}
 import laika.render.FOFormatter._
+import laika.rst.ast.{Line, LineBlock}
 
 /** Default renderer implementation for the XSL-FO output format.
   *

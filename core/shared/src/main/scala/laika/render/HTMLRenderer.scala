@@ -18,7 +18,6 @@ package laika.render
 
 import cats.data.NonEmptySet
 import laika.ast.{InternalTarget, _}
-import laika.rst.ast.RstStyle
 
 /** Default renderer implementation for the HTML output format.
   *
@@ -133,7 +132,6 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
         case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
         case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
-        case Line(content,opt)              => fmt.element("div", opt + RstStyle.line, content)
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
@@ -198,7 +196,6 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
       case Selection(name, choices, opt) => renderChoices(name, choices, opt)
-      case LineBlock(content,opt)      => fmt.indentedElement("div", opt + RstStyle.lineBlock, content)
       case TargetFormat(f,e,_) if f.intersect(formats).nonEmpty => fmt.child(e)
 
       case WithFallback(fallback)      => fmt.child(fallback)

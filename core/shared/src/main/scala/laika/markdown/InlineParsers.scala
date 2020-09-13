@@ -149,7 +149,7 @@ object InlineParsers {
 
     "[" ~> resource(recParsers).map { res =>
       res.target match {
-        case TargetUrl(url, title) => Link.create(res.parser(res.text), url, res.source, title)
+        case TargetUrl(url, title) => ParsedLink.create(res.parser(res.text), url, res.source, title)
         case TargetId(id)   => linkReference(res, id)
         case ImplicitTarget => linkReference(res, res.text)
       }

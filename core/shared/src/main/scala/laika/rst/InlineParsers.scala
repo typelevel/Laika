@@ -268,10 +268,10 @@ object InlineParsers {
     
     (markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end).withSource.map {
       case (name ~ Some(url) ~ true, src)   => SpanSequence(
-        Link.create(List(Text(ref(name.original, url))), url, src), 
+        ParsedLink.create(List(Text(ref(name.original, url))), url, src), 
         LinkDefinition.create(ref(name.normalized, url), url)
       )
-      case (name ~ Some(url) ~ false, src)  => Link.create(List(Text(ref(name.original, url))), url, src)
+      case (name ~ Some(url) ~ false, src)  => ParsedLink.create(List(Text(ref(name.original, url))), url, src)
       case (name ~ None ~ true, src)        => LinkIdReference(List(Text(name.original)), name.normalized, src) 
       case (name ~ None ~ false, src)       => LinkIdReference(List(Text(name.original)), "", src) 
     }

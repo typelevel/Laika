@@ -90,6 +90,17 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
       |</table>""".stripMargin
     render (elem) should be (html)
   }
-  
+
+  it should "render nested line blocks" in {
+    val elem = LineBlock(LineBlock(Line("1"),Line("2")), Line("3"))
+    val html = """<div class="line-block">
+                 |  <div class="line-block">
+                 |    <div class="line">1</div>
+                 |    <div class="line">2</div>
+                 |  </div>
+                 |  <div class="line">3</div>
+                 |</div>""".stripMargin
+    render(elem) should be (html)
+  }
   
 }
