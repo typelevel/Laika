@@ -47,17 +47,16 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
       case (buffer, _ :: InternalLinkTarget(Id(id)) :: (ld: LinkDefinition) :: Nil) =>
         buffer += ld.copy(id = id)
       case (buffer, _ :: (_: InternalLinkTarget)  :: (_: DecoratedHeader) :: Nil) => buffer
-      case (buffer, _ :: (it: InternalLinkTarget) :: (c: Customizable) :: Nil) =>
-        if (c.options.id.isDefined) buffer += it else buffer
-      case (buffer, _ :: (it: InternalLinkTarget) :: _ :: Nil) => buffer += it
+      case (buffer, _ :: (it: InternalLinkTarget) :: elem :: Nil) =>
+        if (elem.options.id.isDefined) buffer += it else buffer
 
       case (buffer, (it: InternalLinkTarget) :: (h: DecoratedHeader) :: _) =>
         buffer += h.copy(content = it +: h.content)
 
       case (buffer, InternalLinkTarget(Id(_)) :: (ld: LinkDefinition) :: _ :: Nil) =>
         buffer += ld
-      case (buffer, InternalLinkTarget(Id(id)) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty =>
-        buffer += c.withId(id)
+      case (buffer, InternalLinkTarget(Id(id)) :: elem :: _ :: Nil) if elem.options.id.isEmpty =>
+        buffer += elem.withId(id)
 
       case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
       case (buffer, _ :: other :: _) => buffer += other

@@ -67,10 +67,7 @@ object StylePredicate {
     */
   case class Id (id: String) extends StylePredicate {
     val specificity = Specificity(1,0,0,0)
-    def evaluate (element: Element): Boolean = element match {
-      case c: Customizable if c.options.id == Some(id) => true
-      case _ => false
-    }
+    def evaluate (element: Element): Boolean = element.options.id.contains(id)
   }
 
   /** A predicate that holds if the given style name matches
@@ -78,10 +75,7 @@ object StylePredicate {
     */
   case class StyleName (name: String) extends StylePredicate {
     val specificity = Specificity(0,1,0,0)
-    def evaluate (element: Element): Boolean = element match {
-      case c: Customizable if c.options.styles.contains(name) => true
-      case _ => false
-    }
+    def evaluate (element: Element): Boolean = element.options.styles.contains(name)
   }
 }
 

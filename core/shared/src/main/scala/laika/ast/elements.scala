@@ -29,17 +29,15 @@ import scala.math.Ordered
  *  Usually not extended directly, instead either `Span` or
  *  `Block` should be picked as the base type for new element
  *  types.
+  *  
+  *  All node types have an optional id and zero or more associated styles serving as render hints.
  */
 abstract class Element extends Product with Serializable with Customizable
 
-/** An element that can be customized. Represents options
- *  that are usually only used on few selected nodes and
- *  can control subtle differences often only relevant
- *  for renderers.
- */
+/** TODO - deprecate before releasing 0.17 and merge into Element in 0.18 */
 trait Customizable {
   
-  type Self <: Customizable
+  type Self <: Element
 
   def options: Options
 

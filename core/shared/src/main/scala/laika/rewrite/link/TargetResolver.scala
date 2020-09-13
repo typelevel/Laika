@@ -47,7 +47,7 @@ abstract sealed class TargetResolver (val selector: Selector, val precedence: In
     *  @param rewrittenOriginal the original target node in the raw document, potentially
     *  already rewritten in case any of its children got rewritten
     */
-  def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable]
+  def replaceTarget (rewrittenOriginal: Element): Option[Element]
 
 }
 
@@ -88,7 +88,7 @@ object TargetResolver {
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
 
-    override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+    override def replaceTarget (rewrittenOriginal: Element): Option[Element] = rewrittenOriginal match {
       case b: Block => targetResolver(b)
       case _ => None
     }
@@ -99,7 +99,7 @@ object TargetResolver {
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
 
-    override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+    override def replaceTarget (rewrittenOriginal: Element): Option[Element] = rewrittenOriginal match {
       case s: Span => Some(s.withId(idSelector.id))
       case _ => None
     }
@@ -111,7 +111,7 @@ object TargetResolver {
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = resolver(linkSource)
 
-    override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = rewrittenOriginal match {
+    override def replaceTarget (rewrittenOriginal: Element): Option[Element] = rewrittenOriginal match {
       case b: Block => Some(InvalidBlock(sysMsg, b.withoutId))
       case s: Span => Some(InvalidSpan(sysMsg, s.withoutId))
       case _ => None
@@ -128,7 +128,7 @@ object TargetResolver {
 
   def forDelegate (selector: Selector, delegate: TargetResolver): TargetResolver = new TargetResolver(selector) {
     override def resolveReference (linkSource: LinkSource) = delegate.resolveReference(linkSource)
-    override def replaceTarget (rewrittenOriginal: Customizable) = delegate.replaceTarget(rewrittenOriginal)
+    override def replaceTarget (rewrittenOriginal: Element) = delegate.replaceTarget(rewrittenOriginal)
   }
 
 }
@@ -146,7 +146,7 @@ case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) 
   def resolveReference (linkSource: LinkSource): Option[Span] =
     nextOption(refIt).flatMap(_.resolveReference(linkSource))
 
-  def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] =
+  def replaceTarget (rewrittenOriginal: Element): Option[Element] =
     nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
 }
 
@@ -154,7 +154,7 @@ case class LinkAliasResolver (sourceSelector: TargetIdSelector,
                               targetSelector: TargetIdSelector,
                               referenceResolver: LinkSource => Option[Span]) extends TargetResolver(sourceSelector) {
   override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
-  override def replaceTarget (rewrittenOriginal: Customizable): Option[Customizable] = None
+  override def replaceTarget (rewrittenOriginal: Element): Option[Element] = None
 
   def resolveWith (referenceResolver: LinkSource => Option[Span]): LinkAliasResolver =
     copy(referenceResolver = referenceResolver)

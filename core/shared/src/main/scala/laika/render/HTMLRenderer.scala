@@ -101,11 +101,9 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         case Citation(label,content,opt)      => renderTable(toTable(label,content,opt + Style.citation))
 
         case WithFallback(fallback)           => fmt.child(fallback)
-        case c: Customizable                  => c match {
-          case BlockSequence(content, NoOpt)  => fmt.childPerLine(content) // this case could be standalone above, but triggers a compiler bug then
-          case _                              => fmt.indentedElement("div", c.options, c.content)
-        }
-        case unknown                          => fmt.indentedElement("div", NoOpt, unknown.content)
+        case BlockSequence(content, NoOpt)    => fmt.childPerLine(content)
+          
+        case unknown                          => fmt.indentedElement("div", unknown.options, unknown.content)
       }
     }
 
@@ -139,15 +137,13 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
-        case SpanLink(content, target, title, opt)  => fmt.element("a", opt, content, linkAttributes(target, title):_*)
+        case SpanLink(content, target, title, opt) => fmt.element("a", opt, content, linkAttributes(target, title):_*)
 
-        case WithFallback(fallback)         => fmt.child(fallback)
-        case c: Customizable                => c match {
-          case SpanSequence(content, NoOpt) => fmt.children(content) // this case could be standalone above, but triggers a compiler bug then
-          case CodeSpanSequence(content, NoOpt) => fmt.children(content)
-          case _                            => fmt.element("span", c.options, c.content)
-        }
-        case unknown                        => fmt.element("span", NoOpt, unknown.content)
+        case WithFallback(fallback)           => fmt.child(fallback)
+        case SpanSequence(content, NoOpt)     => fmt.children(content)
+        case CodeSpanSequence(content, NoOpt) => fmt.children(content)
+          
+        case unknown                          => fmt.element("span", unknown.options, unknown.content)
       }
     }
 
@@ -155,8 +151,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       con match {
         case TemplateRoot(content, NoOpt)         => fmt.children(content)
         case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
-        case c: Customizable                      => fmt.element("span", c.options, c.content)
-        case unknown                              => fmt.element("span", NoOpt, unknown.content)
+        case unknown                              => fmt.element("span", unknown.options, unknown.content)
       }
     }
 
@@ -168,8 +163,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case nl: NavigationList          => fmt.child(navigationToBulletList(nl))
 
       case WithFallback(fallback)      => fmt.child(fallback)
-      case c: Customizable             => fmt.indentedElement("div", c.options, c.content)
-      case unknown                     => fmt.indentedElement("div", NoOpt, unknown.content)
+      case unknown                     => fmt.indentedElement("div", unknown.options, unknown.content)
     }
 
     def renderTextContainer (con: TextContainer): String = con match {
@@ -192,8 +186,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case sn@ SectionNumber(_, opt)   => fmt.child(Text(sn.content, opt + Style.sectionNumber))
 
       case WithFallback(fallback)      => fmt.child(fallback)
-      case c: Customizable             => fmt.textElement("span", c.options, c.content)
-      case unknown                     => fmt.text(unknown.content)
+      case unknown                     => fmt.textElement("span", unknown.options, unknown.content)
     }
     
     def renderChoices (name: String, choices: Seq[Choice], options: Options): String = {

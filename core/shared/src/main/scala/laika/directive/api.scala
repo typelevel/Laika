@@ -204,11 +204,11 @@ trait BuilderContext[E <: Element] {
         content => dir(DirectiveContext(content, parser, cursor))
       }
 
-      process(cursor, factory).fold(messages => createInvalidElement(s"One or more errors processing directive '$name': "
-        + messages.mkString(", ")), identity) match {
-        case c: Customizable => c.mergeOptions(options).asInstanceOf[E]
-        case other => other
-      }
+      process(cursor, factory)
+        .fold(messages => createInvalidElement(s"One or more errors processing directive '$name': "
+          + messages.mkString(", ")), identity)
+        .mergeOptions(options)
+        .asInstanceOf[E]
     }
 
   }

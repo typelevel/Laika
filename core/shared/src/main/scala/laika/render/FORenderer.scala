@@ -100,13 +100,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case _: Citation                        => "" // rendered in link position
 
         case WithFallback(fallback)         => fmt.child(fallback)
-        case c: Customizable                => c match {
-          case BlockSequence(Seq(SpanSequence(Seq(img: Image), optSpan)), optBlock) => 
-            fmt.child(SpanSequence(Seq(img.mergeOptions(optSpan + optBlock)), Styles("align-center", "default-space")))
-          case BlockSequence(content, NoOpt) => fmt.childPerLine(content) // this case could be standalone above, but triggers a compiler bug then
-          case unknown                      => fmt.blockContainer(unknown, unknown.content)
-        }
-        case unknown                        => fmt.blockContainer(unknown, unknown.content)
+        
+        case BlockSequence(Seq(SpanSequence(Seq(img: Image), optSpan)), optBlock) => 
+          fmt.child(SpanSequence(Seq(img.mergeOptions(optSpan + optBlock)), Styles("align-center", "default-space")))
+        case BlockSequence(content, NoOpt) => fmt.childPerLine(content)
+          
+        case unknown                       => fmt.blockContainer(unknown, unknown.content)
       }
     }
 
@@ -134,14 +133,12 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ SpanLink(content, it: InternalTarget, _, _) =>
           fmt.internalLink(e, fmt.buildId(it.relativeTo(fmt.path).absolutePath), content)
 
-        case WithFallback(fallback)         => fmt.child(fallback)
-        case c: Customizable                => c match {
-          case SpanSequence(content, NoOpt) => fmt.children(content) // this case could be standalone above, but triggers a compiler bug then
-          case CodeSpanSequence(content, NoOpt) => fmt.children(content)
-          case unknown: Block               => fmt.block(unknown, unknown.content) // TODO - needs to be inline if parent is not a block container
-          case unknown                      => fmt.inline(unknown, unknown.content)
-        }
-        case unknown                        => fmt.inline(unknown, unknown.content)
+        case WithFallback(fallback)           => fmt.child(fallback)
+        case SpanSequence(content, NoOpt)     => fmt.children(content)
+        case CodeSpanSequence(content, NoOpt) => fmt.children(content)
+          
+        case unknown: Block               => fmt.block(unknown, unknown.content) // TODO - needs to be inline if parent is not a block container
+        case unknown                      => fmt.inline(unknown, unknown.content)
       }
     }
 
@@ -160,7 +157,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: NavigationList             => if (e.options.styles.contains("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
 
       case WithFallback(fallback)      => fmt.child(fallback)
-      case c: Customizable             => fmt.listBlock(c, c.content)
       case unknown                     => fmt.listBlock(unknown, unknown.content)
     }
 
@@ -175,8 +171,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case Comment(content,_)            => fmt.comment(content)
 
       case WithFallback(fallback)      => fmt.child(fallback)
-      case c: Customizable             => fmt.text(c, c.content)
-      case unknown                     => fmt.text(unknown.content)
+      case unknown                     => fmt.text(unknown, unknown.content)
     }
 
     def renderChoices (name: String, choices: Seq[Choice], options: Options): String = {

@@ -65,11 +65,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     val fromCSS = styles.collectStyles(element, parents)
     val combinedAttrs = (fromCSS ++ attrs).toSeq.sortBy(_._1)
 
-    val options = element match {
-      case c: Customizable => c.options
-      case _ => NoOpt
-    }
-    val idAttr = options.id.map(id => "id"-> buildLocalId(id)).toSeq
+    val idAttr = element.options.id.map(id => "id"-> buildLocalId(id)).toSeq
     
     attributes(filterAttributes(tag, idAttr ++ combinedAttrs))
   }
