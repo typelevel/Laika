@@ -30,14 +30,14 @@ import scala.math.Ordered
  *  `Block` should be picked as the base type for new element
  *  types.
  */
-abstract class Element extends Product with Serializable
+abstract class Element extends Product with Serializable with Customizable
 
 /** An element that can be customized. Represents options
  *  that are usually only used on few selected nodes and
  *  can control subtle differences often only relevant
  *  for renderers.
  */
-trait Customizable extends Element {
+trait Customizable {
   
   type Self <: Customizable
 
@@ -104,15 +104,15 @@ trait Fallback {
 
 /** The base type for all block level elements.
  */
-trait Block extends Customizable { type Self <: Block }
+trait Block extends Element { type Self <: Block }
 
 /** The base type for all inline elements.
  */
-trait Span extends Customizable { type Self <: Span }
+trait Span extends Element { type Self <: Span }
 
 /** The base type for all list items.
  */
-trait ListItem extends Customizable { type Self <: ListItem }
+trait ListItem extends Element { type Self <: ListItem }
 
 /** Represents a hidden element that will be ignored by renderers.
   * 
@@ -202,7 +202,7 @@ trait ElementContainer[+E <: Element] extends Container[Seq[E]] with ElementTrav
 /** A generic container of child elements which can have
   * rewrite rules applied to them in recursive tree rewriting.
   */
-trait RewritableContainer extends Customizable {
+trait RewritableContainer extends Element {
 
   type Self <: RewritableContainer
   
@@ -858,7 +858,7 @@ object Table {
 
 /** A table element, like a row, cell or column.
  */
-trait TableElement extends Customizable { type Self <: TableElement }
+trait TableElement extends Element { type Self <: TableElement }
 
 /** A container of table elements.
  */
@@ -1526,7 +1526,7 @@ case class InvalidBlock (message: RuntimeMessage, fallback: Block, options: Opti
 /** Represents an invalid element in any position, block, span or template.
   * Provides convenience converters to produce instances for any of these three positions.
   */
-case class InvalidElement (message: RuntimeMessage, source: String) extends Element {
+case class InvalidElement (message: RuntimeMessage, source: String) {
 
   def asBlock: InvalidBlock = InvalidBlock(message, LiteralBlock(source))
 

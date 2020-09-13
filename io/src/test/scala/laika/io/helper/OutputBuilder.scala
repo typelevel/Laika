@@ -16,22 +16,36 @@
 
 package laika.io.helper
 
-import laika.ast.{Element, ElementContainer, Path}
+import laika.ast.{Element, ElementContainer, NoOpt, Options, Path}
 import laika.io
 
 object OutputBuilder {
 
   
   /* translating render results to Elements gives us a nicely formatted AST for free */
-  case class RenderedDocumentView (path: Path, content: String) extends Element
+  case class RenderedDocumentView (path: Path, content: String, options: Options = NoOpt) extends Element {
+    type Self = RenderedDocumentView
+    def withOptions(options: Options): Self = copy(options = options)
+  }
   
   trait TreeContentView extends Element
   
-  case class TitleDocument (doc: RenderedDocumentView) extends TreeContentView
-  case class DocumentViews (content: Seq[RenderedDocumentView]) extends ElementContainer[RenderedDocumentView] with TreeContentView
-  case class SubtreeViews (content: Seq[RenderedTreeView]) extends ElementContainer[RenderedTreeView] with TreeContentView
-  
-  case class RenderedTreeView (path: Path, content: Seq[TreeContentView]) extends ElementContainer[TreeContentView]
+  case class TitleDocument (doc: RenderedDocumentView, options: Options = NoOpt) extends TreeContentView {
+    type Self = TitleDocument
+    def withOptions(options: Options): Self = copy(options = options)
+  }
+  case class DocumentViews (content: Seq[RenderedDocumentView], options: Options = NoOpt) extends ElementContainer[RenderedDocumentView] with TreeContentView {
+    type Self = DocumentViews
+    def withOptions(options: Options): Self = copy(options = options)
+  }
+  case class SubtreeViews (content: Seq[RenderedTreeView], options: Options = NoOpt) extends ElementContainer[RenderedTreeView] with TreeContentView {
+    type Self = SubtreeViews
+    def withOptions(options: Options): Self = copy(options = options)
+  }
+  case class RenderedTreeView (path: Path, content: Seq[TreeContentView], options: Options = NoOpt) extends ElementContainer[TreeContentView] {
+    type Self = RenderedTreeView
+    def withOptions(options: Options): Self = copy(options = options)
+  }
   case class RenderedTreeViewRoot (tree: RenderedTreeView, coverDocument: Option[RenderedDocumentView] = None, staticDocuments: Seq[Path] = Nil)
   
   object RenderedTreeViewRoot {

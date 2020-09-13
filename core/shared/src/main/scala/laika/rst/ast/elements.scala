@@ -77,11 +77,17 @@ case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Bloc
 
 /** A single option, including its name and all arguments, but not the description.
   */
-case class ProgramOption (name: String, argument: scala.Option[OptionArgument]) extends Element
+case class ProgramOption (name: String, argument: Option[OptionArgument], options: Options = NoOpt) extends Element {
+  type Self = ProgramOption
+  def withOptions(options: Options): ProgramOption = copy(options = options)
+}
 
 /** A single option argument.
   */
-case class OptionArgument (value: String, delimiter: String) extends Element
+case class OptionArgument (value: String, delimiter: String, options: Options = NoOpt) extends Element {
+  type Self = OptionArgument
+  def withOptions(options: Options): OptionArgument = copy(options = options)
+}
 
 /** A substitution definition with its span content that will be inserted
   *  wherever this substitution is referenced in flow content.

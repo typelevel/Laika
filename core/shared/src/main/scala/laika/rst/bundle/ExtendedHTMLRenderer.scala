@@ -70,8 +70,8 @@ class ExtendedHTMLRenderer {
     case (fmt, fl: FieldList)              => fmt.child(toTable(fl))
     case (fmt, ol: OptionList)             => fmt.child(toTable(ol))
     case (fmt, ProgramOptions(options,opt))=> fmt.element("kbd", opt, options)
-    case (fmt, ProgramOption(name,arg))    => fmt.element("span", NoOpt, Seq(Text(name), arg.getOrElse(Text(""))), "class" -> "option")
-    case (_, OptionArgument(value,delim))  => s"$delim<var>$value</var>"
+    case (fmt, ProgramOption(name,arg,opt))=> fmt.element("span", opt, Seq(Text(name), arg.getOrElse(Text(""))), "class" -> "option")
+    case (_, OptionArgument(value,delim,_))=> s"$delim<var>$value</var>"
   }
 
 

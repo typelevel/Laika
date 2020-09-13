@@ -164,7 +164,10 @@ case class NavigationBuilderContext (refPath: Path = Root,
 
 /** Captures information about a document section, without its content.
  */
-case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo] {
+case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo], options: Options = NoOpt) extends Element with ElementContainer[SectionInfo] {
+
+  type Self = SectionInfo
+  def withOptions(options: Options): SectionInfo = copy(options = options)
 
   /** Creates the navigation structure for this section up to the specified depth.
     * The returned instance can be used as part of a bigger navigation structure comprising of documents and trees. 

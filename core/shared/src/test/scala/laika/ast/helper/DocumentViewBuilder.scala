@@ -25,7 +25,11 @@ import laika.rst.ast.CustomizedTextRole
 object DocumentViewBuilder {
 
   
-  trait View extends Element
+  trait View extends Element {
+    type Self <: View
+    val options: Options = NoOpt
+    def withOptions(options: Options): Self = this.asInstanceOf[Self]
+  }
   
   trait ViewContainer extends ElementContainer[View] with View
   
@@ -67,16 +71,14 @@ object DocumentViewBuilder {
   
   case class Fragment (name: String, content: Element) extends View
   
-  case class Content (content: Seq[Block], options: Options = NoOpt) extends DocumentContent with BlockContainer {
-    type Self = Content
+  case class Content (content: Seq[Block]) extends DocumentContent with BlockContainer {
+    override type Self = Content
     def withContent (newContent: Seq[Block]): Content = copy(content = newContent)
-    def withOptions (options: Options): Content = copy(options = options)
   }
   
-  case class Title (content: Seq[Span], options: Options = NoOpt) extends DocumentContent with SpanContainer {
-    type Self = Title
+  case class Title (content: Seq[Span]) extends DocumentContent with SpanContainer {
+    override type Self = Title
     def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
-    def withOptions (options: Options): Title = copy(options = options)
   }
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo]

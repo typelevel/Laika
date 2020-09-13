@@ -124,8 +124,8 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
     def sorted (tree: RenderedTreeView): RenderedTreeView = tree.copy(content = tree.content map sortedContent)
         
     def sortedContent (content: TreeContentView): TreeContentView = content match {
-      case DocumentViews(cnt) => DocumentViews(cnt.sortBy(_.path.name))
-      case SubtreeViews(cnt) => SubtreeViews(cnt.sortBy(_.path.name) map sorted)
+      case DocumentViews(cnt,_) => DocumentViews(cnt.sortBy(_.path.name))
+      case SubtreeViews(cnt,_)  => SubtreeViews(cnt.sortBy(_.path.name) map sorted)
     }
     
     def trees (values: (Path, Seq[TreeContentView])*) = SubtreeViews(values map { case (path, content) => RenderedTreeView(path, content) })

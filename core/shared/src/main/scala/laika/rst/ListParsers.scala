@@ -219,7 +219,7 @@ object ListParsers {
       case delim ~ argStr => OptionArgument(argStr, delim)
     }
     
-    val option = ((gnu | shortPosix | longPosix | dos) ~ opt(arg)).mapN(ProgramOption)
+    val option = ((gnu | shortPosix | longPosix | dos) ~ opt(arg)).mapN(ProgramOption(_,_))
     
     val options = option.rep(", ").min(1)
     
