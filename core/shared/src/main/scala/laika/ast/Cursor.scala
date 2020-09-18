@@ -210,7 +210,7 @@ case class DocumentCursor (target: Document,
     
     val rewrittenRoot = rules.rewriteBlock(target.content) match {
       case r: RootElement => r
-      case b => target.content.copy(content = Seq(b))
+      case b => target.content.withContent(Seq(b))
     }
        
     val rewrittenFragments = target.fragments mapValuesStrict {
@@ -223,7 +223,7 @@ case class DocumentCursor (target: Document,
     }.toMap
     
     target.copy(
-      content = rewrittenRoot.copy(content = rewrittenRoot.content.filterNot(_.isInstanceOf[DocumentFragment])), 
+      content = rewrittenRoot.withContent(rewrittenRoot.content.filterNot(_.isInstanceOf[DocumentFragment])), 
       fragments = rewrittenFragments ++ newFragments, 
       position = position
     )

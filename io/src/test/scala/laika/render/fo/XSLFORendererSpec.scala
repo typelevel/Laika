@@ -746,7 +746,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an image with vertical align style" in {
-    val elem = p(Text("some "), Image(imageTarget, alt = Some("img")).copy(options = Styles("align-top")), Text(" span"))
+    val elem = p(Text("some "), Image(imageTarget, alt = Some("img")).withStyle("align-top"), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/foo.jpg" vertical-align="top" width="85%"/> span</fo:block>"""
     render (elem) should be (fo)
   }

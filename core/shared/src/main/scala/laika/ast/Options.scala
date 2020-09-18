@@ -67,16 +67,14 @@ object Options {
     else SomeOpt(id,styles)
 }
 
-/** Factory and extractor for an `Options` instance
-  *  with an id.
+/** Factory and extractor for an `Options` instance with an id.
   */
 object Id {
   def apply (value: String): Options = SomeOpt(id = Some(value))
   def unapply (value: Options): Option[String] = value.id
 }
 
-/** Factory and extractor for an `Options` instance
-  *  with style names.
+/** Factory and extractor for an `Options` instance with style names.
   */
 object Styles {
   def apply (values: String*): Options = SomeOpt(styles = values.toSet)

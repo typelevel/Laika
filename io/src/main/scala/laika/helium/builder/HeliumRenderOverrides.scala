@@ -69,8 +69,8 @@ private[helium] object HeliumRenderOverrides {
       fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
 
-    case (fmt, i: Icon) if i.options.styles.contains("api-link")    => fmt.newLine + SVGIcons.apiIcon + fmt.newLine
-    case (fmt, i: Icon) if i.options.styles.contains("source-link") => fmt.newLine + SVGIcons.githubIcon + fmt.newLine
+    case (fmt, i: Icon) if i.hasStyle("api-link")    => fmt.newLine + SVGIcons.apiIcon + fmt.newLine
+    case (fmt, i: Icon) if i.hasStyle("source-link") => fmt.newLine + SVGIcons.githubIcon + fmt.newLine
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)

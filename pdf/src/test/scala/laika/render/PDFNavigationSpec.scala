@@ -47,7 +47,7 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
       .copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
       .mapDocuments { doc =>
         val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
-        doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
+        doc.copy(content = doc.content.withContent(preamble +: doc.content.content))
       })
 
     def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {

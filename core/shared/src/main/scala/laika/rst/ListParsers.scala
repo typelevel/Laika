@@ -90,7 +90,7 @@ object ListParsers {
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       listItem(literal(symbol), BulletListItem(_, bullet)).rep.min(1).map { items => 
-        BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) 
+        BulletList(rewriteListItems(items, (item:BulletListItem, content) => item.withContent(content)), bullet) 
       }
     }
   }
@@ -154,7 +154,7 @@ object ListParsers {
     lookAhead(enumListStart <~ ws.min(1)) >> { case (format, start) =>
       val pos = Iterator.from(start)
       listItem(itemStart(format), EnumListItem(_, format, pos.next())).rep.min(1).map { items => 
-        EnumList(rewriteListItems(items, (item:EnumListItem, content) => item.copy(content = content)), format, start) 
+        EnumList(rewriteListItems(items, (item:EnumListItem, content) => item.withContent(content)), format, start) 
       }
     }
   }

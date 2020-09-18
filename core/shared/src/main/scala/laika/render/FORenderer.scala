@@ -111,22 +111,22 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderSpanContainer (con: SpanContainer): String = {
-      def codeStyles (language: String) = if (language.isEmpty) NoOpt else Styles(language)
+      def codeStyles (language: String): Option[String] = if (language.isEmpty) None else Some(language)
 
       con match {
 
         case Paragraph(Seq(img: Image), _)    => fmt.child(SpanSequence(Seq(img), Styles("align-center", "default-space")))
         case e @ Paragraph(content,_)         => fmt.block(e, content)
         case e @ ParsedLiteralBlock(content,_)=> fmt.blockWithWS(e, content)
-        case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
-        case e @ Header(level, content,_)     => fmt.block(e.copy(options=e.options + Style.level(level)), content, "keep-with-next"->"always")
-        case e @ Title(content,_)             => fmt.block(e.copy(options=e.options), content, "keep-with-next"->"always")  
+        case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.withStyles(codeStyles(lang).toSeq), content)
+        case e @ Header(level, content,_)     => fmt.block(e.mergeOptions(Style.level(level)), content, "keep-with-next"->"always")
+        case e @ Title(content,_)             => fmt.block(e, content, "keep-with-next"->"always")  
 
         case e @ Emphasized(content,_)        => fmt.inline(e, content)
         case e @ Strong(content,_)            => fmt.inline(e, content)
         case e @ Deleted(content,_)           => fmt.inline(e, content)
         case e @ Inserted(content,_)          => fmt.inline(e, content)
-        case e @ InlineCode(lang,content,_)   => fmt.inline(e.copy(options=e.options + codeStyles(lang)),content)
+        case e @ InlineCode(lang,content,_)   => fmt.inline(e.withStyles(codeStyles(lang).toSeq), content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
         case e @ SpanLink(content, ExternalTarget(url), _, _) => fmt.externalLink(e, url, content)
@@ -155,7 +155,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ EnumList(content,_,_,_)   => fmt.listBlock(e, content)
       case e @ BulletList(content,_,_)   => fmt.listBlock(e, content)
       case e @ DefinitionList(content,_) => fmt.listBlock(e, content)
-      case e: NavigationList             => if (e.options.styles.contains("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
+      case e: NavigationList             => if (e.hasStyle("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case unknown                     => fmt.listBlock(unknown, unknown.content)
@@ -165,7 +165,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e @ Text(content,_)           => fmt.text(e, content)
       case e @ TemplateString(content,_) => fmt.rawText(e, content)
       case e @ RawContent(f, content, _) => if (f.intersect(formats).nonEmpty) fmt.rawText(e, content) else ""
-      case e @ CodeSpan(content, categories, _) => fmt.textWithWS(e.mergeOptions(Styles(categories.map(_.name).toSeq:_*)), content)
+      case e @ CodeSpan(content, categories, _) => fmt.textWithWS(e.withStyles(categories.map(_.name)), content)
       case e @ Literal(content,_)        => fmt.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => fmt.textBlockWithWS(e, content)
       case e: BookmarkTitle              => fmt.bookmarkTitle(e)
@@ -215,7 +215,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
     
     def addRowStyles (rows: Seq[Row]): Seq[Row] = rows.zipWithIndex.map {
-      case (row, index) => row.mergeOptions(Styles(if (index % 2 == 0) "cell-odd" else "cell-even")) // switch to 1-base
+      case (row, index) => row.withStyle(if (index % 2 == 0) "cell-odd" else "cell-even") // switch to 1-base
     }
 
     def renderTableElement (elem: TableElement): String = elem match {
@@ -243,7 +243,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
       
       elem match {
-        case l: NavigationItem if l.options.styles.contains("bookmark") => fmt.bookmark(l)
+        case l: NavigationItem if l.hasStyle("bookmark") => fmt.bookmark(l)
         case NavigationHeader(title, content, opt) =>
           fmt.childPerLine(Paragraph(title.content, Style.nav + keepWithNext + opt) +: avoidOrphan(content))
         case NavigationLink(title, target: InternalTarget, content, _, opt) =>
@@ -270,7 +270,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
 
     def renderRuntimeMessage (message: RuntimeMessage): String = {
       fmt.forMessage(message) {
-        fmt.text(message.copy(options = message.options + Styles(message.level.toString.toLowerCase)), message.content)
+        fmt.text(message.withStyle(message.level.toString.toLowerCase), message.content)
       }
     }
     

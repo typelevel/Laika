@@ -173,7 +173,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      transformWithDocumentMapper(doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar")))))
+      transformWithDocumentMapper(doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar")))))
         .assertEquals(RenderedTreeViewRoot(
           root(List(
             TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
@@ -199,7 +199,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
       def theme: ThemeProvider
       def expectedDocResult: String
       
-      val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.copy(content = Seq(Paragraph("foo-bar"))))
+      val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
       def transformWithProcessor: IO[RenderedTreeViewRoot] =
         transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(theme).build)
 

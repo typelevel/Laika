@@ -111,11 +111,11 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       case alias: LinkAlias => 
         LinkAliasResolver.unresolved(TargetIdSelector(slugBuilder(alias.id)), TargetIdSelector(slugBuilder(alias.target)))  
         
-      case c: Block if c.options.id.isDefined =>
+      case c: Block if c.hasId =>
         val selector = TargetIdSelector(slugBuilder(c.options.id.get))
         TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id))
 
-      case c: Span if c.options.id.isDefined =>
+      case c: Span if c.hasId =>
         val selector = TargetIdSelector(slugBuilder(c.options.id.get))
         TargetResolver.forSpanTarget(selector, internalResolver(selector))
     }

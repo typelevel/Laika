@@ -55,7 +55,7 @@ private[helium] object DownloadPageGenerator {
           val pdfLink = downloadPath / s"$artifactBaseName.pdf"
           val epubAST = if (pageConfig.includeEPUB) Seq(downloadAST(epubLink, "EPUB", epubCoverImages.default)) else Nil
           val pdfAST = if (pageConfig.includePDF) Seq(downloadAST(pdfLink, "PDF", pdfCoverImages.default)) else Nil
-          Seq(BlockSequence(epubAST ++ pdfAST).withOptions(Styles("downloads")))
+          Seq(BlockSequence(epubAST ++ pdfAST).withStyle("downloads"))
         }
         else combinations.map { combination =>
           val baseTitle = combination.map(_.label).mkString(" - ")
@@ -66,7 +66,7 @@ private[helium] object DownloadPageGenerator {
             Seq(downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier))) else Nil
           val pdfAST = if (pageConfig.includePDF) 
             Seq(downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))) else Nil
-          BlockSequence(epubAST ++ pdfAST).withOptions(Styles("downloads"))
+          BlockSequence(epubAST ++ pdfAST).withStyle("downloads")
         }
       val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
       val doc = Document(Root / "downloads", RootElement(blocks), config = tree.root.config)

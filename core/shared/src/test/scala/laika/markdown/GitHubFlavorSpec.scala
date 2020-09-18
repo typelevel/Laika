@@ -406,7 +406,7 @@ class GitHubFlavorSpec extends AnyWordSpec
       val options = Seq(Style.alignLeft, Style.alignRight, Style.alignCenter)
       def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
         Row(row.content.zip(options).map {
-          case (cell, opt) => cell.copy(options = opt)
+          case (cell, opt) => cell.withOptions(opt)
         })
       }
       Parsing (input) should produce (root(Table(

@@ -75,7 +75,7 @@ object StylePredicate {
     */
   case class StyleName (name: String) extends StylePredicate {
     val specificity = Specificity(0,1,0,0)
-    def evaluate (element: Element): Boolean = element.options.styles.contains(name)
+    def evaluate (element: Element): Boolean = element.hasStyle(name)
   }
 }
 

@@ -90,7 +90,7 @@ object Tables {
           .padTo(count, BodyCell.empty)
           .zip(columnOptions)
           .map {
-            case (cell, opt) => cell.copy(options = opt)
+            case (cell, opt) => cell.withOptions(opt)
           }
       ))
     }

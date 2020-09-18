@@ -151,7 +151,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       
       case _: Hidden => Remove
 
-      case elem if elem.options.id.isDefined => replaceBlock(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
+      case elem if elem.hasId    => replaceBlock(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
       
     } ++ RewriteRules.forSpans {
       
@@ -171,7 +171,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
 
       case ref: ImageIdReference => resolveId(ref, LinkDefinitionSelector(ref.id), s"unresolved image reference: ${ref.id}")
 
-      case elem if elem.options.id.isDefined => replaceSpan(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
+      case elem if elem.hasId    => replaceSpan(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
         
       case _: Hidden => Remove
 

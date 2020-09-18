@@ -173,7 +173,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).content should be (root(p("aa"), BlockSequence("11\n22").withOptions(Styles("callout", "info")), p("bb")))
+    parse(input).content should be (root(p("aa"), BlockSequence("11\n22").withStyles("callout", "info"), p("bb")))
   }
 
   it should "parse a body with two blocks" in {

@@ -17,13 +17,22 @@
 package laika.ast
 
 /** The base class for all Elements forming the document tree.
-  *  Usually not extended directly, instead either `Span` or
-  *  `Block` should be picked as the base type for new element
-  *  types.
+  * Usually not extended directly, instead either `Span` or `Block` should be picked as the base type 
+  * for new element types.
   *
-  *  All node types have an optional id and zero or more associated styles serving as render hints.
+  * All node types have an optional id and zero or more associated styles serving as render hints.
   */
-abstract class Element extends Product with Serializable with Customizable
+abstract class Element extends Product with Serializable with Customizable {
+
+  /** Indicates whether this element has the specified style assigned.
+    */
+  def hasStyle (name: String): Boolean = options.styles.contains(name)
+
+  /** Indicates whether this element has an id assigned.
+    */
+  def hasId: Boolean = options.id.isDefined
+  
+}
 
 /* TODO - deprecate before releasing 0.17 and merge into Element in 0.18 */
 trait Customizable {
@@ -32,29 +41,36 @@ trait Customizable {
 
   def options: Options
 
-  /** Returns a new instance of this customizable element
-    * without its id.
+  /** Returns a new instance of this element without its id.
     */
   def withoutId: Self = modifyOptions(opt => Options(None, opt.styles))
 
-  /** Returns a new instance of this customizable element
-    * with its id set to the specified value, overriding any existing value.
+  /** Returns a new instance of this element with its id set to the specified value, overriding any existing value.
     */
   def withId (id: String): Self = modifyOptions(opt => Options(Some(id), opt.styles))
 
-  /** Returns a new instance of this customizable element
-    * with its options merged with the specified options.
+  /** Returns a new instance of this element with the specified style added to its existing styles.
+    */
+  def withStyle (name: String): Self = mergeOptions(Styles(name))
+
+  /** Returns a new instance of this element with the specified styles added to its existing styles.
+    */
+  def withStyles (style: String, styles: String*): Self = mergeOptions(Styles((style +: styles).toSet))
+
+  /** Returns a new instance of this element with the specified styles added to its existing styles.
+    */
+  def withStyles (styles: Iterable[String]): Self = mergeOptions(Styles(styles.toSet))
+
+  /** Returns a new instance of this element with its options merged with the specified options.
     */
   def mergeOptions (opt: Options): Self = modifyOptions(_ + opt)
 
-  /** Returns a new instance of this customizable element
-    * with the new options obtained from applying the specified function
+  /** Returns a new instance of this element with the new options obtained from applying the specified function
     * to the existing value.
     */
   def modifyOptions (f: Options => Options): Self = withOptions(f(options))
 
-  /** Returns a new instance of this customizable element
-    * with the specified options replacing the current value.
+  /** Returns a new instance of this element with the specified options replacing the current value.
     */
   def withOptions (options: Options): Self
 }

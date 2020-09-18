@@ -53,8 +53,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   private lazy val (footnotes, citations) = parents.lastOption.getOrElse(currentElement) match {
     case et: ElementTraversal => (
-      et.collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) }.toMap,
-      et.collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) }.toMap
+      et.collect { case f@Footnote(_,_, Id(id)) => (id, f) }.toMap,
+      et.collect { case c@Citation(_,_, Id(id)) => (id, c) }.toMap
     )
     case _ => (Map.empty[String,Footnote], Map.empty[String,Citation])
   }

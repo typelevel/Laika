@@ -280,9 +280,9 @@ class StandardBlockDirectives {
         else (pOpt, imgOpt + Styles(style))
     }
     val content = img match {
-      case img: ImageResolver => img.withOptions(imgOpt)
-      case el: SpanLink => el.copy(options = imgOpt)
-      case lr: LinkIdReference => lr.copy(options = imgOpt)
+      case img: ImageResolver  => img.withOptions(imgOpt)
+      case el: SpanLink        => el.withOptions(imgOpt)
+      case lr: LinkIdReference => lr.withOptions(imgOpt)
     }
     Paragraph(List(content), pOpt)
   }

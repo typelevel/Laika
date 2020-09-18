@@ -51,7 +51,7 @@ private[helium] object HeliumRewriteRules {
 
   def build (helium: Helium): RewriteRules = RewriteRules.forBlocks {
     case cb: CodeBlock => applyStyles(cb, cb.extractText.count(_ == '\n') + 1, helium)
-    case bs: BlockSequence if bs.options.styles.contains("callout") => applyStyles(bs, estimateLines(bs.content), helium)
+    case bs: BlockSequence if bs.hasStyle("callout") => applyStyles(bs, estimateLines(bs.content), helium)
   }
   
 }

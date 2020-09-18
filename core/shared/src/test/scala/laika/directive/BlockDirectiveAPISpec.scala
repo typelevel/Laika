@@ -617,7 +617,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
                     |@:@
                     |
                     |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo").mergeOptions(Styles("bar")), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("foo").withStyle("bar"), p("bb")))
     }
   }
   
