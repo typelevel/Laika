@@ -16,16 +16,12 @@
 
 package laika.ast
 
-import java.util.Date
-
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.IncludeMap
 import laika.config._
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.AutonumberConfig
-
-import scala.annotation.tailrec
 
 
 /** A navigatable object is anything that has an associated path.
@@ -84,35 +80,6 @@ sealed trait TreeContent extends Navigatable {
   def runtimeMessages (filter: MessageFilter): Seq[RuntimeMessage]
 }
 
-/** Represents a document structure with sections that can be turned into a navigation structure.
-  */
-trait DocumentNavigation extends Navigatable {
-
-  /** The title of this document, obtained from the document
-    * structure or from the configuration. In case no title
-    * is defined in either of the two places the result will
-    * be `None`.
-    */
-  def title: Option[SpanSequence]
-
-  /** The section structure of this document based on the hierarchy
-    * of headers found in the original text markup.
-    */
-  def sections: Seq[SectionInfo]
-
-  /** Creates the navigation structure for this document up to the specified depth.
-    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
-    *
-    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
-    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
-    */
-  def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    val children = if (context.isComplete || context.excludeSections) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
-    context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), Some(path), children)
-  }
-  
-}
-
 /** A template document containing the element tree of a parsed template and its extracted
  *  configuration section (if present).
  */
@@ -133,35 +100,6 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   */
 case class UnresolvedDocument (document: Document, config: ConfigParser)
 
-/** The context of a navigation builder that can get passed down in recursive calls to the
-  * various types that have an asNavigationItem method.
-  * 
-  * @param refPath the path of document from which this document will be linked (for creating a corresponding relative path)
-  * @param itemStyles the styles to assign to each navigation item as a render hint
-  * @param maxLevels the number of levels of sub-trees, documents or sections to create navigation info for
-  * @param currentLevel the current level of the navigation tree being built
-  * @param excludeSections indicates whether the recursion should exclude sections of documents even when maxLevels
-  *                        has not been reached yet
-  */
-case class NavigationBuilderContext (refPath: Path = Root, 
-                                     itemStyles: Set[String] = Set(), 
-                                     maxLevels: Int = Int.MaxValue, 
-                                     currentLevel: Int = 1,
-                                     excludeSections: Boolean = false,
-                                     excludeSelf: Boolean = false) {
-  
-  lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
-  
-  val isComplete: Boolean = currentLevel >= maxLevels 
-  
-  def newNavigationItem (title: SpanSequence, target: Option[Path], children: Seq[NavigationItem]): NavigationItem = {
-    val styles = Style.level(currentLevel) + Styles(itemStyles)
-    target.fold[NavigationItem](NavigationHeader(title, children, styles)) { target =>
-      NavigationLink(title, InternalTarget(target).relativeTo(refPath), children, target == refPath, styles)
-    }
-  }
-}
-
 /** Captures information about a document section, without its content.
  */
 case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInfo], options: Options = NoOpt) extends Element with ElementContainer[SectionInfo] {
@@ -180,119 +118,6 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
     context.newNavigationItem(title, Some(docPath.withFragment(id)), children)
   }
 
-}
-
-/** Metadata associated with a document.
-  */
-case class DocumentMetadata (title: Option[String] = None,
-                             description: Option[String] = None,
-                             identifier: Option[String] = None, 
-                             authors: Seq[String] = Nil, 
-                             language: Option[String] = None, 
-                             date: Option[Date] = None,
-                             version: Option[String] = None) {
-
-  /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
-    */
-  def withDefaults (defaults: DocumentMetadata): DocumentMetadata = DocumentMetadata(
-    title.orElse(defaults.title),
-    description.orElse(defaults.description),
-    identifier.orElse(defaults.identifier),
-    authors ++ defaults.authors,
-    language.orElse(defaults.language),
-    date.orElse(defaults.date),
-    version.orElse(defaults.version)
-  )
-  
-}
-
-object DocumentMetadata {
-  
-  implicit val decoder: ConfigDecoder[DocumentMetadata] = ConfigDecoder.config.flatMap { config =>
-    for {
-      title       <- config.getOpt[String]("title")
-      description <- config.getOpt[String]("description")
-      identifier <- config.getOpt[String]("identifier")
-      author     <- config.getOpt[String]("author")
-      authors    <- config.get[Seq[String]]("authors", Nil)
-      lang       <- config.getOpt[String]("language")
-      date       <- config.getOpt[Date]("date")
-      version    <- config.getOpt[String]("version")
-    } yield {
-      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)
-    }
-  }
-  implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("title", metadata.title)
-      .withValue("description", metadata.description)
-      .withValue("identifier", metadata.identifier)
-      .withValue("authors", metadata.authors)
-      .withValue("language", metadata.language)
-      .withValue("date", metadata.date)
-      .withValue("version", metadata.version)
-      .build
-  }
-  
-  implicit val defaultKey: DefaultKey[DocumentMetadata] = DefaultKey(LaikaKeys.metadata)
-
-}
-
-/** The position of an element within a document tree.
-  */
-class TreePosition private (private val positions: Option[Seq[Int]]) extends Ordered[TreePosition] {
-
-  /** The positions (one-based) of each nesting level of this instance 
-    * (an empty sequence for the root or orphan positions).
-    */
-  def toSeq: Seq[Int] = positions.getOrElse(Nil)
-  
-  override def toString: String = positions match {
-    case None => "TreePosition.orphan"
-    case Some(Nil) => "TreePosition.root"
-    case Some(pos) => s"TreePosition(${pos.mkString(".")})"
-  } 
-
-  /** This tree position as a span that can get rendered
-    * as part of a numbered title for example.
-    */
-  def toSpan: Span = SectionNumber(toSeq)
-
-  /** The depth (or nesting level) of this position within the document tree.
-    */
-  def depth: Int = toSeq.size
-
-  /** Creates a position instance for a child of this element.
-    */
-  def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
-
-  def compare (other: TreePosition): Int = {
-
-    @tailrec
-    def compare (pos1: Seq[Int], pos2: Seq[Int]): Int = (pos1.headOption, pos2.headOption) match {
-      case (Some(a), Some(b)) => a.compare(b) match {
-        case 0 => compare(pos1.tail, pos2.tail)
-        case nonZero => nonZero
-      }
-      case _ => 0
-    }
-
-    val maxLen = Math.max(toSeq.length, other.toSeq.length)
-    compare(toSeq.padTo(maxLen, 0), other.toSeq.padTo(maxLen, 0))
-  }
-
-  override def hashCode(): Int = positions.hashCode()
-
-  override def equals(obj: Any): Boolean = obj match {
-    case tp: TreePosition => tp.positions == positions
-  }
-  
-}
-
-object TreePosition {
-  def apply (pos: Seq[Int]) = new TreePosition(Some(pos))
-  val root = new TreePosition(Some(Nil))
-  val orphan = new TreePosition(None)
 }
 
 /** The structure of a markup document.
@@ -490,88 +315,6 @@ trait TreeStructure { this: TreeContent =>
   }
   
 }
-
-/** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
-  * signifies the position in the tree. Essentially factors recursion out of the tree building process.
-  */
-object TreeBuilder {
-
-  /** Builds a tree structure from the specified leaf elements, using the given builder function.
-    * The function will be invoked for each node recursively, with the path for the node to build
-    * and the child nodes that are immediate children of the node to build.
-    */
-  def build[C <: Navigatable, T <: C] (content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
-
-    def toMap (items: Iterable[C]): Map[Path, C] = items.map(c => (c.path, c)).toMap
-    
-    def buildNodes (depth: Int, contentMap: Map[Path, C]): Seq[T] = {
-
-      @tailrec def parent(p: Path, levels: Int): Path = if (levels <= 0) p else parent(p.parent, levels - 1)
-      
-      val newNodes = content
-        .filter(_.path.parent.depth >= depth)
-        .map(p => parent(p.path, p.path.depth - depth - 1))
-        .distinct
-        .groupBy(_.parent)
-        .map { 
-          case (parent, contentPaths) => buildNode(parent, contentPaths.map(contentMap))
-        }
-
-      if (depth == 0) newNodes.toSeq
-      else buildNodes(depth - 1, contentMap ++ toMap(newNodes))
-    }
-
-    if (content.isEmpty) buildNode(Root, Nil)
-    else {
-      val maxPathLength = content.map(_.path.parent.depth).max
-      buildNodes(maxPathLength, toMap(content)).head
-    }
-  }
-
-}
-
-/** Base type for all document type descriptors.
-  */
-sealed abstract class DocumentType
-
-/** Base type for all document type descriptors for text input.
-  */
-sealed abstract class TextDocumentType extends DocumentType
-
-/** Provides all available DocumentTypes.
-  */
-object DocumentType {
-
-  /** A configuration document in HOCON format.
-    */
-  case object Config extends TextDocumentType
-
-  /** A text markup document produced by a parser.
-    */
-  case object Markup extends TextDocumentType
-
-  /** A template document that might get applied
-    *  to a document when it gets rendered.
-    */
-  case object Template extends TextDocumentType
-
-  /** A style sheet that needs to get passed
-    *  to a renderer.
-    */
-  case class StyleSheet (format: String) extends TextDocumentType
-
-  /** A static file that needs to get copied
-    *  over to the output target.
-    */
-  case object Static extends DocumentType
-
-  /** A document that should be ignored and neither
-    *  get processed nor copied.
-    */
-  case object Ignored extends DocumentType
-
-}
-
 
 /** Represents a single document and provides access
  *  to the document content and structure as well

@@ -25,7 +25,7 @@ package laika.ast
   */
 abstract class Element extends Product with Serializable with Customizable
 
-/** TODO - deprecate before releasing 0.17 and merge into Element in 0.18 */
+/* TODO - deprecate before releasing 0.17 and merge into Element in 0.18 */
 trait Customizable {
 
   type Self <: Element
@@ -59,14 +59,11 @@ trait Customizable {
   def withOptions (options: Options): Self
 }
 
-/** Provides a fallback for elements
-  *  the renderer does not know how
-  *  to deal with.
+/** Provides a fallback for elements the renderer does not know how to deal with.
   */
 trait Fallback {
-  /** Defines a fallback for this element in
-    *  case the renderer does not know how
-    *  to deal with it.
+  
+  /** Defines a fallback for this element in case the renderer does not know how to deal with it.
     */
   def fallback: Element
 }
