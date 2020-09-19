@@ -97,7 +97,7 @@ case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
   */
 case class Failure (msgProvider: Message, next: SourceCursor, maxOffset: Int) extends Parsed[Nothing] {
 
-  private lazy val failureContext = next.copy(offset = maxOffset)
+  private lazy val failureContext = next.consume(maxOffset - next.offset)
   
   /** The message specifying the cause of the failure.
     */

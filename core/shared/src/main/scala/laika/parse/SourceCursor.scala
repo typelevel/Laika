@@ -19,26 +19,27 @@ package laika.parse
 import scala.collection.mutable.ArrayBuffer
 
 /** Represents the state and context of a parsing operation,
-  * containing the input string as well as positional information/
+  * containing the input string as well as positional information.
   *
   * @author Jens Halm
   */
-case class SourceCursor (inputRef: InputString, offset: Int, nestLevel: Int) {
+trait SourceCursor {
 
-  /** The full input string, containing the string
-    * portions before and after the current offset.
+  /** The full input string, containing the string portions before and after the current offset.
     */
-  val input: String = inputRef.value
+  def input: String
 
-  /**  Indicates whether this contexts offset is behind
-    *  the last character of the input string
+  /** The offset of this cursor from the start of the source.
     */
-  def atEnd: Boolean = offset >= input.length
+  def offset: Int
+  
+  /** Indicates whether this contexts offset is behind the last character of the input string
+    */
+  def atEnd: Boolean
 
-  /** Indicates the number of characters remaining in the
-    * input string after the current offset.
+  /** Indicates the number of characters remaining in the input string after the current offset.
     */
-  def remaining: Int = input.length - offset
+  def remaining: Int
 
   /** The character at the current offset.
     */
@@ -46,12 +47,53 @@ case class SourceCursor (inputRef: InputString, offset: Int, nestLevel: Int) {
 
   /** The character at the specified offset, relative from the current offset.
     */
-  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
+  def charAt (relativeOffset: Int): Char
 
   /** Captures a string containing the specified number of characters from the current offset.
     * If the number of remaining characters is less than the specified number, all remaining
     * characters will be returned.
     */
+  def capture (numChars: Int): String
+
+  /** Consumes the specified number of characters, returning a new `ParserContext` with the new offset.
+    */
+  def consume (numChars: Int): SourceCursor
+
+  /** The current position in the input string.
+    */
+  def position: Position
+
+  /** The nest level of this cursor in case of recursive parsing. */
+  def nestLevel: Int
+
+  /** Returns a new `SourceCursor` with the input string being reversed,
+    * but pointing to the same character as this context.
+    *
+    * This is a low-level optimization for parsers that look for strings like email addresses where the first character 
+    * is not significant, so that parsing backwards from any `@` encountered in the input provided better performance.
+    */
+  def reverse: SourceCursor
+  
+}
+
+/** A root source represents the full input string of a parsing operation.
+  * 
+  * In a single-pass parser like those for HOCON or CSS, only `RootCursor` instances will be used for the entire
+  * parsing operation.
+  * 
+  * In a multi-pass parser like those for text markup, a `RootCursor` is only used for the first pass, 
+  * whereas the subsequent passes on parts of the input are performed with the other `SourceCursor` implementations.
+  */
+class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) extends SourceCursor {
+
+  val input: String = inputRef.value
+
+  def atEnd: Boolean = offset >= input.length
+
+  def remaining: Int = input.length - offset
+
+  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
+
   def capture (numChars: Int): String = {
     require(numChars >= 0, "numChars cannot be negative")
     
@@ -59,39 +101,23 @@ case class SourceCursor (inputRef: InputString, offset: Int, nestLevel: Int) {
     input.substring(offset, endIndex)
   }
 
-  /** Consumes the specified number of characters, returning a new `ParserContext`
-    * with the new offset.
-    */
   def consume (numChars: Int): SourceCursor =
-    if (numChars != 0) SourceCursor(inputRef, offset + numChars, nestLevel)
+    if (numChars != 0) new RootSource(inputRef, offset + numChars, nestLevel)
     else this
 
-  /** The current position in the input string.
-    */
   def position: Position = Position(inputRef, offset)
 
-  /** Returns a new `ParserContext` with the input string being reversed,
-    * but pointing to the same character as this context.
-    *
-    * This is a low-level optimization for parsers that look for strings like
-    * email addresses where the first character is not significant, so that
-    * parsing backwards from any `@` encountered in the input provided better
-    * performance.
-    *
-    * @return
-    */
-  def reverse: SourceCursor = SourceCursor(inputRef.reverse, remaining, nestLevel)
+  def reverse: SourceCursor = new RootSource(inputRef.reverse, remaining, nestLevel)
 
 }
 
-/** Companion for creating new `ParserContext` instances.
-  *
+/** Companion for creating new `SourceCursor` instances.
   */
 object SourceCursor {
 
   /** Builds a new instance for the specified input string.
     */
-  def apply (input: String): SourceCursor = SourceCursor(InputString(input), 0, 0)
+  def apply (input: String): SourceCursor = new RootSource(InputString(input), 0, 0)
 
   /** Builds a new instance for the specified input string and nesting level.
     *
@@ -99,7 +125,7 @@ object SourceCursor {
     * input that would otherwise cause endless recursion triggering stack
     * overflows or ultra-slow performance.
     */
-  def apply (input: String, nestLevel: Int): SourceCursor = SourceCursor(InputString(input), 0, nestLevel)
+  def apply (input: String, nestLevel: Int): SourceCursor = new RootSource(InputString(input), 0, nestLevel)
 
 }
 
@@ -139,7 +165,7 @@ case class InputString (value: String) {
   */
 case class Position(s: InputString, offset: Int) {
 
-  val source = s.value
+  val source: String = s.value
 
   /** The line number referred to by this position, starting at 1.
     */
@@ -171,7 +197,7 @@ case class Position(s: InputString, offset: Int) {
     *       ^
     * }}}
     */
-  def lineContentWithCaret = lineContent + "\n" + " " * (column-1) + "^"
+  def lineContentWithCaret: String = lineContent + "\n" + " " * (column-1) + "^"
 
   /** A string representation of this Position of the form `line.column`.
     */
