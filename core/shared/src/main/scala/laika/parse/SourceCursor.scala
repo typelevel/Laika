@@ -105,7 +105,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
     if (numChars != 0) new RootSource(inputRef, offset + numChars, nestLevel)
     else this
 
-  def position: Position = Position(inputRef, offset)
+  lazy val position: Position = new Position(inputRef, offset)
 
   def reverse: SourceCursor = new RootSource(inputRef.reverse, remaining, nestLevel)
 
@@ -117,7 +117,7 @@ object SourceCursor {
 
   /** Builds a new instance for the specified input string.
     */
-  def apply (input: String): SourceCursor = new RootSource(InputString(input), 0, 0)
+  def apply (input: String): SourceCursor = new RootSource(new InputString(input), 0, 0)
 
   /** Builds a new instance for the specified input string and nesting level.
     *
@@ -125,13 +125,13 @@ object SourceCursor {
     * input that would otherwise cause endless recursion triggering stack
     * overflows or ultra-slow performance.
     */
-  def apply (input: String, nestLevel: Int): SourceCursor = new RootSource(InputString(input), 0, nestLevel)
+  def apply (input: String, nestLevel: Int): SourceCursor = new RootSource(new InputString(input), 0, nestLevel)
 
 }
 
 /** Represents the input string for a parsing operation.
   */
-case class InputString (value: String) {
+private[parse] class InputString (val value: String) {
 
   /** An index that contains all line starts, including first line, and eof.
     */
@@ -150,7 +150,7 @@ case class InputString (value: String) {
 
   /** Builds a new `Source` instance with the input string reversed.
     */
-  lazy val reverse = InputString(value.reverse)
+  lazy val reverse = new InputString(value.reverse)
 
 }
 
@@ -163,7 +163,7 @@ case class InputString (value: String) {
   *
   *  @author Jens Halm
   */
-case class Position(s: InputString, offset: Int) {
+class Position(s: InputString, offset: Int) {
 
   val source: String = s.value
 
