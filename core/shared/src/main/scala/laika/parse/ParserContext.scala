@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
   *
   * @author Jens Halm
   */
-case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
+case class ParserContext (source: InputString, offset: Int, nestLevel: Int) {
 
   /** The full input string, containing the string
     * portions before and after the current offset.
@@ -68,7 +68,7 @@ case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
 
   /** The current position in the input string.
     */
-  def position: Position = new Position(source, offset)
+  def position: Position = Position(source, offset)
 
   /** Returns a new `ParserContext` with the input string being reversed,
     * but pointing to the same character as this context.
@@ -91,7 +91,7 @@ object ParserContext {
 
   /** Builds a new instance for the specified input string.
     */
-  def apply (input: String): ParserContext = ParserContext(Source(input), 0, 0)
+  def apply (input: String): ParserContext = ParserContext(InputString(input), 0, 0)
 
   /** Builds a new instance for the specified input string and nesting level.
     *
@@ -99,13 +99,13 @@ object ParserContext {
     * input that would otherwise cause endless recursion triggering stack
     * overflows or ultra-slow performance.
     */
-  def apply (input: String, nestLevel: Int): ParserContext = ParserContext(Source(input), 0, nestLevel)
+  def apply (input: String, nestLevel: Int): ParserContext = ParserContext(InputString(input), 0, nestLevel)
 
 }
 
 /** Represents the input string for a parsing operation.
   */
-case class Source (value: String) {
+case class InputString (value: String) {
 
   /** An index that contains all line starts, including first line, and eof.
     */
@@ -124,7 +124,7 @@ case class Source (value: String) {
 
   /** Builds a new `Source` instance with the input string reversed.
     */
-  lazy val reverse = Source(value.reverse)
+  lazy val reverse = InputString(value.reverse)
 
 }
 
@@ -137,7 +137,7 @@ case class Source (value: String) {
   *
   *  @author Jens Halm
   */
-case class Position(s: Source, offset: Int) {
+case class Position(s: InputString, offset: Int) {
 
   val source = s.value
 
