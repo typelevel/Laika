@@ -25,7 +25,7 @@ import laika.factory.MarkupFormat
 import laika.parse.SourceCursor
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{InvalidDocument, ParserError, ParserInput}
+import laika.parse.markup.DocumentParser.{InvalidDocument, ParserError, DocumentInput}
 import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
@@ -63,16 +63,16 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
 
   /** Parses the specified markup string into a document AST structure.
     */
-  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root / "doc", SourceCursor(input)))
+  def parse (input: String): Either[ParserError, Document] = parse(DocumentInput(Root / "doc", SourceCursor(input)))
 
   /** Parses the specified markup string into a document AST structure.
     * The given (virtual) path will be assigned to the result.
     */
-  def parse (input: String, path: Path): Either[ParserError, Document] = parse(ParserInput(path, SourceCursor(input)))
+  def parse (input: String, path: Path): Either[ParserError, Document] = parse(DocumentInput(path, SourceCursor(input)))
 
   /** Parses the specified markup input into a document AST structure.
     */
-  def parse (input: ParserInput): Either[ParserError, Document] = {
+  def parse (input: DocumentInput): Either[ParserError, Document] = {
     
     def resolveDocument (unresolved: UnresolvedDocument, docConfig: Config): Either[ParserError, Document] = {
       val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue => (c.key, c.value) }
@@ -93,10 +93,10 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
   }
 
   def parseUnresolved (input: String): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(ParserInput(Root, SourceCursor(input)))
+    parseUnresolved(DocumentInput(Root, SourceCursor(input)))
 
   def parseUnresolved (input: String, path: Path): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(ParserInput(path, SourceCursor(input)))
+    parseUnresolved(DocumentInput(path, SourceCursor(input)))
 
   /** Returns an unresolved document without applying
     * the default rewrite rules and without resolving the configuration header (if present). 
@@ -110,7 +110,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     * 
     * This low-level hook is rarely used by application code.
     */
-  def parseUnresolved (input: ParserInput): Either[ParserError, UnresolvedDocument] = docParser(input)
+  def parseUnresolved (input: DocumentInput): Either[ParserError, UnresolvedDocument] = docParser(input)
 
 }
 

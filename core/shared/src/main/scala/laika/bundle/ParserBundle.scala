@@ -18,7 +18,7 @@ package laika.bundle
 
 import laika.ast._
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.ParserInput
+import laika.parse.markup.DocumentParser.DocumentInput
 
 /** Bundles a collection of all types of parsers used in a transformation.
   *
@@ -79,7 +79,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
   */
 case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
                        postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-                       preProcessInput: ParserInput => ParserInput = identity) {
+                       preProcessInput: DocumentInput => DocumentInput = identity) {
 
   /** Merges this instance with the specified base.
     * The functions specified in the base are always invoked before

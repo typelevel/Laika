@@ -26,7 +26,7 @@ import laika.parse._
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
-import laika.parse.markup.DocumentParser.ParserInput
+import laika.parse.markup.DocumentParser.DocumentInput
 import laika.parse.text.TextParsers
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -221,9 +221,9 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       TextParsers.textLine.map(Paragraph(_))
     })
 
-    def preProcess (append: String): ParserInput => ParserInput = { input =>
-      val raw = input.context.input
-      input.copy(context = SourceCursor(raw + append))
+    def preProcess (append: String): DocumentInput => DocumentInput = { input =>
+      val raw = input.source.input
+      input.copy(source = SourceCursor(raw + append))
     }
 
     def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(

@@ -34,7 +34,7 @@ import laika.parse.implicits._
   */
 object DocumentParser {
   
-  case class ParserInput (path: Path, context: SourceCursor)
+  case class DocumentInput (path: Path, source: SourceCursor)
   
   case class ParserError (message: String, path: Path) extends 
     RuntimeException(s"Error parsing document '$path': $message")
@@ -79,7 +79,7 @@ object DocumentParser {
   }
 
   private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
-    (docFactory: (Path, ConfigParser, R) => D): ParserInput => Either[ParserError, D] = {
+    (docFactory: (Path, ConfigParser, R) => D): DocumentInput => Either[ParserError, D] = {
 
     forParser { path =>
       val configHeader = configProvider.configHeader | Parsers.success(ConfigParser.empty)
@@ -92,7 +92,7 @@ object DocumentParser {
     */
   def forMarkup (markupParser: MarkupFormat,
                  markupExtensions: MarkupExtensions,
-                 configProvider: ConfigProvider): ParserInput => Either[ParserError, UnresolvedDocument] = {
+                 configProvider: ConfigProvider): DocumentInput => Either[ParserError, UnresolvedDocument] = {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
@@ -104,7 +104,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup (rootParser: Parser[RootElement], configProvider: ConfigProvider): ParserInput => Either[ParserError, UnresolvedDocument] =
+  def forMarkup (rootParser: Parser[RootElement], configProvider: ConfigProvider): DocumentInput => Either[ParserError, UnresolvedDocument] =
     create(rootParser, configProvider) { (path, config, root) =>
       val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
       UnresolvedDocument(Document(path, root, fragments), config)
@@ -113,14 +113,14 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  def forTemplate (rootParser: Parser[TemplateRoot], configProvider: ConfigProvider): ParserInput => Either[ParserError, TemplateDocument] = 
+  def forTemplate (rootParser: Parser[TemplateRoot], configProvider: ConfigProvider): DocumentInput => Either[ParserError, TemplateDocument] = 
     create(rootParser, configProvider) { (path, config, root) =>
       TemplateDocument(path, root, config)
     }
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
-  def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): ParserInput => Either[ParserError, StyleDeclarationSet] = 
+  def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): DocumentInput => Either[ParserError, StyleDeclarationSet] = 
     forParser { path => parser.map(res => StyleDeclarationSet.forPath(path, res)) }
 
   /** A document parser function for the specified parser that is expected to consume
@@ -129,10 +129,10 @@ object DocumentParser {
     * The specified function is invoked for each parsed document, so that a parser
     * dependent on the input path can be created.
     */
-  def forParser[T] (p: Path => Parser[T]): ParserInput => Either[ParserError, T] = { in =>
+  def forParser[T] (p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = { in =>
     Parsers
       .consumeAll(p(in.path))
-      .parse(in.context)
+      .parse(in.source)
       .toEither
       .left.map(ParserError(_, in.path))
   }

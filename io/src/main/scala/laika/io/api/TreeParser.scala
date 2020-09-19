@@ -27,7 +27,7 @@ import laika.io.ops.InputOps
 import laika.io.runtime.{ParserRuntime, Runtime}
 import laika.theme.{Theme, ThemeProvider}
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
+import laika.parse.markup.DocumentParser.{ParserError, DocumentInput}
 
 /** Parser for a tree of input documents.
   *
@@ -103,7 +103,7 @@ object TreeParser {
     /** The template parser for this operation. If this property is empty
       * templating is not supported for this operation.
       */
-    lazy val templateParser: Option[ParserInput => Either[ParserError, TemplateDocument]] = config.templateParser map { rootParser =>
+    lazy val templateParser: Option[DocumentInput => Either[ParserError, TemplateDocument]] = config.templateParser map { rootParser =>
       DocumentParser.forTemplate(rootParser, config.configProvider)
     }
 
@@ -111,7 +111,7 @@ object TreeParser {
       * will only be parsed for PDF output, in case of HTML or EPUB formats
       * CSS documents will merely copied to the target format.
       */
-    lazy val styleSheetParser: ParserInput => Either[ParserError, StyleDeclarationSet] =
+    lazy val styleSheetParser: DocumentInput => Either[ParserError, StyleDeclarationSet] =
       DocumentParser.forStyleSheets(config.styleSheetParser)
 
     /** Performs the parsing operation based on the library's

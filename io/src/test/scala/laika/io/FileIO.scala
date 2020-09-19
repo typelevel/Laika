@@ -41,7 +41,7 @@ trait FileIO { this: IOSpec =>
 
   def readFile (f: File, codec: Codec): IO[String] = {
     val input = TextInput.fromFile[IO](Root, DocumentType.Markup, f, codec)
-    InputRuntime.readParserInput(input).map(_.context.input)
+    InputRuntime.readParserInput(input).map(_.source.input)
   }
 
   def writeFile (f: File, content: String): IO[Unit] = {

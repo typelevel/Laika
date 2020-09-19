@@ -17,7 +17,7 @@
 package laika.parse.text
 
 import laika.parse.SourceCursor
-import laika.parse.markup.DocumentParser.ParserInput
+import laika.parse.markup.DocumentParser.DocumentInput
 
 /** Processes whitespace, removing or replacing most whitespace characters except
  *  for newline and space.
@@ -99,10 +99,10 @@ object WhitespacePreprocessor {
     * a new instance with the same path, but all whitespace
     * pre-processed.
     */
-  val forInput: ParserInput => ParserInput = { input =>
-    val raw = input.context.input
+  val forInput: DocumentInput => DocumentInput = { input =>
+    val raw = input.source.input
     val preprocessed = forString(raw.toString)
-    input.copy(context = SourceCursor(preprocessed))
+    input.copy(source = SourceCursor(preprocessed))
   }
 
 }

@@ -31,7 +31,7 @@ import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{InputTree, ParsedTree, TextInput}
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
-import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, ParserInput}
+import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, DocumentInput}
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
   * 
@@ -90,11 +90,11 @@ object ParserRuntime {
           .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
       }
       
-      def parseDocument[D] (doc: TextInput[F], parse: ParserInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
+      def parseDocument[D] (doc: TextInput[F], parse: DocumentInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(doc).flatMap(in => Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
-      def parseConfig(input: ParserInput): Either[ParserError, ConfigParser] =
-        Right(op.config.configProvider.configDocument(input.context.input))
+      def parseConfig(input: DocumentInput): Either[ParserError, ConfigParser] =
+        Right(op.config.configProvider.configDocument(input.source.input))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult)))
