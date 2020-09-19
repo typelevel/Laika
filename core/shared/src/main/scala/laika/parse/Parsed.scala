@@ -17,8 +17,7 @@
 package laika.parse
 
 /** Represents the result of a `Parser`, a value of type `T` in case of success,
-  * a message in case of failure as well as the `ParserContext` for the remaining
-  * input.
+  * a message in case of failure as well as the `SourceCursor` for the remaining input.
   *
   *  @author Jens Halm
   */
@@ -88,10 +87,10 @@ case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
   *  The message property is of type `Message`, to allow for lazy message creation.
   *  The former SDK parser combinators which this API is partially inspired by contained
   *  a lot of unnecessary string concatenations for messages which were then never read.
-  *  This implementation avoids this extra cost and the result is measurable (about 15%
-  *  performance gain for a typical Markdown document for example).
+  *  This implementation avoids this extra cost and the result is measurable 
+  *  (about 15% performance gain for a typical Markdown document for example).
   *
-  *  @param msgProvider  A provider that produces an error message for this failure based on its ParserContext
+  *  @param msgProvider  A provider that produces an error message for this failure based on its SourceCursor
   *  @param next         The unconsumed input at the point where the failing parser started
   *  @param maxOffset    The offset position the parser could successfully read to before failing
   */
@@ -128,7 +127,7 @@ object Failure {
 }
 
 /** Represents a lazy failure message.
-  * Implementations can use the specified `ParserContext` to construct
+  * Implementations can use the specified `SourceCursor` to construct
   * the actual message, e.g. for adding parts of the input to the message.
   */
 trait Message {

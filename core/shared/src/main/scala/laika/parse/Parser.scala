@@ -347,7 +347,7 @@ abstract class Parser[+T] {
     }
   }
 
-  /** Adds the ParserContext positioned at the end of a successful application of this 
+  /** Adds the SourceCursor positioned at the end of a successful application of this 
     * parser to the result in a tuple.
     */
   def withContext: Parser[(T, SourceCursor)] = Parser { in =>

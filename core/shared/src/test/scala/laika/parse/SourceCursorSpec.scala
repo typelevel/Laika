@@ -22,13 +22,13 @@ import org.scalatest.wordspec.AnyWordSpec
 /**
   * @author Jens Halm
   */
-class ParserContextSpec extends AnyWordSpec with Matchers {
+class SourceCursorSpec extends AnyWordSpec with Matchers {
 
 
   val context = SourceCursor("abc\ndef")
 
 
-  "The ParserContext" should {
+  "The SourceCursor" should {
 
     "not be at the end of input after creation" in {
       context.atEnd shouldBe false

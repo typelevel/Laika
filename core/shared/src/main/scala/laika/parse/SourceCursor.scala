@@ -55,7 +55,7 @@ trait SourceCursor {
     */
   def capture (numChars: Int): String
 
-  /** Consumes the specified number of characters, returning a new `ParserContext` with the new offset.
+  /** Consumes the specified number of characters, returning a new `SourceCursor` with the new offset.
     */
   def consume (numChars: Int): SourceCursor
 
