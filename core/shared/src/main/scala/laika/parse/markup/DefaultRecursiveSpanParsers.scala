@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast.{InvalidElement, Span}
 import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.{Failure, Parser, ParserContext, Success}
+import laika.parse.{Failure, Parser, SourceCursor, Success}
 
 /** Default implementation for parsing inline markup recursively.
   *
@@ -45,8 +45,8 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     override def embedAll (parsers: => Seq[PrefixedParser[Span]]) = 
       new TwoPhaseInlineParser(textParser, delegate.embedAll(parsers))
     
-    override def parse (ctx: ParserContext) = {
-      textParser.parse(ctx) match {
+    override def parse (source: SourceCursor) = {
+      textParser.parse(source) match {
         case Success(str, next) =>
           spanParser0.parse(str) match {
             case Success(spans, _) => Success(spans, next)

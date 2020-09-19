@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.parse.text.DelimiterResult.{Complete, Continue}
 import laika.parse.text.{Delimiter, DelimiterResult}
-import laika.parse.{Parsed, ParserContext, Success}
+import laika.parse.{Parsed, SourceCursor, Success}
 
 /** Delimiter implementation for parsing inline spans that distinguishes
   * between a delimiter that marks the end of the span and a delimiter
@@ -30,23 +30,23 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
   val startChars = nestedDelimiters ++ endDelimiters.startChars
 
-  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[InlineResult] = {
+  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[InlineResult] = {
 
     def nestedDelimiter: DelimiterResult[InlineResult] = {
-      val capturedText = context.capture(charsConsumed)
-      Complete(Success(NestedDelimiter(startChar, capturedText), context.consume(charsConsumed)))
+      val capturedText = source.capture(charsConsumed)
+      Complete(Success(NestedDelimiter(startChar, capturedText), source.consume(charsConsumed)))
     }
 
     if (endDelimiters.startChars.contains(startChar))
-      endDelimiters.atStartChar(startChar, charsConsumed, context) match {
+      endDelimiters.atStartChar(startChar, charsConsumed, source) match {
         case Complete(s: Parsed[String]) => Complete(s.map(EndDelimiter))
         case Continue => if (nestedDelimiters.contains(startChar)) nestedDelimiter else Continue
       }
     else nestedDelimiter
   }
 
-  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[InlineResult] =
-    endDelimiters.atEOF(charsConsumed, context).map(EndDelimiter)
+  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[InlineResult] =
+    endDelimiters.atEOF(charsConsumed, source).map(EndDelimiter)
 
 }
 

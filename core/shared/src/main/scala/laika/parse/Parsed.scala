@@ -27,7 +27,7 @@ sealed abstract class Parsed[+T] {
   /** The context representing the remaining input
     * left over by the parser that produced this result.
     */
-  val next: ParserContext
+  val next: SourceCursor
 
   /** Indicates whether this results represents a successful
     * parser invocation.
@@ -66,7 +66,7 @@ sealed abstract class Parsed[+T] {
 
 /** The success case of `Parsed` containing the result and the remaining input.
   */
-case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
+case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
 
   val isSuccess = true
 
@@ -95,7 +95,7 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
   *  @param next         The unconsumed input at the point where the failing parser started
   *  @param maxOffset    The offset position the parser could successfully read to before failing
   */
-case class Failure (msgProvider: Message, next: ParserContext, maxOffset: Int) extends Parsed[Nothing] {
+case class Failure (msgProvider: Message, next: SourceCursor, maxOffset: Int) extends Parsed[Nothing] {
 
   private lazy val failureContext = next.copy(offset = maxOffset)
   
@@ -124,7 +124,7 @@ case class Failure (msgProvider: Message, next: ParserContext, maxOffset: Int) e
 }
 
 object Failure {
-  @inline def apply(msgProvider: Message, next: ParserContext): Failure = apply(msgProvider, next, next.offset)
+  @inline def apply(msgProvider: Message, next: SourceCursor): Failure = apply(msgProvider, next, next.offset)
 }
 
 /** Represents a lazy failure message.
@@ -133,7 +133,7 @@ object Failure {
   */
 trait Message {
 
-  def message (context: ParserContext): String
+  def message (source: SourceCursor): String
 
 }
 
@@ -158,7 +158,7 @@ object Message {
 
     def apply (value: T): Message = new Message {
 
-      def message (context: ParserContext): String = f(value)
+      def message (source: SourceCursor): String = f(value)
 
     }
 
@@ -169,15 +169,15 @@ object Message {
     */
   def fixed (msg: String): Message = new Message {
 
-    def message (context: ParserContext): String = msg
+    def message (source: SourceCursor): String = msg
 
   }
 
   /** Builds a message instance for the specified
     * factory function.
     */
-  def forContext (f: ParserContext => String): Message = new Message {
-    def message (context: ParserContext): String = f(context)
+  def forContext (f: SourceCursor => String): Message = new Message {
+    def message (source: SourceCursor): String = f(source)
   }
 
   /** Builds a factory function that produces new messages

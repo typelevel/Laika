@@ -59,7 +59,7 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
     def parse (source: String, nestLevel: Int): Parsed[Seq[Block]] = {
       val newNestLevel = nestLevel + 1
       val p = if (newNestLevel <= maxNestLevel) recursive else nonRecursive
-      p.parse(ParserContext(source, newNestLevel))
+      p.parse(SourceCursor(source, newNestLevel))
     }
 
   }

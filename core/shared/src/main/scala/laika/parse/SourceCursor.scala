@@ -23,12 +23,12 @@ import scala.collection.mutable.ArrayBuffer
   *
   * @author Jens Halm
   */
-case class ParserContext (source: InputString, offset: Int, nestLevel: Int) {
+case class SourceCursor (inputRef: InputString, offset: Int, nestLevel: Int) {
 
   /** The full input string, containing the string
     * portions before and after the current offset.
     */
-  val input: String = source.value
+  val input: String = inputRef.value
 
   /**  Indicates whether this contexts offset is behind
     *  the last character of the input string
@@ -62,13 +62,13 @@ case class ParserContext (source: InputString, offset: Int, nestLevel: Int) {
   /** Consumes the specified number of characters, returning a new `ParserContext`
     * with the new offset.
     */
-  def consume (numChars: Int): ParserContext =
-    if (numChars != 0) ParserContext(source, offset + numChars, nestLevel)
+  def consume (numChars: Int): SourceCursor =
+    if (numChars != 0) SourceCursor(inputRef, offset + numChars, nestLevel)
     else this
 
   /** The current position in the input string.
     */
-  def position: Position = Position(source, offset)
+  def position: Position = Position(inputRef, offset)
 
   /** Returns a new `ParserContext` with the input string being reversed,
     * but pointing to the same character as this context.
@@ -80,18 +80,18 @@ case class ParserContext (source: InputString, offset: Int, nestLevel: Int) {
     *
     * @return
     */
-  def reverse: ParserContext = ParserContext(source.reverse, remaining, nestLevel)
+  def reverse: SourceCursor = SourceCursor(inputRef.reverse, remaining, nestLevel)
 
 }
 
 /** Companion for creating new `ParserContext` instances.
   *
   */
-object ParserContext {
+object SourceCursor {
 
   /** Builds a new instance for the specified input string.
     */
-  def apply (input: String): ParserContext = ParserContext(InputString(input), 0, 0)
+  def apply (input: String): SourceCursor = SourceCursor(InputString(input), 0, 0)
 
   /** Builds a new instance for the specified input string and nesting level.
     *
@@ -99,7 +99,7 @@ object ParserContext {
     * input that would otherwise cause endless recursion triggering stack
     * overflows or ultra-slow performance.
     */
-  def apply (input: String, nestLevel: Int): ParserContext = ParserContext(InputString(input), 0, nestLevel)
+  def apply (input: String, nestLevel: Int): SourceCursor = SourceCursor(InputString(input), 0, nestLevel)
 
 }
 

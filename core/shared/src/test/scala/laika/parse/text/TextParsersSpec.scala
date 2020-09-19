@@ -16,7 +16,7 @@
 
 package laika.parse.text
 
-import laika.parse.ParserContext
+import laika.parse.SourceCursor
 import laika.parse.builders._
 import laika.parse.helper.ParseResultHelpers
 import org.scalatest.matchers.should.Matchers
@@ -172,7 +172,7 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
     }
 
     "fail when not at the start of the input" in {
-      atStart.parse(ParserContext("abc").consume(1)).toEither.isLeft shouldBe true
+      atStart.parse(SourceCursor("abc").consume(1)).toEither.isLeft shouldBe true
     }
 
   }

@@ -51,7 +51,7 @@ class DelimitedText (private[laika] val delimiter: TextDelimiter) extends Parser
     */
   def failOn (chars: Char*): DelimitedText = new DelimitedText(delimiter.copy(failOn = chars.toSet))
   
-  def parse (ctx: ParserContext): Parsed[String] = parser.parse(ctx)
+  def parse (source: SourceCursor): Parsed[String] = parser.parse(source)
 
 }
 
@@ -75,21 +75,21 @@ private[laika] class DelimitedParser [T] (val delimiter: Delimiter[T]) extends P
   private lazy val optimizedDelimiters: Array[Byte] = Characters.optimizedLookup(delimiter.startChars)
 
 
-  def parse (ctx: ParserContext): Parsed[T] = {
+  def parse (source: SourceCursor): Parsed[T] = {
 
-    val source = ctx.input
-    val end = source.length
+    val sourceString = source.input
+    val end = sourceString.length
     val lookup = optimizedDelimiters
 
     @tailrec
     def parse (offset: Int): Parsed[T] = {
 
-      def charsConsumed = offset - ctx.offset
+      def charsConsumed = offset - source.offset
 
-      if (offset == end) delimiter.atEOF(charsConsumed, ctx)
+      if (offset == end) delimiter.atEOF(charsConsumed, source)
       else {
-        val char = source.charAt(offset)
-        if (char <= maxChar && lookup(char) == 1) delimiter.atStartChar(char, charsConsumed, ctx) match {
+        val char = sourceString.charAt(offset)
+        if (char <= maxChar && lookup(char) == 1) delimiter.atStartChar(char, charsConsumed, source) match {
           case Complete(result) => result
           case Continue         => parse(offset + 1)
         }
@@ -97,7 +97,7 @@ private[laika] class DelimitedParser [T] (val delimiter: Delimiter[T]) extends P
       }
     }
 
-    parse(ctx.offset)
+    parse(source.offset)
   }
 
 }
@@ -121,20 +121,20 @@ private[laika] trait Delimiter[T] {
     * @param startChar the start character that was encountered on the input string (matches one of the characters
     *                  in the `startChar` set)
     * @param charsConsumed the number of characters consumed before the delimiter has been reached
-    * @param context the parser context at the position the delimiter has been reached
+    * @param source the parser context at the position the delimiter has been reached
     * @return either `Continue` in case the additional conditions for the
     *         delimiter are not met at this position, or a `Complete` instance containing
     *         the result
     */
-  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[T]
+  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[T]
 
   /** Method invoked when the end of the input is reached.
     *
     * @param charsConsumed the number of characters consumed before EOF has been reached
-    * @param context the parser context at the position EOF has been reached
+    * @param source the parser context at the position EOF has been reached
     * @return the result of the parser
     */
-  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[T]
+  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[T]
 
 }
 
@@ -153,35 +153,35 @@ private[laika] case class TextDelimiter (parser: Option[PrefixedParser[String]],
     Message.forRuntimeValue[Char] (char => s"unexpected input in delimited text: `$char`")
 
 
-  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
+  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[String] = {
 
     def applyPostCondition: Option[Int] = parser.fold(Option(0)) { parser =>
-      parser.parse(context.consume(charsConsumed)) match {
-        case Success(_, next) => Some(next.offset - (context.offset + charsConsumed))
+      parser.parse(source.consume(charsConsumed)) match {
+        case Success(_, next) => Some(next.offset - (source.offset + charsConsumed))
         case _ => None
       }
     }
 
     def result (delimConsumed: Int): Success[String] = {
-      val capturedText = context.capture(charsConsumed)
+      val capturedText = source.capture(charsConsumed)
       val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + delimConsumed
-      Success(capturedText, context.consume(totalConsumed))
+      Success(capturedText, source.consume(totalConsumed))
     }
 
-    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context, context.offset + charsConsumed))
+    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), source, source.offset + charsConsumed))
     else {
       applyPostCondition match {
         case None                                      => Continue
-        case Some(_) if charsConsumed == 0 && nonEmpty => Complete(Failure(emptyResult, context))
+        case Some(_) if charsConsumed == 0 && nonEmpty => Complete(Failure(emptyResult, source))
         case Some(delimConsumed)                       => Complete(result(delimConsumed))
       }
     }
   }
 
-  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
-    if (!acceptEOF) Failure(Message.UnexpectedEOF, context, context.offset + charsConsumed)
-    else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, context)
-    else Success(context.capture(charsConsumed), context.consume(charsConsumed))
+  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[String] = {
+    if (!acceptEOF) Failure(Message.UnexpectedEOF, source, source.offset + charsConsumed)
+    else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, source)
+    else Success(source.capture(charsConsumed), source.consume(charsConsumed))
   }
 
 }

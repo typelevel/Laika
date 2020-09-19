@@ -59,26 +59,26 @@ class Characters[T] (predicate:     Char => Boolean,
     Message.forRuntimeValue[Int]( actual => s"expected at least $minChar characters, got only $actual" )
 
 
-  def parse (ctx: ParserContext): Parsed[T] = {
+  def parse (source: SourceCursor): Parsed[T] = {
 
-    val source = ctx.input
-    val maxOffset = if (maxChar < 0 || ctx.offset + maxChar < 0) source.length
-                    else Math.min(ctx.offset + maxChar, source.length)
+    val sourceString = source.input
+    val maxOffset = if (maxChar < 0 || source.offset + maxChar < 0) sourceString.length
+                    else Math.min(source.offset + maxChar, sourceString.length)
 
     def result (offset: Int) = {
-      val consumed = offset - ctx.offset
+      val consumed = offset - source.offset
       if (consumed >= minChar)
-        Success(resultBuilder(ctx, consumed), ctx.consume(consumed))
+        Success(resultBuilder(source, consumed), source.consume(consumed))
       else
-        Failure(msgProvider(consumed), ctx, offset)
+        Failure(msgProvider(consumed), source, offset)
     }
 
     @tailrec
     def parse (offset: Int): Parsed[T] =
-      if (offset == maxOffset || !predicate(source.charAt(offset))) result(offset)
+      if (offset == maxOffset || !predicate(sourceString.charAt(offset))) result(offset)
       else parse(offset + 1)
 
-    parse(ctx.offset)
+    parse(source.offset)
   }
 
 }
@@ -87,7 +87,7 @@ class Characters[T] (predicate:     Char => Boolean,
   */
 object Characters {
 
-  type ResultBuilder[T] = (ParserContext, Int) => T
+  type ResultBuilder[T] = (SourceCursor, Int) => T
 
   val StringResultBuilder: ResultBuilder[String] = (ctx, consumed) => ctx.capture(consumed)
   val CountResultBuilder: ResultBuilder[Int] =     (_,   consumed) => consumed

@@ -40,11 +40,11 @@ abstract class Parser[+T] {
     * This is the only abstract method in `Parser` that
     * concrete implementations need to implement.
     */
-  def parse (in: ParserContext): Parsed[T]
+  def parse (in: SourceCursor): Parsed[T]
 
   /** Parses the specified string and returns the result.
     */
-  def parse (in: String): Parsed[T] = parse(ParserContext(in))
+  def parse (in: String): Parsed[T] = parse(SourceCursor(in))
 
 
   /** Builds a new parser by applying the specified function
@@ -190,7 +190,7 @@ abstract class Parser[+T] {
     */
   def as [U] (v: => U): Parser[U] = new Parser[U] {
     lazy val v0 = v
-    def parse (in: ParserContext) = Parser.this.parse(in) map (_ => v0)
+    def parse (in: SourceCursor) = Parser.this.parse(in) map (_ => v0)
   }
 
   /** Discards the result of a successful parser.
@@ -293,7 +293,7 @@ abstract class Parser[+T] {
     val elems = new ListBuffer[U]
 
     @tailrec
-    def parse (input: ParserContext, p: Parser[U]): Parsed[List[U]] =
+    def parse (input: SourceCursor, p: Parser[U]): Parsed[List[U]] =
       p.parse(input) match {
         case Success(result, rest) =>
           elems += result
@@ -350,7 +350,7 @@ abstract class Parser[+T] {
   /** Adds the ParserContext positioned at the end of a successful application of this 
     * parser to the result in a tuple.
     */
-  def withContext: Parser[(T, ParserContext)] = Parser { in =>
+  def withContext: Parser[(T, SourceCursor)] = Parser { in =>
     parse(in) match {
       case f: Failure => f
       case Success(result, rest) => Success((result, in), rest)
@@ -393,7 +393,7 @@ object Parser {
   /** Builds a new parser based on the specified function
     * that implements the behaviour of the parser.
     */
-  def apply[T] (f: ParserContext => Parsed[T]): Parser[T]
-    = new Parser[T] { def parse (ctx: ParserContext) = f(ctx) }
+  def apply[T] (f: SourceCursor => Parsed[T]): Parser[T]
+    = new Parser[T] { def parse (source: SourceCursor) = f(source) }
 
 }

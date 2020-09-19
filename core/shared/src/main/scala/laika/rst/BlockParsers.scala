@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
-import laika.parse.{Parsed, Parser, ParserContext, Success}
+import laika.parse.{Parsed, Parser, SourceCursor, Success}
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import BaseParsers._
 
@@ -172,7 +172,7 @@ object BlockParsers {
     }
 
     @tailrec
-    def parse (p: Parser[Block], in: ParserContext): Parsed[Seq[Block]] = p.parse(in) match {
+    def parse (p: Parser[Block], in: SourceCursor): Parsed[Seq[Block]] = p.parse(in) match {
       case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
       case Success(p: Paragraph, rest) =>
         val (paragraph, parser) = processLiteralMarker(p)

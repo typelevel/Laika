@@ -22,7 +22,7 @@ import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, Unresolve
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
-import laika.parse.ParserContext
+import laika.parse.SourceCursor
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{InvalidDocument, ParserError, ParserInput}
@@ -63,12 +63,12 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
 
   /** Parses the specified markup string into a document AST structure.
     */
-  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root / "doc", ParserContext(input)))
+  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root / "doc", SourceCursor(input)))
 
   /** Parses the specified markup string into a document AST structure.
     * The given (virtual) path will be assigned to the result.
     */
-  def parse (input: String, path: Path): Either[ParserError, Document] = parse(ParserInput(path, ParserContext(input)))
+  def parse (input: String, path: Path): Either[ParserError, Document] = parse(ParserInput(path, SourceCursor(input)))
 
   /** Parses the specified markup input into a document AST structure.
     */
@@ -93,10 +93,10 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
   }
 
   def parseUnresolved (input: String): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(ParserInput(Root, ParserContext(input)))
+    parseUnresolved(ParserInput(Root, SourceCursor(input)))
 
   def parseUnresolved (input: String, path: Path): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(ParserInput(path, ParserContext(input)))
+    parseUnresolved(ParserInput(path, SourceCursor(input)))
 
   /** Returns an unresolved document without applying
     * the default rewrite rules and without resolving the configuration header (if present). 

@@ -55,20 +55,20 @@ class Repeat[+T] (parser: Parser[T], min: Int = 0, max: Int = Int.MaxValue, sep:
     */
   def take (num: Int): Repeat[T] = new Repeat(parser, num, num, sep)
 
-  def parse (ctx: ParserContext): Parsed[List[T]] = {
+  def parse (source: SourceCursor): Parsed[List[T]] = {
 
     val elems = new ListBuffer[T]
 
     @tailrec
-    def rec (ctx: ParserContext, p: Parser[T]): Parsed[List[T]] =
-      if (elems.length == max) Success(elems.toList, ctx)
-      else p.parse(ctx) match {
+    def rec (source: SourceCursor, p: Parser[T]): Parsed[List[T]] =
+      if (elems.length == max) Success(elems.toList, source)
+      else p.parse(source) match {
         case Success(x, next)                  => elems += x; rec(next, repParser)
-        case _: Failure if elems.length >= min => Success(elems.toList, ctx)
+        case _: Failure if elems.length >= min => Success(elems.toList, source)
         case f: Failure                        => f
       }
 
-    rec(ctx, parser)
+    rec(source, parser)
 
   }
 

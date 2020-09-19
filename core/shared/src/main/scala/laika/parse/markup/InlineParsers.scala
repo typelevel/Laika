@@ -112,13 +112,13 @@ trait InlineParsers {
     def embedAll (parsers: => Seq[PrefixedParser[Elem]]): InlineParser[Elem, To] =
       new DefaultInlineParser(textDelimiter, nested ++ parsers, resultBuilder)
     
-    def parse (in: ParserContext): Parsed[To] = {
+    def parse (in: SourceCursor): Parsed[To] = {
 
       lazy val builder = resultBuilder // need a fresh one on each invocation
 
       def addText (text: String): Unit = if (!text.isEmpty) builder += builder.fromString(text)
 
-      def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
+      def nestedSpanOrNextChar (parser: Parser[Elem], input: SourceCursor) = {
         parser.parse(input) match {
           case Success(result, next) => builder += result; next
           case _ => builder += builder.fromString(input.char.toString); input.consume(1)
@@ -126,7 +126,7 @@ trait InlineParsers {
       }
 
       @tailrec
-      def parse (input: ParserContext) : Parsed[To] = {
+      def parse (input: SourceCursor) : Parsed[To] = {
         textParser.parse(input) match {
           case Failure(msg, _, maxOffset) =>
             Failure(msg, in, maxOffset)

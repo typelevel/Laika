@@ -24,7 +24,7 @@ import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.text.{CharGroup, Characters}
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{Failure, Message, Parser, ParserContext, Success}
+import laika.parse.{Failure, Message, Parser, SourceCursor, Success}
 
 import scala.util.Try
 
@@ -52,8 +52,8 @@ object HoconParsers {
                            (captureError: (T, Failure) => R): Parser[R] = {
 
       (parser ~ (closingParser.as((0,())) | fallbackParser.withContext)).map {
-        case res ~ ((cnt: Int, ctx: ParserContext)) =>
-          captureError(res, Failure(Message.fixed(msg), ctx.consume(cnt)))
+        case res ~ ((cnt: Int, source: SourceCursor)) =>
+          captureError(res, Failure(Message.fixed(msg), source.consume(cnt)))
         case res ~ _ =>
           res
       }
@@ -97,7 +97,7 @@ object HoconParsers {
   
   def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
     lazy val p = parser
-    override def parse (in: ParserContext) = p.parse(in)
+    override def parse (in: SourceCursor) = p.parse(in)
   }
   
   /** Parses whitespace or newline characters. */

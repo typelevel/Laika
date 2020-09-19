@@ -26,7 +26,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config._
 import laika.format.Markdown
-import laika.parse.ParserContext
+import laika.parse.SourceCursor
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -49,7 +49,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     (doc.fragments, doc.content)
   }
 
-  def parseTemplate (input: String): TemplateRoot = templateParser.parse(ParserContext(input)).toOption.get
+  def parseTemplate (input: String): TemplateRoot = templateParser.parse(SourceCursor(input)).toOption.get
 
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)

@@ -23,7 +23,7 @@ import laika.bundle.{ConfigProvider, MarkupExtensions}
 import laika.config.{ConfigError, ConfigParser}
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
-import laika.parse.{Parser, ParserContext}
+import laika.parse.{Parser, SourceCursor}
 import laika.parse.implicits._
 
 /** Responsible for creating the top level parsers for text markup and template documents,
@@ -34,7 +34,7 @@ import laika.parse.implicits._
   */
 object DocumentParser {
   
-  case class ParserInput (path: Path, context: ParserContext)
+  case class ParserInput (path: Path, context: SourceCursor)
   
   case class ParserError (message: String, path: Path) extends 
     RuntimeException(s"Error parsing document '$path': $message")

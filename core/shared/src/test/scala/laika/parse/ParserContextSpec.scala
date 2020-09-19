@@ -25,7 +25,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class ParserContextSpec extends AnyWordSpec with Matchers {
 
 
-  val context = ParserContext("abc\ndef")
+  val context = SourceCursor("abc\ndef")
 
 
   "The ParserContext" should {

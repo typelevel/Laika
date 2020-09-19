@@ -26,7 +26,7 @@ import laika.parse.hocon._
 import laika.parse.implicits._
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.{Failure, Message, Parser, ParserContext}
+import laika.parse.{Failure, Message, Parser, SourceCursor}
 
 /** Parsers for all types of custom directives that can be used
  *  in templates or as inline or block elements in markup documents.
@@ -81,7 +81,7 @@ object DirectiveParsers {
     val positionalAttributes = opt(ws ~> "(" ~> (quotedAttribute | unquotedAttribute).rep(",")
       .map(values => BuilderField(AttributeKey.Positional.key, ArrayBuilderValue(values.map(sv => ValidStringValue(sv.trim))))) <~ ")")
     
-    val closingAttributes = literal("}").as(Option.empty[ParserContext]) | 
+    val closingAttributes = literal("}").as(Option.empty[SourceCursor]) | 
                             success(()).withContext.map { case (_, ctx) => Some(ctx) }
     
     val hoconAttributes = opt(ws ~> lazily("{" ~> objectMembers ~ closingAttributes))

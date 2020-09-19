@@ -223,7 +223,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
 
     def preProcess (append: String): ParserInput => ParserInput = { input =>
       val raw = input.context.input
-      input.copy(context = ParserContext(raw + append))
+      input.copy(context = SourceCursor(raw + append))
     }
 
     def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(

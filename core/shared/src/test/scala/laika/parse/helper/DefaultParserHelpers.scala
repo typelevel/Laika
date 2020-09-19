@@ -16,14 +16,14 @@
 
 package laika.parse.helper
 
-import laika.parse.{Parsed, Parser, ParserContext}
+import laika.parse.{Parsed, Parser, SourceCursor}
 
 trait DefaultParserHelpers[T] {
   
   def defaultParser: Parser[T]
   
   object Parsing {
-    def apply (source: String): Parsed[T] = defaultParser.parse(ParserContext(source))
+    def apply (source: String): Parsed[T] = defaultParser.parse(SourceCursor(source))
   }
   
 }

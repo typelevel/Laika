@@ -16,7 +16,7 @@
 
 package laika.parse.text
 
-import laika.parse.ParserContext
+import laika.parse.SourceCursor
 import laika.parse.markup.DocumentParser.ParserInput
 
 /** Processes whitespace, removing or replacing most whitespace characters except
@@ -102,7 +102,7 @@ object WhitespacePreprocessor {
   val forInput: ParserInput => ParserInput = { input =>
     val raw = input.context.input
     val preprocessed = forString(raw.toString)
-    input.copy(context = ParserContext(preprocessed))
+    input.copy(context = SourceCursor(preprocessed))
   }
 
 }

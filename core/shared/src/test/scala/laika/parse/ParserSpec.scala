@@ -311,7 +311,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with 
 
   "The lookBehind parser" should {
 
-    val input = ParserContext("abcd").consume(2)
+    val input = SourceCursor("abcd").consume(2)
 
     import TextParsers._
 
