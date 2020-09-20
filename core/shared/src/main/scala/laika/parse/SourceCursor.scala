@@ -16,6 +16,9 @@
 
 package laika.parse
 
+import cats.data.NonEmptyChain
+
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /** Represents the state and context of a parsing operation,
@@ -24,6 +27,8 @@ import scala.collection.mutable.ArrayBuffer
   * @author Jens Halm
   */
 trait SourceCursor {
+  
+  type Self <: SourceCursor
 
   /** The full input string, containing the string portions before and after the current offset.
     */
@@ -57,7 +62,7 @@ trait SourceCursor {
 
   /** Consumes the specified number of characters, returning a new `SourceCursor` with the new offset.
     */
-  def consume (numChars: Int): SourceCursor
+  def consume (numChars: Int): Self
 
   /** The current position in the input string.
     */
@@ -72,7 +77,7 @@ trait SourceCursor {
     * This is a low-level optimization for parsers that look for strings like email addresses where the first character 
     * is not significant, so that parsing backwards from any `@` encountered in the input provided better performance.
     */
-  def reverse: SourceCursor
+  def reverse: Self
   
 }
 
@@ -86,6 +91,8 @@ trait SourceCursor {
   */
 class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) extends SourceCursor {
 
+  type Self = RootSource
+  
   val input: String = inputRef.value
 
   def atEnd: Boolean = offset >= input.length
@@ -101,14 +108,111 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
     input.substring(offset, endIndex)
   }
 
-  def consume (numChars: Int): SourceCursor =
+  def consume (numChars: Int): RootSource =
     if (numChars != 0) new RootSource(inputRef, offset + numChars, nestLevel)
     else this
 
   lazy val position: Position = new Position(inputRef, offset)
 
-  def reverse: SourceCursor = new RootSource(inputRef.reverse, remaining, nestLevel)
+  def reverse: RootSource = new RootSource(inputRef.reverse, remaining, nestLevel)
 
+}
+
+/** A line source represents all or part of a single line from the root input source.
+  *
+  * Such a source will be used in multi-pass parsers, particularly block-level parsers,
+  * where the root parser might strip some markup decoration from each line and then pass the result
+  * down to the next recursion. 
+  * In such a case each line might have a different x-offset from the root input.
+  * The use of this instance ensures that the correct position can still be tracked.
+  * 
+  * A `LineSource` is usually used as part of a `BlockSource` and less frequently on its own.
+  * The provided root source has always an offset that corresponds to the start of this line offset,
+  * not its current offset.
+  */
+class LineSource (val input: String, root: RootSource, val offset: Int, val nestLevel: Int) extends SourceCursor {
+
+  type Self = LineSource
+  
+  def atEnd: Boolean = offset >= input.length
+
+  def remaining: Int = input.length - offset
+
+  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
+
+  def capture (numChars: Int): String = {
+    require(numChars >= 0, "numChars cannot be negative")
+
+    val endIndex = Math.min(input.length, offset + numChars)
+    input.substring(offset, endIndex)
+  }
+
+  def consume (numChars: Int): LineSource =
+    if (numChars != 0) new LineSource(input, root, offset + numChars, nestLevel)
+    else this
+
+  lazy val position: Position = root.consume(offset).position
+
+  def reverse: LineSource = new LineSource(input.reverse, root, remaining, nestLevel)
+
+}
+
+object LineSource {
+  def apply (input: String, root: RootSource): LineSource = new LineSource(input, root, 0, root.nestLevel)
+}
+
+/** A block source represents the source for a block level element where each individual line might
+  * have a different x-offset to the root source.
+  *
+  * Such a source will be used in multi-pass parsers, where the root parser might strip some markup decoration 
+  * from each line and then pass the result down to the next recursion. 
+  * In such a case each line might have a different x-offset from the root input.
+  * The use of this instance ensures that the correct position can still be tracked.
+  */
+class BlockSource (inputRef: InputString, lines: NonEmptyChain[LineSource], val offset: Int, val nestLevel: Int) extends SourceCursor {
+
+  type Self = BlockSource
+  
+  lazy val input: String = inputRef.value 
+  
+  def atEnd: Boolean = offset >= input.length
+
+  def remaining: Int = input.length - offset
+
+  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
+
+  def capture (numChars: Int): String = {
+    require(numChars >= 0, "numChars cannot be negative")
+
+    val endIndex = Math.min(input.length, offset + numChars)
+    input.substring(offset, endIndex)
+  }
+
+  def consume (numChars: Int): BlockSource =
+    if (numChars != 0) new BlockSource(inputRef, lines, offset + numChars, nestLevel)
+    else this
+
+  lazy val position: Position = {
+    @tailrec def posFromLine (remainingLines: List[LineSource], remainingOffset: Int): (LineSource, Int) = {
+      val lineLength = remainingLines.head.input.length
+      if (lineLength <= remainingOffset) (remainingLines.head, remainingOffset)
+      else if (remainingLines.tail.isEmpty) (remainingLines.head, lineLength)
+      else posFromLine(remainingLines.tail, remainingOffset - lineLength)
+    }
+    val (activeLine, lineOffset) = posFromLine(lines.toChain.toList, offset)
+    activeLine.consume(lineOffset).position
+  }
+
+  def reverse: BlockSource = new BlockSource(inputRef.reverse, lines, remaining, nestLevel)
+
+}
+
+object BlockSource {
+  import cats.syntax.all._
+  def apply (lines: NonEmptyChain[LineSource]): BlockSource = {
+    val input = new InputString(lines.map(_.input).mkString_("\n"))
+    new BlockSource(input, lines, 0, lines.head.nestLevel)
+  }
 }
 
 /** Companion for creating new `SourceCursor` instances.
