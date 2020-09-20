@@ -16,7 +16,6 @@
 
 package laika.parse.markup
 
-import cats.data.{Chain, NonEmptyChain}
 import laika.ast.~
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -42,30 +41,8 @@ trait BlockParsers {
     *  @param firstLinePrefix parser that recognizes the start of the first line of this block
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     */
-  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[String] =
-    block(firstLinePrefix, linePrefix, blankLineEndsBlock)
-  
-  
-  /** Parses a full block based on the specified helper parsers.
-    *
-    * The string result of this parser will not contain the characters consumed by any of the specified prefix
-    * parsers.
-    *
-    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
-    */
-  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[String] = {
-    
-    val firstLine = firstLinePrefix ~> restOfLine
-    
-    lazy val line = linePrefix ~> restOfLine
-    
-    lazy val nextBlock = (blankLines <~ lookAhead(nextBlockPrefix)).mkLines
-    
-    (firstLine ~ (line | nextBlock).rep).concat.mkLines
-    
-  }
+  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[BlockSource] =
+    block2(firstLinePrefix, linePrefix, blankLineEndsBlock)
 
   /** Parses a full block based on the specified helper parsers.
     *
@@ -80,24 +57,14 @@ trait BlockParsers {
     */
   def block2 (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[BlockSource] = {
 
-    def asLineParser (parser: Parser[String]): Parser[LineSource] =
-      Parser { in =>
-        parser.parse(in) match {
-          case f: Failure => f
-          case Success(result, rest) => Success(LineSource(result, in.root, in.nestLevel), rest)
-        }
-      }
+    val firstLine = firstLinePrefix ~> restOfLine.line
 
-    val restOfLine = asLineParser(anyNot('\n','\r') <~ eol)
-    
-    val firstLine = firstLinePrefix ~> restOfLine
+    lazy val line: Parser[LineSource] = linePrefix ~> restOfLine.line
 
-    lazy val line: Parser[LineSource] = linePrefix ~> restOfLine
-
-    lazy val nextBlock: Parser[LineSource] = asLineParser(blankLines.mkLines) <~ lookAhead(nextBlockPrefix)
+    lazy val nextBlock: Parser[LineSource] = blankLines.mkLines.line <~ lookAhead(nextBlockPrefix)
 
     (firstLine ~ (line | nextBlock).rep).map {
-      case first ~ rest => BlockSource(NonEmptyChain.apply(first, rest:_*))
+      case first ~ rest => BlockSource(first, rest:_*)
     }
   }
 

@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.ast.{Block, Span}
-import laika.parse.{BlockSource, Parser}
+import laika.parse.{BlockSource, Parser, SourceCursor}
 import laika.parse.text.{DelimitedText, PrefixedParser}
 
 /** Provides parsers for nested blocks, custom block parser implementations
@@ -84,6 +84,25 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     */
   def recursiveSpans (parser: Parser[String]): InlineParser[Span, List[Span]]
 
+  /** Lifts the specified text parser to parse the string result
+    * as a sequence of spans.
+    *
+    * This type of span parser is usually either used in block parsers,
+    * that need to process inline markup after the text for the block
+    * has been parsed from the input string or for inline parsers,
+    * that need to process inline markup for a span with
+    * a delimiter while supporting nested spans. 
+    *
+    * In the latter case the passed parser is usually of type `DelimitedText`
+    * which is an optimized parser that parses text and recursive spans in one pass.
+    * For other kinds of parsers the resulting parser will be a two-pass parser.
+    *
+    * The returned parser allows to register parsers for child spans with its `embed` method
+    * for parsing types of child spans in addition to the available span types of the
+    * host markup language
+    */
+  def recursiveSpans2 (parser: Parser[SourceCursor]): InlineParser[Span, List[Span]]
+
   /** Parses the input into a sequence of spans based on the available span types
     * of the host markup language.
     *
@@ -100,6 +119,15 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * into the result in case of errors.
     */
   def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)]
+
+  /** Adds a span parser function to the result of the specified parser.
+    * The function can be used for any kind of custom span parsing of portions of the
+    * result produced by the base parser.
+    *
+    * The parser function never fails, but instead inserts spans of type `InvalidSpan`
+    * into the result in case of errors.
+    */
+  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)]
 
   /** Provides the syntax highlighter for the specified language if present.
     */

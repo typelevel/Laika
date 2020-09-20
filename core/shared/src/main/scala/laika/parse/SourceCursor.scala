@@ -235,6 +235,9 @@ object BlockSource {
     val input = new InputString(lines.map(_.input).mkString_("\n"))
     new BlockSource(input, lines, 0, lines.head.nestLevel)
   }
+  def apply (firstLine: LineSource, rest: LineSource*): BlockSource = {
+    apply(NonEmptyChain(firstLine, rest:_*))
+  }
 }
 
 /** Companion for creating new `SourceCursor` instances.

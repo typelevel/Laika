@@ -19,7 +19,7 @@ package laika.markdown.github
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.markdown.BlockParsers._
-import laika.parse.Parser
+import laika.parse.{LineSource, Parser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -34,17 +34,17 @@ object Tables {
 
   val parser: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
 
-    def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
-      spanParsers.recursiveSpans(textParser.trim).map { spans =>
+    def cell (textParser: Parser[LineSource], cellType: CellType): Parser[Cell] =
+      spanParsers.recursiveSpans2(textParser).map { spans =>
         Cell(cellType, Seq(Paragraph(spans)))
       }
 
     def rowRest (cellType: CellType): Parser[Row] = {
-      val cellText = spanParsers.escapedUntil('|','\n')
-      val finalCellText = textLine
+      val cellText = spanParsers.escapedUntil('|','\n').trim
+      val finalCellText = textLine.trim
 
-      val delimitedCells = (cell(cellText, cellType) <~ prevIn('|')).rep
-      val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine.as(None)
+      val delimitedCells = (cell(cellText.line, cellType) <~ prevIn('|')).rep
+      val optFinalCell = cell(finalCellText.line, cellType).map(Some(_)) | restOfLine.as(None)
 
       (delimitedCells ~ optFinalCell).collect {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)

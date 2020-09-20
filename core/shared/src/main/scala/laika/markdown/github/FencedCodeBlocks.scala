@@ -16,9 +16,10 @@
 
 package laika.markdown.github
 
+import cats.data.NonEmptyChain
 import laika.ast.{Block, CodeBlock, LiteralBlock, Text, ~}
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.{Failure, Parser, Success}
+import laika.parse.{BlockSource, Failure, Parser, Success}
 import laika.parse.builders._
 import laika.parse.implicits._
 
@@ -59,15 +60,17 @@ object FencedCodeBlocks {
     openingFence >> { case (fenceLength, indent, info) =>
 
       val closingFence = anyOf(' ').max(3) ~ anyOf(fenceChar).min(fenceLength) ~ wsEol
-      val lines = (not(closingFence | eof) ~ anyOf(' ').max(indent) ~> restOfLine).rep
+      val lines = (not(closingFence | eof) ~ anyOf(' ').max(indent) ~> restOfLine.line).rep
 
       (lines <~ opt(closingFence)).evalMap { lines =>
-        val trimmedLines = if (lines.lastOption.exists(_.trim.isEmpty)) lines.dropRight(1) else lines
-        val code = trimmedLines.mkString("\n")
-        info.fold[Either[String, Block]](Right(LiteralBlock(code))) { lang =>
-          val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(anyChars.map { txt => Seq(Text(txt)) })
-          val blockParser = highlighter.map { codeSpans => CodeBlock(lang, codeSpans) }
-          blockParser.parse(code).toEither
+        val trimmedLines = if (lines.lastOption.exists(_.input.trim.isEmpty)) lines.dropRight(1) else lines
+        val codeSource = NonEmptyChain.fromSeq(trimmedLines).map(BlockSource(_))
+        (info, codeSource) match {
+          case (Some(lang), Some(src)) =>
+            val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(anyChars.map { txt => Seq(Text(txt)) })
+            val blockParser = highlighter.map { codeSpans => CodeBlock(lang, codeSpans) }
+            blockParser.parse(src).toEither
+          case _ => Right(LiteralBlock(trimmedLines.map(_.input).mkString("\n")))
         }
       }
     }

@@ -79,10 +79,18 @@ object implicits {
   }
 
   implicit class StringParserOps[T] (val p: Parser[String]) extends AnyVal {
+    def line: Parser[LineSource] =
+      Parser { in =>
+        p.parse(in) match {
+          case f: Failure => f
+          case Success(result, rest) => Success(LineSource(result, in.root, in.nestLevel), rest)
+        }
+      }
     def trim: Parser[String] = p.map(_.trim)
   }
 
   implicit class PrefixedStringParserOps[T] (val p: PrefixedParser[String]) extends AnyVal {
+    def line: PrefixedParser[LineSource] = PrefixedParser(p.startChars)(p.underlying.line)
     def trim: PrefixedParser[String] = p.map(_.trim)
   }
   

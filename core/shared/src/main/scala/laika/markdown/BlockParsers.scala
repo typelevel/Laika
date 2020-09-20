@@ -18,8 +18,7 @@ package laika.markdown
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.{BlockSource, Parser}
-import laika.parse.markup.BlockParsers.block
+import laika.parse.{BlockSource, LineSource, Parser, SourceCursor}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -62,34 +61,8 @@ object BlockParsers {
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def mdBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
-    block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
-  }
-
-  /**  Parses a single Markdown block. In contrast to the generic block parser of the
-    *  generic block parsers this method also consumes and ignores up to three optional space
-    *  characters at the start of each line.
-    *
-    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
-    */
   def mdBlock2 (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
     block2(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
-  }
-
-  /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
-    *  this method also verifies that the second line is not a setext header
-    *  decoration.
-    *
-    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
-    */
-  def decoratedBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
-    val skipLine = anyNot('\n','\r').void <~ eol
-    val noHeader = lookAhead(skipLine ~ not(setextDecoration))
-    mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
 
   /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
@@ -107,8 +80,8 @@ object BlockParsers {
   }
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
-    * is not a setext header decoration. Only used for root level blocks where lists starting
-    * in the middle of a paragraph are not allowed.
+    * is not a setext header decoration. 
+    * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
     */
   lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
     val lineCondition = not(blankLine)
@@ -117,8 +90,8 @@ object BlockParsers {
   }.rootOnly
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
-    * is not a setext header decoration. Only used for nested blocks where lists starting
-    * in the middle of a paragraph are allowed.
+    * is not a setext header decoration. 
+    * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
     */
   lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
 
@@ -130,39 +103,36 @@ object BlockParsers {
 
     /**  Markdown allows nested lists without preceding blank lines,
       *  therefore will detect list items in the middle of a paragraph,
-      *  whereas a top level paragraph won't do that. One of the questionable
-      *  Markdown design decisions.
+      *  whereas a top level paragraph won't do that. 
+      *  One of the questionable Markdown design decisions.
       */
-    val listWithoutBlankline = opt(not(blankLine) ~> listParsers)
-    headerOrParagraph(lineCondition, listWithoutBlankline)
+    val listWithoutBlankLine = opt(not(blankLine) ~> listParsers)
+    headerOrParagraph(lineCondition, listWithoutBlankLine)
   }.nestedOnly
 
-  private def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankline: Parser[Option[Block]])
-                        (implicit recParsers: RecursiveParsers) : Parser[Block] = {
+  private def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankLine: Parser[Option[Block]])
+                                (implicit recParsers: RecursiveParsers) : Parser[Block] = {
 
-      val lines = (lineCondition ~> restOfLine).rep
+      val lines = (lineCondition ~> restOfLine.line).rep
 
-      val decorationOrLines: Parser[Either[String, List[String] ~ Option[Block]]] =
-        setextDecoration.map { Left(_) } | (lines ~ listWithoutBlankline).map { Right(_) }
+      val decorationOrLines: Parser[Either[String, List[LineSource] ~ Option[Block]]] =
+        setextDecoration.map { Left(_) } | (lines ~ listWithoutBlankLine).map { Right(_) }
 
       def decoratedHeaderLevel (decoration: String) = if (decoration.head == '=') 1 else 2
 
       /**  Merges the specified list of lines into a single string,
-        *  while looking for lines ending with double spaces which
-        *  (sadly) stand for a hard line break in Markdown.
+        *  while looking for lines ending with double spaces which (sadly) stand for a hard line break in Markdown.
         */
-      def processLineBreaks(lines: List[String]): String =
-        lines.map { line =>
+      def processLineBreaks(line: LineSource): LineSource =
           /* add a special sequence for hard line breaks so that the
            * inline parser does not have to stop at each space character */
-          if (line.endsWith("  ")) line.dropRight(2) ++ "\\\r"
+          if (line.input.endsWith("  ")) new LineSource(line.input.dropRight(2) ++ "\\\r", line.root, line.offset, line.nestLevel)
           else line
-        }.mkString("\n")
 
-      def paragraph (parser: String => List[Span], firstLine: String, restLines: List[String]): Paragraph =
-        Paragraph(parser(processLineBreaks(firstLine +: restLines)))
+      def paragraph (parser: SourceCursor => List[Span], firstLine: LineSource, restLines: List[LineSource]): Paragraph =
+        Paragraph(parser(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
 
-      (recParsers.withRecursiveSpanParser(textLine) ~ decorationOrLines).map {
+      (recParsers.withRecursiveSpanParser2(textLine.line) ~ decorationOrLines).map {
         case (parser, firstLine) ~ Right(restLines ~ None)       => paragraph(parser, firstLine, restLines)
         case (parser, firstLine) ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(parser, firstLine, restLines), list)
         case (parser, text) ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), parser(text))
@@ -197,7 +167,7 @@ object BlockParsers {
     def stripDecoration (text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
     
     val level = someOf('#').max(6).count
-    val text = recParsers.recursiveSpans(restOfLine.map(stripDecoration))
+    val text = recParsers.recursiveSpans2(restOfLine.map(stripDecoration).line)
 
     (level ~ (not(blankLine) ~> text)).mapN(Header(_,_))
   }
@@ -216,7 +186,7 @@ object BlockParsers {
   val literalBlocks: BlockParserBuilder = BlockParser.standalone {
     val wsPreProcessor = new WhitespacePreprocessor
     PrefixedParser(' ', '\t') {
-      decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace).map { lines => LiteralBlock(wsPreProcessor(lines)) }
+      decoratedBlock2(tabOrSpace, tabOrSpace, tabOrSpace).map { lines => LiteralBlock(wsPreProcessor(lines.input)) }
    }
   }
 
