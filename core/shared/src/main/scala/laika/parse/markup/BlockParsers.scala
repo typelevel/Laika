@@ -42,7 +42,7 @@ trait BlockParsers {
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     */
   def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[BlockSource] =
-    block2(firstLinePrefix, linePrefix, blankLineEndsBlock)
+    block(firstLinePrefix, linePrefix, blankLineEndsBlock)
 
   /** Parses a full block based on the specified helper parsers.
     *
@@ -55,7 +55,7 @@ trait BlockParsers {
     * @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     * @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def block2 (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[BlockSource] = {
+  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[BlockSource] = {
 
     val firstLine = firstLinePrefix ~> restOfLine.line
 

@@ -138,7 +138,7 @@ object BlockParsers {
     val indented = indentedBlock(firstLineIndented = true).map(LiteralBlock(_))
 
     val quotedLine = nextIn(punctuationChars)
-    val quoted = block2(quotedLine, quotedLine, failure("blank line always ends quoted block"))
+    val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block"))
       .map(src => LiteralBlock(src.input))
 
     indented | quoted

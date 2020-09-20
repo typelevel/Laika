@@ -61,8 +61,8 @@ object BlockParsers {
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def mdBlock2 (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
-    block2(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
+  def mdBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
+    block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
   }
 
   /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
@@ -73,10 +73,10 @@ object BlockParsers {
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def decoratedBlock2 (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
+  def decoratedBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
     val skipLine = anyNot('\n','\r').void <~ eol
     val noHeader = lookAhead(skipLine ~ not(setextDecoration))
-    mdBlock2(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
+    mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
@@ -186,7 +186,7 @@ object BlockParsers {
   val literalBlocks: BlockParserBuilder = BlockParser.standalone {
     val wsPreProcessor = new WhitespacePreprocessor
     PrefixedParser(' ', '\t') {
-      decoratedBlock2(tabOrSpace, tabOrSpace, tabOrSpace).map { lines => LiteralBlock(wsPreProcessor(lines.input)) }
+      decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace).map { lines => LiteralBlock(wsPreProcessor(lines.input)) }
    }
   }
 
@@ -197,7 +197,7 @@ object BlockParsers {
     PrefixedParser('>') {
       val decoratedLine = ">" ~ ws.max(1).void
       recParsers
-        .recursiveBlocks2(decoratedBlock2(decoratedLine, decoratedLine | not(blankLine), literal(">")))
+        .recursiveBlocks2(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), literal(">")))
         .map(QuotedBlock(_, Nil))
     }
   }
