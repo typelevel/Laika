@@ -105,8 +105,8 @@ class SourceCursorSpec extends AnyWordSpec with Matchers {
 
     val root = new RootSource(new InputString("000\nabc\ndef"), 4, 0)
     val lines = NonEmptyChain(
-      LineSource("abc", root),
-      LineSource("def", root)
+      LineSource("abc", root, 1),
+      LineSource("def", root, 1)
     )
     val cursor = BlockSource(lines)
 

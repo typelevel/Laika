@@ -64,12 +64,19 @@ trait SourceCursor {
     */
   def consume (numChars: Int): Self
 
+  /** The source for the root input, positioned to match the offset of this (potentially nested) source.
+    */
+  def root: RootSource
+  
   /** The current position in the input string.
     */
   def position: Position
 
   /** The nest level of this cursor in case of recursive parsing. */
   def nestLevel: Int
+  
+  /** Create a new instance of this cursor with the nestLevel incremented. */
+  def nextNestLevel: Self
 
   /** Returns a new `SourceCursor` with the input string being reversed,
     * but pointing to the same character as this context.
@@ -112,8 +119,12 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
     if (numChars != 0) new RootSource(inputRef, offset + numChars, nestLevel)
     else this
 
+  val root: RootSource = this
+  
   lazy val position: Position = new Position(inputRef, offset)
 
+  def nextNestLevel: RootSource = new RootSource(inputRef, offset, nestLevel + 1)
+  
   def reverse: RootSource = new RootSource(inputRef.reverse, remaining, nestLevel)
 
 }
@@ -127,10 +138,11 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * The use of this instance ensures that the correct position can still be tracked.
   * 
   * A `LineSource` is usually used as part of a `BlockSource` and less frequently on its own.
-  * The provided root source has always an offset that corresponds to the start of this line offset,
-  * not its current offset.
+  * The root property always holds a source has always an offset that corresponds to the current offset of this line,
+  * while the `rootRef` constructor argument is positioned at the beginning of the line, 
+  * so that the final property can be created lazily.
   */
-class LineSource (val input: String, root: RootSource, val offset: Int, val nestLevel: Int) extends SourceCursor {
+class LineSource (val input: String, rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceCursor {
 
   type Self = LineSource
   
@@ -148,17 +160,21 @@ class LineSource (val input: String, root: RootSource, val offset: Int, val nest
   }
 
   def consume (numChars: Int): LineSource =
-    if (numChars != 0) new LineSource(input, root, offset + numChars, nestLevel)
+    if (numChars != 0) new LineSource(input, rootRef, offset + numChars, nestLevel)
     else this
 
-  lazy val position: Position = root.consume(offset).position
+  lazy val root: RootSource = rootRef.consume(offset)
+  
+  lazy val position: Position = root.position
 
-  def reverse: LineSource = new LineSource(input.reverse, root, remaining, nestLevel)
+  def nextNestLevel: LineSource = new LineSource(input, rootRef, offset, nestLevel + 1)
+  
+  def reverse: LineSource = new LineSource(input.reverse, rootRef, remaining, nestLevel)
 
 }
 
 object LineSource {
-  def apply (input: String, root: RootSource): LineSource = new LineSource(input, root, 0, root.nestLevel)
+  def apply (input: String, root: RootSource, nestLevel: Int): LineSource = new LineSource(input, root, 0, nestLevel)
 }
 
 /** A block source represents the source for a block level element where each individual line might
@@ -192,17 +208,23 @@ class BlockSource (inputRef: InputString, lines: NonEmptyChain[LineSource], val 
     if (numChars != 0) new BlockSource(inputRef, lines, offset + numChars, nestLevel)
     else this
 
-  lazy val position: Position = {
+  private lazy val activeLine: LineSource = {
     @tailrec def posFromLine (remainingLines: List[LineSource], remainingOffset: Int): (LineSource, Int) = {
       val lineLength = remainingLines.head.input.length
       if (lineLength <= remainingOffset) (remainingLines.head, remainingOffset)
       else if (remainingLines.tail.isEmpty) (remainingLines.head, lineLength)
       else posFromLine(remainingLines.tail, remainingOffset - lineLength)
     }
-    val (activeLine, lineOffset) = posFromLine(lines.toChain.toList, offset)
-    activeLine.consume(lineOffset).position
+    val (lineSource, lineOffset) = posFromLine(lines.toChain.toList, offset)
+    lineSource.consume(lineOffset)
   }
+  
+  lazy val root: RootSource = activeLine.root
+  
+  lazy val position: Position = activeLine.position
 
+  def nextNestLevel: BlockSource = new BlockSource(inputRef, lines, offset, nestLevel + 1)
+  
   def reverse: BlockSource = new BlockSource(inputRef.reverse, lines, remaining, nestLevel)
 
 }

@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.ast.{Block, Span}
-import laika.parse.Parser
+import laika.parse.{BlockSource, Parser}
 import laika.parse.text.{DelimitedText, PrefixedParser}
 
 /** Provides parsers for nested blocks, custom block parser implementations
@@ -37,6 +37,14 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     * that support the nesting of other blocks.
     */
   def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]]
+
+  /** Lifts the specified text parser to parse the string result
+    * as a sequence of blocks.
+    *
+    * This type of span parser is usually used in block parsers,
+    * that support the nesting of other blocks.
+    */
+  def recursiveBlocks2 (p: Parser[BlockSource]): Parser[Seq[Block]]
 
   /** Adds a block parser function to the result of the specified parser.
     * The function can be used for any kind of custom block parsing of portions of the

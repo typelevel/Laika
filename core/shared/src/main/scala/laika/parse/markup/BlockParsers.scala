@@ -16,10 +16,11 @@
 
 package laika.parse.markup
 
+import cats.data.{Chain, NonEmptyChain}
 import laika.ast.~
-import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
  *  
@@ -64,6 +65,40 @@ trait BlockParsers {
     
     (firstLine ~ (line | nextBlock).rep).concat.mkLines
     
+  }
+
+  /** Parses a full block based on the specified helper parsers.
+    *
+    * The result of this parser will not contain the characters consumed by any of the specified prefix
+    * parsers.
+    * The block source returned by this method maintains x-offsets for each individual line so that it can be
+    * passed down to recursive block or span parsers without losing position tracking.
+    *
+    * @param firstLinePrefix parser that recognizes the start of the first line of this block
+    * @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    * @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
+  def block2 (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[BlockSource] = {
+
+    def asLineParser (parser: Parser[String]): Parser[LineSource] =
+      Parser { in =>
+        parser.parse(in) match {
+          case f: Failure => f
+          case Success(result, rest) => Success(LineSource(result, in.root, in.nestLevel), rest)
+        }
+      }
+
+    val restOfLine = asLineParser(anyNot('\n','\r') <~ eol)
+    
+    val firstLine = firstLinePrefix ~> restOfLine
+
+    lazy val line: Parser[LineSource] = linePrefix ~> restOfLine
+
+    lazy val nextBlock: Parser[LineSource] = asLineParser(blankLines.mkLines) <~ lookAhead(nextBlockPrefix)
+
+    (firstLine ~ (line | nextBlock).rep).map {
+      case first ~ rest => BlockSource(NonEmptyChain.apply(first, rest:_*))
+    }
   }
 
   /**  Parses a full block based on the specified helper parsers, expecting an indentation for

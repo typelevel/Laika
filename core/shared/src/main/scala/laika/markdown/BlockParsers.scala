@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.Parser
+import laika.parse.{BlockSource, Parser}
 import laika.parse.markup.BlockParsers.block
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
@@ -66,6 +66,18 @@ object BlockParsers {
     block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
   }
 
+  /**  Parses a single Markdown block. In contrast to the generic block parser of the
+    *  generic block parsers this method also consumes and ignores up to three optional space
+    *  characters at the start of each line.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
+  def mdBlock2 (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
+    block2(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
+  }
+
   /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
     *  this method also verifies that the second line is not a setext header
     *  decoration.
@@ -78,6 +90,20 @@ object BlockParsers {
     val skipLine = anyNot('\n','\r').void <~ eol
     val noHeader = lookAhead(skipLine ~ not(setextDecoration))
     mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
+  }
+
+  /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
+    *  this method also verifies that the second line is not a setext header
+    *  decoration.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
+  def decoratedBlock2 (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[BlockSource] = {
+    val skipLine = anyNot('\n','\r').void <~ eol
+    val noHeader = lookAhead(skipLine ~ not(setextDecoration))
+    mdBlock2(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
@@ -201,7 +227,7 @@ object BlockParsers {
     PrefixedParser('>') {
       val decoratedLine = ">" ~ ws.max(1).void
       recParsers
-        .recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), literal(">")))
+        .recursiveBlocks2(decoratedBlock2(decoratedLine, decoratedLine | not(blankLine), literal(">")))
         .map(QuotedBlock(_, Nil))
     }
   }
