@@ -185,7 +185,7 @@ object LineSource {
   * In such a case each line might have a different x-offset from the root input.
   * The use of this instance ensures that the correct position can still be tracked.
   */
-class BlockSource (inputRef: InputString, lines: NonEmptyChain[LineSource], val offset: Int, val nestLevel: Int) extends SourceCursor {
+class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], val offset: Int, val nestLevel: Int) extends SourceCursor {
 
   type Self = BlockSource
   

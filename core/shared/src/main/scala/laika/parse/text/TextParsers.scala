@@ -92,8 +92,8 @@ trait TextParsers extends Parsers {
     */
   val blankLine: Parser[String] = wsEol.as("")
 
-  /** Parses one or more blanklines, producing a list of empty strings corresponding
-    *  to the number of blank lines consumed.
+  /** Parses one or more blank lines, producing a list of empty strings corresponding
+    * to the number of blank lines consumed.
     */
   val blankLines: Parser[List[String]] = (not(eof) ~> blankLine).rep.min(1)
 

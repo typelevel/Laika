@@ -55,6 +55,15 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     */
   def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => Seq[Block], T)]
 
+  /** Adds a block parser function to the result of the specified parser.
+    * The function can be used for any kind of custom block parsing of portions of the
+    * result produced by the base parser.
+    *
+    * The parser function never fails, but instead inserts blocks of type `InvalidBlock`
+    * into the result in case of errors.
+    */
+  def withRecursiveBlockParser2 [T] (p: Parser[T]): Parser[(SourceCursor => Seq[Block], T)]
+
 }
 
 /** Provides parsers for nested spans, custom span parser implementations

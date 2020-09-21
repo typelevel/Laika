@@ -58,7 +58,7 @@ object BlockParsers {
    */
   lazy val paragraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     spanParsers
-      .recursiveSpans(textLine.rep.min(1).mkLines)
+      .recursiveSpans2(textLine.rep.min(1).mkLines.line)
       .map(Paragraph(_))
   }
 
@@ -71,7 +71,7 @@ object BlockParsers {
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        val text = spanParsers.recursiveSpans(anyNot('\n').max(len).trim)
+        val text = spanParsers.recursiveSpans2(anyNot('\n').max(len).trim.line)
         val decoLine = anyOf(char) take len
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol).map {
@@ -86,11 +86,10 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    oneNot(' ') ~ restOfLine >> { case char ~ rest =>
-      val title = (char + rest).trim
+    nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
-        spanParsers.withRecursiveSpanParser(anyOf(char).min(title.length - 1) ~ wsEol).map {
+        spanParsers.withRecursiveSpanParser2(anyOf(char).min(title.input.length - 1).line ~ wsEol).map {
           case (recParser, _) => DecoratedHeader(Underline(char), recParser(title))
         }
       }
@@ -119,9 +118,9 @@ object BlockParsers {
     val attributionStart = "---" | "--" | "\u2014" // em dash
         
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
-      recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
+      recParsers.recursiveSpans2(indentedBlock2(minIndent = indent, endsOnBlankLine = true))
       
-    nextIn(' ') ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
+    nextIn(' ') ~> recParsers.withRecursiveBlockParser2(indentedBlockWithLevel2(
         firstLineIndented = true, linePredicate = not(attributionStart))) >> {
       case (recParser, (block, minIndent)) => opt(opt(blankLines) ~> attribution(minIndent)).map {
         spans => QuotedBlock(recParser(block), spans.getOrElse(Nil))
@@ -135,7 +134,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
    */
   val literalBlock: Parser[Block] = {
-    val indented = indentedBlock(firstLineIndented = true).map(LiteralBlock(_))
+    val indented = indentedBlock2(firstLineIndented = true).map(src => LiteralBlock(src.input))
 
     val quotedLine = nextIn(punctuationChars)
     val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block"))

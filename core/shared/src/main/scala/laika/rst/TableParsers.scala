@@ -16,14 +16,16 @@
 
 package laika.rst
 
+import cats.data.NonEmptyChain
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.collection.Stack
-import laika.parse.{Parser, Success}
+import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse._
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /** Provides parsers for the two table types supported by reStructuredText.
@@ -31,7 +33,6 @@ import scala.collection.mutable.ListBuffer
  * @author Jens Halm
  */
 object TableParsers {
-
 
   private abstract class TableElement
   
@@ -44,56 +45,62 @@ object TableParsers {
   private case class CellSeparator (decoration: String) extends TableDecoration {
     override def toString = decoration
   }
-  private case class CellElement (text: String) extends TableElement {
-    override def toString = text
+  private case class CellElement (text: LineSource) extends TableElement {
+    override def toString = text.input
   }
       
-  class CellBuilder (recParser: String => Seq[Block]) {
+  class CellBuilder (recParser: SourceCursor => Seq[Block]) {
     
     private val seps = new ListBuffer[TableElement]
-    private val lines = new ListBuffer[StringBuilder]
-    private var last: StringBuilder = new StringBuilder
+    private val previousLines = new ListBuffer[LineSource]
+    private var currentLine: Option[LineSource] = None
+    private def allLines: mutable.Buffer[LineSource] = previousLines ++ currentLine.toBuffer
     
     var rowSpan = 1
     var colSpan = 1
     
     var removed: Boolean = false
     
-    def nextLine (sep: TableElement, line: String, nextRow: Boolean): Unit = { 
+    def nextLine (sep: TableElement, line: LineSource, nextRow: Boolean): Unit = { 
       seps += sep
-      last = new StringBuilder(line)
-      lines += last
+      currentLine.foreach(previousLines += _)
+      currentLine = Some(line)
       if (nextRow) rowSpan += 1
     }
-    def currentLine (sep: TableElement, line: String): Unit = {
-      last ++= sep.toString
-      last ++= line
-    }
-    def merge (right: CellBuilder): Unit = {
-      Zip3Iterator(lines, right.seps, right.lines).foreach {
-        case (left, sep, right) => left ++= sep.toString ++= right
+    def currentLine (sep: TableElement, line: LineSource): Unit = {
+      currentLine.foreach { current =>
+        currentLine = Some(new LineSource(current.input + sep.toString + line.input, current.root, current.offset, current.nestLevel))
       }
+    }
+    def merge (rightBuilder: CellBuilder): Unit = if (currentLine.isDefined) {
+      val newLines = Zip3Iterator(allLines, rightBuilder.seps, rightBuilder.allLines).map {
+        case (left, sep, right) => 
+          new LineSource(left.input + sep.toString + right.input, left.root, left.offset, left.nestLevel)
+      }.toSeq
+      previousLines.clear()
+      previousLines ++= newLines.tail
+      currentLine = newLines.headOption
       colSpan += 1
     }
     
-    def cellContent: String = lines map (_.toString) mkString "\n"
-    
-    def trimmedCellContent: String = {
-      abstract class CellLine (val indent: Int) { def padTo (indent: Int): String }
-      case object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
-      case class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
-      
-      val cellLine = not(eof) ~> (blankLine.as(BlankLine) | (ws.count ~ restOfLine.trim).mapN(TextLine))
-
-      consumeAll(cellLine.rep).parse(cellContent) match {
-        case Success(lines, _) => 
-          val minIndent = lines map (_.indent) min;
-          lines map (_.padTo(minIndent)) mkString ("\n")
-        case _ => "" // TODO - error handling for edge cases
+    def trimmedCellContent: Option[BlockSource] = {
+      NonEmptyChain.fromSeq(allLines).map { nonEmptyLines =>
+        val minIndent = nonEmptyLines.map { line =>
+          if (line.input.trim.isEmpty) Int.MaxValue
+          else line.input.prefixLength(_ == ' ')
+        }.iterator.min
+        val trimmedLines = nonEmptyLines.map { line =>
+          val newString = if (line.input.trim.isEmpty) "" else {
+            val padding = " " * (line.input.prefixLength(_ == ' ') - minIndent)
+            padding + line.input.trim
+          }
+          new LineSource(newString, line.root.consume(minIndent), line.offset, line.nestLevel)
+        }
+        BlockSource(trimmedLines)
       }
     }
     
-    def parsedCellContent: Seq[Block] = recParser(trimmedCellContent)
+    def parsedCellContent: Seq[Block] = trimmedCellContent.fold[Seq[Block]](Nil)(recParser)
 
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
@@ -105,10 +112,10 @@ object TableParsers {
     
     def addCell (cell: CellBuilder): Unit = cells += cell
      
-    def toRow (ct: CellType): Row = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
+    def toRow (ct: CellType): Row = Row(cells.filterNot(_.removed).map(_.toCell(ct)).toList)
   }
   
-  class ColumnBuilder (left: Option[ColumnBuilder], recParser: String => Seq[Block]) {
+  class ColumnBuilder (left: Option[ColumnBuilder], recParser: SourceCursor => Seq[Block]) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -140,10 +147,9 @@ object TableParsers {
       cells push new CellBuilderRef(leftCell, true)
     }
     
-    def rowspanDif: Int =
-      left.get.rowSpan - rowSpan
+    def rowspanDif: Int = left.get.rowSpan - rowSpan
     
-    def addLine (sep: TableElement, line: String, nextRow: Boolean): Unit = {
+    def addLine (sep: TableElement, line: LineSource, nextRow: Boolean): Unit = {
       val ref = cells.top
       if (ref.mergedLeft) {
         if (nextRow && rowspanDif != 1)
@@ -161,7 +167,7 @@ object TableParsers {
     }
   }
   
-  class TableBuilder (columnWidths: List[Int], recParser: String => Seq[Block]) {
+  class TableBuilder (columnWidths: List[Int], recParser: SourceCursor => Seq[Block]) {
     private object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
@@ -172,7 +178,7 @@ object TableParsers {
     
     private def init (): Unit = {
       val row = nextRow
-      columns foreach (col => row.addCell(col.nextCell))
+      columns.foreach(col => row.addCell(col.nextCell))
     }
     init()
     
@@ -182,7 +188,7 @@ object TableParsers {
       row
     }
     
-    def toRowList (ct: CellType): List[Row] = rows map (_.toRow(ct)) toList
+    def toRowList (ct: CellType): List[Row] = rows.map(_.toRow(ct)).toList
   }
   
       
@@ -204,9 +210,9 @@ object TableParsers {
     val topBorder = intersect ~> (rowSep <~ intersect).rep.min(1) <~ wsEol
 
     val colSep = oneOf('|').as(CellSeparator("|")) | intersect
-    val colSepOrText = colSep | oneChar.map(CellElement)
+    val colSepOrText = colSep | oneChar.line.map(CellElement)
 
-    recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
+    recParsers.withRecursiveBlockParser2(topBorder) >> { case (recParser, cols) =>
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
@@ -218,7 +224,7 @@ object TableParsers {
         intersect ~ anyOf('=').take(width).as(TableBoundary) <~ nextIn(intersectChar)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ anyChars.take(width).map(CellElement) <~ lookAhead(sepR)
+        sepL ~ anyChars.take(width).line.map(CellElement) <~ lookAhead(sepR)
       
       val row = colsWithSep.map { 
         case (separatorL, colWidth, separatorR) => 
@@ -294,11 +300,11 @@ object TableParsers {
     }
     val topBorder = columnSpec.rep.min(2) <~ wsEol
 
-    recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
+    recParsers.withRecursiveBlockParser2(topBorder) >> { case (recParser, cols) =>
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
-        val cellText = if (sep == 0) anyNot('\n', '\r').map(CellElement)
-                       else anyChars.take(col).map(CellElement) 
+        val cellText = if (sep == 0) anyNot('\n', '\r').line.map(CellElement)
+                       else anyChars.take(col).line.map(CellElement) 
         val separator = anyOf(' ').take(sep).map(CellSeparator)
         val textInSep = anyChars.take(sep).map(CellSeparator)
         val textColumn = cellText ~ (separator | textInSep)
@@ -328,8 +334,10 @@ object TableParsers {
         
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParser)
         
-        def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
-            acc += (cols flatMap { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) })
+        def addBlankLines (acc: ListBuffer[List[TableElement]], rootSource: RootSource, nestLevel: Int) = 
+            acc += cols.flatMap { case (cell, sep) => 
+              List(CellElement(new LineSource(" " * cell, rootSource, 0, nestLevel)), CellSeparator(" " * sep)) 
+            }
         
         def addRowSeparators (acc: ListBuffer[List[TableElement]]) = 
           acc += (cols flatMap { _ => List(RowSeparator, Intersection) })
@@ -344,7 +352,7 @@ object TableParsers {
                 case RowSeparator => (acc += row, 0, false)
                 case TableBoundary => (acc += row, 0, false)
                 case CellElement(text) => 
-                  if (text.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc)
+                  if (text.input.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc, text.root, text.nestLevel)
                   else if (rowOpen) addRowSeparators(acc)
                   (acc += row, 0, true)
                 case _ => (acc, blanks, rowOpen) // cannot happen, just to avoid the warning 
@@ -363,8 +371,11 @@ object TableParsers {
               val newRowBuilder = tableBuilder.nextRow
               newRowBuilder.addCell(tableBuilder.columns.head.nextCell)
               foreachColumn(row) {
-                case (Intersection :: RowSeparator :: Nil, column) => newRowBuilder.addCell(column.nextCell)
-                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft(true); newRowBuilder.addCell(column.nextCell)
+                case (Intersection :: RowSeparator :: Nil, column) => 
+                  newRowBuilder.addCell(column.nextCell)
+                case (RowSeparator :: RowSeparator :: Nil, column) => 
+                  column.mergeLeft(true)
+                  newRowBuilder.addCell(column.nextCell)
                 case _ => ()
               }
             case TableBoundary =>
