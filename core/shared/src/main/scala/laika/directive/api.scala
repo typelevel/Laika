@@ -17,13 +17,14 @@
 package laika.directive
 
 import cats.{Functor, Semigroupal}
-import laika.config.{Config, ConfigDecoder, ConfigValue, ObjectConfig, Origin, Traced}
 import laika.ast.{TemplateSpan, _}
 import laika.collection.TransitionalCollectionOps._
 import laika.config.Origin.DirectiveScope
+import laika.config._
+import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
-import laika.parse.{Failure, Success}
+import laika.parse.markup.{RecursiveParsers, RecursiveSpanParsers}
 
 import scala.reflect.ClassTag
 
@@ -67,8 +68,9 @@ trait BuilderContext[E <: Element] {
 
   /** The parser API in case a directive function needs to manually parse one of the directive parts.
     */
-  type Parser <: String => Seq[E]
+  type Parser
   
+  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[E]]
   
   type Result[+A] = Either[Seq[String], A]
 
@@ -82,7 +84,7 @@ trait BuilderContext[E <: Element] {
   sealed trait BodyContent
   object BodyContent {
     /** The content of a directive part in its raw, unparsed form. */
-    case class Source(value: String) extends BodyContent
+    case class Source(value: SourceFragment) extends BodyContent
     /** The parsed content of a directive part. */
     case class Parsed(value: Seq[E]) extends BodyContent
   }
@@ -235,13 +237,13 @@ trait BuilderContext[E <: Element] {
     
     private def getRawBody (context: DirectiveContext): Option[Result[String]] =
       context.body.map {
-        case BodyContent.Source(value) => Right(value)
+        case BodyContent.Source(value) => Right(value.input)
         case BodyContent.Parsed(_) => Left(Seq(s"unable to retrieve raw body from pre-parsed content"))
       }
 
     private def getParsedBody (context: DirectiveContext): Option[Result[Seq[E]]] =
       context.body.map {
-        case BodyContent.Source(value) => Right(context.parser(value))
+        case BodyContent.Source(value) => parse(context.parser, value)
         case BodyContent.Parsed(value) => Right(value)
       }
 
@@ -393,17 +395,6 @@ trait BuilderContext[E <: Element] {
       * @return a directive part that usually won't be combined with other parts
       */
     def empty [T] (result: T): DirectivePart[T] = part(_ => Right(result))
-
-    /** Indicates that access to the parser responsible for this directive
-      * is needed, in case the directive implementation has to manually
-      * parse parts or all of its result.
-      *
-      * The advantage of using the parser provided by the runtime versus
-      * creating your own is only this provided parser can now all other
-      * registered extensions in case your directive content may contain
-      * other directives.
-      */
-    def parser: DirectivePart[Parser] = part(c => Right(c.parser))
 
     /** Indicates that access to the document cursor is required.
       * This may be required if the directive relies on information
@@ -583,20 +574,18 @@ trait BuilderContext[E <: Element] {
   */
 object Spans extends BuilderContext[Span] {
 
-  trait Parser extends (String => Seq[Span]) {
-    def apply (source: String): Seq[Span]
-  }
+  type Parser = RecursiveSpanParsers
+
+  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[Span]] = 
+    parser.recursiveSpans.parse(src).toEither.left.map(Seq(_))
 
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
-                                recursiveParser: String => List[Span],
+                                parser: RecursiveSpanParsers,
                                 source: String,
                                 options: Options = NoOpt) extends SpanResolver with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "span"
-    val parser: Parser = new Parser {
-      def apply (source: String): Seq[Span] = recursiveParser(source)
-    }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Span = InvalidElement(message, source).asSpan
     lazy val unresolvedMessage: String = s"Unresolved span directive instance with name '${directive.fold("<unknown>")(_.name)}'"
@@ -614,28 +603,22 @@ object Spans extends BuilderContext[Span] {
   
 }
 
-/** The API for declaring directives that can be used
-  *  as block elements in markup documents.
+/** The API for declaring directives that can be used as block elements in markup documents.
   */
 object Blocks extends BuilderContext[Block] {
 
-  trait Parser extends (String => Seq[Block]) {
-    def apply (source: String): Seq[Block]
-    def parseInline (source: String): Seq[Span]
-  }
+  type Parser = RecursiveParsers
 
+  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[Block]] = 
+    parser.recursiveBlocks.parse(src).toEither.left.map(Seq(_))
+  
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
-                                recursiveBlockParser: String => Seq[Block],
-                                recursiveSpanParser: String => Seq[Span],
+                                parser: RecursiveParsers,
                                 source: String,
                                 options: Options = NoOpt) extends BlockResolver with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "block"
-    val parser: Parser = new Parser {
-      def apply (source: String): Seq[Block] = recursiveBlockParser(source)
-      def parseInline (source: String): Seq[Span] = recursiveSpanParser(source)
-    }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): Block = InvalidElement(message, source).asBlock
     lazy val unresolvedMessage: String = s"Unresolved block directive instance with name '${directive.fold("<unknown>")(_.name)}'"
@@ -657,23 +640,22 @@ object Blocks extends BuilderContext[Block] {
   */
 object Templates extends BuilderContext[TemplateSpan] {
 
-  trait Parser extends (String => Seq[TemplateSpan]) {
-    def apply (source: String): Seq[TemplateSpan]
-  }
+  type Parser = RecursiveSpanParsers // TODO - specialize to TemplateSpan?
 
+  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[TemplateSpan]] = parser.recursiveSpans.map {
+    _.collect {
+      case s: TemplateSpan => s
+      case Text(s, opt) => TemplateString(s, opt) // TODO - might get extracted
+    }
+  }.parse(src).toEither.left.map(Seq(_)) // TODO - avoid duplication
+  
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
-                                recursiveParser: laika.parse.Parser[List[TemplateSpan]],
+                                parser: RecursiveSpanParsers,
                                 source: String,
                                 options: Options = NoOpt) extends SpanResolver with TemplateSpan with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "template"
-    val parser: Parser = new Parser {
-      def apply(source: String): Seq[TemplateSpan] = recursiveParser.parse(source) match {
-        case Success(spans, _)  => spans
-        case f: Failure => List(InvalidElement(f.message, source).asTemplateSpan)
-      }
-    }
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
     def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, source).asTemplateSpan
     lazy val unresolvedMessage: String = s"Unresolved template directive instance with name '${directive.fold("<unknown>")(_.name)}'"

@@ -112,13 +112,13 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       }
     }
     
-    trait DirectiveWithParserAccess {
-      val directive = Blocks.create("dir") { 
-        (rawBody, parser).mapN { (body, parser) =>
-          BlockSequence(parser(body.drop(3)))
-        }
-      }
-    }
+//    trait DirectiveWithParserAccess {
+//      val directive = Blocks.create("dir") { 
+//        (rawBody, parser).mapN { (body, parser) =>
+//          BlockSequence(parser(body.drop(3)))
+//        }
+//      }
+//    }
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
@@ -567,19 +567,19 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     }
   }
 
-  it should "parse a directive with a body and parser access" in {
-    new BlockParser with DirectiveWithParserAccess {
-      val input = """aa
-        |
-        |@:dir
-        |some ${ref} text
-        |@:@
-        |
-        |bb""".stripMargin
-      val body = BlockSequence("e value text")
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-    }
-  }
+//  it should "parse a directive with a body and parser access" in {
+//    new BlockParser with DirectiveWithParserAccess {
+//      val input = """aa
+//        |
+//        |@:dir
+//        |some ${ref} text
+//        |@:@
+//        |
+//        |bb""".stripMargin
+//      val body = BlockSequence("e value text")
+//      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+//    }
+//  }
 
   it should "parse a directive with a required default body and cursor access" in {
     new BlockParser with DirectiveWithContextAccess {

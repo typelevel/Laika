@@ -18,7 +18,7 @@ package laika.parse.directive
 
 import laika.ast._
 import laika.directive.Templates
-import laika.parse.Parser
+import laika.parse.{LineSource, Parser}
 import laika.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
@@ -41,8 +41,8 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   lazy val templateDirective: PrefixedParser[TemplateSpan] = {
 
     val body: BodyParserBuilder = spec =>
-      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src =>
-        Some(src.dropRight(spec.fence.length))
+      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.line.map { src =>
+        Some(new LineSource(src.input.dropRight(spec.fence.length), src.root, src.offset, src.nestLevel))
       } | success(None)
       else success(None)
 
@@ -51,7 +51,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     PrefixedParser('@') {
       directiveParser(body, this).withSource.map { case (result, source) =>
         if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
-        else Templates.DirectiveInstance(directives.get(result.name), result, templateSpans, source)
+        else Templates.DirectiveInstance(directives.get(result.name), result, this, source) // TODO - specialize for template span parser
       }
     }
   }

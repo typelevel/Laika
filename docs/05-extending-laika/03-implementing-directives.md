@@ -470,6 +470,8 @@ val directive = Spans.create("custom") {
 Access to the Parser
 --------------------
 
+@:todo(adjust for new combinator)
+
 You can request access to the parser of the host language with all extensions the user had installed
 with the `parser` combinator:
 

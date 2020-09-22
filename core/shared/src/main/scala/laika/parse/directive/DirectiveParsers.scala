@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import cats.data.NonEmptySet
+import cats.data.{Chain, NonEmptyChain, NonEmptySet}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.config.Key
@@ -26,7 +26,7 @@ import laika.parse.hocon._
 import laika.parse.implicits._
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.{CharGroup, PrefixedParser}
-import laika.parse.{Failure, Message, Parser, SourceCursor}
+import laika.parse.{BlockSource, Failure, LineSource, Message, Parser, SourceCursor, SourceFragment}
 
 /** Parsers for all types of custom directives that can be used
  *  in templates or as inline or block elements in markup documents.
@@ -37,7 +37,7 @@ object DirectiveParsers {
   
   case class DirectiveSpec(name: String, fence: String)
   
-  type BodyParserBuilder = DirectiveSpec => Parser[Option[String]]
+  type BodyParserBuilder = DirectiveSpec => Parser[Option[SourceFragment]]
   
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
@@ -54,7 +54,7 @@ object DirectiveParsers {
 
   /** Represents the parsed but unprocessed content of a directive.
    */
-  case class ParsedDirective (name: String, attributes: ObjectBuilderValue, body: Option[String])
+  case class ParsedDirective (name: String, attributes: ObjectBuilderValue, body: Option[SourceFragment])
   
   
   /** Parses horizontal whitespace or newline characters.
@@ -142,16 +142,15 @@ object SpanDirectiveParsers {
     
     val separators = directives.values.flatMap(_.separators).toSet
     val body: BodyParserBuilder = spec => 
-      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.map { src => 
-        Some(src.dropRight(spec.fence.length)) 
+      if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.line.map { src => 
+        Some(new LineSource(src.input.dropRight(spec.fence.length), src.root, src.offset, src.nestLevel))
       } | success(None)
       else success(None)
     
     PrefixedParser('@') {
-      withRecursiveSpanParser(directiveParser(body, recParsers).withSource).map {
-        case (recParser, (result, source)) =>
+      directiveParser(body, recParsers).withSource.map { case (result, source) =>
           if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
-          else Spans.DirectiveInstance(directives.get(result.name), result, recParser, source)
+          else Spans.DirectiveInstance(directives.get(result.name), result, recParsers, source)
       }
     }
   }
@@ -170,28 +169,23 @@ object BlockDirectiveParsers {
 
   def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): PrefixedParser[Block] = {
 
-    import recParsers._
-
     val separators = directives.values.flatMap(_.separators).toSet
     val noBody = wsEol.as(None)
     val body: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) {
         val closingFenceP = spec.fence <~ wsEol
-        wsEol ~> (not(closingFenceP | eof) ~> restOfLine).rep <~ closingFenceP ^^ { lines =>
-          val trimmedLines = lines.dropWhile(_.trim.isEmpty).reverse.dropWhile(_.trim.isEmpty).reverse
-          Some(trimmedLines.mkString("\n"))
+        wsEol ~> (not(closingFenceP | eof) ~> restOfLine.line).rep <~ closingFenceP ^^ { lines =>
+          val trimmedLines = lines.dropWhile(_.input.trim.isEmpty).reverse.dropWhile(_.input.trim.isEmpty).reverse
+          Some(BlockSource(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(trimmedLines)))) // TODO - handle empty bodies
         }
       } | noBody
       else noBody
 
     PrefixedParser('@') {
-      withRecursiveSpanParser(withRecursiveBlockParser(
-        directiveParser(body, recParsers, supportsCustomFence = true).withSource
-      )).map {
-        case (recSpanParser, (recBlockParser, (result, source))) =>
-          val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
-          if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)
-          else Blocks.DirectiveInstance(directives.get(result.name), result, recBlockParser, recSpanParser, trimmedSource)
+      directiveParser(body, recParsers, supportsCustomFence = true).withSource.map { case (result, source) =>
+        val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
+        if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)
+        else Blocks.DirectiveInstance(directives.get(result.name), result, recParsers, trimmedSource)
       }
     }
   }
