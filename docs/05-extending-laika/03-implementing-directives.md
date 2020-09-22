@@ -470,17 +470,21 @@ val directive = Spans.create("custom") {
 Access to the Parser
 --------------------
 
-@:todo(adjust for new combinator)
-
 You can request access to the parser of the host language with all extensions the user had installed
-with the `parser` combinator:
+with an overload of the `parsedBody` combinator:
 
 ```scala
-(defaultAttribute, parser).mapN { (attrValue, parser) =>
-  val parsedSpans = parser("["+attrValue+"]")
-  SpanSequence(parsedSpans)
+val bodyPart = parsedBody { recursiveParsers =>
+  anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line)
+}
+(defaultAttribute, bodyPart).mapN { (attrValue, bodyContent) =>
+  ??? // produce AST span node, bodyContent will be Seq[Span] here
 }
 ```
+
+In the (contrived) example above, the body parser will simply drop the first characters before parsing the 
+remaining directive body as regular span content, with all directives and extensions installed by the user or
+the theme in use.
 
 This is a rare requirement, as in most cases you can just use the `parsedBody` combinator which will give you the
 entire body segment as a list of AST nodes. 

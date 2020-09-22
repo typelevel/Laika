@@ -105,14 +105,21 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
         }
       }
     }
-    
-//    trait DirectiveWithParserAccess {
-//      val directive = Templates.create("dir") { 
-//        (rawBody, parser).mapN { (body, parser) =>
-//          TemplateSpanSequence(parser(body.drop(3)))
-//        }
-//      }
-//    }
+
+    trait DirectiveWithCustomBodyParser {
+      import laika.parse.builders._
+      import laika.parse.implicits._
+      val directive = Templates.create("dir") {
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans2(anyChars.line))
+          .map {
+            _.collect {
+              case s: TemplateSpan => s
+              case Text(s, opt) => TemplateString(s, opt) // TODO - might get extracted
+            }
+          }
+          .map(TemplateSpanSequence(_))
+      }
+    }
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
@@ -329,12 +336,12 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     }
   }
   
-//  it should "parse a directive with a required default body and parser access" in {
-//    new DirectiveWithParserAccess with TemplateParser {
-//      val body = tss(t("me "), t("value"), t(" text "))
-//      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
-//    }
-//  }
+  it should "parse a directive with a custom body parser" in {
+    new DirectiveWithCustomBodyParser with TemplateParser {
+      val body = tss(t("me "), t("value"), t(" text "))
+      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (TemplateRoot(t("aa "), body, t(" bb")))
+    }
+  }
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {

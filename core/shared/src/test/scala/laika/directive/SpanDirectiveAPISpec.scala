@@ -112,13 +112,14 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       }
     }
     
-//    trait DirectiveWithParserAccess {
-//      val directive = Spans.create("dir") { 
-//        (rawBody, parser).mapN { (body, parser) =>
-//          SpanSequence(parser(body.drop(3)))
-//        }
-//      }
-//    }
+    trait DirectiveWithCustomBodyParser {
+      import laika.parse.builders._
+      import laika.parse.implicits._
+      val directive = Spans.create("dir") { 
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans2(anyChars.line))
+          .map(SpanSequence(_))
+      }
+    }
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
@@ -387,12 +388,12 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     }
   }
   
-//  it should "parse a directive with a body and parser access" in {
-//    new DirectiveWithParserAccess with SpanParser {
-//      val body = ss(Text("me value text "))
-//      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
-//    }
-//  }
+  it should "parse a directive with a custom body parser" in {
+    new DirectiveWithCustomBodyParser with SpanParser {
+      val body = ss(Text("me value text "))
+      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (ss(Text("aa "), body, Text(" bb")))
+    }
+  }
   
   it should "parse a directive with a body and cursor access" in {
     new DirectiveWithContextAccess with SpanParser {

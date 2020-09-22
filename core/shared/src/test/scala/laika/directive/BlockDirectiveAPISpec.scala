@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
-import laika.parse.Parser
+import laika.parse.{BlockSource, Parser}
 import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParserProvider
@@ -111,14 +111,15 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         }
       }
     }
-    
-//    trait DirectiveWithParserAccess {
-//      val directive = Blocks.create("dir") { 
-//        (rawBody, parser).mapN { (body, parser) =>
-//          BlockSequence(parser(body.drop(3)))
-//        }
-//      }
-//    }
+
+    trait DirectiveWithCustomBodyParser {
+      import laika.parse.builders._
+      import laika.parse.implicits._
+      val directive = Blocks.create("dir") {
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveBlocks2(anyChars.line.map(BlockSource(_))))
+          .map(BlockSequence(_))
+      }
+    }
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
@@ -567,19 +568,19 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     }
   }
 
-//  it should "parse a directive with a body and parser access" in {
-//    new BlockParser with DirectiveWithParserAccess {
-//      val input = """aa
-//        |
-//        |@:dir
-//        |some ${ref} text
-//        |@:@
-//        |
-//        |bb""".stripMargin
-//      val body = BlockSequence("e value text")
-//      Parsing (input) should produce (root(p("aa"), body, p("bb")))
-//    }
-//  }
+  it should "parse a directive with a custom body parser" in {
+    new BlockParser with DirectiveWithCustomBodyParser {
+      val input = """aa
+        |
+        |@:dir
+        |some ${ref} text
+        |@:@
+        |
+        |bb""".stripMargin
+      val body = BlockSequence("e value text")
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+    }
+  }
 
   it should "parse a directive with a required default body and cursor access" in {
     new BlockParser with DirectiveWithContextAccess {

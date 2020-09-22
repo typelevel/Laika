@@ -247,6 +247,12 @@ trait BuilderContext[E <: Element] {
         case BodyContent.Parsed(value) => Right(value)
       }
 
+    private def getParsedBody[T] (parser: Parser => laika.parse.Parser[T])(context: DirectiveContext): Option[Result[T]] =
+      context.body.map {
+        case BodyContent.Source(value) => parser(context.parser).parse(value).toEither.left.map(Seq(_))
+        case BodyContent.Parsed(_)     => Left(Seq(s"unable to use custom body parser with pre-parsed content"))
+      }
+
     private def bodyPart[T] (accessor: DirectiveContext => Option[Result[T]]) = new DirectivePart[T] {
       def apply (context: DirectiveContext): Result[T] = accessor(context).getOrElse(Left(Seq(s"required body is missing")))
       def hasBody: Boolean = true
@@ -364,11 +370,26 @@ trait BuilderContext[E <: Element] {
       */
     def allAttributes: DirectivePart[Config] = part(c => Right(c.content.attributes))
     
-    /** Specifies a required body part.
+    /** Specifies a required body part parsed as spans or blocks, depending on the type of directive.
       *
       * @return a directive part that can be combined with further parts
       */
     def parsedBody: DirectivePart[Seq[E]] = bodyPart(getParsedBody)
+
+    /** Specifies a required body part with a custom parser.
+      * 
+      * The provided parser factory function has to accept a parameter for an instance providing
+      * access to the default parser for blocks and spans with all user and theme extensions installed.
+      * 
+      * This is useful for situations where some custom parsing logic has to be combined with
+      * the standard block/span parsing rules.
+      * 
+      * This is a fairly rare requirement, and most likely used the zero-param `parsedBody` method
+      * will suffice in most cases.
+      *
+      * @return a directive part that can be combined with further parts
+      */
+    def parsedBody[T] (parser: Parser => laika.parse.Parser[T]): DirectivePart[T] = bodyPart(getParsedBody(parser))
     
     /** Specifies a required body part.
       *
