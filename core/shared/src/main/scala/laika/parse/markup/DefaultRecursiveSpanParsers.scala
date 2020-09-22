@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast.{InvalidElement, Span}
 import laika.parse.text.{DelimitedText, PrefixedParser}
-import laika.parse.{Failure, Parser, SourceCursor, Success}
+import laika.parse.{Failure, Parser, SourceCursor, SourceFragment, Success}
 
 /** Default implementation for parsing inline markup recursively.
   *
@@ -58,7 +58,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     
   }
 
-  private class TwoPhaseInlineParser2 (textParser: Parser[SourceCursor],
+  private class TwoPhaseInlineParser2 (textParser: Parser[SourceFragment],
                                        delegate: => InlineParser[Span, List[Span]]) extends InlineParser[Span, List[Span]] {
 
     private lazy val spanParser0 = delegate
@@ -87,7 +87,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     case _                 => new TwoPhaseInlineParser(p, defaultSpanParser)
   }
 
-  def recursiveSpans2 (parser: Parser[SourceCursor]): InlineParser[Span, List[Span]] =
+  def recursiveSpans2 (parser: Parser[SourceFragment]): InlineParser[Span, List[Span]] =
     new TwoPhaseInlineParser2(parser, defaultSpanParser) // TODO - what about DelimitedText being passed here?
 
   def recursiveSpans: InlineParser[Span, List[Span]] = defaultSpanParser

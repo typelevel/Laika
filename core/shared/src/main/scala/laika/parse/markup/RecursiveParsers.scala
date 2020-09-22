@@ -110,7 +110,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * for parsing types of child spans in addition to the available span types of the
     * host markup language
     */
-  def recursiveSpans2 (parser: Parser[SourceCursor]): InlineParser[Span, List[Span]]
+  def recursiveSpans2 (parser: Parser[SourceFragment]): InlineParser[Span, List[Span]]
 
   /** Parses the input into a sequence of spans based on the available span types
     * of the host markup language.
