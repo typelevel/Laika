@@ -88,6 +88,11 @@ trait SourceCursor {
   
 }
 
+/** Represents any source cursor other than the root cursor and it is mandated by some APIs that
+  * solely deal with recursive parsing where the root input will never be used as the source for the parser.
+  */
+trait SourceFragment extends SourceCursor
+
 /** A root source represents the full input string of a parsing operation.
   * 
   * In a single-pass parser like those for HOCON or CSS, only `RootCursor` instances will be used for the entire
@@ -142,7 +147,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * while the `rootRef` constructor argument is positioned at the beginning of the line, 
   * so that the final property can be created lazily.
   */
-class LineSource (val input: String, rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceCursor {
+class LineSource (val input: String, rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceFragment {
 
   type Self = LineSource
   
@@ -185,7 +190,7 @@ object LineSource {
   * In such a case each line might have a different x-offset from the root input.
   * The use of this instance ensures that the correct position can still be tracked.
   */
-class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], val offset: Int, val nestLevel: Int) extends SourceCursor {
+class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], val offset: Int, val nestLevel: Int) extends SourceFragment {
 
   type Self = BlockSource
   
