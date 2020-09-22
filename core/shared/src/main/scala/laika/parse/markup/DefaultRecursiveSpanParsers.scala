@@ -119,18 +119,5 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
       case f: Failure => f
     }
   }
-
-
-  def recursiveSpans (p: Parser[String],
-                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] = {
-    recursiveSpans(p).embedAll(PrefixedParser.fromLegacyMap(additionalParsers))
-  }
-
-  def delimitedRecursiveSpans (textParser: DelimitedText,
-                               additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] =
-    recursiveSpans(textParser).embedAll(PrefixedParser.fromLegacyMap(additionalSpanParsers))
-
-  def delimitedRecursiveSpans (textParser: DelimitedText): Parser[List[Span]] =
-    recursiveSpans(textParser)
   
 }
