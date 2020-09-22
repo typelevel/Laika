@@ -129,13 +129,13 @@ object BlockParsers {
           if (line.input.endsWith("  ")) new LineSource(line.input.dropRight(2) ++ "\\\r", line.root, line.offset, line.nestLevel)
           else line
 
-      def paragraph (parser: SourceCursor => List[Span], firstLine: LineSource, restLines: List[LineSource]): Paragraph =
-        Paragraph(parser(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
+      def paragraph (firstLine: LineSource, restLines: List[LineSource]): Paragraph =
+        Paragraph(recParsers.recursiveSpans.parse(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)).getOrElse(Nil)) // TODO - recover errors
 
-      (recParsers.withRecursiveSpanParser2(textLine.line) ~ decorationOrLines).map {
-        case (parser, firstLine) ~ Right(restLines ~ None)       => paragraph(parser, firstLine, restLines)
-        case (parser, firstLine) ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(parser, firstLine, restLines), list)
-        case (parser, text) ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), parser(text))
+      (textLine.line ~ decorationOrLines).map {
+        case firstLine ~ Right(restLines ~ None)       => paragraph(firstLine, restLines)
+        case firstLine ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(firstLine, restLines), list)
+        case text ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parse(text).getOrElse(Nil)) // TODO - recover errors
       }
     }
 

@@ -92,32 +92,18 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
 
   def recursiveSpans: InlineParser[Span, List[Span]] = defaultSpanParser
 
-  def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: String => List[Span] = { source: String =>
-          defaultSpanParser.parse(source) match {
-            case Success(spans, _)  => spans
-            case f: Failure => List(InvalidElement(f.message, source).asSpan)
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
-
-  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: SourceCursor => List[Span] = { source: SourceCursor =>
-          defaultSpanParser.parse(source) match {
-            case Success(spans, _)  => spans
-            case f: Failure => List(InvalidElement(f.message, source.input).asSpan)
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
+//  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)] = Parser { ctx =>
+//    p.parse(ctx) match {
+//      case Success(res, next) =>
+//        val recParser: SourceCursor => List[Span] = { source: SourceCursor =>
+//          defaultSpanParser.parse(source) match {
+//            case Success(spans, _)  => spans
+//            case f: Failure => List(InvalidElement(f.message, source.input).asSpan)
+//          }
+//        }
+//        Success((recParser, res), next)
+//      case f: Failure => f
+//    }
+//  }
   
 }

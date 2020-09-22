@@ -89,8 +89,8 @@ object BlockParsers {
     nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
-        spanParsers.withRecursiveSpanParser2(anyOf(char).min(title.input.length - 1).line ~ wsEol).map {
-          case (recParser, _) => DecoratedHeader(Underline(char), recParser(title))
+        (anyOf(char).min(title.input.length - 1).line ~ wsEol).map {
+          _ => DecoratedHeader(Underline(char), spanParsers.recursiveSpans.parse(title).getOrElse(Nil)) // TODO - recovery
         }
       }
     }

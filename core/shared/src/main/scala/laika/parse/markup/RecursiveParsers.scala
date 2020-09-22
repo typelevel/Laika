@@ -120,24 +120,6 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     */
   def recursiveSpans: InlineParser[Span, List[Span]]
 
-  /** Adds a span parser function to the result of the specified parser.
-    * The function can be used for any kind of custom span parsing of portions of the
-    * result produced by the base parser.
-    *
-    * The parser function never fails, but instead inserts spans of type `InvalidSpan`
-    * into the result in case of errors.
-    */
-  def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)]
-
-  /** Adds a span parser function to the result of the specified parser.
-    * The function can be used for any kind of custom span parsing of portions of the
-    * result produced by the base parser.
-    *
-    * The parser function never fails, but instead inserts spans of type `InvalidSpan`
-    * into the result in case of errors.
-    */
-  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)]
-
   /** Provides the syntax highlighter for the specified language if present.
     */
   def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]]

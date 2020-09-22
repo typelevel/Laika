@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
-import laika.parse.Parser
+import laika.parse.{LineSource, Parser}
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.builders._
@@ -134,7 +134,7 @@ object InlineParsers {
   lazy val link: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
     def unwrap (ref: LinkIdReference, suffix: String) = {
-      if ((ref select (_.isInstanceOf[LinkIdReference])).tail.nonEmpty)
+      if (ref.select(_.isInstanceOf[LinkIdReference]).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
       else ref
     }
@@ -143,15 +143,15 @@ object InlineParsers {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkIdReference(res.parser(res.text), normalizeId(id), "[" + res.source)
-      if (res.text == id) unwrap(ref, res.suffix) else ref
+      val ref = LinkIdReference(recParsers.recursiveSpans.parse(res.text).getOrElse(Nil), normalizeId(id), "[" + res.source) // TODO - recovery
+      if (res.text.input == id) unwrap(ref, res.suffix) else ref
     }
 
     "[" ~> resource(recParsers).map { res =>
       res.target match {
-        case TargetUrl(url, title) => ParsedLink.create(res.parser(res.text), url, res.source, title)
+        case TargetUrl(url, title) => ParsedLink.create(recParsers.recursiveSpans.parse(res.text).getOrElse(Nil), url, res.source, title) // TODO - recovery
         case TargetId(id)   => linkReference(res, id)
-        case ImplicitTarget => linkReference(res, res.text)
+        case ImplicitTarget => linkReference(res, res.text.input)
       }
     }
   }
@@ -161,14 +161,14 @@ object InlineParsers {
     */
   val image: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
-    def escape (text: String, f: String => Span): Span = 
-      recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, text).asSpan, f)
+    def escape (text: LineSource, f: String => Span): Span = 
+      recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, text.input).asSpan, f)
 
     "![" ~> resource(recParsers).map { res =>
       res.target match {
         case TargetUrl(url, title) => escape(res.text, text => Image.create(url, res.source, alt = Some(text), title = title))
-        case TargetId(id)   => escape(res.text, ImageIdReference(_, normalizeId(id),       "![" + res.source))
-        case ImplicitTarget => escape(res.text, ImageIdReference(_, normalizeId(res.text), "![" + res.source))
+        case TargetId(id)   => escape(res.text, ImageIdReference(_, normalizeId(id),             "![" + res.source))
+        case ImplicitTarget => escape(res.text, ImageIdReference(_, normalizeId(res.text.input), "![" + res.source))
       }
     }
   }
@@ -177,8 +177,8 @@ object InlineParsers {
   private case class TargetId(id: String) extends ResourceTarget
   private case class TargetUrl(url: String, title: Option[String] = None) extends ResourceTarget
   private case object ImplicitTarget extends ResourceTarget
-  private case class Resource(parser: RecParser, text: String, target: ResourceTarget, suffix: String) {
-    def source: String = text + suffix
+  private case class Resource(text: LineSource, target: ResourceTarget, suffix: String) {
+    def source: String = text.input + suffix
   }
   
   /** Helper function that abstracts the common parser logic of links and images.
@@ -203,8 +203,8 @@ object InlineParsers {
     val refEmpty = (ws ~ opt(eol) ~ "[]").source.map((ImplicitTarget, _))
     val noRef = success((ImplicitTarget,""))
 
-    recParsers.withRecursiveSpanParser(linkText) ~ (urlWithTitle | refEmpty | refId | noRef) ^^ {
-      case (recParser, text) ~ ((target, source)) => Resource(recParser, text, target, "]" + source)
+    linkText.line ~ (urlWithTitle | refEmpty | refId | noRef) ^^ {
+      case text ~ ((target, source)) => Resource(text, target, "]" + source)
     }
   }
 
