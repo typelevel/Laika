@@ -163,7 +163,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     
     lazy val defaultParser: Parser[Span] = RootParserProvider.forParsers(
       markupExtensions = directiveSupport.markupExtensions
-    ).recursiveSpans.map { spans =>
+    ).standaloneSpanParser.map { spans =>
       val seq = SpanSequence(spans)
       TemplateRewriter.rewriteRules(DocumentCursor(
         Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref","value").build)

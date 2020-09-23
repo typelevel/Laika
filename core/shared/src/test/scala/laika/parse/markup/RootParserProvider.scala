@@ -26,7 +26,7 @@ object RootParserProvider {
 
   def forParsers (blockParsers: Seq[BlockParserBuilder] = Nil,
                   spanParsers: Seq[SpanParserBuilder] = Nil,
-                  markupExtensions: MarkupExtensions = ParserBundle().markupExtensions): RootParser = {
+                  markupExtensions: MarkupExtensions = ParserBundle().markupExtensions): RootParserWrapper = {
 
     val bp = blockParsers
     val sp = spanParsers
@@ -38,8 +38,12 @@ object RootParserProvider {
       val extensions = Seq()
     }
 
-    new RootParser(Parser, markupExtensions)
+    new RootParserWrapper(Parser, markupExtensions)
 
   }
 
+  class RootParserWrapper(markupParser: MarkupFormat, markupExtensions: MarkupExtensions) extends RootParser(markupParser, markupExtensions) {
+    lazy val standaloneSpanParser = defaultSpanParser
+  }
+  
 }

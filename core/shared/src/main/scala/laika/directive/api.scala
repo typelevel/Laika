@@ -663,12 +663,12 @@ object Templates extends BuilderContext[TemplateSpan] {
 
   type Parser = RecursiveSpanParsers // TODO - specialize to TemplateSpan?
 
-  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[TemplateSpan]] = parser.recursiveSpans.map {
+  protected def parse (parser: Parser, src: SourceFragment): Result[Seq[TemplateSpan]] = parser.recursiveSpans.parse(src).map {
     _.collect {
       case s: TemplateSpan => s
       case Text(s, opt) => TemplateString(s, opt) // TODO - might get extracted
     }
-  }.parse(src).toEither.left.map(Seq(_)) // TODO - avoid duplication
+  }.toEither.left.map(Seq(_)) // TODO - avoid duplication
   
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,

@@ -56,12 +56,13 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     }
   }
 
-  lazy val templateSpans: Parser[List[TemplateSpan]] = recursiveSpans.map {
-    _.collect {
-      case s: TemplateSpan => s
-      case Text(s, opt) => TemplateString(s, opt)
+  lazy val templateSpans: Parser[List[TemplateSpan]] = 
+    defaultSpanParser.map {
+      _.collect {
+        case s: TemplateSpan => s
+        case Text(s, opt) => TemplateString(s, opt)
+      }
     }
-  }
 
   lazy val templateRoot: Parser[TemplateRoot] = templateSpans.map(TemplateRoot(_))
 

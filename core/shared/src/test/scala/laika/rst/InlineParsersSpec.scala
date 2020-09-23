@@ -37,7 +37,7 @@ class InlineParsersSpec extends AnyFlatSpec
 
   val rootParser = RootParserProvider.forBundle(ExtensionProvider.forDefaultTextRole(defaultTextRole))
 
-  val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
+  val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser
 
 
   def subst (name: String) = SubstitutionReference(name)

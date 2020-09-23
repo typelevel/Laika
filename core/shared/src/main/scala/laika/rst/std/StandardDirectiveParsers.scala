@@ -18,7 +18,7 @@ package laika.rst.std
 
 import laika.ast._
 import laika.parse.{BlockSource, Parser, SourceFragment}
-import laika.parse.markup.RecursiveParsers
+import laika.parse.markup.{RecursiveParsers, RecursiveSpanParser}
 import laika.parse.text.CharGroup
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -39,8 +39,14 @@ object StandardDirectiveParsers {
   /** Utility method to be used by custom parsers for directive argument or body.
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
     */
-  def parseDirectivePart [T] (parser: Parser[T], source: SourceFragment): Either[String,T] =
+  def parseDirectivePart[T] (parser: Parser[T], source: SourceFragment): Either[String, T] =
     consumeAll(parser).parse(source).toEither // TODO - implement trim or trim earlier
+
+  /** Utility method to be used by custom parsers for directive argument or body.
+    *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
+    */
+  def parseDirectivePart (parser: RecursiveSpanParser, source: SourceFragment): Either[String, Seq[Span]] =
+    parser.parse(source).toEither // TODO - implement trim or trim earlier - used to have a consumeAll wrapper, which might move to the impl
 
 
   /** Parses all standard inline markup supported by `reStructuredText`.
@@ -49,7 +55,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def standardSpans (p: RecursiveParsers)(input: SourceFragment): Either[String,Seq[Span]] =
+  def standardSpans (p: RecursiveParsers)(input: SourceFragment): Either[String, Seq[Span]] =
     parseDirectivePart(p.recursiveSpans, input) // TODO - implement trim or trim earlier
 
   /** Parses one of the two table types supported by `reStructuredText`.

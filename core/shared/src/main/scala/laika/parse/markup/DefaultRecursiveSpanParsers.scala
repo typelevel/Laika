@@ -31,7 +31,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     */
   protected def spanParsers: Seq[PrefixedParser[Span]]
 
-  private lazy val defaultSpanParser: InlineParser[Span, List[Span]] = 
+  protected lazy val defaultSpanParser: InlineParser[Span, List[Span]] = 
     InlineParsers.spans(DelimitedText.Undelimited).embedAll(spanParsers)
   
   private class TwoPhaseInlineParser (textParser: Parser[SourceFragment],
@@ -63,7 +63,9 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
   def recursiveSpans(parser: Parser[SourceFragment]): InlineParser[Span, List[Span]] =
     new TwoPhaseInlineParser(parser, defaultSpanParser)
 
-  def recursiveSpans: InlineParser[Span, List[Span]] = defaultSpanParser
+  def recursiveSpans: RecursiveSpanParser = new RecursiveSpanParser {
+    def parse (in: SourceFragment): Parsed[List[Span]] = defaultSpanParser.parse(in)
+  }
 
 //  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)] = Parser { ctx =>
 //    p.parse(ctx) match {

@@ -93,7 +93,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * This parser always parses to the end of the input, therefore is usually applied to
     * the string result of a previous parser invocation.
     */
-  def recursiveSpans: InlineParser[Span, List[Span]]
+  def recursiveSpans: RecursiveSpanParser
 
   /** Provides the syntax highlighter for the specified language if present.
     */
@@ -130,7 +130,14 @@ trait EscapedTextParsers {
 
 trait RecursiveBlockParser {
   
-  // TODO - add recoverAll?
+  // TODO - add recoverAll
   def parse (in: SourceFragment): Parsed[Seq[Block]]
+  
+}
+
+trait RecursiveSpanParser {
+
+  // TODO - add recoverAll
+  def parse (in: SourceFragment): Parsed[Seq[Span]]
   
 }

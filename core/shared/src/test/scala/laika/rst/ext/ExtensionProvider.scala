@@ -20,6 +20,7 @@ import laika.ast.{Block, Span}
 import laika.bundle.{ExtensionBundle, MarkupExtensions, ParserHooks}
 import laika.format.ReStructuredText
 import laika.parse.markup.RootParser
+import laika.parse.markup.RootParserProvider.RootParserWrapper
 import laika.rst.bundle.{LinkTargetProcessor, RstExtensionRegistry, RstExtensionSupport}
 import laika.rst.ext.Directives.Directive
 import laika.rst.ext.TextRoles.TextRole
@@ -48,7 +49,7 @@ object ExtensionProvider {
 
 object RootParserProvider {
 
-  def forBundle (bundle: ExtensionBundle): RootParser = {
+  def forBundle (bundle: ExtensionBundle): RootParserWrapper = {
     val finalBundle = bundle.processExtension(RstExtensionSupport)
     val markupExtensions = MarkupExtensions(
       blockParsers = finalBundle.parsers.blockParsers,
@@ -56,7 +57,7 @@ object RootParserProvider {
       syntaxHighlighters = Nil,
       parserHooks = ParserHooks(postProcessBlocks = LinkTargetProcessor)
     )
-    new RootParser(ReStructuredText, markupExtensions)
+    new RootParserWrapper(ReStructuredText, markupExtensions)
   }
 
 }

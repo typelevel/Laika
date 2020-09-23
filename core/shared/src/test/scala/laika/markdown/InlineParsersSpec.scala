@@ -23,6 +23,7 @@ import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
+import laika.parse.markup.RootParserProvider.RootParserWrapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
      
@@ -33,9 +34,9 @@ class InlineParsersSpec extends AnyFlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions).markupExtensions)
+  val rootParser = new RootParserWrapper(Markdown, OperationConfig(Markdown.extensions).markupExtensions)
 
-  val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
+  val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser
 
   
   "The text parser" should "parse content without any markup as plain text" in {
