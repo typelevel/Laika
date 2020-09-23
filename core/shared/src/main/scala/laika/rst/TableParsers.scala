@@ -24,6 +24,7 @@ import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse._
+import laika.parse.markup.RecursiveParsers
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -49,7 +50,7 @@ object TableParsers {
     override def toString = text.input
   }
       
-  class CellBuilder (recParser: SourceCursor => Seq[Block]) {
+  class CellBuilder (recParser: RecursiveParsers) {
     
     private val seps = new ListBuffer[TableElement]
     private val previousLines = new ListBuffer[LineSource]
@@ -100,7 +101,7 @@ object TableParsers {
       }
     }
     
-    def parsedCellContent: Seq[Block] = trimmedCellContent.fold[Seq[Block]](Nil)(recParser)
+    def parsedCellContent: Seq[Block] = trimmedCellContent.fold[Seq[Block]](Nil)(src => recParser.recursiveBlocks.parse(src).getOrElse(Nil))
 
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
@@ -115,7 +116,7 @@ object TableParsers {
     def toRow (ct: CellType): Row = Row(cells.filterNot(_.removed).map(_.toCell(ct)).toList)
   }
   
-  class ColumnBuilder (left: Option[ColumnBuilder], recParser: SourceCursor => Seq[Block]) {
+  class ColumnBuilder (left: Option[ColumnBuilder], recParser: RecursiveParsers) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -167,7 +168,7 @@ object TableParsers {
     }
   }
   
-  class TableBuilder (columnWidths: List[Int], recParser: SourceCursor => Seq[Block]) {
+  class TableBuilder (columnWidths: List[Int], recParser: RecursiveParsers) {
     private object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
@@ -212,7 +213,7 @@ object TableParsers {
     val colSep = oneOf('|').as(CellSeparator("|")) | intersect
     val colSepOrText = colSep | oneChar.line.map(CellElement)
 
-    recParsers.withRecursiveBlockParser2(topBorder) >> { case (recParser, cols) =>
+    topBorder >> { cols =>
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
@@ -246,7 +247,7 @@ object TableParsers {
       
       def buildRowList (rows: List[List[TableElement]], ct: CellType): List[Row] = {
         
-        val tableBuilder = new TableBuilder(cols map (_ + 1), recParser) // column width includes separator
+        val tableBuilder = new TableBuilder(cols map (_ + 1), recParsers) // column width includes separator
             
         rows foreach { row =>
           val hasSeparator = row exists { case RowSeparator => true; case _ => false }
@@ -300,7 +301,7 @@ object TableParsers {
     }
     val topBorder = columnSpec.rep.min(2) <~ wsEol
 
-    recParsers.withRecursiveBlockParser2(topBorder) >> { case (recParser, cols) =>
+    topBorder >> { cols =>
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) anyNot('\n', '\r').line.map(CellElement)
@@ -332,7 +333,7 @@ object TableParsers {
       
       def buildRowList (rows: List[Any], ct: CellType): List[Row] = {
         
-        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParser)
+        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParsers)
         
         def addBlankLines (acc: ListBuffer[List[TableElement]], rootSource: RootSource, nestLevel: Int) = 
             acc += cols.flatMap { case (cell, sep) => 

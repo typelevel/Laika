@@ -99,38 +99,21 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
     def parse (in: SourceFragment) = recursiveBlockParser.parse(in, in.nestLevel)
   }
 
-  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => Seq[Block], T)] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: String => Seq[Block] = { source: String =>
-          recursiveBlockParser.parse(source, next.nestLevel) match {
-            case Success(blocks, _) => blocks
-            case f: Failure =>
-              val message = RuntimeMessage(MessageLevel.Error, f.message)
-              val fallback = Paragraph(source)
-              List(InvalidBlock(message, fallback))
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
-
-  def withRecursiveBlockParser2 [T] (p: Parser[T]): Parser[(SourceCursor => Seq[Block], T)] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: SourceCursor => Seq[Block] = { source: SourceCursor =>
-          recursiveBlockParser.parse(source, next.nestLevel) match {
-            case Success(blocks, _) => blocks
-            case f: Failure =>
-              val message = RuntimeMessage(MessageLevel.Error, f.message)
-              val fallback = Paragraph(source.input)
-              List(InvalidBlock(message, fallback))
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
+//  def withRecursiveBlockParser2 [T] (p: Parser[T]): Parser[(SourceCursor => Seq[Block], T)] = Parser { ctx =>
+//    p.parse(ctx) match {
+//      case Success(res, next) =>
+//        val recParser: SourceCursor => Seq[Block] = { source: SourceCursor =>
+//          recursiveBlockParser.parse(source, next.nestLevel) match {
+//            case Success(blocks, _) => blocks
+//            case f: Failure =>
+//              val message = RuntimeMessage(MessageLevel.Error, f.message)
+//              val fallback = Paragraph(source.input)
+//              List(InvalidBlock(message, fallback))
+//          }
+//        }
+//        Success((recParser, res), next)
+//      case f: Failure => f
+//    }
+//  }
 
 }

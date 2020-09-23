@@ -120,10 +120,9 @@ object BlockParsers {
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
       recParsers.recursiveSpans2(indentedBlock2(minIndent = indent, endsOnBlankLine = true))
       
-    nextIn(' ') ~> recParsers.withRecursiveBlockParser2(indentedBlockWithLevel2(
-        firstLineIndented = true, linePredicate = not(attributionStart))) >> {
-      case (recParser, (block, minIndent)) => opt(opt(blankLines) ~> attribution(minIndent)).map {
-        spans => QuotedBlock(recParser(block), spans.getOrElse(Nil))
+    nextIn(' ') ~> indentedBlockWithLevel2(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
+      case (block, minIndent) => opt(opt(blankLines) ~> attribution(minIndent)).map {
+        spans => QuotedBlock(recParsers.recursiveBlocks.parse(block).getOrElse(Nil), spans.getOrElse(Nil))
       }
     }
   }

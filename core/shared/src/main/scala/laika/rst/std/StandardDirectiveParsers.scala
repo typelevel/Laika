@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.Parser
+import laika.parse.{BlockSource, Parser}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
 import laika.parse.builders._
@@ -71,12 +71,10 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
-    val caption = p.recursiveSpans(textLine.rep.mkLines)
-    val parser = p.withRecursiveBlockParser(caption) >> {
-      case (parserF, captionSpans) => opt(blankLines) ~> anyChars.map { text =>
-        val legendBlocks = parserF(text.trim)
-        (captionSpans, legendBlocks)
-      }
+    val captionParser = p.recursiveSpans2(textLine.rep.mkLines.line)
+    val legendParser  = p.recursiveBlocks2(anyChars.trim.line.map(BlockSource(_)))
+    val parser = (captionParser ~ (opt(blankLines) ~> legendParser)).map { 
+      case caption ~ legend => (caption, legend)
     }
     parseDirectivePart(parser, input)
   }
