@@ -167,7 +167,7 @@ object BlockParsers {
     def stripDecoration (text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
     
     val level = someOf('#').max(6).count
-    val text = recParsers.recursiveSpans2(restOfLine.map(stripDecoration).line)
+    val text = recParsers.recursiveSpans(restOfLine.map(stripDecoration).line)
 
     (level ~ (not(blankLine) ~> text)).mapN(Header(_,_))
   }
@@ -207,7 +207,7 @@ object BlockParsers {
     * is combined with potentially nested lists which makes that parser recursive.
     */
   val fallbackParagraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    val block: Parser[String] = textLine.rep.min(1).map (_.mkString)
+    val block = textLine.rep.min(1).map(_.mkString).line
     spanParsers.recursiveSpans(block).map(Paragraph(_))
   }.nestedOnly.withLowPrecedence
 

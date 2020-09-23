@@ -110,7 +110,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
       import laika.parse.builders._
       import laika.parse.implicits._
       val directive = Templates.create("dir") {
-        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans2(anyChars.line))
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
           .map {
             _.collect {
               case s: TemplateSpan => s

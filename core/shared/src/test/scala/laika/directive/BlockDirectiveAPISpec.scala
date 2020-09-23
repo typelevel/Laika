@@ -139,7 +139,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(directive, StandardDirectives.blockStyle), Nil, Nil, Nil).parsers
 
     lazy val paragraphParser: BlockParserBuilder = BlockParser.recursive { recParser =>
-      recParser.recursiveSpans((Parsers.not(blankLine) ~> restOfLine).rep.min(1).mkLines) ^^ { Paragraph(_) }
+      recParser.recursiveSpans((Parsers.not(blankLine) ~> restOfLine).rep.min(1).mkLines.line) ^^ { Paragraph(_) }
     }
 
     lazy val defaultParser: Parser[RootElement] = RootParserProvider.forParsers(

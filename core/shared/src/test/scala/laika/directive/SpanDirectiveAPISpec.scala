@@ -116,7 +116,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       import laika.parse.builders._
       import laika.parse.implicits._
       val directive = Spans.create("dir") { 
-        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans2(anyChars.line))
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
           .map(SpanSequence(_))
       }
     }

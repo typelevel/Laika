@@ -71,7 +71,7 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
-    val captionParser = p.recursiveSpans2(textLine.rep.mkLines.line)
+    val captionParser = p.recursiveSpans(textLine.rep.mkLines.line)
     val legendParser  = p.recursiveBlocks2(anyChars.trim.line.map(BlockSource(_)))
     val parser = (captionParser ~ (opt(blankLines) ~> legendParser)).map { 
       case caption ~ legend => (caption, legend)

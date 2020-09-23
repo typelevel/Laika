@@ -17,8 +17,8 @@
 package laika.parse.markup
 
 import laika.ast.{Block, Span}
-import laika.parse.{BlockSource, Parsed, Parser, SourceCursor, SourceFragment}
 import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.{BlockSource, Parsed, Parser, SourceFragment}
 
 /** Provides parsers for nested blocks, custom block parser implementations
   * can use these without knowing the available span types of the host
@@ -73,7 +73,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * for parsing types of child spans in addition to the available span types of the
     * host markup language
     */
-  def recursiveSpans (parser: Parser[String]): InlineParser[Span, List[Span]]
+  def recursiveSpans (parser: DelimitedText): InlineParser[Span, List[Span]]
 
   /** Lifts the specified text parser to parse the string result
     * as a sequence of spans.
@@ -92,7 +92,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     * for parsing types of child spans in addition to the available span types of the
     * host markup language
     */
-  def recursiveSpans2 (parser: Parser[SourceFragment]): InlineParser[Span, List[Span]]
+  def recursiveSpans (parser: Parser[SourceFragment]): InlineParser[Span, List[Span]]
 
   /** Parses the input into a sequence of spans based on the available span types
     * of the host markup language.

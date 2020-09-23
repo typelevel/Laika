@@ -35,7 +35,7 @@ object Tables {
   val parser: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
 
     def cell (textParser: Parser[LineSource], cellType: CellType): Parser[Cell] =
-      spanParsers.recursiveSpans2(textParser).map { spans =>
+      spanParsers.recursiveSpans(textParser).map { spans =>
         Cell(cellType, Seq(Paragraph(spans)))
       }
 

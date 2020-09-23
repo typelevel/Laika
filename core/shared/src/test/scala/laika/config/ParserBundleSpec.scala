@@ -74,7 +74,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
 
     final val parserBundles = Nil
 
-    val textBlockParser: Parser[String] = TextParsers.textLine.rep.min(1).mkLines
+    val textBlockParser: Parser[LineSource] = TextParsers.textLine.rep.min(1).mkLines.line
 
   }
 

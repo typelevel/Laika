@@ -58,7 +58,7 @@ object BlockParsers {
    */
   lazy val paragraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
     spanParsers
-      .recursiveSpans2(textLine.rep.min(1).mkLines.line)
+      .recursiveSpans(textLine.rep.min(1).mkLines.line)
       .map(Paragraph(_))
   }
 
@@ -71,7 +71,7 @@ object BlockParsers {
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        val text = spanParsers.recursiveSpans2(anyNot('\n').max(len).trim.line)
+        val text = spanParsers.recursiveSpans(anyNot('\n').max(len).trim.line)
         val decoLine = anyOf(char) take len
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol).map {
@@ -118,7 +118,7 @@ object BlockParsers {
     val attributionStart = "---" | "--" | "\u2014" // em dash
         
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
-      recParsers.recursiveSpans2(indentedBlock2(minIndent = indent, endsOnBlankLine = true))
+      recParsers.recursiveSpans(indentedBlock2(minIndent = indent, endsOnBlankLine = true))
       
     nextIn(' ') ~> indentedBlockWithLevel2(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
       case (block, minIndent) => opt(opt(blankLines) ~> attribution(minIndent)).map {
