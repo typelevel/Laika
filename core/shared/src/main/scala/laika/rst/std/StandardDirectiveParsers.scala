@@ -72,7 +72,7 @@ object StandardDirectiveParsers {
    */
   def captionAndLegend (p: RecursiveParsers)(input: SourceFragment): Either[String,(Seq[Span],Seq[Block])] = {
     val captionParser = p.recursiveSpans(textLine.rep.mkLines.line)
-    val legendParser  = p.recursiveBlocks2(anyChars.trim.line.map(BlockSource(_)))
+    val legendParser  = p.recursiveBlocks(anyChars.trim.line.map(BlockSource(_)))
     val parser = (captionParser ~ (opt(blankLines) ~> legendParser)).map { 
       case caption ~ legend => (caption, legend)
     }

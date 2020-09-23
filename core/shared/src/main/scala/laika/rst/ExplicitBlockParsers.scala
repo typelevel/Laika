@@ -56,7 +56,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   lazy val footnote: Parser[FootnoteDefinition] = {
     val prefix = "[" ~> footnoteLabel <~ "]" ~ ws
     
-    (prefix ~ recursiveBlocks2(indentedBlock2())).mapN(FootnoteDefinition(_, _))
+    (prefix ~ recursiveBlocks(indentedBlock())).mapN(FootnoteDefinition(_, _))
   }
   
   /** Parses a citation.
@@ -66,7 +66,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   lazy val citation: Parser[Citation] = {
     val prefix = "[" ~> simpleRefName <~ "]" ~ ws
     
-    (prefix ~ recursiveBlocks2(indentedBlock2())).mapN(Citation(_, _))
+    (prefix ~ recursiveBlocks(indentedBlock())).mapN(Citation(_, _))
   }
   
   /** Parses a link definition, either an internal, external or indirect link.
@@ -98,7 +98,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
-  val comment: Parser[Comment] = indentedBlock2().map(src => Comment(src.input.trim))
+  val comment: Parser[Comment] = indentedBlock().map(src => Comment(src.input.trim))
   
 }
 
@@ -120,7 +120,7 @@ object ExplicitBlockParsers {
   private[rst] lazy val linkDefinitionBody: Parser[String] = {
     val notEmpty = not(blankLine) | lookAhead(restOfLine ~ ws.min(1) ~ not(blankLine))
 
-    (notEmpty ~> indentedBlock2()).map {
+    (notEmpty ~> indentedBlock()).map {
       _.lines.iterator.map(_.input.trim).mkString
     }
   }

@@ -80,12 +80,12 @@ trait BlockParsers {
     *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
     *  @return a parser that produces the raw text of the parsed block with the indentation removed
     */
-  def indentedBlock2 (minIndent: Int = 1,
+  def indentedBlock (minIndent: Int = 1,
                      linePredicate: => Parser[Any] = success(()),
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false,
                      maxIndent: Int = Int.MaxValue): Parser[BlockSource] =
-    indentedBlockWithLevel2(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
+    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
 
   /**  Parses a full block based on the specified helper parsers, expecting an indentation for
     *  all lines except the first. The indentation may vary between the parts of the indented
@@ -100,7 +100,7 @@ trait BlockParsers {
     *  @return a parser that produces the raw text of the parsed block with the indentation removed and the
     *          indentation level (number of whitespace characters removed from the text lines)
     */
-  def indentedBlockWithLevel2 (minIndent: Int = 1,
+  def indentedBlockWithLevel (minIndent: Int = 1,
                               linePredicate: => Parser[Any] = success(()),
                               endsOnBlankLine: Boolean = false,
                               firstLineIndented: Boolean = false,

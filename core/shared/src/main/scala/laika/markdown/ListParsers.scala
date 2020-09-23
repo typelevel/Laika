@@ -84,7 +84,7 @@ object ListParsers {
 
     val itemStart = itemStartChar ~ itemStartRest
 
-    val listItem: Parser[Seq[Block]] = recParsers.recursiveBlocks2(BlockParsers.mdBlock(
+    val listItem: Parser[Seq[Block]] = recParsers.recursiveBlocks(BlockParsers.mdBlock(
       not(rule) ~> itemStart, not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace), BlockParsers.tabOrSpace
     ))
 

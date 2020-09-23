@@ -40,7 +40,7 @@ object ListParsers {
                                        (implicit recParsers: RecursiveParsers): Parser[I] = {
       itemStart.count ~ ws.min(1).count >> {
         case startCount ~ wsCount =>
-          recParsers.recursiveBlocks2((indentedBlock2(minIndent = startCount + wsCount, maxIndent = startCount + wsCount) ~
+          recParsers.recursiveBlocks((indentedBlock(minIndent = startCount + wsCount, maxIndent = startCount + wsCount) ~
               opt(blankLines | eof | lookAhead(itemStart))).evalMap {
             case block ~ None if block.lines.length < 2 => Left("not a list item")
             case block ~ _ => Right(block)
@@ -176,7 +176,7 @@ object ListParsers {
     val classifier = delimiter(" : ") ~> recParsers.recursiveSpans.map(Classifier(_))
     val termWithClassifier = recParsers.recursiveSpans(term.line).embed(classifier)
 
-    val item = (termWithClassifier ~ recParsers.recursiveBlocks2(indentedBlock2(firstLineIndented = true))).collect {
+    val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))).collect {
       case termRes ~ blocks => DefinitionListItem(termRes, blocks)
     }
     
@@ -193,7 +193,7 @@ object ListParsers {
     val nameParser = ":" ~> recParsers.escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
     
     val name    = recParsers.recursiveSpans(nameParser.line)
-    val content = recParsers.recursiveBlocks2(indentedBlock2())
+    val content = recParsers.recursiveBlocks(indentedBlock())
     
     val item = (name ~ content).mapN(Field(_, _))
     
@@ -225,7 +225,7 @@ object ListParsers {
     
     val descStart = (anyOf(' ').min(2) ~ not(blankLine)) | lookAhead(blankLine ~ ws.min(1) ~ not(blankLine)).as("")
     
-    val item = (options ~ (descStart ~> recParsers.recursiveBlocks2(indentedBlock2()))).mapN(OptionListItem(_,_))
+    val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))).mapN(OptionListItem(_,_))
     
     (item <~ opt(blankLines)).rep.min(1).map(OptionList(_))
   }
@@ -238,7 +238,7 @@ object ListParsers {
     val itemStart = oneOf('|')
     
     val line: Parser[Int ~ Line] = 
-      itemStart ~> ws.min(1).count ~ recParsers.recursiveSpans(indentedBlock2(endsOnBlankLine = true)).map(Line(_))
+      itemStart ~> ws.min(1).count ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)).map(Line(_))
     
     def nest (lines: Seq[Int ~ Line]) : LineBlock = {
       

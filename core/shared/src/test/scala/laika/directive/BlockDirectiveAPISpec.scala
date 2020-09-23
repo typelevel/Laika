@@ -116,7 +116,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       import laika.parse.builders._
       import laika.parse.implicits._
       val directive = Blocks.create("dir") {
-        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveBlocks2(anyChars.line.map(BlockSource(_))))
+        parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveBlocks(anyChars.line.map(BlockSource(_))))
           .map(BlockSequence(_))
       }
     }

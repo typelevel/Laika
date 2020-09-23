@@ -118,9 +118,9 @@ object BlockParsers {
     val attributionStart = "---" | "--" | "\u2014" // em dash
         
     def attribution (indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>
-      recParsers.recursiveSpans(indentedBlock2(minIndent = indent, endsOnBlankLine = true))
+      recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
       
-    nextIn(' ') ~> indentedBlockWithLevel2(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
+    nextIn(' ') ~> indentedBlockWithLevel(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
       case (block, minIndent) => opt(opt(blankLines) ~> attribution(minIndent)).map {
         spans => QuotedBlock(recParsers.recursiveBlocks.parse(block).getOrElse(Nil), spans.getOrElse(Nil))
       }
@@ -133,7 +133,7 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
    */
   val literalBlock: Parser[Block] = {
-    val indented = indentedBlock2(firstLineIndented = true).map(src => LiteralBlock(src.input))
+    val indented = indentedBlock(firstLineIndented = true).map(src => LiteralBlock(src.input))
 
     val quotedLine = nextIn(punctuationChars)
     val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block"))

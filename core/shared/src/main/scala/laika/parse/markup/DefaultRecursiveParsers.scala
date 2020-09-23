@@ -72,19 +72,7 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
 
   private val recursiveBlockParser: InternalRecursiveBlockParser = new InternalRecursiveBlockParser
 
-
-  def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(str, next) =>
-        recursiveBlockParser.parse(str, ctx.nestLevel) match {
-          case Success(blocks, _) => Success(blocks, next)
-          case f: Failure => f
-        }
-      case f: Failure => f
-    }
-  }
-
-  def recursiveBlocks2 (p: Parser[BlockSource]): Parser[Seq[Block]] = Parser { in =>
+  def recursiveBlocks(p: Parser[BlockSource]): Parser[Seq[Block]] = Parser { in =>
     p.parse(in) match {
       case Success(str, next) =>
         recursiveBlockParser.parse(str, in.nestLevel) match {

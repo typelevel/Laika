@@ -197,7 +197,7 @@ object BlockParsers {
     PrefixedParser('>') {
       val decoratedLine = ">" ~ ws.max(1).void
       recParsers
-        .recursiveBlocks2(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), literal(">")))
+        .recursiveBlocks(decoratedBlock(decoratedLine, decoratedLine | not(blankLine), literal(">")))
         .map(QuotedBlock(_, Nil))
     }
   }
