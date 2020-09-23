@@ -17,6 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
+import laika.parse.SourceFragment
 import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
@@ -57,7 +58,7 @@ object StandardDirectiveParts {
   def image (p: RecursiveParsers): DirectivePartBuilder[Span] = {
     import TextParsers._
 
-    def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
+    def multilineURI (text: SourceFragment) = Right(text.input.split("\n").map(_.trim).mkString("\n").trim)
 
     val align = ("top" | "middle" | "bottom" | "left" | "center" | "right" |
       anyChars.flatMap(s => failure(s"illegal value for align: '$s'"))).map { a => Styles(s"align-$a") }

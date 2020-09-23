@@ -17,7 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.parse.Parser
+import laika.parse.{Parser, SourceFragment}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.Directives._
@@ -209,7 +209,7 @@ object TextRoles {
     import Directives.Converters._
     
     private def requiredPart [T] (build: RoleDirectiveParserBuilder => (Key, RoleDirectiveParserBuilder),
-                                  converter: (ParsedDirective, String) => Either[String, T]) = new RoleDirectivePartBuilder[T] {
+                                  converter: (ParsedDirective, SourceFragment) => Either[String, T]) = new RoleDirectivePartBuilder[T] {
       val base = part(build, converter)
       def apply (builder: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[T]) = {
         val (newBuilder, basePart) = base(builder)
@@ -219,7 +219,7 @@ object TextRoles {
     }
 
     private def part [T] (build: RoleDirectiveParserBuilder => (Key, RoleDirectiveParserBuilder),
-                          converter: (ParsedDirective, String) => Either[String, T]) = new RoleDirectivePartBuilder[Option[T]] {
+                          converter: (ParsedDirective, SourceFragment) => Either[String, T]) = new RoleDirectivePartBuilder[Option[T]] {
 
       def apply (builder: RoleDirectiveParserBuilder): (RoleDirectiveParserBuilder, RoleDirectivePart[Option[T]]) = {
         val (key, newBuilder) = build(builder)
@@ -242,7 +242,7 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
-                  convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePartBuilder[T] = 
+                  convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): RoleDirectivePartBuilder[T] = 
                     requiredPart(_.field(name), simple(convert))
     
     /** Specifies an optional named field. 
@@ -253,7 +253,7 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
-                     convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePartBuilder[Option[T]] = 
+                     convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): RoleDirectivePartBuilder[Option[T]] = 
                      part(_.optField(name), simple(convert))
     
     /** Specifies standard block-level content as the body of the directive.
@@ -269,7 +269,7 @@ object TextRoles {
      *  @param f the function to use for converting and validating the parsed value
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def content [T](f: String => Either[String,T]): RoleDirectivePartBuilder[T] = requiredPart(_.body, simple(f))
+    def content [T](f: SourceFragment => Either[String,T]): RoleDirectivePartBuilder[T] = requiredPart(_.body, simple(f))
     
   }
 

@@ -18,7 +18,7 @@ package laika.rst.ext
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.parse.Parser
+import laika.parse.{Parser, SourceFragment}
 import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
@@ -34,6 +34,7 @@ class DirectiveSpec extends AnyFlatSpec
                         with DefaultParserHelpers[RootElement] 
                         with ModelBuilder {
 
+  val stringContent: DirectivePartBuilder[String] = content(src => Right(src.input))
 
   val blockDirectives: Seq[Directive[Block]] = Seq(
     BlockDirective("oneArg")(argument() map p),
@@ -51,12 +52,12 @@ class DirectiveSpec extends AnyFlatSpec
     BlockDirective("reqAndOptFd")((field("name1") ~ optField("name2")).map { case arg1 ~ arg2 => p(arg1+arg2.getOrElse("missing")) }),
     BlockDirective("argAndFd")((argument(positiveInt) ~ field("name",positiveInt)).map { case arg1 ~ arg2 => p(("*" * arg1) + ("#" * arg2)) }),
     BlockDirective("optArgAndFd")((optArgument() ~ optField("name")).map { case arg1 ~ arg2 => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) }),
-    BlockDirective("optArgFdBody")((optArgument(withWS = true) ~ optField("name") ~ content(Right(_))).map {
+    BlockDirective("optArgFdBody")((optArgument(withWS = true) ~ optField("name") ~ stringContent).map {
       case arg1 ~ arg2 ~ content => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) }),
-    BlockDirective("optFdBody")((optField("name") ~ content(Right(_))).map {
+    BlockDirective("optFdBody")((optField("name") ~ stringContent).map {
       case field ~ content => p(field.getOrElse("missing") + content) }),
     BlockDirective("stdBody")(blockContent map (BlockSequence(_))),
-    BlockDirective("customBody")(content(body => if (body.length > 10) Right(p(body)) else Left("body too short"))),
+    BlockDirective("customBody")(content(body => if (body.input.length > 10) Right(p(body.input)) else Left("body too short"))),
     BlockDirective("argAndBlocks")((argument() ~ blockContent).map { case arg ~ blocks => BlockSequence(p(arg+"!") +: blocks) }),
     BlockDirective("argAndSpans")((argument() ~ spanContent).map { case arg ~ spans => Paragraph(Text(arg) +: spans) }),
     BlockDirective("fdAndBody")((field("name") ~ blockContent).map { case field ~ blocks => BlockSequence(p(field+"!") +: blocks) }),
@@ -85,17 +86,17 @@ class DirectiveSpec extends AnyFlatSpec
   def invalid (input: String, error: String): InvalidBlock =
     InvalidElement(error, input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")).asBlock
   
-  def positiveInt (input: String): Either[String, Int] = 
+  def positiveInt (src: SourceFragment): Either[String, Int] = 
     try {
-      val num = input.toInt
+      val num = src.input.toInt
       if (num > 0) Right(num) else Left(s"not a positive number: $num")
     }
     catch { 
       case e: Exception => Left(s"unable to convert to int: ${e.toString}") 
     }
     
-  def intList (input: String): Either[String, Array[Int]] = {
-    val list = input split "\n" filter (_.trim.nonEmpty) map (_.trim.toInt)
+  def intList (src: SourceFragment): Either[String, Array[Int]] = {
+    val list = src.input.split("\n").filter(_.trim.nonEmpty).map(_.trim.toInt)
     if (list.nonEmpty) Right(list) else Left("no integers provided")
   }
   

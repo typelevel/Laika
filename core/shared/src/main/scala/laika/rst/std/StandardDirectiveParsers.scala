@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.{BlockSource, Parser}
+import laika.parse.{BlockSource, Parser, SourceFragment}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
 import laika.parse.builders._
@@ -39,8 +39,8 @@ object StandardDirectiveParsers {
   /** Utility method to be used by custom parsers for directive argument or body.
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
     */
-  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] =
-    consumeAll(parser).parse(source.trim).toEither
+  def parseDirectivePart [T] (parser: Parser[T], source: SourceFragment): Either[String,T] =
+    consumeAll(parser).parse(source).toEither // TODO - implement trim or trim earlier
 
 
   /** Parses all standard inline markup supported by `reStructuredText`.
@@ -49,8 +49,8 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def standardSpans (p: RecursiveParsers)(input: String): Either[String,Seq[Span]] =
-    parseDirectivePart(p.recursiveSpans, input.trim)
+  def standardSpans (p: RecursiveParsers)(input: SourceFragment): Either[String,Seq[Span]] =
+    parseDirectivePart(p.recursiveSpans, input) // TODO - implement trim or trim earlier
 
   /** Parses one of the two table types supported by `reStructuredText`.
    *  
@@ -58,7 +58,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def table (p: RecursiveParsers)(input: String): Either[String, Block] = {
+  def table (p: RecursiveParsers)(input: SourceFragment): Either[String, Block] = {
     val gridTable = TableParsers.gridTable.createParser(p).parser
     val simpleTable = TableParsers.simpleTable.createParser(p).parser
     parseDirectivePart(gridTable | simpleTable, input)
@@ -70,7 +70,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
+  def captionAndLegend (p: RecursiveParsers)(input: SourceFragment): Either[String,(Seq[Span],Seq[Block])] = {
     val captionParser = p.recursiveSpans(textLine.rep.mkLines.line)
     val legendParser  = p.recursiveBlocks2(anyChars.trim.line.map(BlockSource(_)))
     val parser = (captionParser ~ (opt(blankLines) ~> legendParser)).map { 
@@ -84,7 +84,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def target (p: RecursiveParsers)(input: String): Either[String,Span] = {
+  def target (p: RecursiveParsers)(input: SourceFragment): Either[String,Span] = {
     val phraseLinkRef = {
       val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
@@ -106,7 +106,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def unicode (input: String): Either[String,String] = {
+  def unicode (input: SourceFragment): Either[String,String] = {
     val hexNum = anyOf(CharGroup.hexDigit)
     val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | 
       ("&#x" ~> hexNum <~ ";")).map(Integer.parseInt(_,16))

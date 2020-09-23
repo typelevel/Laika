@@ -19,6 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}
+import laika.parse.SourceFragment
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers.anyChars
 import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
@@ -84,8 +85,8 @@ import scala.collection.immutable.TreeSet
 class StandardBlockDirectives {
 
 
-  private def positiveInt (value: String) = try {
-      val i = value.toInt
+  private def positiveInt (value: SourceFragment) = try {
+      val i = value.input.toInt
       if (i > 0) Right(i) else Left(s"Not a posivitve number: $i")
     } catch {
       case e: NumberFormatException => Left(s"Not a number: $value")
@@ -196,7 +197,7 @@ class StandardBlockDirectives {
   lazy val sectnum: DirectivePartBuilder[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {
     case depth ~ start ~ prefix ~ suffix => 
       val fields = (depth.toList ++ start.toList ++ prefix.toList ++ suffix.toList).map { case (name, value) => 
-        Field(name, StringValue(value), Origin.root)
+        Field(name, StringValue(value.input), Origin.root)
       }
       EmbeddedConfigValue(LaikaKeys.autonumbering.toString, ObjectValue(fields))
   }
@@ -303,7 +304,7 @@ class StandardBlockDirectives {
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
       NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq:_*)) match {
-        case Some(set) => RawContent(set, content)
+        case Some(set) => RawContent(set, content.input)
         case None      => InvalidElement("no format specified", "").asBlock // TODO - pass source string
       }
     } 

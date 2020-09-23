@@ -22,7 +22,7 @@ import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.Parser
+import laika.parse.{BlockSource, Parser, SourceFragment}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
@@ -81,10 +81,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    */
   lazy val blockDirective: Parser[Block] = directive(blockDirectives.get).map(replaceInvalidDirective)
 
-  private val recBlocks: String => Result[Seq[Block]] = 
-    s => recursiveBlocks(DelimitedText.Undelimited).parse(s).toEither
+  private val recBlocks: SourceFragment => Result[Seq[Block]] = 
+    s => recursiveBlocks2(DelimitedText.Undelimited.line.map(BlockSource(_))).parse(s).toEither
   
-  private val recSpans: String => Result[Seq[Span]] = s => recursiveSpans.parse(s).toEither
+  private val recSpans: SourceFragment => Result[Seq[Span]] = s => recursiveSpans.parse(s).toEither
   
   private def directive [E](provider: String => Option[DirectivePartBuilder[E]]): Parser[E] = {
     
@@ -110,8 +110,8 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   }
   
   private def directive [E](p: Parser[E], name: String): Parser[E] = p.handleErrorWith { f => 
-    indentedBlock().map { block =>
-      InvalidDirective(f.message, s".. $name " + block).asInstanceOf[E]
+    indentedBlock2().map { block =>
+      InvalidDirective(f.message, s".. $name " + block.input).asInstanceOf[E]
     }
   }
 
@@ -178,19 +178,19 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       } 
     }
     
-    def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")
+    def requiredArg (p: => Parser[SourceFragment]): Parser[SourceFragment] = p.withFailureMessage("missing required argument")
 
-    val arg: Parser[String] = requiredArg(someNot(' ','\n') <~ ws)
+    val arg: Parser[SourceFragment] = requiredArg((someNot(' ','\n') <~ ws).line)
 
-    val argWithWS: Parser[String] = {
-      val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>
-        val text = block.trim
-        if (text.nonEmpty) Right(text) else Left("missing required argument")
+    val argWithWS: Parser[SourceFragment] = {
+      val p = indentedBlock2(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>
+        val text = block//.trim TODO - implement trim
+        if (text.input.nonEmpty) Right(text) else Left("missing required argument")
       }
       requiredArg(p)
     }
 
-    val bodyParser: Parser[String] = prevIn('\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
+    val bodyParser: Parser[SourceFragment] = prevIn('\n') ~> indentedBlock2(firstLineIndented = true) | indentedBlock2()
 
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Vector[Part]] = {
@@ -198,7 +198,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
 
       val item = ws.min(1).count >> { firstIndent =>
-        nameParser ~ indentedBlock(firstIndent + 1).trim
+        nameParser ~ indentedBlock2(firstIndent + 1)//.trim TODO - implement trim
       }
 
       ((opt(wsEol) ~> item.rep.min(1)) | success(Nil)).evalMap { fields =>

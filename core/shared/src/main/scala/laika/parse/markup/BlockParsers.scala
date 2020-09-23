@@ -80,92 +80,12 @@ trait BlockParsers {
     *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
     *  @return a parser that produces the raw text of the parsed block with the indentation removed
     */
-  def indentedBlock (minIndent: Int = 1,
-                     linePredicate: => Parser[Any] = success(()),
-                     endsOnBlankLine: Boolean = false,
-                     firstLineIndented: Boolean = false,
-                     maxIndent: Int = Int.MaxValue): Parser[String] =
-    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
-
-  /**  Parses a full block based on the specified helper parsers, expecting an indentation for
-    *  all lines except the first. The indentation may vary between the parts of the indented
-    *  block, so that this parser only cuts off the minimum indentation shared by all lines,
-    *  but each line must have at least the specified minimum indentation.
-    *
-    *  @param minIndent the minimum indentation that each line in this block must have
-    *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
-    *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
-    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
-    *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
-    *  @return a parser that produces the raw text of the parsed block with the indentation removed
-    */
   def indentedBlock2 (minIndent: Int = 1,
                      linePredicate: => Parser[Any] = success(()),
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false,
                      maxIndent: Int = Int.MaxValue): Parser[BlockSource] =
     indentedBlockWithLevel2(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
-
-
-  /**  Parses a full block based on the specified helper parsers, expecting an indentation for
-    *  all lines except the first. The indentation may vary between the parts of the indented
-    *  block, so that this parser only cuts off the minimum indentation shared by all lines,
-    *  but each line must have at least the specified minimum indentation.
-    *
-    *  @param minIndent the minimum indentation that each line in this block must have
-    *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
-    *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
-    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
-    *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
-    *  @return a parser that produces the raw text of the parsed block with the indentation removed and the
-    *          indentation level (number of whitespace characters removed from the text lines)
-    */
-  def indentedBlockWithLevel (minIndent: Int = 1,
-                              linePredicate: => Parser[Any] = success(()),
-                              endsOnBlankLine: Boolean = false,
-                              firstLineIndented: Boolean = false,
-                              maxIndent: Int = Int.MaxValue): Parser[(String, Int)] = {
-    
-    import scala.math._
-    
-    abstract class Line extends Product { def curIndent: Int }
-    case class BlankLine(curIndent: Int) extends Line
-    case class IndentedLine(curIndent: Int, indent: Int, text: String) extends Line
-    case class FirstLine(text: String) extends Line { val curIndent = Int.MaxValue }
-    
-    val composedLinePredicate = not(blankLine) ~ linePredicate
-    
-    def lineStart (curIndent: Int) = ws.min(minIndent).max(curIndent).count <~ composedLinePredicate
-    
-    def textLine (curIndent: Int) = (lineStart(curIndent) ~ ws.count ~ restOfLine).map {
-      case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text.trim)) 
-    }
-    
-    def emptyLines (curIndent: Int) = blankLines <~ lookAhead(lineStart(curIndent)) ^^ {
-      res => List.fill(res.length)(BlankLine(curIndent))
-    }
-    
-    val firstLine = 
-      if (firstLineIndented) textLine(Int.MaxValue) 
-      else restOfLine.map(s => List(FirstLine(s)))
-    
-    val firstLineGuard = if (firstLineIndented) ws.min(minIndent).count ~ composedLinePredicate else success(())
-    
-    def nextLine (prevLines: List[Line]): Parser[List[Line]] = 
-      if (endsOnBlankLine) textLine(prevLines.head.curIndent)
-      else textLine(prevLines.head.curIndent) | emptyLines(prevLines.head.curIndent) 
-      
-    def result (lines: List[List[Line]]): (String, Int) = if (lines.isEmpty) ("", minIndent) else {
-      val minIndent = lines.last.head.curIndent
-      (lines.flatten map {
-        case FirstLine(text)             => text
-        case IndentedLine(_,indent,text) => " " * (indent - minIndent) + text
-        case BlankLine(_)                => ""  
-      } mkString "\n", minIndent)
-    }
-
-    lookAhead(firstLineGuard) ~> firstLine.repWith(nextLine) ^^ result
-  }
 
   /**  Parses a full block based on the specified helper parsers, expecting an indentation for
     *  all lines except the first. The indentation may vary between the parts of the indented

@@ -69,7 +69,7 @@ import scala.collection.immutable.TreeSet
  */
 class StandardTextRoles {
   
-  private val classOption = optField("class", opt => Right(Options(None, opt.split(" ").toSet))) map (_.getOrElse(NoOpt))
+  private val classOption = optField("class", opt => Right(Options(None, opt.input.split(" ").toSet))) map (_.getOrElse(NoOpt))
   
   /** The standard emphasis text role.
    */

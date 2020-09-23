@@ -35,13 +35,6 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     * This type of span parser is usually used in block parsers,
     * that support the nesting of other blocks.
     */
-  def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]]
-  
-  /** Lifts the specified text parser to parse the string result as a sequence of blocks.
-    *
-    * This type of span parser is usually used in block parsers,
-    * that support the nesting of other blocks.
-    */
   def recursiveBlocks2 (p: Parser[BlockSource]): Parser[Seq[Block]]
   
   def recursiveBlocks: RecursiveBlockParser
