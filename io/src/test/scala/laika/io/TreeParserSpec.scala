@@ -207,11 +207,12 @@ class TreeParserSpec extends IOWordSpec
         Root / "dir2" / "doc5.md" -> "[link5]",
         Root / "dir2" / "doc6.md" -> "[link6]"
       )
-      val messages = inputs.map { case (path, markup) => 
-        InvalidDocument(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error, 
-          s"unresolved link id reference: link${markup.charAt(5)}")), path)
+      val invalidDocuments = inputs.map { case (path, markup) => 
+        val msg = s"unresolved link id reference: link${markup.charAt(5)}"
+        val invalidSpan = InvalidSpan(msg, generatedSource(markup))
+        InvalidDocument(NonEmptyChain.one(invalidSpan), path)
       }
-      parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages))))
+      parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments))))
     }
 
     "parse a tree with a cover and a title document" in new TreeParserSetup {

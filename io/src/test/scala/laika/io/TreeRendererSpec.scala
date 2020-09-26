@@ -190,9 +190,10 @@ class TreeRendererSpec extends IOWordSpec
           Document(Root / "sub" / "doc3", invalidLink(3)),
           Document(Root / "sub" / "doc4", invalidLink(4))
         ))
-        val messages = input.allDocuments.map { doc =>
-          InvalidDocument(NonEmptyChain.one(RuntimeMessage(MessageLevel.Error,
-            s"unresolved link reference: link${doc.path.name.charAt(3)}")), doc.path)
+        val invalidDocuments = input.allDocuments.map { doc =>
+          val msg = s"unresolved link reference: link${doc.path.name.last}"
+          val invalidSpan = InvalidBlock(msg, generatedSource(s"[link${doc.path.name.last}]"))
+          InvalidDocument(NonEmptyChain.one(invalidSpan), doc.path)
         }
         renderer
           .use (_
@@ -202,7 +203,7 @@ class TreeRendererSpec extends IOWordSpec
           )
           .attempt
           .assertEquals(Left(
-            InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(messages)))
+            InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments)))
           ))
       }
     }

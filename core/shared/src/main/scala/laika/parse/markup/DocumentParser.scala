@@ -45,7 +45,7 @@ object DocumentParser {
       ParserError(s"Configuration Error: ${configError.message}", path)
     
     def apply (document: InvalidDocument): ParserError =
-      ParserError(s"One or more error nodes in result:\n ${document.messages.map(_.content).mkString_("\n ")}", document.path)
+      ParserError(s"One or more error nodes in result:\n ${document.invalidElements.map(_.message.content).mkString_("\n ")}", document.path)
   }
   
   case class InvalidDocuments (documents: NonEmptyChain[InvalidDocument]) extends 
@@ -54,7 +54,7 @@ object DocumentParser {
   object InvalidDocuments {
     
     def format (documents: NonEmptyChain[InvalidDocument]): String = documents
-      .map(invDoc => invDoc.messages.map(_.content).mkString_(invDoc.path + "\n  ", "\n  ", ""))
+      .map(invDoc => invDoc.invalidElements.map(_.message.content).mkString_(invDoc.path + "\n  ", "\n  ", ""))
       .mkString_("\n")
     
     def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {
@@ -66,13 +66,13 @@ object DocumentParser {
     
   }
   
-  case class InvalidDocument (messages: NonEmptyChain[RuntimeMessage], path: Path) extends 
-    RuntimeException(s"One or more errors processing document '$path': ${messages.map(_.content).mkString_("\n ")}")
+  case class InvalidDocument (invalidElements: NonEmptyChain[Invalid[_]], path: Path) extends 
+    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(_.message.content).mkString_("\n ")}")
   
   object InvalidDocument {
     
     def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
-      val invalidElements = document.runtimeMessages(failOn)
+      val invalidElements = document.invalidElements(failOn)
       NonEmptyChain.fromSeq(invalidElements).map(InvalidDocument(_, document.path))
     }
     
