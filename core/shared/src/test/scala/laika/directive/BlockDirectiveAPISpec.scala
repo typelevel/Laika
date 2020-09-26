@@ -153,7 +153,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       )).rewriteBlock(root).asInstanceOf[RootElement]
     }
 
-    def invalid (fragment: String, error: String): InvalidBlock = InvalidElement(error, source(fragment, input)).asBlock
+    def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))
 
   }
 

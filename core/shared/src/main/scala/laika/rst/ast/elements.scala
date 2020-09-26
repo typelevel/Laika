@@ -156,7 +156,7 @@ case class Include (path: String, source: SourceFragment, options: Options = NoO
   def resolve (cursor: DocumentCursor): Block =
     cursor.parent.target.selectDocument(path) match {
       case Some(target) => BlockSequence(target.content.content)
-      case None         => InvalidElement(s"Unresolvable path reference: $path", source).asBlock
+      case None         => InvalidBlock(s"Unresolvable path reference: $path", source)
     }
 
   lazy val unresolvedMessage: String = s"Unresolved file inclusion with path '$path'"

@@ -305,7 +305,7 @@ class StandardBlockDirectives {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
       NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq:_*)) match {
         case Some(set) => RawContent(set, content.input)
-        case None      => InvalidElement("no format specified", LineSource("", SourceCursor(""))).asBlock // TODO - pass actual source
+        case None      => InvalidBlock("no format specified", LineSource("", SourceCursor(""))) // TODO - pass actual source
       }
     } 
   }

@@ -147,7 +147,7 @@ trait TemplateRewriter {
       case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
       case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, unresolved.source).asBlock)
+      case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))

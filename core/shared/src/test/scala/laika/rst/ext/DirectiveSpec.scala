@@ -83,7 +83,7 @@ class DirectiveSpec extends AnyFlatSpec
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   
-  def invalid (input: String, error: String): InvalidBlock = InvalidElement(error, generatedSource(input)).asBlock
+  def invalid (input: String, error: String): InvalidBlock = InvalidBlock(error, generatedSource(input))
   
   def positiveInt (src: SourceFragment): Either[String, Int] = 
     try {

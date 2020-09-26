@@ -35,7 +35,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
   class DefaultRule (cursor: DocumentCursor) {
 
     val (errorBlock, autonumberConfig) = cursor.config.getOpt[nav.AutonumberConfig].fold(
-      error => (Some(InvalidElement(error.message, LineSource("", SourceCursor(""))).asBlock), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
+      error => (Some(InvalidBlock(error.message, LineSource("", SourceCursor("")))), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
       opt   => (None, opt.getOrElse(AutonumberConfig.defaults))
     )
     

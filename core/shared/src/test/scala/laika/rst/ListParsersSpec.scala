@@ -402,7 +402,7 @@ class ListParsersSpec extends AnyFlatSpec
       defListItem("term 1", p("aaa")),
       defListItem("term 2", p("bbb"))
     ))
-    Parsing (input) should produce (root(list, InvalidElement("unknown directive: foo", source(directive, input)).asBlock))
+    Parsing (input) should produce (root(list, InvalidBlock("unknown directive: foo", source(directive, input))))
   }
   
   it should "ignore subsequent bullet lists" in {

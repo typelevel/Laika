@@ -646,7 +646,7 @@ object Blocks extends BuilderContext[Block] {
     type Self = DirectiveInstance
     val typeName: String = "block"
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): Block = InvalidElement(message, source).asBlock
+    def createInvalidElement (message: String): Block = InvalidBlock(message, source)
     lazy val unresolvedMessage: String = s"Unresolved block directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
   
@@ -656,7 +656,7 @@ object Blocks extends BuilderContext[Block] {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Block =
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asBlock
+      InvalidBlock(s"Orphaned separator directive with name '${parsedResult.name}'", source)
     lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
 

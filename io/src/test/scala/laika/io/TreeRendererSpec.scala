@@ -182,7 +182,7 @@ class TreeRendererSpec extends IOWordSpec
 
     "collect errors from multiple documents" in {
       def invalidLink (num: Int): RootElement = 
-        root(InvalidElement(s"unresolved link reference: link$num", generatedSource(s"[link$num]")).asBlock)
+        root(InvalidBlock(s"unresolved link reference: link$num", generatedSource(s"[link$num]")))
       new HTMLRenderer {
         val input = DocumentTree(Root, List(
           Document(Root / "doc1", invalidLink(1)),

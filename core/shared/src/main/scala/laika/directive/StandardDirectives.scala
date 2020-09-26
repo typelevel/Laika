@@ -283,8 +283,7 @@ object StandardDirectives extends DirectiveRegistry {
         .leftMap(errors => s"One or more errors generating navigation: ${errors.toList.mkString(",")}")
     }
 
-    def resolve (cursor: DocumentCursor): Block =
-      eval(cursor).fold(error => InvalidElement(error, source).asBlock, identity)
+    def resolve (cursor: DocumentCursor): Block = eval(cursor).fold(InvalidBlock(_, source), identity)
 
     def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
 
