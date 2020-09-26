@@ -42,10 +42,12 @@ object DirectiveParsers {
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
-  def hoconReference[T] (f: (Key, Boolean) => T, e: InvalidElement => T): PrefixedParser[T] = 
-    ("${" ~> opt("?") ~ HoconParsers.concatenatedKey(NonEmptySet.one('}')).withSource <~ "}").map {
-      case opt ~ ((Right(key), _))  => f(key, opt.isEmpty)
-      case _ ~ ((Left(invalid), src)) => e(InvalidElement(s"Invalid HOCON reference: '$src': ${invalid.failure.toString}", s"$${$src}"))
+  def hoconReference[T] (f: (Key, Boolean, SourceFragment) => T, e: InvalidElement => T): PrefixedParser[T] = 
+    ("${" ~> opt("?") ~ HoconParsers.concatenatedKey(NonEmptySet.one('}')) <~ "}").context.map { ctx =>
+      ctx.result._2.fold(
+        invalid => e(InvalidElement(s"Invalid HOCON reference: '${ctx.source.input}': ${invalid.failure.toString}", ctx.source)),
+        key     => f(key, ctx.result._1.isEmpty, ctx.source)
+      )
     }
 
   /** Represents one part of a directive (an attribute or a body element).
@@ -131,7 +133,7 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.standalone(hoconReference(MarkupContextReference(_,_), _.asSpan))
+    SpanParser.standalone(hoconReference(MarkupContextReference(_,_,_), _.asSpan))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.recursive(rec => spanDirectiveParser(directives)(rec))
@@ -148,9 +150,9 @@ object SpanDirectiveParsers {
       else success(None)
     
     PrefixedParser('@') {
-      directiveParser(body, recParsers).withSource.map { case (result, source) =>
-          if (separators.contains(result.name)) Spans.SeparatorInstance(result, source)
-          else Spans.DirectiveInstance(directives.get(result.name), result, recParsers, source)
+      directiveParser(body, recParsers).context.map { ctx =>
+          if (separators.contains(ctx.result.name)) Spans.SeparatorInstance(ctx.result, ctx.source)
+          else Spans.DirectiveInstance(directives.get(ctx.result.name), ctx.result, recParsers, ctx.source)
       }
     }
   }
@@ -182,10 +184,12 @@ object BlockDirectiveParsers {
       else noBody
 
     PrefixedParser('@') {
-      directiveParser(body, recParsers, supportsCustomFence = true).withSource.map { case (result, source) =>
-        val trimmedSource = if (source.lastOption.contains('\n')) source.dropRight(1) else source
-        if (separators.contains(result.name)) Blocks.SeparatorInstance(result, trimmedSource)
-        else Blocks.DirectiveInstance(directives.get(result.name), result, recParsers, trimmedSource)
+      directiveParser(body, recParsers, supportsCustomFence = true).context.map { ctx =>
+        val trimmedSource = 
+          if (ctx.source.input.lastOption.contains('\n')) LineSource(ctx.source.input.dropRight(1), ctx.source) 
+          else ctx.source
+        if (separators.contains(ctx.result.name)) Blocks.SeparatorInstance(ctx.result, trimmedSource)
+        else Blocks.DirectiveInstance(directives.get(ctx.result.name), ctx.result, recParsers, trimmedSource)
       }
     }
   }

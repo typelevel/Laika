@@ -18,6 +18,7 @@ package laika.ast
 
 import cats.data.NonEmptySet
 import laika.config.{ConfigEncoder, ConfigValue}
+import laika.parse.SourceFragment
 
 /** The root element of a document tree.
   */
@@ -187,7 +188,7 @@ object Title extends SpanContainerCompanion {
   *  decoration type encountered is used for level 1, the second for level 2, and
   *  so on.
   */
-case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], options: Options = NoOpt) extends Block
+case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], source: SourceFragment, options: Options = NoOpt) extends Block
   with SpanContainer
   with Unresolved {
   type Self = DecoratedHeader
@@ -196,11 +197,14 @@ case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], op
   lazy val unresolvedMessage: String = s"Unresolved decorated header with decoration '${decoration.toString}'"
 }
 object DecoratedHeader {
+  
   /** Create an instance only containing a single Text span */
-  def apply(decoration: HeaderDecoration, text: String): DecoratedHeader = DecoratedHeader(decoration, Seq(Text(text)))
+  def apply(decoration: HeaderDecoration, source: SourceFragment, text: String): DecoratedHeader = 
+    DecoratedHeader(decoration, Seq(Text(text)), source)
 
   /** Create an instance containing a one or more spans */
-  def apply(decoration: HeaderDecoration, span: Span, spans: Span*): DecoratedHeader = DecoratedHeader(decoration, span +: spans)
+  def apply(decoration: HeaderDecoration, source: SourceFragment, span: Span, spans: Span*): DecoratedHeader = 
+    DecoratedHeader(decoration, span +: spans, source)
 }
 
 

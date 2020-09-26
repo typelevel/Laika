@@ -16,16 +16,18 @@
 
 package laika.ast
 
+import laika.parse.{SourceFragment}
+
 import scala.math.Ordered
 
 /** Represents an invalid element in any position, block, span or template.
   * Provides convenience converters to produce instances for any of these three positions.
   */
-case class InvalidElement (message: RuntimeMessage, source: String) {
+case class InvalidElement (message: RuntimeMessage, source: SourceFragment) {
 
-  def asBlock: InvalidBlock = InvalidBlock(message, LiteralBlock(source))
+  def asBlock: InvalidBlock = InvalidBlock(message, LiteralBlock(source.input))
 
-  def asSpan: InvalidSpan = InvalidSpan(message, Text(source))
+  def asSpan: InvalidSpan = InvalidSpan(message, Text(source.input))
 
   def asTemplateSpan: TemplateSpan = TemplateElement(asSpan)
 
@@ -33,7 +35,7 @@ case class InvalidElement (message: RuntimeMessage, source: String) {
 
 /** Companion for InvalidElement. */
 object InvalidElement {
-  def apply (message: String, source: String): InvalidElement =
+  def apply (message: String, source: SourceFragment): InvalidElement =
     apply(RuntimeMessage(MessageLevel.Error, message), source)
 }
 

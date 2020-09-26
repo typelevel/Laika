@@ -189,12 +189,15 @@ class StandardTextRolesSpec extends AnyFlatSpec
   }
 
   it should "be disabled by default" in {
-    val input = """.. role:: foo(raw)
-      | :format: AML BML CML
+    val role = """.. role:: foo(raw)
+                 | :format: AML BML CML""".stripMargin
+    val input = s"""$role
       |
       |some :foo:`text`""".stripMargin
-    val result = root(InvalidElement("unknown text role: raw", ".. role::foo(raw) \n:format: AML BML CML").asBlock,
-        p(Text("some "), InvalidElement("unknown text role: foo", "`text`").asSpan))
+    val result = root(
+      InvalidElement("unknown text role: raw", source(role, input)).asBlock,
+      p(Text("some "), InvalidElement("unknown text role: foo", source(":foo:`text`", input)).asSpan)
+    )
     parse(input) should be (result)
   }
   

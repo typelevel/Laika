@@ -135,6 +135,8 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
                           with DefaultParserHelpers[RootElement] {
 
     def directive: Blocks.Directive
+    
+    def input: String
 
     lazy val directiveSupport: ParserBundle = DirectiveSupport.withDirectives(Seq(directive, StandardDirectives.blockStyle), Nil, Nil, Nil).parsers
 
@@ -151,7 +153,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       )).rewriteBlock(root).asInstanceOf[RootElement]
     }
 
-    def invalid (input: String, error: String): InvalidBlock = InvalidElement(error, input).asBlock
+    def invalid (fragment: String, error: String): InvalidBlock = InvalidElement(error, source(fragment, input)).asBlock
 
   }
 
@@ -227,23 +229,23 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
   }
 
   it should "parse a directive with one required named string attribute" in {
-    val input = """aa
+    new BlockParser with RequiredNamedAttribute {
+      val input = """aa
         |
         |@:dir { name=foo }
         |
         |bb""".stripMargin
-    new BlockParser with RequiredNamedAttribute {
       Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
     }
   }
 
   it should "parse a directive with a named string attribute value in quotes" in {
-    val input = """aa
+    new BlockParser with RequiredNamedAttribute {
+      val input = """aa
         |
         |@:dir { name="foo bar" }
         |
         |bb""".stripMargin
-    new BlockParser with RequiredNamedAttribute {
       Parsing (input) should produce (root(p("aa"), p("foo bar"), p("bb")))
     }
   }

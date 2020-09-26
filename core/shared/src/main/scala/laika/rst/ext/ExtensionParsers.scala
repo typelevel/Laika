@@ -22,7 +22,7 @@ import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{BlockSource, Parser, SourceFragment}
+import laika.parse.{BlockSource, Failure, LineSource, Parser, ResultContext, SourceFragment, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
@@ -64,7 +64,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     
     ((prefix <~ ws) ~ spanDirectiveParser).map { 
       case name ~ InvalidDirective(msg, source, _) =>
-        InvalidElement(msg, source.replaceFirst(".. ",s".. |$name| ")).asBlock
+        InvalidElement(msg, LineSource(source.input.replaceFirst(".. ", s".. |$name| "), source)).asBlock
       case name ~ content => SubstitutionDefinition(name, content) 
     }
   }
@@ -85,12 +85,19 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     s => recursiveBlocks(DelimitedText.Undelimited.line.map(BlockSource(_))).parse(s).toEither
   
   private val recSpans: SourceFragment => Result[Seq[Span]] = s => recursiveSpans.parse(s).toEither
+
+  private def reverseWS: Parser[Int] = Parser { in =>
+    ws.parse(in.reverse).map(_.length) match {
+      case Success(result, _) => Success(result, in)
+      case Failure(msg, _, _) => Failure(msg, in)
+    }
+  }
   
   private def directive [E](provider: String => Option[DirectivePartBuilder[E]]): Parser[E] = {
     
-    val nameParser = simpleRefName <~ "::" ~ ws
+    val nameParser = reverseWS ~ simpleRefName <~ "::" ~ ws
     
-    def directiveParser [E] (builder: DirectivePartBuilder[E]): Parser[E] = {
+    def directiveParser [G] (builder: DirectivePartBuilder[G]): Parser[G] = {
       val builderAPI = new DefaultDirectiveParserBuilder
       val (parserBuilder, directivePart) = builder(builderAPI)
       parserBuilder.parser.evalMap { parts =>
@@ -98,20 +105,23 @@ class ExtensionParsers(recParsers: RecursiveParsers,
         directivePart.apply(parsed)
       }
     }
-    
-    nameParser >> { name => 
-      directive(provider(name.toLowerCase).map(directiveParser).getOrElse(failure(s"unknown directive: $name")), s"$name::")
+
+    nameParser.context >> { case ResultContext(wsCnt ~ name, source) => 
+      directive(provider(name.toLowerCase).map(directiveParser).getOrElse(failure(s"unknown directive: $name")), source, wsCnt)
     }
   }
   
-  private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span {
+  private case class InvalidDirective (msg: String, source: SourceFragment, options: Options = NoOpt) extends Block with Span {
     type Self = InvalidDirective
     def withOptions (options: Options): InvalidDirective = copy(options = options)
   }
   
-  private def directive [E](p: Parser[E], name: String): Parser[E] = p.handleErrorWith { f => 
-    indentedBlock().map { block =>
-      InvalidDirective(f.message, s".. $name " + block.input).asInstanceOf[E]
+  private def directive [E](p: Parser[E], nameSource: SourceFragment, wsCount: Int): Parser[E] = p.handleErrorWith { f => 
+    indentedBlock().context.map { ctx =>
+      val bodyInput = if (ctx.source.input.lastOption.contains('\n')) ctx.source.input.dropRight(1) else ctx.source.input
+      val reconstructedInput = ".." + (" " * wsCount) + nameSource.input + bodyInput
+      val reconstructedSource = LineSource(reconstructedInput, nameSource.root.consume((2 + wsCount) * -1))
+      InvalidDirective(f.message, reconstructedSource).asInstanceOf[E]
     }
   }
 
@@ -121,7 +131,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
    */
   lazy val roleDirective: Parser[Block] = {
     
-    val nameParser = "role::" ~ ws ~> simpleRefName ~ opt("(" ~> simpleRefName <~ ")")
+    val nameParser = reverseWS ~ ("role::" ~ ws ~> simpleRefName) ~ opt("(" ~> simpleRefName <~ ")")
     
     def directiveParser (name: String)(builder: RoleDirectivePartBuilder[String => Span]): Parser[Block] = {
       val delegate = new DefaultDirectiveParserBuilder
@@ -133,11 +143,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       }
     }
     
-    nameParser >> { case name ~ baseName =>
+    nameParser.context >> { case ResultContext(wsCnt ~ name ~ baseName, source) =>
       val base = baseName.getOrElse(defaultTextRole)
-      val fullName = s"role::$name" + (baseName map ("("+_+")") getOrElse "")
       directive(textRoles.get(base.toLowerCase).map(directiveParser(name))
-          .getOrElse(failure(s"unknown text role: $base")), fullName).map(replaceInvalidDirective)
+          .getOrElse(failure(s"unknown text role: $base")), source, wsCnt).map(replaceInvalidDirective)
     }
     
   }

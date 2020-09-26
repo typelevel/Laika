@@ -16,7 +16,6 @@
 
 package laika.parse.directive
 
-import cats.instances.string
 import laika.config.Key
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -46,44 +45,60 @@ class TemplateParsersSpec extends AnyFlatSpec
   
   
   "The context reference parser" should "parse a reference as the only template content" in {
-    
-    Parsing ("${document.content}") should produce (spans(TemplateContextReference(Key("document","content"), required = true)))
+    val input = "${document.content}"
+    Parsing (input) should produce (spans(TemplateContextReference(Key("document","content"), required = true, generatedSource(input))))
     
   }
   
   it should "parse a reference at the beginning of a template" in {
-    
-    Parsing ("${document.content} some text") should produce (spans(TemplateContextReference(Key("document","content"), required = true), t(" some text")))
-    
+    val ref = "${document.content}"
+    val input = s"$ref some text"
+    Parsing (input) should produce (spans(
+      TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
+      t(" some text")
+    ))
   }
   
   it should "parse a reference at the end of a template" in {
-    
-    Parsing ("some text ${document.content}") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true)))
+    val ref = "${document.content}"
+    val input = s"some text $ref"
+    Parsing (input) should produce (spans(
+      t("some text "), 
+      TemplateContextReference(Key("document","content"), required = true, source(ref, input))
+    ))
     
   }
   
   it should "parse a reference in the middle of a template" in {
-    
-    Parsing ("some text ${document.content} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = true), t(" some more")))
-    
+    val ref = "${document.content}"
+    val input = s"some text $ref some more"
+    Parsing (input) should produce (spans(
+      t("some text "), 
+      TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
+      t(" some more")
+    ))
   }
 
   it should "parse an optional reference" in {
-
-    Parsing ("some text ${?document.content} some more") should produce (spans(t("some text "), TemplateContextReference(Key("document","content"), required = false), t(" some more")))
-
+    val ref = "${?document.content}"
+    val input = s"some text $ref some more"
+    Parsing (input) should produce (spans(
+      t("some text "), 
+      TemplateContextReference(Key("document","content"), required = false, source(ref, input)), 
+      t(" some more")
+    ))
   }
 
   it should "detect an invalid reference" in {
-    
-    val errorMsg = """Invalid HOCON reference: 'document = content': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+    val errorMsg = """Invalid HOCON reference: '${document = content}': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
                     |
                     |some text ${document = content} some more
                     |                     ^""".stripMargin
 
-    Parsing ("some text ${document = content} some more") should produce (spans(t("some text "), 
-      TemplateElement(InvalidElement(errorMsg, "${document = content}").asSpan), 
+    val ref = "${document = content}"
+    val input = s"some text $ref some more"
+    Parsing (input) should produce (spans(t("some text "), 
+      TemplateElement(InvalidElement(errorMsg, source(ref, input)).asSpan), 
       t(" some more")
     ))
 

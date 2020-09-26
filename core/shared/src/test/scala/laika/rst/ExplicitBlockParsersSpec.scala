@@ -17,7 +17,6 @@
 package laika.rst
 
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
@@ -58,19 +57,23 @@ class ExplicitBlockParsersSpec extends AnyFlatSpec
   
   
   "The footnote parser" should "parse a footnote with autonumber label" in {
-    Parsing (".. [#] This is a footnote") should produce (root(FootnoteDefinition(Autonumber, List(p("This is a footnote")))))
+    val input = ".. [#] This is a footnote"
+    Parsing (input) should produce (root(FootnoteDefinition(Autonumber, List(p("This is a footnote")), generatedSource(input))))
   }
   
   it should "parse a footnote with autosymbol label" in {
-    Parsing (".. [*] This is a footnote") should produce (root(FootnoteDefinition(Autosymbol, List(p("This is a footnote")))))
+    val input = ".. [*] This is a footnote"
+    Parsing (input) should produce (root(FootnoteDefinition(Autosymbol, List(p("This is a footnote")), generatedSource(input))))
   }
   
   it should "parse a footnote with an autonumber named label" in {
-    Parsing (".. [#foo] This is a footnote") should produce (root(FootnoteDefinition(AutonumberLabel("foo"), List(p("This is a footnote")))))
+    val input = ".. [#foo] This is a footnote"
+    Parsing (input) should produce (root(FootnoteDefinition(AutonumberLabel("foo"), List(p("This is a footnote")), generatedSource(input))))
   }
   
   it should "parse a footnote with a numeric label" in {
-    Parsing (".. [17] This is a footnote") should produce (root(FootnoteDefinition(NumericLabel(17), List(p("This is a footnote")))))
+    val input = ".. [17] This is a footnote"
+    Parsing (input) should produce (root(FootnoteDefinition(NumericLabel(17), List(p("This is a footnote")), generatedSource(input))))
   }
   
   

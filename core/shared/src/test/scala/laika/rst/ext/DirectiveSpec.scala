@@ -83,8 +83,7 @@ class DirectiveSpec extends AnyFlatSpec
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   
-  def invalid (input: String, error: String): InvalidBlock =
-    InvalidElement(error, input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")).asBlock
+  def invalid (input: String, error: String): InvalidBlock = InvalidElement(error, generatedSource(input)).asBlock
   
   def positiveInt (src: SourceFragment): Either[String, Int] = 
     try {
@@ -554,10 +553,10 @@ class DirectiveSpec extends AnyFlatSpec
     Parsers.consumeAll(docWithTextRoles).parse(input) should produce (root (p("custom(9)")))
   }
   
-  it should "detect a defintion with a missing required field as invalid" in {
+  it should "detect a definition with a missing required field as invalid" in {
     val error = "missing required options: name"
     val input = """.. role::custom(role)"""
-    Parsing(input) should produce (root (invalid(input+" ",error)))
+    Parsing(input) should produce (root (invalid(input, error)))
   }
 
   

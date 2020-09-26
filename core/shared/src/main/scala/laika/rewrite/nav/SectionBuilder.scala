@@ -19,23 +19,23 @@ package laika.rewrite.nav
 import laika.ast._
 import laika.collection.Stack
 import laika.config.LaikaKeys
+import laika.parse.{LineSource, SourceCursor}
 import laika.rewrite.nav
 
 import scala.collection.mutable.ListBuffer
 
-/** Rewrite rules responsible for building the section structure
- *  of a document based on the header elements it contains and
- *  their level.
- * 
- * @author Jens Halm
- */
+/** Rewrite rules responsible for building the section structure of a document based on the header elements it contains
+  * and their level.
+  * 
+  * @author Jens Halm
+  */
 object SectionBuilder extends (DocumentCursor => RewriteRules) {
 
   
   class DefaultRule (cursor: DocumentCursor) {
 
     val (errorBlock, autonumberConfig) = cursor.config.getOpt[nav.AutonumberConfig].fold(
-      error => (Some(InvalidElement(error.message, "").asBlock), AutonumberConfig.defaults),
+      error => (Some(InvalidElement(error.message, LineSource("", SourceCursor(""))).asBlock), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
       opt   => (None, opt.getOrElse(AutonumberConfig.defaults))
     )
     

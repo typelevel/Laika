@@ -18,8 +18,9 @@ package laika.ast.helper
 
 import laika.ast._
 import laika.config.{Config, ConfigParser}
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
-trait ModelBuilder {
+trait ModelBuilder { self =>
 
   
   def spans (elements: Span*): List[Span] = elements.toList
@@ -51,23 +52,25 @@ trait ModelBuilder {
     
   }
   
-  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList)
+  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList, "", generatedSource)
   
-  class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String = "", source: String = "") {
+  class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String, source: SourceFragment) {
     
     def id (value: String): LinkRefBuilder = new LinkRefBuilder(content, value, source)
     
-    def source (value: String): LinkRefBuilder = new LinkRefBuilder(content, id, value)
+    def source (fragment: String, input: String): LinkRefBuilder = 
+      new LinkRefBuilder(content, id, self.source(fragment, input))
     
     def toLink = LinkIdReference(content, id, source)
      
   }
   
-  def imgRef (text: String, id: String, source: String = "") = ImageIdReference(text, id, source)
+  def imgRef (text: String, id: String) = ImageIdReference(text, id, generatedSource)
+  def imgRef (text: String, id: String, fragment: String, input: String) = ImageIdReference(text, id, source(fragment, input))
   
-  def citRef (label: String) = CitationReference(label, s"[$label]_")
+  def citRef (label: String, input: String) = CitationReference(label, source(s"[$label]_", input))
   
-  def fnRef (label: FootnoteLabel) = FootnoteReference(label, toSource(label))
+  def fnRef (label: FootnoteLabel, input: String) = FootnoteReference(label, source(toSource(label), input))
   
   def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
@@ -75,6 +78,15 @@ trait ModelBuilder {
     case AutonumberLabel(label) => s"[#$label]_"
     case NumericLabel(label) => s"[$label]_"
   }
+  
+  def source (fragment: String, root: String): SourceFragment = {
+    val offset = root.indexOf(fragment)
+    LineSource(fragment, SourceCursor(root).consume(offset))
+  }
+
+  def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
+
+  def generatedSource: SourceFragment = generatedSource("")
   
   private val defaultBullet = StringBullet("*")
   

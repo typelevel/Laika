@@ -45,7 +45,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
     def treeWithTwoSubtrees (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentTree = {
-      val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false)))
+      val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false, generatedSource)))
       def targetRoot (docNum: Int) = {
         val msgNode = if (includeRuntimeMessage) Seq(RuntimeMessage(MessageLevel.Error, s"Message $docNum")) else Nil
         root(Paragraph(refNode ++ msgNode))

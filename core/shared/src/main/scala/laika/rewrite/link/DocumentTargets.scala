@@ -88,7 +88,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
           case LinkSource(FootnoteReference(_, _, opt), _) => FootnoteLink(docId, displayId, opt)
         }
         val replacer = TargetReplacer.lift {
-          case FootnoteDefinition(_, content, opt) => Footnote(displayId, content, opt + Id(docId))
+          case FootnoteDefinition(_, content, _, opt) => Footnote(displayId, content, opt + Id(docId))
         }
         TargetResolver.create(selector, resolver, replacer)
 
@@ -96,11 +96,11 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
         linkDefinitionResolver(selector, ld.target, ld.title)
 
-      case h @ DecoratedHeader(deco,_,_) =>
+      case h @ DecoratedHeader(deco,_,_,_) =>
         val selector = TargetIdSelector(slugBuilder(h.extractText))
         val level = levels.levelFor(deco)
         val finalHeader = TargetReplacer.lift {
-          case DecoratedHeader(_, content, opt) => Header(level, content, opt + Id(selector.id))
+          case DecoratedHeader(_, content, _, opt) => Header(level, content, opt + Id(selector.id))
         }
         TargetResolver.create(selector, internalResolver(selector), finalHeader, 10 - level)
       

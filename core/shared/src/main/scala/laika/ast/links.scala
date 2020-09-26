@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import laika.parse.SourceFragment
+
 /** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
   * removed by the rewrite rule that resolves link and image references.
   */
@@ -32,12 +34,12 @@ case class LinkAlias (id: String, target: String, options: Options = NoOpt) exte
   def withOptions (options: Options): LinkAlias = copy(options = options)
 }
 
-/** A footnote definition that needs to be resolved to a final footnote
- *  by a rewrite rule based on the label type.
+/** A footnote definition that needs to be resolved to a final footnote by a rewrite rule based on the label type.
  */
-case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], options: Options = NoOpt) extends Definition
-                                                                                                    with BlockContainer
-                                                                                                    with Unresolved {
+case class FootnoteDefinition (label: FootnoteLabel, 
+                               content: Seq[Block], 
+                               source: SourceFragment, 
+                               options: Options = NoOpt) extends Definition with BlockContainer with Unresolved {
   type Self = FootnoteDefinition
   def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
   def withOptions (options: Options): FootnoteDefinition = copy(options = options)
@@ -127,7 +129,7 @@ case class Image (target: Target,
 }
 
 object Image {
-  def create (url: String, source: String, width: Option[Length] = None,
+  def create (url: String, source: SourceFragment, width: Option[Length] = None,
               height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
     Target.parseInternal(url) match {
       case Right(external) => Image(external, width, height, alt, title)
@@ -154,7 +156,7 @@ object ParsedLink {
   /** Creates a new span that acts as a link reference based on the specified
     * URL which will be parsed and interpreted as an internal or external target.
     */
-  def create (linkText: Seq[Span], url: String, source: String, title: Option[String] = None): Span =
+  def create (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
     Target.parseInternal(url) match {
       case Right(external) => SpanLink(linkText, external, title)
       case Left(internal)  => LinkPathReference(linkText, internal.path, source, title)
@@ -188,7 +190,7 @@ trait PathReference extends Reference {
   */
 case class LinkPathReference(content: Seq[Span],
                              path: RelativePath,
-                             source: String,
+                             source: SourceFragment,
                              title: Option[String] = None,
                              options: Options = NoOpt) extends PathReference with SpanContainer {
   type Self = LinkPathReference
@@ -204,7 +206,7 @@ case class LinkPathReference(content: Seq[Span],
   * relative path references in the process.
   */
 case class ImagePathReference (path: RelativePath,
-                               source: String,
+                               source: SourceFragment,
                                width: Option[Length] = None,
                                height: Option[Length] = None,
                                alt: Option[String] = None,
@@ -219,7 +221,7 @@ case class ImagePathReference (path: RelativePath,
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class ImageIdReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference {
+case class ImageIdReference (text: String, id: String, source: SourceFragment, options: Options = NoOpt) extends Reference {
   type Self = ImageIdReference
   def withOptions (options: Options): ImageIdReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to image definition with id '$id'"
@@ -228,7 +230,7 @@ case class ImageIdReference (text: String, id: String, source: String, options: 
 /** A reference to a footnote with a matching label.  Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class FootnoteReference (label: FootnoteLabel, source: String, options: Options = NoOpt) extends Reference {
+case class FootnoteReference (label: FootnoteLabel, source: SourceFragment, options: Options = NoOpt) extends Reference {
   type Self = FootnoteReference
   def withOptions (options: Options): FootnoteReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to footnote with label '$label'"
@@ -237,7 +239,7 @@ case class FootnoteReference (label: FootnoteLabel, source: String, options: Opt
 /** A reference to a citation with a matching label.  Only part of the
  *  raw document tree and then removed by the rewrite rule that resolves link and image references.
  */
-case class CitationReference (label: String, source: String, options: Options = NoOpt) extends Reference {
+case class CitationReference (label: String, source: SourceFragment, options: Options = NoOpt) extends Reference {
   type Self = CitationReference
   def withOptions (options: Options): CitationReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to citation with label '$label'"
@@ -250,7 +252,7 @@ case class CitationReference (label: String, source: String, options: Options = 
   * Search for a matching target happens recursively, from the current document, 
   * to the current tree (directory) upwards to the root tree.
   */
-case class LinkIdReference (content: Seq[Span], ref: String, source: String, options: Options = NoOpt) extends Reference
+case class LinkIdReference (content: Seq[Span], ref: String, source: SourceFragment, options: Options = NoOpt) extends Reference
   with SpanContainer {
   type Self = LinkIdReference
   def withContent (newContent: Seq[Span]): LinkIdReference = copy(content = newContent)

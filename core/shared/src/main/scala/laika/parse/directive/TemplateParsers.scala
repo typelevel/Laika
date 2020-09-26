@@ -33,7 +33,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   lazy val spanParsers: Seq[PrefixedParser[Span]] = Seq(
-    hoconReference(TemplateContextReference(_,_), _.asTemplateSpan),
+    hoconReference(TemplateContextReference(_,_,_), _.asTemplateSpan),
     templateDirective,
     "\\" ~> oneChar.map(Text(_))
   )
@@ -49,9 +49,9 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     val separators = directives.values.flatMap(_.separators).toSet
     
     PrefixedParser('@') {
-      directiveParser(body, this).withSource.map { case (result, source) =>
-        if (separators.contains(result.name)) Templates.SeparatorInstance(result, source)
-        else Templates.DirectiveInstance(directives.get(result.name), result, this, source) // TODO - specialize for template span parser
+      directiveParser(body, this).context.map { ctx =>
+        if (separators.contains(ctx.result.name)) Templates.SeparatorInstance(ctx.result, ctx.source)
+        else Templates.DirectiveInstance(directives.get(ctx.result.name), ctx.result, this, ctx.source)
       }
     }
   }

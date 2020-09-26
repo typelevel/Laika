@@ -357,6 +357,21 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Provides the result of this parser together with the full context: its consumed source string and
+    * its position within the root input.
+    * 
+    * This is required for parsers that create AST nodes that need to be resolved in a rewrite step
+    * and need to report the source location in case of failure.
+    */
+  def context: Parser[ResultContext[T]] = Parser { in =>
+    parse(in) match {
+      case f: Failure => f
+      case Success(result, next) => 
+        val consumed = in.capture(next.offset - in.offset)
+        Success(new ResultContext[T](result, LineSource(consumed, in)), next)
+    }
+  }
+
   /** Groups the result of the parser and the source string
     * that it successfully parsed into a tupled result. 
     */
@@ -385,6 +400,8 @@ abstract class Parser[+T] {
   def count: Parser[Int] = withSource.map(_._2.length)
 
 }
+
+case class ResultContext[+T] (result: T, source: SourceFragment)
 
 /** Companion factory for creating new parser instances.
   */

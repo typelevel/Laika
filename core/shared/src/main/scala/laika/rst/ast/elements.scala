@@ -17,6 +17,7 @@
 package laika.rst.ast
 
 import laika.ast._
+import laika.parse.SourceFragment
 
 
 /** A two-column table-like structure used for bibliographic fields or directive options.
@@ -101,10 +102,9 @@ case class SubstitutionDefinition (name: String, content: Span, options: Options
   *  This type of element will only temporarily be part of the document tree and replaced
   *  by the content of the substitution definition in a rewrite step.
   */
-case class SubstitutionReference (name: String, options: Options = NoOpt) extends Reference {
+case class SubstitutionReference (name: String, source: SourceFragment, options: Options = NoOpt) extends Reference {
   type Self = SubstitutionReference
   def withOptions (options: Options): SubstitutionReference = copy(options = options)
-  val source = s"|$name|"
   lazy val unresolvedMessage: String = s"Unresolved substitution reference with name '$name'"
 }
 
@@ -129,7 +129,7 @@ case class Underline (char: Char) extends HeaderDecoration
   *  In a post-processing step this text will be replaced by the result of calling
   *  the corresponding role function.
   */
-case class InterpretedText (role: String, content: String, source: String, options: Options = NoOpt) extends Reference with TextContainer {
+case class InterpretedText (role: String, content: String, source: SourceFragment, options: Options = NoOpt) extends Reference with TextContainer {
   type Self = InterpretedText
   def withOptions (options: Options): InterpretedText = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved interpreted text with role '$role'"
@@ -146,10 +146,9 @@ case class CustomizedTextRole (name: String, apply: String => Span, options: Opt
 }
 
 /** Temporary element representing a file inclusion.
-  *  The path is interpreted as relative to the path of the processed
-  *  document if it is not an absolute path.
+  * The path is interpreted as relative to the path of the processed document if it is not an absolute path.
   */
-case class Include (path: String, options: Options = NoOpt) extends Block with BlockResolver {
+case class Include (path: String, source: SourceFragment, options: Options = NoOpt) extends Block with BlockResolver {
   
   type Self = Include
   def withOptions (options: Options): Include = copy(options = options)
@@ -157,7 +156,7 @@ case class Include (path: String, options: Options = NoOpt) extends Block with B
   def resolve (cursor: DocumentCursor): Block =
     cursor.parent.target.selectDocument(path) match {
       case Some(target) => BlockSequence(target.content.content)
-      case None         => InvalidElement(s"Unresolvable path reference: $path", s".. include:: $path").asBlock
+      case None         => InvalidElement(s"Unresolvable path reference: $path", source).asBlock
     }
 
   lazy val unresolvedMessage: String = s"Unresolved file inclusion with path '$path'"
@@ -165,7 +164,7 @@ case class Include (path: String, options: Options = NoOpt) extends Block with B
 
 /** Generates a table of contents element inside a topic.
   */
-case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with BlockResolver {
+case class Contents (title: String, source: SourceFragment, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with BlockResolver {
   
   type Self = Contents
   def withOptions (options: Options): Contents = copy(options = options)

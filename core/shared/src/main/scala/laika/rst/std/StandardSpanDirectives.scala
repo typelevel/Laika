@@ -56,10 +56,10 @@ class StandardSpanDirectives {
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
    */
   lazy val date: DirectivePartBuilder[Span] = {
-    optArgument(withWS = true) map { pattern => 
+    optArgument(withWS = true).evalMap { pattern => 
       PlatformDateFormat.format(new Date, pattern.getOrElse("yyyy-MM-dd")).fold(
-        msg => InvalidElement(s"Unable to format date: $msg", "date::" + pattern.fold("")(" " + _)).asSpan,
-        Text(_)
+        msg => Left(s"Unable to format date: $msg"),
+        date => Right(Text(date))
       )
     } 
   }

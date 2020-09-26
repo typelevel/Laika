@@ -19,7 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}
-import laika.parse.SourceFragment
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers.anyChars
 import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
@@ -89,7 +89,7 @@ class StandardBlockDirectives {
       val i = value.input.toInt
       if (i > 0) Right(i) else Left(s"Not a posivitve number: $i")
     } catch {
-      case e: NumberFormatException => Left(s"Not a number: $value")
+      case _: NumberFormatException => Left(s"Not a number: $value")
     }
 
   /** The compound directive,
@@ -161,7 +161,7 @@ class StandardBlockDirectives {
   /** The title directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
    */
-  lazy val titleDirective = argument() map (EmbeddedConfigValue(LaikaKeys.title.toString, _))
+  lazy val titleDirective: DirectivePartBuilder[EmbeddedConfigValue] = argument().map(EmbeddedConfigValue(LaikaKeys.title.toString, _))
   
   /** The meta directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#meta]] for details.
@@ -174,7 +174,7 @@ class StandardBlockDirectives {
     case FieldList(fields,_) :: Nil => 
       val values = fields map { field => Field(
         SpanSequence(field.name).extractText,
-        StringValue(field.content collect { case p: Paragraph => p.extractText } mkString),
+        StringValue(field.content.collect { case p: Paragraph => p.extractText }.mkString),
         Origin.root
       )}
       EmbeddedConfigValue("meta", ObjectValue(values))
@@ -204,7 +204,7 @@ class StandardBlockDirectives {
   
   lazy val contents: DirectivePartBuilder[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {
     case title ~ depth ~ local ~ style => 
-      Contents(title.getOrElse("Contents"), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style))
+      Contents(title.getOrElse("Contents"), LineSource("", SourceCursor("")), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style)) // TODO - pass actual source
   }
   
   /** The include directive,
@@ -218,7 +218,7 @@ class StandardBlockDirectives {
    *  references the previously parsed node tree. This is both simpler and more efficient when the same
    *  file gets included in multiple places.
    */
-  lazy val include: DirectivePartBuilder[Block] = argument() map (Include(_))
+  lazy val include: DirectivePartBuilder[Block] = argument().map(Include(_, LineSource("", SourceCursor("")))) // TODO - pass actual source
   
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
@@ -305,7 +305,7 @@ class StandardBlockDirectives {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
       NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq:_*)) match {
         case Some(set) => RawContent(set, content.input)
-        case None      => InvalidElement("no format specified", "").asBlock // TODO - pass source string
+        case None      => InvalidElement("no format specified", LineSource("", SourceCursor(""))).asBlock // TODO - pass actual source
       }
     } 
   }

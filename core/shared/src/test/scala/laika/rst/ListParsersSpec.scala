@@ -389,19 +389,20 @@ class ListParsersSpec extends AnyFlatSpec
   }
   
   it should "ignore subsequent directives" in {
-    val input = """term 1
+    val directive = """.. foo::
+                      | :name: value""".stripMargin
+    val input = s"""term 1
       | aaa
       |
       |term 2
       | bbb
       |
-      |.. foo::
-      | :name: value""".stripMargin
+      |$directive""".stripMargin
     val list = DefinitionList(Seq(
       defListItem("term 1", p("aaa")),
       defListItem("term 2", p("bbb"))
     ))
-    Parsing (input) should produce (root(list, InvalidElement("unknown directive: foo", ".. foo:: \n:name: value").asBlock))
+    Parsing (input) should produce (root(list, InvalidElement("unknown directive: foo", source(directive, input)).asBlock))
   }
   
   it should "ignore subsequent bullet lists" in {
@@ -437,20 +438,21 @@ class ListParsersSpec extends AnyFlatSpec
   }
   
   it should "ignore subsequent headers with overline" in {
-    val input = """term 1
+    val header = """########
+                   | Header
+                   |########""".stripMargin
+    val input = s"""term 1
       | aaa
       |
       |term 2
       | bbb
       |
-      |########
-      | Header
-      |########""".stripMargin
+      |$header""".stripMargin
     val list = DefinitionList(Seq(
       defListItem("term 1", p("aaa")),
       defListItem("term 2", p("bbb"))
     ))
-    Parsing (input) should produce (root(list, DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")))))
+    Parsing (input) should produce (root(list, DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), source(header, input))))
   }
   
   

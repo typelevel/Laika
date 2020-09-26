@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast.Path._
-import laika.ast.RelativePath.{CurrentTree, Parent}
+import laika.ast.RelativePath.Parent
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
@@ -32,7 +32,7 @@ class CrossReferenceSpec extends AnyFlatSpec
   
   trait TreeModel {
     def rootWithLink (text: String, target: InternalTarget): RootElement = rootElement(p(SpanLink(List(Text(text)), target)))
-    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkPathReference(List(Text(text)), RelativePath.parse(id), s"[$id]")))
+    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkPathReference(List(Text(text)), RelativePath.parse(id), generatedSource)))
     def rootWithTarget (id: String): RootElement = rootElement(InternalLinkTarget(Id(id)))
     def rootElement (b: Block): RootElement = root(p("A"), b, p("B"))
 

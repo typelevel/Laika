@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import laika.parse.SourceFragment
+
 /** The base class for all Elements forming the document tree.
   * Usually not extended directly, instead either `Span` or `Block` should be picked as the base type 
   * for new element types.
@@ -110,6 +112,12 @@ trait Hidden extends Element
   */
 trait Unresolved extends Element {
 
+  /** The fragment from the input source that produced this element.
+    * Can be used to report the line of the error or to render a fallback that simply renders back
+    * the consumed input.
+    */
+  def source: SourceFragment
+  
   /** An error message to display when this element remain unresolved until after the final
     * AST transformation step.
     */
@@ -126,13 +134,12 @@ trait Invalid[+E <: Element] extends Element {
 
 /** The base type for all reference elements.
   *
-  *  A reference points to some other node in the document tree and needs
-  *  to be resolved and replaced by a rewrite rule before rendering.
-  *  Therefore none of the available renderers include logic for dealing with references.
+  * A reference points to some other node in the document tree and needs
+  * to be resolved and replaced by a rewrite rule before rendering.
+  * Therefore none of the available renderers include logic for dealing with references.
   */
 trait Reference extends Span with Unresolved {
   type Self <: Reference
-  def source: String
 }
 
 /** Represents a definition that can be used to resolve references.

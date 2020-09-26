@@ -95,7 +95,7 @@ trait BuilderContext[E <: Element] {
 
   /** The context of a directive during execution.
     */
-  case class DirectiveContext (content: DirectiveContent, parser: Parser, cursor: DocumentCursor) {
+  case class DirectiveContext (content: DirectiveContent, parser: Parser, cursor: DocumentCursor, source: SourceFragment) {
 
     val body: Option[BodyContent] = content.body
     
@@ -197,13 +197,15 @@ trait BuilderContext[E <: Element] {
     def directive: Option[Directive]
     
     def parser: Parser
+    
+    def source: SourceFragment
 
     def createInvalidElement (message: String): E
 
     def resolve (cursor: DocumentCursor): E = {
 
       val factory: Option[DirectiveContent => Result[E]] = directive.map { dir =>
-        content => dir(DirectiveContext(content, parser, cursor))
+        content => dir(DirectiveContext(content, parser, cursor, source))
       }
 
       process(cursor, factory)
@@ -418,16 +420,19 @@ trait BuilderContext[E <: Element] {
     def empty [T] (result: T): DirectivePart[T] = part(_ => Right(result))
 
     /** Indicates that access to the document cursor is required.
-      * This may be required if the directive relies on information
-      * from the document structure, its title or the parent tree
-      * it is contained in.
-      *
-      * Use of this function causes the directive to be processed in a later
-      * rewrite step as the document cursor is not yet fully populated in
-      * the initial rewrite step. But this is an implementation detail
-      * you normally do not need to deal with.
+      * This may be required if the directive relies on information from the document structure, 
+      * its title or the parent tree it is contained in.
       */
     def cursor: DirectivePart[DocumentCursor] = part(c => Right(c.cursor))
+
+    /** Indicates that access to the source of the directive is required.
+      * This may be required if the directive needs to produce instances of `InvalidElement` for error scenarios,
+      * which requires passing the source.
+      *
+      * This should normally be a rare requirement, as it is more convenient to use `evalMap` on the directive
+      * builder and pass simple strings describing any error and let the library insert the corresponding source.
+      */
+    def source: DirectivePart[SourceFragment] = part(c => Right(c.source))
 
   }
 
@@ -603,7 +608,7 @@ object Spans extends BuilderContext[Span] {
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
                                 parser: RecursiveSpanParsers,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends SpanResolver with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "span"
@@ -613,7 +618,7 @@ object Spans extends BuilderContext[Span] {
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends Span with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
@@ -636,7 +641,7 @@ object Blocks extends BuilderContext[Block] {
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
                                 parser: RecursiveParsers,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends BlockResolver with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "block"
@@ -646,7 +651,7 @@ object Blocks extends BuilderContext[Block] {
   }
   
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends Block with SeparatorInstanceBase with BlockResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
@@ -673,7 +678,7 @@ object Templates extends BuilderContext[TemplateSpan] {
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,
                                 parser: RecursiveSpanParsers,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends SpanResolver with TemplateSpan with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "template"
@@ -683,7 +688,7 @@ object Templates extends BuilderContext[TemplateSpan] {
   }
 
   case class SeparatorInstance (parsedResult: ParsedDirective,
-                                source: String,
+                                source: SourceFragment,
                                 options: Options = NoOpt) extends TemplateSpan with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)

@@ -17,6 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast._
+import laika.parse.SourceFragment
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
 import laika.rst.ext.TextRoles.TextRole
 
@@ -30,29 +31,29 @@ import laika.rst.ext.TextRoles.TextRole
  */
 class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => laika.ast.RewriteRules) {
 
-  val baseRoleElements: Map[String, String => Span] = textRoles map { role => (role.name, role.default) } toMap
+  val baseRoleElements: Map[String, String => Span] = textRoles.map { role => (role.name, role.default) }.toMap
 
   class DefaultRules (cursor: DocumentCursor) {
 
     val substitutions: Map[String, Span] = cursor.target.content.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
-    } toMap
+    }.toMap
     
-    val textRoles: Map[String, String => Span] = (cursor.target.content.collect {
+    val textRoles: Map[String, String => Span] = cursor.target.content.collect {
       case CustomizedTextRole(id,f,_) => (id,f)                                   
-    } toMap) ++ baseRoleElements
+    }.toMap ++ baseRoleElements
 
-    def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
+    def invalidSpan (message: String, source: SourceFragment): InvalidSpan = InvalidElement(message, source).asSpan
       
     /** Function providing the default rewrite rules when passed a document instance.
      */
     val rewrite: laika.ast.RewriteRules = laika.ast.RewriteRules.forSpans {
           
-      case SubstitutionReference(id, _) =>
-        Replace(substitutions.getOrElse(id, invalidSpan(s"unknown substitution id: $id", s"|$id|")))
+      case SubstitutionReference(id, source, _) =>
+        Replace(substitutions.getOrElse(id, invalidSpan(s"unknown substitution id: $id", source)))
         
-      case InterpretedText(role, text, _, _) =>
-        Replace(textRoles.get(role).fold[Span](invalidSpan(s"unknown text role: $role", s"`$text`"))(_(text)))
+      case InterpretedText(role, text, source, _) =>
+        Replace(textRoles.get(role).fold[Span](invalidSpan(s"unknown text role: $role", source))(_(text)))
         
     }
   }

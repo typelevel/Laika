@@ -18,6 +18,7 @@ package laika.ast
 
 import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.TemplateRewriter
 
@@ -55,7 +56,7 @@ trait BlockResolver extends Block with Unresolved {
  *  - `config`: all configuration values for the current document,
  *    including those inherited from parent trees
  */
-abstract class ContextReference[T <: Span] (ref: Key) extends SpanResolver {
+abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) extends SpanResolver {
 
   def result (value: ConfigResult[Option[ConfigValue]]): T
 
@@ -67,7 +68,7 @@ abstract class ContextReference[T <: Span] (ref: Key) extends SpanResolver {
     }
   }
 
-  private def error(message: String): InvalidElement = InvalidElement(message, "${"+ref+"}")
+  private def error(message: String): InvalidElement = InvalidElement(message, source)
   protected def missing: InvalidElement = error(s"Missing required reference: '$ref'")
   protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$ref': ${cError.message}")
   protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$ref': " +
@@ -76,7 +77,8 @@ abstract class ContextReference[T <: Span] (ref: Key) extends SpanResolver {
 
 /** A context reference specifically for use in template documents.
  */
-case class TemplateContextReference (ref: Key, required: Boolean, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+case class TemplateContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) 
+    extends ContextReference[TemplateSpan](ref, source) with TemplateSpan {
   type Self = TemplateContextReference
   
   def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
@@ -96,7 +98,7 @@ case class TemplateContextReference (ref: Key, required: Boolean, options: Optio
 
 /** A context reference specifically for use in markup documents.
  */
-case class MarkupContextReference (ref: Key, required: Boolean, options: Options = NoOpt) extends ContextReference[Span](ref) {
+case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) extends ContextReference[Span](ref, source) {
   type Self = MarkupContextReference
 
   def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
@@ -210,7 +212,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true))
+  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, LineSource("", SourceCursor("")))) // TODO - might need GeneratedSource type
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.

@@ -182,7 +182,7 @@ class TreeRendererSpec extends IOWordSpec
 
     "collect errors from multiple documents" in {
       def invalidLink (num: Int): RootElement = 
-        root(InvalidElement(s"unresolved link reference: link$num", s"[link$num]").asBlock)
+        root(InvalidElement(s"unresolved link reference: link$num", generatedSource(s"[link$num]")).asBlock)
       new HTMLRenderer {
         val input = DocumentTree(Root, List(
           Document(Root / "doc1", invalidLink(1)),
@@ -209,7 +209,11 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to HTML using a custom template in the root directory" in {
       new HTMLRenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(
+          t("["), 
+          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          t("]")
+        ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
@@ -254,7 +258,11 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to HTML using a custom template in an extension bundle" in {
       new HTMLRenderer {
-        val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
+        val template = TemplateRoot(
+          t("["),
+          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          t("]")
+        )
         val inputs = new TestThemeBuilder.Inputs {
           def build[F[_]: Sync: Runtime] = InputTree[F]
             .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
@@ -306,7 +314,11 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forEPUB, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forEPUB, TemplateRoot(
+          t("["),
+          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          t("]")
+        ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
@@ -317,7 +329,11 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in a theme" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]"))
+        val template = TemplateRoot(
+          t("["),
+          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          t("]")
+        )
         val inputs = new TestThemeBuilder.Inputs {
           def build[F[_]: Sync: Runtime] = InputTree[F]
             .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
@@ -348,7 +364,11 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to XSL-FO using a custom template" in {
       new FORenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forFO, TemplateRoot(t("["), TemplateContextReference(CursorKeys.documentContent, required = true), t("]")))
+        val template = TemplateDocument(DefaultTemplatePath.forFO, TemplateRoot(
+          t("["),
+          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          t("]")
+        ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
         val expected = s"""[${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin

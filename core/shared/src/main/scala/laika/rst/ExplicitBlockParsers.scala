@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.Parser
+import laika.parse.{Failure, LineSource, Parser, ResultContext, Success}
 import laika.rst.ast._
 import BaseParsers._
 import laika.parse.text.PrefixedParser
@@ -54,9 +54,22 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
    */
   lazy val footnote: Parser[FootnoteDefinition] = {
-    val prefix = "[" ~> footnoteLabel <~ "]" ~ ws
+
+    def reverseWS: Parser[Int] = Parser { in =>
+      ws.parse(in.reverse).map(_.length) match {
+        case Success(result, _) => Success(result, in)
+        case Failure(msg, _, _) => Failure(msg, in)
+      }
+    }
     
-    (prefix ~ recursiveBlocks(indentedBlock())).mapN(FootnoteDefinition(_, _))
+    val prefix = reverseWS ~ ("[" ~> footnoteLabel <~ "]" ~ ws)
+    
+    (prefix ~ recursiveBlocks(indentedBlock())).context.map { case ResultContext(wsCount ~ label ~ content, src) =>
+      val bodyInput = if (src.input.lastOption.contains('\n')) src.input.dropRight(1) else src.input
+      val reconstructedInput = ".." + (" " * wsCount) + bodyInput
+      val reconstructedSource = LineSource(reconstructedInput, src.root.consume((2 + wsCount) * -1))
+      FootnoteDefinition(label, content, reconstructedSource)
+    }
   }
   
   /** Parses a citation.

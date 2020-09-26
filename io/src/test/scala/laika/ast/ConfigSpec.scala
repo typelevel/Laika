@@ -179,10 +179,11 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithMissingRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
+      val msg = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
       val expected = root(
         TemplateRoot(
           TemplateString("<h1>"),
-          InvalidElement(RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'"), "${foox}").asTemplateSpan,
+          InvalidElement(msg, source("${foox}", Contents.templateWithMissingRef)).asTemplateSpan,
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")

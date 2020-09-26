@@ -20,6 +20,7 @@ import cats.implicits._
 import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin}
+import laika.parse.{LineSource, SourceCursor}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.Selections
 
@@ -28,8 +29,10 @@ import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
 
-  private val defaultTemplateRoot: TemplateRoot = 
-    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true))
+  private val defaultTemplateRoot: TemplateRoot = {
+    val src = s"$${${CursorKeys.documentContent}}"
+    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, LineSource(src, SourceCursor(src))))
+  }
   
   private def defaultTemplate (format: String): TemplateDocument = 
     TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
@@ -144,16 +147,16 @@ trait TemplateRewriter {
       case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
       case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asBlock)
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, unresolved.source).asBlock)
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
-      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asSpan)
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, unresolved.source).asSpan)
       case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
-      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, "<unknown source>").asTemplateSpan)
+      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, unresolved.source).asTemplateSpan)
     }
     
     def asTemplateSpan (span: Span) = span match {

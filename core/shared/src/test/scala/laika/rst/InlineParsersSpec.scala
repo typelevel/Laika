@@ -16,7 +16,6 @@
 
 package laika.rst
 
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
@@ -40,17 +39,22 @@ class InlineParsersSpec extends AnyFlatSpec
   val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser
 
 
-  def subst (name: String) = SubstitutionReference(name)
-
-  def pLinkRef (id: String, text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), id, s"`$text`_")
-
-  def pLinkRef (id: String): LinkIdReference = pLinkRef(id,id)
+  trait RefBuilder {
+    
+    def input: String
+    
+    def subst (name: String) = SubstitutionReference(name, source(s"|$name|", input))
   
-  def anonPLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", s"`$text`__")
+    def pLinkRef (id: String, text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), id, source(s"`$text`_", input))
   
-  def linkRef (id: String): LinkIdReference = LinkIdReference(Seq(Text(id)), id, id+"_")
-  
-  def anonLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", text+"__")
+    def pLinkRef (id: String): LinkIdReference = pLinkRef(id,id)
+    
+    def anonPLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", source(s"`$text`__", input))
+    
+    def linkRef (id: String): LinkIdReference = LinkIdReference(Seq(Text(id)), id, source(id+"_", input))
+    
+    def anonLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", source(text+"__", input))
+  }
   
   
   
@@ -59,24 +63,29 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   
-  "The markup recognition rules" should "recognize markup surrounded by whitespace" in {
-    Parsing ("some |replaced| text") should produce (spans(Text("some "), subst("replaced"), Text(" text")))
+  "The markup recognition rules" should "recognize markup surrounded by whitespace" in new RefBuilder {
+    val input = "some |replaced| text"
+    Parsing (input) should produce (spans(Text("some "), subst("replaced"), Text(" text")))
   }
 
-  it should "recognize markup surrounded by punctuation" in {
-    Parsing ("some (|replaced|) text") should produce (spans(Text("some ("), subst("replaced"), Text(") text")))
+  it should "recognize markup surrounded by punctuation" in new RefBuilder {
+    val input = "some (|replaced|) text"
+    Parsing (input) should produce (spans(Text("some ("), subst("replaced"), Text(") text")))
   }
   
-  it should "recognize markup at the start of the input" in {
-    Parsing ("|replaced| text") should produce (spans(subst("replaced"), Text(" text")))
+  it should "recognize markup at the start of the input" in new RefBuilder {
+    val input = "|replaced| text"
+    Parsing (input) should produce (spans(subst("replaced"), Text(" text")))
   }
   
-  it should "recognize markup at the end of the input" in {
-    Parsing ("text |replaced|") should produce (spans(Text("text "), subst("replaced")))
+  it should "recognize markup at the end of the input" in new RefBuilder {
+    val input = "text |replaced|"
+    Parsing (input) should produce (spans(Text("text "), subst("replaced")))
   }
   
-  it should "recognize markup at the end and the end of the input" in {
-    Parsing ("|replaced|") should produce (spans(subst("replaced")))
+  it should "recognize markup at the end and the end of the input" in new RefBuilder {
+    val input = "|replaced|"
+    Parsing (input) should produce (spans(subst("replaced")))
   }
   
   it should "ignore markup surrounded by characters (rules 1 and 4)" in {
@@ -99,8 +108,9 @@ class InlineParsersSpec extends AnyFlatSpec
     Parsing ("some (|)replaced| text") should produce (spans(Text("some (|)replaced| text")))
   }
   
-  it should "recognize markup when preceding and following characters are escaped" in {
-    Parsing ("""some\ |replaced|\ text""") should produce (spans(Text("some"), subst("replaced"), Text("text")))
+  it should "recognize markup when preceding and following characters are escaped" in new RefBuilder {
+    val input = """some\ |replaced|\ text"""
+    Parsing (input) should produce (spans(Text("some"), subst("replaced"), Text("text")))
   }
   
   
@@ -147,8 +157,9 @@ class InlineParsersSpec extends AnyFlatSpec
   
   
   
-  "The substitution reference" should "parse content enclosed in |" in {
-    Parsing ("some |replaced| text") should produce (spans(Text("some "), subst("replaced"), Text(" text")))
+  "The substitution reference" should "parse content enclosed in |" in new RefBuilder {
+    val input = "some |replaced| text"
+    Parsing (input) should produce (spans(Text("some "), subst("replaced"), Text(" text")))
   }
   
   it should "ignore a | character when it is not matched by a second |" in {
@@ -163,51 +174,61 @@ class InlineParsersSpec extends AnyFlatSpec
   
   
   
-  "The interpreted text parser" should "parse content enclosed in ` with implicit default role" in {
-    Parsing ("some `text` here") should produce (spans(Text("some "), InterpretedText(defaultTextRole,"text","`text`"), Text(" here")))
+  "The interpreted text parser" should "parse content enclosed in ` with implicit default role" in new RefBuilder {
+    val input = "some `text` here"
+    Parsing (input) should produce (spans(Text("some "), InterpretedText(defaultTextRole, "text", source("`text`", input)), Text(" here")))
   }
   
-  it should "parse content enclosed in ` with role prefix" in {
-    Parsing ("some :role:`text` here") should produce (spans(Text("some "), InterpretedText("role","text",":role:`text`"), Text(" here")))
+  it should "parse content enclosed in ` with role prefix" in new RefBuilder {
+    val input = "some :role:`text` here"
+    Parsing (input) should produce (spans(Text("some "), InterpretedText("role", "text", source(":role:`text`", input)), Text(" here")))
   }
   
-  it should "parse content enclosed in ` with role suffix" in {
-    Parsing ("some `text`:role: here") should produce (spans(Text("some "), InterpretedText("role","text","`text`:role:"), Text(" here")))
+  it should "parse content enclosed in ` with role suffix" in new RefBuilder {
+    val input = "some `text`:role: here"
+    Parsing (input) should produce (spans(Text("some "), InterpretedText("role", "text", source("`text`:role:", input)), Text(" here")))
   }
   
-  it should "parse content enclosed in ` but ignore illegal role prefix" in {
-    Parsing ("some :#*#:`text` here") should produce (spans(Text("some :#*#:"), InterpretedText(defaultTextRole,"text","`text`"), Text(" here")))
+  it should "parse content enclosed in ` but ignore illegal role prefix" in new RefBuilder {
+    val input = "some :#*#:`text` here"
+    Parsing (input) should produce (spans(Text("some :#*#:"), InterpretedText(defaultTextRole, "text", source("`text`", input)), Text(" here")))
   }
   
   
   
   "The citation reference parser" should "parse content enclosed between [ and ]_" in {
-    Parsing ("some [text]_ here") should produce (spans(Text("some "), citRef("text"), Text(" here")))
+    val input = "some [text]_ here"
+    Parsing (input) should produce (spans(Text("some "), citRef("text", input), Text(" here")))
   }
   
   
   
   "The footnote reference parser" should "parse content enclosed between [ and ]_ with autonumber label" in {
-    Parsing ("some [#]_ here") should produce (spans(Text("some "), fnRef(Autonumber), Text(" here")))
+    val input = "some [#]_ here"
+    Parsing (input) should produce (spans(Text("some "), fnRef(Autonumber, input), Text(" here")))
   }
   
   it should "parse content enclosed between [ and ]_ with autosymbol label" in {
-    Parsing ("some [*]_ here") should produce (spans(Text("some "), fnRef(Autosymbol), Text(" here")))
+    val input = "some [*]_ here"
+    Parsing (input) should produce (spans(Text("some "), fnRef(Autosymbol, input), Text(" here")))
   }
   
   it should "parse content enclosed between [ and ]_ with an autonumber named label" in {
-    Parsing ("some [#foo]_ here") should produce (spans(Text("some "), fnRef(AutonumberLabel("foo")), Text(" here")))
+    val input = "some [#foo]_ here"
+    Parsing (input) should produce (spans(Text("some "), fnRef(AutonumberLabel("foo"), input), Text(" here")))
   }
   
   it should "parse content enclosed between [ and ]_ with a numeric label" in {
-    Parsing ("some [17]_ here") should produce (spans(Text("some "), fnRef(NumericLabel(17)), Text(" here")))
+    val input = "some [17]_ here"
+    Parsing (input) should produce (spans(Text("some "), fnRef(NumericLabel(17), input), Text(" here")))
   }
   
   
   private val relPath = RelativePath.parse("../foo/bar.rst#ref")
   
-  "The link reference parser" should "parse a phrase link without url" in {
-    Parsing ("some `link`_ here") should produce (spans(Text("some "), pLinkRef("link"), Text(" here")))
+  "The link reference parser" should "parse a phrase link without url" in new RefBuilder {
+    val input = "some `link`_ here"
+    Parsing (input) should produce (spans(Text("some "), pLinkRef("link"), Text(" here")))
   }
   
   it should "parse an external phrase link with text and url" in {
@@ -215,21 +236,35 @@ class InlineParsersSpec extends AnyFlatSpec
     Parsing ("some `link<http://foo.com>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
 
-  it should "parse an internal phrase link with text and url" in {
+  it should "parse an internal phrase link with text and url" in new RefBuilder {
     val linkSrc = "`link<../foo/bar.rst#ref>`_"
-    val spanSeq = List(LinkPathReference(Seq(Text("link")), relPath, linkSrc), LinkDefinition("link", InternalTarget(relPath)))
-    Parsing (s"some $linkSrc here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
+    val input = s"some $linkSrc here"
+    val spanSeq = List(
+      LinkPathReference(Seq(Text("link")), relPath, source(linkSrc, input)), 
+      LinkDefinition("link", InternalTarget(relPath))
+    )
+    Parsing (input) should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
   
   it should "parse a phrase link with only a url" in {
-    Parsing ("some `<http://foo.com>`_ here") should produce (spans(Text("some "), 
-        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
+    Parsing ("some `<http://foo.com>`_ here") should produce (spans(
+      Text("some "), 
+      SpanSequence(
+        link(Text("http://foo.com")).url("http://foo.com").toLink, 
+        LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))
+      ), 
+      Text(" here")
+    ))
   }
 
-  it should "parse an internal phrase link with only a url" in {
+  it should "parse an internal phrase link with only a url" in new RefBuilder {
+    val input = "some `<../foo/bar.rst#ref>`_ here"
     val linkSrc = "`<../foo/bar.rst#ref>`_"
-    val spanSeq = List(LinkPathReference(Seq(Text("../foo/bar.rst#ref")), relPath, linkSrc), LinkDefinition("../foo/bar.rst#ref", InternalTarget(relPath)))
-    Parsing ("some `<../foo/bar.rst#ref>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
+    val spanSeq = List(
+      LinkPathReference(Seq(Text("../foo/bar.rst#ref")), relPath, source(linkSrc, input)), 
+      LinkDefinition("../foo/bar.rst#ref", InternalTarget(relPath))
+    )
+    Parsing (input) should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
   
   it should "remove whitespace from an url" in {
@@ -239,8 +274,9 @@ class InlineParsersSpec extends AnyFlatSpec
         SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
   }
   
-  it should "parse an anonymous phrase link without url" in {
-    Parsing ("some `link`__ here") should produce (spans(Text("some "), anonPLinkRef("link"), Text(" here")))
+  it should "parse an anonymous phrase link without url" in new RefBuilder {
+    val input = "some `link`__ here"
+    Parsing (input) should produce (spans(Text("some "), anonPLinkRef("link"), Text(" here")))
   }
   
   it should "parse an anonymous phrase link with text and url" in {
@@ -253,15 +289,17 @@ class InlineParsersSpec extends AnyFlatSpec
         link(Text("http://foo.com")).url("http://foo.com"), Text(" here")))
   }
   
-  it should "parse a named link reference" in {
-    Parsing ("some link_ here") should produce (spans(Text("some "), linkRef("link"), Text(" here")))
+  it should "parse a named link reference" in new RefBuilder {
+    val input = "some link_ here"
+    Parsing (input) should produce (spans(Text("some "), linkRef("link"), Text(" here")))
   }
   
-  it should "parse an anonymous link reference" in {
-    Parsing ("some link__ here") should produce (spans(Text("some "), anonLinkRef("link"), Text(" here")))
+  it should "parse an anonymous link reference" in new RefBuilder {
+    val input = "some link__ here"
+    Parsing (input) should produce (spans(Text("some "), anonLinkRef("link"), Text(" here")))
   }
   
-  it should "normalize the id of a phrase link" in {
+  it should "normalize the id of a phrase link" in new RefBuilder {
     val input = """some `strange
       | phrase   link`_ here""".stripMargin
     Parsing (input) should produce (spans(Text("some "), pLinkRef("strange phrase link","strange\n phrase   link"), Text(" here")))

@@ -20,6 +20,7 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
+import laika.ast.helper.ModelBuilder
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse._
@@ -30,6 +31,7 @@ import laika.parse.markup.DocumentParser.DocumentInput
 import laika.parse.text.TextParsers
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.rewrite.ReferenceResolver.CursorKeys
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -405,13 +407,15 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
     }
 
-    "use the default parser when there is no parser installed" in new BundleSetup {
+    "use the default parser when there is no parser installed" in new BundleSetup with ModelBuilder {
       val parserBundles = Nil
       val appBundles = Nil
 
+      val input = "${cursor.currentDocument.content}"
+      val contextRef = TemplateContextReference(CursorKeys.documentContent, required = true, LineSource(input, SourceCursor(input)))
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("${cursor.currentDocument.content}").toOption shouldBe Some(TemplateRoot.fallback)
+      templateParser.get.parse(input).toOption shouldBe Some(TemplateRoot(contextRef))
     }
 
     "return None in strict mode when there is no parser installed" in new BundleSetup {

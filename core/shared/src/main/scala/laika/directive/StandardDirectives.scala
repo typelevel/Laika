@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.config._
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.Selections
@@ -80,7 +81,7 @@ object StandardDirectives extends DirectiveRegistry {
     case class Empty (spans: Seq[TemplateSpan])
     val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
     
-    (attribute(0).as[String], separatedBody(Seq(emptySeparator)), cursor).mapN { (ref, multipart, cursor) =>
+    (attribute(0).as[String], separatedBody(Seq(emptySeparator)), cursor, Templates.dsl.source).mapN { (ref, multipart, cursor, source) =>
         
       def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
         TemplateSpanSequence(spans).rewriteChildren(TemplateRewriter.rewriteRules(childCursor))
@@ -96,7 +97,7 @@ object StandardDirectives extends DirectiveRegistry {
         case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
         case Right(Some(simpleValue))                => rewriteContent(simpleValue)
         case Right(None)                             => rewriteFallback
-        case Left(error)                             => InvalidElement(s"Error retrieving reference '$ref': ${error.message}", "${"+ref+"}").asTemplateSpan
+        case Left(error)                             => InvalidElement(s"Error retrieving reference '$ref': ${error.message}", source).asTemplateSpan
       }
     }
   }
@@ -151,7 +152,7 @@ object StandardDirectives extends DirectiveRegistry {
     * 
     * Serves as the implementation for the breadcrumb directive, but can also be inserted into the AST manually.
     */
-  case class BreadcrumbBuilder (options: Options = NoOpt) extends BlockResolver {
+  case class BreadcrumbBuilder (source: SourceFragment, options: Options = NoOpt) extends BlockResolver {
 
     type Self = BreadcrumbBuilder
 
@@ -187,7 +188,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Templates.dsl._
 
-    cursor.map(c => TemplateElement(BreadcrumbBuilder().resolve(c)))
+    (cursor, Templates.dsl.source).mapN { case (cursor, src) =>
+      TemplateElement(BreadcrumbBuilder(src).resolve(cursor))
+    }
   }
 
   /** Implementation of the `breadcrumb` directive for block elements in markup documents.
@@ -196,7 +199,9 @@ object StandardDirectives extends DirectiveRegistry {
 
     import Blocks.dsl._
 
-    cursor.map(BreadcrumbBuilder().resolve)
+    (cursor, Blocks.dsl.source).mapN { case (cursor, src) =>
+      BreadcrumbBuilder(src).resolve(cursor)
+    }
   }
 
   /** A block resolver that replaces itself with a navigation list according to this instances configuration.
@@ -206,6 +211,7 @@ object StandardDirectives extends DirectiveRegistry {
     * Serves as the implementation for the navigationTree directive, but can also be inserted into the AST manually.
     * 
     * @param entries the list of manual and automatic entries to insert into the navigation tree
+    * @param source the source fragment that produced this navigation builder, for error reporting
     * @param defaultDepth the depth for automatically generated entries (unless overridden in the entries' config)
     * @param itemStyles the styles to apply to all navigation items in the list as a render hint
     * @param excludeRoot indicates whether the root node should be excluded in automatic entries (may be overridden in the entries' config)
@@ -213,7 +219,8 @@ object StandardDirectives extends DirectiveRegistry {
     * @param excludeSelf indicates whether the current document should be included
     * @param options optional styles and/or an id for the final navigation list
     */
-  case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig], 
+  case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig],
+                                      source: SourceFragment,
                                       defaultDepth: Int = Int.MaxValue, 
                                       itemStyles: Set[String] = Set(),
                                       excludeRoot: Boolean = false,
@@ -277,7 +284,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
 
     def resolve (cursor: DocumentCursor): Block =
-      eval(cursor).fold(error => InvalidElement(error, error).asBlock, identity)
+      eval(cursor).fold(error => InvalidElement(error, source).asBlock, identity)
 
     def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
 
@@ -297,7 +304,7 @@ object StandardDirectives extends DirectiveRegistry {
         excludeSections <- config.get[Boolean]("excludeSections", false)
         excludeSelf     <- config.get[Boolean]("excludeSelf", false)
       } yield {
-        NavigationBuilderConfig(entries, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
+        NavigationBuilderConfig(entries, LineSource("", SourceCursor("")), defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
       }
     }
     

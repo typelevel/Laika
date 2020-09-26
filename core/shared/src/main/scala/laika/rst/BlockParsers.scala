@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
-import laika.parse.{Parsed, Parser, SourceCursor, Success}
+import laika.parse.{LineSource, Parsed, Parser, ResultContext, SourceCursor, SourceFragment, Success}
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import BaseParsers._
 
@@ -62,22 +62,28 @@ object BlockParsers {
       .map(Paragraph(_))
   }
 
+  private def stripTrailingNewline (source: SourceFragment): SourceFragment =
+    if (source.input.lastOption.contains('\n')) LineSource(source.input.dropRight(1), source.root) else source
+  
   /** Parses a section header with both overline and underline.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithOverline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    punctuationChar.take(1) >> { start =>
+    val spanParser = punctuationChar.take(1) >> { start =>
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
         val text = spanParsers.recursiveSpans(anyNot('\n').max(len).trim.line)
-        val decoLine = anyOf(char) take len
+        val decoLine = anyOf(char).take(len)
 
         (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol).map {
-          title => DecoratedHeader(OverlineAndUnderline(char), title)
+          title => (deco.head, title)
         }
       }
+    }
+    spanParser.context.map { case ResultContext((decoChar, title), source) => 
+      DecoratedHeader(OverlineAndUnderline(decoChar), title, stripTrailingNewline(source))
     }
   }
   
@@ -86,13 +92,16 @@ object BlockParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
+    val spanParser = nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
         (anyOf(char).min(title.input.length - 1).line ~ wsEol).map {
-          _ => DecoratedHeader(Underline(char), spanParsers.recursiveSpans.parse(title).getOrElse(Nil)) // TODO - recovery
+          _ => (char, title)
         }
       }
+    }
+    spanParser.context.map { case ResultContext((decoChar, title), source) => 
+      DecoratedHeader(Underline(decoChar), spanParsers.recursiveSpans.parse(title).getOrElse(Nil), stripTrailingNewline(source)) // TODO - recovery
     }
   }
   

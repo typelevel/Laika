@@ -25,7 +25,7 @@ import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.uri.AutoLinkParsers
-import laika.parse.{Failure, Parser, Success}
+import laika.parse.{Failure, LineSource, Parser, ResultContext, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{InterpretedText, ReferenceName, RstStyle, SubstitutionReference}
 
@@ -200,7 +200,9 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
    */
   lazy val footnoteRef: SpanParserBuilder = SpanParser.standalone {
-    markupStart("[", "]_") ~> footnoteLabel <~ markupEnd("]_") ^^ { label => FootnoteReference(label, toSource(label)) }
+    (markupStart("[", "]_") ~> footnoteLabel <~ markupEnd("]_")).context.map { ctx => 
+      FootnoteReference(ctx.result, ctx.source) 
+    }
   }
   
   /** Parses a citation reference.
@@ -208,7 +210,9 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
    */
   lazy val citationRef: SpanParserBuilder = SpanParser.standalone {
-    markupStart("[", "]_") ~> simpleRefName <~ markupEnd("]_") ^^ { label => CitationReference(label, s"[$label]_") }
+    (markupStart("[", "]_") ~> simpleRefName <~ markupEnd("]_")).context.map { ctx => 
+      CitationReference(ctx.result, ctx.source) 
+    }
   }
   
   /** Parses a substitution reference.
@@ -216,10 +220,14 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
    */
   lazy val substitutionRef: SpanParserBuilder = SpanParser.standalone {
-    markupStart("|", "|") ~> simpleRefName >> { ref =>
-      markupEnd("|__").as(LinkIdReference(List(SubstitutionReference(ref)), "", s"|$ref|__")) |
-      markupEnd("|_").as(LinkIdReference(List(SubstitutionReference(ref)), ref, s"|$ref|_")) |
-      markupEnd("|").as(SubstitutionReference(ref))
+    (markupStart("|", "|") ~> simpleRefName ~ (markupEnd("|__") | markupEnd("|_") | markupEnd("|"))).context.map { ctx =>
+      val refName = ctx.result._1
+      val substRef = SubstitutionReference(refName, ctx.source)
+      ctx.result._2.length match {
+        case 3 => LinkIdReference(List(substRef), "", ctx.source)
+        case 2 => LinkIdReference(List(substRef), refName, ctx.source)
+        case 1 => substRef
+      }
     }
   }
   
@@ -240,8 +248,8 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParser.recursive { recParsers =>
-    (markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)) ^^
-      { case role ~ text => InterpretedText(role, text, s":$role:`$text`") }
+    ((markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty))).context.map
+      { case ResultContext(role ~ text, src) => InterpretedText(role, text, src) }
   }
   
   /** Parses an interpreted text element with the role name as a suffix.
@@ -251,8 +259,9 @@ object InlineParsers {
   def interpretedTextWithRoleSuffix (defaultTextRole: String): SpanParserBuilder = SpanParser.recursive { recParsers =>
     val textParser = markupStart("`", "`") ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)
     val roleSuffix = opt(":" ~> simpleRefName <~ markupEnd(":"))
-    (textParser ~ roleSuffix).map { case text ~ role => 
-      InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
+    (textParser ~ roleSuffix).context.map { 
+      case ResultContext(text ~ role, src) => InterpretedText(role.getOrElse(defaultTextRole), text, src) 
+    }
   }.withLowPrecedence
   
   /** Parses a phrase link reference (enclosed in back ticks).
@@ -266,14 +275,14 @@ object InlineParsers {
     val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
     val end = markupEnd("`__").as(false) | markupEnd("`_").as(true)
     
-    (markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end).withSource.map {
-      case (name ~ Some(url) ~ true, src)   => SpanSequence(
+    (markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end).context.map {
+      case ResultContext(name ~ Some(url) ~ true, src)   => SpanSequence(
         ParsedLink.create(List(Text(ref(name.original, url))), url, src), 
         LinkDefinition.create(ref(name.normalized, url), url)
       )
-      case (name ~ Some(url) ~ false, src)  => ParsedLink.create(List(Text(ref(name.original, url))), url, src)
-      case (name ~ None ~ true, src)        => LinkIdReference(List(Text(name.original)), name.normalized, src) 
-      case (name ~ None ~ false, src)       => LinkIdReference(List(Text(name.original)), "", src) 
+      case ResultContext(name ~ Some(url) ~ false, src)  => ParsedLink.create(List(Text(ref(name.original, url))), url, src)
+      case ResultContext(name ~ None ~ true, src)        => LinkIdReference(List(Text(name.original)), name.normalized, src) 
+      case ResultContext(name ~ None ~ false, src)       => LinkIdReference(List(Text(name.original)), "", src) 
     }
   }
   
@@ -282,11 +291,14 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
-    markupEnd("__" | "_").flatMap { markup => 
-      reverse(markup.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
-        markup match {
-          case "_"  => Reverse(refName.length, LinkIdReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
-          case "__" => Reverse(refName.length, LinkIdReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
+    markupEnd("__" | "_").context.flatMap { ctx => 
+      reverse(ctx.result.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
+        val src = LineSource(s"$refName${ctx.result}", ctx.source.consume(refName.length * -1))
+        ctx.result match {
+          case "_"  => 
+            Reverse(refName.length, LinkIdReference(List(Text(refName)), ReferenceName(refName).normalized, src), Text("_")) 
+          case "__" => 
+            Reverse(refName.length, LinkIdReference(List(Text(refName)), "", src), Text("__")) 
         }
       }
     } 

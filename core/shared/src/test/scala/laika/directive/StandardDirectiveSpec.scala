@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.data.{NonEmptyChain, NonEmptySet}
+import cats.data.NonEmptySet
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
@@ -280,7 +280,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                    |
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
-    val invalid = InvalidElement(message, directive).asBlock
+    val invalid = InvalidElement(message, source(directive, input)).asBlock
     parse(input) should be (root(p("aa"), invalid, p("bb")))
   }
 
@@ -304,7 +304,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
          |
          |bb""".stripMargin
     val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
-    val invalid = InvalidElement(message, directive).asBlock
+    val invalid = InvalidElement(message, source(directive, input)).asBlock
     parse(input) should be (root(p("aa"),
       invalid, p("bb")))
   }
@@ -559,13 +559,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
-    val res = parse("aa @:api(foo.bar.Baz) bb")
-    parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
+    val directive = "@:api(foo.bar.Baz)"
+    val input = s"aa $directive bb"
+    val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
+    parse(input).content should be (root(p(
       Text("aa "),
-      InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,
+      InvalidElement(msg, source(directive, input)).asSpan,
       Text(" bb")
     )))
-
   }
 
   it should "parse an api directive as the only element of a block" ignore new ApiDirectiveSetup {
@@ -648,10 +649,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   it should "fail when there is no matching base URI defined" in new SourceDirectiveSetup {
-    val res = parse("aa @:api(foo.bar.Baz) bb")
-    parse("aa @:api(foo.bar.Baz) bb").content should be (root(p(
+    val directive = "@:api(foo.bar.Baz)"
+    val input = s"aa $directive bb"
+    val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
+    parse(input).content should be (root(p(
       Text("aa "),
-      InvalidElement("One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available.", "@:api(foo.bar.Baz)").asSpan,
+      InvalidElement(msg, source(directive, input)).asSpan,
       Text(" bb")
     )))
   }
@@ -773,8 +776,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def templateResult (items: NavigationItem*): RootElement = buildResult(NavigationList(items, itemStyles))
 
-    def error (msg: String, src: String): RootElement = {
-      buildResult(InvalidElement(msg, src).asSpan)
+    def error (msg: String, fragment: String, input: String): RootElement = {
+      buildResult(InvalidElement(msg, source(fragment, input)).asSpan)
     }
 
     private val sections = Seq(
@@ -970,7 +973,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
-    parseTemplateAndRewrite(template) should be (error(msg, directive))
+    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
   }
 
   it should "fail with an invalid depth attribute" in new TreeModel with NavModel {
@@ -985,7 +988,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: not an integer: foo"
-    parseTemplateAndRewrite(template) should be (error(msg, directive))
+    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
   }
 
   it should "fail with a manual node without title" in new TreeModel with NavModel {
@@ -1000,7 +1003,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: Not found: 'title'"
-    parseTemplateAndRewrite(template) should be (error(msg, directive))
+    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
   }
 
   "The block nav directive" should "produce two manual entries" in new TreeModel with NavModel {

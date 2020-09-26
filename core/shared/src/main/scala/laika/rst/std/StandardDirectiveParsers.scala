@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.{BlockSource, Parser, SourceFragment}
+import laika.parse.{BlockSource, Parser, ResultContext, SourceFragment}
 import laika.parse.markup.{RecursiveParsers, RecursiveSpanParser}
 import laika.parse.text.CharGroup
 import laika.parse.builders._
@@ -93,16 +93,16 @@ object StandardDirectiveParsers {
   def target (p: RecursiveParsers)(input: SourceFragment): Either[String,Span] = {
     val phraseLinkRef = {
       val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
-      "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
-        refName => LinkIdReference(Nil, refName.normalized, s"`${refName.original}`_") 
+      ("`" ~> refName <~ "`_" ~ ws ~ eof).context.map {
+        case ResultContext(name, src) => LinkIdReference(Nil, name.normalized, src) 
       }
     }
     val simpleLinkRef = {
-      simpleRefName <~ "_" ~ ws ~ eof ^^ {
-        refName => LinkIdReference(Nil, refName, s"${refName}_")
+      (simpleRefName <~ "_" ~ ws ~ eof).context.map {
+        case ResultContext(refName, src) => LinkIdReference(Nil, refName, src)
       }
     }
-    val uri = anyChars.map(uri => ParsedLink.create(Nil, uri, uri))
+    val uri = anyChars.context.map(ctx => ParsedLink.create(Nil, ctx.result, ctx.source))
     
     parseDirectivePart(phraseLinkRef | simpleLinkRef | uri, input)
   }

@@ -22,7 +22,6 @@ import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.markup.RootParser
 import laika.parse.markup.RootParserProvider.RootParserWrapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -181,8 +180,9 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "ignore an inline link with a malformed title" in {
-    Parsing ("""some [link](http://foo 'a title) here""") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]"), Text("(http://foo 'a title) here"))
+    val input = """some [link](http://foo 'a title) here"""
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]", input), Text("(http://foo 'a title) here"))
     }
   }
   
@@ -219,8 +219,9 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "ignore an inline image with a malformed title" in {
-    Parsing ("""some ![link](http://foo.jpg 'a title) here""") should produce {
-      spans(Text("some "), imgRef("link","link","![link]"), Text("(http://foo.jpg 'a title) here"))
+    val input = """some ![link](http://foo.jpg 'a title) here"""
+    Parsing (input) should produce {
+      spans(Text("some "), imgRef("link","link","![link]", input), Text("(http://foo.jpg 'a title) here"))
     }
   }
   
@@ -233,52 +234,60 @@ class InlineParsersSpec extends AnyFlatSpec
   
   
   "The link reference parser" should "parse a link reference with an explicit id" in {
-    Parsing ("some [link][id] here") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("id").source("[link][id]"), Text(" here"))
+    val input = "some [link][id] here"
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("id").source("[link][id]", input), Text(" here"))
     }
   }
   
   it should "parse a link reference with an empty id" in {
-    Parsing ("some [link][] here") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link][]"), Text(" here"))
+    val input = "some [link][] here"
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("link").source("[link][]", input), Text(" here"))
     }
   }
   
   it should "parse a link reference with an explicit id separated by a space" in {
-    Parsing ("some [link] [id] here") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]"), Text(" here"))
+    val input = "some [link] [id] here"
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]", input), Text(" here"))
     }
   }
   
   it should "parse a link reference with an empty id separated by a space" in {
-    Parsing ("some [link] [] here") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link] []"), Text(" here"))
+    val input = "some [link] [] here"
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("link").source("[link] []", input), Text(" here"))
     }
   }
   
   it should "parse a link reference with an implicit id" in {
-    Parsing ("some [link] here") should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]"), Text(" here"))
+    val input = "some [link] here"
+    Parsing (input) should produce {
+      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]", input), Text(" here"))
     }
   }
   
   
   
   "The image reference parser" should "parse an image reference with an explicit id" in {
-    Parsing ("some ![image][id] here") should produce {
-      spans(Text("some "), imgRef("image","id","![image][id]"), Text(" here"))
+    val input = "some ![image][id] here"
+    Parsing (input) should produce {
+      spans(Text("some "), imgRef("image","id","![image][id]",input), Text(" here"))
     }
   }
   
   it should "parse an image reference with an empty id" in {
-    Parsing ("some ![image][] here") should produce {
-      spans(Text("some "), imgRef("image","image","![image][]"), Text(" here"))
+    val input = "some ![image][] here"
+    Parsing (input) should produce {
+      spans(Text("some "), imgRef("image","image","![image][]",input), Text(" here"))
     }
   }
   
   it should "parse an image reference with an implicit id" in {
-    Parsing ("some ![image] here") should produce {
-      spans(Text("some "), imgRef("image","image","![image]"), Text(" here"))
+    val input = "some ![image] here"
+    Parsing (input) should produce {
+      spans(Text("some "), imgRef("image","image","![image]",input), Text(" here"))
     }
   }
   

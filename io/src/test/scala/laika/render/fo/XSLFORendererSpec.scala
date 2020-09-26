@@ -758,12 +758,12 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an unresolved link reference" in {
-    val elem = p(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]"), Text(" span"))
+    val elem = p(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]", "[link] [id]"), Text(" span"))
     render (elem) should be (s"""<fo:block $defaultParagraphStyles>some [link] [id] span</fo:block>""")
   }
 
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(Text("some "), imgRef("img","id","![img] [id]"), Text(" span"))
+    val elem = p(Text("some "), imgRef("img","id","![img] [id]","![img] [id]"), Text(" span"))
     render (elem) should be (s"""<fo:block $defaultParagraphStyles>some ![img] [id] span</fo:block>""")
   }
 

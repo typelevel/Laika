@@ -24,6 +24,7 @@ import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder, ObjectValue
 import laika.helium.Helium
 import laika.helium.config._
 import laika.io.runtime.BatchRuntime
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
 private[laika] object ConfigGenerator {
 
@@ -97,8 +98,9 @@ private[laika] object ConfigGenerator {
   
   case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
+    val source: SourceFragment = LineSource("", SourceCursor("<unresolved target>")) // TODO - use new GeneratedSource type later
     def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
-      case Left(msg) => InvalidElement(s"unresolved target ${target.description}: $msg", "<unresolved target>").asSpan
+      case Left(msg) => InvalidElement(s"unresolved target ${target.description}: $msg", source).asSpan
       case Right(it: InternalTarget) => Text(it.relativeTo(cursor.path).relativePath.toString)
       case Right(ExternalTarget(url)) => Text(url)
     } 

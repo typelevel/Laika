@@ -17,7 +17,7 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.SourceFragment
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
@@ -78,16 +78,17 @@ object StandardDirectiveParts {
       val actualHeight = scale.fold(height)(s => height.map(_.scale(s.amount)))
       val alignOpt = align.getOrElse(NoOpt)
 
-      val image = ImageResolver(Image(Target.parse(uri), width = actualWidth, height = actualHeight, alt = alt))
+      val img = Image(Target.parse(uri), width = actualWidth, height = actualHeight, alt = alt)
+      val resolver = ImageResolver(img, LineSource("", SourceCursor(""))) // TODO - pass actual source string
 
       (target map {
-        case ref: SpanLink  => ref.copy(content = List(image.withOptions(opt)), options = alignOpt)
-        case ref: LinkIdReference => ref.copy(content = List(image.withOptions(opt)), options = alignOpt)
-      }).getOrElse(image.withOptions(alignOpt + opt))
+        case ref: SpanLink  => ref.copy(content = List(resolver.withOptions(opt)), options = alignOpt)
+        case ref: LinkIdReference => ref.copy(content = List(resolver.withOptions(opt)), options = alignOpt)
+      }).getOrElse(resolver.withOptions(alignOpt + opt))
     }
   }
 
-  case class ImageResolver (image: Image) extends SpanResolver {
+  case class ImageResolver (image: Image, source: SourceFragment) extends SpanResolver {
     type Self = ImageResolver
     val options: Options = image.options
     override def resolve (cursor: DocumentCursor): Span = image.target match {
@@ -97,7 +98,7 @@ object StandardDirectiveParts {
           cursor.config.get[Seq[Path]](LinkConfig.key.value.child("excludeFromValidation"))
             .getOrElse(Nil)
             .exists(p => resolvedTarget.absolutePath.isSubPath(p))) image.copy(target = resolvedTarget)
-        else InvalidElement(unresolvedMessage, "").asSpan // TODO - source string
+        else InvalidElement(unresolvedMessage, source).asSpan
       case _ => image
     }
     override def withOptions (options: Options): ImageResolver = copy(image = image.withOptions(options))

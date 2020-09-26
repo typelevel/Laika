@@ -17,7 +17,6 @@
 package laika.rst
 
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
@@ -47,7 +46,9 @@ class BlockParsersSpec extends AnyFlatSpec
   
   def ul (char: Char) = Underline(char)
   def ulol (char: Char) = OverlineAndUnderline(char)
-  def dh (deco: HeaderDecoration, content: String) = DecoratedHeader(deco, List(Text(content)))
+  def dh (deco: HeaderDecoration, content: String, fragment: String): DecoratedHeader = dh(deco, content, fragment, fragment)
+  def dh (deco: HeaderDecoration, content: String, fragment: String, input: String): DecoratedHeader = 
+    DecoratedHeader(deco, List(Text(content)), source(fragment, input))
 
 
   "The doctest parser" should "parse a doctest block" in {
@@ -157,30 +158,39 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ulol('='),"Header")))
+    Parsing (input) should produce (root (dh(ulol('='),"Header", input)))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ul('='),"Header")))
+    Parsing (input) should produce (root (dh(ul('='),"Header", input)))
   }
   
   it should "parse headers with varying levels" in {
-    val input = """==========
-      | Header 1
-      |==========
+    val h1 = """==========
+               | Header 1
+               |==========""".stripMargin
+    val h2 = """Header 2
+               |========""".stripMargin
+    val h3 = """Header 3
+               |--------""".stripMargin
+    val h4 = """Header 2b
+               |=========""".stripMargin
+    val input = 
+      s"""$h1
       |
-      |Header 2
-      |========
+      |$h2
       |
-      |Header 3
-      |--------
+      |$h3
       |
-      |Header 2b
-      |=========""".stripMargin
-    Parsing (input) should produce (root (dh(ulol('='),"Header 1"), dh(ul('='),"Header 2"), 
-                                         dh(ul('-'),"Header 3"), dh(ul('='),"Header 2b")))
+      |$h4""".stripMargin
+    Parsing (input) should produce (root(
+      dh(ulol('='),"Header 1", h1, input), 
+      dh(ul('='),"Header 2", h2, input), 
+      dh(ul('-'),"Header 3", h3, input), 
+      dh(ul('='),"Header 2b", h4, input)
+    ))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {
@@ -205,11 +215,14 @@ class BlockParsersSpec extends AnyFlatSpec
   }
   
   it should "not apply an internal link target to the following regular block when that already has an id" in {
-    val input = """.. _target:
+    val header = """Header
+                   |======""".stripMargin
+    val input = s""".. _target:
       |
-      |Header
-      |======""".stripMargin
-    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")))))  
+      |$header""".stripMargin
+    Parsing (input) should produce (root(
+      DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")), source(header, input))
+    ))  
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {

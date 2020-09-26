@@ -132,6 +132,14 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   
   def reverse: RootSource = new RootSource(inputRef.reverse, remaining, nestLevel)
 
+  override def hashCode(): Int = (input, offset, nestLevel).hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case rs: RootSource => rs.input == input &&
+      rs.offset == offset &&
+      rs.nestLevel == nestLevel
+    case _ => false
+  }
 }
 
 /** A line source represents all or part of a single line from the root input source.
@@ -147,7 +155,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * while the `rootRef` constructor argument is positioned at the beginning of the line, 
   * so that the final property can be created lazily.
   */
-class LineSource (val input: String, rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceFragment {
+class LineSource (val input: String, private val rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceFragment {
 
   type Self = LineSource
   
@@ -176,10 +184,24 @@ class LineSource (val input: String, rootRef: RootSource, val offset: Int, val n
   
   def reverse: LineSource = new LineSource(input.reverse, rootRef, remaining, nestLevel)
 
+  override def hashCode(): Int = (input, rootRef.input, rootRef.offset, offset, nestLevel).hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case ls: LineSource => ls.input == input && 
+      ls.rootRef.input == rootRef.input &&
+      ls.rootRef.offset == rootRef.offset &&
+      ls.offset == offset &&
+      ls.nestLevel == nestLevel
+    case _ => false
+  }
+
+  override def toString: String = 
+    s"LineSource(offset ${rootRef.offset} - length ${input.length})"
 }
 
 object LineSource {
   def apply (input: String, root: RootSource, nestLevel: Int): LineSource = new LineSource(input, root, 0, nestLevel)
+  def apply (input: String, ref: SourceCursor): LineSource = new LineSource(input, ref.root, 0, ref.nestLevel)
 }
 
 /** A block source represents the source for a block level element where each individual line might
@@ -216,9 +238,9 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
   private lazy val activeLine: LineSource = {
     @tailrec def posFromLine (remainingLines: List[LineSource], remainingOffset: Int): (LineSource, Int) = {
       val lineLength = remainingLines.head.input.length
-      if (lineLength <= remainingOffset) (remainingLines.head, remainingOffset)
+      if (lineLength >= remainingOffset) (remainingLines.head, remainingOffset)
       else if (remainingLines.tail.isEmpty) (remainingLines.head, lineLength)
-      else posFromLine(remainingLines.tail, remainingOffset - lineLength)
+      else posFromLine(remainingLines.tail, remainingOffset - (lineLength + 1))
     }
     val (lineSource, lineOffset) = posFromLine(lines.toChain.toList, offset)
     lineSource.consume(lineOffset)
@@ -232,6 +254,16 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
   
   def reverse: BlockSource = new BlockSource(inputRef.reverse, lines, remaining, nestLevel)
 
+  override def hashCode(): Int = (input, lines.iterator, offset, nestLevel).hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case bs: BlockSource => bs.input == input &&
+      bs.lines.iterator.sameElements(lines.iterator) &&
+      bs.offset == offset &&
+      bs.nestLevel == nestLevel
+    case _ => false
+  }
+  
 }
 
 object BlockSource {
