@@ -75,12 +75,19 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
   def parse (input: DocumentInput): Either[ParserError, Document] = {
     
     def resolveDocument (unresolved: UnresolvedDocument, docConfig: Config): Either[ParserError, Document] = {
-      val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue => (c.key, c.value) }
-      val resolvedDoc = unresolved.document.copy(config = ConfigHeaderParser.merge(docConfig, embeddedConfig))
+      val embeddedConfig = unresolved.document.content.collect { 
+        case c: EmbeddedConfigValue => (c.key, c.value) 
+      }
+      val resolvedDoc = unresolved.document.copy(
+        config = ConfigHeaderParser.merge(docConfig, embeddedConfig)
+      )
       val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
       val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
-      InvalidDocument.from(result.runtimeMessages(config.failOnMessages), input.path)
-        .map(ParserError(_)).toLeft(result)
+      
+      InvalidDocument
+        .from(result, config.failOnMessages)
+        .map(ParserError(_))
+        .toLeft(result)
     }
     
     for {

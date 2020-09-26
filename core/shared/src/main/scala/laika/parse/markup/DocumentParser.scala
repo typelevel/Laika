@@ -57,11 +57,12 @@ object DocumentParser {
       .map(invDoc => invDoc.messages.map(_.content).mkString_(invDoc.path + "\n  ", "\n  ", ""))
       .mkString_("\n")
     
-    def from (documents: Seq[InvalidDocument]): Option[InvalidDocuments] = 
-      NonEmptyChain.fromSeq(documents).map(InvalidDocuments(_))
-   
-    def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] =
-      from(root.allDocuments.flatMap(InvalidDocument.from(_, failOn)))
+    def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {
+      val invalidDocs = root.allDocuments
+        .flatMap(InvalidDocument.from(_, failOn))
+      NonEmptyChain.fromSeq(invalidDocs)
+        .map(InvalidDocuments(_))
+    }
     
   }
   
@@ -70,11 +71,10 @@ object DocumentParser {
   
   object InvalidDocument {
     
-    def from (messages: Seq[RuntimeMessage], path: Path): Option[InvalidDocument] =
-      NonEmptyChain.fromSeq(messages).map(InvalidDocument(_, path))
-
-    def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] =
-      from(document.runtimeMessages(failOn), document.path)
+    def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
+      val invalidElements = document.runtimeMessages(failOn)
+      NonEmptyChain.fromSeq(invalidElements).map(InvalidDocument(_, document.path))
+    }
     
   }
 
