@@ -35,7 +35,7 @@ class RewriteRulesSpec extends AnyFlatSpec
     doc.rewrite(rules).content
   }
   
-  def invalidSpan (message: String): InvalidSpan = InvalidElement(message, generatedSource).asSpan
+  def invalidSpan (message: String): InvalidSpan = InvalidSpan(message, generatedSource)
       
       
   "The rewrite rules for substitutions" should "replace a single reference with the target span" in {

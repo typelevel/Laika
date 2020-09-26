@@ -137,7 +137,7 @@ class StandardTextRoles {
     }{
       case ((formats, opt), content) => NonEmptySet.fromSet(TreeSet(formats:_*)) match {
         case Some(set) => RawContent(set, content, opt)
-        case None      => InvalidElement("no format specified", LineSource("", SourceCursor(""))).asSpan // TODO - pass actual source string
+        case None      => InvalidSpan("no format specified", LineSource("", SourceCursor(""))) // TODO - pass actual source string
       }
     }  
     

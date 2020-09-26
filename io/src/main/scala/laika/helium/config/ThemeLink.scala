@@ -31,7 +31,7 @@ sealed trait ThemeLink extends SpanResolver {
   def target: ThemeTarget
   
   def resolve (cursor: DocumentCursor): Span = target.resolve(cursor) match {
-    case Left(msg) => InvalidElement(msg, source).asSpan
+    case Left(msg) => InvalidSpan(msg, source)
     case Right(target) => createLink(target)
   }
 

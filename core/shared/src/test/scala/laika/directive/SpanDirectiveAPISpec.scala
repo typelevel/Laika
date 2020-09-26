@@ -172,7 +172,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       )).rewriteSpan(seq)
     }
 
-    def invalid (fragment: String, error: String): InvalidSpan = InvalidElement(error, source(fragment, input)).asSpan
+    def invalid (fragment: String, error: String): InvalidSpan = InvalidSpan(error, source(fragment, input))
 
     def ss (spans: Span*): Span = SpanSequence(spans)
     

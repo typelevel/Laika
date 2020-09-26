@@ -162,7 +162,7 @@ object InlineParsers {
   val image: SpanParserBuilder = SpanParser.recursive { recParsers =>
 
     def escape (text: LineSource, input: SourceFragment, f: String => Span): Span = 
-      recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidElement(_, input).asSpan, f)
+      recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(InvalidSpan(_, input), f)
 
     ("![" ~> resource(recParsers)).context.map { ctx =>
       ctx.result.target match {

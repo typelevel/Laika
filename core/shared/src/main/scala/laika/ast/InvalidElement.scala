@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.parse.{SourceFragment}
+import laika.parse.SourceFragment
 
 import scala.math.Ordered
 
@@ -48,6 +48,7 @@ case class InvalidSpan (message: RuntimeMessage, source: SourceFragment, fallbac
 }
 
 object InvalidSpan {
+  def apply (message: String, source: SourceFragment): InvalidSpan = apply(RuntimeMessage(MessageLevel.Error, message), source)
   def apply (message: RuntimeMessage, source: SourceFragment): InvalidSpan = apply(message, source, Text(source.input))
 }
 
@@ -60,6 +61,7 @@ case class InvalidBlock (message: RuntimeMessage, source: SourceFragment, fallba
 }
 
 object InvalidBlock {
+  def apply (message: String, source: SourceFragment): InvalidBlock = apply(RuntimeMessage(MessageLevel.Error, message), source)
   def apply (message: RuntimeMessage, source: SourceFragment): InvalidBlock = apply(message, source, LiteralBlock(source.input))
 }
 

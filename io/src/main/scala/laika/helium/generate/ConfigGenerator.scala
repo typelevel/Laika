@@ -100,7 +100,7 @@ private[laika] object ConfigGenerator {
     type Self = RelativePath
     val source: SourceFragment = LineSource("", SourceCursor("<unresolved target>")) // TODO - use new GeneratedSource type later
     def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
-      case Left(msg) => InvalidElement(s"unresolved target ${target.description}: $msg", source).asSpan
+      case Left(msg) => InvalidSpan(s"unresolved target ${target.description}: $msg", source)
       case Right(it: InternalTarget) => Text(it.relativeTo(cursor.path).relativePath.toString)
       case Right(ExternalTarget(url)) => Text(url)
     } 

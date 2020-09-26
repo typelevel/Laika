@@ -98,7 +98,7 @@ object StandardDirectiveParts {
           cursor.config.get[Seq[Path]](LinkConfig.key.value.child("excludeFromValidation"))
             .getOrElse(Nil)
             .exists(p => resolvedTarget.absolutePath.isSubPath(p))) image.copy(target = resolvedTarget)
-        else InvalidElement(unresolvedMessage, source).asSpan
+        else InvalidSpan(unresolvedMessage, source)
       case _ => image
     }
     override def withOptions (options: Options): ImageResolver = copy(image = image.withOptions(options))

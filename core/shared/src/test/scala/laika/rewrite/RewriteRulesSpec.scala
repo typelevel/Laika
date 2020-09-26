@@ -41,7 +41,7 @@ class RewriteRulesSpec extends AnyWordSpec
   
   val refPath: Path = Root / "doc"
 
-  def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, source(fallback, fallback)).asSpan
+  def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidSpan(message, source(fallback, fallback))
 
   def invalidBlock (message: String, fallback: Block): InvalidBlock =
     InvalidBlock(RuntimeMessage(MessageLevel.Error, message), generatedSource, fallback)

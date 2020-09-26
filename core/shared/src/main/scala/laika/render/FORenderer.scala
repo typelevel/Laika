@@ -258,7 +258,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderUnresolvedReference (ref: Reference): String = {
-      fmt.child(InvalidElement(s"unresolved reference: $ref", ref.source).asSpan)
+      fmt.child(InvalidSpan(s"unresolved reference: $ref", ref.source))
     }
 
     def renderInvalidElement (elem: Invalid[_ <: Element]): String = elem match {

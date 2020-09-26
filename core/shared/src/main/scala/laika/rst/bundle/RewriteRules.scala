@@ -43,17 +43,15 @@ class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => laika.a
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     }.toMap ++ baseRoleElements
 
-    def invalidSpan (message: String, source: SourceFragment): InvalidSpan = InvalidElement(message, source).asSpan
-      
     /** Function providing the default rewrite rules when passed a document instance.
      */
     val rewrite: laika.ast.RewriteRules = laika.ast.RewriteRules.forSpans {
           
       case SubstitutionReference(id, source, _) =>
-        Replace(substitutions.getOrElse(id, invalidSpan(s"unknown substitution id: $id", source)))
+        Replace(substitutions.getOrElse(id, InvalidSpan(s"unknown substitution id: $id", source)))
         
       case InterpretedText(role, text, source, _) =>
-        Replace(textRoles.get(role).fold[Span](invalidSpan(s"unknown text role: $role", source))(_(text)))
+        Replace(textRoles.get(role).fold[Span](InvalidSpan(s"unknown text role: $role", source))(_(text)))
         
     }
   }

@@ -98,7 +98,7 @@ class TemplateParsersSpec extends AnyFlatSpec
     val ref = "${document = content}"
     val input = s"some text $ref some more"
     Parsing (input) should produce (spans(t("some text "), 
-      TemplateElement(InvalidElement(errorMsg, source(ref, input)).asSpan), 
+      TemplateElement(InvalidSpan(errorMsg, source(ref, input))), 
       t(" some more")
     ))
 

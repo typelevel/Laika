@@ -151,7 +151,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
   
   trait InvalidTemplateParser extends TemplateParser {
     def input: String
-    def invalid (fragment: String, error: String): InvalidSpan = InvalidElement(error, source(fragment, input)).asSpan
+    def invalid (fragment: String, error: String): InvalidSpan = InvalidSpan(error, source(fragment, input))
   }
   
 

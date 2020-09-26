@@ -564,7 +564,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
     parse(input).content should be (root(p(
       Text("aa "),
-      InvalidElement(msg, source(directive, input)).asSpan,
+      InvalidSpan(msg, source(directive, input)),
       Text(" bb")
     )))
   }
@@ -654,7 +654,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
     parse(input).content should be (root(p(
       Text("aa "),
-      InvalidElement(msg, source(directive, input)).asSpan,
+      InvalidSpan(msg, source(directive, input)),
       Text(" bb")
     )))
   }
@@ -777,7 +777,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def templateResult (items: NavigationItem*): RootElement = buildResult(NavigationList(items, itemStyles))
 
     def error (msg: String, fragment: String, input: String): RootElement = {
-      buildResult(InvalidElement(msg, source(fragment, input)).asSpan)
+      buildResult(InvalidSpan(msg, source(fragment, input)))
     }
 
     private val sections = Seq(

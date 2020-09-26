@@ -613,7 +613,7 @@ object Spans extends BuilderContext[Span] {
     type Self = DirectiveInstance
     val typeName: String = "span"
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): Span = InvalidElement(message, source).asSpan
+    def createInvalidElement (message: String): Span = InvalidSpan(message, source)
     lazy val unresolvedMessage: String = s"Unresolved span directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
 
@@ -623,7 +623,7 @@ object Spans extends BuilderContext[Span] {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
     def resolve (cursor: DocumentCursor): Span =
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asSpan
+      InvalidSpan(s"Orphaned separator directive with name '${parsedResult.name}'", source)
     lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
   

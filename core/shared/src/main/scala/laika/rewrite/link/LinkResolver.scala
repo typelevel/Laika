@@ -78,7 +78,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
           ))
         case _: Image =>
-          InvalidElement(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source).asSpan
+          InvalidSpan(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source)
       }
       
       def validateLink (link: Span, target: Target): Span = target match {
@@ -89,7 +89,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
               .fold(link)(assignExternalUrl(link, resolvedTarget))
           }
-          else InvalidElement(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}", ref.source).asSpan
+          else InvalidSpan(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}", ref.source)
         case _ => link
       }
 
@@ -102,7 +102,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             val target = ReferenceResolver.resolveTarget(p.path, cursor.path)
             validateLink(p.resolve(target), target)
           case _ =>
-            InvalidElement(msg, ref.source).asSpan
+            InvalidSpan(msg, ref.source)
         }
       }
       Replace(resolvedTarget)
