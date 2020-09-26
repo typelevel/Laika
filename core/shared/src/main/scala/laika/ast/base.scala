@@ -118,17 +118,31 @@ trait Unresolved extends Element {
     */
   def source: SourceFragment
   
-  /** An error message to display when this element remain unresolved until after the final
-    * AST transformation step.
+  /** An error message to display when this element remains unresolved until after the final AST transformation step.
     */
   def unresolvedMessage: String
 }
 
 /** Represents an invalid element. 
-  * Renderers can choose to either render the fallback or the runtime message or both.
+  * Renderers can choose to either render the fallback or the runtime message or both,
+  * depending on the configuration of the transformer or renderer.
   */
-trait Invalid[+E <: Element] extends Element {
+trait Invalid[+E <: Element] extends Element with Fallback {
+
+  /** The fragment from the input source that produced this element.
+    * Can be used to report the line of the error or to render a fallback that simply renders back
+    * the consumed input.
+    */
+  def source: SourceFragment
+
+  /** A message describing the reason why this element is invalid.
+    */
   def message: RuntimeMessage
+
+  /** A fallback that can be used in case a transformer or renderer is configured in such a way that
+    * errors are ignored.
+    * Renderers will pick this fallback element instead of the original invalid element in such a case.
+    */
   def fallback: E
 }
 

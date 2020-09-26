@@ -178,8 +178,8 @@ class StandardBlockDirectives {
         Origin.root
       )}
       EmbeddedConfigValue("meta", ObjectValue(values))
-    case other => InvalidBlock(RuntimeMessage(MessageLevel.Error,
-        "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
+    case _ => InvalidBlock(RuntimeMessage(MessageLevel.Error,
+        "The meta directive expects a FieldList as its only block content"), LineSource("", SourceCursor("")))
   }
   
   /** The header directive,

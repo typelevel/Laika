@@ -248,7 +248,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       fmt.child(InvalidElement(s"unresolved reference: $ref", ref.source).asSpan)
 
     def renderInvalidElement (elem: Invalid[_ <: Element]): String = elem match {
-      case InvalidBlock(msg, fallback, opt) => 
+      case InvalidBlock(msg, _, fallback, opt) => 
         fmt.forMessage(msg)(fmt.child(Paragraph(List(msg), opt))) + fmt.child(fallback)
       case e =>
         fmt.forMessage(e.message)(fmt.child(e.message) + " ") + fmt.child(e.fallback)

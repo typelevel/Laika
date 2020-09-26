@@ -62,10 +62,12 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     val prefix = delimiter('|').nextNot(' ') ~> 
       escapedText(delimitedBy(delimiter('|').prevNot(' ')).failOn('\n').nonEmpty)
     
-    ((prefix <~ ws) ~ spanDirectiveParser).map { 
-      case name ~ InvalidDirective(msg, source, _) =>
-        InvalidElement(msg, LineSource(source.input.replaceFirst(".. ", s".. |$name| "), source)).asBlock
-      case name ~ content => SubstitutionDefinition(name, content) 
+    (reverseWS ~ (prefix <~ ws) ~ spanDirectiveParser).map { 
+      case wsCount ~ name ~ InvalidDirective(msg, source, _) =>
+        val reconstructedInput = ".." + (" " * wsCount) + s"|$name|" + source.input.drop(2)
+        val reconstructedSource = LineSource(reconstructedInput, source.root.consume((2 + name.length + wsCount) * -1))
+        InvalidElement(msg, LineSource(source.input.replaceFirst(".. ", s".. |$name| "), reconstructedSource)).asBlock
+      case _ ~ name ~ content => SubstitutionDefinition(name, content) 
     }
   }
   private lazy val spanDirectiveParser: Parser[Span] = directive(spanDirectives.get)
