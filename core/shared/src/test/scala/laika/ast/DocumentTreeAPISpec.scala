@@ -47,7 +47,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     def treeWithTwoSubtrees (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentTree = {
       val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false, generatedSource)))
       def targetRoot (docNum: Int) = {
-        val msgNode = if (includeRuntimeMessage) Seq(RuntimeMessage(MessageLevel.Error, s"Message $docNum")) else Nil
+        val msgNode = if (includeRuntimeMessage) Seq(InvalidSpan(s"Message $docNum", generatedSource(s"Message $docNum"))) else Nil
         root(Paragraph(refNode ++ msgNode))
       }
       def docs (parent: Path, nums: Int*): Seq[Document] = nums map { n =>
@@ -249,12 +249,20 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("../sub1/doc4"))
   }
   
-  it should "provide all runtime message in the tree" in new TreeModel {
+  it should "provide all runtime messages in the tree" in new TreeModel {
     val root = leafDocCursor(includeRuntimeMessage = true).root.target
     val expected = Seq(1,2,0,3,4,0,5,6).map { num =>
       RuntimeMessage(MessageLevel.Error, s"Message $num")
     }
     root.tree.runtimeMessages(MessageFilter.Warning) shouldBe expected
+  }
+
+  it should "provide all invalid spans in the tree" in new TreeModel {
+    val root = leafDocCursor(includeRuntimeMessage = true).root.target
+    val expected = Seq(1,2,0,3,4,0,5,6).map { num =>
+      InvalidSpan(s"Message $num", generatedSource(s"Message $num"))
+    }
+    root.tree.invalidElements(MessageFilter.Warning) shouldBe expected
   }
 
 }
