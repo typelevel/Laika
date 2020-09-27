@@ -53,9 +53,28 @@ object DocumentParser {
 
   object InvalidDocuments {
     
-    def format (documents: NonEmptyChain[InvalidDocument]): String = documents
-      .map(invDoc => invDoc.invalidElements.map(_.message.content).mkString_(invDoc.path + "\n  ", "\n  ", ""))
-      .mkString_("\n")
+    def format (documents: NonEmptyChain[InvalidDocument]): String = {
+      
+      def indent (lineContent: String): String = {
+        val lines = lineContent.split('\n')
+        lines.head + "\n  " + lines.last
+      }
+      
+      def formatElement (element: Invalid[_]): String =
+        s"""  [${element.source.position.line}]: ${element.message.content}
+           |
+           |  ${indent(element.source.position.lineContentWithCaret)}
+           |
+           |""".stripMargin
+      
+      def formatDoc (doc: InvalidDocument): String =
+        s"""${doc.path}
+          |
+          |${doc.invalidElements.map(formatElement).toList.mkString}
+        """.stripMargin
+      
+      documents.map(formatDoc).mkString_("\n")
+    }
     
     def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {
       val invalidDocs = root.allDocuments

@@ -21,6 +21,7 @@ import cats.effect.IO
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
+import laika.ast.helper.ModelBuilder
 import laika.config.Config
 import laika.format.PDF
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
@@ -33,19 +34,19 @@ import org.scalatest.matchers.should.Matchers
 /**
   * @author Jens Halm
   */
-class FOConcatenationSpec extends AnyFlatSpec with Matchers {
+class FOConcatenationSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
-  val message = RuntimeMessage(MessageLevel.Error, "WRONG")
+  val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
   
   val result = RenderedTreeRoot[IO](
     tree = RenderedTree(Root, None, Seq(RenderedDocument(Root / "doc", None, Nil, "content"))),
-    defaultTemplate = TemplateRoot(TemplateElement(message)),
+    defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
     styles = TestTheme.foStyles
   )
   
-  "The FO concatenation" should "fail when there are errors in the template result" in {
-    FOConcatenation(result, PDF.BookConfig(), OperationConfig.default) shouldBe Left(InvalidDocument(NonEmptyChain.one(message), Root / "merged.fo"))
+  "The FO concatenation" should "fail when there are invalid elements in the template result" in {
+    FOConcatenation(result, PDF.BookConfig(), OperationConfig.default) shouldBe Left(InvalidDocument(NonEmptyChain.one(invalidElement), Root / "merged.fo"))
   }
   
   it should "succeed when there are errors in the template result, but the filter is None" in {
@@ -53,7 +54,7 @@ class FOConcatenationSpec extends AnyFlatSpec with Matchers {
       renderMessages = MessageFilter.Warning,
       failOnMessages = MessageFilter.None
     )
-    val fo = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline>"""
+    val fo = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> faulty input"""
     FOConcatenation(result, PDF.BookConfig(), config) shouldBe Right(fo)
   }
   
