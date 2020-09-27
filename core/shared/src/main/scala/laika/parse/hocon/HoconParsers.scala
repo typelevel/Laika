@@ -51,7 +51,7 @@ object HoconParsers {
                            msg: => String)
                            (captureError: (T, Failure) => R): Parser[R] = {
 
-      (parser ~ (closingParser.as((0,())) | fallbackParser.withContext)).map {
+      (parser ~ (closingParser.as((0,())) | fallbackParser.withCursor)).map {
         case res ~ ((cnt: Int, source: SourceCursor)) =>
           captureError(res, Failure(Message.fixed(msg), source.consume(cnt)))
         case res ~ _ =>
@@ -65,8 +65,8 @@ object HoconParsers {
                   msg: => String)
                  (captureError: Failure => T): Parser[T] = {
 
-    fallbackParser.withContext.map { case(cnt, ctx) =>
-      captureError(Failure(Message.fixed(msg), ctx.consume(cnt)))
+    fallbackParser.withCursor.map { case(cnt, source) =>
+      captureError(Failure(Message.fixed(msg), source.consume(cnt)))
     }
     
   }
@@ -148,7 +148,7 @@ object HoconParsers {
     }
     val literalChar = oneOf('"','\\','/')
     val unicode = "u" ~> DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
-    val escape = "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withContext.map(Left(_)) )
+    val escape = "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withCursor.map(Left(_)) )
     
     val value = (chars | escape).rep.map { parts => 
       parts.sequence.fold(

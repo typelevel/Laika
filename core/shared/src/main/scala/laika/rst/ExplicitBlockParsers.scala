@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{Failure, LineSource, Parser, ResultContext, Success}
+import laika.parse.{Failure, LineSource, Parser, Success}
 import laika.rst.ast._
 import BaseParsers._
 import laika.parse.text.PrefixedParser
@@ -64,7 +64,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
     
     val prefix = reverseWS ~ ("[" ~> footnoteLabel <~ "]" ~ ws)
     
-    (prefix ~ recursiveBlocks(indentedBlock())).context.map { case ResultContext(wsCount ~ label ~ content, src) =>
+    (prefix ~ recursiveBlocks(indentedBlock())).withCursor.map { case (wsCount ~ label ~ content, src) =>
       val bodyInput = if (src.input.lastOption.contains('\n')) src.input.dropRight(1) else src.input
       val reconstructedInput = ".." + (" " * wsCount) + bodyInput
       val reconstructedSource = LineSource(reconstructedInput, src.root.consume((2 + wsCount) * -1))

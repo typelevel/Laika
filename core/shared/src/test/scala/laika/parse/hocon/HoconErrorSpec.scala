@@ -19,7 +19,6 @@ package laika.parse.hocon
 import laika.config.{ConfigParser, ConfigParserErrors}
 import org.scalatest.Assertion
 
-import scala.collection.immutable.TreeSet
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

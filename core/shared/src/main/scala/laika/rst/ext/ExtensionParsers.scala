@@ -22,7 +22,7 @@ import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{BlockSource, Failure, LineSource, Parser, ResultContext, SourceFragment, Success}
+import laika.parse.{BlockSource, Failure, LineSource, Parser, SourceFragment, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
@@ -108,7 +108,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       }
     }
 
-    nameParser.context >> { case ResultContext(wsCnt ~ name, source) => 
+    nameParser.withCursor >> { case (wsCnt ~ name, source) => 
       directive(provider(name.toLowerCase).map(directiveParser).getOrElse(failure(s"unknown directive: $name")), source, wsCnt)
     }
   }
@@ -119,8 +119,8 @@ class ExtensionParsers(recParsers: RecursiveParsers,
   }
   
   private def directive [E](p: Parser[E], nameSource: SourceFragment, wsCount: Int): Parser[E] = p.handleErrorWith { f => 
-    indentedBlock().context.map { ctx =>
-      val bodyInput = if (ctx.source.input.lastOption.contains('\n')) ctx.source.input.dropRight(1) else ctx.source.input
+    indentedBlock().cursor.map { source =>
+      val bodyInput = if (source.input.lastOption.contains('\n')) source.input.dropRight(1) else source.input
       val reconstructedInput = ".." + (" " * wsCount) + nameSource.input + bodyInput
       val reconstructedSource = LineSource(reconstructedInput, nameSource.root.consume((2 + wsCount) * -1))
       InvalidDirective(f.message, reconstructedSource).asInstanceOf[E]
@@ -145,7 +145,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       }
     }
     
-    nameParser.context >> { case ResultContext(wsCnt ~ name ~ baseName, source) =>
+    nameParser.withCursor >> { case (wsCnt ~ name ~ baseName, source) =>
       val base = baseName.getOrElse(defaultTextRole)
       directive(textRoles.get(base.toLowerCase).map(directiveParser(name))
           .getOrElse(failure(s"unknown text role: $base")), source, wsCnt).map(replaceInvalidDirective)

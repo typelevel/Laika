@@ -337,71 +337,61 @@ abstract class Parser[+T] {
     }
   }
 
-  /** Adds the position at the end of a successful application of this 
-    * parser to the result in a tuple.
-    */
-  def withPosition: Parser[(T, Position)] = Parser { in =>
-    parse(in) match {
-      case f: Failure => f
-      case Success(result, rest) => Success((result, rest.position), rest)
-    }
-  }
-
-  /** Adds the SourceCursor positioned at the end of a successful application of this 
-    * parser to the result in a tuple.
-    */
-  def withContext: Parser[(T, SourceCursor)] = Parser { in =>
-    parse(in) match {
-      case f: Failure => f
-      case Success(result, rest) => Success((result, in), rest)
-    }
-  }
-
-  /** Provides the result of this parser together with the full context: its consumed source string and
-    * its position within the root input.
+  /** Provides the result of this parser together with a cursor over the input,
+    * capturing the consumed source string and its position within the root input.
+    * Use `cursor` if you do not need access to the actual result.
     * 
     * This is required for parsers that create AST nodes that need to be resolved in a rewrite step
     * and need to report the source location in case of failure.
+    * It is also required when passing a result of a first-pass parser to a recursive parser
+    * to preserve line positions.
     */
-  def context: Parser[ResultContext[T]] = Parser { in =>
+  def withCursor: Parser[(T, SourceFragment)] = Parser { in =>
     parse(in) match {
       case f: Failure => f
       case Success(result, next) => 
         val consumed = in.capture(next.offset - in.offset)
-        Success(new ResultContext[T](result, LineSource(consumed, in)), next)
+        Success((result, LineSource(consumed, in)), next)
     }
   }
 
-  /** Groups the result of the parser and the source string
-    * that it successfully parsed into a tupled result. 
+  /** Provides a cursor over the input consumed by this parser while discarding the actual result.
+    * Use `withCursor` if you also need access to the result.
+    *
+    * This is required for parsers that create AST nodes that need to be resolved in a rewrite step
+    * and need to report the source location in case of failure.
+    * It is also required when passing a result of a first-pass parser to a recursive parser
+    * to preserve line positions.
     */
-  def withSource: Parser[(T, String)] = Parser { in =>
-    parse(in) match {
-      case Success(result, next) => Success((result, in.capture(next.offset - in.offset)), next)
-      case f: Failure            => f
-    }
-  }
-
-  /** Retrieves the part of the input consumed by this parser
-    * while discarding the result.
+  def cursor: Parser[SourceFragment] = withCursor.map(_._2)
+  
+  /** Retrieves the part of the input consumed by this parser while discarding the result.
     * 
-    * This is useful in scenarios where many string-based parsers
-    * are combined and produce a deeply nested result like
-    * `String ~ Option[String] ~ List[String]` where it would require
-    * some boilerplate to concatenate the results. Using the source
-    * method, the entire text consumed by this combination of parsers
-    * will be returned.
+    * This is useful in scenarios where many string-based parsers are combined and produce a deeply nested result
+    * like `String ~ Option[String] ~ List[String]` where it would require some boilerplate to concatenate the results. 
+    * Using the source method, the entire text consumed by this combination of parsers will be returned.
+    * 
+    * If you also need the position within the input or need to pass the result to a recursive parser manually,
+    * use the `cursor` method instead.
     */
-  def source: Parser[String] = withSource.map(_._2)
+  def source: Parser[String] = withCursor.map(_._2.input)
 
   /** Returns a parser that produces the number of characters
     * consumed by this parser while discarding the original result.
     */
-  def count: Parser[Int] = withSource.map(_._2.length)
+  def count: Parser[Int] = withCursor.map(_._2.input.length)
+
+  
+  @deprecated("use withCursor which contains the position", "0.17.0")
+  def withPosition: Parser[(T, Position)] = withCursor.map { case (result, cursor) => (result, cursor.position) }
+
+  @deprecated("use withCursor, which is positioned at the beginning of the consumed input", "0.17.0")
+  def withContext: Parser[(T, SourceFragment)] = withCursor.map(t => (t._1, t._2))
+  
+  @deprecated("use withCursor which contains the input string", "0.17.0")
+  def withSource: Parser[(T, String)] = withCursor.map(t => (t._1, t._2.input))
 
 }
-
-case class ResultContext[+T] (result: T, source: SourceFragment)
 
 /** Companion factory for creating new parser instances.
   */

@@ -91,7 +91,11 @@ trait SourceCursor {
 /** Represents any source cursor other than the root cursor and it is mandated by some APIs that
   * solely deal with recursive parsing where the root input will never be used as the source for the parser.
   */
-trait SourceFragment extends SourceCursor
+trait SourceFragment extends SourceCursor {
+
+  type Self <: SourceFragment
+  
+}
 
 /** A root source represents the full input string of a parsing operation.
   * 

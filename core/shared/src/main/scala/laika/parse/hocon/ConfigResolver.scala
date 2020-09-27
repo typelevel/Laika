@@ -331,7 +331,8 @@ object ConfigResolver {
 
     obj.values.flatMap {
       case BuilderField(Left(InvalidStringValue(_, failure)), inv: InvalidBuilderValue) if failure.message.contains("unquoted string") => 
-        Seq(inv.failure.copy(maxOffset = failure.maxOffset))
+        // keep the message of the value failure with the position of the key failure for more clarity
+        Seq(failure.copy(msgProvider = inv.failure.msgProvider))
       case BuilderField(Left(InvalidStringValue(_, failure)), _) => Seq(failure)
       case BuilderField(_, value) => extract(value)
     }

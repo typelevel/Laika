@@ -21,7 +21,7 @@ import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
-import laika.parse.{LineSource, Parsed, Parser, ResultContext, SourceCursor, SourceFragment, Success}
+import laika.parse.{LineSource, Parsed, Parser, SourceCursor, SourceFragment, Success}
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import BaseParsers._
 
@@ -82,7 +82,7 @@ object BlockParsers {
         }
       }
     }
-    spanParser.context.map { case ResultContext((decoChar, title), source) => 
+    spanParser.withCursor.map { case ((decoChar, title), source) => 
       DecoratedHeader(OverlineAndUnderline(decoChar), title, stripTrailingNewline(source))
     }
   }
@@ -100,7 +100,7 @@ object BlockParsers {
         }
       }
     }
-    spanParser.context.map { case ResultContext((decoChar, title), source) => 
+    spanParser.withCursor.map { case ((decoChar, title), source) => 
       DecoratedHeader(Underline(decoChar), spanParsers.recursiveSpans.parse(title).getOrElse(Nil), stripTrailingNewline(source)) // TODO - recovery
     }
   }

@@ -18,7 +18,7 @@ package laika.parse.text
 
 import cats.data.NonEmptySet
 import laika.ast.~
-import laika.parse.{Parsed, Parser, ResultContext, SourceCursor}
+import laika.parse.{Parsed, Parser, SourceCursor, SourceFragment}
 
 /** A parser that is associated with a non-empty set of trigger 
   * characters for performance optimizations.
@@ -93,11 +93,15 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
 
   override def | (value: String)(implicit ev: T <:< String): PrefixedParser[String] = map(ev).orElse(TextParsers.literal(value))
 
-  override def withSource: PrefixedParser[(T, String)] = PrefixedParser(startChars)(super.withSource)
-
+  override def withCursor: PrefixedParser[(T, SourceFragment)] = PrefixedParser(startChars)(super.withCursor)
+  
+  override def cursor: PrefixedParser[SourceFragment] = PrefixedParser(startChars)(super.cursor)
+  
   override def source: PrefixedParser[String] = PrefixedParser(startChars)(super.source)
 
-  override def context: PrefixedParser[ResultContext[T]] = PrefixedParser(startChars)(super.context)
+  
+  @deprecated("use withCursor which contains the input string", "0.17.0")
+  override def withSource: PrefixedParser[(T, String)] = withCursor.map(t => (t._1, t._2.input))
 }
 
 /** Factories and utilities for creating or processing PrefixedParser instances.
