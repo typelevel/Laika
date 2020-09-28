@@ -293,7 +293,7 @@ object InlineParsers {
   lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
     markupEnd("__" | "_").withCursor.flatMap { case (delim, source) => 
       reverse(delim.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
-        val src = LineSource(s"$refName${delim}", source.consume(refName.length * -1))
+        val src = LineSource(s"$refName${delim}", source.root.consume(refName.length * -1))
         delim match {
           case "_"  => 
             Reverse(refName.length, LinkIdReference(List(Text(refName)), ReferenceName(refName).normalized, src), Text("_")) 
