@@ -169,7 +169,7 @@ object BlockParsers {
     val level = someOf('#').max(6).count
     val text = recParsers.recursiveSpans(restOfLine.map(stripDecoration).line)
 
-    (level ~ (not(blankLine) ~> text)).mapN(Header(_,_))
+    (level ~ (not(blankLine) ~ ws ~> text)).mapN(Header(_,_))
   }
 
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
