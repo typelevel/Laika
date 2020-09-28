@@ -159,7 +159,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * while the `rootRef` constructor argument is positioned at the beginning of the line, 
   * so that the final property can be created lazily.
   */
-class LineSource (val input: String, private val rootRef: RootSource, val offset: Int, val nestLevel: Int) extends SourceFragment {
+class LineSource (val input: String, private val rootRef: RootSource, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
 
   type Self = LineSource
   
@@ -177,16 +177,16 @@ class LineSource (val input: String, private val rootRef: RootSource, val offset
   }
 
   def consume (numChars: Int): LineSource =
-    if (numChars != 0) new LineSource(input, rootRef, offset + numChars, nestLevel)
+    if (numChars != 0) new LineSource(input, rootRef, offset + numChars, nestLevel, rootOffset + numChars)
     else this
 
-  lazy val root: RootSource = rootRef.consume(offset)
+  lazy val root: RootSource = rootRef.consume(rootOffset)
   
   lazy val position: Position = root.position
 
-  def nextNestLevel: LineSource = new LineSource(input, rootRef, offset, nestLevel + 1)
+  def nextNestLevel: LineSource = new LineSource(input, rootRef, offset, nestLevel + 1, rootOffset)
   
-  def reverse: LineSource = new LineSource(input.reverse, rootRef, remaining, nestLevel)
+  def reverse: LineSource = new LineSource(input.reverse, root.reverse, remaining, nestLevel)
 
   override def hashCode(): Int = (input, rootRef.input, rootRef.offset, offset, nestLevel).hashCode()
 
@@ -256,7 +256,7 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
 
   def nextNestLevel: BlockSource = new BlockSource(inputRef, lines, offset, nestLevel + 1)
   
-  def reverse: BlockSource = new BlockSource(inputRef.reverse, lines, remaining, nestLevel)
+  def reverse: BlockSource = new BlockSource(inputRef.reverse, lines.reverse.map(_.reverse), remaining, nestLevel)
 
   override def hashCode(): Int = (input, lines.iterator, offset, nestLevel).hashCode()
 
