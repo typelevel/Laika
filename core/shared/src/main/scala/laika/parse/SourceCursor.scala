@@ -261,7 +261,7 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
       else posFromLine(remainingLines.tail, remainingOffset - (lineLength + 1))
     }
     val (lineSource, lineOffset) = posFromLine(lines.toChain.toList, offset)
-    lineSource.consume(lineOffset)
+    lineSource.consume(lineOffset - lineSource.offset)
   }
   
   lazy val root: RootSource = activeLine.root
