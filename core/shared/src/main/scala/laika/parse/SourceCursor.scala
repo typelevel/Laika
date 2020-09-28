@@ -177,7 +177,14 @@ class LineSource (val input: String, private val rootRef: RootSource, val offset
   }
 
   def consume (numChars: Int): LineSource =
-    if (numChars != 0) new LineSource(input, rootRef, offset + numChars, nestLevel, rootOffset + numChars)
+    if (numChars > 0) {
+      val adjustedNum = Math.min(remaining, numChars)
+      new LineSource(input, rootRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+    }
+    else if (numChars < 0) {
+      val adjustedNum = Math.max(offset * -1, numChars)
+      new LineSource(input, rootRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+    }
     else this
 
   lazy val root: RootSource = rootRef.consume(rootOffset)
