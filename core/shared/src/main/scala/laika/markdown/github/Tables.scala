@@ -40,11 +40,11 @@ object Tables {
       }
 
     def rowRest (cellType: CellType): Parser[Row] = {
-      val cellText = spanParsers.escapedUntil('|','\n').trim
-      val finalCellText = textLine.trim
+      val cellText = spanParsers.escapedUntil('|','\n').line.map(_.trim)
+      val finalCellText = textLine.line.map(_.trim)
 
-      val delimitedCells = (cell(cellText.line, cellType) <~ prevIn('|')).rep
-      val optFinalCell = cell(finalCellText.line, cellType).map(Some(_)) | restOfLine.as(None)
+      val delimitedCells = (cell(cellText, cellType) <~ prevIn('|')).rep
+      val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine.as(None)
 
       (delimitedCells ~ optFinalCell).collect {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)

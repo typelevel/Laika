@@ -188,6 +188,13 @@ class LineSource (val input: String, private val rootRef: RootSource, val offset
   
   def reverse: LineSource = new LineSource(input.reverse, root.reverse, remaining, nestLevel)
 
+  def trim: LineSource = {
+    val spacesRemoved = input.prefixLength(_ == ' ')
+    val moveOffset = Math.min(offset, spacesRemoved)
+    val moveRootOffset = spacesRemoved - moveOffset
+    new LineSource(input.trim, rootRef, offset - moveOffset, nestLevel, rootOffset + moveRootOffset)
+  }
+  
   override def hashCode(): Int = (input, rootRef.input, rootRef.offset, offset, nestLevel).hashCode()
 
   override def equals(obj: Any): Boolean = obj match {
