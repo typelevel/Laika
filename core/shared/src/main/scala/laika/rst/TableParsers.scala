@@ -91,11 +91,10 @@ object TableParsers {
           else line.input.prefixLength(_ == ' ')
         }.iterator.min
         val trimmedLines = nonEmptyLines.map { line =>
-          val newString = if (line.input.trim.isEmpty) "" else {
+          if (line.input.trim.isEmpty) LineSource("", line.parent) else {
             val padding = " " * (line.input.prefixLength(_ == ' ') - minIndent)
-            padding + line.input.trim
+            LineSource(padding + line.input.trim, line.parent.consume(minIndent))
           }
-          new LineSource(newString, line.root.consume(minIndent), line.offset, line.nestLevel)
         }
         BlockSource(trimmedLines)
       }
