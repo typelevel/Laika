@@ -67,7 +67,11 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
     (prefix ~ recursiveBlocks(indentedBlock())).withCursor.map { case (wsCount ~ label ~ content, src) =>
       val bodyInput = if (src.input.lastOption.contains('\n')) src.input.dropRight(1) else src.input
       val reconstructedInput = ".." + (" " * wsCount) + bodyInput
-      val reconstructedSource = LineSource(reconstructedInput, src.root.consume((2 + wsCount) * -1))
+      val refCursor = src match {
+        case ls: LineSource if ls.parent.offset >= 2 + wsCount => ls.parent
+        case other => other.root
+      }
+      val reconstructedSource = LineSource(reconstructedInput, refCursor.consume((2 + wsCount) * -1))
       FootnoteDefinition(label, content, reconstructedSource)
     }
   }
