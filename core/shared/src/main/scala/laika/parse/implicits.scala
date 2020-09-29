@@ -83,7 +83,7 @@ object implicits {
       Parser { in =>
         p.parse(in) match {
           case f: Failure => f
-          case Success(result, rest) => Success(LineSource(result, in.root, in.nestLevel), rest)
+          case Success(result, rest) => Success(LineSource(result, in), rest)
         }
       }
     def trim: Parser[String] = p.map(_.trim)

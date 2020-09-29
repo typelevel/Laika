@@ -159,7 +159,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * while the `rootRef` constructor argument is positioned at the beginning of the line, 
   * so that the final property can be created lazily.
   */
-class LineSource (val input: String, private val rootRef: RootSource, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
+class LineSource (val input: String, private val parentRef: SourceCursor, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
 
   type Self = LineSource
   
@@ -179,47 +179,45 @@ class LineSource (val input: String, private val rootRef: RootSource, val offset
   def consume (numChars: Int): LineSource =
     if (numChars > 0) {
       val adjustedNum = Math.min(remaining, numChars)
-      new LineSource(input, rootRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+      new LineSource(input, parentRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
     }
     else if (numChars < 0) {
       val adjustedNum = Math.max(offset * -1, numChars)
-      new LineSource(input, rootRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+      new LineSource(input, parentRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
     }
     else this
 
-  lazy val root: RootSource = rootRef.consume(rootOffset)
+  lazy val root: RootSource = parentRef.consume(rootOffset).root
   
   lazy val position: Position = root.position
 
-  def nextNestLevel: LineSource = new LineSource(input, rootRef, offset, nestLevel + 1, rootOffset)
+  def nextNestLevel: LineSource = new LineSource(input, parentRef, offset, nestLevel + 1, rootOffset)
   
-  def reverse: LineSource = new LineSource(input.reverse, root.reverse, remaining, nestLevel)
+  def reverse: LineSource = new LineSource(input.reverse, parentRef.consume(rootOffset).reverse, remaining, nestLevel)
 
   def trim: LineSource = {
     val spacesRemoved = input.prefixLength(_ == ' ')
     val moveOffset = Math.min(offset, spacesRemoved)
     val moveRootOffset = spacesRemoved - moveOffset
-    new LineSource(input.trim, rootRef, offset - moveOffset, nestLevel, rootOffset + moveRootOffset)
+    new LineSource(input.trim, parentRef, offset - moveOffset, nestLevel, rootOffset + moveRootOffset)
   }
   
-  override def hashCode(): Int = (input, rootRef.input, rootRef.offset, offset, nestLevel).hashCode()
+  override def hashCode(): Int = (input, root.offset, offset, nestLevel).hashCode()
 
   override def equals(obj: Any): Boolean = obj match {
-    case ls: LineSource => ls.input == input && 
-      ls.rootRef.input == rootRef.input &&
-      ls.rootRef.offset == rootRef.offset &&
+    case ls: LineSource => 
+      ls.input == input && 
+      ls.root.offset == root.offset &&
       ls.offset == offset &&
       ls.nestLevel == nestLevel
     case _ => false
   }
 
-  override def toString: String = 
-    s"LineSource(offset ${rootRef.offset} - length ${input.length})"
+  override def toString: String = s"LineSource(offset ${parentRef.offset} - length ${input.length})"
 }
 
 object LineSource {
-  def apply (input: String, root: RootSource, nestLevel: Int): LineSource = new LineSource(input, root, 0, nestLevel)
-  def apply (input: String, ref: SourceCursor): LineSource = new LineSource(input, ref.root, 0, ref.nestLevel)
+  def apply (input: String, parent: SourceCursor): LineSource = new LineSource(input, parent, 0, parent.nestLevel)
 }
 
 /** A block source represents the source for a block level element where each individual line might
