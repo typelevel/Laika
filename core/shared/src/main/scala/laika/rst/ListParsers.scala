@@ -190,9 +190,9 @@ object ListParsers {
    */
   lazy val fieldList: BlockParserBuilder = BlockParser.recursive { recParsers =>
     
-    val nameParser = ":" ~> recParsers.escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
+    val nameParser = ":" ~> recParsers.escapedUntil(':').line <~ (lookAhead(eol).as("") | " ")
     
-    val name    = recParsers.recursiveSpans(nameParser.line)
+    val name    = recParsers.recursiveSpans(nameParser)
     val content = recParsers.recursiveBlocks(indentedBlock())
     
     val item = (name ~ content).mapN(Field(_, _))
