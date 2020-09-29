@@ -155,12 +155,15 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * The use of this instance ensures that the correct position can still be tracked.
   * 
   * A `LineSource` is usually used as part of a `BlockSource` and less frequently on its own.
-  * The root property always holds a source has always an offset that corresponds to the current offset of this line,
-  * while the `rootRef` constructor argument is positioned at the beginning of the line, 
-  * so that the final property can be created lazily.
   */
-class LineSource private (val input: String, private val parentRef: SourceCursor, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
+class LineSource private (val input: String, private val parentRef: SourceCursor, val offset: Int, val nestLevel: Int) extends SourceFragment {
 
+  /*
+  Implementation Note: 
+  The (private) parentRef property always holds a source with an offset that corresponds to the 0 offset 
+  of this line source, creating the instance for the public parent property with a matching offset lazily when needed.
+  */
+  
   type Self = LineSource
   
   def atEnd: Boolean = offset >= input.length
@@ -179,29 +182,28 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
   def consume (numChars: Int): LineSource =
     if (numChars > 0) {
       val adjustedNum = Math.min(remaining, numChars)
-      new LineSource(input, parentRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+      new LineSource(input, parentRef, offset + adjustedNum, nestLevel)
     }
     else if (numChars < 0) {
       val adjustedNum = Math.max(offset * -1, numChars)
-      new LineSource(input, parentRef, offset + adjustedNum, nestLevel, rootOffset + adjustedNum)
+      new LineSource(input, parentRef, offset + adjustedNum, nestLevel)
     }
     else this
 
-  lazy val parent: SourceCursor = parentRef.consume(rootOffset)
+  lazy val parent: SourceCursor = parentRef.consume(offset)
   
   lazy val root: RootSource = parent.root
   
   lazy val position: Position = root.position
 
-  def nextNestLevel: LineSource = new LineSource(input, parentRef, offset, nestLevel + 1, rootOffset)
+  def nextNestLevel: LineSource = new LineSource(input, parentRef, offset, nestLevel + 1)
   
-  def reverse: LineSource = new LineSource(input.reverse, parentRef.consume(rootOffset).reverse, remaining, nestLevel)
+  def reverse: LineSource = new LineSource(input.reverse, parentRef.consume(input.length).reverse, remaining, nestLevel)
 
   def trim: LineSource = {
     val spacesRemoved = input.prefixLength(_ == ' ')
     val moveOffset = Math.min(offset, spacesRemoved)
-    val moveRootOffset = spacesRemoved - moveOffset
-    new LineSource(input.trim, parentRef, offset - moveOffset, nestLevel, rootOffset + moveRootOffset)
+    new LineSource(input.trim, parentRef.consume(spacesRemoved), offset - moveOffset, nestLevel)
   }
   
   override def hashCode(): Int = (input, root.offset, offset, nestLevel).hashCode()
