@@ -287,8 +287,11 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
 object BlockSource {
   import cats.syntax.all._
   def apply (lines: NonEmptyChain[LineSource]): BlockSource = {
-    val input = new InputString(lines.map(_.input).mkString_("\n"))
-    new BlockSource(input, lines, 0, lines.head.nestLevel)
+    val trimmedLines = lines.map { line =>
+      if (line.input.endsWith("\n")) LineSource(line.input.dropRight(1), line.parent) else line
+    }
+    val input = new InputString(trimmedLines.map(_.input).mkString_("\n"))
+    new BlockSource(input, trimmedLines, 0, lines.head.nestLevel)
   }
   def apply (firstLine: LineSource, rest: LineSource*): BlockSource = {
     apply(NonEmptyChain(firstLine, rest:_*))
