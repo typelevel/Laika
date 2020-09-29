@@ -187,7 +187,9 @@ class LineSource (val input: String, private val parentRef: SourceCursor, val of
     }
     else this
 
-  lazy val root: RootSource = parentRef.consume(rootOffset).root
+  lazy val parent: SourceCursor = parentRef.consume(rootOffset)
+  
+  lazy val root: RootSource = parent.root
   
   lazy val position: Position = root.position
 
