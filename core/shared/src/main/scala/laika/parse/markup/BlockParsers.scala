@@ -147,7 +147,7 @@ trait BlockParsers {
         case BlankLine(_, src)          => src
         case IndentedLine(_,indent,src) =>
           val extraIndent = indent - minIndent
-          new LineSource(" " * extraIndent + src.input, src.root.consume(extraIndent * -1), src.offset, src.nestLevel)
+          LineSource(" " * extraIndent + src.input, src.parent.consume(extraIndent * -1))
       }
       (BlockSource(adjustedLines.head, adjustedLines.tail:_*), minIndent)
     }

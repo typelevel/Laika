@@ -159,7 +159,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   * while the `rootRef` constructor argument is positioned at the beginning of the line, 
   * so that the final property can be created lazily.
   */
-class LineSource (val input: String, private val parentRef: SourceCursor, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
+class LineSource private (val input: String, private val parentRef: SourceCursor, val offset: Int, val nestLevel: Int, val rootOffset: Int = 0) extends SourceFragment {
 
   type Self = LineSource
   

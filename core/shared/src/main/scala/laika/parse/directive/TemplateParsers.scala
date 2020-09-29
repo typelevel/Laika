@@ -42,7 +42,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
     val body: BodyParserBuilder = spec =>
       if (directives.get(spec.name).exists(_.hasBody)) recursiveSpans(delimitedBy(spec.fence)).source.line.map { src =>
-        Some(new LineSource(src.input.dropRight(spec.fence.length), src.root, src.offset, src.nestLevel))
+        Some(LineSource(src.input.dropRight(spec.fence.length), src.parent))
       } | success(None)
       else success(None)
 

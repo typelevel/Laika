@@ -126,7 +126,7 @@ object BlockParsers {
       def processLineBreaks(line: LineSource): LineSource =
           /* add a special sequence for hard line breaks so that the
            * inline parser does not have to stop at each space character */
-          if (line.input.endsWith("  ")) new LineSource(line.input.dropRight(2) ++ "\\\r", line.root, line.offset, line.nestLevel)
+          if (line.input.endsWith("  ")) LineSource(line.input.dropRight(2) ++ "\\\r", line.parent)
           else line
 
       def paragraph (firstLine: LineSource, restLines: List[LineSource]): Paragraph =

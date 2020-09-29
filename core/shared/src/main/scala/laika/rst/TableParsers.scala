@@ -70,13 +70,13 @@ object TableParsers {
     }
     def currentLine (sep: TableElement, line: LineSource): Unit = {
       currentLine.foreach { current =>
-        currentLine = Some(new LineSource(current.input + sep.toString + line.input, current.root, current.offset, current.nestLevel))
+        currentLine = Some(LineSource(current.input + sep.toString + line.input, current.parent))
       }
     }
     def merge (rightBuilder: CellBuilder): Unit = if (currentLine.isDefined) {
       val newLines = Zip3Iterator(allLines, rightBuilder.seps, rightBuilder.allLines).map {
         case (left, sep, right) => 
-          new LineSource(left.input + sep.toString + right.input, left.root, left.offset, left.nestLevel)
+          LineSource(left.input + sep.toString + right.input, left.parent)
       }.toSeq
       previousLines.clear()
       previousLines ++= newLines.tail
@@ -334,9 +334,9 @@ object TableParsers {
         
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParsers)
         
-        def addBlankLines (acc: ListBuffer[List[TableElement]], rootSource: RootSource, nestLevel: Int) = 
+        def addBlankLines (acc: ListBuffer[List[TableElement]], parentSource: SourceCursor) = 
             acc += cols.flatMap { case (cell, sep) => 
-              List(CellElement(new LineSource(" " * cell, rootSource, 0, nestLevel)), CellSeparator(" " * sep)) 
+              List(CellElement(LineSource(" " * cell, parentSource)), CellSeparator(" " * sep)) 
             }
         
         def addRowSeparators (acc: ListBuffer[List[TableElement]]) = 
@@ -352,7 +352,7 @@ object TableParsers {
                 case RowSeparator => (acc += row, 0, false)
                 case TableBoundary => (acc += row, 0, false)
                 case CellElement(text) => 
-                  if (text.input.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc, text.root, text.nestLevel)
+                  if (text.input.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc, text.parent)
                   else if (rowOpen) addRowSeparators(acc)
                   (acc += row, 0, true)
                 case _ => (acc, blanks, rowOpen) // cannot happen, just to avoid the warning 
