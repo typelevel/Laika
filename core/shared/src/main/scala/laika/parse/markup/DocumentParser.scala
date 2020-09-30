@@ -60,10 +60,9 @@ object DocumentParser {
       def formatDoc (doc: InvalidDocument): String =
         s"""${doc.path}
           |
-          |${InvalidDocument.format(doc)}
-        """.stripMargin
+          |${InvalidDocument.format(doc)}""".stripMargin
       
-      documents.map(formatDoc).mkString_("\n")
+      documents.map(formatDoc).mkString_("").trim
     }
     
     def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {

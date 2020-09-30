@@ -212,7 +212,52 @@ class TreeParserSpec extends IOWordSpec
         val invalidSpan = InvalidSpan(msg, generatedSource(markup))
         InvalidDocument(NonEmptyChain.one(invalidSpan), path)
       }
-      parsedTree.assertFailsWith(InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments))))
+      val expectedError = InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments)))
+      val expectedMessage =
+        """/doc1.md
+          |
+          |  [1]: unresolved link id reference: link1
+          |
+          |  [link1]
+          |  ^
+          |
+          |/doc2.md
+          |
+          |  [1]: unresolved link id reference: link2
+          |
+          |  [link2]
+          |  ^
+          |
+          |/dir1/doc3.md
+          |
+          |  [1]: unresolved link id reference: link3
+          |
+          |  [link3]
+          |  ^
+          |
+          |/dir1/doc4.md
+          |
+          |  [1]: unresolved link id reference: link4
+          |
+          |  [link4]
+          |  ^
+          |
+          |/dir2/doc5.md
+          |
+          |  [1]: unresolved link id reference: link5
+          |
+          |  [link5]
+          |  ^
+          |
+          |/dir2/doc6.md
+          |
+          |  [1]: unresolved link id reference: link6
+          |
+          |  [link6]
+          |  ^""".stripMargin
+      InvalidDocuments.format(expectedError.documents) shouldBe expectedMessage
+      
+      parsedTree.assertFailsWith(expectedError)
     }
 
     "parse a tree with a cover and a title document" in new TreeParserSetup {
