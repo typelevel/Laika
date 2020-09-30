@@ -138,7 +138,7 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
 
   val root: RootSource = this
   
-  lazy val position: Position = new Position(inputRef, offset)
+  lazy val position: Position = if (inputRef.isReverse) reverse.position else new Position(inputRef, offset)
 
   def nextNestLevel: RootSource = new RootSource(inputRef, offset, nestLevel + 1)
   
@@ -342,7 +342,7 @@ object SourceCursor {
 
 /** Represents the input string for a parsing operation.
   */
-private[parse] class InputString (val value: String) {
+private[parse] class InputString (val value: String, val isReverse: Boolean = false) {
 
   /** An index that contains all line starts, including first line, and eof.
     */
@@ -361,7 +361,7 @@ private[parse] class InputString (val value: String) {
 
   /** Builds a new `Source` instance with the input string reversed.
     */
-  lazy val reverse = new InputString(value.reverse)
+  lazy val reverse = new InputString(value.reverse, !isReverse)
 
 }
 
