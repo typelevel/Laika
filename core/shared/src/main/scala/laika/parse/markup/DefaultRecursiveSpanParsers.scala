@@ -16,10 +16,10 @@
 
 package laika.parse.markup
 
-import laika.ast.Span
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.ast.{InvalidSpan, Span}
 import laika.parse._
 import laika.parse.combinator.Parsers
+import laika.parse.text.{DelimitedText, PrefixedParser}
 
 /** Default implementation for parsing inline markup recursively.
   *
@@ -65,22 +65,15 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     new TwoPhaseInlineParser(parser, defaultSpanParser)
 
   def recursiveSpans: RecursiveSpanParser = new RecursiveSpanParser {
+    
     private val parser = Parsers.consumeAll(defaultSpanParser) 
+    
     def parse (in: SourceFragment): Parsed[List[Span]] = parser.parse(in)
+
+    def parseAndRecover (in: SourceFragment): Seq[Span] = parser.parse(in) match {
+      case Success(blocks, _) => blocks
+      case f: Failure         => List(InvalidSpan(f.message, in))
+    }
   }
 
-//  def withRecursiveSpanParser2 [T] (p: Parser[T]): Parser[(SourceCursor => List[Span], T)] = Parser { ctx =>
-//    p.parse(ctx) match {
-//      case Success(res, next) =>
-//        val recParser: SourceCursor => List[Span] = { source: SourceCursor =>
-//          defaultSpanParser.parse(source) match {
-//            case Success(spans, _)  => spans
-//            case f: Failure => List(InvalidElement(f.message, source.input).asSpan)
-//          }
-//        }
-//        Success((recParser, res), next)
-//      case f: Failure => f
-//    }
-//  }
-  
 }

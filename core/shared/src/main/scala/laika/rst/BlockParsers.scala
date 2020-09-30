@@ -101,7 +101,7 @@ object BlockParsers {
       }
     }
     spanParser.withCursor.map { case ((decoChar, title), source) => 
-      DecoratedHeader(Underline(decoChar), spanParsers.recursiveSpans.parse(title).getOrElse(Nil), stripTrailingNewline(source)) // TODO - recovery
+      DecoratedHeader(Underline(decoChar), spanParsers.recursiveSpans.parseAndRecover(title), stripTrailingNewline(source))
     }
   }
   

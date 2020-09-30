@@ -130,14 +130,16 @@ trait EscapedTextParsers {
 
 trait RecursiveBlockParser {
   
-  // TODO - add recoverAll
+  def parseAndRecover (in: SourceFragment): Seq[Block] 
+  
   def parse (in: SourceFragment): Parsed[Seq[Block]]
   
 }
 
 trait RecursiveSpanParser {
 
-  // TODO - add recoverAll
+  def parseAndRecover (in: SourceFragment): Seq[Span]
+  
   def parse (in: SourceFragment): Parsed[Seq[Span]]
   
 }

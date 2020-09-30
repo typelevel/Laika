@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.{BlockSource, LineSource, Parser, SourceCursor}
+import laika.parse.{BlockSource, LineSource, Parser}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -130,12 +130,12 @@ object BlockParsers {
           else line
 
       def paragraph (firstLine: LineSource, restLines: List[LineSource]): Paragraph =
-        Paragraph(recParsers.recursiveSpans.parse(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)).getOrElse(Nil)) // TODO - recover errors
+        Paragraph(recParsers.recursiveSpans.parseAndRecover(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
 
       (textLine.line ~ decorationOrLines).map {
         case firstLine ~ Right(restLines ~ None)       => paragraph(firstLine, restLines)
         case firstLine ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(firstLine, restLines), list)
-        case text ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parse(text).getOrElse(Nil)) // TODO - recover errors
+        case text ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
       }
     }
 

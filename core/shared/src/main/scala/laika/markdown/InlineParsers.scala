@@ -143,13 +143,13 @@ object InlineParsers {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkIdReference(recParsers.recursiveSpans.parse(res.text).getOrElse(Nil), normalizeId(id), src) // TODO - recovery
+      val ref = LinkIdReference(recParsers.recursiveSpans.parseAndRecover(res.text), normalizeId(id), src)
       if (res.text.input == id) unwrap(ref, res.suffix) else ref
     }
 
     ("[" ~> resource(recParsers)).withCursor.map { case (res, source) =>
       res.target match {
-        case TargetUrl(url, title) => ParsedLink.create(recParsers.recursiveSpans.parse(res.text).getOrElse(Nil), url, source, title) // TODO - recovery
+        case TargetUrl(url, title) => ParsedLink.create(recParsers.recursiveSpans.parseAndRecover(res.text), url, source, title)
         case TargetId(id)   => linkReference(res, id, source)
         case ImplicitTarget => linkReference(res, res.text.input, source)
       }
