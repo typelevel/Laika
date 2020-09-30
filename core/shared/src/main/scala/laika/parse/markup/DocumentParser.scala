@@ -44,8 +44,10 @@ object DocumentParser {
     def apply(configError: ConfigError, path: Path): ParserError =
       ParserError(s"Configuration Error: ${configError.message}", path)
     
-    def apply (document: InvalidDocument): ParserError =
-      ParserError(s"One or more error nodes in result:\n ${document.invalidElements.map(_.message.content).mkString_("\n ")}", document.path)
+    def apply (document: InvalidDocument): ParserError = ParserError(
+      s"One or more error nodes in result:\n${InvalidDocument.format(document)}".trim, 
+      document.path
+    )
   }
   
   case class InvalidDocuments (documents: NonEmptyChain[InvalidDocument]) extends 
@@ -55,22 +57,10 @@ object DocumentParser {
     
     def format (documents: NonEmptyChain[InvalidDocument]): String = {
       
-      def indent (lineContent: String): String = {
-        val lines = lineContent.split('\n')
-        lines.head + "\n  " + lines.last
-      }
-      
-      def formatElement (element: Invalid[_]): String =
-        s"""  [${element.source.position.line}]: ${element.message.content}
-           |
-           |  ${indent(element.source.position.lineContentWithCaret)}
-           |
-           |""".stripMargin
-      
       def formatDoc (doc: InvalidDocument): String =
         s"""${doc.path}
           |
-          |${doc.invalidElements.map(formatElement).toList.mkString}
+          |${InvalidDocument.format(doc)}
         """.stripMargin
       
       documents.map(formatDoc).mkString_("\n")
@@ -86,9 +76,23 @@ object DocumentParser {
   }
   
   case class InvalidDocument (invalidElements: NonEmptyChain[Invalid[_]], path: Path) extends 
-    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(_.message.content).mkString_("\n ")}")
+    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(InvalidDocument.formatElement).toList.mkString}")
   
   object InvalidDocument {
+
+    def indent (lineContent: String): String = {
+      val lines = lineContent.split('\n')
+      lines.head + "\n  " + lines.last
+    }
+    
+    def format (doc: InvalidDocument): String = doc.invalidElements.map(InvalidDocument.formatElement).toList.mkString
+    
+    def formatElement (element: Invalid[_]): String =
+      s"""  [${element.source.position.line}]: ${element.message.content}
+         |
+         |  ${indent(element.source.position.lineContentWithCaret)}
+         |
+         |""".stripMargin
     
     def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
       val invalidElements = document.invalidElements(failOn)

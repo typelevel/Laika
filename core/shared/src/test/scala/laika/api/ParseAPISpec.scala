@@ -73,8 +73,15 @@ class ParseAPISpec extends AnyFlatSpec
                   |
                   |[invalid2]""".stripMargin
     val msg = """One or more error nodes in result:
-                | unresolved link id reference: invalid1
-                | unresolved link id reference: invalid2""".stripMargin
+                |  [1]: unresolved link id reference: invalid1
+                |
+                |  [invalid1]
+                |  ^
+                |
+                |  [5]: unresolved link id reference: invalid2
+                |
+                |  [invalid2]
+                |  ^""".stripMargin
     MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root / "doc"))
   }
   
