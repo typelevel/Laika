@@ -375,6 +375,20 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     }
   }
 
+  it should "parse a directive with an empty body" in {
+    new BlockParser with Body {
+      val input = """aa
+                    |
+                    |@:dir
+                    |
+                    |@:@
+                    |
+                    |bb""".stripMargin
+      val msg = "One or more errors processing directive 'dir': required body is missing"
+      Parsing (input) should produce (root(p("aa"), BlockSequence.empty, p("bb")))
+    }
+  }
+
   it should "detect a directive with a missing body" in {
     new BlockParser with Body {
       val input = """aa

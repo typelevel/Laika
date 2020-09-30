@@ -178,7 +178,8 @@ object BlockDirectiveParsers {
         val closingFenceP = spec.fence <~ wsEol
         wsEol ~> (not(closingFenceP | eof) ~> restOfLine.line).rep <~ closingFenceP ^^ { lines =>
           val trimmedLines = lines.dropWhile(_.input.trim.isEmpty).reverse.dropWhile(_.input.trim.isEmpty).reverse
-          Some(BlockSource(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(trimmedLines)))) // TODO - handle empty bodies
+          val lineChain = NonEmptyChain.fromSeq(trimmedLines).getOrElse(NonEmptyChain.one(LineSource("", SourceCursor(""))))
+          Some(BlockSource(lineChain))
         }
       } | noBody
       else noBody
