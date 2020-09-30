@@ -53,7 +53,7 @@ import laika.rewrite.link.SlugBuilder
   */
 trait ExtensionBundle { self =>
 
-  /** Short string describing the output format for tooling and logging
+  /** Short string describing the extension for tooling and logging.
     */
   def description: String
   
