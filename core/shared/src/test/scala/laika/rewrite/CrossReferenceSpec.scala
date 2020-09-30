@@ -22,6 +22,7 @@ import laika.ast.RelativePath.Parent
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
+import laika.parse.GeneratedSource
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -32,7 +33,7 @@ class CrossReferenceSpec extends AnyFlatSpec
   
   trait TreeModel {
     def rootWithLink (text: String, target: InternalTarget): RootElement = rootElement(p(SpanLink(List(Text(text)), target)))
-    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkPathReference(List(Text(text)), RelativePath.parse(id), generatedSource)))
+    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkPathReference(List(Text(text)), RelativePath.parse(id), GeneratedSource)))
     def rootWithTarget (id: String): RootElement = rootElement(InternalLinkTarget(Id(id)))
     def rootElement (b: Block): RootElement = root(p("A"), b, p("B"))
 

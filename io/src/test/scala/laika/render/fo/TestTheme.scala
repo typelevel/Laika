@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.{StyleDeclarationSet, TemplateContextReference, TemplateRoot}
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
-import laika.parse.{LineSource, SourceCursor}
+import laika.parse.GeneratedSource
 import laika.parse.css.CSSParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
@@ -33,8 +33,8 @@ object TestTheme {
     .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))
     .getOrElse(StyleDeclarationSet.empty) 
   lazy val foTemplate = TemplateRoot(
-    TemplateContextReference(CursorKeys.fragment("bookmarks"), required = false, LineSource("", SourceCursor(""))),
-    TemplateContextReference(CursorKeys.documentContent, required = true, LineSource("", SourceCursor("")))
+    TemplateContextReference(CursorKeys.fragment("bookmarks"), required = false, GeneratedSource),
+    TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
   )
   lazy val htmlTemplate = TemplateRoot.fallback
   val staticPaths = Seq(

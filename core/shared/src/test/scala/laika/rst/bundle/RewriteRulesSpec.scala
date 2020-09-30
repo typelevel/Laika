@@ -20,6 +20,7 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.parse.GeneratedSource
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -35,20 +36,20 @@ class RewriteRulesSpec extends AnyFlatSpec
     doc.rewrite(rules).content
   }
   
-  def invalidSpan (message: String): InvalidSpan = InvalidSpan(message, generatedSource)
+  def invalidSpan (message: String): InvalidSpan = InvalidSpan(message, GeneratedSource)
       
       
   "The rewrite rules for substitutions" should "replace a single reference with the target span" in {
-    val rootElem = root(p(SubstitutionReference("id", generatedSource)), SubstitutionDefinition("id", Text("subst")))
+    val rootElem = root(p(SubstitutionReference("id", GeneratedSource)), SubstitutionDefinition("id", Text("subst")))
     rewritten (rootElem) should be (root(p("subst")))
   }
   
   it should "replace multiple occurrences of the same reference with the same target span" in {
     val rootElem = root(
       p(
-        SubstitutionReference("id", generatedSource), 
+        SubstitutionReference("id", GeneratedSource), 
         Text(" foo "), 
-        SubstitutionReference("id", generatedSource)
+        SubstitutionReference("id", GeneratedSource)
       ), 
       SubstitutionDefinition("id", Text("subst"))
     )
@@ -57,7 +58,7 @@ class RewriteRulesSpec extends AnyFlatSpec
   
   it should "replace a reference with an unknown substitution id with an invalid span" in {
     val rootElem = root(
-      p(SubstitutionReference("id1", generatedSource)), 
+      p(SubstitutionReference("id1", GeneratedSource)), 
       SubstitutionDefinition("id2", Text("subst"))
     )
     rewritten (rootElem) should be (root(p(invalidSpan("unknown substitution id: id1"))))
@@ -65,16 +66,16 @@ class RewriteRulesSpec extends AnyFlatSpec
   
   
   "The rewrite rules for interpreted text roles" should "replace a single reference with the result of applying the role function" in {
-    val rootElem = root(p(InterpretedText("id", "foo", generatedSource)), CustomizedTextRole("id", s => Text(s":$s:")))
+    val rootElem = root(p(InterpretedText("id", "foo", GeneratedSource)), CustomizedTextRole("id", s => Text(s":$s:")))
     rewritten (rootElem) should be (root(p(":foo:")))
   }
   
   it should "replace multiple references with the result of applying corresponding role functions" in {
     val rootElem = root(
       p(
-        InterpretedText("id1", "foo", generatedSource),
-        InterpretedText("id2", "bar", generatedSource),
-        InterpretedText("id1", "baz", generatedSource)
+        InterpretedText("id1", "foo", GeneratedSource),
+        InterpretedText("id2", "bar", GeneratedSource),
+        InterpretedText("id1", "baz", GeneratedSource)
       ), 
       CustomizedTextRole("id1", s => Text(":"+s+":")),
       CustomizedTextRole("id2", s => Text(s".$s."))
@@ -84,7 +85,7 @@ class RewriteRulesSpec extends AnyFlatSpec
   
   it should "replace an unknown text role with an invalid span" in {
     val rootElem = root(
-      p(InterpretedText("id1", "foo", generatedSource)), 
+      p(InterpretedText("id1", "foo", GeneratedSource)), 
       CustomizedTextRole("id2", s => Text(s".$s."))
     )
     rewritten (rootElem) should be (root(p(invalidSpan("unknown text role: id1"))))

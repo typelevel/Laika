@@ -22,6 +22,7 @@ import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys}
+import laika.parse.GeneratedSource
 import laika.rewrite.link.{InternalLinkMapping, LinkConfig}
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
@@ -44,16 +45,16 @@ class RewriteRulesSpec extends AnyWordSpec
   def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidSpan(message, source(fallback, fallback))
 
   def invalidBlock (message: String, fallback: Block): InvalidBlock =
-    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), generatedSource, fallback)
+    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
 
   def invalidSpan (message: String, fallback: Span): InvalidSpan =
-    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), generatedSource, fallback)
+    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
 
   def fnRefs (labels: FootnoteLabel*): Paragraph = p(labels.map { label => fnRef(label, toSource(label)) }:_*)
 
   def fnLinks (labels: (String,String)*): Paragraph = p(labels.map { label => FootnoteLink(label._1,label._2)}:_*)
 
-  def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p(s"footnote$num")), generatedSource)
+  def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p(s"footnote$num")), GeneratedSource)
 
   def fn (id: String, label: String) = Footnote(label, List(p(s"footnote$label")), Id(id))
 
@@ -216,7 +217,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve references when some parent element also gets rewritten" in {
       val rootElem = root(
-        DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), generatedSource), 
+        DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource), 
         LinkDefinition("name", ExternalTarget("http://foo/"))
       )
       rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
@@ -307,7 +308,7 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
-    def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), generatedSource, alt = Some("text"))
+    def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), GeneratedSource, alt = Some("text"))
     def internalLink (path: RelativePath, externalUrl: Option[String] = None) =
       SpanLink(List(Text("text")), InternalTarget(path).relativeTo(Root / "tree1" / "doc3.md").copy(externalUrl = externalUrl))
     def docLink (ref: String) =
@@ -421,9 +422,9 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "set the level of the header in a flat list of headers" in {
       val rootElem = root(
-        DecoratedHeader(Underline('#'), List(Text("Title")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 1")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 2")), generatedSource)
+        DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
       rewritten(rootElem) should be(root(
         Title(List(Text("Title")), Id("title") + Style.title),
@@ -434,10 +435,10 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "set the level of the header in a nested list of headers" in {
       val rootElem = root(
-        DecoratedHeader(Underline('#'), List(Text("Title")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 1")), generatedSource),
-        DecoratedHeader(Underline('-'), List(Text("Header 2")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 3")), generatedSource)
+        DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
+        DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
       )
       rewritten(rootElem) should be(root(
         Title(List(Text("Title")), Id("title") + Style.title),
@@ -448,9 +449,9 @@ class RewriteRulesSpec extends AnyWordSpec
     
     "not create title nodes in the default configuration for orphan documents" in {
       val rootElem = root(
-        DecoratedHeader(Underline('#'), List(Text("Title")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 1")), generatedSource),
-        DecoratedHeader(Underline('#'), List(Text("Header 2")), generatedSource)
+        DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
+        DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
       rewritten(rootElem, withTitles = false) should be(root(
         Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),

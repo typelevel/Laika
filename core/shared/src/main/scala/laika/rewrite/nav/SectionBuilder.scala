@@ -19,7 +19,7 @@ package laika.rewrite.nav
 import laika.ast._
 import laika.collection.Stack
 import laika.config.LaikaKeys
-import laika.parse.{LineSource, SourceCursor}
+import laika.parse.GeneratedSource
 import laika.rewrite.nav
 
 import scala.collection.mutable.ListBuffer
@@ -35,7 +35,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
   class DefaultRule (cursor: DocumentCursor) {
 
     val (errorBlock, autonumberConfig) = cursor.config.getOpt[nav.AutonumberConfig].fold(
-      error => (Some(InvalidBlock(error.message, LineSource("", SourceCursor("")))), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
+      error => (Some(InvalidBlock(error.message, GeneratedSource)), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
       opt   => (None, opt.getOrElse(AutonumberConfig.defaults))
     )
     

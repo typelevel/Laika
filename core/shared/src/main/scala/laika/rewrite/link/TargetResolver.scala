@@ -17,7 +17,7 @@
 package laika.rewrite.link
 
 import laika.ast._
-import laika.parse.{LineSource, SourceCursor}
+import laika.parse.GeneratedSource
 
 
 /** Represents the source of a link, its document path
@@ -113,8 +113,8 @@ object TargetResolver {
     override def resolveReference (linkSource: LinkSource): Option[Span] = resolver(linkSource)
 
     override def replaceTarget (rewrittenOriginal: Element): Option[Element] = rewrittenOriginal match {
-      case b: Block => Some(InvalidBlock(sysMsg, LineSource("", SourceCursor("")), b.withoutId))
-      case s: Span => Some(InvalidSpan(sysMsg, LineSource("", SourceCursor("")), s.withoutId))
+      case b: Block => Some(InvalidBlock(sysMsg, GeneratedSource, b.withoutId))
+      case s: Span  => Some(InvalidSpan(sysMsg, GeneratedSource, s.withoutId))
       case _ => None
     }
   }

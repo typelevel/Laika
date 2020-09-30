@@ -18,7 +18,7 @@ package laika.rst.std
 
 import cats.data.NonEmptySet
 import laika.ast._
-import laika.parse.{LineSource, SourceCursor}
+import laika.parse.GeneratedSource
 import laika.rst.ast.RstStyle
 import laika.rst.ext.TextRoles.Parts._
 import laika.rst.ext.TextRoles.TextRole
@@ -137,7 +137,7 @@ class StandardTextRoles {
     }{
       case ((formats, opt), content) => NonEmptySet.fromSet(TreeSet(formats:_*)) match {
         case Some(set) => RawContent(set, content, opt)
-        case None      => InvalidSpan("no format specified", LineSource("", SourceCursor(""))) // TODO - pass actual source string
+        case None      => InvalidSpan("no format specified", GeneratedSource)
       }
     }  
     

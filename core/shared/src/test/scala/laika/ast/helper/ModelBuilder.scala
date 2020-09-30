@@ -18,7 +18,7 @@ package laika.ast.helper
 
 import laika.ast._
 import laika.config.{Config, ConfigParser}
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
 
 trait ModelBuilder { self =>
 
@@ -52,7 +52,7 @@ trait ModelBuilder { self =>
     
   }
   
-  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList, "", generatedSource)
+  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList, "", GeneratedSource)
   
   class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String, source: SourceFragment) {
     
@@ -65,7 +65,7 @@ trait ModelBuilder { self =>
      
   }
   
-  def imgRef (text: String, id: String) = ImageIdReference(text, id, generatedSource)
+  def imgRef (text: String, id: String) = ImageIdReference(text, id, GeneratedSource)
   def imgRef (text: String, id: String, fragment: String, input: String) = ImageIdReference(text, id, source(fragment, input))
   
   def citRef (label: String, input: String) = CitationReference(label, source(s"[$label]_", input))
@@ -86,8 +86,6 @@ trait ModelBuilder { self =>
 
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
 
-  def generatedSource: SourceFragment = generatedSource("")
-  
   private val defaultBullet = StringBullet("*")
   
   def bulletList(format: BulletFormat)(textItems: String*): BulletList =

@@ -25,6 +25,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
+import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.link.LinkConfig
@@ -593,15 +594,15 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   
   "The include directive" should "create a placeholder in the document" in {
     val input = """.. include:: other.rst"""
-    val expected = root (Include("other.rst", generatedSource))
+    val expected = root (Include("other.rst", GeneratedSource))
     parseRaw(input) should be (expected)
   }
   
   "The include rewriter" should "replace the node with the corresponding document" in {
-    val doc1 = Document(Root / "doc1", root(Include("doc2", generatedSource)))
+    val doc1 = Document(Root / "doc1", root(Include("doc2", GeneratedSource)))
     val doc2 = Document(Root / "doc2", root(p("text")))
     val template = TemplateDocument(DefaultTemplatePath.forHTML, 
-      TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource)))
+      TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
@@ -640,7 +641,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val input = """.. contents:: This is the title
       | :depth: 3
       | :local: true""".stripMargin
-    val elem = Contents("This is the title", generatedSource, depth = 3, local = true)
+    val elem = Contents("This is the title", GeneratedSource, depth = 3, local = true)
     parseRaw(input) should be (root(elem))
   }
   
@@ -659,7 +660,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
 
     val sectionsWithTitle = RootElement(
       header(1,1,"title") ::
-      Contents("This is the title", generatedSource, 3) ::
+      Contents("This is the title", GeneratedSource, 3) ::
       header(2,2) ::
       header(3,3) ::
       header(2,4) ::
@@ -681,7 +682,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     
     val document = Document(Root / "doc", sectionsWithTitle)
     val template = TemplateDocument(DefaultTemplatePath.forHTML, 
-      TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource)))
+      TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree

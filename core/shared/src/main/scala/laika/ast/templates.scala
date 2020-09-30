@@ -18,7 +18,7 @@ package laika.ast
 
 import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.TemplateRewriter
 
@@ -212,7 +212,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
   /** A fallback instance that can be used when no user-specified template
     * is available. It simply inserts the content of the parsed markup document
     * without any surrounding decoration. */
-  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, LineSource("", SourceCursor("")))) // TODO - might need GeneratedSource type
+  val fallback: TemplateRoot = TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource))
 }
 
 /** The root element of a document tree (originating from text markup) inside a template.

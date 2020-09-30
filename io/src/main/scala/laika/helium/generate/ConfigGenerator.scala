@@ -20,11 +20,11 @@ import cats.Id
 import laika.ast.Path.Root
 import laika.ast.{InternalTarget, _}
 import laika.config.ConfigEncoder.ObjectBuilder
-import laika.config.{ASTValue, Config, ConfigBuilder, ConfigEncoder, ObjectValue}
+import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
 import laika.io.runtime.BatchRuntime
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, SourceFragment}
 
 private[laika] object ConfigGenerator {
 
@@ -98,7 +98,7 @@ private[laika] object ConfigGenerator {
   
   case class RelativePath (target: ThemeTarget) extends SpanResolver {
     type Self = RelativePath
-    val source: SourceFragment = LineSource("", SourceCursor("<unresolved target>")) // TODO - use new GeneratedSource type later
+    val source: SourceFragment = GeneratedSource
     def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
       case Left(msg) => InvalidSpan(s"unresolved target ${target.description}: $msg", source)
       case Right(it: InternalTarget) => Text(it.relativeTo(cursor.path).relativePath.toString)

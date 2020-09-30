@@ -17,13 +17,13 @@
 package laika.helium.config
 
 import laika.ast._
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, SourceFragment}
 
 /** A Helium link type available for navigation bars and the landing page.
   */
 sealed trait ThemeLink extends SpanResolver {
   
-  val source: SourceFragment = LineSource("", SourceCursor(s"<ThemeLink: $this>")) // TODO - use new GeneratedSource type later
+  val source: SourceFragment = GeneratedSource
 
   type Self <: ThemeLink
   

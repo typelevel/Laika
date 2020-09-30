@@ -34,6 +34,7 @@ import laika.io.implicits._
 import laika.io.model.{InputTree, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.runtime.Runtime
+import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
@@ -212,7 +213,7 @@ class TreeRendererSpec extends IOWordSpec
       new HTMLRenderer {
         val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(
           t("["), 
-          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
@@ -261,7 +262,7 @@ class TreeRendererSpec extends IOWordSpec
       new HTMLRenderer {
         val template = TemplateRoot(
           t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         )
         val inputs = new TestThemeBuilder.Inputs {
@@ -317,7 +318,7 @@ class TreeRendererSpec extends IOWordSpec
       new EPUB_XHTMLRenderer {
         val template = TemplateDocument(DefaultTemplatePath.forEPUB, TemplateRoot(
           t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
@@ -332,7 +333,7 @@ class TreeRendererSpec extends IOWordSpec
       new EPUB_XHTMLRenderer {
         val template = TemplateRoot(
           t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         )
         val inputs = new TestThemeBuilder.Inputs {
@@ -367,7 +368,7 @@ class TreeRendererSpec extends IOWordSpec
       new FORenderer {
         val template = TemplateDocument(DefaultTemplatePath.forFO, TemplateRoot(
           t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource),
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
         val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))

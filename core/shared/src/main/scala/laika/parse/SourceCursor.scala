@@ -56,7 +56,7 @@ trait SourceCursor {
 
   /** The character at the specified offset, relative from the current offset.
     */
-  def charAt (relativeOffset: Int): Char
+  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
 
   /** Captures a string containing the specified number of characters from the current offset.
     * If the number of remaining characters is less than the specified number, all remaining
@@ -123,8 +123,6 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
 
   def remaining: Int = input.length - offset
 
-  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
-
   def capture (numChars: Int): String = {
     require(numChars >= 0, "numChars cannot be negative")
     
@@ -181,8 +179,6 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
   def atEnd: Boolean = offset >= input.length
 
   def remaining: Int = input.length - offset
-
-  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
 
   def capture (numChars: Int): String = {
     require(numChars >= 0, "numChars cannot be negative")
@@ -249,8 +245,6 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
 
   def remaining: Int = input.length - offset
 
-  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
-
   def capture (numChars: Int): String = {
     require(numChars >= 0, "numChars cannot be negative")
 
@@ -310,6 +304,24 @@ object BlockSource {
   }
 }
 
+/** Represents a generated source, where an AST node has been created programmatically and cannot be
+  * traced back to the corresponding input source.
+  */
+object GeneratedSource extends SourceFragment {
+  type Self = this.type
+  def input: String = ""
+  def offset: Int = 0
+  def remaining: Int = 0
+  def atEnd: Boolean = true
+  def capture(numChars: Int): String = ""
+  def consume(numChars: Int): this.type = this
+  def root: RootSource = new RootSource(InputString.empty, 0, 0)
+  def position: Position = new Position(InputString.empty, 0)
+  def nestLevel: Int = 0
+  def nextNestLevel: this.type = this
+  def reverse: this.type = this
+}
+
 /** Companion for creating new `SourceCursor` instances.
   */
 object SourceCursor {
@@ -351,6 +363,10 @@ private[parse] class InputString (val value: String) {
     */
   lazy val reverse = new InputString(value.reverse)
 
+}
+
+private[parse] object InputString {
+  val empty: InputString = new InputString("")
 }
 
 /**  Represents an offset into a source string. Its main purpose

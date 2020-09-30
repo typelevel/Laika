@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.config._
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.Selections
@@ -303,7 +303,7 @@ object StandardDirectives extends DirectiveRegistry {
         excludeSections <- config.get[Boolean]("excludeSections", false)
         excludeSelf     <- config.get[Boolean]("excludeSelf", false)
       } yield {
-        NavigationBuilderConfig(entries, LineSource("", SourceCursor("")), defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
+        NavigationBuilderConfig(entries, GeneratedSource, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
       }
     }
     

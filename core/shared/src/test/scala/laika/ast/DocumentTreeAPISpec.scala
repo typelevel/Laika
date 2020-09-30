@@ -22,6 +22,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
+import laika.parse.GeneratedSource
 import laika.rewrite.TemplateRewriter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -45,7 +46,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
     def treeWithTwoSubtrees (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentTree = {
-      val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false, generatedSource)))
+      val refNode = contextRef.fold(Seq.empty[Span])(ref => Seq(MarkupContextReference(Key.parse(ref), required = false, GeneratedSource)))
       def targetRoot (docNum: Int) = {
         val msgNode = if (includeRuntimeMessage) Seq(InvalidSpan(s"Message $docNum", generatedSource(s"Message $docNum"))) else Nil
         root(Paragraph(refNode ++ msgNode))

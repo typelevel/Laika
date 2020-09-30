@@ -19,7 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{Field, LaikaKeys, ObjectValue, Origin, StringValue}
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers.anyChars
 import laika.rst.ast.{Contents, FieldList, Include, RstStyle}
@@ -179,7 +179,7 @@ class StandardBlockDirectives {
       )}
       EmbeddedConfigValue("meta", ObjectValue(values))
     case _ => InvalidBlock(RuntimeMessage(MessageLevel.Error,
-        "The meta directive expects a FieldList as its only block content"), LineSource("", SourceCursor("")))
+        "The meta directive expects a FieldList as its only block content"), GeneratedSource)
   }
   
   /** The header directive,
@@ -204,7 +204,7 @@ class StandardBlockDirectives {
   
   lazy val contents: DirectivePartBuilder[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")).map {
     case title ~ depth ~ local ~ style => 
-      Contents(title.getOrElse("Contents"), LineSource("", SourceCursor("")), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style)) // TODO - pass actual source
+      Contents(title.getOrElse("Contents"), GeneratedSource, depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style))
   }
   
   /** The include directive,
@@ -218,7 +218,7 @@ class StandardBlockDirectives {
    *  references the previously parsed node tree. This is both simpler and more efficient when the same
    *  file gets included in multiple places.
    */
-  lazy val include: DirectivePartBuilder[Block] = argument().map(Include(_, LineSource("", SourceCursor("")))) // TODO - pass actual source
+  lazy val include: DirectivePartBuilder[Block] = argument().map(Include(_, GeneratedSource))
   
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
@@ -305,7 +305,7 @@ class StandardBlockDirectives {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
       NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq:_*)) match {
         case Some(set) => RawContent(set, content.input)
-        case None      => InvalidBlock("no format specified", LineSource("", SourceCursor(""))) // TODO - pass actual source
+        case None      => InvalidBlock("no format specified", GeneratedSource)
       }
     } 
   }

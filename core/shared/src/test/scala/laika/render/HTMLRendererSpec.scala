@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
+import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
 import laika.rst.ast.{Line, LineBlock}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -628,35 +629,35 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an invalid block without the runtime message in default mode" in {
-    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = "<p>fallback</p>"
     render(elem) should be (html)
   }
   
   it should "render an invalid block without the runtime message if the configured message level is higher" in {
-    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = "<p>fallback</p>"
     render(elem, MessageFilter.Error) should be (html)
   }
   
   it should "render an invalid block with the runtime message if the configured message level is lower or equal" in {
-    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, p("fallback"))
+    val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = """<p><span class="runtime-message warning">some message</span></p><p>fallback</p>"""
     render(elem, MessageFilter.Info) should be (html)
   }
   
   it should "render an invalid span without the runtime message in default mode" in {
-    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
     render(elem) should be ("fallback")
   }
   
   it should "render an invalid span without the runtime message if the configured message level is higher" in {
-    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
     render(elem, MessageFilter.Error) should be ("fallback")
   }
   
   it should "render an invalid span with the runtime message if the configured message level is lower or equal" in {
-    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), generatedSource, Text("fallback"))
+    val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
     val html = """<span class="runtime-message warning">some message</span> fallback"""
     render(elem, MessageFilter.Info) should be (html)
   }

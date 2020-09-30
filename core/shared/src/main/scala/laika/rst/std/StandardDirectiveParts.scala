@@ -17,10 +17,10 @@
 package laika.rst.std
 
 import laika.ast._
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
 import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
+import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.link.LinkConfig
 import laika.rst.BaseParsers.sizeAndUnit
 import laika.rst.ext.Directives.DirectivePartBuilder
@@ -79,7 +79,7 @@ object StandardDirectiveParts {
       val alignOpt = align.getOrElse(NoOpt)
 
       val img = Image(Target.parse(uri), width = actualWidth, height = actualHeight, alt = alt)
-      val resolver = ImageResolver(img, LineSource("", SourceCursor(""))) // TODO - pass actual source string
+      val resolver = ImageResolver(img, GeneratedSource)
 
       (target map {
         case ref: SpanLink  => ref.copy(content = List(resolver.withOptions(opt)), options = alignOpt)
