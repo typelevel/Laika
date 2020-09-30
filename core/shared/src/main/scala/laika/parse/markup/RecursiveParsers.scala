@@ -36,7 +36,12 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     * that support the nesting of other blocks.
     */
   def recursiveBlocks (p: Parser[BlockSource]): Parser[Seq[Block]]
-  
+
+  /** Parses the input into a sequence of blocks based on the available block types of the host markup language.
+    *
+    * This parser always parses to the end of the input, therefore it is usually applied to
+    * the result of a previous parser invocation.
+    */
   def recursiveBlocks: RecursiveBlockParser
 
 }
@@ -87,11 +92,10 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
     */
   def recursiveSpans (parser: Parser[SourceFragment]): InlineParser[Span, List[Span]]
 
-  /** Parses the input into a sequence of spans based on the available span types
-    * of the host markup language.
+  /** Parses the input into a sequence of spans based on the available span types of the host markup language.
     *
-    * This parser always parses to the end of the input, therefore is usually applied to
-    * the string result of a previous parser invocation.
+    * This parser always parses to the end of the input, therefore it is usually applied to
+    * the result of a previous parser invocation.
     */
   def recursiveSpans: RecursiveSpanParser
 
@@ -128,18 +132,50 @@ trait EscapedTextParsers {
 
 }
 
+/** Parses a sequence of blocks based on the available block types of the host markup language.
+  *
+  * This parser always parses to the end of the input, therefore it is usually applied to
+  * the result of a previous parser invocation.
+  * 
+  * The API is restricted and not the standard `Parser` API to prevent invocations with
+  * just a plain string which would lose all position tracking in error messages.
+  * Instead both methods expect a full `SourceFragment` instance which carries the context
+  * of the root input.
+  */
 trait RecursiveBlockParser {
-  
-  def parseAndRecover (in: SourceFragment): Seq[Block] 
-  
+
+  /** Parses the specified input while recovering from all errors by inserting instances
+    * of `InvalidBlock` which leaves the error handling to the user's configuration.
+    */
+  def parseAndRecover (in: SourceFragment): Seq[Block]
+
+  /** Parses the specified input while leaving all error handling to the call-site.
+    * Use `parseAndRecover` instead if you want to allow the error handling to be controlled by user configuration.
+    */
   def parse (in: SourceFragment): Parsed[Seq[Block]]
   
 }
 
+/** Parses a sequence of spans based on the available spans types of the host markup language.
+  *
+  * This parser always parses to the end of the input, therefore it is usually applied to
+  * the result of a previous parser invocation.
+  *
+  * The API is restricted and not the standard `Parser` API to prevent invocations with
+  * just a plain string which would lose all position tracking in error messages.
+  * Instead both methods expect a full `SourceFragment` instance which carries the context
+  * of the root input.
+  */
 trait RecursiveSpanParser {
 
+  /** Parses the specified input while recovering from all errors by inserting instances
+    * of `InvalidSpan` which leaves the error handling to the user's configuration.
+    */
   def parseAndRecover (in: SourceFragment): Seq[Span]
-  
+
+  /** Parses the specified input while leaving all error handling to the call-site.
+    * Use `parseAndRecover` instead if you want to allow the error handling to be controlled by user configuration.
+    */
   def parse (in: SourceFragment): Parsed[Seq[Span]]
   
 }
