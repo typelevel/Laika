@@ -67,7 +67,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                         |<meta name="viewport" content="width=device-width, initial-scale=1.0">
                         |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                         |<title></title>
-                        |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                        |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                         |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
@@ -126,7 +126,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
-                     |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
@@ -153,7 +153,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
-                     |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
@@ -177,7 +177,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="author" content="Maria Green"/>
                      |<meta name="author" content="Elena Blue"/>
                      |<meta name="description" content="Some description"/>
-                     |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
@@ -210,7 +210,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<title></title>
                      |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png" />
                      |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
-                     |<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />

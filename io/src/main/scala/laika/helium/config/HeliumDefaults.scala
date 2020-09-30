@@ -29,7 +29,7 @@ private[helium] object HeliumDefaults {
 
   private val defaultFonts = Seq(
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("http://fonts.googleapis.com/css?family=Lato:400,700"),
+      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("https://fonts.googleapis.com/css?family=Lato:400,700"),
       "Lato", FontWeight.Normal, FontStyle.Normal
     ),
     FontDefinition(
