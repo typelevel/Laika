@@ -379,7 +379,7 @@ abstract class Parser[+T] {
   /** Returns a parser that produces the number of characters
     * consumed by this parser while discarding the original result.
     */
-  def count: Parser[Int] = withCursor.map(_._2.input.length)
+  def count: Parser[Int] = withCursor.map(_._2.length)
 
   
   @deprecated("use withCursor which contains the position", "0.17.0")

@@ -34,6 +34,10 @@ trait SourceCursor {
     */
   def input: String
 
+  /** The length of the input of this cursor.
+    */
+  def length: Int = input.length
+  
   /** The offset of this cursor from the start of the source.
     */
   def offset: Int
@@ -257,7 +261,7 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
 
   private lazy val activeLine: LineSource = {
     @tailrec def posFromLine (remainingLines: List[LineSource], remainingOffset: Int): (LineSource, Int) = {
-      val lineLength = remainingLines.head.input.length
+      val lineLength = remainingLines.head.length
       if (lineLength >= remainingOffset) (remainingLines.head, remainingOffset)
       else if (remainingLines.tail.isEmpty) (remainingLines.head, lineLength)
       else posFromLine(remainingLines.tail, remainingOffset - (lineLength + 1))

@@ -57,7 +57,7 @@ class DirectiveSpec extends AnyFlatSpec
     BlockDirective("optFdBody")((optField("name") ~ stringContent).map {
       case field ~ content => p(field.getOrElse("missing") + content) }),
     BlockDirective("stdBody")(blockContent map (BlockSequence(_))),
-    BlockDirective("customBody")(content(body => if (body.input.length > 10) Right(p(body.input)) else Left("body too short"))),
+    BlockDirective("customBody")(content(body => if (body.length > 10) Right(p(body.input)) else Left("body too short"))),
     BlockDirective("argAndBlocks")((argument() ~ blockContent).map { case arg ~ blocks => BlockSequence(p(arg+"!") +: blocks) }),
     BlockDirective("argAndSpans")((argument() ~ spanContent).map { case arg ~ spans => Paragraph(Text(arg) +: spans) }),
     BlockDirective("fdAndBody")((field("name") ~ blockContent).map { case field ~ blocks => BlockSequence(p(field+"!") +: blocks) }),

@@ -95,7 +95,7 @@ object BlockParsers {
     val spanParser = nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
-        (anyOf(char).min(title.input.length - 1).line ~ wsEol).map {
+        (anyOf(char).min(title.length - 1).line ~ wsEol).map {
           _ => (char, title)
         }
       }
