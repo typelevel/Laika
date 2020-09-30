@@ -90,6 +90,10 @@ trait SourceCursor {
     */
   def reverse: Self
   
+  protected def canConsume (maxChars: Int): Int =
+    if (maxChars > 0) Math.min(remaining, maxChars)
+    else Math.max(offset * -1, maxChars)
+  
 }
 
 /** Represents any source cursor other than the root cursor and it is mandated by some APIs that
@@ -128,9 +132,11 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
     input.substring(offset, endIndex)
   }
 
-  def consume (numChars: Int): RootSource =
-    if (numChars != 0) new RootSource(inputRef, offset + numChars, nestLevel)
+  def consume (numChars: Int): RootSource = {
+    val toConsume = canConsume(numChars)
+    if (toConsume != 0) new RootSource(inputRef, offset + numChars, nestLevel)
     else this
+  }
 
   val root: RootSource = this
   
@@ -185,16 +191,11 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
     input.substring(offset, endIndex)
   }
 
-  def consume (numChars: Int): LineSource =
-    if (numChars > 0) {
-      val adjustedNum = Math.min(remaining, numChars)
-      new LineSource(input, parentRef, offset + adjustedNum, nestLevel)
-    }
-    else if (numChars < 0) {
-      val adjustedNum = Math.max(offset * -1, numChars)
-      new LineSource(input, parentRef, offset + adjustedNum, nestLevel)
-    }
+  def consume (numChars: Int): LineSource = {
+    val toConsume = canConsume(numChars)
+    if (toConsume != 0) new LineSource(input, parentRef, offset + toConsume, nestLevel)
     else this
+  }
 
   lazy val parent: SourceCursor = parentRef.consume(offset)
   
@@ -257,9 +258,11 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
     input.substring(offset, endIndex)
   }
 
-  def consume (numChars: Int): BlockSource =
-    if (numChars != 0) new BlockSource(inputRef, lines, offset + numChars, nestLevel)
+  def consume (numChars: Int): BlockSource = {
+    val toConsume = canConsume(numChars)
+    if (toConsume != 0) new BlockSource(inputRef, lines, offset + toConsume, nestLevel)
     else this
+  }
 
   private lazy val activeLine: LineSource = {
     @tailrec def posFromLine (remainingLines: List[LineSource], remainingOffset: Int): (LineSource, Int) = {
