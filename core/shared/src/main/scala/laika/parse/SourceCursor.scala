@@ -148,6 +148,8 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
       rs.nestLevel == nestLevel
     case _ => false
   }
+
+  override def toString: String = s"RootSource(offset $offset - length ${input.length})"
 }
 
 /** A line source represents all or part of a single line from the root input source.
@@ -221,7 +223,7 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
     case _ => false
   }
 
-  override def toString: String = s"LineSource(offset ${parentRef.offset} - length ${input.length})"
+  override def toString: String = s"LineSource(offset $offset - length ${input.length} - root offset ${root.offset})"
 }
 
 object LineSource {
@@ -287,7 +289,8 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
       bs.nestLevel == nestLevel
     case _ => false
   }
-  
+
+  override def toString: String = s"BlockSource(offset $offset - length ${input.length} - root offset ${root.offset})"
 }
 
 object BlockSource {
