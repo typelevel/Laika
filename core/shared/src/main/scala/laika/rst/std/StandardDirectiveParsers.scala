@@ -40,13 +40,13 @@ object StandardDirectiveParsers {
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
     */
   def parseDirectivePart[T] (parser: Parser[T], source: SourceFragment): Either[String, T] =
-    consumeAll(parser).parse(source).toEither // TODO - implement trim or trim earlier
+    consumeAll(parser).parse(source).toEither
 
   /** Utility method to be used by custom parsers for directive argument or body.
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
     */
   def parseDirectivePart (parser: RecursiveSpanParser, source: SourceFragment): Either[String, Seq[Span]] =
-    parser.parse(source).toEither // TODO - implement trim or trim earlier - used to have a consumeAll wrapper, which might move to the impl
+    parser.parse(source).toEither
 
 
   /** Parses all standard inline markup supported by `reStructuredText`.
@@ -56,7 +56,7 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def standardSpans (p: RecursiveParsers)(input: SourceFragment): Either[String, Seq[Span]] =
-    parseDirectivePart(p.recursiveSpans, input) // TODO - implement trim or trim earlier
+    parseDirectivePart(p.recursiveSpans, input)
 
   /** Parses one of the two table types supported by `reStructuredText`.
    *  

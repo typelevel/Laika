@@ -197,8 +197,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
 
     val argWithWS: Parser[SourceFragment] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>
-        val text = block//.trim TODO - implement trim
-        if (text.input.nonEmpty) Right(text) else Left("missing required argument")
+        if (block.input.nonEmpty) Right(block) else Left("missing required argument")
       }
       requiredArg(p)
     }
@@ -211,7 +210,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
 
       val item = ws.min(1).count >> { firstIndent =>
-        nameParser ~ indentedBlock(firstIndent + 1)//.trim TODO - implement trim
+        nameParser ~ indentedBlock(firstIndent + 1)
       }
 
       ((opt(wsEol) ~> item.rep.min(1)) | success(Nil)).evalMap { fields =>
