@@ -247,7 +247,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
     def renderUnresolvedReference (ref: Reference): String =
       fmt.child(InvalidSpan(s"unresolved reference: $ref", ref.source))
 
-    def renderInvalidElement (elem: Invalid[_ <: Element]): String = elem match {
+    def renderInvalidElement (elem: Invalid): String = elem match {
       case InvalidBlock(msg, _, fallback, opt) => 
         fmt.forMessage(msg)(fmt.child(Paragraph(List(msg), opt))) + fmt.child(fallback)
       case e =>
@@ -265,7 +265,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case e: Table                 => renderTable(e)
       case e: TableElement          => renderTableElement(e)
       case e: Reference             => renderUnresolvedReference(e)
-      case e: Invalid[_]            => renderInvalidElement(e)
+      case e: Invalid               => renderInvalidElement(e)
       case e: BlockContainer        => renderBlockContainer(e)
       case e: SpanContainer         => renderSpanContainer(e)
       case e: ListContainer         => renderListContainer(e)

@@ -127,8 +127,10 @@ trait Unresolved extends Element {
   * Renderers can choose to either render the fallback or the runtime message or both,
   * depending on the configuration of the transformer or renderer.
   */
-trait Invalid[+E <: Element] extends Element with Fallback {
+trait Invalid extends Element with Fallback {
 
+  type FallbackElement <: Element
+  
   /** The fragment from the input source that produced this element.
     * Can be used to report the line of the error or to render a fallback that simply renders back
     * the consumed input.
@@ -143,7 +145,7 @@ trait Invalid[+E <: Element] extends Element with Fallback {
     * errors are ignored.
     * Renderers will pick this fallback element instead of the original invalid element in such a case.
     */
-  def fallback: E
+  def fallback: FallbackElement
 }
 
 /** The base type for all reference elements.

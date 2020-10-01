@@ -74,7 +74,7 @@ object DocumentParser {
     
   }
   
-  case class InvalidDocument (invalidElements: NonEmptyChain[Invalid[_]], path: Path) extends 
+  case class InvalidDocument (invalidElements: NonEmptyChain[Invalid], path: Path) extends 
     RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(InvalidDocument.formatElement).toList.mkString}")
   
   object InvalidDocument {
@@ -86,7 +86,7 @@ object DocumentParser {
     
     def format (doc: InvalidDocument): String = doc.invalidElements.map(InvalidDocument.formatElement).toList.mkString
     
-    def formatElement (element: Invalid[_]): String =
+    def formatElement (element: Invalid): String =
       s"""  [${element.source.position.line}]: ${element.message.content}
          |
          |  ${indent(element.source.position.lineContentWithCaret)}

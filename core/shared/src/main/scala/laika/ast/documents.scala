@@ -81,7 +81,7 @@ sealed trait TreeContent extends Navigatable {
 
   /** Extracts all invalid elements with the specified minimum message level from this tree content.
     */
-  def invalidElements (filter: MessageFilter): Seq[Invalid[_]]
+  def invalidElements (filter: MessageFilter): Seq[Invalid]
 }
 
 /** A template document containing the element tree of a parsed template and its extracted
@@ -175,10 +175,10 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
     }
   }
 
-  def invalidElements (filter: MessageFilter): Seq[Invalid[_]] = filter match {
+  def invalidElements (filter: MessageFilter): Seq[Invalid] = filter match {
     case MessageFilter.None => Nil
     case _ => content.collect {
-      case inv: Invalid[_] if filter(inv.message) => inv
+      case inv: Invalid if filter(inv.message) => inv
     }
   }
 }
@@ -325,7 +325,7 @@ trait TreeStructure { this: TreeContent =>
     case _ => titleDocument.toSeq.flatMap(_.runtimeMessages(filter)) ++ content.flatMap(_.runtimeMessages(filter))
   }
 
-  def invalidElements (filter: MessageFilter): Seq[Invalid[_]] = filter match {
+  def invalidElements (filter: MessageFilter): Seq[Invalid] = filter match {
     case MessageFilter.None => Nil
     case _ => titleDocument.toSeq.flatMap(_.invalidElements(filter)) ++ content.flatMap(_.invalidElements(filter))
   }

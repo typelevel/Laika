@@ -36,8 +36,9 @@ object InvalidElement {
 /** Groups a span that could not be successfully parsed with a runtime message.
   * Renderers may then choose to just render the fallback, the message or both.
   */
-case class InvalidSpan (message: RuntimeMessage, source: SourceFragment, fallback: Span, options: Options = NoOpt) extends Span with Invalid[Span] {
+case class InvalidSpan (message: RuntimeMessage, source: SourceFragment, fallback: Span, options: Options = NoOpt) extends Span with Invalid {
   type Self = InvalidSpan
+  type FallbackElement = Span
   def withOptions (options: Options): InvalidSpan = copy(options = options)
 }
 
@@ -49,8 +50,9 @@ object InvalidSpan {
 /** Groups a block that could not be successfully parsed with a runtime message.
   * Renderers may then choose to just render the fallback, the message or both.
   */
-case class InvalidBlock (message: RuntimeMessage, source: SourceFragment, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block] {
+case class InvalidBlock (message: RuntimeMessage, source: SourceFragment, fallback: Block, options: Options = NoOpt) extends Block with Invalid {
   type Self = InvalidBlock
+  type FallbackElement = Block
   def withOptions (options: Options): InvalidBlock = copy(options = options)
 }
 
