@@ -97,7 +97,7 @@ object StandardDirectives extends DirectiveRegistry {
         case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
         case Right(Some(simpleValue))                => rewriteContent(simpleValue)
         case Right(None)                             => rewriteFallback
-        case Left(error)                             => InvalidElement(s"Error retrieving reference '$ref': ${error.message}", source).asTemplateSpan
+        case Left(error)                             => TemplateElement(InvalidSpan(s"Error retrieving reference '$ref': ${error.message}", source))
       }
     }
   }

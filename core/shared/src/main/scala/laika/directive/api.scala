@@ -683,7 +683,7 @@ object Templates extends BuilderContext[TemplateSpan] {
     type Self = DirectiveInstance
     val typeName: String = "template"
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
-    def createInvalidElement (message: String): TemplateSpan = InvalidElement(message, source).asTemplateSpan
+    def createInvalidElement (message: String): TemplateSpan = TemplateElement(InvalidSpan(message, source))
     lazy val unresolvedMessage: String = s"Unresolved template directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
 
@@ -692,8 +692,8 @@ object Templates extends BuilderContext[TemplateSpan] {
                                 options: Options = NoOpt) extends TemplateSpan with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions (options: Options): SeparatorInstance = copy(options = options)
-    def resolve (cursor: DocumentCursor): TemplateSpan = 
-      InvalidElement(s"Orphaned separator directive with name '${parsedResult.name}'", source).asTemplateSpan
+    def resolve (cursor: DocumentCursor): TemplateSpan =
+      TemplateElement(InvalidSpan(s"Orphaned separator directive with name '${parsedResult.name}'", source))
     lazy val unresolvedMessage: String = s"Unresolved separator directive instance with name '${parsedResult.name}'"
   }
 

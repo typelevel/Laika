@@ -156,7 +156,7 @@ trait TemplateRewriter {
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
-      case unresolved: Unresolved           => Replace(InvalidElement(unresolved.unresolvedMessage, unresolved.source).asTemplateSpan)
+      case unresolved: Unresolved           => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
     }
     
     def asTemplateSpan (span: Span) = span match {
