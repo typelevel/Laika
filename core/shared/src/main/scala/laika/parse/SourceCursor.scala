@@ -112,6 +112,12 @@ trait SourceFragment extends SourceCursor {
   * 
   * In a multi-pass parser like those for text markup, a `RootCursor` is only used for the first pass, 
   * whereas the subsequent passes on parts of the input are performed with the other `SourceCursor` implementations.
+  * 
+  * For this reason this type of cursor is only meant to be used for creating a root cursor for the input holding
+  * the whole document (e.g. the entire markup document or the full template).
+  * 
+  * For creating a cursor for a fragment of the input, either `BlockSource` or `LineSource` must be used
+  * to preserve position tracking in relation to the root input.
   */
 class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) extends SourceCursor {
 
@@ -223,13 +229,39 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
   override def toString: String = s"LineSource(offset $offset - length ${input.length} - root offset ${root.offset})"
 }
 
+/** Companion for creating LineSource instances.
+  */
 object LineSource {
+
+  /** Creates a new instance for the specified input and parent source. 
+    * The input is used by parsers whereas the parent source is only used for error messages.
+    * 
+    * There are some expectations which are not enforced to allow for the necessary freedom to handle edge cases:
+    * 
+    * - The parent source is expected to be at an offset that corresponds to the beginning of the input
+    *   of this new instance.
+    * - The input of the parent is expected to contain the full input of this source at its current offset,
+    *   to ensure position tracking is accurate in case of errors.
+    *   
+    * Some minor deviations from these rules can be allowed, if they do not diminish the accuracy of position tracking.
+    * For example, if this input has all line breaks replaced by spaces, but the parent does not, the positions would
+    * still align.
+    */
   def apply (input: String, parent: SourceCursor): LineSource = new LineSource(input, parent, 0, parent.nestLevel)
 }
 
 /** A block source represents the source for a block level element where each individual line might
   * have a different x-offset to the root source.
   *
+  * This type of source is essential to preserve position tracking in recursive block parsing.
+  * For block level markup the first passes have to identify the type of block and remove their markup decoration.
+  * The remaining inline markup is then passed to inline parsers, but the input to those parsers is no longer
+  * a consecutive substring of the root input, making it hard to provide exact positions in error messages.
+  * 
+  * This type of source cursor solves this issue by providing a view to parsers that looks like a consecutive
+  * string of inline markup without the stripped decoration, while maintaining the x- and y-offsets of each line
+  * in relation to the root source.
+  * 
   * Such a source will be used in multi-pass parsers, where the root parser might strip some markup decoration 
   * from each line and then pass the result down to the next recursion. 
   * In such a case each line might have a different x-offset from the root input.
@@ -290,8 +322,16 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
   override def toString: String = s"BlockSource(offset $offset - length ${input.length} - root offset ${root.offset})"
 }
 
+/** Companion for creating BlockSource instances.
+  */
 object BlockSource {
+  
   import cats.syntax.all._
+
+  /** Creates a new block source for the specified lines.
+    * Each line can have a different x- and y-offset from the root input as they may have been obtained
+    * by a previously applied block parser that stripped some decoration.
+    */
   def apply (lines: NonEmptyChain[LineSource]): BlockSource = {
     val trimmedLines = lines.map { line =>
       if (line.input.endsWith("\n")) LineSource(line.input.dropRight(1), line.parent) else line
@@ -299,6 +339,11 @@ object BlockSource {
     val input = new InputString(trimmedLines.map(_.input).mkString_("\n"))
     new BlockSource(input, trimmedLines, 0, lines.head.nestLevel)
   }
+
+  /** Creates a new block source for the specified lines.
+    * Each line can have a different x- and y-offset from the root input as they may have been obtained
+    * by a previously applied block parser that stripped some decoration.
+    */
   def apply (firstLine: LineSource, rest: LineSource*): BlockSource = {
     apply(NonEmptyChain(firstLine, rest:_*))
   }
@@ -323,20 +368,17 @@ object GeneratedSource extends SourceFragment {
 }
 
 /** Companion for creating new `SourceCursor` instances.
+  * This type of constructor is only meant to be used for creating a root cursor for the input holding
+  * the whole document (e.g. the entire markup document or the full template).
+  * 
+  * For creating a cursor for a fragment of the input, either `BlockSource` or `LineSource` must be used
+  * to preserve position tracking in relation to the root input.
   */
 object SourceCursor {
 
   /** Builds a new instance for the specified input string.
     */
   def apply (input: String): SourceCursor = new RootSource(new InputString(input), 0, 0)
-
-  /** Builds a new instance for the specified input string and nesting level.
-    *
-    * Keeping track of the nesting level allows to protect against malicious
-    * input that would otherwise cause endless recursion triggering stack
-    * overflows or ultra-slow performance.
-    */
-  def apply (input: String, nestLevel: Int): SourceCursor = new RootSource(new InputString(input), 0, nestLevel)
 
 }
 
