@@ -19,7 +19,7 @@ package laika.parse.directive
 import laika.ast._
 import laika.directive.Templates
 import laika.parse.{LineSource, Parser}
-import laika.parse.markup.DefaultRecursiveSpanParsers
+import laika.parse.markup.{DefaultRecursiveSpanParsers, RecursiveSpanParser}
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -66,5 +66,5 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val templateRoot: Parser[TemplateRoot] = templateSpans.map(TemplateRoot(_))
 
-  def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = None
+  def getSyntaxHighlighter (language: String): Option[RecursiveSpanParser] = None
 }

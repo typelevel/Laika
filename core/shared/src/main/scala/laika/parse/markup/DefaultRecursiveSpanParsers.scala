@@ -64,11 +64,12 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
   def recursiveSpans(parser: Parser[SourceFragment]): InlineParser[Span, List[Span]] =
     new TwoPhaseInlineParser(parser, defaultSpanParser)
 
-  def recursiveSpans: RecursiveSpanParser = new RecursiveSpanParser {
-    
-    private val parser = Parsers.consumeAll(defaultSpanParser) 
-    
-    def parse (in: SourceFragment): Parsed[List[Span]] = parser.parse(in)
+  def recursiveSpans: RecursiveSpanParser = new RecursiveSpanParserDelegate(defaultSpanParser)
+  
+  protected class RecursiveSpanParserDelegate (delegate: Parser[Seq[Span]]) extends RecursiveSpanParser {
+    private val parser = Parsers.consumeAll(delegate)
+
+    def parse (in: SourceFragment): Parsed[Seq[Span]] = parser.parse(in)
 
     def parseAndRecover (in: SourceFragment): Seq[Span] = parser.parse(in) match {
       case Success(blocks, _) => blocks

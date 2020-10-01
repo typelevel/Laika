@@ -263,10 +263,10 @@ class StandardBlockDirectives {
    *  The current implementation does not support syntax highlighting.
    */
   def code (p: RecursiveParsers): DirectivePartBuilder[Block] = {
-    (argument() ~ content(Right(_)) ~ stdOpt).evalMap { case language ~ code ~ opt => 
-      val highlighter = p.getSyntaxHighlighter(language).getOrElse(anyChars.map(txt => Seq(Text(txt))))
-      val blockParser = highlighter.map(codeSpans => CodeBlock(language, codeSpans, opt))
-      blockParser.parse(code).toEither  
+    (argument() ~ content(Right(_)) ~ stdOpt).evalMap { case language ~ code ~ opt =>
+      p.getSyntaxHighlighter(language).fold[Either[String, Seq[Span]]](Right(Seq(Text(code.input)))) { highlighter =>
+        highlighter.parse(code).toEither
+      }.map { CodeBlock(language, _, opt) }
     } 
   }
   

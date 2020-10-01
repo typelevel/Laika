@@ -38,7 +38,9 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
       highlighter.language.toList.map(lang => (lang.toLowerCase, highlighter.rootParser))
     }.toMap
 
-  def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]] = highlighterMap.get(language.toLowerCase)
+  def getSyntaxHighlighter (language: String): Option[RecursiveSpanParser] = highlighterMap
+    .get(language.toLowerCase)
+    .map(new RecursiveSpanParserDelegate(_))
 
   override lazy val escapedChar: Parser[String] = markupParser.escapedChar
   

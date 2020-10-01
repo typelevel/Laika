@@ -101,7 +101,7 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
 
   /** Provides the syntax highlighter for the specified language if present.
     */
-  def getSyntaxHighlighter (language: String): Option[Parser[Seq[Span]]]
+  def getSyntaxHighlighter (language: String): Option[RecursiveSpanParser]
   
 }
 

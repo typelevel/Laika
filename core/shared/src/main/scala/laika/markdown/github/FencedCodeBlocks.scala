@@ -17,7 +17,7 @@
 package laika.markdown.github
 
 import cats.data.NonEmptyChain
-import laika.ast.{Block, CodeBlock, LiteralBlock, Text, ~}
+import laika.ast.{Block, CodeBlock, LiteralBlock, Span, Text, ~}
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.{BlockSource, Failure, Parser, Success}
 import laika.parse.builders._
@@ -67,10 +67,11 @@ object FencedCodeBlocks {
         val codeSource = NonEmptyChain.fromSeq(trimmedLines).map(BlockSource(_))
         (info, codeSource) match {
           case (Some(lang), Some(src)) =>
-            val highlighter = recParsers.getSyntaxHighlighter(lang).getOrElse(anyChars.map { txt => Seq(Text(txt)) })
-            val blockParser = highlighter.map { codeSpans => CodeBlock(lang, codeSpans) }
-            blockParser.parse(src).toEither
-          case _ => Right(LiteralBlock(trimmedLines.map(_.input).mkString("\n")))
+            recParsers.getSyntaxHighlighter(lang).fold[Either[String, Seq[Span]]](Right(Seq(Text(src.input)))) { highlighter =>
+              highlighter.parse(src).toEither
+            }.map { CodeBlock(lang, _) }
+          case _ => 
+            Right(LiteralBlock(trimmedLines.map(_.input).mkString("\n")))
         }
       }
     }
