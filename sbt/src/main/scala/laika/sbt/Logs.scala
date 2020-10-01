@@ -66,7 +66,7 @@ object Logs {
     */
   def runtimeMessages (logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
 
-    def logMessage (inv: Invalid[_], path: Path): Unit = {
+    def logMessage (inv: Invalid, path: Path): Unit = {
       val source = inv.fallback match {
         case tc: TextContainer => tc.content
         case other => other.toString
@@ -80,14 +80,9 @@ object Logs {
       }
     }
 
-    def logRoot (e: ElementTraversal, path: Path): Unit = {
-      val nodes = e collect {
-        case i: Invalid[_] if filter(i.message) => i
-      }
-      nodes foreach { logMessage(_, path) }
-    }
-
-    tree.allDocuments foreach { doc => logRoot(doc.content, doc.path) }
+    tree.allDocuments
+      .flatMap(doc => doc.invalidElements(filter).map((_, doc.path)))
+      .foreach { case (inv, path) => logMessage(inv, path) }
 
   }
 
