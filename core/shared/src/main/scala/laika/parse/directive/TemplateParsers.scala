@@ -33,7 +33,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   lazy val spanParsers: Seq[PrefixedParser[Span]] = Seq(
-    hoconReference(TemplateContextReference(_,_,_), _.asTemplateSpan),
+    hoconReference(TemplateContextReference(_,_,_), TemplateElement(_)),
     templateDirective,
     "\\" ~> oneChar.map(Text(_))
   )

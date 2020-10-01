@@ -68,11 +68,13 @@ abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) ex
     }
   }
 
-  private def error(message: String): InvalidElement = InvalidElement(message, source)
-  protected def missing: InvalidElement = error(s"Missing required reference: '$ref'")
-  protected def invalid(cError: ConfigError): InvalidElement = error(s"Error resolving reference: '$ref': ${cError.message}")
-  protected def invalidType(value: ConfigValue): InvalidElement = error(s"Error resolving reference: '$ref': " +
-    InvalidType("AST Element or Simple Value", value).message)
+  protected def missing: InvalidSpan = InvalidSpan(s"Missing required reference: '$ref'", source)
+  
+  protected def invalid(cError: ConfigError): InvalidSpan = 
+    InvalidSpan(s"Error resolving reference: '$ref': ${cError.message}", source)
+  
+  protected def invalidType(value: ConfigValue): InvalidSpan = InvalidSpan(s"Error resolving reference: '$ref': " +
+    InvalidType("AST Element or Simple Value", value).message, source)
 }
 
 /** A context reference specifically for use in template documents.
@@ -87,9 +89,9 @@ case class TemplateContextReference (ref: Key, required: Boolean, source: Source
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue))        => TemplateString(simple.render)
     case Right(None) if !required                      => TemplateString("")
-    case Right(None)                                   => missing.asTemplateSpan
-    case Right(Some(unsupported))                      => invalidType(unsupported).asTemplateSpan
-    case Left(configError)                             => invalid(configError).asTemplateSpan
+    case Right(None)                                   => TemplateElement(missing)
+    case Right(Some(unsupported))                      => TemplateElement(invalidType(unsupported))
+    case Left(configError)                             => TemplateElement(invalid(configError))
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
 
@@ -106,9 +108,9 @@ case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFr
     case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
     case Right(None) if !required               => Text("")
-    case Right(None)                            => missing.asSpan
-    case Right(Some(unsupported))               => invalidType(unsupported).asSpan
-    case Left(configError)                      => invalid(configError).asSpan
+    case Right(None)                            => missing
+    case Right(Some(unsupported))               => invalidType(unsupported)
+    case Left(configError)                      => invalid(configError)
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved markup context reference with key '${ref.toString}'"

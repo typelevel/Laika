@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import cats.data.{Chain, NonEmptyChain, NonEmptySet}
+import cats.data.{NonEmptyChain, NonEmptySet}
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
 import laika.config.Key
@@ -42,10 +42,10 @@ object DirectiveParsers {
 
   /** Parses a HOCON-style reference enclosed between `\${` and `}` that may be marked as optional (`\${?some.param}`).
     */
-  def hoconReference[T] (f: (Key, Boolean, SourceFragment) => T, e: InvalidElement => T): PrefixedParser[T] = 
+  def hoconReference[T] (f: (Key, Boolean, SourceFragment) => T, e: InvalidSpan => T): PrefixedParser[T] = 
     ("${" ~> opt("?") ~ HoconParsers.concatenatedKey(NonEmptySet.one('}')) <~ "}").withCursor.map { case(optional ~ key, source) =>
       key.fold(
-        invalid => e(InvalidElement(s"Invalid HOCON reference: '${source.input}': ${invalid.failure.toString}", source)),
+        invalid => e(InvalidSpan(s"Invalid HOCON reference: '${source.input}': ${invalid.failure.toString}", source)),
         key     => f(key, optional.isEmpty, source)
       )
     }
@@ -133,7 +133,7 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.standalone(hoconReference(MarkupContextReference(_,_,_), _.asSpan))
+    SpanParser.standalone(hoconReference(MarkupContextReference(_,_,_), identity))
 
   def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.recursive(rec => spanDirectiveParser(directives)(rec))

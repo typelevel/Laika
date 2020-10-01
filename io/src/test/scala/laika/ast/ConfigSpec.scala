@@ -183,7 +183,7 @@ class ConfigSpec extends IOWordSpec
       val expected = root(
         TemplateRoot(
           TemplateString("<h1>"),
-          InvalidElement(msg, source("${foox}", Contents.templateWithMissingRef)).asTemplateSpan,
+          TemplateElement(InvalidSpan(msg, source("${foox}", Contents.templateWithMissingRef))),
           TemplateString("</h1>\n<div>"),
           EmbeddedRoot("aaa\nbbb"),
           TemplateString("</div>\nCCC")

@@ -20,20 +20,14 @@ import laika.parse.SourceFragment
 
 import scala.math.Ordered
 
-/** Represents an invalid element in any position, block, span or template.
-  * Provides convenience converters to produce instances for any of these three positions.
-  */
+@deprecated("use InvalidBlock or InvalidSpan directly, this class is no longer a useful shortcut", "0.17.0")
 case class InvalidElement (message: RuntimeMessage, source: SourceFragment) {
-
   def asBlock: InvalidBlock = InvalidBlock(message, source)
-
   def asSpan: InvalidSpan = InvalidSpan(message, source)
-
   def asTemplateSpan: TemplateSpan = TemplateElement(asSpan)
-
 }
 
-/** Companion for InvalidElement. */
+@deprecated("use InvalidBlock or InvalidSpan directly, this class is no longer a useful shortcut", "0.17.0")
 object InvalidElement {
   def apply (message: String, source: SourceFragment): InvalidElement =
     apply(RuntimeMessage(MessageLevel.Error, message), source)
