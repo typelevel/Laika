@@ -21,7 +21,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.IncludeMap
 import laika.config._
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
-import laika.rewrite.nav.AutonumberConfig
+import laika.rewrite.nav.{AutonumberConfig, TargetFormats}
 
 
 /** A navigatable object is anything that has an associated path.
@@ -82,6 +82,10 @@ sealed trait TreeContent extends Navigatable {
   /** Extracts all invalid elements with the specified minimum message level from this tree content.
     */
   def invalidElements (filter: MessageFilter): Seq[Invalid]
+
+  /** The formats this tree content should be rendered in.
+    */
+  def targetFormats: TargetFormats = config.get[TargetFormats].getOrElse(TargetFormats.All)
 }
 
 /** A template document containing the element tree of a parsed template and its extracted
