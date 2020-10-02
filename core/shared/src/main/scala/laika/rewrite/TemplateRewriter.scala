@@ -37,6 +37,8 @@ trait TemplateRewriter {
   private def defaultTemplate (format: String): TemplateDocument = 
     TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
   
+  private def shouldRender (format: String)(content: Cursor): Boolean = content.target.targetFormats.includes(format) 
+  
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
   def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = 
@@ -45,7 +47,7 @@ trait TemplateRewriter {
   private def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
-      newCover <- cursor.coverDocument.traverse(applyTemplate(_, format))
+      newCover <- cursor.coverDocument.filter(shouldRender(format)).traverse(applyTemplate(_, format))
       newTree  <- applyTemplates(cursor.tree, format)
     } yield {
       cursor.target.copy(
@@ -67,8 +69,8 @@ trait TemplateRewriter {
   private def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
 
     for {
-      newTitle   <- cursor.titleDocument.traverse(applyTemplate(_, format))
-      newContent <- applyTreeTemplate(cursor.children, format)
+      newTitle   <- cursor.titleDocument.filter(shouldRender(format)).traverse(applyTemplate(_, format))
+      newContent <- applyTreeTemplate(cursor.children.filter(shouldRender(format)), format)
     } yield {
       cursor.target.copy(
         titleDocument = newTitle,

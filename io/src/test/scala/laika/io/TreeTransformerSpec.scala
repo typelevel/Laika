@@ -101,6 +101,13 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
     
     object Contents {
       val name = "foo"
+      def forTargetFormats (formats: String*): String =
+        s"""{%
+          |  laika.targetFormats = [${formats.mkString(",")}]
+          |%}
+          |
+          |foo
+        """.stripMargin
       val aa = "aa"
       val style = "13"
       val link = "[link](/foo)"
@@ -467,6 +474,36 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           )))
         )
       )), staticDocuments = Seq(Root / "dir2" / "omg.js") ++ TestTheme.staticPaths))
+    }
+
+    "transform a tree with while filtering documents based on their targetFormats setting" in new TreeTransformerSetup {
+      val inputs = Seq(
+        Root / "doc1.md" -> Contents.name,
+        Root / "doc2.md" -> Contents.forTargetFormats(),
+        Root / "dir1" / "doc3.md" -> Contents.forTargetFormats("html", "txt"),
+        Root / "dir1" / "doc4.md" -> Contents.forTargetFormats("epub", "pdf"),
+        Root / "dir2" / "doc5.md" -> Contents.name,
+        Root / "dir2" / "doc6.md" -> Contents.name,
+      )
+
+      val result =
+        """RootElement - Blocks: 1
+          |. Paragraph - Spans: 1
+          |. . Text - 'foo'""".stripMargin
+      transformTree.assertEquals(RenderedTreeViewRoot(root(List(
+        docs(
+          (Root / "doc1.txt", result)
+        ),
+        trees(
+          (Root / "dir1", List(docs(
+            (Root / "dir1" / "doc3.txt", result)
+          ))),
+          (Root / "dir2", List(docs(
+            (Root / "dir2" / "doc5.txt", result),
+            (Root / "dir2" / "doc6.txt", result),
+          )))
+        )
+      )), staticDocuments = TestTheme.staticPaths))
     }
 
     "describe a tree with all available file types and multiple markup formats" in new TreeTransformerSetup {

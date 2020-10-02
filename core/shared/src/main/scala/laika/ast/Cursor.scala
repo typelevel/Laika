@@ -32,7 +32,7 @@ sealed trait Cursor {
 
   /** The type of the target this cursor points to.
     */
-  type Target
+  type Target <: TreeContent
 
   /** The target within the document tree this cursor points to
     * (a markup document or a sub-tree).
