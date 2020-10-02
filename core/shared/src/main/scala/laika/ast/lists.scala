@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import laika.rewrite.nav.TargetFormats
+
 /** A bullet list that may contain nested lists.
   */
 case class BulletList (content: Seq[BulletListItem], format: BulletFormat, options: Options = NoOpt) extends Block
@@ -141,11 +143,12 @@ case class NavigationList (content: Seq[NavigationItem], options: Options = NoOp
 trait NavigationItem extends Block with ListItem with ElementContainer[NavigationItem] with RewritableContainer {
   type Self <: NavigationItem
   def title: SpanSequence
+  def targetFormats: TargetFormats
 }
 
 /** Represents a book navigation entry that only serves as a section header without linking to content.
   */
-case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], options: Options = NoOpt) extends NavigationItem with ListContainer {
+case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], targetFormats: TargetFormats = TargetFormats.All, options: Options = NoOpt) extends NavigationItem with ListContainer {
 
   type Self = NavigationHeader
 
@@ -169,6 +172,7 @@ case class NavigationLink (title: SpanSequence,
                            target: Target,
                            content: Seq[NavigationItem],
                            selfLink: Boolean = false,
+                           targetFormats: TargetFormats = TargetFormats.All,
                            options: Options = NoOpt) extends NavigationItem with ListContainer {
   type Self = NavigationLink
   def rewriteChildren (rules: RewriteRules): NavigationLink = copy(

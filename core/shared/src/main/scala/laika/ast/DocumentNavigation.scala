@@ -17,6 +17,7 @@
 package laika.ast
 
 import laika.ast.Path.Root
+import laika.rewrite.nav.TargetFormats
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
   * 
@@ -44,9 +45,12 @@ trait DocumentNavigation extends Navigatable {
     */
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     val children = if (context.isComplete || context.excludeSections) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
-    context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), Some(path), children)
+    context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), Some(path), children, targetFormats)
   }
 
+  /** The formats this document should be rendered to.
+    */
+  def targetFormats: TargetFormats
 }
 
 /** The context of a navigation builder that can get passed down in recursive calls to the
@@ -70,10 +74,10 @@ case class NavigationBuilderContext (refPath: Path = Root,
 
   val isComplete: Boolean = currentLevel >= maxLevels
 
-  def newNavigationItem (title: SpanSequence, target: Option[Path], children: Seq[NavigationItem]): NavigationItem = {
+  def newNavigationItem (title: SpanSequence, target: Option[Path], children: Seq[NavigationItem], targetFormats: TargetFormats): NavigationItem = {
     val styles = Style.level(currentLevel) + Styles(itemStyles)
-    target.fold[NavigationItem](NavigationHeader(title, children, styles)) { target =>
-      NavigationLink(title, InternalTarget(target).relativeTo(refPath), children, target == refPath, styles)
+    target.fold[NavigationItem](NavigationHeader(title, children, targetFormats, styles)) { target =>
+      NavigationLink(title, InternalTarget(target).relativeTo(refPath), children, target == refPath, targetFormats, styles)
     }
   }
 }

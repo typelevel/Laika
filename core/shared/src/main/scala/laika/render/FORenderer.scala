@@ -244,9 +244,9 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       
       elem match {
         case l: NavigationItem if l.hasStyle("bookmark") => fmt.bookmark(l)
-        case NavigationHeader(title, content, opt) =>
+        case NavigationHeader(title, content, _, opt) =>
           fmt.childPerLine(Paragraph(title.content, Style.nav + keepWithNext + opt) +: avoidOrphan(content))
-        case NavigationLink(title, target: InternalTarget, content, _, opt) =>
+        case NavigationLink(title, target: InternalTarget, content, _, _, opt) =>
           val link = SpanLink(
             content = title.content :+ Leader() :+ PageNumberCitation(target),
             target = target

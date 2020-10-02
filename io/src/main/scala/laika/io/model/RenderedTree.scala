@@ -18,6 +18,7 @@ package laika.io.model
 
 import laika.ast._
 import laika.config.Config
+import laika.rewrite.nav.TargetFormats
 
 /** A titled, positional element in the tree of rendered documents.
   */
@@ -79,7 +80,7 @@ case class RenderedTree (path: Path,
     }
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
+    context.newNavigationItem(navTitle, titleDocument.map(_.path), children, TargetFormats.All)
   }
 }
 
@@ -88,7 +89,7 @@ case class RenderedTree (path: Path,
   * The title and section info are still represented as an AST, so they be used in any subsequent
   * step that needs to produce navigation structures.
   */
-case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: Seq[SectionInfo], content: String) extends RenderContent with DocumentNavigation
+case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: Seq[SectionInfo], content: String, targetFormats: TargetFormats = TargetFormats.All) extends RenderContent with DocumentNavigation
 
 /** Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.

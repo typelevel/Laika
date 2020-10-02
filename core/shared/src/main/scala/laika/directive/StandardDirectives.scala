@@ -165,13 +165,13 @@ object StandardDirectives extends DirectiveRegistry {
       
       def entriesFor (tree: TreeCursor): Vector[NavigationItem] = {
         val title = tree.target.title.getOrElse(SpanSequence(tree.path.name))
-        val item = context.newNavigationItem(title, tree.target.titleDocument.map(_.path), Nil)
+        val item = context.newNavigationItem(title, tree.target.titleDocument.map(_.path), Nil, tree.target.targetFormats)
         tree.parent.fold(Vector(item))(parent => entriesFor(parent) :+ item)
       }
       
       val docEntry = {
         val title = cursor.target.title.getOrElse(SpanSequence(cursor.path.name))
-        context.newNavigationItem(title, Some(cursor.path), Nil)
+        context.newNavigationItem(title, Some(cursor.path), Nil, cursor.target.targetFormats)
       }
         
       NavigationList(entriesFor(cursor.parent) :+ docEntry, Style.breadcrumb)

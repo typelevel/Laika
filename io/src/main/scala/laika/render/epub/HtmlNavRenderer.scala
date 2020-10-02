@@ -84,10 +84,10 @@ class HtmlNavRenderer {
     if (bookNav.isEmpty) ""
     else bookNav.map {
       
-      case NavigationHeader(title, children, _) => 
+      case NavigationHeader(title, children, _, _) => 
         navLink(title.extractText, linkOfFirstChild(children), pos.next(), navItems(children, pos))
         
-      case NavigationLink(title, target, children, _, _) => 
+      case NavigationLink(title, target, children, _, _, _) => 
         navLink(title.extractText, target.render(), pos.next(), navItems(children, pos))
         
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")

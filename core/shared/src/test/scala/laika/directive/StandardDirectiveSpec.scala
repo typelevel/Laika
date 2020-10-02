@@ -27,7 +27,7 @@ import laika.ast.helper.ModelBuilder
 import laika.config._
 import laika.format.Markdown
 import laika.parse.SourceCursor
-import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
+import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections, TargetFormats}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -752,6 +752,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
         sectionList(path, 3, level+1)
       ),
       path == refPath,
+      TargetFormats.All,
       styles(level)
     )
 
@@ -764,7 +765,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       else NavigationHeader(SpanSequence(s"Tree $tree"), if (excludeSelf) children.take(1) else children, options = styles(level))
     }
 
-    val rootEntry: NavigationHeader = NavigationHeader(SpanSequence("/"), Nil, styles(1))
+    val rootEntry: NavigationHeader = NavigationHeader(SpanSequence("/"), Nil, TargetFormats.All, styles(1))
 
     def rootList: NavigationHeader =
       NavigationHeader(SpanSequence("/"), List(

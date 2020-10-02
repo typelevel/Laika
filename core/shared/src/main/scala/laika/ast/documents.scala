@@ -16,7 +16,6 @@
 
 package laika.ast
 
-import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.IncludeMap
 import laika.config._
@@ -83,7 +82,7 @@ sealed trait TreeContent extends Navigatable {
     */
   def invalidElements (filter: MessageFilter): Seq[Invalid]
 
-  /** The formats this tree content should be rendered in.
+  /** The formats this tree content should be rendered to.
     */
   def targetFormats: TargetFormats = config.get[TargetFormats].getOrElse(TargetFormats.All)
 }
@@ -123,7 +122,7 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
     */
   def asNavigationItem (docPath: Path, context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(docPath, context.nextLevel))
-    context.newNavigationItem(title, Some(docPath.withFragment(id)), children)
+    context.newNavigationItem(title, Some(docPath.withFragment(id)), children, TargetFormats.All)
   }
 
 }
@@ -321,7 +320,7 @@ trait TreeStructure { this: TreeContent =>
     val navContent = if (context.excludeSelf) content.filterNot(_.path == context.refPath) else content
     val children = if (context.isComplete) Nil else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    context.newNavigationItem(navTitle, titleDocument.map(_.path), children)
+    context.newNavigationItem(navTitle, titleDocument.map(_.path), children, targetFormats)
   }
 
   def runtimeMessages (filter: MessageFilter): Seq[RuntimeMessage] = filter match {
