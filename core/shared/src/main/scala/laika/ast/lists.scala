@@ -131,6 +131,20 @@ case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Op
 
 /** The root node of a navigation structure */
 case class NavigationList (content: Seq[NavigationItem], options: Options = NoOpt) extends Block with ListContainer with RewritableContainer {
+
+  /** Create a new navigation list that only contains the entries matching the specified target format.
+    */
+  def forFormat (format: String): NavigationList = {
+    def filter (items: Seq[NavigationItem]): Seq[NavigationItem] = items.flatMap { item =>
+      if (item.targetFormats.includes(format)) item match {
+        case nl: NavigationLink => Some(nl.copy(content = filter(nl.content)))
+        case nh: NavigationHeader => Some(nh.copy(content = filter(nh.content)))
+      }
+      else None
+    }
+    copy(content = filter(content))
+  }
+
   type Self = NavigationList
   def rewriteChildren (rules: RewriteRules): NavigationList = copy(
     content = content.map(_.rewriteChildren(rules))

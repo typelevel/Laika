@@ -678,9 +678,20 @@ class StandardDirectiveSpec extends AnyFlatSpec
         Nil
     )
 
+    def includeTargetFormatConfig: Boolean = false
+
+    def targetFormatsFor (name: String): Option[Seq[String]] =
+      if (!includeTargetFormatConfig) None else name match {
+        case "doc2" => Some(Nil)
+        case "doc3" => Some(Seq("html", "txt"))
+        case "doc4" => Some(Seq("epub", "pdf"))
+        case _ => None
+      }
+
     def config(path: Path, title: String, scope: Origin.Scope): Config = ConfigBuilder
       .withOrigin(Origin(scope, path))
       .withValue(LaikaKeys.title, title)
+      .withValue(LaikaKeys.targetFormats, targetFormatsFor(path.name))
       .build
 
     def titleDoc (path: Path): Option[Document] =
@@ -845,6 +856,30 @@ class StandardDirectiveSpec extends AnyFlatSpec
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     parseTemplateAndRewrite(template) should be (templateResult(rootList))
+  }
+
+  it should "produce an entry generated from the root of the tree with documents filtered by target format" in new TreeModel with NavModel {
+
+    override def includeTargetFormatConfig = true
+
+    val filteredRootList: NavigationHeader =
+      NavigationHeader(SpanSequence("/"), List(
+        docList(Root / "doc1", 1, 2),
+        NavigationHeader(SpanSequence("Tree 1"),
+          List(
+            docList(Root / s"sub1" / s"doc3", 3, 3).copy(targetFormats = TargetFormats.Selected(NonEmptySet.of("html", "txt")))
+          ), options = styles(2)),
+        treeList(2, 5, 2)
+      ), options = styles(1))
+    
+    val template =
+      """aaa @:navigationTree { 
+        |  entries = [
+        |    { target = "/" }
+        |  ] 
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
+
+    parseTemplateAndRewrite(template) should be (templateResult(filteredRootList))
   }
 
   it should "produce an entry generated from the root of the tree with title documents" in new TreeModel with NavModel {

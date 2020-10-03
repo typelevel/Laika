@@ -151,6 +151,7 @@ trait TemplateRewriter {
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
       case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
+      case nl: NavigationList               => Replace(cursor.root.targetFormat.fold(nl)(nl.forFormat))
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
       case unresolved: Unresolved           => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
