@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast.{InternalTarget, _}
 import laika.ast.Path.Root
+import laika.rewrite.nav.TargetFormats
 
 import scala.annotation.tailrec
 
@@ -72,24 +73,48 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def assignExternalUrl (link: Span, target: ResolvedInternalTarget)(mapping: InternalLinkMapping): Span = link match {
-        case sl: SpanLink =>
-          sl.copy(target = target.copy(
-            externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
-          ))
-        case _: Image =>
-          InvalidSpan(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source)
+      def assignExternalUrl (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
+        internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
+          .fold(link) { mapping =>
+            link match {
+              case sl: SpanLink =>
+                sl.copy(target = target.copy(
+                  externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
+                ))
+              case _: Image =>
+                InvalidSpan(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source)
+              case _ => link
+            }
+          }
       }
+      
+      def validateTarget (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
+        targets.select(Root, selector) match {
+          case None if excludeFromValidation.exists(p => selector.path.isSubPath(p)) => link
+          case None => InvalidSpan(s"unresolved internal reference: ${target.relativePath.toString}", ref.source)
+          case Some(resolver) => cursor.target.targetFormats match {
+            case TargetFormats.None => link // to be validated at point of inclusion by a directive like @:include
+            case TargetFormats.All => resolver.targetFormats match {
+              case TargetFormats.All => link
+              case _ => InvalidSpan(s"document for all output formats cannot reference a document " +
+                s"with restricted output formats: ${target.relativePath.toString}", ref.source)
+            }
+            case TargetFormats.Selected(formats) => 
+              val missingFormats = formats.filterNot(resolver.targetFormats.includes)
+              if (missingFormats.isEmpty) link
+              else InvalidSpan(s"internal reference to: ${target.relativePath.toString} that does not support " +
+                s"one or more output formats of this document: ${missingFormats.mkString(", ")}", ref.source)
+          } 
+            
+        }
+      } 
       
       def validateLink (link: Span, target: Target): Span = target match {
         case it: InternalTarget =>
           val resolvedTarget = it.relativeTo(cursor.path)
           val selector = pathSelectorFor(resolvedTarget.relativePath)
-          if (excludeFromValidation.exists(p => selector.path.isSubPath(p)) || targets.select(Root, selector).isDefined) {
-            internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
-              .fold(link)(assignExternalUrl(link, resolvedTarget))
-          }
-          else InvalidSpan(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}", ref.source)
+          val validated = validateTarget(link, selector, resolvedTarget)
+          assignExternalUrl(validated, selector, resolvedTarget)
         case _ => link
       }
 
