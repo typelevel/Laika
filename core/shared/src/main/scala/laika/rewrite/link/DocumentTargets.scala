@@ -56,6 +56,8 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
     TargetResolver.create(selector, resolver, TargetReplacer.removeTarget)
   }
   
+  private val targetFormats = document.targetFormats
+  
   private val directTargets: List[TargetResolver] = {
     
     val levels = new DecoratedHeaderLevels
@@ -75,7 +77,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
         val replacer = TargetReplacer.lift {
           case Citation(label, content, opt) => Citation(label, content, opt + Id(s"__cit-${selector.id}"))
         }
-        TargetResolver.create(selector, resolver, replacer)
+        TargetResolver.create(selector, resolver, replacer, targetFormats)
       
       case f: FootnoteDefinition => 
         val (docId, displayId, selector) = f.label match {
@@ -90,7 +92,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
         val replacer = TargetReplacer.lift {
           case FootnoteDefinition(_, content, _, opt) => Footnote(displayId, content, opt + Id(docId))
         }
-        TargetResolver.create(selector, resolver, replacer)
+        TargetResolver.create(selector, resolver, replacer, targetFormats)
 
       case ld: LinkDefinition =>
         val selector = if (ld.id.isEmpty) AnonymousSelector else LinkDefinitionSelector(ld.id)
@@ -102,22 +104,22 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
         val finalHeader = TargetReplacer.lift {
           case DecoratedHeader(_, content, _, opt) => Header(level, content, opt + Id(selector.id))
         }
-        TargetResolver.create(selector, internalResolver(selector), finalHeader, 10 - level)
+        TargetResolver.create(selector, internalResolver(selector), finalHeader, targetFormats, 10 - level)
       
       case h @ Header(level,_,_) =>
         val selector = TargetIdSelector(slugBuilder(h.extractText))
-        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), 10 - level)
+        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), targetFormats, 10 - level)
 
       case alias: LinkAlias => 
-        LinkAliasResolver.unresolved(TargetIdSelector(slugBuilder(alias.id)), TargetIdSelector(slugBuilder(alias.target)))  
+        LinkAliasResolver.unresolved(TargetIdSelector(slugBuilder(alias.id)), TargetIdSelector(slugBuilder(alias.target)), targetFormats)  
         
       case c: Block if c.hasId =>
         val selector = TargetIdSelector(slugBuilder(c.options.id.get))
-        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id))
+        TargetResolver.create(selector, internalResolver(selector), TargetReplacer.addId(selector.id), targetFormats)
 
       case c: Span if c.hasId =>
         val selector = TargetIdSelector(slugBuilder(c.options.id.get))
-        TargetResolver.forSpanTarget(selector, internalResolver(selector))
+        TargetResolver.forSpanTarget(selector, internalResolver(selector), targetFormats)
     }
   }
 
@@ -162,7 +164,11 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
     }
   
     val documentTarget =
-      TargetResolver.create(PathSelector(document.path), ReferenceResolver.internalLink(document.path), TargetReplacer.removeTarget)
+      TargetResolver.create(
+        PathSelector(document.path), 
+        ReferenceResolver.internalLink(document.path), 
+        TargetReplacer.removeTarget,
+        targetFormats)
 
     resolvedTargets ++ pathTargets ++ targetsFromConfig :+ documentTarget
   }

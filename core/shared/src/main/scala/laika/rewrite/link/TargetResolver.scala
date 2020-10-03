@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast._
 import laika.parse.GeneratedSource
+import laika.rewrite.nav.TargetFormats
 
 
 /** Represents the source of a link, its document path
@@ -33,7 +34,7 @@ case class LinkSource (span: Span, path: Path)
   * @param selector the selector to use to identify reference nodes matching this target 
   * @param precedence the precedence in comparison to other resolvers with the same selector
   */
-abstract sealed class TargetResolver (val selector: Selector, val precedence: Int = 0) {
+abstract sealed class TargetResolver (val selector: Selector, val targetFormats: TargetFormats = TargetFormats.All, val precedence: Int = 0) {
 
   /** Creates the final link element for the specified reference
     *  pointing to this target. In case this target does not know
@@ -85,7 +86,8 @@ object TargetResolver {
   def create(selector: Selector,
              referenceResolver: LinkSource => Option[Span],
              targetResolver: Block => Option[Block],
-             precedence: Int = 0): TargetResolver = new TargetResolver(selector, precedence) {
+             targetFormats: TargetFormats = TargetFormats.All,
+             precedence: Int = 0): TargetResolver = new TargetResolver(selector, targetFormats, precedence) {
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
 
@@ -96,7 +98,8 @@ object TargetResolver {
   }
 
   def forSpanTarget(idSelector: TargetIdSelector,
-                    referenceResolver: LinkSource => Option[Span]): TargetResolver = new TargetResolver(idSelector) {
+                    referenceResolver: LinkSource => Option[Span],
+                    targetFormats: TargetFormats = TargetFormats.All): TargetResolver = new TargetResolver(idSelector, targetFormats) {
 
     override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
 
@@ -127,7 +130,7 @@ object TargetResolver {
     }
   }
 
-  def forDelegate (selector: Selector, delegate: TargetResolver): TargetResolver = new TargetResolver(selector) {
+  def forDelegate (selector: Selector, delegate: TargetResolver): TargetResolver = new TargetResolver(selector, delegate.targetFormats) {
     override def resolveReference (linkSource: LinkSource) = delegate.resolveReference(linkSource)
     override def replaceTarget (rewrittenOriginal: Element) = delegate.replaceTarget(rewrittenOriginal)
   }
@@ -153,7 +156,8 @@ case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) 
 
 case class LinkAliasResolver (sourceSelector: TargetIdSelector,
                               targetSelector: TargetIdSelector,
-                              referenceResolver: LinkSource => Option[Span]) extends TargetResolver(sourceSelector) {
+                              referenceResolver: LinkSource => Option[Span],
+                              formats: TargetFormats) extends TargetResolver(sourceSelector, formats) {
   override def resolveReference (linkSource: LinkSource): Option[Span] = referenceResolver(linkSource)
   override def replaceTarget (rewrittenOriginal: Element): Option[Element] = None
 
@@ -164,7 +168,13 @@ case class LinkAliasResolver (sourceSelector: TargetIdSelector,
     TargetResolver.forInvalidTarget(sourceSelector, s"circular link reference: ${targetSelector.id}").resolveReference)
 }
 object LinkAliasResolver {
-  def unresolved (sourceSelector: TargetIdSelector, targetSelector: TargetIdSelector): LinkAliasResolver =
-    apply(sourceSelector, targetSelector,
-      TargetResolver.forInvalidTarget(sourceSelector, s"unresolved link alias: ${targetSelector.id}").resolveReference)
+  def unresolved (sourceSelector: TargetIdSelector, 
+                  targetSelector: TargetIdSelector,
+                  targetFormats: TargetFormats): LinkAliasResolver =
+    apply(
+      sourceSelector, 
+      targetSelector,
+      TargetResolver.forInvalidTarget(sourceSelector, s"unresolved link alias: ${targetSelector.id}").resolveReference,
+      targetFormats
+    )
 }
