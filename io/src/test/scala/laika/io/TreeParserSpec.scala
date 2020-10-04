@@ -40,7 +40,7 @@ import laika.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import org.scalatest.Assertion
 
 
@@ -128,7 +128,7 @@ class TreeParserSpec extends IOWordSpec
 
     def toView (parsed: ParsedTree[IO]): RootView = viewOf(parsed.root)
 
-    def toViewWithTemplating (parsed: ParsedTree[IO]): RootView = viewOf(TemplateRewriter.applyTemplates(parsed.root, "html").toOption.get)
+    def toViewWithTemplating (parsed: ParsedTree[IO]): RootView = viewOf(TemplateRewriter.applyTemplates(parsed.root, TemplateContext("html")).toOption.get)
     
     
     def parsedTree: IO[RootView] = defaultParser.use(_.fromInput(build(inputs)).parse).map(toViewWithTemplating)

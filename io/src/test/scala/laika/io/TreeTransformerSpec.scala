@@ -480,7 +480,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
       val inputs = Seq(
         Root / "doc1.md" -> Contents.name,
         Root / "doc2.md" -> Contents.forTargetFormats(),
-        Root / "dir1" / "doc3.md" -> Contents.forTargetFormats("html", "txt"),
+        Root / "dir1" / "doc3.md" -> Contents.forTargetFormats("html", "ast"),
         Root / "dir1" / "doc4.md" -> Contents.forTargetFormats("epub", "pdf"),
         Root / "dir2" / "doc5.md" -> Contents.name,
         Root / "dir2" / "doc6.md" -> Contents.name,

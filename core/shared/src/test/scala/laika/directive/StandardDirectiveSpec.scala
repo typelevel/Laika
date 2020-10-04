@@ -28,7 +28,7 @@ import laika.config._
 import laika.format.Markdown
 import laika.parse.SourceCursor
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections, TargetFormats}
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -716,14 +716,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
       val templateDoc = TemplateDocument(DefaultTemplatePath.forHTML, parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), TemplateContext("html")).toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 
     def parseDocumentAndRewrite (markup: String): RootElement = {
       val markupDoc = parseUnresolved(markup, Root / "sub2" / "doc6")
       val inputTree = buildTree(Nil, Some(markupDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), TemplateContext("html")).toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 
     def markup = """# Title
@@ -1156,8 +1156,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       val root = DocumentTreeRoot(tree, staticDocuments = staticDocs)
-      val format = templatePath.suffix.get.stripPrefix("template.")
-      val res = TemplateRewriter.applyTemplates(root, format).toOption.get
+      val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
+      val finalFormat = if (templateSuffix == "html") "html" else "epub"
+      val res = TemplateRewriter.applyTemplates(root, TemplateContext(templateSuffix, finalFormat)).toOption.get
       res.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
     }
 

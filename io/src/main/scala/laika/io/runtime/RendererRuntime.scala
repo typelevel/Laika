@@ -29,7 +29,7 @@ import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav.{ConfigurablePathTranslator, TitleDocumentConfig}
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -43,9 +43,10 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = run(op, op.theme.inputs)
+  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
+    run(op, op.theme.inputs, TemplateContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
 
-  private def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F], themeInputs: InputTree[F]): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -116,13 +117,12 @@ object RendererRuntime {
       }
 
     def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
-      val suffix = op.renderer.format.fileSuffix
 
-      val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(suffix).fold(
-        root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, suffix), suffix)
+      val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(context.templateSuffix).fold(
+        root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
       )(_ => root.tree)
       
-      TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), suffix)
+      TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context)
     }
     
     def getThemeStyles(themeInputs: Seq[ParserResult]): StyleDeclarationSet = themeInputs.collect {
@@ -155,11 +155,13 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Sync: Runtime] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
-    val suffix = op.renderer.interimRenderer.format.fileSuffix
+    val context = TemplateContext(op.renderer.interimRenderer.format.fileSuffix, op.renderer.description.toLowerCase)
+    val template = op.input.tree.getDefaultTemplate(context.templateSuffix)
+                     .fold(getDefaultTemplate(op.theme.inputs, context.templateSuffix))(_.content)
     for {
       preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
-      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput, op.staticDocuments), op.theme.inputs)
-      finalTree    =  renderedTree.copy[F](defaultTemplate = op.input.tree.getDefaultTemplate(suffix).fold(getDefaultTemplate(op.theme.inputs, suffix))(_.content))
+      renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput, op.staticDocuments), op.theme.inputs, context)
+      finalTree    =  renderedTree.copy[F](defaultTemplate = template)
       _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
   }

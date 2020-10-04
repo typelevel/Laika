@@ -41,14 +41,14 @@ trait TemplateRewriter {
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, format: String): Either[ConfigError, DocumentTreeRoot] = 
-    applyTemplates(RootCursor(tree, Some(format)), format)
+  def applyTemplates (tree: DocumentTreeRoot, context: TemplateContext): Either[ConfigError, DocumentTreeRoot] = 
+    applyTemplates(RootCursor(tree, Some(context.finalFormat)), context)
 
-  private def applyTemplates (cursor: RootCursor, format: String): Either[ConfigError, DocumentTreeRoot] = {
+  private def applyTemplates (cursor: RootCursor, context: TemplateContext): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
-      newCover <- cursor.coverDocument.filter(shouldRender(format)).traverse(applyTemplate(_, format))
-      newTree  <- applyTemplates(cursor.tree, format)
+      newCover <- cursor.coverDocument.filter(shouldRender(context.finalFormat)).traverse(applyTemplate(_, context))
+      newTree  <- applyTemplates(cursor.tree, context)
     } yield {
       cursor.target.copy(
         coverDocument = newCover,
@@ -58,19 +58,19 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTreeTemplate (cursors: Seq[Cursor], format: String): Either[ConfigError, Seq[TreeContent]] =
+  private def applyTreeTemplate (cursors: Seq[Cursor], context: TemplateContext): Either[ConfigError, Seq[TreeContent]] =
     cursors.foldLeft[Either[ConfigError, Seq[TreeContent]]](Right(Nil)) {
       case (acc, next) => acc.flatMap { ls => (next match {
-        case doc: DocumentCursor => applyTemplate(doc, format)
-        case tree: TreeCursor => applyTemplates(tree, format)
+        case doc: DocumentCursor => applyTemplate(doc, context)
+        case tree: TreeCursor => applyTemplates(tree, context)
       }).map(ls :+ _) }
     }
   
-  private def applyTemplates (cursor: TreeCursor, format: String): Either[ConfigError, DocumentTree] = {
+  private def applyTemplates (cursor: TreeCursor, context: TemplateContext): Either[ConfigError, DocumentTree] = {
 
     for {
-      newTitle   <- cursor.titleDocument.filter(shouldRender(format)).traverse(applyTemplate(_, format))
-      newContent <- applyTreeTemplate(cursor.children.filter(shouldRender(format)), format)
+      newTitle   <- cursor.titleDocument.filter(shouldRender(context.finalFormat)).traverse(applyTemplate(_, context))
+      newContent <- applyTreeTemplate(cursor.children.filter(shouldRender(context.finalFormat)), context)
     } yield {
       cursor.target.copy(
         titleDocument = newTitle,
@@ -81,8 +81,8 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Document] = {
-    val template = selectTemplate(cursor, format).getOrElse(defaultTemplate(format))
+  private def applyTemplate (cursor: DocumentCursor, context: TemplateContext): Either[ConfigError, Document] = {
+    val template = selectTemplate(cursor, context.templateSuffix).getOrElse(defaultTemplate(context.templateSuffix))
     applyTemplate(cursor, template)
   }
 
@@ -199,3 +199,9 @@ trait TemplateRewriter {
 }
 
 object TemplateRewriter extends TemplateRewriter
+
+case class TemplateContext (templateSuffix: String, finalFormat: String)
+
+object TemplateContext {
+  def apply (format: String): TemplateContext = apply(format, format)
+}

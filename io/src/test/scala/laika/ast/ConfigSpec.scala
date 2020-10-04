@@ -30,7 +30,7 @@ import laika.io.{FileIO, IOWordSpec}
 import laika.io.implicits._
 import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.helper.{InputBuilder, TestThemeBuilder}
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 
 class ConfigSpec extends IOWordSpec 
@@ -123,7 +123,7 @@ class ConfigSpec extends IOWordSpec
       resultTree(root).content.collect{case doc: Document => doc}.head
 
     def resultTree (root: DocumentTreeRoot): DocumentTree =
-      TemplateRewriter.applyTemplates(root, "html").toOption.get.tree
+      TemplateRewriter.applyTemplates(root, TemplateContext("html")).toOption.get.tree
 
     val markdownParser = MarkupParser.of(Markdown).io(blocker).parallel[IO].build
 

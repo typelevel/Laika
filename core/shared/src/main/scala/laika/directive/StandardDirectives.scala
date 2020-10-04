@@ -641,7 +641,7 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val suffixFilter: String => Boolean = cursor.root.targetFormat match {
-        case Some("epub.xhtml") => suffix: String => suffix == "epub.css" || suffix == "shared.css"
+        case Some("epub") | Some("epub.xhtml") => suffix: String => suffix == "epub.css" || suffix == "shared.css"
         case Some("html") => suffix: String => suffix.endsWith("css") && suffix != "epub.css" && suffix != "page.css"
         case _ => _ => false
       }

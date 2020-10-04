@@ -27,7 +27,7 @@ import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import laika.rewrite.link.LinkConfig
 import laika.rst.ast.{Contents, Include, RstStyle}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -605,7 +605,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
+    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html")).toOption.get.tree
     templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence("text")))
   }
   
@@ -685,7 +685,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").toOption.get.tree
+    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html")).toOption.get.tree
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
   }
   

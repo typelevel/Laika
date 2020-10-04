@@ -75,6 +75,8 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     */
   object XHTML extends RenderFormat[HTMLFormatter] {
 
+    override val description: String = "EPUB.XHTML"
+    
     val fileSuffix: String = "epub.xhtml"
 
     val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
