@@ -116,7 +116,13 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * 
     * In contrast to the `addRewriteRule` hook which looks at AST nodes within a document,
     * this function can look at the entire tree and add, swap or remove documents for example.
-    *
+    * 
+    * In case of binary formats like EPUB or PDF this processing step happens before the renderer for the
+    * interim format is invoked. 
+    * As a consequence you need to pass their interim formats to this method, 
+    * which is `EPUB.XHTML` for EPUB and `XSLFO` for PDF.
+    * This also avoids a dependency on the PDF module as the user of your theme might not use it.
+    * 
     * The [[laika.theme.TreeProcessorBuilder]] provides several shortcuts for constructing
     * a `TreeProcessor` (which is just a type alias for a plain `Kleisli`).
     */
