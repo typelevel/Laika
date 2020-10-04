@@ -244,15 +244,15 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       
       elem match {
         case l: NavigationItem if l.hasStyle("bookmark") => fmt.bookmark(l)
-        case NavigationHeader(title, content, _, opt) =>
-          fmt.childPerLine(Paragraph(title.content, Style.nav + keepWithNext + opt) +: avoidOrphan(content))
-        case NavigationLink(title, target: InternalTarget, content, _, _, opt) =>
+        case NavigationItem(title, content, Some(NavigationLink(target: InternalTarget,_,_)), _, opt) =>
           val link = SpanLink(
             content = title.content :+ Leader() :+ PageNumberCitation(target),
             target = target
           )
           val keep = if (content.isEmpty) NoOpt else keepWithNext
           fmt.childPerLine(Paragraph(Seq(link), Style.nav + keep + opt) +: avoidOrphan(content))
+        case NavigationItem(title, content, None, _, opt) =>
+          fmt.childPerLine(Paragraph(title.content, Style.nav + keepWithNext + opt) +: avoidOrphan(content))
         case _ => ""
       }
     }

@@ -24,7 +24,6 @@ import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rst.ast.{Line, LineBlock}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -232,14 +231,31 @@ class HTMLRendererSpec extends AnyFlatSpec
   it should "render a navigation list" in {
     val refPath = Root / "doc-99"
     val elem = NavigationList(Seq(
-      NavigationLink(SpanSequence("Link-1"), InternalTarget(Root / "doc-1").relativeTo(refPath), Seq(
-        NavigationLink(SpanSequence("Link-2"), InternalTarget(Root / "doc-2").relativeTo(refPath), Nil, options = Style.level(2))
-      ), options = Style.level(1)),
-      NavigationHeader(SpanSequence("Header-3"), Seq(
-        NavigationLink(SpanSequence("Link-4"), InternalTarget(Root / "doc-4").relativeTo(refPath), Nil, selfLink = true, options = Style.level(2))
-      ), options = Style.level(1)),
-      NavigationLink(SpanSequence("Link-5"), InternalTarget(Root / "doc-5").relativeTo(refPath), Nil,
-        options = Style.level(1))
+      NavigationItem(
+        SpanSequence("Link-1"), 
+        Seq(NavigationItem(
+          SpanSequence("Link-2"),
+          Nil,
+          Some(NavigationLink(InternalTarget(Root / "doc-2").relativeTo(refPath))), 
+          options = Style.level(2)
+        )),
+        Some(NavigationLink(InternalTarget(Root / "doc-1").relativeTo(refPath))), 
+        options = Style.level(1)
+      ),
+      NavigationItem(
+        SpanSequence("Header-3"), 
+        Seq(NavigationItem(
+          SpanSequence("Link-4"), Nil,
+          Some(NavigationLink(InternalTarget(Root / "doc-4").relativeTo(refPath), selfLink = true)), 
+          options = Style.level(2)
+        )), 
+        options = Style.level(1)),
+      NavigationItem(
+        SpanSequence("Link-5"),
+        Nil,
+        Some(NavigationLink(InternalTarget(Root / "doc-5").relativeTo(refPath))), 
+        options = Style.level(1)
+      )
     ))
     val html =
       """<ul class="nav-list">

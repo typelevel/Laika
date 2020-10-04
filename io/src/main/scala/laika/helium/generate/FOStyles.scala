@@ -235,7 +235,7 @@ private[laika] class FOStyles (helium: Helium) {
     |  font-weight: bold;
     |}
     |
-    |NavigationLink SpanLink {
+    |NavigationItem SpanLink {
     |  font-weight: bold;
     |  color: ${colors.primary.displayValue};
     |}

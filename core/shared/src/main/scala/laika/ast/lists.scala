@@ -132,66 +132,56 @@ case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Op
 /** The root node of a navigation structure */
 case class NavigationList (content: Seq[NavigationItem], options: Options = NoOpt) extends Block with ListContainer with RewritableContainer {
 
+  type Self = NavigationList
+  
   /** Create a new navigation list that only contains the entries matching the specified target format.
     */
   def forFormat (format: String): NavigationList = {
     def filter (items: Seq[NavigationItem]): Seq[NavigationItem] = items.flatMap { item =>
-      if (item.targetFormats.includes(format)) item match {
-        case nl: NavigationLink => Some(nl.copy(content = filter(nl.content)))
-        case nh: NavigationHeader => Some(nh.copy(content = filter(nh.content)))
+      if (item.targetFormats.includes(format)) {
+        val link = item.link.filter(_.targetFormats.includes(format))
+        val content = filter(item.content)
+        if (link.isEmpty && content.isEmpty) None
+        else Some(item.copy(link = link, content = content))
       }
       else None
     }
     copy(content = filter(content))
   }
 
-  type Self = NavigationList
   def rewriteChildren (rules: RewriteRules): NavigationList = copy(
     content = content.map(_.rewriteChildren(rules))
   )
   def withOptions (options: Options): NavigationList = copy(options = options)
 }
 
-/** Represents a recursive book navigation structure.
+/** Represents a navigation entry with an optional target link and optional child items.
+  * When the target link is not present, this item only serves as a navigation header for its children.
   */
-trait NavigationItem extends Block with ListItem with ElementContainer[NavigationItem] with RewritableContainer {
-  type Self <: NavigationItem
-  def title: SpanSequence
-  def targetFormats: TargetFormats
-}
+case class NavigationItem (title: SpanSequence, 
+                           content: Seq[NavigationItem],
+                           link: Option[NavigationLink] = None,
+                           targetFormats: TargetFormats = TargetFormats.All, 
+                           options: Options = NoOpt) extends Block with ListItem with ElementContainer[NavigationItem] with RewritableContainer with ListContainer {
 
-/** Represents a book navigation entry that only serves as a section header without linking to content.
-  */
-case class NavigationHeader (title: SpanSequence, content: Seq[NavigationItem], targetFormats: TargetFormats = TargetFormats.All, options: Options = NoOpt) extends NavigationItem with ListContainer {
+  type Self = NavigationItem
 
-  type Self = NavigationHeader
-
-  /** Returns the first link from the children of this navigation header.
+  /** Returns the first link from the children of this navigation item.
     * This is useful for navigation systems where each entry must contain a concrete link.  */
-  def firstLink: Option[NavigationLink] = content.collectFirst {
-    case l: NavigationLink => Some(l)
-    case h: NavigationHeader => h.firstLink
+  def firstChildLink: Option[NavigationLink] = content.collectFirst { 
+    case item if item.link.nonEmpty => item.link
+    case item if item.content.nonEmpty => item.firstChildLink
   }.flatten
 
-  def rewriteChildren (rules: RewriteRules): NavigationHeader = copy(
+  def rewriteChildren (rules: RewriteRules): NavigationItem = copy(
     title = title.rewriteChildren(rules),
     content = content.map(_.rewriteChildren(rules))
   )
-  def withOptions (options: Options): NavigationHeader = copy(options = options)
+  def withOptions (options: Options): NavigationItem = copy(options = options)
 }
 
 /** Represents a book navigation entry that links to content in the document tree.
   */
-case class NavigationLink (title: SpanSequence,
-                           target: Target,
-                           content: Seq[NavigationItem],
+case class NavigationLink (target: Target,
                            selfLink: Boolean = false,
-                           targetFormats: TargetFormats = TargetFormats.All,
-                           options: Options = NoOpt) extends NavigationItem with ListContainer {
-  type Self = NavigationLink
-  def rewriteChildren (rules: RewriteRules): NavigationLink = copy(
-    title = title.rewriteChildren(rules),
-    content = content.map(_.rewriteChildren(rules))
-  )
-  def withOptions (options: Options): NavigationLink = copy(options = options)
-}
+                           targetFormats: TargetFormats = TargetFormats.All)

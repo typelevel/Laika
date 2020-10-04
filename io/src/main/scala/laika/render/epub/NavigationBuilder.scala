@@ -36,18 +36,15 @@ object NavigationBuilder {
 
   def forTree (tree: RenderedTree, depth: Option[Int]): Seq[NavigationItem] = {
     
-    def adjustPath (item: NavigationItem): NavigationItem = item match {
-      case h: NavigationHeader => h.copy(content = h.content.map(adjustPath))
-      case l: NavigationLink => l.target match {
-        case _: ExternalTarget => l
-        case it: InternalTarget => 
+    def adjustPath (item: NavigationItem): NavigationItem = item.copy(
+      content = item.content.map(adjustPath),
+      link = item.link.map {
+        case nl@ NavigationLink(it: InternalTarget, _, _) =>
           val adjustedPath = (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("epub.xhtml")
-          l.copy(
-            content = l.content.map(adjustPath),
-            target = InternalTarget(adjustedPath.relative)
-          )
+          nl.copy(target = InternalTarget(adjustedPath.relative))
+        case other => other
       }
-    }
+    )
     
     tree.asNavigationItem(NavigationBuilderContext(maxLevels = depth.getOrElse(Int.MaxValue), currentLevel = 0))
       .content.map(adjustPath)

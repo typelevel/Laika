@@ -652,10 +652,10 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     def title (title: Int) =
       Title(List(Text("Title "+title)),Id("title-"+title) + Style.title)
       
-    def link (level: Int, titleNum: Int, children: Seq[NavigationLink] = Nil): NavigationLink = {
-      val target = InternalTarget(Root / s"doc#title-$titleNum").relativeTo(Root / "doc")
+    def link (level: Int, titleNum: Int, children: Seq[NavigationItem] = Nil): NavigationItem = {
+      val target = Some(NavigationLink(InternalTarget(Root / s"doc#title-$titleNum").relativeTo(Root / "doc")))
       val title = SpanSequence("Title "+titleNum)
-      NavigationLink(title, target, children, options = Style.level(level))
+      NavigationItem(title, children, target, options = Style.level(level))
     }
 
     val sectionsWithTitle = RootElement(

@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.config._
-import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
+import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.Selections
@@ -165,13 +165,13 @@ object StandardDirectives extends DirectiveRegistry {
       
       def entriesFor (tree: TreeCursor): Vector[NavigationItem] = {
         val title = tree.target.title.getOrElse(SpanSequence(tree.path.name))
-        val item = context.newNavigationItem(title, tree.target.titleDocument.map(_.path), Nil, tree.target.targetFormats)
+        val item = context.newNavigationItem(title, tree.target.titleDocument, Nil, tree.target.targetFormats)
         tree.parent.fold(Vector(item))(parent => entriesFor(parent) :+ item)
       }
       
       val docEntry = {
         val title = cursor.target.title.getOrElse(SpanSequence(cursor.path.name))
-        context.newNavigationItem(title, Some(cursor.path), Nil, cursor.target.targetFormats)
+        context.newNavigationItem(title, Some(cursor.target), Nil, cursor.target.targetFormats)
       }
         
       NavigationList(entriesFor(cursor.parent) :+ docEntry, Style.breadcrumb)
@@ -241,11 +241,8 @@ object StandardDirectives extends DirectiveRegistry {
 
         case ManualNavigationNode(title, target, children) =>
           children.toList.map(generate).combineAll.map { childNodes =>
-            target.fold[List[NavigationItem]](
-              List(NavigationHeader(title, childNodes))
-            ) { externalTarget =>
-              List(NavigationLink(title, externalTarget, childNodes))
-            }
+            val link = target.map(NavigationLink(_))
+            List(NavigationItem(title, childNodes, link))
           }
 
         case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
@@ -266,12 +263,8 @@ object StandardDirectives extends DirectiveRegistry {
               excludeSelf = excludeSelf
             )
             val navItem = treeContent.asNavigationItem(context)
-            def replaceTitle (titleSpan: SpanSequence): NavigationItem = navItem match {
-              case nh: NavigationHeader => nh.copy(title = titleSpan)
-              case nl: NavigationLink   => nl.copy(title = titleSpan)
-            }
             if (noRoot) navItem.content.toList.validNec
-            else List(title.fold(navItem)(replaceTitle)).validNec
+            else List(title.fold(navItem)(t => navItem.copy(title = t))).validNec
           }
       }
 

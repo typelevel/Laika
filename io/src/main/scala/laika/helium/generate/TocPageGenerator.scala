@@ -49,14 +49,13 @@ private[helium] object TocPageGenerator {
           maxLevels = tocConfig.depth,
           currentLevel = 0)
         val navItem = tree.root.tree.asNavigationItem(navContext)
-        val navContent = navItem.content.filter {
-          case item: NavigationLink => item.target match {
-            case in: InternalTarget => 
+        val navContent = navItem.content.filter { item =>
+          item.link match {
+            case Some(NavigationLink(in: InternalTarget, _, _)) => 
               val path = in.relativeTo(Root / "doc").absolutePath
               path != Root / "downloads" && path != Root / "cover"
             case _ => true
           }
-          case _ => true
         }
         val navList = NavigationList(navContent, Styles("toc"))
         val title = Title(tocConfig.title).withOptions(Style.title)

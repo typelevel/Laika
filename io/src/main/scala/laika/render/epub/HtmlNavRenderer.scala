@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
+import laika.ast.{NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
 import laika.render.TagFormatter
 import laika.render.epub.StyleSupport.collectStylePaths
@@ -67,10 +67,8 @@ class HtmlNavRenderer {
     * Unlinked navigation headers are described in the EPUB spec here:
     * https://www.w3.org/publishing/epub32/epub-packages.html#sec-package-nav-def-model
     */
-  private def linkOfFirstChild (children: Seq[NavigationItem]): String = children.head match {
-    case link: NavigationLink => link.target.render()
-    case header: NavigationHeader => linkOfFirstChild(header.content)
-  }
+  private def linkOfFirstChild (children: Seq[NavigationItem]): NavigationLink = 
+    children.head.link.getOrElse(linkOfFirstChild(children.head.content))
 
   /** Generates navigation entries for the structure of the DocumentTree. Individual
     * entries can stem from tree or subtree titles, document titles or
@@ -82,14 +80,13 @@ class HtmlNavRenderer {
     */
   private def navItems (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String =
     if (bookNav.isEmpty) ""
-    else bookNav.map {
-      
-      case NavigationHeader(title, children, _, _) => 
-        navLink(title.extractText, linkOfFirstChild(children), pos.next(), navItems(children, pos))
-        
-      case NavigationLink(title, target, children, _, _, _) => 
-        navLink(title.extractText, target.render(), pos.next(), navItems(children, pos))
-        
+    else bookNav.map { item =>
+      navLink(
+        item.title.extractText, 
+        item.link.getOrElse(linkOfFirstChild(item.content)).target.render(),
+        pos.next(), 
+        navItems(item.content, pos)
+      )
     }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for

@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.ast.{NavigationHeader, NavigationItem, NavigationLink}
+import laika.ast.{NavigationItem, NavigationLink}
 import laika.io.model.RenderedTreeRoot
 import laika.render.TagFormatter
 
@@ -72,19 +72,16 @@ class NCXRenderer {
     */
   private def navPoints (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String = {
 
-    def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = children.head match {
-      case link: NavigationLink => link
-      case header: NavigationHeader => linkOfFirstChild(header.content)
-    }
+    def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = 
+      children.head.link.getOrElse(linkOfFirstChild(children.head.content))
 
-    bookNav.map {
-
-      case NavigationHeader(title, children, _, _) =>
-        navPoint(title.extractText, linkOfFirstChild(children).target.render(), pos.next(), navPoints(children, pos)) // NCX does not allow navigation headers without links
-
-      case NavigationLink(title, target, children, _, _, _) =>
-        navPoint(title.extractText, target.render(), pos.next(), navPoints(children, pos))
-
+    bookNav.map { item =>
+      navPoint(
+        item.title.extractText,
+        item.link.getOrElse(linkOfFirstChild(item.content)).target.render(),
+        pos.next(), 
+        navPoints(item.content, pos)
+      ) // NCX does not allow navigation headers without links
     }.mkString("\n")
   }
 

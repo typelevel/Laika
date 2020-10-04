@@ -74,13 +74,10 @@ case class RenderedTree (path: Path,
   }
 
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    def hasLinks (item: NavigationItem): Boolean = item match {
-      case _: NavigationLink => true
-      case h: NavigationHeader => h.content.exists(hasLinks)
-    }
+    def hasLinks (item: NavigationItem): Boolean = item.link.nonEmpty || item.content.exists(hasLinks)
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    context.newNavigationItem(navTitle, titleDocument.map(_.path), children, TargetFormats.All)
+    context.newNavigationItem(navTitle, titleDocument, children, TargetFormats.All)
   }
 }
 

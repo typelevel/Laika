@@ -47,11 +47,13 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
 
       def transformItems (items: Seq[NavigationItem]): Seq[BulletListItem] = {
         items.flatMap { item =>
-          val target: BulletListItem = item match {
-            case nh: NavigationHeader => BulletListItem(Seq(SpanSequence(nh.title.content)), bullet, nh.options + Style.navHeader)
-            case nl: NavigationLink   =>
-              val styles = if (nl.selfLink) Style.active else NoOpt
-              BulletListItem(Seq(SpanSequence(SpanLink(nl.title.content, nl.target))), bullet, nl.options + styles)
+          val target: BulletListItem = {
+            val linkStyles = if (item.link.exists(_.selfLink)) Style.active else NoOpt
+            val typeStyles = if (item.link.isEmpty) Style.navHeader else NoOpt
+            val content = item.link.fold(item.title) { link =>
+              SpanSequence(SpanLink(item.title.content, link.target))
+            }
+            BulletListItem(Seq(content), bullet, item.options + linkStyles + typeStyles)
           }
           val children = if (item.content.isEmpty) Nil else transformItems(item.content)
           target +: children

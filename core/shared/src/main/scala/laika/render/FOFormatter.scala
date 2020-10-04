@@ -233,10 +233,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
       case it: InternalTarget => Some(it.relativeTo(path).absolutePath)
       case _ => None
     }
-    val target = bookmark match {
-      case l: NavigationLink => internalTarget(l)
-      case h: NavigationHeader => h.firstLink.flatMap(internalTarget)
-    }
+    val target = bookmark.link.orElse(bookmark.firstChildLink).flatMap(internalTarget)
     target.fold("") { targetPath =>
       val content = BookmarkTitle(bookmark.title.extractText) +: bookmark.content
       indentedElement("fo:bookmark", bookmark, content, "internal-destination" -> buildId(targetPath))

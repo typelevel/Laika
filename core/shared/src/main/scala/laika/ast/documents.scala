@@ -122,7 +122,7 @@ case class SectionInfo (id: String, title: SpanSequence, content: Seq[SectionInf
     */
   def asNavigationItem (docPath: Path, context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     val children = if (context.isComplete) Nil else content.map(_.asNavigationItem(docPath, context.nextLevel))
-    context.newNavigationItem(title, Some(docPath.withFragment(id)), children, TargetFormats.All)
+    context.newNavigationItem(title, docPath.withFragment(id), children, TargetFormats.All)
   }
 
 }
@@ -313,14 +313,11 @@ trait TreeStructure { this: TreeContent =>
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     **/
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    def hasLinks (item: NavigationItem): Boolean = item match {
-      case _: NavigationLink => true
-      case h: NavigationHeader => h.content.exists(hasLinks)
-    }
+    def hasLinks (item: NavigationItem): Boolean = item.link.nonEmpty || item.content.exists(hasLinks)
     val navContent = if (context.excludeSelf) content.filterNot(_.path == context.refPath) else content
     val children = if (context.isComplete) Nil else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
-    context.newNavigationItem(navTitle, titleDocument.map(_.path), children, targetFormats)
+    context.newNavigationItem(navTitle, titleDocument, children, targetFormats)
   }
 
   def runtimeMessages (filter: MessageFilter): Seq[RuntimeMessage] = filter match {

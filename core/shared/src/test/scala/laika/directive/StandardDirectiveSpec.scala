@@ -746,23 +746,22 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     def styles (level: Int): Options = Style.level(level) + itemStyles
 
-    def sectionList (path: Path, section: Int, level: Int): NavigationLink = NavigationLink(
+    def sectionList (path: Path, section: Int, level: Int): NavigationItem = NavigationItem(
       SpanSequence(s"Section $section"),
-      InternalTarget(path.withFragment(s"section-$section")).relativeTo(refPath),
       if (section % 2 == 0 || level == maxLevels) Nil else Seq(
         sectionList(path, section + 1, level+1)
       ),
+      Some(NavigationLink(InternalTarget(path.withFragment(s"section-$section")).relativeTo(refPath))),
       options = styles(level)
     )
 
-    def docList (path: Path, doc: Int, level: Int, title: Option[String] = None): NavigationLink = NavigationLink(
+    def docList (path: Path, doc: Int, level: Int, title: Option[String] = None): NavigationItem = NavigationItem(
       SpanSequence(title.getOrElse(s"Doc $doc")),
-      InternalTarget(path).relativeTo(refPath),
       if (level == maxLevels || excludeSections) Nil else Seq(
         sectionList(path, 1, level+1),
         sectionList(path, 3, level+1)
       ),
-      path == refPath,
+      Some(NavigationLink(InternalTarget(path).relativeTo(refPath), path == refPath)),
       TargetFormats.All,
       styles(level)
     )
@@ -772,14 +771,23 @@ class StandardDirectiveSpec extends AnyFlatSpec
         docList(Root / s"sub$tree" / s"doc$docStartNum", docStartNum, level + 1),
         docList(Root / s"sub$tree" / s"doc${docStartNum + 1}", docStartNum + 1, level + 1),
       )
-      if (hasTitleDocs) NavigationLink(SpanSequence("TitleDoc"), InternalTarget(Root / s"sub$tree" / "title").relativeTo(refPath), children, options = styles(level))
-      else NavigationHeader(SpanSequence(s"Tree $tree"), if (excludeSelf) children.take(1) else children, options = styles(level))
+      if (hasTitleDocs) NavigationItem(
+        SpanSequence("TitleDoc"),
+        children,
+        Some(NavigationLink(InternalTarget(Root / s"sub$tree" / "title").relativeTo(refPath))),
+        options = styles(level)
+      )
+      else NavigationItem(
+        SpanSequence(s"Tree $tree"),
+        if (excludeSelf) children.take(1) else children,
+        options = styles(level)
+      )
     }
 
-    val rootEntry: NavigationHeader = NavigationHeader(SpanSequence("/"), Nil, TargetFormats.All, styles(1))
+    val rootEntry: NavigationItem = NavigationItem(SpanSequence("/"), Nil, None, TargetFormats.All, styles(1))
 
-    def rootList: NavigationHeader =
-      NavigationHeader(SpanSequence("/"), List(
+    def rootList: NavigationItem =
+      NavigationItem(SpanSequence("/"), List(
         docList(Root / "doc1", 1, 2),
         docList(Root / "doc2", 2, 2),
         treeList(1, 3, 2),
@@ -817,7 +825,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
       p("bbb")
     )
 
-    def extLink (num: Int): NavigationLink = NavigationLink(SpanSequence(s"Link $num"), ExternalTarget(s"http://domain-$num.com/"), Nil)
+    def extLink (num: Int): NavigationItem = NavigationItem(
+      SpanSequence(s"Link $num"), 
+      Nil,
+      Some(NavigationLink(ExternalTarget(s"http://domain-$num.com/")))
+    )
   }
 
   "The template nav directive" should "produce two manual entries" in new TreeModel with NavModel {
@@ -862,10 +874,10 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
     override def includeTargetFormatConfig = true
 
-    val filteredRootList: NavigationHeader =
-      NavigationHeader(SpanSequence("/"), List(
+    val filteredRootList: NavigationItem =
+      NavigationItem(SpanSequence("/"), List(
         docList(Root / "doc1", 1, 2),
-        NavigationHeader(SpanSequence("Tree 1"),
+        NavigationItem(SpanSequence("Tree 1"),
           List(
             docList(Root / s"sub1" / s"doc3", 3, 3).copy(targetFormats = TargetFormats.Selected(NonEmptySet.of("html", "txt")))
           ), options = styles(2)),
