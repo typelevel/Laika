@@ -42,9 +42,13 @@ object LaikaKeys {
   
   val targetFormats: Key = root.child("targetFormats")
   
+  val validateLinks: Key = root.child("validateLinks")
+  
   val firstHeaderAsTitle: Key = root.child("firstHeaderAsTitle")
   
   val artifactBaseName: Key = root.child("artifactBaseName")
+  
+  val siteBaseURL: Key = root.child("siteBaseURL")
   
   val coverImage: Key = root.child("coverImage")
   
