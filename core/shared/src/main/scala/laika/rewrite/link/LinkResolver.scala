@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast.{InternalTarget, _}
 import laika.ast.Path.Root
+import laika.config.LaikaKeys
 import laika.rewrite.nav.TargetFormats
 
 import scala.annotation.tailrec
@@ -50,6 +51,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     val linkConfig = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty)
     val excludeFromValidation = linkConfig.excludeFromValidation.toSet
     val internalLinkMappings = linkConfig.internalLinkMappings
+    val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
     
     def replace (element: Element, selector: Selector): Option[Element] = 
       targets.select(cursor.path, selector)
@@ -73,11 +75,12 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def assignExternalUrl (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
+      // TODO - 0.18 - remove
+      def processLegacyMappings (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
         internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
           .fold(link) { mapping =>
             link match {
-              case sl: SpanLink =>
+              case sl: SpanLink if target.externalUrl.isEmpty =>
                 sl.copy(target = target.copy(
                   externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
                 ))
@@ -87,8 +90,16 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             }
           }
       }
+
+      def assignExternalUrl (link: SpanLink, selector: PathSelector, target: ResolvedInternalTarget, siteBaseURL: String): Span = {
+        link.copy(target = target.copy(
+          externalUrl = Some(siteBaseURL + target.absolutePath.toString)
+        ))
+      }
       
       def validateTarget (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
+        def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
+        def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
         targets.select(Root, selector) match {
           case None if excludeFromValidation.exists(p => selector.path.isSubPath(p)) => link
           case None => InvalidSpan(s"unresolved internal reference: ${target.relativePath.toString}", ref.source)
@@ -96,16 +107,27 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             case TargetFormats.None => link // to be validated at point of inclusion by a directive like @:include
             case TargetFormats.All => resolver.targetFormats match {
               case TargetFormats.All => link
-              case _ => InvalidSpan(s"document for all output formats cannot reference a document " +
-                s"with restricted output formats: ${target.relativePath.toString}", ref.source)
+              case TargetFormats.None => InvalidSpan(s"$invalidRefMsg as it is excluded from rendering", ref.source)
+              case TargetFormats.Selected(formats) =>
+                (formats.contains("html"), siteBaseURL, link) match {
+                  case (true, Some(url), sp: SpanLink) => assignExternalUrl(sp, selector, target, url)
+                  case _ => InvalidSpan(
+                    s"document for all output formats $invalidRefMsg with restricted output formats $validCondition", 
+                    ref.source
+                  )
+                } 
             }
             case TargetFormats.Selected(formats) => 
               val missingFormats = formats.filterNot(resolver.targetFormats.includes)
               if (missingFormats.isEmpty) link
-              else InvalidSpan(s"internal reference to: ${target.relativePath.toString} that does not support " +
-                s"one or more output formats of this document: ${missingFormats.mkString(", ")}", ref.source)
-          } 
-            
+              else (formats.contains("html"), siteBaseURL, link) match {
+                case (true, Some(url), sp: SpanLink) => assignExternalUrl(sp, selector, target, url)
+                case _ => InvalidSpan(
+                  s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition", 
+                  ref.source
+                )
+              }
+          }
         }
       } 
       
@@ -114,7 +136,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
           val resolvedTarget = it.relativeTo(cursor.path)
           val selector = pathSelectorFor(resolvedTarget.relativePath)
           val validated = validateTarget(link, selector, resolvedTarget)
-          assignExternalUrl(validated, selector, resolvedTarget)
+          processLegacyMappings(validated, selector, resolvedTarget)
         case _ => link
       }
 

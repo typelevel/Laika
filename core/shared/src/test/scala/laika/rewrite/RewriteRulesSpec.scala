@@ -357,10 +357,10 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(expected)
     }
 
-    "produce an invalid span for a reference to a document with fewer target formats than the source XXX" in {
+    "produce an invalid span for a reference to a document with fewer target formats than the source" in {
       val rootElem = root(p(pathRef("doc4.md#target-4")), InternalLinkTarget(Id("ref")))
-      val msg = "document for all output formats cannot reference a document " +
-        s"with restricted output formats: doc4.md#target-4"
+      val msg = "document for all output formats cannot reference document 'doc4.md#target-4' " +
+        s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       val expected = root(p(invalidSpan(msg, "[<doc4.md#target-4>]")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem, testTargetFormats = true) should be(expected)
     }
