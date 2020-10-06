@@ -50,7 +50,6 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     val linkConfig = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty)
     val excludeFromValidation = linkConfig.excludeFromValidation.toSet
-    val internalLinkMappings = linkConfig.internalLinkMappings
     val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
     
     def replace (element: Element, selector: Selector): Option[Element] = 
@@ -75,25 +74,9 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      // TODO - 0.18 - remove
-      def processLegacyMappings (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
-        internalLinkMappings.find(m => selector.path.isSubPath(m.internalPath))
-          .fold(link) { mapping =>
-            link match {
-              case sl: SpanLink if target.externalUrl.isEmpty =>
-                sl.copy(target = target.copy(
-                  externalUrl = Some(mapping.externalBaseUrl + target.absolutePath.relativeTo(mapping.internalPath / "ref").toString)
-                ))
-              case _: Image =>
-                InvalidSpan(s"image with internal path: ${target.absolutePath.toString} cannot be mapped to external base URL ${mapping.externalBaseUrl}", ref.source)
-              case _ => link
-            }
-          }
-      }
-
       def assignExternalUrl (link: SpanLink, selector: PathSelector, target: ResolvedInternalTarget, siteBaseURL: String): Span = {
         link.copy(target = target.copy(
-          externalUrl = Some(siteBaseURL + target.absolutePath.toString)
+          externalUrl = Some(siteBaseURL + target.absolutePath.relativeTo(Root).toString)
         ))
       }
       
@@ -135,8 +118,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case it: InternalTarget =>
           val resolvedTarget = it.relativeTo(cursor.path)
           val selector = pathSelectorFor(resolvedTarget.relativePath)
-          val validated = validateTarget(link, selector, resolvedTarget)
-          processLegacyMappings(validated, selector, resolvedTarget)
+          validateTarget(link, selector, resolvedTarget)
         case _ => link
       }
 

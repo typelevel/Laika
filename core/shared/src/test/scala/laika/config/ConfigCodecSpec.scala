@@ -16,12 +16,11 @@
 
 package laika.config
 
-import cats.data.NonEmptyChain
 import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
-import laika.rewrite.link.{ApiLinks, InternalLinkMapping, LinkConfig, SourceLinks, TargetDefinition}
+import laika.rewrite.link.{ApiLinks, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
@@ -126,10 +125,6 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       ),
       Seq(Root / "foo", Root / "bar" / "baz"),
       Seq(
-        InternalLinkMapping(Root / "api", "http://our-project/api"),
-        InternalLinkMapping(Root / "blog", "http://our-project/blog")
-      ),
-      Seq(
         ApiLinks("https://foo.api/", "foo", "package.html"),
         ApiLinks("https://bar.api/", "foo.bar")
       ),
@@ -151,10 +146,6 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |    excludeFromValidation = [
           |      /foo
           |      /bar/baz
-          |    ]
-          |    internalLinkMappings = [
-          |      { internalPath = "/api", externalBaseUrl = "http://our-project/api" },
-          |      { internalPath = "/blog", externalBaseUrl = "http://our-project/blog" }
           |    ]
           |    api = [
           |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },

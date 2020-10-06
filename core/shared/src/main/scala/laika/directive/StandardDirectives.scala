@@ -431,13 +431,7 @@ object StandardDirectives extends DirectiveRegistry {
           val uri = link.baseUri + typePath + method.fold("")("#" + _)
           val target = Target.parse(uri) match {
             case et: ExternalTarget => et
-            case it: InternalTarget =>
-              val resolved = it.relativeTo(cursor.path)
-              val externalUrl = linkConfig.internalLinkMappings.collectFirst {
-                case mapping if resolved.absolutePath.isSubPath(mapping.internalPath) => 
-                  mapping.externalBaseUrl + resolved.absolutePath.relativeTo(mapping.internalPath / "ref").toString // TODO - move this logic into model, it's used in multiple places
-              }
-              resolved.copy(externalUrl = externalUrl)
+            case it: InternalTarget => it.relativeTo(cursor.path)
           }
           Right(SpanLink(Seq(Text(text)), target))
         }

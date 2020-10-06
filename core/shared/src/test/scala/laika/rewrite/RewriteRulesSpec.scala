@@ -23,7 +23,6 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys}
 import laika.parse.GeneratedSource
-import laika.rewrite.link.{InternalLinkMapping, LinkConfig}
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -284,15 +283,15 @@ class RewriteRulesSpec extends AnyWordSpec
     def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
     def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("Header"))), InternalLinkTarget(Id(id)))
 
-    def rewrittenTreeDoc (rootToRewrite: RootElement, testTargetFormats: Boolean = false): RootElement = {
+    def rewrittenTreeDoc (rootToRewrite: RootElement, doc4TargetFormats: Seq[String] = Nil): RootElement = {
       val config = ConfigBuilder.empty
-        .withValue(LinkConfig(internalLinkMappings = Seq(InternalLinkMapping(Root / "tree2", "http://external/"))))
+        .withValue(LaikaKeys.siteBaseURL, "http://external/")
         .build
       val childConfig = Config.empty.withFallback(config)
-      val tree1Config = 
-        if (testTargetFormats) ConfigBuilder
+      val doc4Config = 
+        if (doc4TargetFormats.nonEmpty) ConfigBuilder
           .withFallback(config)
-          .withValue(LaikaKeys.targetFormats, Seq("pdf"))
+          .withValue(LaikaKeys.targetFormats, doc4TargetFormats)
           .build 
         else childConfig
       val tree = DocumentTree(Root, Seq(
@@ -300,7 +299,7 @@ class RewriteRulesSpec extends AnyWordSpec
         Document(Root / "doc2.md", rootWithHeader(2), config = childConfig),
         DocumentTree(Root / "tree1", Seq(
           Document(Root / "tree1" / "doc3.md", rootToRewrite, config = childConfig),
-          Document(Root / "tree1" / "doc4.md", rootWithTarget("target-4"), config = tree1Config),
+          Document(Root / "tree1" / "doc4.md", rootWithTarget("target-4"), config = doc4Config),
         ), config = childConfig),
         DocumentTree(Root / "tree2", Seq(
           Document(Root / "tree2" / "doc5.md", rootWithTarget(), config = childConfig),
@@ -332,12 +331,12 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve internal link references to a target in a sibling tree with external link mapping" in {
       val rootElem = root(p(pathRef("../tree2/doc5.md#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md#ref"), Some("http://external/doc5.md#ref"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md#ref"))), InternalLinkTarget(Id("ref"))))
     }
 
     "resolve internal link references to a markup document" in {
       val rootElem = root(p(pathRef("../tree2/doc5.md")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md"), Some("http://external/doc5.md"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree2/doc5.md"))), InternalLinkTarget(Id("ref"))))
     }
 
     "resolve internal link references to a static document" in {
@@ -362,7 +361,14 @@ class RewriteRulesSpec extends AnyWordSpec
       val msg = "document for all output formats cannot reference document 'doc4.md#target-4' " +
         s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       val expected = root(p(invalidSpan(msg, "[<doc4.md#target-4>]")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, testTargetFormats = true) should be(expected)
+      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
+    }
+
+    "add an external URL for a reference to a document with fewer target formats than the source when siteBaseURL is defined" in {
+      val rootElem = root(p(pathRef("doc4.md#target-4")), InternalLinkTarget(Id("ref")))
+      val enhancedLink = internalLink(RelativePath.parse("doc4.md#target-4"), Some("http://external/tree1/doc4.md#target-4"))
+      val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
     }
 
     "avoid validation for references beyond the virtual root" in {
