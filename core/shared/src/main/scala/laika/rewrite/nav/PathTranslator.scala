@@ -37,7 +37,7 @@ trait PathTranslator {
     */
   def translate (input: RelativePath): RelativePath
   
-  def translate (target: Target, format: String): Target = target match {
+  def translate (target: Target): Target = target match {
     case rt: ResolvedInternalTarget => 
       rt.copy(absolutePath = translate(rt.absolutePath), relativePath = translate(rt.relativePath))
     case at: AbsoluteInternalTarget => at.copy(path = translate(at.path))
@@ -56,7 +56,7 @@ trait PathTranslator {
   * 
   * @author Jens Halm
   */
-case class ConfigurablePathTranslator (config: Config, outputSuffix: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
+case class ConfigurablePathTranslator (config: Config, outputSuffix: String, outputFormat: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
 
   private val titleDocInputName = TitleDocumentConfig.inputName(config)
   private val titleDocOutputName = TitleDocumentConfig.outputName(config)
@@ -78,10 +78,10 @@ case class ConfigurablePathTranslator (config: Config, outputSuffix: String, doc
     else input
   }
   
-  override def translate (target: Target, format: String): Target = (target, siteBaseURL) match {
-    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.includes(format) =>
+  override def translate (target: Target): Target = (target, siteBaseURL) match {
+    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.includes(outputFormat) =>
       ExternalTarget(baseURL + translate(absolutePath.relativeTo(Root).withSuffix("html")).toString)
-    case _ => super.translate(target, format)
+    case _ => super.translate(target)
   }
   
 }

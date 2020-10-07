@@ -112,7 +112,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         if (hasHighlighting) Style.noHighlight else Styles(language)
       
       def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
-        val href = fmt.pathTranslator.translate(target, format) match {
+        val href = fmt.pathTranslator.translate(target) match {
           case ext: ExternalTarget => ext.url
           case int: InternalTarget => int.relativeTo(fmt.path).relativePath.toString
         }

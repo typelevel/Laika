@@ -722,7 +722,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-    val translator = ConfigurablePathTranslator(config, "fo", DocumentTypeMatcher.base)
+    val translator = ConfigurablePathTranslator(config, "fo", "pdf", DocumentTypeMatcher.base)
     defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
   }
 

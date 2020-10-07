@@ -64,7 +64,7 @@ object RendererRuntime {
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
-      val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, op.config.docTypeMatcher)
+      val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, context.finalFormat, op.config.docTypeMatcher)
       val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
       val outputPath = pathTranslator.translate(document.path)
       val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)

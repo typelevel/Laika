@@ -111,7 +111,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
     
     def renderLink (link: SpanLink): String = {
-      fmt.pathTranslator.translate(link.target, "pdf") match {
+      fmt.pathTranslator.translate(link.target) match {
         case int: InternalTarget  => fmt.internalLink(link, int.relativeTo(fmt.path).absolutePath, link.content)
         case ext: ExternalTarget => fmt.externalLink(link, ext.url, link.content)
       }

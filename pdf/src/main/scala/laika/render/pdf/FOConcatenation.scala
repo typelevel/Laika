@@ -69,7 +69,7 @@ object FOConcatenation {
         .applyTo(finalDoc)
         .leftMap(err => ConfigException(err))
         .flatMap(templatedDoc => InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc))
-        .map(renderer.render(_, ConfigurablePathTranslator(result.config, "fo", opConfig.docTypeMatcher), result.styles))
+        .map(renderer.render(_, ConfigurablePathTranslator(result.config, "fo", "pdf", opConfig.docTypeMatcher), result.styles))
     }
 
     val defaultTemplate = TemplateDocument(DefaultTemplatePath.forFO, result.defaultTemplate)
