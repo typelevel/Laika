@@ -180,7 +180,7 @@ trait PathReference extends Reference {
   /** The content (section or document or image) this reference points to. */
   def path: RelativePath
   /** Creates the final AST element based on the resolved target. */
-  def resolve(target: Target): Span
+  def resolve(target: Target): Link
 }
 
 /** A reference to content within the virtual input tree, the path pointing to the source path.
@@ -196,7 +196,7 @@ case class LinkPathReference(content: Seq[Span],
   type Self = LinkPathReference
   def withContent (newContent: Seq[Span]): LinkPathReference = copy(content = newContent)
   def withOptions (options: Options): LinkPathReference = copy(options = options)
-  def resolve(target: Target): Span = SpanLink(content, target, title, options)
+  def resolve(target: Target): Link = SpanLink(content, target, title, options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to '${path.toString}'"
 }
 
@@ -214,7 +214,7 @@ case class ImagePathReference (path: RelativePath,
                                options: Options = NoOpt) extends PathReference {
   type Self = ImagePathReference
   def withOptions (options: Options): ImagePathReference = copy(options = options)
-  def resolve(target: Target): Span = Image(target, width, height, alt, title, options)
+  def resolve(target: Target): Link = Image(target, width, height, alt, title, options)
   lazy val unresolvedMessage: String = s"Unresolved internal reference to image with path '$path'"
 }
 

@@ -16,11 +16,8 @@
 
 package laika.rewrite.link
 
-import laika.ast.{InternalTarget, _}
 import laika.ast.Path.Root
-import laika.ast.RelativePath.CurrentTree
-import laika.config.LaikaKeys
-import laika.rewrite.nav.TargetFormats
+import laika.ast._
 
 import scala.annotation.tailrec
 
@@ -48,19 +45,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
    */
   def apply (cursor: DocumentCursor): RewriteRules = {
     
-    val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
-    
-    val excludedPaths = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
-    def excludeFromValidation (path: Path): Boolean = {
-      
-      def hasExcludedFlag (path: RelativePath): Boolean = cursor.root.tree.target.selectSubtree(path) match {
-        case Some(tree) => !tree.config.get[Boolean](LaikaKeys.validateLinks).getOrElse(true)
-        case None if path == CurrentTree => false
-        case _ => hasExcludedFlag(path.parent)
-      }
-      
-      excludedPaths.exists(path.isSubPath) || hasExcludedFlag(path.relative)
-    }
+    val validator = new LinkValidator(cursor, path => targets.select(Root, PathSelector(path)).map(_.targetFormats))
     
     def replace (element: Element, selector: Selector): Option[Element] = 
       targets.select(cursor.path, selector)
@@ -78,64 +63,16 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case _             => Remove
       }
     
-    def pathSelectorFor (path: RelativePath): PathSelector = 
-      if (path.name.isEmpty && path.fragment.nonEmpty) PathSelector(cursor.path.withFragment(path.fragment.get))
-      else PathSelector(cursor.parent.target.path / path)
-    
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def validateTarget (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
-
-        def attemptRecovery (internalFormats: TargetFormats, msg: => String): Span = {
-          (internalFormats.includes("html"), siteBaseURL, link) match {
-            case (true, Some(_), sp: SpanLink) => sp.copy(target = target.copy(
-              internalFormats = internalFormats
-            ))
-            case _ => InvalidSpan(msg, ref.source)
-          }
-        }
-        
-        def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
-        def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
-        targets.select(Root, selector) match {
-          case None if excludeFromValidation(selector.path) => link
-          case None => InvalidSpan(s"unresolved internal reference: ${target.relativePath.toString}", ref.source)
-          case Some(resolver) => cursor.target.targetFormats match {
-            case TargetFormats.None => link // to be validated at point of inclusion by a directive like @:include
-            case TargetFormats.All => resolver.targetFormats match {
-              case TargetFormats.All => link
-              case TargetFormats.None => InvalidSpan(s"$invalidRefMsg as it is excluded from rendering", ref.source)
-              case TargetFormats.Selected(_) => 
-                def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
-                attemptRecovery(resolver.targetFormats, msg)
-            }
-            case TargetFormats.Selected(formats) => 
-              val missingFormats = formats.filterNot(resolver.targetFormats.includes)
-              if (missingFormats.isEmpty) link
-              else {
-                def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
-                attemptRecovery(resolver.targetFormats, msg)
-              }
-          }
-        }
-      } 
-      
-      def validateLink (link: Span, target: Target): Span = target match {
-        case it: InternalTarget =>
-          val resolvedTarget = it.relativeTo(cursor.path)
-          val selector = pathSelectorFor(resolvedTarget.relativePath)
-          validateTarget(link, selector, resolvedTarget)
-        case _ => link
-      }
-
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
-        case Some(link: SpanLink) => validateLink(link, link.target)
-        case Some(img: Image)     => validateLink(img, img.target)
+        case Some(link: SpanLink) => validator.validateAndRecover(link, ref.source)
+        case Some(img: Image)     => validator.validateAndRecover(img, ref.source)
         case Some(other)          => other
         case None                 => ref match {
           case p: PathReference =>
             val target = ReferenceResolver.resolveTarget(p.path, cursor.path)
-            validateLink(p.resolve(target), target)
+            validator.validateAndRecover(p.resolve(target), ref.source)
           case _ =>
             InvalidSpan(msg, ref.source)
         }
@@ -147,7 +84,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       resolveWith(ref, targets.select(cursor.path, selector), msg)
     
     def resolvePath (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
-      val selector = pathSelectorFor(path)
+      val selector = PathSelector(InternalTarget(path).relativeTo(cursor.path).absolutePath)
       resolveWith(ref, targets.select(Root, selector), msg)
     }
 
