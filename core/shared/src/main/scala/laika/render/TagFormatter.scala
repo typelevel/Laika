@@ -109,10 +109,10 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
     */
   def attribute (name: String, value: String): String = s""" $name="$value""""
   
-  /** Renders the internal link as a relative path. */
+  @deprecated("use pathTranslator.translate(Target)", "0.17.0")
   def internalLink (path: RelativePath): String = pathTranslator.translate(path).toString
-  
-  /** Renders the internal link as an absolute path. */
+
+  @deprecated("use pathTranslator.translate(Target)", "0.17.0")
   def internalLink (path: Path): String = pathTranslator.translate(path).toString
  
 }
