@@ -1165,7 +1165,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     def buildResult (content: String): RootElement = {
       root(TemplateRoot(
         t("aaa\n\n"),
-        TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), content)),
+        TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), content)),
         t("\n\nbbb")
       ))
     }

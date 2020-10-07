@@ -39,9 +39,12 @@ object TargetFormats {
   case class Selected (formats: NonEmptySet[String]) extends TargetFormats {
     def includes (format: String): Boolean = formats.contains(format)
   }
+  object Selected {
+    def apply (format: String, formats: String*): Selected = apply(NonEmptySet.of(format, formats:_*))
+  }
   
   implicit val decoder: ConfigDecoder[TargetFormats] = ConfigDecoder.seq[String].map { formats =>
-    NonEmptySet.fromSet(TreeSet(formats:_*)).fold[TargetFormats](TargetFormats.None)(TargetFormats.Selected)
+    NonEmptySet.fromSet(TreeSet(formats:_*)).fold[TargetFormats](TargetFormats.None)(TargetFormats.Selected(_))
   }
 
   implicit val defaultKey: DefaultKey[TargetFormats] = DefaultKey(LaikaKeys.targetFormats)

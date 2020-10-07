@@ -109,6 +109,13 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case unknown                       => fmt.blockContainer(unknown, unknown.content)
       }
     }
+    
+    def renderLink (link: SpanLink): String = {
+      fmt.pathTranslator.translate(link.target, "pdf") match {
+        case int: InternalTarget  => fmt.internalLink(link, int.relativeTo(fmt.path).absolutePath, link.content)
+        case ext: ExternalTarget => fmt.externalLink(link, ext.url, link.content)
+      }
+    }
 
     def renderSpanContainer (con: SpanContainer): String = {
       def codeStyles (language: String): Option[String] = if (language.isEmpty) None else Some(language)
@@ -129,10 +136,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ InlineCode(lang,content,_)   => fmt.inline(e.withStyles(codeStyles(lang).toSeq), content)
         case e @ Line(content,_)              => fmt.block(e, content)
 
-        case e @ SpanLink(content, ExternalTarget(url), _, _) => fmt.externalLink(e, url, content)
-        case e @ SpanLink(content, ResolvedInternalTarget(_, _, Some(url)), _, _) => fmt.externalLink(e, url, content)
-        case e @ SpanLink(content, it: InternalTarget, _, _) =>
-          fmt.internalLink(e, fmt.buildId(it.relativeTo(fmt.path).absolutePath), content)
+        case link: SpanLink                   => renderLink(link)
 
         case WithFallback(fallback)           => fmt.child(fallback)
         case SpanSequence(content, NoOpt)     => fmt.children(content)

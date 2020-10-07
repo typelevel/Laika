@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import cats.data.NonEmptySet
 import laika.ast._
 import laika.render.{HTMLFormatter, HTMLRenderer}
 
@@ -24,7 +23,7 @@ import laika.render.{HTMLFormatter, HTMLRenderer}
   *
   *  @author Jens Halm
   */
-object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = NonEmptySet.of("xhtml", "epub")) {
+object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", format = "epub") {
 
   def renderChoices (fmt: HTMLFormatter, name: String, choices: Seq[Choice], options: Options): String = {
     val content = choices.flatMap { choice => Paragraph(Strong(Text(choice.label))) +: choice.content }
@@ -33,9 +32,6 @@ object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", formats = N
   
   override def apply (fmt: HTMLFormatter, element: Element): String = element match {
       
-    case SpanLink(content, ResolvedInternalTarget(_,_,Some(extUrl)), title, opt) => 
-      fmt.element("a", opt, content, fmt.optAttributes("href" -> Some(extUrl), "title" -> title.map(fmt.text)):_*)
-   
     case CitationLink(ref,label,opt) => 
       fmt.textElement("a", opt + Style.citation, "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
     

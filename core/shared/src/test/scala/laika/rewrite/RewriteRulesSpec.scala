@@ -23,6 +23,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.{Config, ConfigBuilder, ConfigParser, LaikaKeys}
 import laika.parse.GeneratedSource
+import laika.rewrite.nav.TargetFormats
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -314,8 +315,8 @@ class RewriteRulesSpec extends AnyWordSpec
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
     def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), GeneratedSource, alt = Some("text"))
-    def internalLink (path: RelativePath, externalUrl: Option[String] = None) =
-      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(Root / "tree1" / "doc3.md").copy(externalUrl = externalUrl))
+    def internalLink (path: RelativePath, targetFormats: TargetFormats = TargetFormats.All) =
+      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(Root / "tree1" / "doc3.md").copy(internalFormats = targetFormats))
     def docLink (ref: String) =
       SpanLink(List(Text("text")), InternalTarget(CurrentDocument(ref)).relativeTo(refPath))
 
@@ -364,9 +365,9 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
     }
 
-    "add an external URL for a reference to a document with fewer target formats than the source when siteBaseURL is defined" in {
+    "add a restricted target format parameter for a reference to a document with fewer target formats than the source when siteBaseURL is defined" in {
       val rootElem = root(p(pathRef("doc4.md#target-4")), InternalLinkTarget(Id("ref")))
-      val enhancedLink = internalLink(RelativePath.parse("doc4.md#target-4"), Some("http://external/tree1/doc4.md#target-4"))
+      val enhancedLink = internalLink(RelativePath.parse("doc4.md#target-4"), TargetFormats.Selected("html"))
       val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
     }

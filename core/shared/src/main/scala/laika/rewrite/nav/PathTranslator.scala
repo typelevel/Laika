@@ -17,8 +17,8 @@
 package laika.rewrite.nav
 
 import laika.ast.Path.Root
-import laika.ast.{/, AbsoluteInternalTarget, DocumentType, InternalTarget, Path, PathBase, RelativeInternalTarget, RelativePath, ResolvedInternalTarget}
-import laika.config.Config
+import laika.ast.{AbsoluteInternalTarget, DocumentType, ExternalTarget, InternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, Target}
+import laika.config.{Config, LaikaKeys}
 
 /** Translates paths of input documents to the corresponding output path. 
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path
@@ -37,11 +37,12 @@ trait PathTranslator {
     */
   def translate (input: RelativePath): RelativePath
   
-  def translate (target: InternalTarget): InternalTarget = target match {
+  def translate (target: Target, format: String): Target = target match {
     case rt: ResolvedInternalTarget => 
       rt.copy(absolutePath = translate(rt.absolutePath), relativePath = translate(rt.relativePath))
     case at: AbsoluteInternalTarget => at.copy(path = translate(at.path))
     case rt: RelativeInternalTarget => rt.copy(path = translate(rt.path))
+    case et => et
   }
   
   protected def documentTypeMatcher: Path => DocumentType
@@ -59,6 +60,7 @@ case class ConfigurablePathTranslator (config: Config, outputSuffix: String, doc
 
   private val titleDocInputName = TitleDocumentConfig.inputName(config)
   private val titleDocOutputName = TitleDocumentConfig.outputName(config)
+  private val siteBaseURL = config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
   def translate (input: Path): Path = {
     if (isContentPath(input)) {
@@ -74,6 +76,12 @@ case class ConfigurablePathTranslator (config: Config, outputSuffix: String, doc
       else input.withSuffix(outputSuffix)
     }
     else input
+  }
+  
+  override def translate (target: Target, format: String): Target = (target, siteBaseURL) match {
+    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.includes(format) =>
+      ExternalTarget(baseURL + translate(absolutePath.relativeTo(Root).withSuffix("html")).toString)
+    case _ => super.translate(target, format)
   }
   
 }

@@ -21,10 +21,13 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.DocumentTypeMatcher
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.EPUB
 import laika.io.{FileIO, IOWordSpec}
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats}
 
 import scala.concurrent.ExecutionContext
 
@@ -129,10 +132,12 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
       defaultRenderer.render(elem) should be (html)
     }
 
-    "prefer the external URL when an internal link has one defined" in {
-      val target = ResolvedInternalTarget(Path.parse("/#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+    "translate to external URL when an internal link is not defined for EPUB as a target" in {
+      val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
       val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
-      defaultRenderer.render(elem) should be ("""<p>some <a href="http://external/">link</a> span</p>""")
+      val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
+      val translator = ConfigurablePathTranslator(config, "fo", DocumentTypeMatcher.base)
+      defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty) should be ("""<p>some <a href="http://external/foo.html#ref">link</a> span</p>""")
     }
     
   }

@@ -16,15 +16,13 @@
 
 package laika.render
 
-import cats.data.NonEmptySet
 import laika.ast.{InternalTarget, _}
 
 /** Default renderer implementation for the HTML output format.
   *
   * @author Jens Halm
   */
-class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((HTMLFormatter, Element) => String) {
-
+class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter, Element) => String) {
 
   def apply (fmt: HTMLFormatter, element: Element): String = {
 
@@ -114,9 +112,9 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         if (hasHighlighting) Style.noHighlight else Styles(language)
       
       def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
-        val href = target match {
-          case it: InternalTarget  => fmt.pathTranslator.translate(it).relativeTo(fmt.path).relativePath.toString
-          case ExternalTarget(url) => url
+        val href = fmt.pathTranslator.translate(target, format) match {
+          case ext: ExternalTarget => ext.url
+          case int: InternalTarget => int.relativeTo(fmt.path).relativePath.toString
         }
         fmt.optAttributes(
           "href" -> Some(href),
@@ -156,8 +154,8 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
     }
 
     def renderListContainer (con: ListContainer): String = con match {
-      case EnumList(content,format,start,opt) =>
-        fmt.indentedElement("ol", opt, content, fmt.optAttributes("class" -> Some(format.enumType.toString.toLowerCase), "start" -> noneIfDefault(start,1)):_*)
+      case EnumList(content,enumFormat,start,opt) =>
+        fmt.indentedElement("ol", opt, content, fmt.optAttributes("class" -> Some(enumFormat.enumType.toString.toLowerCase), "start" -> noneIfDefault(start,1)):_*)
       case BulletList(content,_,opt)   => fmt.indentedElement("ul", opt, content)
       case DefinitionList(content,opt) => fmt.indentedElement("dl", opt, content)
       case nl: NavigationList          => fmt.child(navigationToBulletList(nl))
@@ -175,7 +173,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
         case NoOpt                     => content
         case _                         => fmt.rawElement("span", opt, content)
       }
-      case RawContent(f, content, opt) => if (f.intersect(formats).nonEmpty) { opt match {
+      case RawContent(f, content, opt) => if (f.contains(format)) { opt match {
         case NoOpt                     => content
         case _                         => fmt.rawElement("span", opt, content)
       }} else ""
@@ -198,7 +196,7 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
       case Selection(name, choices, opt) => renderChoices(name, choices, opt)
-      case TargetFormat(f,e,_) if f.intersect(formats).nonEmpty => fmt.child(e)
+      case TargetFormat(f,e,_) if f.contains(format) => fmt.child(e)
 
       case WithFallback(fallback)      => fmt.child(fallback)
       case _                           => ""
@@ -282,4 +280,4 @@ class HTMLRenderer (fileSuffix: String, formats: NonEmptySet[String]) extends ((
 
 }
 
-object HTMLRenderer extends HTMLRenderer(fileSuffix = "html", formats = NonEmptySet.one("html"))
+object HTMLRenderer extends HTMLRenderer(fileSuffix = "html", format = "html")

@@ -74,9 +74,9 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def assignExternalUrl (link: SpanLink, selector: PathSelector, target: ResolvedInternalTarget, siteBaseURL: String): Span = {
+      def assignExternalUrl (link: SpanLink, target: ResolvedInternalTarget, internalFormats: TargetFormats): Span = {
         link.copy(target = target.copy(
-          externalUrl = Some(siteBaseURL + target.absolutePath.relativeTo(Root).toString)
+          internalFormats = internalFormats
         ))
       }
       
@@ -93,7 +93,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
               case TargetFormats.None => InvalidSpan(s"$invalidRefMsg as it is excluded from rendering", ref.source)
               case TargetFormats.Selected(formats) =>
                 (formats.contains("html"), siteBaseURL, link) match {
-                  case (true, Some(url), sp: SpanLink) => assignExternalUrl(sp, selector, target, url)
+                  case (true, Some(_), sp: SpanLink) => assignExternalUrl(sp, target, resolver.targetFormats)
                   case _ => InvalidSpan(
                     s"document for all output formats $invalidRefMsg with restricted output formats $validCondition", 
                     ref.source
@@ -104,7 +104,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
               val missingFormats = formats.filterNot(resolver.targetFormats.includes)
               if (missingFormats.isEmpty) link
               else (formats.contains("html"), siteBaseURL, link) match {
-                case (true, Some(url), sp: SpanLink) => assignExternalUrl(sp, selector, target, url)
+                case (true, Some(_), sp: SpanLink) => assignExternalUrl(sp, target, resolver.targetFormats)
                 case _ => InvalidSpan(
                   s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition", 
                   ref.source

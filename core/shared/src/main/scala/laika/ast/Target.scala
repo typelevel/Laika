@@ -17,6 +17,7 @@
 package laika.ast
 
 import laika.ast.RelativePath.CurrentDocument
+import laika.rewrite.nav.TargetFormats
 
 /** Represents a target that can be referred to by links, either within the virtual tree or external.
   */
@@ -74,10 +75,14 @@ object InternalTarget {
 /** Represents a resolved internal target where both the absolute and relative path are known, 
   * the latter relative to the document that referred to the target. 
   *
-  * The optional `externalUrl` property can be set for links which are internal
-  * on a rendered site, but external for e-books like EPUB and PDF.
+  * The `internalFormats` property describes which of the output formats treat this as an internal link.
+  * For other formats the link gets translated to an external target based on the `siteBaseURL` setting.
+  * This might be useful for cases where some pages get rendered to a site, but not included in an e-book
+  * format like EPUB and PDF.
   */
-case class ResolvedInternalTarget (absolutePath: Path, relativePath: RelativePath, externalUrl: Option[String] = None) extends InternalTarget {
+case class ResolvedInternalTarget (absolutePath: Path, 
+                                   relativePath: RelativePath, 
+                                   internalFormats: TargetFormats = TargetFormats.All) extends InternalTarget {
   def relativeTo (refPath: Path): ResolvedInternalTarget =
     ResolvedInternalTarget(absolutePath, absolutePath.relativeTo(refPath))
   def render (internalTargetsAbsolute: Boolean = false): String =

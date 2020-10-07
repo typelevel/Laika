@@ -24,6 +24,7 @@ import laika.ast.helper.ModelBuilder
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
+import laika.rewrite.nav.TargetFormats
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -547,8 +548,8 @@ class HTMLRendererSpec extends AnyFlatSpec
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
-  it should "render a paragraph containing an internal link while ignoring the external URL" in {
-    val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), Some("http://external/"))
+  it should "render a paragraph containing an internal link while ignoring the restricted type parameter ZZZ" in {
+    val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), TargetFormats.Selected("html"))
     val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
   }

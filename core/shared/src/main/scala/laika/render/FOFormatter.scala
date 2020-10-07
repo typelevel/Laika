@@ -133,8 +133,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   /** Renders an FO `basic-link` element for an internal target.
    */
-  def internalLink (styleHint: Element, target: String, content: Seq[Span], attr: (String,String)*): String =
-    element("fo:basic-link", styleHint, content, attr :+ ("internal-destination" -> target): _*)
+  def internalLink (styleHint: Element, target: Path, content: Seq[Span], attr: (String,String)*): String =
+    element("fo:basic-link", styleHint, content, attr :+ ("internal-destination" -> buildId(target)): _*)
 
   /** Renders an FO `block` or `inline` element for this internal link
    *  target, depending on whether it is inside a `BlockContainer`

@@ -22,10 +22,12 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.DocumentTypeMatcher
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.nav.BasicPathTranslator
+import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, TargetFormats}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -715,11 +717,13 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
-  it should "prefer the external URL when an internal link has one defined" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link")), ResolvedInternalTarget(Path.parse("/#foo"),RelativePath.parse("#foo"),Some("http://external/"))), Text(" span"))
+  it should "translate to external URL when an internal link is not defined for PDF as a target ZZZ" in {
+    val elem = p(Text("some "), SpanLink(List(Text("link")), ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
-      """<fo:basic-link color="#931813" external-destination="http://external/" font-weight="bold">link</fo:basic-link> span</fo:block>"""
-    render (elem) should be (fo)
+      """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""
+    val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
+    val translator = ConfigurablePathTranslator(config, "fo", DocumentTypeMatcher.base)
+    defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
   }
 
   it should "render a paragraph containing only an image centered" in {

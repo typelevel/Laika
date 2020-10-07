@@ -619,7 +619,7 @@ object StandardDirectives extends DirectiveRegistry {
       val path = staticPath.relativeTo(cursor.path)
       render(path)
     }
-    TemplateElement(RawContent(NonEmptySet.of("html","xhtml"), allLinks.mkString("\n    ")))
+    TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), allLinks.mkString("\n    ")))
   }
 
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
