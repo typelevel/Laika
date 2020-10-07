@@ -284,7 +284,7 @@ class RewriteRulesSpec extends AnyWordSpec
     def rootWithTarget(id: String = "ref") = root(InternalLinkTarget(Id(id)))
     def rootWithHeader(level: Int, id: String = "ref") = root(Header(level, Seq(Text("Header"))), InternalLinkTarget(Id(id)))
 
-    def rewrittenTreeDoc (rootToRewrite: RootElement, doc4TargetFormats: Seq[String] = Nil): RootElement = {
+    def rewrittenTreeDoc (rootToRewrite: RootElement, doc4TargetFormats: Seq[String] = Nil, validateTree1: Boolean = true): RootElement = {
       val config = ConfigBuilder.empty
         .withValue(LaikaKeys.siteBaseURL, "http://external/")
         .build
@@ -295,13 +295,17 @@ class RewriteRulesSpec extends AnyWordSpec
           .withValue(LaikaKeys.targetFormats, doc4TargetFormats)
           .build 
         else childConfig
+      val tree1Config = if (validateTree1) childConfig else ConfigBuilder
+        .withFallback(config)
+        .withValue(LaikaKeys.validateLinks, false)
+        .build
       val tree = DocumentTree(Root, Seq(
         Document(Root / "doc1.md", rootWithHeader(1), config = childConfig),
         Document(Root / "doc2.md", rootWithHeader(2), config = childConfig),
         DocumentTree(Root / "tree1", Seq(
           Document(Root / "tree1" / "doc3.md", rootToRewrite, config = childConfig),
           Document(Root / "tree1" / "doc4.md", rootWithTarget("target-4"), config = doc4Config),
-        ), config = childConfig),
+        ), config = tree1Config),
         DocumentTree(Root / "tree2", Seq(
           Document(Root / "tree2" / "doc5.md", rootWithTarget(), config = childConfig),
           Document(Root / "tree2" / "doc6.md", rootWithTarget(), config = childConfig),
@@ -351,7 +355,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(root(p(Image(target, alt = Some("text")))))
     }
 
-    "produce an invalid span for an unresolved reference" in {
+    "produce an invalid span for an unresolved reference ZZZ" in {
       val rootElem = root(p(pathRef("../tree2/doc99.md#ref")), InternalLinkTarget(Id("ref")))
       val expected = root(p(invalidSpan("unresolved internal reference: ../tree2/doc99.md#ref", "[<../tree2/doc99.md#ref>]")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(expected)
@@ -363,6 +367,12 @@ class RewriteRulesSpec extends AnyWordSpec
         s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       val expected = root(p(invalidSpan(msg, "[<doc4.md#target-4>]")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
+    }
+
+    "allow links to missing target documents when one of the parent trees has the validateLinks flag set to false" in {
+      val rootElem = root(p(pathRef("doc99.md#ref")), InternalLinkTarget(Id("ref")))
+      val expected = root(p(internalLink(RelativePath.parse("doc99.md#ref"))), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf"), validateTree1 = false) should be(expected)
     }
 
     "add a restricted target format parameter for a reference to a document with fewer target formats than the source when siteBaseURL is defined" in {

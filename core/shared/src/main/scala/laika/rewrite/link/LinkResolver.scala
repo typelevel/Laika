@@ -18,6 +18,7 @@ package laika.rewrite.link
 
 import laika.ast.{InternalTarget, _}
 import laika.ast.Path.Root
+import laika.ast.RelativePath.CurrentTree
 import laika.config.LaikaKeys
 import laika.rewrite.nav.TargetFormats
 
@@ -43,14 +44,23 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
 
   val targets = new TreeTargets(root, slugBuilder)
   
-  /** The default rules for resolving link references 
-   *  to be applied to the document.
+  /** The default rules for resolving link references to be applied to the document.
    */
   def apply (cursor: DocumentCursor): RewriteRules = {
     
-    val linkConfig = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty)
-    val excludeFromValidation = linkConfig.excludeFromValidation.toSet
     val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
+    
+    val excludedPaths = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
+    def excludeFromValidation (path: Path): Boolean = {
+      
+      def hasExcludedFlag (path: RelativePath): Boolean = cursor.root.tree.target.selectSubtree(path) match {
+        case Some(tree) => !tree.config.get[Boolean](LaikaKeys.validateLinks).getOrElse(true)
+        case None if path == CurrentTree => false
+        case _ => hasExcludedFlag(path.parent)
+      }
+      
+      excludedPaths.exists(path.isSubPath) || hasExcludedFlag(path.relative)
+    }
     
     def replace (element: Element, selector: Selector): Option[Element] = 
       targets.select(cursor.path, selector)
@@ -88,7 +98,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
         def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
         targets.select(Root, selector) match {
-          case None if excludeFromValidation.exists(p => selector.path.isSubPath(p)) => link
+          case None if excludeFromValidation(selector.path) => link
           case None => InvalidSpan(s"unresolved internal reference: ${target.relativePath.toString}", ref.source)
           case Some(resolver) => cursor.target.targetFormats match {
             case TargetFormats.None => link // to be validated at point of inclusion by a directive like @:include
