@@ -74,13 +74,17 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
-      def assignExternalUrl (link: SpanLink, target: ResolvedInternalTarget, internalFormats: TargetFormats): Span = {
-        link.copy(target = target.copy(
-          internalFormats = internalFormats
-        ))
-      }
-      
       def validateTarget (link: Span, selector: PathSelector, target: ResolvedInternalTarget): Span = {
+
+        def attemptRecovery (internalFormats: TargetFormats, msg: => String): Span = {
+          (internalFormats.includes("html"), siteBaseURL, link) match {
+            case (true, Some(_), sp: SpanLink) => sp.copy(target = target.copy(
+              internalFormats = internalFormats
+            ))
+            case _ => InvalidSpan(msg, ref.source)
+          }
+        }
+        
         def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
         def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
         targets.select(Root, selector) match {
@@ -91,24 +95,16 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
             case TargetFormats.All => resolver.targetFormats match {
               case TargetFormats.All => link
               case TargetFormats.None => InvalidSpan(s"$invalidRefMsg as it is excluded from rendering", ref.source)
-              case TargetFormats.Selected(formats) =>
-                (formats.contains("html"), siteBaseURL, link) match {
-                  case (true, Some(_), sp: SpanLink) => assignExternalUrl(sp, target, resolver.targetFormats)
-                  case _ => InvalidSpan(
-                    s"document for all output formats $invalidRefMsg with restricted output formats $validCondition", 
-                    ref.source
-                  )
-                } 
+              case TargetFormats.Selected(_) => 
+                def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
+                attemptRecovery(resolver.targetFormats, msg)
             }
             case TargetFormats.Selected(formats) => 
               val missingFormats = formats.filterNot(resolver.targetFormats.includes)
               if (missingFormats.isEmpty) link
-              else (formats.contains("html"), siteBaseURL, link) match {
-                case (true, Some(_), sp: SpanLink) => assignExternalUrl(sp, target, resolver.targetFormats)
-                case _ => InvalidSpan(
-                  s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition", 
-                  ref.source
-                )
+              else {
+                def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
+                attemptRecovery(resolver.targetFormats, msg)
               }
           }
         }
