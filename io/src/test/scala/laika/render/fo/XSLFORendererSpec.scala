@@ -717,7 +717,7 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
-  it should "translate to external URL when an internal link is not defined for PDF as a target ZZZ" in {
+  it should "translate to external URL when an internal link is not defined for PDF as a target" in {
     val elem = p(Text("some "), SpanLink(List(Text("link")), ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""

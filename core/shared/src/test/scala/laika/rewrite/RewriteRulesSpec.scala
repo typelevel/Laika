@@ -355,7 +355,7 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(root(p(Image(target, alt = Some("text")))))
     }
 
-    "produce an invalid span for an unresolved reference ZZZ" in {
+    "produce an invalid span for an unresolved reference" in {
       val rootElem = root(p(pathRef("../tree2/doc99.md#ref")), InternalLinkTarget(Id("ref")))
       val expected = root(p(invalidSpan("unresolved internal reference: ../tree2/doc99.md#ref", "[<../tree2/doc99.md#ref>]")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem) should be(expected)

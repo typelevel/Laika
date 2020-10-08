@@ -548,7 +548,7 @@ class HTMLRendererSpec extends AnyFlatSpec
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
-  it should "render a paragraph containing an internal link while ignoring the restricted type parameter ZZZ" in {
+  it should "render a paragraph containing an internal link while ignoring the restricted type parameter" in {
     val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), TargetFormats.Selected("html"))
     val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
