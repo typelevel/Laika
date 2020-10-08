@@ -140,6 +140,7 @@ private[laika] object ConfigGenerator {
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
+      .withValue(LaikaKeys.siteBaseURL, helium.siteSettings.baseURL)
       .withValue("laika.pdf.coverImages", helium.pdfSettings.coverImages)
       .withValue("laika.epub.coverImages", helium.epubSettings.coverImages)
       .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))

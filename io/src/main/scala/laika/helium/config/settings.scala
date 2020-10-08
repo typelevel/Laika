@@ -40,7 +40,8 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          htmlIncludes: HTMLIncludes,
                                          landingPage: Option[LandingPage],
                                          layout: WebLayout,
-                                         metadata: DocumentMetadata) extends CommonSettings
+                                         metadata: DocumentMetadata,
+                                         baseURL: Option[String] = None) extends CommonSettings
 
 private[helium] case class PDFSettings (bookConfig: BookConfig,
                                         themeFonts: ThemeFonts,
@@ -440,6 +441,12 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
     copyWith(helium.siteSettings.copy(landingPage = Some(page)))
   }
+
+  /** Specifies the base URL where the rendered site will be hosted.
+    * This configuration option allows to turn internal links into external ones for documents which will be
+    * part of the rendered site, but are not included in other formats like EPUB or PDF.
+    */
+  def baseURL (url: String): Helium = copyWith(helium.siteSettings.copy(baseURL = Some(url)))
 }
 
 private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
