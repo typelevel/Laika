@@ -138,8 +138,8 @@ case class NavigationList (content: Seq[NavigationItem], options: Options = NoOp
     */
   def forFormat (format: String): NavigationList = {
     def filter (items: Seq[NavigationItem]): Seq[NavigationItem] = items.flatMap { item =>
-      if (item.targetFormats.includes(format)) {
-        val link = item.link.filter(_.targetFormats.includes(format))
+      if (item.targetFormats.contains(format)) {
+        val link = item.link.filter(_.targetFormats.contains(format))
         val content = filter(item.content)
         if (link.isEmpty && content.isEmpty) None
         else Some(item.copy(link = link, content = content))

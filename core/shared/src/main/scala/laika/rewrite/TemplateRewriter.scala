@@ -37,7 +37,7 @@ trait TemplateRewriter {
   private def defaultTemplate (format: String): TemplateDocument = 
     TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
   
-  private def shouldRender (format: String)(content: Cursor): Boolean = content.target.targetFormats.includes(format) 
+  private def shouldRender (format: String)(content: Cursor): Boolean = content.target.targetFormats.contains(format) 
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */

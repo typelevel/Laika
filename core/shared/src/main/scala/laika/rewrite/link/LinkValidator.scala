@@ -61,7 +61,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
       val target = internalTarget.relativeTo(cursor.path)
       
       def attemptRecovery (internalFormats: TargetFormats, msg: => String): Either[String, Link] = {
-        (internalFormats.includes("html"), siteBaseURL, link) match {
+        (internalFormats.contains("html"), siteBaseURL, link) match {
           case (true, Some(_), sp: SpanLink) => Right(sp.copy(target = target.copy(
             internalFormats = internalFormats
           )))
@@ -85,7 +85,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
             attemptRecovery(targetFormats, msg)
         }
         case TargetFormats.Selected(formats) =>
-          val missingFormats = formats.filterNot(targetFormats.includes)
+          val missingFormats = formats.filterNot(targetFormats.contains)
           if (missingFormats.isEmpty) Right(link)
           else {
             def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"

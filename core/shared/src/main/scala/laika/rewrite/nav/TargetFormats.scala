@@ -25,19 +25,19 @@ import scala.collection.immutable.TreeSet
   * @author Jens Halm
   */
 sealed trait TargetFormats {
-  def includes (format: String): Boolean
+  def contains (format: String): Boolean
 }
 
 object TargetFormats {
 
   case object All extends TargetFormats {
-    def includes (format: String): Boolean = true
+    def contains (format: String): Boolean = true
   }
   case object None extends TargetFormats {
-    def includes (format: String): Boolean = false
+    def contains (format: String): Boolean = false
   }
   case class Selected (formats: NonEmptySet[String]) extends TargetFormats {
-    def includes (format: String): Boolean = formats.contains(format)
+    def contains (format: String): Boolean = formats.contains(format)
   }
   object Selected {
     def apply (format: String, formats: String*): Selected = apply(NonEmptySet.of(format, formats:_*))

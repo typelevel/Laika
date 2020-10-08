@@ -79,7 +79,7 @@ case class ConfigurablePathTranslator (config: Config, outputSuffix: String, out
   }
   
   override def translate (target: Target): Target = (target, siteBaseURL) match {
-    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.includes(outputFormat) =>
+    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputFormat) =>
       ExternalTarget(baseURL + translate(absolutePath.relative.withSuffix("html")).toString)
     case _ => super.translate(target)
   }
