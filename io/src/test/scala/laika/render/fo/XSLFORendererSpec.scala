@@ -35,7 +35,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
-  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix, _ => DocumentType.Static)
+  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix, _ => DocumentType.Static())
   
   private val defaultRenderer = Renderer.of(XSLFO).build
 

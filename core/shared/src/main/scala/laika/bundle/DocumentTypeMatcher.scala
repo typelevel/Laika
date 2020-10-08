@@ -46,7 +46,7 @@ object DocumentTypeMatcher {
       case ConfigName       => Config
       case TemplateName()   => Template
       case StylesheetName() => StyleSheet("fo")
-      case _                => Static
+      case _                => Static()
     }
   }
 

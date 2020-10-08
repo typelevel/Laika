@@ -16,9 +16,11 @@
 
 package laika.ast
 
+import laika.rewrite.nav.TargetFormats
+
 /** Base type for all document type descriptors.
   */
-sealed abstract class DocumentType
+sealed abstract class DocumentType extends Product
 
 /** Base type for all document type descriptors for text input.
   */
@@ -49,7 +51,7 @@ object DocumentType {
   /** A static file that needs to get copied
     *  over to the output target.
     */
-  case object Static extends DocumentType
+  case class Static (formats: TargetFormats = TargetFormats.All) extends DocumentType
 
   /** A document that should be ignored and neither
     *  get processed nor copied.

@@ -231,7 +231,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static => _ + BinaryInput(file, mountPoint)
+      case DocumentType.Static(_) => _ + BinaryInput(file, mountPoint)
       case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
 
@@ -264,7 +264,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addStream (stream: => InputStream, mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static =>
+      case DocumentType.Static(_) =>
         // for binary inputs the wrap-into-effect step has to be deferred due to integration issues with impure libs (e.g. Apache FOP)
         _ + BinaryInput(mountPoint, () => stream, autoClose)
       case docType: TextDocumentType => 
@@ -278,7 +278,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes))
+      case DocumentType.Static(_) => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes))
       case docType: TextDocumentType => _ + TextInput.fromString[F](mountPoint, docType, str)
     }
 

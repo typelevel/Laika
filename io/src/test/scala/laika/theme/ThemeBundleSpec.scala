@@ -86,7 +86,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
       val docTypeMatcher = config.docTypeMatcher
       docTypeMatcher(Root / "foo") shouldBe Markup
       docTypeMatcher(Root / "bar") shouldBe Markup
-      docTypeMatcher(Root / "baz") shouldBe Static
+      docTypeMatcher(Root / "baz") shouldBe Static()
     }
 
     "let an app config override an identical path key in the extension config" in new BundleSetup {
@@ -95,7 +95,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
 
       val docTypeMatcher = config.docTypeMatcher
       docTypeMatcher(Root / "foo") shouldBe Template
-      docTypeMatcher(Root / "bar") shouldBe Static
+      docTypeMatcher(Root / "bar") shouldBe Static()
     }
 
   }

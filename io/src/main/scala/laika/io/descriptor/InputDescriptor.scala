@@ -42,7 +42,7 @@ object InputDescriptor {
     val desc = input.sourceFile.fold(
       "In-memory bytes or stream"
     )(f => s"File '${f.getPath}'")
-    apply(desc, DocumentType.Static)
+    apply(desc, DocumentType.Static())
   }
   
 }
@@ -50,7 +50,7 @@ object InputDescriptor {
 case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[String] = Nil) {
   
   def formatted: String = {
-    val grouped = (inputs.map(in => (in.docType.toString, in.description)) ++ 
+    val grouped = (inputs.map(in => (in.docType.productPrefix, in.description)) ++ 
                     sourceDirectories.map(dir => ("Root Directories", dir)))
                     .groupBy(_._1).mapValuesStrict(_.map(_._2))
     
@@ -66,11 +66,11 @@ case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories:
 object TreeInputDescriptor {
   
   private[descriptor] val docTypeMappings: Seq[(String, String)] = Seq(
-    DocumentType.Markup.toString -> "Markup File(s)",
-    DocumentType.Template.toString -> "Template(s)",
-    DocumentType.Config.toString -> "Configuration Files(s)",
-    DocumentType.StyleSheet.toString -> "CSS for PDF",
-    DocumentType.Static.toString -> "Copied File(s)",
+    DocumentType.Markup.productPrefix -> "Markup File(s)",
+    DocumentType.Template.productPrefix -> "Template(s)",
+    DocumentType.Config.productPrefix -> "Configuration Files(s)",
+    DocumentType.StyleSheet("").productPrefix -> "CSS for PDF",
+    DocumentType.Static().productPrefix -> "Copied File(s)",
     "Root Directories" -> "Root Directories"
   )
 
