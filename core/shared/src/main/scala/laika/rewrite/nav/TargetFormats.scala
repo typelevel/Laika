@@ -21,7 +21,8 @@ import laika.config.{ConfigDecoder, DefaultKey, LaikaKeys}
 
 import scala.collection.immutable.TreeSet
 
-/**
+/** Describes the supported target (output) formats of a resource.
+  * 
   * @author Jens Halm
   */
 sealed trait TargetFormats {
@@ -30,12 +31,20 @@ sealed trait TargetFormats {
 
 object TargetFormats {
 
+  /** Describes a target that is intended to be rendered for all output formats.
+    */
   case object All extends TargetFormats {
     def contains (format: String): Boolean = true
   }
+  /** Describes a target that should not be rendered in any output format.
+    * Such a resource may still be used with a directive like `@:include` in which case the including
+    * document's configuration will determine the supported output formats.
+    */
   case object None extends TargetFormats {
     def contains (format: String): Boolean = false
   }
+  /** Describes a target that is only intended to be rendered for the specified set of output formats.
+    */
   case class Selected (formats: NonEmptySet[String]) extends TargetFormats {
     def contains (format: String): Boolean = formats.contains(format)
   }

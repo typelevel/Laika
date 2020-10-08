@@ -36,7 +36,13 @@ trait PathTranslator {
   /** Translates the specified relative path of an input document to the corresponding output path. 
     */
   def translate (input: RelativePath): RelativePath
-  
+
+  /** Translates the specified target pointing to an input document to a target pointing to an output document.
+    * Might turn an internal target into an external one in cases where it points to a document that is
+    * not rendered for the current target format, but for the site output. 
+    * In this case it will point to the corresponding location of the hosted site, 
+    * in case a `siteBaseURL` is configured. 
+    */
   def translate (target: Target): Target = target match {
     case rt: ResolvedInternalTarget => 
       rt.copy(absolutePath = translate(rt.absolutePath), relativePath = translate(rt.relativePath))
