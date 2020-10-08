@@ -64,6 +64,8 @@ therefore we'll just give a brief overview of available configuration options he
     * And [Metadata] can be specified so that it will be converted to a format
       compatible with the corresponding readers.
       
+    * Finally, [Limiting the Output Formats] for some directories is possible, too.
+      
       
 Run Modes
 ---------

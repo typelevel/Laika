@@ -80,27 +80,7 @@ Title Documents will also render on a level above the other chapter documents in
 Each directory can contain an optional `directory.conf` file for configuring the directory (and its sub-directories).
 The expected format of the document is HOCON.
 
-Amongst the most common things you would configure in this kind of file are titles and navigation order:
-
-```hocon
-laika {
-
-  title = Fruits
-
-  navigationOrder = [
-    apples.md
-    oranges.md
-    strawberries.md
-    some-subdirectory
-    other-subdirectory
-  ]
-}
-```
-
-The `navigationOrder` node in the example above contains both markup files and sub-directories.
-They would appear in this order in tables of contents and the same order would be applied when autonumbering.
-
-The default ordering, when not provided explicitly, is alphabetical.
+The available options are described in [Configuration for Directories] below.
 
 
 ### Template Files
@@ -178,6 +158,127 @@ and the title is linked to the document.
 In this example there are no title documents and chapter titles are taken from the file `directory.conf`
 in each directory.
 In the navigation tree on the right these titles now only serve as separators and are not linked to any document.
+
+
+Configuration for Directories
+-----------------------------
+
+Each directory can contain an optional `directory.conf` in HOCON format.
+The configuration applies to the directory and all its sub-directories unless overridden on a lower level.
+
+
+### Directory Title
+
+The title for a directory can be set explicitly:
+
+```hocon
+laika.title = Introduction
+```
+
+This title will then be used in auto-generated navigation structures.
+In case you are using [Title Documents] this step is not necessary as the title of that document will be used
+instead by default (either coming from its first headline or overridden in its own configuration header).
+If you still set this attribute for the directory it will override whatever title has been set for the title document.
+
+
+### Navigation Order
+
+You can also set the navigation order for the directory explicitly:
+
+```hocon
+laika.navigationOrder = [
+  apples.md
+  oranges.md
+  strawberries.md
+  some-subdirectory
+  other-subdirectory
+]
+
+```
+
+The directory in the example above contains both markup files and sub-directories.
+They would appear in this order in tables of contents and the same order would be applied when autonumbering.
+
+The default ordering, when not provided explicitly, is alphabetical.
+Note that documents omitted from this list but present in the directory would still appear in navigation trees,
+below the entries with an explicit order from configuration.
+For excluding documents entirely, see [Limiting the Output Formats] below.  
+
+
+### Limiting the Output Formats
+
+If you produce multiple output formats, you may want to limit the formats that get rendered for some documents
+or directories.
+If, for example, you generate a documentation site that also contains blog entries, 
+you might want to exclude the blog content from generated EPUB or PDF documents and point to the site instead.
+
+In this case you first need to specify which target formats a directory or document should render to:
+
+```hocon
+laika.targetFormats = [html]
+```
+
+The `laika.targetFormats` key expects an array of string values.
+
+Secondly, you may want to benefit from Laika's convenient feature of auto-translating all internal links to 
+documents that are excluded from some formats to an external link instead.
+For this to work, the library or plugin needs to know where your site is hosted.
+
+If you are using the Helium theme, there is a property you can use for this purpose:
+
+```scala
+Helium.defaults.site.baseURL("https://my-docs/site")
+```
+
+If you are not using Helium, you can use the standard configuration API to set this value:
+
+@:select(config)
+
+@:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LaikaKeys.siteBaseURL, "https://my-docs/site")
+```
+
+@:choice(library)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .withConfigValue(LaikaKeys.siteBaseURL, "https://my-docs/site")
+  .build
+```
+@:@
+
+You can also set an empty array and prevent the rendering of any output format:
+
+```hocon
+laika.targetFormats = []
+```
+
+This might be useful if you have a directory that contains only snippets and partial documents
+you want to use via the `@:include` or `@:embed` directives.
+With an empty array you prevent not only the rendering of those document, 
+they also won't show up in any navigation structure.
+
+Finally, the `laika.targetFormats` key can also be used for individual documents, 
+by placing it in the configuration header of a text markup document.  
+
+
+### Disabling Link Validation
+
+Normally an internal link will be validated and (with default error handling) cause the transformation to fail
+if one or more targets are invalid.
+A target is invalid if either the linked document does not exist, does not contain the specified id or fragment,
+or does not support the same set of output formats as the referring document.
+
+In some cases this kind of strict validation may not be desired. 
+You may, for example, have an external process that populates a directory before or after Laika is run.
+In this case you can disable validation for all link targets within that directory or its sub-directories:
+
+```hocon
+laika.validateLinks = false
+```
 
 
 Virtual Tree Abstraction

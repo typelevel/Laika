@@ -73,6 +73,15 @@ val transformer = Transformer
 ```
 @:@
 
+Alternatively, if preferred, you can also disable validation via the `directory.conf` file right within that 
+directory:
+
+```hocon
+laika.validateLinks = false
+```
+
+This disables validation for that directory and all its sub-directories.
+
 
 Global Link Definitions
 -----------------------
