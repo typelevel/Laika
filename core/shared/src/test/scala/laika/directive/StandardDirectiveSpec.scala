@@ -511,6 +511,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
          |    { baseUri = "https://default.api/" },
          |    { baseUri = "https://foo.api/", packagePrefix = foo },
          |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+         |    { baseUri = "local/path/", packagePrefix = internal }
          |  ]
          |%}
          |
@@ -521,7 +522,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
     parse(input("def.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://default.api/def/bar/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget("https://default.api/def/bar/Baz.html")),
       Text(" bb")
     )))
   }
@@ -529,7 +530,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
     parse(input("foo.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget("https://bar.api/foo/bar/Baz.html")),
       Text(" bb")
     )))
   }
@@ -537,7 +538,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
     parse(input("foo.baz.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html")),
+      SpanLink(Seq(Text("Baz")), ExternalTarget("https://foo.api/foo/baz/Baz.html")),
       Text(" bb")
     )))
   }
@@ -545,7 +546,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link to a method" in new ApiDirectiveSetup {
     parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz.canEqual")), ExternalTarget(s"https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")),
+      SpanLink(Seq(Text("Baz.canEqual")), ExternalTarget("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")),
       Text(" bb")
     )))
   }
@@ -553,7 +554,19 @@ class StandardDirectiveSpec extends AnyFlatSpec
   it should "create a span link for a package" in new ApiDirectiveSetup {
     parse(input("foo.bar.package")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("foo.bar")), ExternalTarget(s"https://bar.api/foo/bar/index.html")),
+      SpanLink(Seq(Text("foo.bar")), ExternalTarget("https://bar.api/foo/bar/index.html")),
+      Text(" bb")
+    )))
+  }
+  
+  it should "fail for an internal link to a missing target" in new ApiDirectiveSetup {
+    val directive = "@:api(internal.foo.Foo)"
+    val input = blockInput(s"aa $directive bb")
+    val path = Path.parse("/local/path/internal/foo/Foo.html")
+    val msg = "One or more errors processing directive 'api': unresolved internal reference: local/path/internal/foo/Foo.html"
+    parse(input).content should be (root(p(
+      Text("aa "),
+      InvalidSpan(msg, source(directive, input)),
       Text(" bb")
     )))
   }

@@ -24,7 +24,7 @@ import laika.bundle.BundleOrigin
 import laika.config._
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup}
 import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
@@ -433,7 +433,11 @@ object StandardDirectives extends DirectiveRegistry {
             case et: ExternalTarget => et
             case it: InternalTarget => it.relativeTo(cursor.path)
           }
-          Right(SpanLink(Seq(Text(text)), target))
+          val validator = new LinkValidator(cursor, new TargetLookup(cursor.root))
+          validator.validate(SpanLink(Seq(Text(text)), target)).flatMap {
+            case sl: SpanLink => Right(sl)
+            case other => Left(s"Unexpected validation result: $other")
+          }
         }
       }
   }

@@ -16,8 +16,9 @@
 
 package laika.rewrite.link
 
+import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.{DocumentCursor, Image, InternalTarget, InvalidSpan, Link, Path, RelativePath, Span, SpanLink, Target}
+import laika.ast.{DocumentCursor, Image, InternalTarget, InvalidSpan, Link, Path, RelativePath, RootCursor, Span, SpanLink, Target}
 import laika.config.LaikaKeys
 import laika.parse.SourceFragment
 import laika.rewrite.nav.TargetFormats
@@ -68,29 +69,37 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
         }
       }
 
+      def findFormatConfig (path: Path): TargetFormats = cursor.root.tree.target.selectSubtree(path.relative) match {
+        case Some(tree) => tree.config.get[TargetFormats].getOrElse(TargetFormats.All)
+        case None if path == Root => TargetFormats.All
+        case _ => findFormatConfig(path.parent)
+      }
+      
+      def validateFormats (targetFormats: TargetFormats): Either[String, Link] = cursor.target.targetFormats match {
+        case TargetFormats.None => Right(link) // to be validated at point of inclusion by a directive like @:include
+        case TargetFormats.All => targetFormats match {
+          case TargetFormats.All => Right(link)
+          case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
+          case TargetFormats.Selected(_) =>
+            def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
+            attemptRecovery(targetFormats, msg)
+        }
+        case TargetFormats.Selected(formats) =>
+          val missingFormats = formats.filterNot(targetFormats.includes)
+          if (missingFormats.isEmpty) Right(link)
+          else {
+            def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
+            attemptRecovery(targetFormats, msg)
+          }
+      }
+
       def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
       def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
       
       findTargetFormats(target.absolutePath) match {
-        case None if excludeFromValidation(target.absolutePath) => Right(link)
+        case None if excludeFromValidation(target.absolutePath) => validateFormats(findFormatConfig(target.absolutePath.parent))
         case None => Left(s"unresolved internal reference: ${target.relativePath.toString}")
-        case Some(targetFormats) => cursor.target.targetFormats match {
-          case TargetFormats.None => Right(link) // to be validated at point of inclusion by a directive like @:include
-          case TargetFormats.All => targetFormats match {
-            case TargetFormats.All => Right(link)
-            case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
-            case TargetFormats.Selected(_) =>
-              def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
-              attemptRecovery(targetFormats, msg)
-          }
-          case TargetFormats.Selected(formats) =>
-            val missingFormats = formats.filterNot(targetFormats.includes)
-            if (missingFormats.isEmpty) Right(link)
-            else {
-              def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
-              attemptRecovery(targetFormats, msg)
-            }
-        }
+        case Some(targetFormats) => validateFormats(targetFormats)
       }
     }
 
@@ -116,5 +125,24 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
     InvalidSpan(_, source),
     identity
   )
+  
+}
+
+/** Temporary and incomplete workaround (does not validate target ids/fragments for now), 
+  * until late link insertions get validated as part of the final rewrite step. */
+private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TargetFormats]) {
+  
+  def apply (path: Path): Option[TargetFormats] = {
+
+    def findRenderedDocument: Option[TargetFormats] =
+      cursor.tree.target.selectDocument(path.relative).map { doc =>
+        doc.config.get[TargetFormats].getOrElse(TargetFormats.All)
+      }
+
+    def findStaticDocument: Option[TargetFormats] =
+      if (cursor.target.staticDocuments.contains(path.withoutFragment)) Some(TargetFormats.All) else None
+    
+    findRenderedDocument.orElse(findStaticDocument)
+  }
   
 }

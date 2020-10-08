@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.ast.{DocumentCursor, InvalidElement, InvalidSpan, LinkIdReference, Replace, RewriteAction, RewriteRules, Span}
+import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, Replace, RewriteAction, RewriteRules, Span}
 import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
 import laika.config.ConfigParser
 import laika.parse.Parser
