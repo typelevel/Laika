@@ -75,27 +75,27 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
         case _ => findFormatConfig(path.parent)
       }
       
-      def validateFormats (targetFormats: TargetFormats): Either[String, Link] = cursor.target.targetFormats match {
-        case TargetFormats.None => Right(link) // to be validated at point of inclusion by a directive like @:include
-        case TargetFormats.All => targetFormats match {
-          case TargetFormats.All => Right(link)
-          case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
-          case TargetFormats.Selected(_) =>
-            def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
-            attemptRecovery(targetFormats, msg)
-        }
-        case TargetFormats.Selected(formats) =>
-          val missingFormats = formats.filterNot(targetFormats.contains)
-          if (missingFormats.isEmpty) Right(link)
-          else {
-            def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
-            attemptRecovery(targetFormats, msg)
-          }
-      }
-
       def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
       def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
       
+      def validateFormats (targetFormats: TargetFormats): Either[String, Link] = targetFormats match {
+        case TargetFormats.All => Right(link)
+        case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
+        case TargetFormats.Selected(_) => cursor.target.targetFormats match {
+          case TargetFormats.None => Right(link) // to be validated at point of inclusion by a directive like @:include
+          case TargetFormats.All => 
+            def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
+            attemptRecovery(targetFormats, msg)
+          case TargetFormats.Selected(formats) =>
+            val missingFormats = formats.filterNot(targetFormats.contains)
+            if (missingFormats.isEmpty) Right(link)
+            else {
+              def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
+              attemptRecovery(targetFormats, msg)
+            }
+        }
+      }
+
       findTargetFormats(target.absolutePath) match {
         case None if excludeFromValidation(target.absolutePath) => validateFormats(findFormatConfig(target.absolutePath.parent))
         case None => Left(s"unresolved internal reference: ${target.relativePath.toString}")
