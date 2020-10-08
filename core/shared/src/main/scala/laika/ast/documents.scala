@@ -253,7 +253,7 @@ trait TreeStructure { this: TreeContent =>
     * The path must not point to a parent tree (start with `../`) 
     * as this instance is not aware of its parents.
     */
-  def selectDocument (path: RelativePath): Option[Document] = path match {
+  def selectDocument (path: RelativePath): Option[Document] = path.withoutFragment match {
     case CurrentTree / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
     case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectDocument(localName))
     case _ => None
