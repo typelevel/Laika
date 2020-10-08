@@ -20,13 +20,14 @@ import java.io._
 
 import cats.Applicative
 import cats.data.Kleisli
-import cats.effect.{Sync, Resource}
+import cats.effect.{Resource, Sync}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
 import laika.io.runtime.{DirectoryScanner, InputRuntime}
+import laika.rewrite.nav.TargetFormats
 
 import scala.io.Codec
 
@@ -36,7 +37,7 @@ case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
 /** A binary input stream and its virtual path within the input tree.
   */
-case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, autoClose: Boolean = true, sourceFile: Option[File] = None) extends Navigatable {
+case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, formats: TargetFormats = TargetFormats.All, autoClose: Boolean = true, sourceFile: Option[File] = None) extends Navigatable {
 
   /** Provides the InputStream as a cats-effect Resource.
     * 
@@ -52,8 +53,8 @@ object BinaryInput {
   
   /** Creates a BinaryInput instance for the specified file, assigning the given virtual path.
     */
-  def apply[F[_]: Sync] (file: File, path: Path): BinaryInput[F] = 
-    BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), autoClose = true, Some(file))
+  def apply[F[_]: Sync] (file: File, path: Path, formats: TargetFormats): BinaryInput[F] = 
+    BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), formats, autoClose = true, Some(file))
 }
 
 /** Character input for the various parsers of this library.
@@ -231,8 +232,8 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(_) => _ + BinaryInput(file, mountPoint)
-      case docType: TextDocumentType => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
+      case DocumentType.Static(formats) => _ + BinaryInput(file, mountPoint, formats)
+      case docType: TextDocumentType    => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
 
   /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
@@ -264,9 +265,9 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addStream (stream: => InputStream, mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(_) =>
+      case DocumentType.Static(formats) =>
         // for binary inputs the wrap-into-effect step has to be deferred due to integration issues with impure libs (e.g. Apache FOP)
-        _ + BinaryInput(mountPoint, () => stream, autoClose)
+        _ + BinaryInput(mountPoint, () => stream, formats, autoClose)
       case docType: TextDocumentType => 
         _ + TextInput.fromStream(mountPoint, docType, F.delay(stream), codec, autoClose)
     }
@@ -278,8 +279,8 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(_) => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes))
-      case docType: TextDocumentType => _ + TextInput.fromString[F](mountPoint, docType, str)
+      case DocumentType.Static(formats) => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes), formats)
+      case docType: TextDocumentType    => _ + TextInput.fromString[F](mountPoint, docType, str)
     }
 
   /** Adds the specified document AST to the input tree, by-passing the parsing step.
