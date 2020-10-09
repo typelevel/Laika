@@ -104,10 +104,12 @@ object ParserRuntime {
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
       
       def rewriteTree (root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
-        val finalTree = root.rewrite(op.config.rewriteRulesFor(root))
-        val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(doc => StaticDocument(doc.path, doc.formats)))
-        InvalidDocuments.from(finalRoot, op.config.failOnMessages)
-          .toLeft(ParsedTree(finalRoot, inputs.binaryInputs))
+        val rootToRewrite = root.copy(
+          staticDocuments = inputs.binaryInputs.map(doc => StaticDocument(doc.path, doc.formats))
+        )
+        val finalTree = rootToRewrite.rewrite(op.config.rewriteRulesFor(rootToRewrite))
+        InvalidDocuments.from(finalTree, op.config.failOnMessages)
+          .toLeft(ParsedTree(finalTree, inputs.binaryInputs))
       }
       
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
