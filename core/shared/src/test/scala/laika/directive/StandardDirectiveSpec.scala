@@ -1156,10 +1156,10 @@ class StandardDirectiveSpec extends AnyFlatSpec
   trait LinkModel extends TreeModel {
 
     def staticDocs = Seq(
-      Root / "doc-1.css",
-      Root / "doc-2.epub.css",
-      Root / "doc-3.shared.css",
-      Root / "sub2" / "doc-4.css",
+      StaticDocument(Root / "doc-1.css", TargetFormats.Selected("html")),
+      StaticDocument(Root / "doc-2.epub.css", TargetFormats.Selected("epub", "epub.xhtml")),
+      StaticDocument(Root / "doc-3.shared.css", TargetFormats.Selected("epub", "epub.xhtml", "html")),
+      StaticDocument(Root / "sub2" / "doc-4.css", TargetFormats.Selected("html")),
     )
 
     def templatePath: Path
@@ -1168,7 +1168,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       val templateDoc = TemplateDocument(templatePath, parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs.map(StaticDocument(_)))
+      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs)
       val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
       val finalFormat = if (templateSuffix == "html") "html" else "epub"
       val res = TemplateRewriter.applyTemplates(root, TemplateContext(templateSuffix, finalFormat)).toOption.get
@@ -1247,10 +1247,10 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   "The linkJS directive" should "pick all JavaScript documents when used without attributes" in new LinkModel {
     override def staticDocs = Seq(
-      Root / "doc-1.js",
-      Root / "doc-2.foo",
-      Root / "doc-3.bar",
-      Root / "sub2" / "doc-4.js",
+      StaticDocument(Root / "doc-1.js", TargetFormats.Selected("html")),
+      StaticDocument(Root / "doc-2.foo"),
+      StaticDocument(Root / "doc-3.bar"),
+      StaticDocument(Root / "sub2" / "doc-4.js", TargetFormats.Selected("html")),
     )
     def templatePath = DefaultTemplatePath.forHTML
     val input =

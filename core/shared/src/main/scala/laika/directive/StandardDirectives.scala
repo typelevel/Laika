@@ -607,12 +607,17 @@ object StandardDirectives extends DirectiveRegistry {
   }
   
   private def renderLinks (cursor: DocumentCursor,
-                           suffixFilter: String => Boolean, 
+                           suffixFilter: String => Boolean,
+                           format: Option[String],
                            includes: NonEmptyChain[Path],
                            excludes: Seq[Path],
                            render: RelativePath => String): TemplateElement = {
     
-    val preFiltered = cursor.root.target.staticDocuments.filter(p => p.path.suffix.exists(suffixFilter) && !excludes.exists(p.path.isSubPath))
+    val preFiltered = cursor.root.target.staticDocuments.filter { doc => 
+      doc.path.suffix.exists(suffixFilter) && 
+        !excludes.exists(doc.path.isSubPath) &&
+        format.exists(doc.formats.contains)
+    }
 
     val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
       val (newIncludes, remaining) = candidates.partition(_.path.isSubPath(include))
@@ -639,13 +644,12 @@ object StandardDirectives extends DirectiveRegistry {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val suffixFilter: String => Boolean = cursor.root.targetFormat match {
-        case Some("epub") | Some("epub.xhtml") => suffix: String => suffix == "epub.css" || suffix == "shared.css"
-        case Some("html") => suffix: String => suffix.endsWith("css") && suffix != "epub.css" && suffix != "page.css"
+        case Some("epub") | Some("epub.xhtml") | Some("html") => suffix: String => suffix.endsWith("css") && suffix != "page.css"
         case _ => _ => false
       }
       val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      renderLinks(cursor, suffixFilter, includePaths, excludePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
+      renderLinks(cursor, suffixFilter, cursor.root.targetFormat, includePaths, excludePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
     }
   }
 
@@ -663,7 +667,7 @@ object StandardDirectives extends DirectiveRegistry {
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
       val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
-      renderLinks(cursor, _ == "js", includePaths, excludePaths, path => s"""<script src="$path"></script>""")
+      renderLinks(cursor, _ == "js", cursor.root.targetFormat, includePaths, excludePaths, path => s"""<script src="$path"></script>""")
     }
   }
 

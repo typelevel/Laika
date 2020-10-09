@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.IO
 import laika.api.Transformer
-import laika.ast.Path
+import laika.ast.{/, Path}
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
@@ -81,7 +81,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   test("custom CSS and JS files") {
     val inputs = Seq(
       Root / "name.md" -> "text",
-      Root / "web" / "foo.js" -> "",
+      Root / "web" / "foo.js" -> "", // filtered, as JS is not supported yet for EPUB
       Root / "web" / "foo.shared.css" -> "",
     )
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -89,8 +89,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                     |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />
-                     |<script src="web/foo.js"></script>""".stripMargin
+                     |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
     transformAndExtractHead(inputs).assertEquals(expected)
   }
 
@@ -99,7 +98,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       Root / "name.md" -> "text",
       Root / "web" / "foo.js" -> "",
       Root / "web" / "foo.shared.css" -> "",
-      Root / "custom-js" / "foo.js" -> "",
+      Root / "custom-js" / "foo.js" -> "", // filtered, as JS is not supported yet for EPUB
       Root / "custom-css" / "foo.shared.css" -> "",
     )
     val helium = Helium.defaults
@@ -110,8 +109,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                     |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />
-                     |<script src="custom-js/foo.js"></script>""".stripMargin
+                     |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
   
