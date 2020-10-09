@@ -86,7 +86,7 @@ object DocumentViewBuilder {
   def viewOf (root: DocumentTreeRoot): RootView = {
     val coverDocument = root.coverDocument.map(doc => CoverDocument(viewOf(doc))).toSeq
     val styles = if (root.styles.nonEmpty) Seq(StyleSheets(root.styles)) else Nil
-    val static = if (root.staticDocuments.nonEmpty) Seq(StaticDocuments(root.staticDocuments)) else Nil
+    val static = if (root.staticDocuments.nonEmpty) Seq(StaticDocuments(root.staticDocuments.map(_.path))) else Nil
     val tree = if (root.allDocuments.nonEmpty || root.tree.templates.nonEmpty) Seq(viewOf(root.tree)) else Nil
     RootView(coverDocument ++ styles ++ static ++ tree)
   }

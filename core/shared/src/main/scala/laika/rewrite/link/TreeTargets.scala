@@ -17,7 +17,7 @@
 package laika.rewrite.link
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentTreeRoot, Path}
+import laika.ast.{DocumentTreeRoot, Path, StaticDocument}
 
 /** Collects all elements from a document tree that can be referenced from other elements, 
   * like images, footnotes, citations and other inline targets. 
@@ -44,9 +44,13 @@ class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
       val local = mapToKeys(Seq(doc.path), targets)
       global ++ local
     }
-    def staticTarget (path: Path) =
-      TargetResolver.create(PathSelector(path), ReferenceResolver.internalLink(path), TargetReplacer.removeTarget)
-    val static = root.staticDocuments.map(path => ((Root, PathSelector(path)), staticTarget(path)))
+    def staticTarget (doc: StaticDocument) = TargetResolver.create(
+      PathSelector(doc.path), 
+      ReferenceResolver.internalLink(doc.path), 
+      TargetReplacer.removeTarget, 
+      doc.formats
+    )
+    val static = root.staticDocuments.map(doc => ((Root, PathSelector(doc.path)), staticTarget(doc)))
     
     (targets ++ static).groupBy(_._1).collect {
       case (key, Seq((_, target))) => (key, target)

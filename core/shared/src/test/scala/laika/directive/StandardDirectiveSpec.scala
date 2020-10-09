@@ -1168,7 +1168,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
       val templateDoc = TemplateDocument(templatePath, parseTemplate(template))
       val inputTree = buildTree(List(templateDoc))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs)
+      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs.map(StaticDocument(_)))
       val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
       val finalFormat = if (templateSuffix == "html") "html" else "epub"
       val res = TemplateRewriter.applyTemplates(root, TemplateContext(templateSuffix, finalFormat)).toOption.get

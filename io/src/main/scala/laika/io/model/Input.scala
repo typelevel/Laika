@@ -22,7 +22,7 @@ import cats.Applicative
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
+import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
@@ -399,21 +399,21 @@ case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[Binary
   /** Removes all static documents of this instance that match the specified filter.
     */
   def removeStaticDocuments (filter: Path => Boolean): ParsedTree[F] = copy(
-    root = root.copy(staticDocuments = root.staticDocuments.filterNot(filter)),
+    root = root.copy(staticDocuments = root.staticDocuments.filterNot(doc => filter(doc.path))),
     staticDocuments = staticDocuments.filterNot(doc => filter(doc.path))
   )
   
   /** Removes all static documents of this instance and replaces them with the specified alternatives.
     */
   def replaceStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
-    root = root.copy(staticDocuments = newStaticDocs.map(_.path)),
+    root = root.copy(staticDocuments = newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
     staticDocuments = newStaticDocs
   )
 
   /** Adds the specified static documents to this instance.
     */
   def addStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
-    root = root.copy(staticDocuments = root.staticDocuments ++ newStaticDocs.map(_.path)),
+    root = root.copy(staticDocuments = root.staticDocuments ++ newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
     staticDocuments = staticDocuments ++ newStaticDocs
   )
   

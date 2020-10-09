@@ -246,7 +246,7 @@ class RewriteRulesSpec extends AnyWordSpec
           Document(Root / "tree1" / "doc4.md", rootWithTarget),
         )),
       ))
-      val root = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg"))
+      val root = DocumentTreeRoot(tree, staticDocuments = Seq(StaticDocument(Root / "images" / "frog.jpg")))
       val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
@@ -312,7 +312,7 @@ class RewriteRulesSpec extends AnyWordSpec
         ), config = childConfig)
       ), config = config)
 
-      val root = DocumentTreeRoot(tree, staticDocuments = Seq(Root / "images" / "frog.jpg"))
+      val root = DocumentTreeRoot(tree, staticDocuments = Seq(StaticDocument(Root / "images" / "frog.jpg")))
       val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }

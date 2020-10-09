@@ -612,11 +612,11 @@ object StandardDirectives extends DirectiveRegistry {
                            excludes: Seq[Path],
                            render: RelativePath => String): TemplateElement = {
     
-    val preFiltered = cursor.root.target.staticDocuments.filter(p => p.suffix.exists(suffixFilter) && !excludes.exists(p.isSubPath))
+    val preFiltered = cursor.root.target.staticDocuments.filter(p => p.path.suffix.exists(suffixFilter) && !excludes.exists(p.path.isSubPath))
 
     val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
-      val (newIncludes, remaining) = candidates.partition(_.isSubPath(include))
-      (remaining, acc ++ newIncludes)
+      val (newIncludes, remaining) = candidates.partition(_.path.isSubPath(include))
+      (remaining, acc ++ newIncludes.map(_.path))
     }._2
 
     val allLinks = included.map { staticPath =>

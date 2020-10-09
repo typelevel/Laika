@@ -442,7 +442,7 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single static document" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
-      override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
+      override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(staticDoc(1).path)))
       renderer
         .use (_
           .from(treeRoot)
@@ -456,7 +456,7 @@ class TreeRendererSpec extends IOWordSpec
 
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil)
-      override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(staticDoc(1).path))
+      override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(staticDoc(1).path)))
       val inputs = new TestThemeBuilder.Inputs {
         def build[F[_]: Sync: Runtime] = InputTree[F].addString("...", Root / "static1.txt")
       }
@@ -498,7 +498,7 @@ class TreeRendererSpec extends IOWordSpec
         staticDoc(6, Root / "dir2"),
         staticDoc(7, Root / "dir2", Some("zzz"))
       )
-      override def treeRoot = DocumentTreeRoot(input, staticDocuments = staticDocs.map(_.path))
+      override def treeRoot = DocumentTreeRoot(input, staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats)))
       
       val expectedStatic = staticDocs.dropRight(1).map(_.path)
       val expectedRendered = RenderedTreeView(Root, List(

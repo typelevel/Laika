@@ -100,6 +100,11 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
 
 }
 
+/** A pure descriptor for a static document, without the actual bytes.
+  * Used for evaluating links and other AST transformation phases. 
+  */
+case class StaticDocument (path: Path, formats: TargetFormats = TargetFormats.All)
+
 /** A temporary structure usually not exposed to user code.
   * It holds a document with an empty Config instance and its actual config
   * (obtained from a header section if present) in unresolved form, as it
@@ -428,13 +433,13 @@ case class DocumentTree (path: Path,
   * @param tree the recursive structure of documents, usually obtained from parsing text markup 
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
-  * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
+  * @param staticDocuments the descriptors for documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
   * @param includes the map of configuration includes that may be needed when resolving template configuration
   */
 case class DocumentTreeRoot (tree: DocumentTree,
                              coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
-                             staticDocuments: Seq[Path] = Nil,
+                             staticDocuments: Seq[StaticDocument] = Nil,
                              includes: IncludeMap = Map.empty) {
 
   /** The configuration associated with the root of the tree.
