@@ -25,6 +25,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleOrigin, BundleProvider}
+import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.format._
 import laika.helium.generate.FOStyles
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
@@ -40,6 +41,7 @@ import laika.render._
 import laika.render.fo.TestTheme
 import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.rewrite.nav.TargetFormats
 
 import scala.io.Codec
 
@@ -56,9 +58,16 @@ class TreeRendererSpec extends IOWordSpec
       |. . Text - 'bbb'""".stripMargin
 
   trait DocBuilder extends InputBuilder {
-    def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
-    def staticDoc (num: Int, path: Path = Root) = ByteInput("Static"+num, path / s"static$num.txt")
+    def config (formats: Option[Seq[String]]): Config = ConfigBuilder.empty
+      .withValue(LaikaKeys.targetFormats, formats)
+      .build
+    
+    def markupDoc (num: Int, path: Path = Root, format: Option[String] = None) = 
+      Document(path / ("doc"+num), root(p("Doc"+num)), config = config(format.map(Seq(_))))
+    
+    def staticDoc (num: Int, path: Path = Root, formats: Option[String] = None) = 
+      ByteInput("Static"+num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
     
     def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
       |. TemplateRoot - TemplateSpans: 1
@@ -476,7 +485,7 @@ class TreeRendererSpec extends IOWordSpec
             content = List(markupDoc(3, Root / "dir1"), markupDoc(4, Root / "dir1"))
           ),
           DocumentTree(Root / "dir2",
-            content = List(markupDoc(5, Root / "dir2"), markupDoc(6, Root / "dir2"))
+            content = List(markupDoc(5, Root / "dir2"), markupDoc(6, Root / "dir2"), markupDoc(7, Root / "dir2", Some("zzz")))
           )
         )
       ))
@@ -486,11 +495,12 @@ class TreeRendererSpec extends IOWordSpec
         staticDoc(3, Root / "dir1"),
         staticDoc(4, Root / "dir1"),
         staticDoc(5, Root / "dir2"),
-        staticDoc(6, Root / "dir2")
+        staticDoc(6, Root / "dir2"),
+        staticDoc(7, Root / "dir2", Some("zzz"))
       )
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = staticDocs.map(_.path))
       
-      val expectedStatic = staticDocs.map(_.path)
+      val expectedStatic = staticDocs.dropRight(1).map(_.path)
       val expectedRendered = RenderedTreeView(Root, List(
         DocumentViews(List(
           RenderedDocumentView(Root / "doc1.txt", renderedDoc(1)),

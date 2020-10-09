@@ -16,20 +16,20 @@
 
 package laika.io.helper
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.ByteArrayInputStream
 
-import cats.effect.{IO, Resource}
-import laika.ast.DocumentType.Static
-import laika.ast.{DocumentType, Path, TextDocumentType}
+import cats.effect.IO
+import laika.ast.{DocumentType, Path}
 import laika.io.model._
+import laika.rewrite.nav.TargetFormats
 
 import scala.io.Codec
 
 trait InputBuilder {
 
   object ByteInput {
-    def apply (input: String, path: Path)(implicit codec: Codec): BinaryInput[IO] =
-      BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(codec.charSet)))
+    def apply(input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All)(implicit codec: Codec): BinaryInput[IO] =
+      BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(codec.charSet)), targetFormats)
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =

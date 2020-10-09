@@ -63,15 +63,17 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
-      val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, context.finalFormat, op.config.docTypeMatcher)
-      val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
-      val outputPath = pathTranslator.translate(document.path)
-      val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
-      OutputRuntime.write(renderResult, output(outputPath)).as {
-        Right(RenderedDocument(outputPath, document.title, document.sections, renderResult)): RenderResult
+    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments
+      .filter(_.targetFormats.contains(context.finalFormat))
+      .map { document =>
+        val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, context.finalFormat, op.config.docTypeMatcher)
+        val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
+        val outputPath = pathTranslator.translate(document.path)
+        val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
+        OutputRuntime.write(renderResult, output(outputPath)).as {
+          Right(RenderedDocument(outputPath, document.title, document.sections, renderResult)): RenderResult
+        }
       }
-    }
     
     def copyDocuments (docs: Seq[BinaryInput[F]], dir: File): Seq[F[RenderResult]] = docs.flatMap { doc =>
       val outFile = file(dir, doc.path)
@@ -139,7 +141,7 @@ object RendererRuntime {
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      static    = mappedTree.staticDocuments
+      static    = mappedTree.staticDocuments.filter(_.formats.contains(context.finalFormat))
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, static)
       _         <- ops.mkDirOps.toVector.sequence
