@@ -54,17 +54,17 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
     * The returned link in case of successful validation might be a modified link with enhanced information for the
     * renderer, which might translate internal links to external links for some output formats.
     */
-  def validate (link: Link): Either[String, Link] = {
+  def validate[L <: Link] (link: L): Either[String, L] = {
 
-    def validateInternalTarget (internalTarget: InternalTarget): Either[String, Link] = {
+    def validateInternalTarget (internalTarget: InternalTarget): Either[String, L] = {
 
       val target = internalTarget.relativeTo(cursor.path)
       
-      def attemptRecovery (internalFormats: TargetFormats, msg: => String): Either[String, Link] = {
+      def attemptRecovery (internalFormats: TargetFormats, msg: => String): Either[String, L] = {
         (internalFormats.contains("html"), siteBaseURL, link) match {
           case (true, Some(_), sp: SpanLink) => Right(sp.copy(target = target.copy(
             internalFormats = internalFormats
-          )))
+          )).asInstanceOf[L])
           case _ => Left(msg)
         }
       }
@@ -78,7 +78,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
       def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
       def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
       
-      def validateFormats (targetFormats: TargetFormats): Either[String, Link] = targetFormats match {
+      def validateFormats (targetFormats: TargetFormats): Either[String, L] = targetFormats match {
         case TargetFormats.All => Right(link)
         case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
         case TargetFormats.Selected(_) => cursor.target.targetFormats match {
@@ -103,7 +103,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
       }
     }
 
-    def validateTarget (target: Target): Either[String, Link] = target match {
+    def validateTarget (target: Target): Either[String, L] = target match {
       case it: InternalTarget => validateInternalTarget(it)
       case _                  => Right(link)
     }

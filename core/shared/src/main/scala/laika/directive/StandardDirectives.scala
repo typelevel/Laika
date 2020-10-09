@@ -434,10 +434,7 @@ object StandardDirectives extends DirectiveRegistry {
             case it: InternalTarget => it.relativeTo(cursor.path)
           }
           val validator = new LinkValidator(cursor, new TargetLookup(cursor.root))
-          validator.validate(SpanLink(Seq(Text(text)), target)).flatMap {
-            case sl: SpanLink => Right(sl)
-            case other => Left(s"Unexpected validation result: $other")
-          }
+          validator.validate(SpanLink(Seq(Text(text)), target))
         }
       }
   }
