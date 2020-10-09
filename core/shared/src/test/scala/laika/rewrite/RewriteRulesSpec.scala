@@ -16,6 +16,7 @@
 
 package laika.rewrite
 
+import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, Parent}
@@ -312,7 +313,15 @@ class RewriteRulesSpec extends AnyWordSpec
         ), config = childConfig)
       ), config = config)
 
-      val root = DocumentTreeRoot(tree, staticDocuments = Seq(StaticDocument(Root / "images" / "frog.jpg")))
+      val staticDocs = Seq(
+        StaticDocument(Root / "images" / "frog.jpg"),
+        StaticDocument(Root / "static" / "doc.html", NonEmptyChain
+          .fromSeq(doc4TargetFormats)
+          .map(_.toNes)
+          .fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_))
+        )
+      )
+      val root = DocumentTreeRoot(tree, staticDocuments = staticDocs)
       val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
       rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
     }
@@ -361,11 +370,19 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem) should be(expected)
     }
 
-    "produce an invalid span for a reference to a document with fewer target formats than the source" in {
+    "produce an invalid span for a reference to a markup document with fewer target formats than the source" in {
       val rootElem = root(p(pathRef("doc4.md#target-4")), InternalLinkTarget(Id("ref")))
       val msg = "document for all output formats cannot reference document 'doc4.md#target-4' " +
         s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       val expected = root(p(invalidSpan(msg, "[<doc4.md#target-4>]")), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
+    }
+
+    "produce an invalid span for a reference to a static document with fewer target formats than the source ZZZ" in {
+      val rootElem = root(p(pathRef("../static/doc.html")), InternalLinkTarget(Id("ref")))
+      val msg = "document for all output formats cannot reference document '../static/doc.html' " +
+        "with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
+      val expected = root(p(invalidSpan(msg, "[<../static/doc.html>]")), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
     }
 
@@ -375,9 +392,16 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf"), validateTree1 = false) should be(expected)
     }
 
-    "add a restricted target format parameter for a reference to a document with fewer target formats than the source when siteBaseURL is defined" in {
+    "add a restricted target format parameter for a reference to a markup document with fewer target formats than the source when siteBaseURL is defined" in {
       val rootElem = root(p(pathRef("doc4.md#target-4")), InternalLinkTarget(Id("ref")))
       val enhancedLink = internalLink(RelativePath.parse("doc4.md#target-4"), TargetFormats.Selected("html"))
+      val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
+      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
+    }
+
+    "add a restricted target format parameter for a reference to a static document with fewer target formats than the source when siteBaseURL is defined" in {
+      val rootElem = root(p(pathRef("..static/doc.html")), InternalLinkTarget(Id("ref")))
+      val enhancedLink = internalLink(RelativePath.parse("..static/doc.html"), TargetFormats.Selected("html"))
       val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
       rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
     }
