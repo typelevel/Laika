@@ -19,6 +19,7 @@ package laika.helium.builder
 import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path.Root
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.helium.Helium
 import laika.helium.generate.{CSSVarGenerator, FOStyles, MergedCSSGenerator}
 import laika.io.model.{InputTree, InputTreeBuilder}
@@ -58,6 +59,7 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
+      .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts")
   
     val siteVars = MergedCSSGenerator.mergeSiteCSS(CSSVarGenerator.generate(helium.siteSettings))
     val epubVars = MergedCSSGenerator.mergeEPUBCSS(CSSVarGenerator.generate(helium.epubSettings))

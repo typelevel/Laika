@@ -18,10 +18,7 @@ package laika.helium.builder
 
 import cats.data.Kleisli
 import cats.effect.Sync
-import laika.ast.Path
-import laika.ast.Path.Root
-import laika.factory.{Format, TwoPhaseRenderFormat}
-import laika.format.{EPUB, HTML}
+import laika.factory.Format
 import laika.helium.Helium
 import laika.helium.generate.{DownloadPageGenerator, LandingPageGenerator, TocPageGenerator}
 import laika.io.model.ParsedTree
@@ -40,26 +37,10 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
     .filter(p => p.includeEPUB || p.includePDF)
     .fold(noOp)(DownloadPageGenerator.generate)
 
-  private def filterFonts (format: Format): TreeProcessor[F] = format match {
-    case HTML => noOp.map { _.removeStaticDocuments(_.isSubPath(Root / "laika" / "fonts")) }
-    case _    => noOp
-  }
-
-  private def filterCSSandJS (format: Format): TreeProcessor[F] = format match {
-    case HTML => noOp.map { _.removeStaticDocuments(_.suffix.contains("epub.css")) }
-    case EPUB | EPUB.XHTML => 
-      noOp.map { _.removeStaticDocuments { path =>
-        (path.isSubPath(Root / "helium") && path.suffix.contains("js")) || path.suffix.contains("css")
-      }}
-    case _ => noOp
-  }
-
   val forHTML: TreeProcessor[F] = addDownloadPage
     .andThen(siteSettings.landingPage.fold(noOp)(LandingPageGenerator.generate))
 
   def forAllFormats (format: Format): TreeProcessor[F] =
     TocPageGenerator.generate(helium, format)
-      .andThen(filterFonts(format))
-      .andThen(filterCSSandJS(format))
   
 }

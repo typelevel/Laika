@@ -107,6 +107,10 @@ class TreeRendererSpec extends IOWordSpec
           addPosition(t.copy(position = TreePosition(num)), num)
       })
     }
+
+    val fontConfigTree: DocumentTree = DocumentTree(Root / "laika", List(
+      DocumentTree(Root / "laika" / "fonts", Nil, config = ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build)
+    ))
   }
   
   trait ASTRenderer extends TreeRendererSetup[TextFormatter] {
@@ -292,7 +296,7 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a cover and title document to HTML" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "README", rootElem)))
+        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem), fontConfigTree), Some(Document(Root / "README", rootElem)))
         override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |<p>bbb</p>""".stripMargin)
@@ -441,7 +445,7 @@ class TreeRendererSpec extends IOWordSpec
     }
   
     "render a tree with a single static document" in new ASTRenderer with DocBuilder {
-      val input = DocumentTree(Root, Nil)
+      val input = DocumentTree(Root, Seq(fontConfigTree))
       override def treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(staticDoc(1).path)))
       renderer
         .use (_
@@ -486,7 +490,8 @@ class TreeRendererSpec extends IOWordSpec
           ),
           DocumentTree(Root / "dir2",
             content = List(markupDoc(5, Root / "dir2"), markupDoc(6, Root / "dir2"), markupDoc(7, Root / "dir2", Some("zzz")))
-          )
+          ),
+          fontConfigTree
         )
       ))
       val staticDocs = Seq(

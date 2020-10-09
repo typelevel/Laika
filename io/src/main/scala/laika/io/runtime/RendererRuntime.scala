@@ -28,7 +28,7 @@ import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.nav.{ConfigurablePathTranslator, TitleDocumentConfig}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TitleDocumentConfig}
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -63,6 +63,19 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
+    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], rootTree: DocumentTree): Seq[BinaryInput[F]] = {
+
+      def findFormatConfig (path: Path): TargetFormats = rootTree.selectSubtree(path.relative) match {
+        case Some(subTree) => subTree.config.get[TargetFormats].getOrElse(TargetFormats.All)
+        case None if path == Root => TargetFormats.All
+        case _ => findFormatConfig(path.parent)
+      }
+      
+      staticDocs.filter(doc => 
+        doc.formats.contains(context.finalFormat) && findFormatConfig(doc.path.parent).contains(context.finalFormat)
+      )
+    }
+    
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments
       .filter(_.targetFormats.contains(context.finalFormat))
       .map { document =>
@@ -141,7 +154,7 @@ object RendererRuntime {
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      static    = mappedTree.staticDocuments.filter(_.formats.contains(context.finalFormat))
+      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root.tree)
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, static)
       _         <- ops.mkDirOps.toVector.sequence
