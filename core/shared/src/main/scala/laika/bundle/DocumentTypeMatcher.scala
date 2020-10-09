@@ -17,6 +17,7 @@
 package laika.bundle
 
 import laika.ast.{DocumentType, Path}
+import laika.rewrite.nav.TargetFormats
 
 /** The default implementations for determining the document type
   *  of the input based on its path.
@@ -35,6 +36,14 @@ object DocumentTypeMatcher {
   private val TemplateName = """.+\.template\..+$""".r
   private val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
   private val ConfigName = "directory.conf"
+  
+  def staticTargetFormats (path: Path): TargetFormats = path.suffix match {
+    case Some("shared.css")       => TargetFormats.Selected("html", "epub", "epub.xhtml")
+    case Some("epub.css")         => TargetFormats.Selected("epub", "epub.xhtml")
+    case Some("css") | Some("js") => TargetFormats.Selected("html")
+    case Some(fmt) if fmt.endsWith(".css") => TargetFormats.Selected("html")
+    case _ => TargetFormats.All 
+  }
 
 
   /** The base matcher that recognizes all file types known to Laika
@@ -46,7 +55,7 @@ object DocumentTypeMatcher {
       case ConfigName       => Config
       case TemplateName()   => Template
       case StylesheetName() => StyleSheet("fo")
-      case _                => Static()
+      case _                => Static(staticTargetFormats(path))
     }
   }
 

@@ -37,17 +37,27 @@ object TestTheme {
     TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
   )
   lazy val htmlTemplate = TemplateRoot.fallback
-  val staticPaths = Seq(
+  val staticASTPaths = Seq(
     Root / "laika" / "fonts" / "Lato-Regular.ttf",
     Root / "laika" / "fonts" / "Lato-Italic.ttf", 
     Root / "laika" / "fonts" / "Lato-Bold.ttf", 
     Root / "laika" / "fonts" / "Lato-BoldItalic.ttf", 
     Root / "laika" / "fonts" / "FiraCode-Medium.otf", 
     Root / "laika" / "fonts" / "icofont.ttf",
+    Root / "helium" / "fonts"/ "icofont.woff", 
+    Root / "helium" / "fonts"/ "icofont.woff2"
+  )
+  val staticHTMLPaths = Seq(
+    Root / "laika" / "fonts" / "Lato-Regular.ttf",
+    Root / "laika" / "fonts" / "Lato-Italic.ttf",
+    Root / "laika" / "fonts" / "Lato-Bold.ttf",
+    Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
+    Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+    Root / "laika" / "fonts" / "icofont.ttf",
     Root / "helium" / "laika-helium.js",
     Root / "helium" / "landing.page.css",
-    Root / "helium" / "icofont.min.css", 
-    Root / "helium" / "fonts"/ "icofont.woff", 
+    Root / "helium" / "icofont.min.css",
+    Root / "helium" / "fonts"/ "icofont.woff",
     Root / "helium" / "fonts"/ "icofont.woff2",
     Root / "helium" / "laika-helium.css",
     Root / "helium" / "laika-helium.epub.css"

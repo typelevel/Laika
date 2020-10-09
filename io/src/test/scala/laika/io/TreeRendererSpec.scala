@@ -451,7 +451,7 @@ class TreeRendererSpec extends IOWordSpec
           .render
         )
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticPaths))
+        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticASTPaths))
     }
 
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
@@ -529,7 +529,7 @@ class TreeRendererSpec extends IOWordSpec
           .render
         )
         .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticPaths))
+        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths))
     }
     
     trait TwoPhaseRenderer {

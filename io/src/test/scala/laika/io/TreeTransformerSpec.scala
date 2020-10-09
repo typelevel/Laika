@@ -169,7 +169,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           docs((Root / "name.txt", simpleResult))
         )),
         Some(RenderedDocumentView(Root / "cover.txt", simpleResult)),
-        TestTheme.staticPaths
+        TestTheme.staticASTPaths
       ))
     }
 
@@ -192,7 +192,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
             )
           )),
           Some(RenderedDocumentView(Root / "cover.txt", mappedResult)),
-          TestTheme.staticPaths
+          TestTheme.staticASTPaths
         ))
     }
     
@@ -356,9 +356,9 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
 
     "transform a tree with a static document" in new TreeTransformerSetup {
       val inputs = Seq(
-        Root / "omg.js" -> Contents.name
+        Root / "omg.txt" -> Contents.name
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js") ++ TestTheme.staticPaths))
+      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
     }
     
     trait DocWithSection extends TreeTransformerSetup {
@@ -409,7 +409,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
             (Root / "foo" / "bar.txt", refRes)
           )))
         )
-      )), staticDocuments = TestTheme.staticPaths))
+      )), staticDocuments = TestTheme.staticASTPaths))
     }
     
     "transform a tree with an internal reference using the default slug builder" in new DocWithSection {
@@ -432,7 +432,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "dir1" / astDefaultTemplatePath.relative -> Contents.template2,
         Root / "dir1" / "doc3.md" -> Contents.name,
         Root / "dir1" / "doc4.md" -> Contents.name,
-        Root / "dir2" / "omg.js" -> Contents.name,
+        Root / "dir2" / "omg.txt" -> Contents.name,
         Root / "dir2" / "doc5.md" -> Contents.name,
         Root / "dir2" / "doc6.md" -> Contents.name,
       )
@@ -473,7 +473,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
             (Root / "dir2" / "doc6.txt", withTemplate1),
           )))
         )
-      )), staticDocuments = Seq(Root / "dir2" / "omg.js") ++ TestTheme.staticPaths))
+      )), staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths))
     }
 
     "transform a tree with while filtering documents based on their targetFormats setting" in new TreeTransformerSetup {
@@ -503,7 +503,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
             (Root / "dir2" / "doc6.txt", result),
           )))
         )
-      )), staticDocuments = TestTheme.staticPaths))
+      )), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "describe a tree with all available file types and multiple markup formats" in new TreeTransformerSetup {
