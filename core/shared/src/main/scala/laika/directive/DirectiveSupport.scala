@@ -16,10 +16,10 @@
 
 package laika.directive
 
-import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, Replace, RewriteAction, RewriteRules, Span}
+import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, NoOpt, Options, Replace, RewriteRules, Span, SpanResolver}
 import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
 import laika.config.ConfigParser
-import laika.parse.Parser
+import laika.parse.{Parser, SourceFragment}
 import laika.parse.builders.{delimitedBy, text, ws}
 import laika.parse.implicits._
 import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, DirectiveParsers, SpanDirectiveParsers, TemplateParsers}
@@ -59,19 +59,35 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
   private val linkDirectiveMap = linkDirectives.map(d => (d.name, d)).toMap
   private val linkParser = (DirectiveParsers.nameDecl <~ ws) ~ ("(" ~> text(delimitedBy(')')).embed("\\" ~> TextParsers.oneChar))
   
-  override lazy val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(
-    cursor => RewriteRules.forSpans {
-      case LinkIdReference(content, id, src, opt) if id.startsWith("@:") => 
-        linkParser.parse(id.drop(2)).toEither.fold(
-          err => Replace(InvalidSpan(s"Invalid link directive: $err", src)),
-          res => linkDirectiveMap.get(res._1)
-            .fold[RewriteAction[Span]](Replace(InvalidSpan(s"Unknown link directive: ${res._1}", src))) { dir =>
-              dir(res._2, cursor).fold(
-                err => Replace(InvalidSpan(s"Invalid link directive: $err", src)),
-                res => Replace(res.copy(content = content, options = res.options + opt))
-              )
-            }
+  case class LinkDirectiveResolver(ref: LinkIdReference,
+                                   directiveName: String,
+                                   typeName: String,
+                                   source: SourceFragment,
+                                   options: Options = NoOpt) extends SpanResolver {
+    type Self = LinkDirectiveResolver
+
+    def resolve (cursor: DocumentCursor): Span = linkDirectiveMap.get(directiveName)
+      .fold[Span](InvalidSpan(s"Unknown link directive: $directiveName", source)) { dir =>
+        dir(typeName, cursor).fold(
+          err => InvalidSpan(s"Invalid link directive: $err", source),
+          res => res.copy(content = ref.content, options = res.options + ref.options)
         )
+      }
+
+    def withOptions(options: Options): LinkDirectiveResolver = copy(options = options)
+
+    def unresolvedMessage: String = s"unresolved api directive for type $typeName"
+  }
+  
+  override lazy val rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(
+    _ => RewriteRules.forSpans {
+      case ref: LinkIdReference if ref.ref.startsWith("@:") => 
+        linkParser.parse(ref.ref.drop(2)).toEither.fold(
+          err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
+          res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
+        )
+        // In the current design for rewrite rules which does not allow to specify a phase to be executed in,
+        // we need to insert a span resolver to get into a later phase where target ids have all been resolved.
     }
   )
 
