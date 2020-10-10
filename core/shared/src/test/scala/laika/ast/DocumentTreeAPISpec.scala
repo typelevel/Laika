@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.config.{Config, ConfigParser, Key, Origin}
+import laika.config.{Config, ConfigParser, Key, Origin, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
@@ -173,7 +173,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
-      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
   }
   
@@ -183,7 +183,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.html.template: /main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
-      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
   }
   
@@ -193,7 +193,17 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../main.template.html")).copy(templates = List(template))
       val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
-      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
+    }
+  }
+
+  it should "fail if a specified template does not exist" in {
+    new TreeModel {
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../missing.template.html")).copy(templates = List(template))
+      val targetDoc = tree.selectDocument("sub/doc").get
+      val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Left(ValidationError("Template with path '/missing.template.html' not found")))
     }
   }
   

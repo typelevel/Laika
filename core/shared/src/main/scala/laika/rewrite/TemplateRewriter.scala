@@ -19,7 +19,7 @@ package laika.rewrite
 import cats.implicits._
 import laika.ast._
 import laika.config.Origin.TemplateScope
-import laika.config.{ConfigError, LaikaKeys, Origin}
+import laika.config.{ConfigError, LaikaKeys, Origin, ValidationError}
 import laika.parse.{LineSource, SourceCursor}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.Selections
@@ -75,10 +75,10 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTemplate (cursor: DocumentCursor, context: TemplateContext): Either[ConfigError, Document] = {
-    val template = selectTemplate(cursor, context.templateSuffix).getOrElse(defaultTemplate(context.templateSuffix))
-    applyTemplate(cursor, template)
-  }
+  private def applyTemplate (cursor: DocumentCursor, context: TemplateContext): Either[ConfigError, Document] =
+    selectTemplate(cursor, context.templateSuffix)
+      .map(_.getOrElse(defaultTemplate(context.templateSuffix)))
+      .flatMap(applyTemplate(cursor, _))
 
   /** Applies the specified template to the target of the specified document cursor.
     */
@@ -99,14 +99,19 @@ trait TemplateRewriter {
     }
   }
   
-  private[laika] def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
+  private[laika] def selectTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Option[TemplateDocument]] = {
     val config = cursor.config
-    val templatePath = config.get[Path](LaikaKeys.template).toOption // TODO - error handling 
-      .orElse(config.get[Path](LaikaKeys.template(format)).toOption)
+    val templatePath  =  config.getOpt[Path](LaikaKeys.template).flatMap {
+      case None       => config.getOpt[Path](LaikaKeys.template(format))
+      case Some(path) => Right(Some(path))
+    }
 
-    templatePath match {
+    templatePath.flatMap {
       case Some(path) =>
-        cursor.root.target.tree.selectTemplate(path.relative) // TODO - error handling 
+        cursor.root.target.tree
+          .selectTemplate(path.relative)
+          .map(Some(_))
+          .toRight(ValidationError(s"Template with path '$path' not found"))
 
       case None =>
         val templatePath = DefaultTemplatePath.forSuffix(format).relative
@@ -117,7 +122,7 @@ trait TemplateRewriter {
             case (None, None) => None
           }
 
-        templateForTree(cursor.parent)
+        Right(templateForTree(cursor.parent))
     }
   }
   
