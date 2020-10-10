@@ -18,8 +18,8 @@ package laika.rewrite.link
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.{DocumentCursor, Image, InternalTarget, InvalidSpan, Link, Path, RelativePath, RootCursor, Span, SpanLink, Target}
-import laika.config.LaikaKeys
+import laika.ast.{DocumentCursor, Image, InternalTarget, InvalidSpan, Link, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, Span, SpanLink, Target}
+import laika.config.{Config, LaikaKeys}
 import laika.parse.SourceFragment
 import laika.rewrite.nav.TargetFormats
 
@@ -49,6 +49,68 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
 
     excludedPaths.exists(path.isSubPath) || hasExcludedFlag(path.relative)
   }
+  
+  def validate (target: InternalTarget): TargetValidation = {
+
+    val resolvedTarget = target.relativeTo(cursor.path)
+
+    /*
+    When a link target does exist, but does not support all of the output formats of the linking document,
+    we can recover for the unsupported format by switching to an external link if:
+    
+    a) There is a value for `laika.siteBaseURL` in the transformer configuration
+    b) `html` is one of the supported formats of the link target
+    
+    The final decision is still up to the caller of this method as not all type of targets can be switched
+    to external linking.
+    When rendering PDF for example, a text link can be switched to an external target, but an image cannot,
+    as PDF readers cannot display remote images.
+     */
+    def attemptRecovery(message: String, targetFormats: TargetFormats): TargetValidation = {
+      (targetFormats.contains("html"), siteBaseURL) match {
+        case (true, Some(_)) => RecoveredTarget(message, resolvedTarget.copy(internalFormats = targetFormats))
+        case _ => InvalidTarget(message)
+      }
+    }
+
+    def findFormatConfig(path: Path): TargetFormats = cursor.root.tree.target.selectSubtree(path.relative) match {
+      case Some(tree) => tree.config.get[TargetFormats].getOrElse(TargetFormats.All)
+      case None if path == Root => TargetFormats.All
+      case _ => findFormatConfig(path.parent)
+    }
+
+    def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
+
+    def invalidRefMsg: String = s"cannot reference document '${resolvedTarget.relativePath.toString}'"
+
+    def validateFormats(targetFormats: TargetFormats): TargetValidation = targetFormats match {
+      case TargetFormats.All => ValidTarget
+      case TargetFormats.None => InvalidTarget(s"$invalidRefMsg as it is excluded from rendering")
+      case TargetFormats.Selected(_) => cursor.target.targetFormats match {
+        case TargetFormats.None => ValidTarget // to be validated at point of inclusion by a directive like @:include
+        case TargetFormats.All => attemptRecovery(
+          s"document for all output formats $invalidRefMsg with restricted output formats $validCondition",
+          targetFormats
+        )
+        case TargetFormats.Selected(formats) =>
+          val missingFormats = formats.filterNot(targetFormats.contains)
+          if (missingFormats.isEmpty) ValidTarget
+          else attemptRecovery(
+            s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition",
+            targetFormats
+          )
+      }
+    }
+
+    findTargetFormats(resolvedTarget.absolutePath) match {
+      case None if excludeFromValidation(resolvedTarget.absolutePath) =>
+        validateFormats(findFormatConfig(resolvedTarget.absolutePath.parent))
+      case None =>
+        InvalidTarget(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}")
+      case Some(targetFormats) =>
+        validateFormats(targetFormats)
+    }
+  }
 
   /** Validates the specified link, verifying that the target exists and supports a matching set of target formats.
     * The returned link in case of successful validation might be a modified link with enhanced information for the
@@ -56,56 +118,16 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
     */
   def validate[L <: Link] (link: L): Either[String, L] = {
 
-    def validateInternalTarget (internalTarget: InternalTarget): Either[String, L] = {
-
-      val target = internalTarget.relativeTo(cursor.path)
-      
-      def attemptRecovery (internalFormats: TargetFormats, msg: => String): Either[String, L] = {
-        (internalFormats.contains("html"), siteBaseURL, link) match {
-          case (true, Some(_), sp: SpanLink) => Right(sp.copy(target = target.copy(
-            internalFormats = internalFormats
-          )).asInstanceOf[L])
-          case _ => Left(msg)
-        }
-      }
-
-      def findFormatConfig (path: Path): TargetFormats = cursor.root.tree.target.selectSubtree(path.relative) match {
-        case Some(tree) => tree.config.get[TargetFormats].getOrElse(TargetFormats.All)
-        case None if path == Root => TargetFormats.All
-        case _ => findFormatConfig(path.parent)
-      }
-      
-      def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
-      def invalidRefMsg: String = s"cannot reference document '${target.relativePath.toString}'"
-      
-      def validateFormats (targetFormats: TargetFormats): Either[String, L] = targetFormats match {
-        case TargetFormats.All => Right(link)
-        case TargetFormats.None => Left(s"$invalidRefMsg as it is excluded from rendering")
-        case TargetFormats.Selected(_) => cursor.target.targetFormats match {
-          case TargetFormats.None => Right(link) // to be validated at point of inclusion by a directive like @:include
-          case TargetFormats.All => 
-            def msg = s"document for all output formats $invalidRefMsg with restricted output formats $validCondition"
-            attemptRecovery(targetFormats, msg)
-          case TargetFormats.Selected(formats) =>
-            val missingFormats = formats.filterNot(targetFormats.contains)
-            if (missingFormats.isEmpty) Right(link)
-            else {
-              def msg = s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition"
-              attemptRecovery(targetFormats, msg)
-            }
-        }
-      }
-
-      findTargetFormats(target.absolutePath) match {
-        case None if excludeFromValidation(target.absolutePath) => validateFormats(findFormatConfig(target.absolutePath.parent))
-        case None => Left(s"unresolved internal reference: ${target.relativePath.toString}")
-        case Some(targetFormats) => validateFormats(targetFormats)
-      }
-    }
-
     def validateTarget (target: Target): Either[String, L] = target match {
-      case it: InternalTarget => validateInternalTarget(it)
-      case _                  => Right(link)
+      case it: InternalTarget => validate(it) match {
+        case ValidTarget          => Right(link)
+        case InvalidTarget(error) => Left(error)
+        case RecoveredTarget(error, newTarget) => link match {
+          case sp: SpanLink => Right(sp.copy(target = newTarget).asInstanceOf[L])
+          case _            => Left(error)
+        }
+      }
+      case _             => Right(link)
     }
     
     link match {
@@ -127,6 +149,11 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
   )
   
 }
+
+sealed trait TargetValidation
+case object ValidTarget extends TargetValidation
+case class InvalidTarget (message: String) extends TargetValidation
+case class RecoveredTarget (message: String, recoveredTarget: ResolvedInternalTarget) extends TargetValidation
 
 /** Temporary and incomplete workaround (does not validate target ids/fragments for now), 
   * until late link insertions get validated as part of the final rewrite step. */
