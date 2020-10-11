@@ -478,7 +478,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   
   
   val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
-  val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg").relativeTo(Root / "doc")
+  val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg")
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""

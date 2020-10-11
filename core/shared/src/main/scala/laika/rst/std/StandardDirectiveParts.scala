@@ -91,16 +91,7 @@ object StandardDirectiveParts {
   case class ImageResolver (image: Image, source: SourceFragment) extends SpanResolver {
     type Self = ImageResolver
     val options: Options = image.options
-    override def resolve (cursor: DocumentCursor): Span = image.target match {
-      case it: InternalTarget =>
-        val resolvedTarget = it.relativeTo(cursor.path.parent)
-        if (cursor.root.target.staticDocuments.contains(resolvedTarget.absolutePath) || 
-          cursor.config.get[Seq[Path]](LinkConfig.key.value.child("excludeFromValidation"))
-            .getOrElse(Nil)
-            .exists(p => resolvedTarget.absolutePath.isSubPath(p))) image.copy(target = resolvedTarget)
-        else InvalidSpan(unresolvedMessage, source)
-      case _ => image
-    }
+    override def resolve (cursor: DocumentCursor): Span = cursor.validateAndRecover(image, source)
     override def withOptions (options: Options): ImageResolver = copy(image = image.withOptions(options))
     lazy val unresolvedMessage: String = s"Unresolved image resolver for target '${image.target}'"
   }
