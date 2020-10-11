@@ -34,7 +34,7 @@ import laika.rewrite.nav.TargetFormats
   * 
   * @author Jens Halm
   */
-class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[TargetFormats]) {
+private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[TargetFormats]) {
 
   private val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
@@ -69,7 +69,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
     def attemptRecovery(message: String, targetFormats: TargetFormats): TargetValidation = {
       (targetFormats.contains("html"), siteBaseURL) match {
         case (true, Some(_)) => RecoveredTarget(message, resolvedTarget.copy(internalFormats = targetFormats))
-        case _ => InvalidTarget(message)
+        case _ => InvalidTarget(message + validCondition)
       }
     }
 
@@ -79,7 +79,7 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
       case _ => findFormatConfig(path.parent)
     }
 
-    def validCondition: String = "unless html is one of the formats and siteBaseUrl is defined"
+    def validCondition: String = " unless html is one of the formats and siteBaseUrl is defined"
 
     def invalidRefMsg: String = s"cannot reference document '${resolvedTarget.relativePath.toString}'"
 
@@ -89,14 +89,14 @@ class LinkValidator (cursor: DocumentCursor, findTargetFormats: Path => Option[T
       case TargetFormats.Selected(_) => cursor.target.targetFormats match {
         case TargetFormats.None => ValidTarget // to be validated at point of inclusion by a directive like @:include
         case TargetFormats.All => attemptRecovery(
-          s"document for all output formats $invalidRefMsg with restricted output formats $validCondition",
+          s"document for all output formats $invalidRefMsg with restricted output formats",
           targetFormats
         )
         case TargetFormats.Selected(formats) =>
           val missingFormats = formats.filterNot(targetFormats.contains)
           if (missingFormats.isEmpty) ValidTarget
           else attemptRecovery(
-            s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")}) $validCondition",
+            s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")})",
             targetFormats
           )
       }
@@ -163,19 +163,15 @@ private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[T
     (doc.path.withoutFragment, new DocumentLookup(doc.content, doc.config))
   }.toMap
   
-  private lazy val staticPaths: Set[Path] = cursor.target.staticDocuments.map(_.path).toSet
+  private lazy val staticLookup: Map[Path, TargetFormats] = 
+    cursor.target.staticDocuments.map(doc => (doc.path, doc.formats)).toMap
   
   def apply (path: Path): Option[TargetFormats] = {
 
-    def findRenderedDocument: Option[TargetFormats] = docLookup.get(path.withoutFragment).flatMap { lookup =>
+    docLookup.get(path.withoutFragment).flatMap { lookup =>
       if (lookup.hasTarget(path)) Some(lookup.formats)
       else None
-    }
-
-    def findStaticDocument: Option[TargetFormats] =
-      if (staticPaths.contains(path.withoutFragment)) Some(TargetFormats.All) else None
-    
-    findRenderedDocument.orElse(findStaticDocument)
+    }.orElse(staticLookup.get(path))
   }
 
   private class DocumentLookup (content: RootElement, config: Config) {

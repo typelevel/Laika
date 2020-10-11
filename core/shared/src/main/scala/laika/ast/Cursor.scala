@@ -20,7 +20,9 @@ import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
+import laika.parse.SourceFragment
 import laika.rewrite.ReferenceResolver
+import laika.rewrite.link.{LinkValidator, TargetLookup, TargetValidation}
 import laika.rewrite.nav.{AutonumberConfig, NavigationOrder}
 
 /** A cursor provides the necessary context during a rewrite operation.
@@ -68,6 +70,8 @@ sealed trait Cursor {
 case class RootCursor(target: DocumentTreeRoot, targetFormat: Option[String] = None) {
   
   type Target = DocumentTreeRoot
+  
+  private[ast] lazy val targetLookup = new TargetLookup(this)
   
   val config: Config = target.config
 
@@ -203,6 +207,8 @@ case class DocumentCursor (target: Document,
   val path: Path = target.path
 
   lazy val root: RootCursor = parent.root
+  
+  private lazy val validator = new LinkValidator(this, root.targetLookup)
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
    */
@@ -290,7 +296,29 @@ case class DocumentCursor (target: Document,
    */
   def withReferenceContext[T: ConfigEncoder](refValue: T): DocumentCursor =
     copy(resolver = ReferenceResolver(resolver.config.withValue("_", refValue).build))
-  
+
+  /** Validates the specified link, verifying that the target exists and supports a matching set of target formats.
+    * The returned ADT provides one of three possible outcomes, apart from a valid or invalid result, 
+    * a target may also be a `RecoveredTarget` where the link target exists, but does not support all 
+    * the output formats of the link source.
+    * In such a case some link types can switch to an external link, pointing to the location of the hosted
+    * html result of this document tree.
+    */
+  def validate (target: InternalTarget): TargetValidation = validator.validate(target)
+
+  /** Validates the specified link, verifying that the target exists and supports a matching set of target formats.
+    * The returned link in case of successful validation might be a modified link with enhanced information for the
+    * renderer, which might translate internal links to external links for some output formats.
+    */
+  def validate[L <: Link] (link: L): Either[String, L] = validator.validate(link)
+
+  /** Validates the specified link, verifying that the target exists and supports a matching set of target formats.
+    * Performs the same checks as the `validate` method, but instead of returning potential errors in an Either
+    * it replaces invalid links with instances of `InvalidSpan`. 
+    * Those types of AST nodes require access to the original source that produced the element which is either
+    * obtained from a parser or from a directive combinator.
+    */
+  def validateAndRecover (link: Link, source: SourceFragment): Span = validator.validateAndRecover(link, source)
 }
 
 object DocumentCursor {
