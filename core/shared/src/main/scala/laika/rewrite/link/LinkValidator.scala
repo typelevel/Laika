@@ -159,17 +159,39 @@ case class RecoveredTarget (message: String, recoveredTarget: ResolvedInternalTa
   * until late link insertions get validated as part of the final rewrite step. */
 private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TargetFormats]) {
   
+  private lazy val docLookup: Map[Path, DocumentLookup] = cursor.target.allDocuments.map { doc =>
+    (doc.path.withoutFragment, new DocumentLookup(doc.content, doc.config))
+  }.toMap
+  
+  private lazy val staticPaths: Set[Path] = cursor.target.staticDocuments.map(_.path).toSet
+  
   def apply (path: Path): Option[TargetFormats] = {
 
-    def findRenderedDocument: Option[TargetFormats] =
-      cursor.tree.target.selectDocument(path.relative).map { doc =>
-        doc.config.get[TargetFormats].getOrElse(TargetFormats.All)
-      }
+    def findRenderedDocument: Option[TargetFormats] = docLookup.get(path.withoutFragment).flatMap { lookup =>
+      if (lookup.hasTarget(path)) Some(lookup.formats)
+      else None
+    }
 
     def findStaticDocument: Option[TargetFormats] =
-      if (cursor.target.staticDocuments.contains(path.withoutFragment)) Some(TargetFormats.All) else None
+      if (staticPaths.contains(path.withoutFragment)) Some(TargetFormats.All) else None
     
     findRenderedDocument.orElse(findStaticDocument)
+  }
+
+  private class DocumentLookup (content: RootElement, config: Config) {
+
+    private lazy val ids: Set[String] =
+      content.collect {
+        case e if e.hasId => e.options.id
+      }.flatten.toSet
+    
+    lazy val formats: TargetFormats = config.get[TargetFormats].getOrElse(TargetFormats.All)
+
+    def hasTarget (path: Path): Boolean = path.fragment match {
+      case None => true
+      case Some(fragment) => ids.contains(fragment)
+    }
+
   }
   
 }
