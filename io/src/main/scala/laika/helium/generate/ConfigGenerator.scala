@@ -25,6 +25,7 @@ import laika.helium.Helium
 import laika.helium.config._
 import laika.io.runtime.BatchRuntime
 import laika.parse.{GeneratedSource, SourceFragment}
+import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
 private[laika] object ConfigGenerator {
 
@@ -96,15 +97,18 @@ private[laika] object ConfigGenerator {
       .build
   }
   
-  case class RelativePath (target: ThemeTarget) extends SpanResolver {
+  case class RelativePath (target: Target) extends SpanResolver {
     type Self = RelativePath
     val source: SourceFragment = GeneratedSource
-    def resolve(cursor: DocumentCursor): Span = target.resolve(cursor) match {
-      case Left(msg) => InvalidSpan(s"unresolved target ${target.description}: $msg", source)
-      case Right(it: InternalTarget) => Text(it.relativeTo(cursor.path).relativePath.toString)
-      case Right(ExternalTarget(url)) => Text(url)
-    } 
-    def unresolvedMessage: String = s"Unresolved target '${target.description}'"
+    def resolve(cursor: DocumentCursor): Span = target match {
+      case et: ExternalTarget => Text(et.url)
+      case it: InternalTarget => cursor.validate(it) match {
+        case ValidTarget      => Text(it.relativeTo(cursor.path).relativePath.toString)
+        case InvalidTarget(message)      => InvalidSpan(message, source)
+        case RecoveredTarget(message, _) => InvalidSpan(message, source)
+      }
+    }
+    def unresolvedMessage: String = s"Unresolved relative path '${target.toString}'"
     def options: Options = NoOpt
     def withOptions(options: Options): RelativePath = this
   }

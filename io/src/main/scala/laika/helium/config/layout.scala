@@ -17,7 +17,7 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{Image, Options, Path, Length, Styles}
+import laika.ast.{ExternalTarget, InternalTarget, Length, Options, Path, Styles, Target}
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -74,7 +74,7 @@ private[helium] case class MarkupEditLinks (text: String, baseURL: String)
   * 
   * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
   */
-case class Favicon private (target: ThemeTarget, sizes: Option[String] = None, mediaType: Option[String] = None)
+case class Favicon private (target: Target, sizes: Option[String] = None, mediaType: Option[String] = None)
 
 /** Companion for creating Favicon configuration instances.
   */
@@ -92,7 +92,7 @@ object Favicon {
     * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
     */
   def external (url: String, sizes: String, mediaType: String): Favicon = 
-    Favicon(ThemeTarget.external(url), Some(sizes), Some(mediaType))
+    Favicon(ExternalTarget(url), Some(sizes), Some(mediaType))
 
   /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
     * This resource must be part of the inputs known to Laika.
@@ -100,7 +100,7 @@ object Favicon {
     * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
     */
   def internal (path: Path, sizes: String): Favicon = 
-    Favicon(ThemeTarget.internal(path), Some(sizes), mediaType(path.suffix))
+    Favicon(InternalTarget(path), Some(sizes), mediaType(path.suffix))
 }
 
 /** Represents release info to be displayed on the landing page.
