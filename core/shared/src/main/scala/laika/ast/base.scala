@@ -167,11 +167,36 @@ trait Definition extends Block { type Self <: Definition }
 
 /** The base type for all link elements.
   *
-  *  In contrast to the reference type, it is only mixed in by
-  *  elements representing resolved links that can be dealt
-  *  with by renderers.
+  * In contrast to the reference type, it is only mixed in by elements representing resolved links 
+  * that can be dealt with by renderers.
   */
 trait Link extends Span { type Self <: Link }
+
+/** A local link that always points to a target within the same document.
+  */
+trait LocalLink extends Link {
+  type Self <: LocalLink
+  
+  /** The id of the node within the same document that this link points to. */
+  def refId: String
+}
+
+/** A global link that can point to any document within the input tree or to an external target.
+  */
+trait GlobalLink extends Link {
+  type Self <: GlobalLink
+
+  /** The target this link points to. */
+  def target: Target
+
+  /** Creates a new instance of this node pointing to the specified target instead.
+    */
+  def withTarget (target: Target): Self
+  
+  /** Indicates whether this node type supports external targets for *all* output formats.
+    * This is not true for images, for example, as they require embedding for EPUB and PDF formats. */
+  def supportsExternalTargets: Boolean
+}
 
 /** The base type for all link targets. The id has to be
   *  unique for the whole document across all types

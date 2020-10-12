@@ -95,23 +95,25 @@ case class AutonumberLabel (label: String) extends FootnoteLabel
 
 /** An link element, with the span content representing the text (description) of the link.
   */
-case class SpanLink (content: Seq[Span], target: Target, title: Option[String] = None, options: Options = NoOpt) extends Link
+case class SpanLink (content: Seq[Span], target: Target, title: Option[String] = None, options: Options = NoOpt) extends GlobalLink
   with SpanContainer {
   type Self = SpanLink
+  val supportsExternalTargets: Boolean = true
+  def withTarget (newTarget: Target): SpanLink = copy(target = newTarget)
   def withContent (newContent: Seq[Span]): SpanLink = copy(content = newContent)
   def withOptions (options: Options): SpanLink = copy(options = options)
 }
 
 /** A resolved link to a footnote.
  */
-case class FootnoteLink (ref: String, label: String, options: Options = NoOpt) extends Link {
+case class FootnoteLink (refId: String, label: String, options: Options = NoOpt) extends LocalLink {
   type Self = FootnoteLink
   def withOptions (options: Options): FootnoteLink = copy(options = options)
 }
 
 /** A resolved link to a citation.
  */
-case class CitationLink (ref: String, label: String, options: Options = NoOpt) extends Link {
+case class CitationLink (refId: String, label: String, options: Options = NoOpt) extends LocalLink {
   type Self = CitationLink
   def withOptions (options: Options): CitationLink = copy(options = options)
 }
@@ -123,8 +125,10 @@ case class Image (target: Target,
                   height: Option[Length] = None,
                   alt: Option[String] = None,
                   title: Option[String] = None,
-                  options: Options = NoOpt) extends Link {
+                  options: Options = NoOpt) extends GlobalLink {
   type Self = Image
+  val supportsExternalTargets: Boolean = false // has to be embedded for EPUB or PDF
+  def withTarget (newTarget: Target): Image = copy(target = newTarget)
   def withOptions (options: Options): Image = copy(options = options)
 }
 
