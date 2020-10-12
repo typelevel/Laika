@@ -71,11 +71,12 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
     document.content.collect {
       case c: Citation =>
         val selector = TargetIdSelector(slugBuilder(c.label))
+        val docId = s"__cit-${selector.id}"
         val resolver = ReferenceResolver.lift {
-          case LinkSource(CitationReference(label, _, opt), _) => CitationLink(selector.id, label, opt)
+          case LinkSource(CitationReference(label, _, opt), _) => CitationLink(docId, label, opt)
         }
         val replacer = TargetReplacer.lift {
-          case Citation(label, content, opt) => Citation(label, content, opt + Id(s"__cit-${selector.id}"))
+          case Citation(label, content, opt) => Citation(label, content, opt + Id(docId))
         }
         TargetResolver.create(selector, resolver, replacer, targetFormats)
       

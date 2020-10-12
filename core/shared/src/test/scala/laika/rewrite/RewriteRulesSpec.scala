@@ -82,7 +82,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "retain a single reference when it has a matching target" in {
       val rootElem = root(p(CitationReference("label", generatedSource("[label]_"))), Citation("label", List(p("citation"))))
-      val resolved = root(p(CitationLink("label", "label")), Citation("label", List(p("citation")), Id("__cit-label")))
+      val resolved = root(p(CitationLink("__cit-label", "label")), Citation("label", List(p("citation")), Id("__cit-label")))
       rewritten(rootElem) should be(resolved)
     }
 
@@ -96,7 +96,7 @@ class RewriteRulesSpec extends AnyWordSpec
         Citation("label1", List(p("citation1"))), 
         Citation("label2", List(p("citation2")))
       )
-      val resolved = root(p(CitationLink("label1", "label1"), CitationLink("label2", "label2"), CitationLink("label1", "label1")),
+      val resolved = root(p(CitationLink("__cit-label1", "label1"), CitationLink("__cit-label2", "label2"), CitationLink("__cit-label1", "label1")),
         Citation("label1", List(p("citation1")), Id("__cit-label1")), Citation("label2", List(p("citation2")), Id("__cit-label2")))
       rewritten(rootElem) should be(resolved)
     }
