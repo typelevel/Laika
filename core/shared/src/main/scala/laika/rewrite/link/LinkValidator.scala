@@ -17,8 +17,8 @@
 package laika.rewrite.link
 
 import laika.ast.Path.Root
-import laika.ast.RelativePath.CurrentTree
-import laika.ast.{DocumentCursor, Image, InternalTarget, InvalidSpan, Link, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, Span, SpanLink, Target}
+import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
+import laika.ast.{DocumentCursor, GlobalLink, InternalTarget, InvalidSpan, Link, LocalLink, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, Span, Target}
 import laika.config.{Config, LaikaKeys}
 import laika.parse.SourceFragment
 import laika.rewrite.nav.TargetFormats
@@ -123,17 +123,16 @@ private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: P
         case ValidTarget          => Right(link)
         case InvalidTarget(error) => Left(error)
         case RecoveredTarget(error, newTarget) => link match {
-          case sp: SpanLink => Right(sp.copy(target = newTarget).asInstanceOf[L])
-          case _            => Left(error)
+          case gl: GlobalLink if gl.supportsExternalTargets => Right(gl.withTarget(newTarget).asInstanceOf[L])
+          case _ => Left(error)
         }
       }
-      case _             => Right(link)
+      case _ => Right(link)
     }
     
     link match {
-      case img: Image   => validateTarget(img.target)
-      case sl: SpanLink => validateTarget(sl.target)
-      case _            => Right(link)
+      case gl: GlobalLink => validateTarget(gl.target)
+      case ll: LocalLink  => validateTarget(InternalTarget(CurrentDocument(ll.refId)))
     }
   }
 
