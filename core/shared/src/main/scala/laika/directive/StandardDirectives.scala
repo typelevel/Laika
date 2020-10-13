@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.config._
+import laika.directive.std.IncludeDirectives
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup}
@@ -745,6 +746,8 @@ object StandardDirectives extends DirectiveRegistry {
     blockNav,
     blockFragment,
     blockStyle,
+    IncludeDirectives.blockInclude,
+    IncludeDirectives.blockEmbed,
     imageBlockDirective,
     selectDirective,
     callout,
@@ -768,6 +771,8 @@ object StandardDirectives extends DirectiveRegistry {
     templateNav,
     templateFor,
     templateIf,
+    IncludeDirectives.templateInclude,
+    IncludeDirectives.templateEmbed,
     linkCSSDirective,
     linkJSDirective,
     relativePath
