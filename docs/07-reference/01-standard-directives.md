@@ -56,6 +56,85 @@ Serves as a shortcut for creating links to the source code of types, e.g. `@:sou
 See [Linking to Source Code] for details.
 
 
+Inclusions
+----------
+
+Laika offers the option to include one markup document inside another, as well as including a template inside another.
+
+There are two directives for this purpose: `@:include` is a simple inclusion that only allows to pass HOCON attributes
+to the included document, and `@:embed` with which a parsed directive body can be passed to the other document.
+
+Keep in mind that all references in Laika are based on the [Virtual Tree Abstraction]. 
+This means that you cannot specify plain file system paths with these directives, but instead absolute or relative
+links pointing to a resource of your input tree.
+For this reason all included documents must be part of the known input tree that you specify when starting
+a transformation.
+They can stem from any of the supported input types, files, streams or content generated in-memory.
+
+
+### `@:include`
+
+Can be used as a block-level directive in markup documents and as a template directive.
+
+The following example shows a simple HTML template where a header section is added via an include directive:
+
+```laika-html
+<html>
+  @:include(../inc/head.template.html) { css = "../css/nav.css" }
+  <body>
+    ${cursor.currentDocument.content}
+  </body>
+</html>
+```
+
+The attributes specified for the directive, in the example just `css` can be referenced in the included template
+with Laika's common `_` prefix for directive scopes:
+
+```laika-html
+<head>
+  <title>${cursor.currentDocument.title}</title>
+  <link rel="stylesheet" href="${_.css}">
+</head>
+```
+
+As you can see in the example the included template has access to the `cursor` of the including document to obtain
+the title, as well as access to the special scope prefix `_` which holds all the attributes passed directly in the directive.
+
+The attributes are standard HOCON, meaning they can have namespace prefixes and can refer to other variables defined
+in higher scopes.
+
+
+### `@:embed`
+
+Can be used as a block-level directive in markup documents and as a template directive.
+
+This directive is very similar to the `include` directive, but also allows to pass a parsed body element to
+the included template or document.
+
+We can modify the example to pass a few tags to the included template instead of just a single attribute:
+
+```laika-html
+<html>
+  @:include(../inc/head.template.html) 
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="main.css">
+  @:@
+  <body>
+    ${cursor.currentDocument.content}
+  </body>
+</html>
+```
+
+The body of the directive in our modified example:
+
+```laika-html
+<head>
+  <title>${cursor.currentDocument.title}</title>
+  ${_.embeddedBody}
+</head>
+```
+
+
 Applying Styles
 ---------------
 
