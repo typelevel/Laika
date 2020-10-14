@@ -97,7 +97,8 @@ object SpanParser {
 case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Block],
                                   recursive: Boolean = false,
                                   position: BlockPosition = BlockPosition.Any,
-                                  precedence: Precedence = Precedence.High) extends BlockParserBuilder {
+                                  precedence: Precedence = Precedence.High,
+                                  paragraphLineCheck: Option[PrefixedParser[Any]] = None) extends BlockParserBuilder {
 
   def createParser (recursiveParsers: RecursiveParsers): BlockParserDefinition = {
     val p = parserFactory(recursiveParsers)
@@ -122,6 +123,12 @@ case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Bloc
     */
   def nestedOnly: BlockParserBuilderOps = copy(position = BlockPosition.NestedOnly)
 
+  /** Provides a test for the start of each line in plain paragraph that indicates whether the line might
+    * be the start of a block identified by this parser.
+    * Without providing such a test the type of block produced by this parser can only occur after a blank line.
+    */
+  def interruptsParagraphWith (lineCheck: PrefixedParser[Any]): BlockParserBuilderOps = 
+    copy(paragraphLineCheck = Some(lineCheck))
 }
 
 /** Builder API for block parsers.

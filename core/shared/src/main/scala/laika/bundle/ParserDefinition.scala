@@ -19,6 +19,7 @@ package laika.bundle
 import cats.data.NonEmptySet
 import laika.ast.{Block, Element, Span}
 import laika.parse.Parser
+import laika.parse.text.PrefixedParser
 
 /** Defines a parser for a single kind of text markup,
   * like a literal text span or a bullet list for example.
@@ -51,13 +52,16 @@ sealed trait ParserDefinition[E <: Element] {
   * @param isRecursive indicates whether this parser produces child elements by recursively applying the parsers for the host language
   * @param position indicates whether this parser is responsible for root or nested elements only, or for both
   * @param precedence indicates whether the parser should be applied before the base parsers of
-  * the host language (high precedence) or after them
+  *                   the host language (high precedence) or after them
+  * @param paragraphLineCheck a test for the start of each line in plain paragraphs that indicates whether the line might
+  *                           be the start of a block identified by this parser
   */
 case class BlockParserDefinition (startChars: Set[Char],
                                   parser: Parser[Block],
                                   isRecursive: Boolean,
                                   position: BlockPosition,
-                                  precedence: Precedence) extends ParserDefinition[Block]
+                                  precedence: Precedence,
+                                  paragraphLineCheck: Option[PrefixedParser[Any]] = None) extends ParserDefinition[Block]
 
 /** Defines a parser for a single kind of span element,
   * like a literal text span or a link reference for example.
