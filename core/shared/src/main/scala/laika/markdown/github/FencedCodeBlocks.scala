@@ -75,7 +75,7 @@ object FencedCodeBlocks {
         }
       }
     }
-  }
+  }.interruptsParagraphWith(oneOf(fenceChar))
 
   /** Parsers for fenced code blocks delimited by any of the two fence characters
     * defined by GitHub Flavored Markdown (tilde and backtick).

@@ -83,17 +83,15 @@ object BlockParsers {
     * is not a setext header decoration. 
     * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
     */
-  lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    headerOrParagraph(recParsers, BlockPosition.RootOnly)
-  }.rootOnly
+  lazy val rootHeaderOrParagraph: BlockParserBuilder = 
+    BlockParser.recursive(headerOrParagraph(_, BlockPosition.RootOnly)).rootOnly
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
     * is not a setext header decoration. 
     * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
     */
-  lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    headerOrParagraph(recParsers, BlockPosition.NestedOnly)
-  }.nestedOnly
+  lazy val nestedHeaderOrParagraph: BlockParserBuilder = 
+    BlockParser.recursive(headerOrParagraph(_, BlockPosition.NestedOnly)).nestedOnly
 
   private def headerOrParagraph (recParsers: RecursiveParsers, pos: BlockPosition) : Parser[Block] = {
 

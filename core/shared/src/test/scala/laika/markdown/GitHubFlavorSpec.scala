@@ -290,6 +290,17 @@ class GitHubFlavorSpec extends AnyWordSpec
       Parsing (input) should produce (root(LiteralBlock("code\n\ncode")))
     }
 
+    "parse a code block without a preceding empty line" in {
+      val input =
+        """aaa
+          |```
+          |code
+          |```
+          |bbb
+        """.stripMargin
+      Parsing (input) should produce (root(BlockSequence(p("aaa"), LiteralBlock("code")), p("bbb")))
+    }
+
   }
 
   "The GitHubFlavor table parser" should {
