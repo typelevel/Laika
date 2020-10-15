@@ -106,7 +106,7 @@ case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Bloc
       case pp: PrefixedParser[_] => pp.startChars.toSortedSet
       case _                     => Set.empty[Char]
     }
-    BlockParserDefinition(startChars, p, recursive, position, precedence)
+    BlockParserDefinition(startChars, p, recursive, position, precedence, paragraphLineCheck)
   }
 
   /** Indicates that this parser should only be applied after all built-in

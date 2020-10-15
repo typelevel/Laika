@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{BlockParser, BlockParserBuilder}
+import laika.bundle.{BlockParser, BlockParserBuilder, BlockParserBuilderOps}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
@@ -94,7 +94,7 @@ object ListParsers {
 
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
     */
-  val bulletLists: BlockParserBuilder = 
+  val bulletLists: BlockParserBuilderOps = 
     BlockParser.recursive { implicit recParsers =>
       PrefixedParser('+', '*', '-') {
         lookAhead(oneChar) >> { char =>
@@ -106,7 +106,7 @@ object ListParsers {
 
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
     */
-  val enumLists: BlockParserBuilder = 
+  val enumLists: BlockParserBuilderOps = 
     BlockParser.recursive { implicit recParsers =>
       PrefixedParser(CharGroup.digit) {
         list(enumChar, enumStartRest, EnumList(_: List[EnumListItem], EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))

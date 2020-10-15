@@ -306,7 +306,7 @@ abstract class Parser[+T] {
         case Success(result ~ None, rest) =>
           elems += result
           parse(rest)
-        case _: Failure => 
+        case _: Failure =>
           Success((elems.toList, None), input)
       }
 

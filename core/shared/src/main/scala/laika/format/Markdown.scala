@@ -22,6 +22,7 @@ import laika.factory.MarkupFormat
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
 import laika.parse.Parser
+import laika.parse.text.{CharGroup, TextParsers}
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parser` or `Transformer` APIs:
@@ -65,8 +66,10 @@ case object Markdown extends MarkupFormat {
     BlockParsers.fallbackParagraph,
     BlockParsers.literalBlocks,
     BlockParsers.rules,
-    ListParsers.enumLists,
-    ListParsers.bulletLists
+    ListParsers.enumLists.rootOnly,
+    ListParsers.enumLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf(CharGroup.digit)),
+    ListParsers.bulletLists.rootOnly,
+    ListParsers.bulletLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-')),
   )
 
   val spanParsers: Seq[SpanParserBuilder] = Seq(

@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{BlockParser, BlockParserBuilder}
+import laika.bundle.{BlockParser, BlockParserBuilder, BlockPosition}
 import laika.parse.{BlockSource, LineSource, Parser}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
@@ -84,7 +84,7 @@ object BlockParsers {
     * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
     */
   lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
-    headerOrParagraph(None, recParsers)
+    headerOrParagraph(recParsers, BlockPosition.RootOnly)
   }.rootOnly
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
@@ -92,49 +92,38 @@ object BlockParsers {
     * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
     */
   lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
-
-    val listParsers: PrefixedParser[Block] = Seq(ListParsers.bulletLists, ListParsers.enumLists)
-      .map(_.createParser(recParsers).parser.asInstanceOf[PrefixedParser[Block]])
-      .reduceLeft(_ | _)
-
-    /**  Markdown allows nested lists without preceding blank lines,
-      *  therefore will detect list items in the middle of a paragraph,
-      *  whereas a top level paragraph won't do that. 
-      *  One of the questionable Markdown design decisions.
-      */
-    headerOrParagraph(Some(listParsers), recParsers)
+    headerOrParagraph(recParsers, BlockPosition.NestedOnly)
   }.nestedOnly
 
-  private def headerOrParagraph (interruptions: Option[PrefixedParser[Block]], recParsers: RecursiveParsers) : Parser[Block] = {
+  private def headerOrParagraph (recParsers: RecursiveParsers, pos: BlockPosition) : Parser[Block] = {
 
-      val line = not(blankLine) ~> restOfLine.line
-      val lineAndCond = interruptions.fold[Parser[(Seq[LineSource], Option[Block])]](line.rep.map((_, None))) { int =>
-        int.map(res => (Nil, Some(res))) | line.repUntil(int)
-      }
+    lazy val interruptions = recParsers.paragraphInterruptions(pos)
+    val line = not(blankLine) ~> restOfLine.line
+    lazy val lineAndCond = interruptions.map(res => (Nil, Some(res))) | line.repUntil(interruptions)
 
     val decorationOrLines: Parser[Either[String, (Seq[LineSource], Option[Block])]] =
         setextDecoration.map { Left(_) } | lineAndCond.map { Right(_) }
 
-      def decoratedHeaderLevel (decoration: String) = if (decoration.head == '=') 1 else 2
+    def decoratedHeaderLevel (decoration: String) = if (decoration.head == '=') 1 else 2
 
-      /**  Merges the specified list of lines into a single string,
-        *  while looking for lines ending with double spaces which (sadly) stand for a hard line break in Markdown.
-        */
-      def processLineBreaks(line: LineSource): LineSource =
-          /* add a special sequence for hard line breaks so that the
-           * inline parser does not have to stop at each space character */
-          if (line.input.endsWith("  ")) LineSource(line.input.dropRight(2) ++ "\\\r", line.parent)
-          else line
+    /**  Merges the specified list of lines into a single string,
+      *  while looking for lines ending with double spaces which (sadly) stand for a hard line break in Markdown.
+      */
+    def processLineBreaks(line: LineSource): LineSource =
+        /* add a special sequence for hard line breaks so that the
+         * inline parser does not have to stop at each space character */
+        if (line.input.endsWith("  ")) LineSource(line.input.dropRight(2) ++ "\\\r", line.parent)
+        else line
 
-      def paragraph (firstLine: LineSource, restLines: Seq[LineSource]): Paragraph =
-        Paragraph(recParsers.recursiveSpans.parseAndRecover(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
+    def paragraph (firstLine: LineSource, restLines: Seq[LineSource]): Paragraph =
+      Paragraph(recParsers.recursiveSpans.parseAndRecover(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
 
-      (textLine.line ~ decorationOrLines).map {
-        case firstLine ~ Right((restLines, None))       => paragraph(firstLine, restLines)
-        case firstLine ~ Right((restLines, Some(list))) => BlockSequence(paragraph(firstLine, restLines), list)
-        case text ~      Left(decoration)               => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
-      }
+    (textLine.line ~ decorationOrLines).map {
+      case firstLine ~ Right((restLines, None))       => paragraph(firstLine, restLines)
+      case firstLine ~ Right((restLines, Some(list))) => BlockSequence(paragraph(firstLine, restLines), list)
+      case text ~      Left(decoration)               => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
     }
+  }
 
   /** Parses a link definition in the form `[id]: <url> "title"`.
     * The title is optional as well as the quotes around it and the angle brackets around the url.
