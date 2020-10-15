@@ -123,7 +123,7 @@ case class BlockParserBuilderOps (parserFactory: RecursiveParsers => Parser[Bloc
     */
   def nestedOnly: BlockParserBuilderOps = copy(position = BlockPosition.NestedOnly)
 
-  /** Provides a test for the start of each line in plain paragraph that indicates whether the line might
+  /** Provides a test for the start of each line in plain paragraphs that indicates whether the line might
     * be the start of a block identified by this parser.
     * Without providing such a test the type of block produced by this parser can only occur after a blank line.
     */

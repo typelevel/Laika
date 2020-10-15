@@ -17,12 +17,12 @@
 package laika.parse.markup
 
 import laika.ast.{Block, Span}
+import laika.bundle.BlockPosition
 import laika.parse.text.{DelimitedText, PrefixedParser}
 import laika.parse.{BlockSource, Parsed, Parser, SourceFragment}
 
-/** Provides parsers for nested blocks, custom block parser implementations
-  * can use these without knowing the available span types of the host
-  * markup language.
+/** Provides parsers for nested blocks, custom block parser implementations can use these without knowing 
+  * the available span or block types of the host markup language.
   *
   * Includes the support for nested spans and escaped text.
   *
@@ -43,6 +43,17 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     * the result of a previous parser invocation.
     */
   def recursiveBlocks: RecursiveBlockParser
+
+  /** Provides a test for the start of each line in plain paragraphs that indicates whether the line might
+    * be the start of a block that is allowed to interrupt paragraphs.
+    * 
+    * Usually this is only supposed to be used by implementations of a base paragraph parser for a markup language,
+    * not by custom extensions.
+    * 
+    * If the parser returned by this function succeeds the result is the block that interrupts the paragraph,
+    * if it fails normal paragraph parsing should resume.
+    */
+  def paragraphInterruptions (position: BlockPosition = BlockPosition.Any): Parser[Block]
 
 }
 

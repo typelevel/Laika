@@ -51,9 +51,13 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
     createAndSortParsers(markupParser.blockParsers, markupExtensions.blockParsers)
 
-  protected lazy val rootBlock     = merge(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
-  protected lazy val nestedBlock   = merge(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
-  protected lazy val fallbackBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
+  protected lazy val rootBlock: Parser[Block]     = merge(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
+  protected lazy val nestedBlock: Parser[Block]   = merge(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
+  protected lazy val fallbackBlock: Parser[Block] = merge(sortedBlockParsers.filterNot(_.isRecursive))
+
+  private lazy val rootInterruptions: Parser[Block]   = mergeInterruptions(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
+  private lazy val nestedInterruptions: Parser[Block] = mergeInterruptions(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
+  private lazy val allInterruptions: Parser[Block]    = mergeInterruptions(sortedBlockParsers)
 
   protected lazy val spanParsers: Seq[PrefixedParser[Span]] = {
     val escapedText = SpanParser.standalone(escapeSequence.map(Text(_))).withLowPrecedence
@@ -67,6 +71,12 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
     markupParser.createBlockListParser(p).map(markupExtensions.parserHooks.postProcessBlocks)
 
+  def paragraphInterruptions (position: BlockPosition = BlockPosition.Any): Parser[Block] = position match {
+    case BlockPosition.Any => allInterruptions
+    case BlockPosition.RootOnly => rootInterruptions
+    case BlockPosition.NestedOnly => nestedInterruptions
+  }
+
   private def createAndSortParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
                                                               extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
 
@@ -78,30 +88,46 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
     extHigh ++ mainHigh ++ mainLow ++ extLow
   }
 
+  private def mergeInterruptions (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
+    val interruptions = parserDefinitions.flatMap { parserDef =>
+      parserDef.paragraphLineCheck.map { lineCheck =>
+        (lineCheck.startChars.toSortedSet.toList, lookAhead(lineCheck) ~> parserDef.parser)
+      }
+    }
+    mergePrefixed(
+      interruptions.flatMap { case (chars, parser) => chars.map((_, parser))},
+      "No interruptions available"
+    )
+  }
+  
+  private def mergePrefixed (definitions: Seq[(Char, Parser[Block])], msg: String): Parser[Block] = {
+    val groupedPrefixed: Map[Char, Parser[Block]] = definitions
+      .groupBy(_._1)
+      .map {
+        case (char, tuples) => (char, tuples.map(_._2).reduceLeft(_ | _))
+      }
+
+    NonEmptySet
+      .fromSet(TreeSet.empty[Char] ++ groupedPrefixed.keySet)
+      .fold[Parser[Block]](failure(msg)) { set =>
+      val startChars = lookAhead(oneOf(set)).map(_.charAt(0))
+      startChars >> groupedPrefixed
+    }
+  }
+
   private def merge (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
     
     val (prefixed, unprefixed) = parserDefinitions.partition(_.startChars.nonEmpty)
     
-    val groupedPrefixed: Map[Char, Parser[Block]] = prefixed
-      .flatMap { parserDef =>
-        parserDef.startChars.toList.map(c => (c, parserDef))
-      }
-      .groupBy(_._1)
-      .map {
-        case (char, definitions) => (char, definitions.map(_._2.parser).reduceLeft(_ | _))
-      }
-    
+    val prefixedBlock = mergePrefixed(
+      prefixed.flatMap { parserDef => parserDef.startChars.toList.map((_, parserDef.parser))}, 
+      "No decorated block parser available"
+    )
+
     val unprefixedBlock = unprefixed
       .map(_.parser)
       .reduceLeftOption(_ | _)
       .getOrElse(failure("No undecorated block parser available"))
-    
-    val prefixedBlock = NonEmptySet
-      .fromSet(TreeSet.empty[Char] ++ groupedPrefixed.keySet)
-      .fold[Parser[Block]](failure("No decorated block parser available")) { set =>
-        val startChars = lookAhead(oneOf(set)).map(_.charAt(0))
-        startChars >> groupedPrefixed
-      } 
     
     prefixedBlock | unprefixedBlock
   }
