@@ -280,6 +280,39 @@ abstract class Parser[+T] {
     */
   def ? : Parser[Option[T]] = opt(this)
 
+  /** Returns a parser that repeatedly applies this parser until either this parser fails or the specified
+    * end condition is met.
+    * The end condition will be applied after each successful invocation of this parser.
+    *
+    * The result of the returned parser is a tuple consisting of the list containing the
+    * result of the invocations of this parser plus the result of the end condition.
+    * The latter is returned as an `Option` as it might be empty when the parsing finished because of this parser failing.
+    * 
+    * Note that it is more convenient to include the end condition in the repeating parser itself and use
+    * the simpler `rep` method.
+    * This combinator is an alternative if you need to know the result of the end condition.
+    */
+  def repUntil[U] (endCondition: Parser[U]): Parser[(List[T], Option[U])] = Parser { in =>
+    val elems = new ListBuffer[T]
+    
+    val combined = this ~ opt(endCondition)
+
+    @tailrec
+    def parse (input: SourceCursor): Parsed[(List[T], Option[U])] =
+      combined.parse(input) match {
+        case Success(result ~ Some(endCond), rest) =>
+          elems += result
+          Success((elems.toList, Some(endCond)), rest)
+        case Success(result ~ None, rest) =>
+          elems += result
+          parse(rest)
+        case _: Failure => 
+          Success((elems.toList, None), input)
+      }
+
+    parse(in)
+  }
+  
   /** Returns a parser that invokes the specified function repeatedly,
     * passing the result of this parser if it succeeds, to produce new
     * parsers that get applied until one of them fails.

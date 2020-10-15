@@ -83,22 +83,18 @@ object BlockParsers {
     * is not a setext header decoration. 
     * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
     */
-  lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
-    val lineCondition = not(blankLine)
-    val listWithoutBlankline = success(None)
-    headerOrParagraph(lineCondition, listWithoutBlankline)
+  lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
+    headerOrParagraph(None, recParsers)
   }.rootOnly
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
     * is not a setext header decoration. 
     * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
     */
-  lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { implicit recParsers =>
+  lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
 
-    val lineCondition = not(ListParsers.bulletListItemStart | ListParsers.enumListItemStart | blankLine)
-
-    val listParsers = Seq(ListParsers.bulletLists, ListParsers.enumLists)
-      .map(_.createParser(recParsers).parser)
+    val listParsers: PrefixedParser[Block] = Seq(ListParsers.bulletLists, ListParsers.enumLists)
+      .map(_.createParser(recParsers).parser.asInstanceOf[PrefixedParser[Block]])
       .reduceLeft(_ | _)
 
     /**  Markdown allows nested lists without preceding blank lines,
@@ -106,17 +102,18 @@ object BlockParsers {
       *  whereas a top level paragraph won't do that. 
       *  One of the questionable Markdown design decisions.
       */
-    val listWithoutBlankLine = opt(not(blankLine) ~> listParsers)
-    headerOrParagraph(lineCondition, listWithoutBlankLine)
+    headerOrParagraph(Some(listParsers), recParsers)
   }.nestedOnly
 
-  private def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankLine: Parser[Option[Block]])
-                                (implicit recParsers: RecursiveParsers) : Parser[Block] = {
+  private def headerOrParagraph (interruptions: Option[PrefixedParser[Block]], recParsers: RecursiveParsers) : Parser[Block] = {
 
-      val lines = (lineCondition ~> restOfLine.line).rep
+      val line = not(blankLine) ~> restOfLine.line
+      val lineAndCond = interruptions.fold[Parser[(Seq[LineSource], Option[Block])]](line.rep.map((_, None))) { int =>
+        int.map(res => (Nil, Some(res))) | line.repUntil(int)
+      }
 
-      val decorationOrLines: Parser[Either[String, List[LineSource] ~ Option[Block]]] =
-        setextDecoration.map { Left(_) } | (lines ~ listWithoutBlankLine).map { Right(_) }
+    val decorationOrLines: Parser[Either[String, (Seq[LineSource], Option[Block])]] =
+        setextDecoration.map { Left(_) } | lineAndCond.map { Right(_) }
 
       def decoratedHeaderLevel (decoration: String) = if (decoration.head == '=') 1 else 2
 
@@ -129,13 +126,13 @@ object BlockParsers {
           if (line.input.endsWith("  ")) LineSource(line.input.dropRight(2) ++ "\\\r", line.parent)
           else line
 
-      def paragraph (firstLine: LineSource, restLines: List[LineSource]): Paragraph =
+      def paragraph (firstLine: LineSource, restLines: Seq[LineSource]): Paragraph =
         Paragraph(recParsers.recursiveSpans.parseAndRecover(BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks):_*)))
 
       (textLine.line ~ decorationOrLines).map {
-        case firstLine ~ Right(restLines ~ None)       => paragraph(firstLine, restLines)
-        case firstLine ~ Right(restLines ~ Some(list)) => BlockSequence(paragraph(firstLine, restLines), list)
-        case text ~      Left(decoration)              => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
+        case firstLine ~ Right((restLines, None))       => paragraph(firstLine, restLines)
+        case firstLine ~ Right((restLines, Some(list))) => BlockSequence(paragraph(firstLine, restLines), list)
+        case text ~      Left(decoration)               => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
       }
     }
 
