@@ -22,7 +22,15 @@ import laika.config.{ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin}
 import laika.directive.{Blocks, Templates}
 import laika.rewrite.TemplateRewriter
 
-/**
+/** Provides the implementation for the standard include and embed directives.
+  *
+  * This includes the template and markup-block variants of these directives, 
+  * which allow to embed one template or markup document inside another.
+  * 
+  * For full documentation see the section about
+  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#include-and-embed Include and Embed Directives]]
+  * in the manual.
+  * 
   * @author Jens Halm
   */
 object IncludeDirectives {
@@ -61,7 +69,9 @@ object IncludeDirectives {
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
-  
+
+  /** Implementation of the `include` directive for templates.
+    */
   lazy val templateInclude: Templates.Directive = Templates.eval("include") {
 
     import Templates.dsl._
@@ -71,6 +81,8 @@ object IncludeDirectives {
     }
   }
 
+  /** Implementation of the `embed` directive for templates.
+    */
   lazy val templateEmbed: Templates.Directive = Templates.eval("embed") {
 
     import Templates.dsl._
@@ -80,6 +92,8 @@ object IncludeDirectives {
     }
   }
 
+  /** Implementation of the `include` directive for text markup documents.
+    */
   lazy val blockInclude: Blocks.Directive = Blocks.eval("include") {
 
     import Blocks.dsl._
@@ -89,6 +103,8 @@ object IncludeDirectives {
     }
   }
 
+  /** Implementation of the `embed` directive for text markup documents.
+    */
   lazy val blockEmbed: Blocks.Directive = Blocks.eval("embed") {
 
     import Blocks.dsl._

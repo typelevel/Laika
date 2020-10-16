@@ -19,7 +19,8 @@ package laika.api.builder
 import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key}
 import laika.ast._
 import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
-import laika.directive.{DirectiveSupport, StandardDirectives}
+import laika.directive.DirectiveSupport
+import laika.directive.std.StandardDirectives
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers

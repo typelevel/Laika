@@ -25,6 +25,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config._
+import laika.directive.std.StandardDirectives
 import laika.format.Markdown
 import laika.parse.SourceCursor
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections, TargetFormats}
