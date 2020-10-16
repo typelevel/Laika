@@ -26,8 +26,7 @@ import org.scalatest.matchers.should.Matchers
 
 class NavigationDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder 
-  with TreeModel {
+  with ModelBuilder {
 
   trait NavModel {
 
@@ -138,7 +137,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(extLink(1), extLink(2)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(extLink(1), extLink(2)))
   }
 
   it should "produce a manual entry and a generated entry" in new TreeModel with NavModel {
@@ -151,7 +150,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(extLink(1), docList(Root / "sub2" / "doc6", 6, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(extLink(1), docList(Root / "sub2" / "doc6", 6, 1)))
   }
 
   it should "produce an entry generated from the root of the tree" in new TreeModel with NavModel {
@@ -163,7 +162,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(rootList))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(rootList))
   }
 
   it should "produce an entry generated from the root of the tree with documents filtered by target format" in new TreeModel with NavModel {
@@ -187,7 +186,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(filteredRootList))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(filteredRootList))
   }
 
   it should "produce an entry generated from the root of the tree with title documents" in new TreeModel with NavModel {
@@ -201,7 +200,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(rootList))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(rootList))
   }
 
   it should "produce an entry generated from the current tree" in new TreeModel with NavModel {
@@ -213,7 +212,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(treeList(2, 5, 1)))
   }
 
   it should "produce an entry generated from the current tree with a maximum depth" in new TreeModel with NavModel {
@@ -227,7 +226,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(treeList(2, 5, 1)))
   }
 
   it should "produce an entry generated from the current tree with the root excluded" in new TreeModel with NavModel {
@@ -239,7 +238,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 0).content: _*))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(treeList(2, 5, 0).content: _*))
   }
 
   it should "produce an entry generated from the current tree with the self link excluded" in new TreeModel with NavModel {
@@ -252,7 +251,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1, excludeSelf = true)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(treeList(2, 5, 1, excludeSelf = true)))
   }
 
   it should "produce an entry generated from the current tree with sections excluded" in new TreeModel with NavModel {
@@ -266,7 +265,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(treeList(2, 5, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(treeList(2, 5, 1)))
   }
 
   it should "produce an entry generated from the current document" in new TreeModel with NavModel {
@@ -278,7 +277,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub2" / "doc6", 6, 1)))
   }
 
   it should "produce an entry generated from the current document with a custom title" in new TreeModel with NavModel {
@@ -290,7 +289,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub2" / "doc6", 6, 1, title = Some("Custom"))))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub2" / "doc6", 6, 1, title = Some("Custom"))))
   }
 
   it should "produce an entry generated from a document referred to with an absolute path" in new TreeModel with NavModel {
@@ -302,7 +301,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) should be (templateResult(docList(Root / "sub1" / "doc3", 3, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub1" / "doc3", 3, 1)))
   }
 
   it should "fail when referring to a path that does not exist" in new TreeModel with NavModel {
@@ -317,7 +316,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
-    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
+    parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 
   it should "fail with an invalid depth attribute" in new TreeModel with NavModel {
@@ -332,7 +331,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: not an integer: foo"
-    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
+    parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 
   it should "fail with a manual node without title" in new TreeModel with NavModel {
@@ -347,7 +346,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
     val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: Not found: 'title'"
-    parseTemplateAndRewrite(template) should be (error(msg, directive, template))
+    parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 
   "The block nav directive" should "produce two manual entries" in new TreeModel with NavModel {
@@ -364,7 +363,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    parseDocumentAndRewrite(input) should be (blockResult(extLink(1), extLink(2)))
+    parseDocumentAndRewrite(input) shouldBe Right(blockResult(extLink(1), extLink(2)))
   }
 
   "The template breadcrumb directive" should "produce three entries" in new TreeModel with NavModel {
@@ -374,7 +373,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
 
     val input = "aaa @:breadcrumb bbb ${cursor.currentDocument.content}"
 
-    parseTemplateAndRewrite(input) should be (templateResult(
+    parseTemplateAndRewrite(input) shouldBe Right(templateResult(
       rootEntry,
       treeList(2, 0, 1),
       docList(Root / "sub2" / "doc6", 6, 1)
@@ -393,7 +392,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    parseDocumentAndRewrite(input) should be (blockResult(
+    parseDocumentAndRewrite(input) shouldBe Right(blockResult(
       rootEntry,
       treeList(2, 0, 1),
       docList(Root / "sub2" / "doc6", 6, 1)
@@ -413,7 +412,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    parseDocumentAndRewrite(input) should be (blockResult(
+    parseDocumentAndRewrite(input) shouldBe Right(blockResult(
       rootEntry,
       treeList(2, 0, 1),
       docList(Root / "sub2" / "doc6", 6, 1)
@@ -433,7 +432,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    parseDocumentAndRewrite(input) should be (blockResult(docList(Root / "sub1" / "doc3", 3, 1)))
+    parseDocumentAndRewrite(input) shouldBe Right(blockResult(docList(Root / "sub1" / "doc3", 3, 1)))
   }
   
 }

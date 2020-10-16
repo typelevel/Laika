@@ -45,7 +45,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
   
   "The image block directive" should "succeed without any HOCON attributes" in {
     val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), defaultBlockStyle), p("bbb"))
-    parse(blocks("@:image(picture.jpg)")).content should be (result)
+    parse(blocks("@:image(picture.jpg)")).map(_.content) shouldBe Right(result)
   }
 
   it should "support the alt and title attributes" in {
@@ -54,7 +54,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  title = desc
                   |}""".stripMargin
     val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
-    parse(blocks(input)).content should be (result)
+    parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
   it should "support the intrinsicWidth and intrinsicHeight attributes" in {
@@ -63,7 +63,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  intrinsicHeight = 240
                   |}""".stripMargin
     val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
-    parse(blocks(input)).content should be (result)
+    parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
   it should "support the style attribute" in {
@@ -71,12 +71,12 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  style = small-image
                   |}""".stripMargin
     val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), Styles("small-image")), p("bbb"))
-    parse(blocks(input)).content should be (result)
+    parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
   "The image span directive" should "succeed without any HOCON attributes" in {
     val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = defaultSpanStyle), Text(" bbb")))
-    parse("aaa @:image(picture.jpg) bbb").content should be (result)
+    parse("aaa @:image(picture.jpg) bbb").map(_.content) shouldBe Right(result)
   }
 
   it should "support the alt and title attributes" in {
@@ -85,7 +85,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  title = desc
                   |} bbb""".stripMargin
     val result = root(p(Text("aaa "), Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
-    parse(input).content should be (result)
+    parse(input).map(_.content) shouldBe Right(result)
   }
 
   it should "support the intrinsicWidth and intrinsicHeight attributes" in {
@@ -94,7 +94,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  intrinsicHeight = 240
                   |} bbb""".stripMargin
     val result = root(p(Text("aaa "), Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
-    parse(input).content should be (result)
+    parse(input).map(_.content) shouldBe Right(result)
   }
 
   it should "support the style attribute" in {
@@ -102,7 +102,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  style = small-image
                   |} bbb""".stripMargin
     val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = Styles("small-image")), Text(" bbb")))
-    parse(input).content should be (result)
+    parse(input).map(_.content) shouldBe Right(result)
   }
 
 }

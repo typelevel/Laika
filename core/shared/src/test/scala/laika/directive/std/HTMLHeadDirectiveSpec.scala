@@ -42,23 +42,35 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
 
   def parseAndRewrite(template: String, 
                       templatePath: Path = DefaultTemplatePath.forHTML, 
-                      static: Seq[StaticDocument] = staticDocs): RootElement = {
-    val templateDoc = TemplateDocument(templatePath, parseTemplate(template))
-    val inputTree = buildTree(List(templateDoc))
-    val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-    val root = DocumentTreeRoot(tree, staticDocuments = static)
-    val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
-    val finalFormat = if (templateSuffix == "html") "html" else "epub"
-    val res = TemplateRewriter.applyTemplates(root, TemplateContext(templateSuffix, finalFormat)).toOption.get
-    res.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+                      static: Seq[StaticDocument] = staticDocs): Either[String, RootElement] = {
+
+    val ctx = {
+      val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
+      val finalFormat = if (templateSuffix == "html") "html" else "epub"
+      TemplateContext(templateSuffix, finalFormat)
+    }
+    
+    def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
+      val templateDoc = TemplateDocument(templatePath, root)
+      val inputTree = buildTree(List(templateDoc))
+      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
+      val treeRoot = DocumentTreeRoot(tree, staticDocuments = static)
+      TemplateRewriter.applyTemplates(treeRoot, ctx).left.map(_.message)
+    }
+    
+    for {
+      templateRoot <- templateParser.parse(template).toEither
+      treeRoot     <- applyTemplate(templateRoot)
+      docUnderTest <- treeRoot.tree.selectDocument(CurrentTree / "sub2" / "doc6").toRight("document under test missing")
+    } yield docUnderTest.content
   }
 
-  def buildResult (content: String): RootElement = {
-    root(TemplateRoot(
+  def buildResult (content: String): Either[String, RootElement] = {
+    Right(root(TemplateRoot(
       t("aaa\n\n"),
       TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), content)),
       t("\n\nbbb")
-    ))
+    )))
   }
 
   

@@ -16,10 +16,11 @@
 
 package laika.directive.std
 
-import laika.ast.{Document, DocumentCursor, Path, RootElement, TemplateDocument, TemplateRoot}
-import laika.config.ConfigParser
+import laika.ast._
+import laika.config.{Config, ConfigParser}
 import laika.directive.DirectiveSupport
 import laika.parse.SourceCursor
+import laika.parse.combinator.Parsers
 import laika.rewrite.TemplateRewriter
 
 /**
@@ -27,15 +28,30 @@ import laika.rewrite.TemplateRewriter
   */
 trait TemplateParserSetup {
 
-  lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
+  lazy val templateParser = StandardDirectives
+    .processExtension(DirectiveSupport)
+    .parsers
+    .templateParser
+    .getOrElse(Parsers.failure("template parser not defined"))
 
-  def parseTemplate (input: String): TemplateRoot = templateParser.parse(SourceCursor(input)).toOption.get
+  def parseTemplate (input: String): Either[String, TemplateRoot] = templateParser.parse(SourceCursor(input)).toEither
 
-  def parseTemplateWithConfig (input: String, config: String): RootElement = {
-    val tRoot = parseTemplate(input)
-    val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
-    val cursor = DocumentCursor(Document(Path.Root / "docs" / "doc1.md", RootElement.empty, config = ConfigParser.parse(config).resolve().toOption.get))
-    TemplateRewriter.applyTemplate(cursor, template).toOption.get.content
+  def parseTemplateWithConfig (input: String, config: String): Either[String, RootElement] = {
+    
+    def rewriteTemplate (tRoot: TemplateRoot, config: Config): Either[String, RootElement] = {
+      val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
+      val cursor   = DocumentCursor(Document(Path.Root / "docs" / "doc1.md", RootElement.empty, config = config))
+      TemplateRewriter
+        .applyTemplate(cursor, template)
+        .map(_.content)
+        .left.map(_.message)
+    }
+    
+    for {
+      tRoot  <- parseTemplate(input)
+      config <- ConfigParser.parse(config).resolve().left.map(_.message)
+      res    <- rewriteTemplate(tRoot, config)
+    } yield res
   }
   
 }

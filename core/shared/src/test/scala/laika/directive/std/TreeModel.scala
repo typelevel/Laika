@@ -73,19 +73,34 @@ trait TreeModel extends TemplateParserSetup with MarkupParserSetup {
       DocumentTree(Root / "sub2", docs(Root / "sub2",5,6), titleDoc(Root / "sub2"), config = config(Root / "sub2", "Tree 2", Origin.TreeScope))
     ), templates = templates)
   }
-
-  def parseTemplateAndRewrite (template: String): RootElement = {
-    val templateDoc = TemplateDocument(DefaultTemplatePath.forHTML, parseTemplate(template))
-    val inputTree = buildTree(List(templateDoc))
-    val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-    TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), TemplateContext("html")).toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+  
+  private def rewriteTree (inputTree: DocumentTree) = {
+    val rules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree))
+    val tree  = inputTree.rewrite(rules)
+    TemplateRewriter
+      .applyTemplates(DocumentTreeRoot(tree), TemplateContext("html"))
+      .left.map(_.message)
+      .flatMap { res =>
+        res.tree
+          .selectDocument(CurrentTree / "sub2" / "doc6")
+          .map(_.content)
+          .toRight("document under test missing")
+      }
   }
 
-  def parseDocumentAndRewrite (markup: String): RootElement = {
-    val markupDoc = parseUnresolved(markup, Root / "sub2" / "doc6")
-    val inputTree = buildTree(Nil, Some(markupDoc))
-    val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-    TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), TemplateContext("html")).toOption.get.tree.selectDocument(CurrentTree / "sub2" / "doc6").get.content
+  def parseTemplateAndRewrite (template: String): Either[String, RootElement] = {
+    parseTemplate(template).flatMap { tRoot =>
+      val templateDoc = TemplateDocument(DefaultTemplatePath.forHTML, tRoot)
+      rewriteTree(buildTree(List(templateDoc)))
+    }
+  }
+
+  def parseDocumentAndRewrite (markup: String): Either[String, RootElement] = {
+    parseUnresolved(markup, Root / "sub2" / "doc6")
+      .left.map(_.message)
+      .flatMap { markupDoc => 
+        rewriteTree(buildTree(Nil, Some(markupDoc)))
+      }
   }
 
 }
