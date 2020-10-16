@@ -17,21 +17,15 @@
 package laika.markdown.github
 
 import cats.data.NonEmptyChain
-import laika.ast.{Block, CodeBlock, LiteralBlock, Span, Text, ~}
+import laika.ast.{CodeBlock, LiteralBlock, Span, Text}
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.{BlockSource, Failure, Parser, Success}
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse.{BlockSource, Failure, Parser, Success}
 
 /** Parser for fenced code blocks as defined by GitHub Flavored Markdown and CommonMark.
   *
   * For the spec see [[https://github.github.com/gfm/#fenced-code-blocks]].
-  *
-  * This implementation differs from the spec in one aspect: a fenced code block must be preceded by a blank line.
-  * This is due to technical reasons of fenced code blocks being an extension and the default paragraph parser
-  * not knowing about the installed extensions and which of them are allowed to interrupt a paragraph.
-  * Later version might support the exact spec, but that would require changes in how parser extensions
-  * are registered and combined with the native parsers.
   *
   * @author Jens Halm
   */

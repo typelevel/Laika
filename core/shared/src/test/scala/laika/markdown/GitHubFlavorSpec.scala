@@ -226,7 +226,7 @@ class GitHubFlavorSpec extends AnyWordSpec
       Parsing (input) should produce (root(CodeBlock("foo", Seq(Text("code\n  indent\ncode")))))
     }
 
-    "parse a code block inside a list item" in {
+    "parse a code block inside a list item, indented by 4 spaces" in {
       val input =
         """- list item:
           |  
