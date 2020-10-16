@@ -16,12 +16,13 @@
 
 package laika.rst
 
+import cats.data.NonEmptyChain
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
-import laika.parse.{LineSource, Parsed, Parser, SourceCursor, SourceFragment, Success}
+import laika.parse.{BlockSource, LineSource, Parsed, Parser, SourceCursor, SourceFragment, Success}
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import BaseParsers._
 
@@ -54,12 +55,21 @@ object BlockParsers {
   }
     
   /** Parses a single paragraph. Everything between two blank lines that is not
-   *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
-   */
-  lazy val paragraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
-    spanParsers
-      .recursiveSpans(textLine.rep.min(1).mkLines.line)
-      .map(Paragraph(_))
+    * recognized as a special reStructuredText block type will be parsed as a regular paragraph.
+    */
+  lazy val paragraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
+    val interruptions = recParsers.paragraphInterruptions()
+    val lines = textLine.line.repUntil(interruptions)
+    
+    lines.evalMap {
+      case (block, interruption) => 
+        NonEmptyChain.fromSeq(block) match {
+          case None => Left("empty paragraph")
+          case Some(res) =>
+            val par = Paragraph(recParsers.recursiveSpans.parseAndRecover(BlockSource(res)))
+            Right(interruption.fold[Block](par)(BlockSequence(par, _)))
+        } 
+    }
   }
 
   private def stripTrailingNewline (source: SourceFragment): SourceFragment =

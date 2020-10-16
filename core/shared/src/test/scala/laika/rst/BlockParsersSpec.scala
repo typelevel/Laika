@@ -19,10 +19,12 @@ package laika.rst
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.{BlockParser, BundleProvider}
 import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
+import laika.parse.text.TextParsers
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import laika.rst.ext.Directives.DirectivePart
 import laika.rst.ext.TextRoles.RoleDirectivePart
@@ -36,7 +38,15 @@ class BlockParsersSpec extends AnyFlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser(ReStructuredText, OperationConfig(ReStructuredText.extensions).markupExtensions)
+  val interruptions = BundleProvider.forMarkupParser(
+    blockParsers = Seq(
+      BlockParser
+        .standalone(TextParsers.literal("£££").as(PageBreak()))
+        .interruptsParagraphWith(TextParsers.literal("£££"))
+    )
+  )
+  
+  val rootParser = new RootParser(ReStructuredText, OperationConfig(ReStructuredText.extensions :+ interruptions).markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
   
   
@@ -249,5 +259,12 @@ class BlockParsersSpec extends AnyFlatSpec
       LinkDefinition("target2", InternalTarget(path))))
   }
   
+  "The paragraph parser" should "support a parser extension that can interrupt paragraphs" in {
+    val input = """line 1
+                  |£££
+                  |line 2
+                  |line 3""".stripMargin
+    Parsing (input) should produce (root(BlockSequence(p("line 1"), PageBreak()), p("line 2\nline 3")))
+  }
   
 }

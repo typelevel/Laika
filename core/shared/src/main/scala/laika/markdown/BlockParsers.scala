@@ -119,7 +119,8 @@ object BlockParsers {
     (textLine.line ~ decorationOrLines).map {
       case firstLine ~ Right((restLines, None))       => paragraph(firstLine, restLines)
       case firstLine ~ Right((restLines, Some(list))) => BlockSequence(paragraph(firstLine, restLines), list)
-      case text ~      Left(decoration)               => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
+        
+      case text ~ Left(decoration) => Header(decoratedHeaderLevel(decoration), recParsers.recursiveSpans.parseAndRecover(text))
     }
   }
 
