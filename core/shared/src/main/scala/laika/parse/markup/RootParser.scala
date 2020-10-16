@@ -72,9 +72,9 @@ class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions
     markupParser.createBlockListParser(p).map(markupExtensions.parserHooks.postProcessBlocks)
 
   def paragraphInterruptions (position: BlockPosition = BlockPosition.Any): Parser[Block] = position match {
-    case BlockPosition.Any => allInterruptions
-    case BlockPosition.RootOnly => rootInterruptions
-    case BlockPosition.NestedOnly => nestedInterruptions
+    case BlockPosition.Any        => lazily(allInterruptions)
+    case BlockPosition.RootOnly   => lazily(rootInterruptions)
+    case BlockPosition.NestedOnly => lazily(nestedInterruptions)
   }
 
   private def createAndSortParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],

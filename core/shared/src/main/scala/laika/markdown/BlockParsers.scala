@@ -95,9 +95,9 @@ object BlockParsers {
 
   private def headerOrParagraph (recParsers: RecursiveParsers, pos: BlockPosition) : Parser[Block] = {
 
-    lazy val interruptions = recParsers.paragraphInterruptions(pos)
+    val interruptions = recParsers.paragraphInterruptions(pos)
     val line = not(blankLine) ~> restOfLine.line
-    lazy val lineAndCond = interruptions.map(res => (Nil, Some(res))) | line.repUntil(interruptions)
+    val lineAndCond = interruptions.map(res => (Nil, Some(res))) | line.repUntil(interruptions)
 
     val decorationOrLines: Parser[Either[String, (Seq[LineSource], Option[Block])]] =
         setextDecoration.map { Left(_) } | lineAndCond.map { Right(_) }

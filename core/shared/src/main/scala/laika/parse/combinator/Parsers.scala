@@ -130,6 +130,13 @@ trait Parsers {
     }
   }
 
+  /** Constructs a parser lazily, useful when breaking circles in recursive parsing.
+    */
+  def lazily[T] (p: => Parser[T]): Parser[T] = {
+    lazy val p0 = p
+    Parser[T] { in => p0.parse(in) }
+  }
+
   case class ParserException (result: Failure) extends RuntimeException(result.toString)
 
   /** Provides additional methods to `Try` via implicit conversion.
