@@ -28,35 +28,61 @@ import scala.collection.immutable.TreeSet
   *  
   * These include:
   * 
+  * '''Navigation'''
+  * 
   * - `navigationTree`: Generates a navigation tree either automatically from specified root nodes
   *    of the input tree or by specifying entries manually (or a combination of both).
   * - `breadcrumb`: Builds a navigation list from the root node of the input tree to the current document.
-  * - `ref`: Convenience directive that allows to reference a different section of the input tree
-  *   via its headline text. The headline does not have to be unique, as long as the directive can identify
-  *   a section that is closer than the others with the same headline.
   * - `api`: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
   * - `source`: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
+  * 
+  * '''Inclusions'''
+  * 
+  * - `include`: Includes one template or markup document inside another, with the options to pass attributes
+  *   that can be referenced in the included document.
+  * - `embed`: All the features of `include`, but also allows to pass a parsed directive body that can be
+  *   referenced in the included document.
+  * 
+  * '''Applying Styles'''
+  * 
+  * - `style`: Adds one or more style properties to the body element (markup block or span).
+  * 
+  * '''Markup Blocks'''
+  * 
+  * - `image`: Alternative to native markup syntax for including images that supports additional attributes,
+  *   like `intrinsicWidth` and `intrinsicHeight` to avoid layout shift, as well as `alt` and `title`.
+  * - `callout`: A decorated block element that stands out from the surrounding paragraphs; 
+  *   the default Helium theme renders the content with background color and icon.
+  * - `select`: Allows to create alternative versions of the same documentation, 
+  *   for example one with Scala code examples and one with Java.
   * - `fragment`: Marks a block in a markup document as being separate from the main content, 
-  *   so that it can be placed separately in templates.
-  * - `for`: Accesses a value from the context and sets it as the reference context for its
-  *   body elements, executing the body if the referenced value is non-empty and executing
-  *   it multiple times when it is a collection.
-  * - `if`: Accesses a value from the context and processes the body element only when
-  *   it is a value recognized as true.
+  *   so that it can be placed independently in templates, e.g. in headers, footers or sidebars.
   * - `format`: Process the body element only when the output format matches the format
   *   specified in the directive (e.g. `pdf` or `html`).
-  * - `style`: Adds a style property to the body element.
+  * 
+  * '''HTML Templates'''
+  * 
   * - `linkCSS`: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
   * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
-  * - `fragment`: Adds the body as a fragment to the target document, separate from the main
-  *   content, to be rendered in different locations of the output, like headers, footers or sidebars.
   * - `relativePath`: Translates an absolute or relative path from the perspective of a template
   *   to a path relative to the document the template had been applied to
-  * - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
-  *   output, like XSL-FO or PDF.
+  * 
+  * '''Conditionals and Loops'''
+  * 
+  * - `for`: Accesses a value from the context and sets it as the reference context for its body elements, 
+  *   executing the body if the referenced value is non-empty and executing it multiple times when it is a collection.
+  * - `if`: Accesses a value from the context and processes the body element only when it is a value recognized as true.
+  * 
+  * '''PDF Output'''
+  * 
+  * - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based output, 
+  *   like XSL-FO or PDF.
+  * 
+  * '''Comments'''
+  * 
   * - `todo`: simple directive that accepts a string argument that will be ignored by renderers,
   *   overcoming the limitation that Markdown does not have a native comment syntax.
-  *   
+  * 
   * For extensive documentation see 
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html Standard Directives]] in the manual.
   * 

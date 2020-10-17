@@ -28,7 +28,7 @@ import laika.rewrite.TemplateRewriter
   * which allow to embed one template or markup document inside another.
   * 
   * For full documentation see the section about
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#include-and-embed Include and Embed Directives]]
+  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#inclusions Include and Embed Directives]]
   * in the manual.
   * 
   * @author Jens Halm
