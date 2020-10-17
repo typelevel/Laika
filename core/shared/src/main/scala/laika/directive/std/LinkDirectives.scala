@@ -17,9 +17,9 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{DocumentCursor, ExternalTarget, InternalTarget, SpanLink, Target, Text}
+import laika.ast.{DocumentCursor, SpanLink, Target, Text}
 import laika.directive.Links
-import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup}
+import laika.rewrite.link.LinkConfig
 
 /** Provides the implementation for the link directives included in Laika.
   *
@@ -44,7 +44,7 @@ object LinkDirectives {
       .getOpt[LinkConfig]
       .map(_.getOrElse(LinkConfig()))
       .leftMap(_.message)
-
+  
   /** Implementation of the `api` directive that creates links to API documentation based
     * on a specified fully-qualified type name. The type name is the only (required) attribute
     * of the directive.
@@ -59,25 +59,27 @@ object LinkDirectives {
         matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
           Left(s"No base URI defined for '$linkId' and no default URI available.")
         ) { link =>
-          def splitAtLast(in: String, char: Char) = in.split(char).toSeq match {
+          def splitAtLast(in: String, char: Char): (String, Option[String]) = in.split(char).toSeq match {
             case Seq(single)  => (single, None)
             case init :+ last => (init.mkString(char.toString), Some(last))
           }
+          
           val (fqName, method) = splitAtLast(linkId, '#')
           val (packageName, className) = splitAtLast(fqName, '.')
           val isPackage = className.contains("package")
-          val typeText = if (isPackage) packageName else className.getOrElse(fqName)
-          val text = typeText + method.fold("")(m => "." + m.split('(').head)
-          val typePath =
-            if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary
-            else fqName.replace(".", "/") + ".html"
-          val uri = link.baseUri + typePath + method.fold("")("#" + _)
-          val target = Target.parse(uri) match {
-            case et: ExternalTarget => et
-            case it: InternalTarget => it.relativeTo(cursor.path)
+          
+          val linkText = {
+            val typeText = if (isPackage) packageName else className.getOrElse(fqName)
+            typeText + method.fold("")(m => "." + m.split('(').head)
           }
-          val validator = new LinkValidator(cursor, new TargetLookup(cursor.root))
-          validator.validate(SpanLink(Seq(Text(text)), target))
+          
+          val uri = {
+            val typePath =
+              if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary
+              else fqName.replace(".", "/") + ".html"
+            link.baseUri + typePath + method.fold("")("#" + _)
+          }
+          cursor.validate(SpanLink(Seq(Text(linkText)), Target.parse(uri)))
         }
       }
   }
@@ -99,7 +101,7 @@ object LinkDirectives {
           val typePath = linkId.replace(".", "/") + "." + link.suffix
           val uri = link.baseUri + typePath
           val text = linkId.split('.').last
-          Right(SpanLink(Seq(Text(text)), Target.parse(uri)))
+          cursor.validate(SpanLink(Seq(Text(text)), Target.parse(uri)))
         }
       }
   }
