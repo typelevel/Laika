@@ -48,7 +48,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parseWithFragments(input) shouldBe Right((Map("foo" -> Paragraph(List(Text("Fragment Text")),Styles("foo"))),root(p("aa"),p("bb"))))
+    val expectedFragments = Map("foo" -> Paragraph(List(Text("Fragment Text")), Styles("foo")))
+    val expectedRoot      = root(p("aa"), p("bb"))
+    parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
   }
 
   it should "parse a fragment with a two paragraphs" in {
@@ -63,7 +65,9 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parseWithFragments(input) shouldBe Right((Map("foo" -> BlockSequence(List(p("Line 1"), p("Line 2")),Styles("foo"))),root(p("aa"),p("bb"))))
+    val expectedFragments = Map("foo" -> BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo")))
+    val expectedRoot      = root(p("aa"), p("bb"))
+    parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
   }
 
 
@@ -122,7 +126,29 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), Paragraph(List(Text("11\n22")),Styles("foo")), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"), 
+      Paragraph(List(Text("11\n22")), Styles("foo")), 
+      p("bb")
+    ))
+  }
+
+  it should "support assigning multiple styles" in {
+    val input = """aa
+                  |
+                  |@:style(foo,bar,baz)
+                  |
+                  |11
+                  |22
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"), 
+      Paragraph(List(Text("11\n22")), Styles("foo", "bar", "baz")), 
+      p("bb")
+    ))
   }
 
   it should "parse a body with two blocks" in {
@@ -138,7 +164,35 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("foo")), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"), 
+      BlockSequence(List(p("11\n22"),p("33")), Styles("foo")),
+      p("bb")
+    ))
+  }
+
+  it should "parse a single nested span" in {
+    val input = """aa @:style(foo) 11 @:@ bb"""
+    parse(input).map(_.content) shouldBe Right(root(p(
+      Text("aa "), 
+      Text(" 11 ", Styles("foo")), 
+      Text(" bb")
+    )))
+  }
+
+  it should "parse two nested spans" in {
+    val input = """aa @:style(foo) 11 *22* 33 @:@ bb"""
+    parse(input).map(_.content) shouldBe Right(root(
+      p(
+        Text("aa "),
+        SpanSequence(
+          Text(" 11 "),
+          Emphasized("22"),
+          Text(" 33 ")
+        ).withStyles("foo"),
+        Text(" bb")
+      )
+    ))
   }
 
   "The callout directive" should "parse a body with a single block" in {
@@ -152,7 +206,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), BlockSequence("11\n22").withStyles("callout", "info"), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"),
+      BlockSequence("11\n22").withStyles("callout", "info"),
+      p("bb")
+    ))
   }
 
   it should "parse a body with two blocks" in {
@@ -168,17 +226,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("callout", "info")), p("bb")))
-  }
-
-  it should "parse a single nested span" in {
-    val input = """aa @:style(foo) 11 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(root(p(Text("aa "), Text(" 11 ", Styles("foo")), Text(" bb"))))
-  }
-
-  it should "parse two nested spans" in {
-    val input = """aa @:style(foo) 11 *22* 33 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(root(p(Text("aa "), SpanSequence(List(Text(" 11 "),Emphasized("22"),Text(" 33 ")),Styles("foo")), Text(" bb"))))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"),
+      BlockSequence(List(p("11\n22"),p("33")), Styles("callout", "info")),
+      p("bb")
+    ))
   }
 
   "The format directive" should "parse a body with a single paragraph" in {
@@ -192,7 +244,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), TargetFormat(NonEmptySet.one("foo"), p("11\n22")), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"),
+      TargetFormat(NonEmptySet.one("foo"), p("11\n22")), 
+      p("bb")
+    ))
   }
 
   it should "parse a body with two paragraphs" in {
@@ -208,7 +264,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), TargetFormat(NonEmptySet.one("foo"), BlockSequence(p("11\n22"),p("33"))), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"),
+      TargetFormat(NonEmptySet.one("foo"), BlockSequence(
+        p("11\n22"),
+        p("33")
+      )), 
+      p("bb")
+    ))
   }
 
   it should "parse a directive with multiple formats" in {
@@ -222,7 +285,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"), TargetFormat(NonEmptySet.of("foo", "bar", "baz"), p("11\n22")), p("bb")))
+    parse(input).map(_.content) shouldBe Right(root(
+      p("aa"),
+      TargetFormat(NonEmptySet.of("foo", "bar", "baz"), p("11\n22")),
+      p("bb")
+    ))
   }
   
 }

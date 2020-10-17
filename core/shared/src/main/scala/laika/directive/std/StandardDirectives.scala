@@ -117,7 +117,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
     import Blocks.dsl._
     
-    (parsedBody, attribute(0).as[String].map(Styles(_))).mapN(asBlock)
+    (parsedBody, positionalAttributes.as[String].map(Styles(_:_*))).mapN(asBlock)
   }
   
   /** Implementation of the `style` directive for span elements in markup documents.
@@ -125,7 +125,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val spanStyle: Spans.Directive  = Spans.create("style") {
     import Spans.dsl._
 
-    (parsedBody, attribute(0).as[String].map(Styles(_))).mapN(asSpan)
+    (parsedBody, positionalAttributes.as[String].map(Styles(_:_*))).mapN(asSpan)
   }
   
   /** Implementation of the `fragment` directive for block elements in markup documents.
