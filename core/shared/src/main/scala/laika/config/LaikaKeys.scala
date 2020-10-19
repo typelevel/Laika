@@ -54,6 +54,10 @@ object LaikaKeys {
   
   val coverImages: Key = root.child("coverImages")
   
+  val versioned: Key = root.child("versioned")
+  
+  val versions: Key = root.child("versions")
+  
   object titleDocuments {
     val inputName: Key = root.child(Key("titleDocuments","inputName"))
     val outputName: Key = root.child(Key("titleDocuments","outputName"))

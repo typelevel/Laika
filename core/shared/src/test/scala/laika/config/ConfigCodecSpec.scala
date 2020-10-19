@@ -20,6 +20,7 @@ import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
+import laika.rewrite.{Version, Versions}
 import laika.rewrite.link.{ApiLinks, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
 import laika.time.PlatformDateFormat
@@ -257,6 +258,38 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       decode[AutonumberConfig](encoded) shouldBe Right(fullyPopulatedInstance)
     }
 
+  }
+  
+  "The codec for Versions config" should {
+    
+    val testInstance = Versions(
+      Version("0.42.x", "0.42"),
+      Seq(
+        Version("0.41.x", "0.41"),
+        Version("0.40.x", "0.40")
+      )
+    )
+    
+    "decode an instance with all fields populated" in {
+       val input =
+         """{
+          |  laika.versions {
+          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42" }
+          |    otherVersions = [
+          |      { displayValue = "0.41.x", pathSegment = "0.41" }
+          |      { displayValue = "0.40.x", pathSegment = "0.40" }
+          |    ]
+          |  }
+          |}
+         """.stripMargin
+      decode[Versions](input) shouldBe Right(testInstance)
+    }
+
+    "round-trip encode and decode" in {
+      val encoded = ConfigBuilder.empty.withValue(testKey, testInstance).build
+      decode[Versions](encoded) shouldBe Right(testInstance)
+    }
+    
   }
 
 }
