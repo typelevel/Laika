@@ -73,12 +73,6 @@ private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: P
       }
     }
 
-    def findFormatConfig(path: Path): TargetFormats = cursor.root.tree.target.selectSubtree(path.relative) match {
-      case Some(tree) => tree.config.get[TargetFormats].getOrElse(TargetFormats.All)
-      case None if path == Root => TargetFormats.All
-      case _ => findFormatConfig(path.parent)
-    }
-
     def validCondition: String = " unless html is one of the formats and siteBaseUrl is defined"
 
     def invalidRefMsg: String = s"cannot reference document '${resolvedTarget.relativePath.toString}'"
@@ -104,7 +98,11 @@ private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: P
 
     findTargetFormats(resolvedTarget.absolutePath) match {
       case None if excludeFromValidation(resolvedTarget.absolutePath) =>
-        validateFormats(findFormatConfig(resolvedTarget.absolutePath.parent))
+        val formats = cursor.root
+          .treeConfig(resolvedTarget.absolutePath.parent)
+          .get[TargetFormats]
+          .getOrElse(TargetFormats.All)
+        validateFormats(formats)
       case None =>
         InvalidTarget(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}")
       case Some(targetFormats) =>
