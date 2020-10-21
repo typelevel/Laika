@@ -19,6 +19,7 @@ package laika.rewrite.nav
 import laika.ast.Path.Root
 import laika.ast.{AbsoluteInternalTarget, ExternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, RootCursor, Target}
 import laika.config.{Config, LaikaKeys}
+import laika.rewrite.Versions
 
 /** Translates paths of input documents to the corresponding output path. 
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path
@@ -57,28 +58,31 @@ trait PathTranslator {
   * 
   * @author Jens Halm
   */
-case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String, outputFormat: String, targetLookup: Path => Option[TranslatorSpec]) extends PathTranslator {
+case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String, outputFormat: String, refPath: Path, targetLookup: Path => Option[TranslatorSpec]) extends PathTranslator {
 
   private val titleDocInputName = TitleDocumentConfig.inputName(rootConfig)
   private val titleDocOutputName = TitleDocumentConfig.outputName(rootConfig)
   private val siteBaseURL = rootConfig.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
-
-  private def isContentPath (path: Path): Boolean = targetLookup(path).fold(false)(!_.isStatic)
+  private val currentVersion = rootConfig.getOpt[Versions].toOption.flatten.map(_.currentVersion.pathSegment)
   
   def translate (input: Path): Path = {
-    if (isContentPath(input)) {
-      if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
-      else input.withSuffix(outputSuffix)
+    targetLookup(input).fold(input) { spec =>
+      val shifted = if (spec.isVersioned && outputFormat == "html") currentVersion.fold(input) { version =>
+        Root / version / input.relative
+      } else input
+      if (!spec.isStatic) {
+        if (input.basename == titleDocInputName) shifted.withBasename(titleDocOutputName).withSuffix(outputSuffix)
+        else shifted.withSuffix(outputSuffix)
+      }
+      else shifted
     }
-    else input
+    
   }
 
   def translate (input: RelativePath): RelativePath = {
-    if (isContentPath(Root / input.name) && !input.name.isEmpty) {
-      if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
-      else input.withSuffix(outputSuffix)
-    }
-    else input
+    val absolute = RelativeInternalTarget(input).relativeTo(refPath).absolutePath
+    val translated = translate(absolute)
+    translated.relativeTo(translate(refPath))
   }
   
   override def translate (target: Target): Target = (target, siteBaseURL) match {
@@ -89,16 +93,9 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   
 }
 
-object ConfigurablePathTranslator {
-  
-  def apply (cursor: RootCursor, outputSuffix: String, outputFormat: String): ConfigurablePathTranslator =
-    ConfigurablePathTranslator(cursor.config, outputSuffix, outputFormat, new TargetLookup(cursor))
-
-}
-
 private[laika] case class TranslatorSpec(isStatic: Boolean, isVersioned: Boolean)
 
-private[nav] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
+private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
 
   private val lookup: Map[Path, TranslatorSpec] = {
 

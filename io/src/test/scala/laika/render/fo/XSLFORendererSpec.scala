@@ -27,7 +27,7 @@ import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, TargetFormats}
+import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, TargetFormats, TranslatorSpec}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -722,9 +722,8 @@ class XSLFORendererSpec extends AnyFlatSpec
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-    val docCursor = DocumentCursor(Document(Root / "doc", RootElement(elem)))
-    val rootCursor = docCursor.root.copy(target = docCursor.root.target.withConfig(config))
-    val translator = ConfigurablePathTranslator(rootCursor, "fo", "pdf")
+    val lookup: Path => Option[TranslatorSpec] = path => if (path == Root / "doc") Some(TranslatorSpec(false, false)) else None
+    val translator = ConfigurablePathTranslator(config, "fo", "pdf", Root / "doc", lookup)
     defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
   }
 

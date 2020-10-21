@@ -28,7 +28,7 @@ import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TitleDocumentConfig}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TitleDocumentConfig}
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -77,11 +77,12 @@ object RendererRuntime {
     }
     
     def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
-      val pathTranslator = ConfigurablePathTranslator(RootCursor(finalRoot, Some(context.finalFormat)), fileSuffix, context.finalFormat)
+      val lookup = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
       finalRoot.allDocuments
         .filter(_.targetFormats.contains(context.finalFormat))
         .map { document =>
           val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
+          val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, context.finalFormat, document.path, lookup)
           val outputPath = pathTranslator.translate(document.path)
           val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
           OutputRuntime.write(renderResult, output(outputPath)).as {
