@@ -35,7 +35,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder {
 
-  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix, _ => DocumentType.Static())
+  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)
   
   private val defaultRenderer = Renderer.of(XSLFO).build
 
@@ -722,7 +722,9 @@ class XSLFORendererSpec extends AnyFlatSpec
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-    val translator = ConfigurablePathTranslator(config, "fo", "pdf", DocumentTypeMatcher.base)
+    val docCursor = DocumentCursor(Document(Root / "doc", RootElement(elem)))
+    val rootCursor = docCursor.root.copy(target = docCursor.root.target.withConfig(config))
+    val translator = ConfigurablePathTranslator(rootCursor, "fo", "pdf")
     defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
   }
 

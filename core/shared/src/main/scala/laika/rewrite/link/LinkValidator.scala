@@ -152,8 +152,6 @@ case object ValidTarget extends TargetValidation
 case class InvalidTarget (message: String) extends TargetValidation
 case class RecoveredTarget (message: String, recoveredTarget: ResolvedInternalTarget) extends TargetValidation
 
-/** Temporary and incomplete workaround (does not validate target ids/fragments for now), 
-  * until late link insertions get validated as part of the final rewrite step. */
 private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TargetFormats]) {
   
   private lazy val docLookup: Map[Path, DocumentLookup] = cursor.target.allDocuments.map { doc =>

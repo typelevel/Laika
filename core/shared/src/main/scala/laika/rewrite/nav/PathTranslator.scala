@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.ast.Path.Root
-import laika.ast.{AbsoluteInternalTarget, DocumentType, ExternalTarget, InternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, Target}
+import laika.ast.{AbsoluteInternalTarget, ExternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, RootCursor, Target}
 import laika.config.{Config, LaikaKeys}
 
 /** Translates paths of input documents to the corresponding output path. 
@@ -51,23 +51,20 @@ trait PathTranslator {
     case et => et
   }
   
-  protected def documentTypeMatcher: Path => DocumentType
-  
-  protected def isContentPath (path: Path): Boolean =
-    path.suffix.isEmpty || documentTypeMatcher(path) == DocumentType.Markup
-  
 }
 
 /** Translates paths of input documents to the corresponding output path, based on a configuration instance.
   * 
   * @author Jens Halm
   */
-case class ConfigurablePathTranslator (config: Config, outputSuffix: String, outputFormat: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
+case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String, outputFormat: String, targetLookup: Path => Option[TranslatorSpec]) extends PathTranslator {
 
-  private val titleDocInputName = TitleDocumentConfig.inputName(config)
-  private val titleDocOutputName = TitleDocumentConfig.outputName(config)
-  private val siteBaseURL = config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
+  private val titleDocInputName = TitleDocumentConfig.inputName(rootConfig)
+  private val titleDocOutputName = TitleDocumentConfig.outputName(rootConfig)
+  private val siteBaseURL = rootConfig.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
+  private def isContentPath (path: Path): Boolean = targetLookup(path).fold(false)(!_.isStatic)
+  
   def translate (input: Path): Path = {
     if (isContentPath(input)) {
       if (input.basename == titleDocInputName) input.withBasename(titleDocOutputName).withSuffix(outputSuffix)
@@ -92,10 +89,47 @@ case class ConfigurablePathTranslator (config: Config, outputSuffix: String, out
   
 }
 
+object ConfigurablePathTranslator {
+  
+  def apply (cursor: RootCursor, outputSuffix: String, outputFormat: String): ConfigurablePathTranslator =
+    ConfigurablePathTranslator(cursor.config, outputSuffix, outputFormat, new TargetLookup(cursor))
+
+}
+
+private[laika] case class TranslatorSpec(isStatic: Boolean, isVersioned: Boolean)
+
+private[nav] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
+
+  private val lookup: Map[Path, TranslatorSpec] = {
+
+    def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+
+    val treeConfigs = cursor.target.staticDocuments.map(doc => doc.path.parent).toSet[Path].map { path =>
+      (path, cursor.treeConfig(path))
+    }.toMap
+
+    val markupDocs = cursor.target.allDocuments.map { doc =>
+      (doc.path.withoutFragment, TranslatorSpec(isStatic = false, isVersioned = isVersioned(doc.config)))
+    }
+
+    val staticDocs = cursor.target.staticDocuments.map { doc =>
+      (doc.path.withoutFragment, TranslatorSpec(isStatic = true, isVersioned = isVersioned(treeConfigs(doc.path.parent))))
+    }
+
+    (markupDocs ++ staticDocs).toMap
+  }
+
+  def apply (path: Path): Option[TranslatorSpec] = lookup.get(path.withoutFragment)
+
+}
+
+
 /** Basic path translator implementation that only replaces the suffix of the path.
+  * 
+  * Used in scenarios where only a single document gets rendered and there is no use case for
+  * cross references or static or versioned documents.
   */
-case class BasicPathTranslator (outputSuffix: String, documentTypeMatcher: Path => DocumentType) extends PathTranslator {
-  def translate (input: Path): Path = if (isContentPath(Root / input.name)) input.withSuffix(outputSuffix) else input
-  def translate (input: RelativePath): RelativePath = 
-    if (isContentPath(Root / input.name) && !input.name.isEmpty) input.withSuffix(outputSuffix) else input
+case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
+  def translate (input: Path): Path = input.withSuffix(outputSuffix)
+  def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
 }

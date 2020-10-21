@@ -68,7 +68,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
     title = "Downloads",
     description = Some("EPUB & PDF"),
     downloadPath = Root / "documents",
-  )
+  ).site.landingPage()
   
   test("download page included - full HTML") {
     val expected = """<head>

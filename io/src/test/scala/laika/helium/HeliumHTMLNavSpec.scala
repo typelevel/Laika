@@ -116,7 +116,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |</a>
         |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
   test("top navigation - with custom links") {
@@ -127,8 +127,8 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<span class="row"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
-    val helium = Helium.defaults.site
-      .topNavigationBar(
+    val helium = Helium.defaults.site.landingPage()
+      .site.topNavigationBar(
         logo = Some(Logo.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))), 
         links = Seq(
           IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),

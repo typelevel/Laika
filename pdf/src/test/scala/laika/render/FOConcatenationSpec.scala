@@ -39,7 +39,7 @@ class FOConcatenationSpec extends AnyFlatSpec with Matchers with ModelBuilder {
   val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
   
   val result = RenderedTreeRoot[IO](
-    tree = RenderedTree(Root, None, Seq(RenderedDocument(Root / "doc", None, Nil, "content"))),
+    tree = RenderedTree(Root, None, Seq(RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
     styles = TestTheme.foStyles

@@ -136,7 +136,9 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
       val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
       val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-      val translator = ConfigurablePathTranslator(config, "epub.xhtml", "epub", DocumentTypeMatcher.base)
+      val docCursor = DocumentCursor(Document(Root / "doc", RootElement(elem)))
+      val rootCursor = docCursor.root.copy(target = docCursor.root.target.withConfig(config))
+      val translator = ConfigurablePathTranslator(rootCursor, "epub.xhtml", "epub")
       defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty) should be ("""<p>some <a href="http://external/foo.html#ref">link</a> span</p>""")
     }
     

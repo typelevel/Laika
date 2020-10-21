@@ -76,17 +76,19 @@ object RendererRuntime {
       )
     }
     
-    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = finalRoot.allDocuments
-      .filter(_.targetFormats.contains(context.finalFormat))
-      .map { document =>
-        val pathTranslator = ConfigurablePathTranslator(finalRoot.config, fileSuffix, context.finalFormat, op.config.docTypeMatcher)
-        val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
-        val outputPath = pathTranslator.translate(document.path)
-        val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
-        OutputRuntime.write(renderResult, output(outputPath)).as {
-          Right(RenderedDocument(outputPath, document.title, document.sections, renderResult)): RenderResult
+    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
+      val pathTranslator = ConfigurablePathTranslator(RootCursor(finalRoot, Some(context.finalFormat)), fileSuffix, context.finalFormat)
+      finalRoot.allDocuments
+        .filter(_.targetFormats.contains(context.finalFormat))
+        .map { document =>
+          val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
+          val outputPath = pathTranslator.translate(document.path)
+          val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
+          OutputRuntime.write(renderResult, output(outputPath)).as {
+            Right(RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)): RenderResult
+          }
         }
-      }
+    }
     
     def copyDocuments (docs: Seq[BinaryInput[F]], dir: File): Seq[F[RenderResult]] = docs.flatMap { doc =>
       val outFile = file(dir, doc.path)

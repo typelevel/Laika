@@ -62,7 +62,7 @@ abstract class Renderer (val config: OperationConfig) {
       case (f, e) => format.defaultRenderer(f, e)
     })
 
-  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix, config.docTypeMatcher)
+  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
 
   /** Renders the specified document as a String.
     */

@@ -108,7 +108,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |</main>
                      |</div>
                      |</body>""".stripMargin
-    val helium = Helium.defaults.site.tableOfContent("Contents", 2)
+    val helium = Helium.defaults.site.landingPage().site.tableOfContent("Contents", 2)
     transformAndExtract(twoDocs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
