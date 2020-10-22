@@ -63,17 +63,17 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], rootTree: DocumentTree): Seq[BinaryInput[F]] = {
+    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], rootTree: DocumentTreeRoot): Seq[BinaryInput[F]] = {
 
-      def findFormatConfig (path: Path): TargetFormats = rootTree.selectSubtree(path.relative) match {
-        case Some(subTree) => subTree.config.get[TargetFormats].getOrElse(TargetFormats.All)
-        case None if path == Root => TargetFormats.All
-        case _ => findFormatConfig(path.parent)
-      }
+      val cursor = RootCursor(rootTree)
       
-      staticDocs.filter(doc => 
-        doc.formats.contains(context.finalFormat) && findFormatConfig(doc.path.parent).contains(context.finalFormat)
-      )
+      staticDocs.filter { doc =>
+        doc.formats.contains(context.finalFormat) && 
+          cursor.treeConfig(doc.path.parent)
+            .get[TargetFormats]
+            .getOrElse(TargetFormats.All)
+            .contains(context.finalFormat)
+      }
     }
     
     def renderDocuments(finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, lookup: Path => Option[TranslatorSpec])(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
@@ -168,7 +168,7 @@ object RendererRuntime {
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       lookup    = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
       vInfo     = generateVersionInfo(lookup, finalRoot.config)
-      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root.tree) ++ vInfo.toSeq
+      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root) ++ vInfo.toSeq
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, lookup, static)
       _         <- ops.mkDirOps.toVector.sequence
