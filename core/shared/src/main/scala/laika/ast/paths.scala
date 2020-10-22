@@ -187,8 +187,7 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
     }
     val thisSegments = segments.toList.dropRight(1) :+ (segments.last + thisSuffix.fold("")("." + _))
     val combinedSegments = thisSegments.dropRight(path.parentLevels) ++ otherSegments
-    if (combinedSegments.isEmpty) Root
-    else SegmentedPath(NonEmptyChain.fromChainAppend(Chain.fromSeq(combinedSegments.init), combinedSegments.last), otherSuffix, otherFragment)
+    NonEmptyChain.fromSeq(combinedSegments).fold[Path](Root)(SegmentedPath(_, otherSuffix, otherFragment))
   }
   
   def relativeTo (path: Path): RelativePath = {
