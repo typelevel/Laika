@@ -180,12 +180,13 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
   lazy val parent: Path = NonEmptyChain.fromChain(segments.init).fold[Path](Root)(SegmentedPath(_))
 
   def / (path: RelativePath): Path = {
-    val (otherSegments, otherSuffix, otherFragment) = path match {
-      case SegmentedRelativePath(s, suf, frag, _) => (s.toList, suf, frag)
-      case CurrentDocument(frag) => (Nil, suffix, frag)
-      case _ => (Nil, None, None)
+    val (otherSegments, otherSuffix, otherFragment, thisSuffix) = path match {
+      case SegmentedRelativePath(s, suf, frag, _) => (s.toList, suf, frag, suffix)
+      case CurrentDocument(frag) => (Nil, suffix, frag, None)
+      case _ => (Nil, None, None, None)
     }
-    val combinedSegments = segments.toList.dropRight(path.parentLevels) ++ otherSegments
+    val thisSegments = segments.toList.dropRight(1) :+ (segments.last + thisSuffix.fold("")("." + _))
+    val combinedSegments = thisSegments.dropRight(path.parentLevels) ++ otherSegments
     if (combinedSegments.isEmpty) Root
     else SegmentedPath(NonEmptyChain.fromChainAppend(Chain.fromSeq(combinedSegments.init), combinedSegments.last), otherSuffix, otherFragment)
   }
