@@ -55,6 +55,10 @@ object BinaryInput {
     */
   def apply[F[_]: Sync] (file: File, path: Path, formats: TargetFormats): BinaryInput[F] = 
     BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), formats, autoClose = true, Some(file))
+  
+  def fromString[F[_]: Sync] (input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] =
+    BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet)), targetFormats)
+  
 }
 
 /** Character input for the various parsers of this library.
