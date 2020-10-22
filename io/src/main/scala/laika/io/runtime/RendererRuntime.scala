@@ -23,13 +23,13 @@ import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{ConfigError, ConfigException}
+import laika.config.{Config, ConfigError, ConfigException}
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TitleDocumentConfig}
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TitleDocumentConfig, TranslatorSpec}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter, Versions}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -76,8 +76,7 @@ object RendererRuntime {
       )
     }
     
-    def renderDocuments (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
-      val lookup = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
+    def renderDocuments(finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, lookup: Path => Option[TranslatorSpec])(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
       finalRoot.allDocuments
         .filter(_.targetFormats.contains(context.finalFormat))
         .map { document =>
@@ -100,10 +99,10 @@ object RendererRuntime {
       }
     }
     
-    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
-      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles)(p => TextOutput.forString(p)))
+    def renderOps (finalRoot: DocumentTreeRoot, styles: StyleDeclarationSet, lookup: Path => Option[TranslatorSpec], staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
+      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles, lookup)(p => TextOutput.forString(p)))
       case DirectoryOutput(dir, codec) => 
-        val renderOps = renderDocuments(finalRoot, styles)(p => TextOutput.forFile(p, file(dir, p), codec))
+        val renderOps = renderDocuments(finalRoot, styles, lookup)(p => TextOutput.forFile(p, file(dir, p), codec))
         val copyOps = copyDocuments(staticDocs, dir)
         val directories = (finalRoot.allDocuments.map(_.path.parent) ++ staticDocs.map(_.path.parent)).distinct
           .map(p => OutputRuntime.createDirectory(file(dir, p)))
@@ -147,6 +146,16 @@ object RendererRuntime {
       case StyleResult (doc, format, _) if format == op.renderer.format.fileSuffix => doc
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
     
+    def generateVersionInfo (lookup: TargetLookup, config: Config): Option[BinaryInput[F]] = {
+      val versionConfig = config.getOpt[Versions].toOption.flatten
+      (versionConfig, context.finalFormat) match {
+        case (Some(versions), "html") =>
+          Some(BinaryInput.fromString[F](VersionInfoGenerator.generate(versions, lookup), Root / "laika" / "versionInfo.js", TargetFormats.Selected("html")))
+        case _ =>
+          None
+      }
+    }
+    
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
     val tree = ParsedTree(op.input, staticDocs)
@@ -157,9 +166,11 @@ object RendererRuntime {
                        .leftMap(e => RendererErrors(Seq(ConfigException(e))))
                        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root.tree)
+      lookup    = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
+      vInfo     = generateVersionInfo(lookup, finalRoot.config)
+      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root.tree) ++ vInfo.toSeq
       _         <- validatePaths(static)
-      ops       =  renderOps(finalRoot, styles, static)
+      ops       =  renderOps(finalRoot, styles, lookup, static)
       _         <- ops.mkDirOps.toVector.sequence
       res       <- processBatch(finalRoot, ops.renderOps, static)
     } yield res
