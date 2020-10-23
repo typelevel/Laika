@@ -116,6 +116,10 @@ private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[T
     (markupDocs ++ staticDocs).toMap
   }
 
+  val versionedDocuments: Seq[Path] = lookup.collect {
+    case (path, TranslatorSpec(false, true)) => path
+  }.toSeq
+
   def apply (path: Path): Option[TranslatorSpec] = lookup.get(path.withoutFragment)
 
 }

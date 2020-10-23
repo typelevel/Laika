@@ -40,7 +40,11 @@ object Version {
   
 }
 
-case class Versions (currentVersion: Version, otherVersions: Seq[Version])
+case class Versions (currentVersion: Version, otherVersions: Seq[Version]) {
+  
+  def allVersions: Seq[Version] = currentVersion +: otherVersions
+  
+}
 
 object Versions {
   
