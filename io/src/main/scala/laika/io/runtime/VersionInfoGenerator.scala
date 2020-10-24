@@ -16,9 +16,8 @@
 
 package laika.io.runtime
 
-import laika.ast.Path
+import laika.io.runtime.VersionedLinkTargets.VersionedDocument
 import laika.rewrite.Versions
-import laika.rewrite.nav.TargetLookup
 
 private[runtime] object VersionInfoGenerator {
   
@@ -30,19 +29,19 @@ private[runtime] object VersionInfoGenerator {
       |  "linkTargets": [
       |    $LINK_TARGETS
       |  ]
-      |}
-    """.stripMargin
+      |}""".stripMargin
   
   private def generateVersions (versions: Versions): String = versions.allVersions.map { version =>
     s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${version.pathSegment}" }"""
   }.mkString("\n").trim
   
-  private def generateLinkTargets (version: String, paths: Seq[Path]): String = paths.sortBy(_.toString).map { path =>
-    s"""    { "path": "${path.toString}", "versions": ["$version"] }"""
-  }.mkString("\n").trim
+  private def generateLinkTargets (linkTargets: Seq[VersionedDocument]): String = 
+    linkTargets.sortBy(_.path.toString).map { doc =>
+      s"""    { "path": "${doc.path.toString}", "versions": ["${doc.versions.sorted.mkString(",")}"] }"""
+    }.mkString("\n").trim
 
-  def generate (versions: Versions, lookup: TargetLookup): String = template
+  def generate (versions: Versions, linkTargets: Seq[VersionedDocument]): String = template
     .replace("$VERSIONS", generateVersions(versions))
-    .replace("$LINK_TARGETS", generateLinkTargets(versions.currentVersion.pathSegment, lookup.versionedDocuments))
+    .replace("$LINK_TARGETS", generateLinkTargets(linkTargets))
   
 }

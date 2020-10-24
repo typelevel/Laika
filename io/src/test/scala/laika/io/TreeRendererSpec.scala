@@ -18,6 +18,7 @@ package laika.io
 
 import java.io.File
 
+import cats.syntax.all._
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.{IO, Resource, Sync}
 import laika.api.Renderer
@@ -39,7 +40,7 @@ import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
-import laika.rewrite.DefaultTemplatePath
+import laika.rewrite.{DefaultTemplatePath, Version, Versions}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.TargetFormats
 
@@ -63,7 +64,7 @@ class TreeRendererSpec extends IOWordSpec
       .withValue(LaikaKeys.targetFormats, formats)
       .build
     
-    def markupDoc (num: Int, path: Path = Root, format: Option[String] = None) = 
+    def markupDoc (num: Int, path: Path = Root, format: Option[String] = None): Document = 
       Document(path / ("doc"+num), root(p("Doc"+num)), config = config(format.map(Seq(_))))
     
     def staticDoc (num: Int, path: Path = Root, formats: Option[String] = None) = 
@@ -646,6 +647,98 @@ class TreeRendererSpec extends IOWordSpec
         } yield res
         
         res.assertEquals(expectedFileContents)  
+      }
+    }
+
+    "render to a directory with existing versioned renderer output" in {
+      new FileSystemTest {
+        val renderer = Renderer.of(AST)
+          .io(blocker)
+          .parallel[IO]
+          .build
+
+        val htmlRenderer = Renderer.of(HTML)
+          .io(blocker)
+          .parallel[IO]
+          .build
+
+        val versions = Versions(Version("0.4.x", "0.4"), Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1")))
+        val rootConfig = ConfigBuilder.empty.withValue(versions).build
+        val versionedConfig = ConfigBuilder.withFallback(rootConfig).withValue(LaikaKeys.versioned, true).build
+        val versionedDocConfig = ConfigBuilder.withFallback(versionedConfig).build
+        
+        val versionedInput = DocumentTreeRoot(DocumentTree(Root, List(
+          markupDoc(1),
+          markupDoc(2),
+          DocumentTree(Root / "dir1", List(
+            markupDoc(3, Root / "dir1").copy(config = versionedDocConfig),
+            markupDoc(4, Root / "dir1").copy(config = versionedDocConfig)
+          )),
+          DocumentTree(Root / "dir2", List(
+            markupDoc(5, Root / "dir2").copy(config = versionedDocConfig),
+            markupDoc(6, Root / "dir2").copy(config = versionedDocConfig)
+          ))
+        ), config = rootConfig))
+        
+        def mkDirs (dir: File): IO[Unit] = IO {
+          new File(dir, "0.1/dir1").mkdirs()
+          new File(dir, "0.1/dir2").mkdirs()
+          new File(dir, "0.2/dir1").mkdirs()
+          new File(dir, "0.2/dir2").mkdirs()
+          new File(dir, "0.3/dir1").mkdirs()
+          new File(dir, "0.3/dir2").mkdirs()
+        }
+
+        val paths = versionedInput.tree.allDocuments.map(_.path.withSuffix("html").toString)
+        val versionedPaths = paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
+        def writeExistingVersionedFiles (dir: File): IO[Unit] = versionedPaths.toList.map { path =>
+          val file = new File(dir, path)
+          writeFile(file, "<html></html>")
+        }.sequence.void
+
+        val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Doc$num</p>").toList
+        
+        val expectedVersionInfo = 
+          """{
+            |  "versions": [
+            |    { "displayValue": "0.4.x", "pathSegment": "0.4" }
+            |    { "displayValue": "0.3.x", "pathSegment": "0.3" }
+            |    { "displayValue": "0.2.x", "pathSegment": "0.2" }
+            |    { "displayValue": "0.1.x", "pathSegment": "0.1" }
+            |  ],
+            |  "linkTargets": [
+            |    { "path": "/dir1/doc3.html", "versions": ["0.1,0.2,0.3,0.4"] }
+            |    { "path": "/dir1/doc4.html", "versions": ["0.1,0.2,0.3,0.4"] }
+            |    { "path": "/dir2/doc5.html", "versions": ["0.1,0.2,0.3,0.4"] }
+            |    { "path": "/dir2/doc6.html", "versions": ["0.1,0.2,0.4"] }
+            |    { "path": "/doc1.html", "versions": ["0.1,0.3"] }
+            |    { "path": "/doc2.html", "versions": ["0.1,0.2,0.3"] }
+            |  ]
+            |}""".stripMargin
+
+        def readVersionedFiles (base: String): IO[List[String]] = {
+          List(
+            readFile(base+"/doc1.html"),
+            readFile(base+"/doc2.html"),
+            readFile(base+"/0.4/dir1/doc3.html"),
+            readFile(base+"/0.4/dir1/doc4.html"),
+            readFile(base+"/0.4/dir2/doc5.html"),
+            readFile(base+"/0.4/dir2/doc6.html")
+          ).sequence
+        }
+        
+        def readVersionInfo (base: String): IO[String] = readFile(base+"/laika/versionInfo.json")
+        
+        val res = for {
+          f   <- newTempDirectory
+          _   <- mkDirs(f)
+          _   <- writeExistingVersionedFiles(f)
+          _   <- htmlRenderer.use(_.from(versionedInput).toDirectory(f).render)
+          res <- readVersionedFiles(f.getPath)
+          vi  <- readVersionInfo(f.getPath)
+        } yield (res, vi)
+
+        res.assertEquals((expectedFileContents, expectedVersionInfo))
       }
     }
   
