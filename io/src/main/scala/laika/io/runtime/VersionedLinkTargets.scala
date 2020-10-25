@@ -28,7 +28,7 @@ import laika.rewrite.Versions
 private[runtime] object VersionedLinkTargets {
 
   def scanExistingVersions[F[_]: Sync] (versions: Versions, output: DirectoryOutput): F[Map[String, Seq[Path]]] = {
-    val existingVersions = versions.otherVersions.map(_.pathSegment).toSet
+    val existingVersions = (versions.newerVersions ++ versions.olderVersions).map(_.pathSegment).toSet
     val docTypeMather: Path => DocumentType = {
       case SegmentedPath(segments, _, _) =>
         if (existingVersions.contains(segments.head) && segments.size > 1) Static() else Ignored

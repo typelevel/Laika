@@ -18,16 +18,17 @@ package laika.rewrite
 
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
-case class Version (displayValue: String, pathSegment: String)
+case class Version (displayValue: String, pathSegment: String, defaultLinkTarget: String = "index.html")
 
 object Version {
 
   implicit val decoder: ConfigDecoder[Version] = ConfigDecoder.config.flatMap { config =>
     for {
-      displayName  <- config.get[String]("displayValue")
-      pathSegment  <- config.get[String]("pathSegment")
+      displayName        <- config.get[String]("displayValue")
+      pathSegment        <- config.get[String]("pathSegment")
+      defaultLinkTarget  <- config.get[String]("defaultLinkTarget", "index.html")
     } yield {
-      Version(displayName, pathSegment)
+      Version(displayName, pathSegment, defaultLinkTarget)
     }
   }
 
@@ -35,14 +36,15 @@ object Version {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("displayValue", version.displayValue)
       .withValue("pathSegment", version.pathSegment)
+      .withValue("defaultLinkTarget", version.defaultLinkTarget)
       .build
   }
   
 }
 
-case class Versions (currentVersion: Version, otherVersions: Seq[Version]) {
+case class Versions (currentVersion: Version, olderVersions: Seq[Version], newerVersions: Seq[Version] = Nil) {
   
-  def allVersions: Seq[Version] = currentVersion +: otherVersions
+  def allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
   
 }
 
@@ -53,16 +55,18 @@ object Versions {
   implicit val decoder: ConfigDecoder[Versions] = ConfigDecoder.config.flatMap { config =>
     for {
       currentVersion <- config.get[Version]("currentVersion")
-      otherVersions  <- config.get[Seq[Version]]("otherVersions")
+      olderVersions  <- config.get[Seq[Version]]("olderVersions")
+      newerVersions  <- config.get[Seq[Version]]("newerVersions")
     } yield {
-      Versions(currentVersion, otherVersions)
+      Versions(currentVersion, olderVersions, newerVersions)
     }
   }
 
   implicit val encoder: ConfigEncoder[Versions] = ConfigEncoder[Versions] { versions =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("currentVersion", versions.currentVersion)
-      .withValue("otherVersions", versions.otherVersions)
+      .withValue("olderVersions", versions.olderVersions)
+      .withValue("newerVersions", versions.newerVersions)
       .build
   }
   

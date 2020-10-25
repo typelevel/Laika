@@ -662,7 +662,11 @@ class TreeRendererSpec extends IOWordSpec
           .parallel[IO]
           .build
 
-        val versions = Versions(Version("0.4.x", "0.4"), Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1")))
+        val versions = Versions(
+          Version("0.4.x", "0.4"), 
+          Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")), 
+          Seq(Version("0.5.x", "0.5"))
+        )
         val rootConfig = ConfigBuilder.empty.withValue(versions).build
         val versionedConfig = ConfigBuilder.withFallback(rootConfig).withValue(LaikaKeys.versioned, true).build
         val versionedDocConfig = ConfigBuilder.withFallback(versionedConfig).build
@@ -701,10 +705,11 @@ class TreeRendererSpec extends IOWordSpec
         val expectedVersionInfo = 
           """{
             |  "versions": [
-            |    { "displayValue": "0.4.x", "pathSegment": "0.4" }
-            |    { "displayValue": "0.3.x", "pathSegment": "0.3" }
-            |    { "displayValue": "0.2.x", "pathSegment": "0.2" }
-            |    { "displayValue": "0.1.x", "pathSegment": "0.1" }
+            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "defaultLinkTarget": "index.html" }
+            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "defaultLinkTarget": "index.html" }
+            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "defaultLinkTarget": "index.html" }
+            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "defaultLinkTarget": "index.html" }
+            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "defaultLinkTarget": "toc.html" }
             |  ],
             |  "linkTargets": [
             |    { "path": "/dir1/doc3.html", "versions": ["0.1,0.2,0.3,0.4"] }

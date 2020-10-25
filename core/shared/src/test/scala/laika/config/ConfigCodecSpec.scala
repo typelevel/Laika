@@ -266,7 +266,10 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       Version("0.42.x", "0.42"),
       Seq(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40")
+        Version("0.40.x", "0.40", "toc.html")
+      ),
+      Seq(
+        Version("0.43.x", "0.43")
       )
     )
     
@@ -274,10 +277,13 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
        val input =
          """{
           |  laika.versions {
-          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42" }
-          |    otherVersions = [
-          |      { displayValue = "0.41.x", pathSegment = "0.41" }
-          |      { displayValue = "0.40.x", pathSegment = "0.40" }
+          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", defaultLinkTarget = "index.html" }
+          |    olderVersions = [
+          |      { displayValue = "0.41.x", pathSegment = "0.41", defaultLinkTarget = "index.html" }
+          |      { displayValue = "0.40.x", pathSegment = "0.40", defaultLinkTarget = "toc.html" }
+          |    ]
+          |    newerVersions = [
+          |      { displayValue = "0.43.x", pathSegment = "0.43", defaultLinkTarget = "index.html" }
           |    ]
           |  }
           |}
