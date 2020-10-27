@@ -20,8 +20,9 @@ import java.time.Instant
 import java.util.Date
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, Path, Length}
+import laika.ast.{DocumentMetadata, Length, Path}
 import laika.helium.Helium
+import laika.rewrite.Versions
 import laika.rewrite.nav.CoverImage
 import laika.theme.config.{BookConfig, Color, FontDefinition}
 
@@ -41,6 +42,7 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          landingPage: Option[LandingPage],
                                          layout: WebLayout,
                                          metadata: DocumentMetadata,
+                                         versions: Option[Versions] = None,
                                          baseURL: Option[String] = None) extends CommonSettings
 
 private[helium] case class PDFSettings (bookConfig: BookConfig,
@@ -441,6 +443,19 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
     copyWith(helium.siteSettings.copy(landingPage = Some(page)))
   }
+
+  /** Adds a version dropdown to the top navigation bar.
+    * 
+    * The specified configuration allows to define the current version as well as any older or newer versions.
+    * For each version the `pathSegment` property holds the value that should use as part of URLs 
+    * (e.g. `/0.18/...`) whereas the `displayValue` property holds the text that should be shown in the dropdown menu.
+    * 
+    * If the output destination of the render operation contains existing, older versions in sub-folders,
+    * those will be scanned to produce additional version information in the JSON loaded by the site.
+    * This will be used for "smart linking" where the drop-down will link to the same page of a different version
+    * if it exists.
+    */
+  def versions (versions: Versions): Helium = copyWith(helium.siteSettings.copy(versions = Some(versions)))
 
   /** Specifies the base URL where the rendered site will be hosted.
     * This configuration option allows to turn internal links into external ones for documents which will be
