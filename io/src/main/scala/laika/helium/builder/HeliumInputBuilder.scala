@@ -60,12 +60,16 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
       .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts")
+    
+    val versionedInputs = 
+      if (helium.siteSettings.versions.isEmpty) themeInputs
+      else themeInputs.addClasspathResource("laika/helium/js/versions.js", heliumPath / "laika-versions.js")
   
     val siteVars = MergedCSSGenerator.mergeSiteCSS(CSSVarGenerator.generate(helium.siteSettings))
     val epubVars = MergedCSSGenerator.mergeEPUBCSS(CSSVarGenerator.generate(helium.epubSettings))
     
     (siteVars, epubVars).mapN { (siteCSS, epubCSS) =>
-      themeInputs
+      versionedInputs
         .addString(siteCSS, heliumPath / "laika-helium.css")
         .addString(epubCSS, heliumPath / "laika-helium.epub.css")
     }
