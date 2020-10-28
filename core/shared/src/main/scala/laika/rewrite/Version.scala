@@ -18,6 +18,13 @@ package laika.rewrite
 
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
+/** Configuration for a single version of the documentation.
+  * 
+  * @param displayValue the description of the version to use in any UI (e.g. version dropdowns)
+  * @param pathSegment the string to use as a path segments in URLs pointing to this version
+  * @param defaultLinkTarget the link target to use when switching to this version from a page that does not exist in this version
+  * @param label an optional label that will be used in the UI (e.g. `Dev` or `Stable`) 
+  */
 case class Version (displayValue: String, pathSegment: String, defaultLinkTarget: String = "index.html", label: Option[String] = None)
 
 object Version {
@@ -44,6 +51,14 @@ object Version {
   
 }
 
+/** Global configuration for versioned documentation. 
+  * 
+  * The order in the `Seq` properties will be used for any list views in the UI (e.g. for the version chooser dropdown).
+  * 
+  * @param currentVersion the version that the sources of a transformation produce
+  * @param olderVersions list of older versions that have previously been rendered (may be empty)
+  * @param newerVersions list of newer versions that have previously been rendered (may be empty)
+  */
 case class Versions (currentVersion: Version, olderVersions: Seq[Version], newerVersions: Seq[Version] = Nil) {
   
   def allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
