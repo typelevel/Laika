@@ -281,6 +281,72 @@ laika.validateLinks = false
 ```
 
 
+Versioned Documentation
+-----------------------
+
+Laika supports versioned documentation, where the current inputs are interpreted as belonging to one version only.
+The Helium theme contains a version switcher in the top navigation bar.
+
+Each directory and each individual document can be marked as either versioned or unversioned.
+All versioned document will be rendered to a sub-directory of the root that contains only content for this
+specific version.
+
+Therefore, configuration for versioned documentation involves two steps:
+
+**1) Configure all existing versions**
+
+This is a global configuration artifact that you can define with the Helium configuration API:
+
+```scala
+val versions = Versions(
+  currentVersion = Version("0.42.x", "0.42"),
+  olderVersions = Seq(
+    Version("0.41.x", "0.41"),
+    Version("0.40.x", "0.40", fallbackLink = "toc.html")
+  ),
+  newerVersions = Seq(
+    Version("0.43.x", "0.43", label = Some("dev"))
+  )
+)
+Helium.defaults.site.versions(versions)
+```
+
+The two required properties of the `Version` class are `displayValue` which is the version name to be used in
+UI elements and `pathSegment` which is the string to be used as part of URLs pointing to this version.
+
+Two optional properties are `label` which can be used to associate categories like `EOL`, `Stable` or `Dev` with
+each version.
+Those three values come with default styles in the Helium CSS, but you can define additional labels if you manually
+include the CSS for those.
+
+Finally, `fallbackLink` allows to define a link target that the version switcher should pick, if a target version
+does not have a page corresponding to the current page the user is on.
+
+Note that this kind of "smart linking" currently only works if existing rendered versions can be found in the 
+output directory of the transformer operation.
+In all other cases, the version switcher will always use the `fallbackLink`.
+
+
+**2) Configure which directories and documents are versioned**
+
+This step is necessary as each documentation site may contain any number of documents with content that is independent
+of the version of the project, e.g. a landing page, a blog/news section, a contributor guide, a COC, etc.
+
+The most common scenario will be that most documents are versioned while only a few are not.
+You can benefit from Laika's support for hierarchical configuration for this purpose, where a value can be set
+for an entire directory, including sub-directories, unless overridden in a directory or document.
+
+So most likely you would put a `directory.conf` into the root directory that switches versioning on:
+
+```hocon
+laika.versioned = true
+```
+
+And then exclude individual directories or documents by overriding this value with `false`.
+When overriding for an individual document, you can do this with the standard HOCON headers (frontmatter),
+enclosed between `{%` and `%}`.
+
+
 Virtual Tree Abstraction
 ------------------------
 

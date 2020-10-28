@@ -67,6 +67,9 @@ Content Organization
   
 * Freely organize and merge content from multiple input directories or generated in-memory 
   with the library's [Virtual Tree Abstraction].
+  
+* Produce [Versioned Documentation] based on simple configuration steps and an integrated version switcher
+  dropdown in the default Helium theme.
 
 
 Library API

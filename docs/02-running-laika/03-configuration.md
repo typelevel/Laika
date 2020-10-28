@@ -54,6 +54,8 @@ therefore we'll just give a brief overview of available configuration options he
   validation, e.g. in cases where you know that a directory will be populated by some external tool.
   In its default setup, a Laika transformation fails when an internal link points to a document that does
   not exist in the input directory.
+  
+* [Versioned Documentation] allows to use the built-in version switcher dropdown in the default Helium theme.
 
 * E-books (EPUB or PDF) have additional configuration options for navigation:
 
