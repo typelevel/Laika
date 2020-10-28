@@ -705,11 +705,11 @@ class TreeRendererSpec extends IOWordSpec
         val expectedVersionInfo = 
           """{
             |  "versions": [
-            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "defaultLinkTarget": "index.html" }
-            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "defaultLinkTarget": "index.html" }
-            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "defaultLinkTarget": "index.html" }
-            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "defaultLinkTarget": "index.html" }
-            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "defaultLinkTarget": "toc.html" }
+            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "index.html" }
+            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "index.html" }
+            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "index.html" }
+            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "index.html" }
+            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "toc.html" }
             |  ],
             |  "linkTargets": [
             |    { "path": "/dir1/doc3.html", "versions": ["0.1,0.2,0.3,0.4"] }

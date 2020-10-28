@@ -22,21 +22,21 @@ import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
   * 
   * @param displayValue the description of the version to use in any UI (e.g. version dropdowns)
   * @param pathSegment the string to use as a path segments in URLs pointing to this version
-  * @param defaultLinkTarget the link target to use when switching to this version from a page that does not exist in this version
+  * @param fallbackLink the link target to use when switching to this version from a page that does not exist in this version
   * @param label an optional label that will be used in the UI (e.g. `Dev` or `Stable`) 
   */
-case class Version (displayValue: String, pathSegment: String, defaultLinkTarget: String = "index.html", label: Option[String] = None)
+case class Version (displayValue: String, pathSegment: String, fallbackLink: String = "index.html", label: Option[String] = None)
 
 object Version {
 
   implicit val decoder: ConfigDecoder[Version] = ConfigDecoder.config.flatMap { config =>
     for {
-      displayName        <- config.get[String]("displayValue")
-      pathSegment        <- config.get[String]("pathSegment")
-      defaultLinkTarget  <- config.get[String]("defaultLinkTarget", "index.html")
-      label              <- config.getOpt[String]("label")
+      displayName   <- config.get[String]("displayValue")
+      pathSegment   <- config.get[String]("pathSegment")
+      fallbackLink  <- config.get[String]("fallbackLink", "index.html")
+      label         <- config.getOpt[String]("label")
     } yield {
-      Version(displayName, pathSegment, defaultLinkTarget, label)
+      Version(displayName, pathSegment, fallbackLink, label)
     }
   }
 
@@ -44,7 +44,7 @@ object Version {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("displayValue", version.displayValue)
       .withValue("pathSegment", version.pathSegment)
-      .withValue("defaultLinkTarget", version.defaultLinkTarget)
+      .withValue("fallbackLink", version.fallbackLink)
       .withValue("label", version.label)
       .build
   }

@@ -277,13 +277,13 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
        val input =
          """{
           |  laika.versions {
-          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", defaultLinkTarget = "index.html" }
+          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }
           |    olderVersions = [
-          |      { displayValue = "0.41.x", pathSegment = "0.41", defaultLinkTarget = "index.html" }
-          |      { displayValue = "0.40.x", pathSegment = "0.40", defaultLinkTarget = "toc.html" }
+          |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html" }
+          |      { displayValue = "0.40.x", pathSegment = "0.40", fallbackLink = "toc.html" }
           |    ]
           |    newerVersions = [
-          |      { displayValue = "0.43.x", pathSegment = "0.43", defaultLinkTarget = "index.html", label = "dev" }
+          |      { displayValue = "0.43.x", pathSegment = "0.43", fallbackLink = "index.html", label = "dev" }
           |    ]
           |  }
           |}
