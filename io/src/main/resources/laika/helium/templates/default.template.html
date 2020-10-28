@@ -20,16 +20,30 @@
     @:@
     @:linkCSS { paths = ${helium.site.includeCSS} }
     @:linkJS { paths = ${helium.site.includeJS} }
+    @:heliumInitVersions
     <script> /* for avoiding page load transitions */ </script>
   </head>
 
   <body>
 
     <header id="top-bar">
-  
-      <a id="nav-icon">
-        <i class="icofont-laika">&#xefa2;</i>
-      </a>
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika">&#xefa2;</i>
+        </a>
+        @:for(laika.versions)
+        <div id="version-menu-container">
+          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+            ${helium.topBar.versionPrefix} ${_.currentVersion.displayValue}
+          </a>
+          <nav id="version-menu">
+            <ul id="version-list" class="nav-list">
+            </ul>
+          </nav>
+        </div>
+        @:@
+      </div>
   
       ${?helium.topBar.home}
       

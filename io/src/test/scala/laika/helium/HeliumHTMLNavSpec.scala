@@ -26,6 +26,7 @@ import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
+import laika.rewrite.{Version, Versions}
 import laika.theme._
 
 class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
@@ -111,9 +112,11 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
 
   test("top navigation - defaults") {
     val expected =
-      """<a id="nav-icon">
+      """<div class="row">
+        |<a id="nav-icon">
         |<i class="icofont-laika">&#xefa2;</i>
         |</a>
+        |</div>
         |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
@@ -121,9 +124,11 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
 
   test("top navigation - with custom links") {
     val expected =
-      """<a id="nav-icon">
+      """<div class="row">
+        |<a id="nav-icon">
         |<i class="icofont-laika">&#xefa2;</i>
         |</a>
+        |</div>
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<span class="row"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
@@ -134,6 +139,38 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
           IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
           ButtonLink.external("http://somewhere.com/", "Somewhere")
         ))
+    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+  }
+
+  test("top navigation - with version dropdown") {
+    val versions = Versions(
+      Version("0.42.x", "0.42"),
+      Seq(
+        Version("0.41.x", "0.41"),
+        Version("0.40.x", "0.40", "toc.html")
+      ),
+      Seq(
+        Version("0.43.x", "0.43")
+      )
+    )
+    val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika">&#xefa2;</i>
+        |</a>
+        |<div id="version-menu-container">
+        |<a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+        |Version: 0.42.x
+        |</a>
+        |<nav id="version-menu">
+        |<ul id="version-list" class="nav-list">
+        |</ul>
+        |</nav>
+        |</div>
+        |</div>
+        |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
   

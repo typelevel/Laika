@@ -533,6 +533,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
                        |  Support for user-defined reStructuredText directives (supplied by parser)
                        |  Standard directives for reStructuredText (supplied by parser)
                        |  Document Type Matcher for reStructuredText (supplied by parser)
+                       |  Directives for theme 'Helium' (supplied by theme)
                        |  Extensions for theme 'Helium' (supplied by theme)
                        |Settings:
                        |  Strict Mode: false

@@ -50,7 +50,7 @@ private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 
-private[helium] case class TopNavigationBar (logo: Option[Logo], links: Seq[ThemeLink])
+private[helium] case class TopNavigationBar (logo: Option[Logo], links: Seq[ThemeLink], versionPrefix: String = "Version")
 
 private[helium] object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty

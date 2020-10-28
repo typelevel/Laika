@@ -67,6 +67,7 @@ private[laika] object ConfigGenerator {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("home", homeLink)
       .withValue("links", SpanSequence(navBar.links, HeliumStyles.row))
+      .withValue("versionPrefix", navBar.versionPrefix)
       .build
   }
 
@@ -145,6 +146,7 @@ private[laika] object ConfigGenerator {
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
       .withValue(LaikaKeys.siteBaseURL, helium.siteSettings.baseURL)
+      .withValue(LaikaKeys.versions, helium.siteSettings.versions)
       .withValue("laika.pdf.coverImages", helium.pdfSettings.coverImages)
       .withValue("laika.epub.coverImages", helium.epubSettings.coverImages)
       .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))

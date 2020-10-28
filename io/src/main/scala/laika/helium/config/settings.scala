@@ -455,7 +455,12 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * This will be used for "smart linking" where the drop-down will link to the same page of a different version
     * if it exists.
     */
-  def versions (versions: Versions): Helium = copyWith(helium.siteSettings.copy(versions = Some(versions)))
+  def versions (versions: Versions, dropDownPrefix: String = "Version"): Helium = {
+    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = 
+      helium.siteSettings.layout.topNavigationBar.copy(versionPrefix = dropDownPrefix)
+    ) 
+    copyWith(helium.siteSettings.copy(versions = Some(versions), layout = newLayout))
+  }
 
   /** Specifies the base URL where the rendered site will be hosted.
     * This configuration option allows to turn internal links into external ones for documents which will be

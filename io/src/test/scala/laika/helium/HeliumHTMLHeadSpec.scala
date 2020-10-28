@@ -26,6 +26,7 @@ import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.{FileIO, IOFunSuite}
+import laika.rewrite.{Version, Versions}
 import laika.theme._
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
 
@@ -235,6 +236,34 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(singleDoc, helium).assertEquals(expected)
+  }
+
+  test("versioning") {
+    val versions = Versions(
+      Version("0.42.x", "0.42"),
+      Seq(
+        Version("0.41.x", "0.41"),
+        Version("0.40.x", "0.40", "toc.html")
+      ),
+      Seq(
+        Version("0.43.x", "0.43")
+      )
+    )
+    val helium = Helium.defaults.site.landingPage().site.versions(versions)
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    |<meta charset="utf-8">
+                    |<meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                    |<title></title>
+                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                    |<script src="helium/laika-helium.js"></script>
+                    |<script src="helium/laika-versions.js"></script>
+                    |<script>initVersions("../", "/name.html", "0.42.x");</script>
+                    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 

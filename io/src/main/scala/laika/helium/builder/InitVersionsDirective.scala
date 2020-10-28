@@ -16,9 +16,11 @@
 
 package laika.helium.builder
 
-import laika.ast.TemplateString
+import laika.ast.Path.Root
+import laika.ast.{Path, TemplateString}
 import laika.directive.Templates
 import laika.rewrite.Versions
+import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorSpec}
 
 /**
   * @author Jens Halm
@@ -30,9 +32,12 @@ private[helium] object InitVersionsDirective {
       val versions = cursor.config.get[Versions].toOption
       val html = versions.fold("") { versions =>
         val localRootPrefix = "../" * cursor.path.depth
-        val currentPath = cursor.path.toString
+        val lookup: Path => Option[TranslatorSpec] = path => 
+          if (path == cursor.path) Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
+        val translator = ConfigurablePathTranslator(cursor.root.config, "html", "html", Root / "doc", lookup)
+        val currentPath = translator.translate(cursor.path).toString
         val currentVersion = versions.currentVersion.displayValue
-        s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion")</script>"""
+        s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion");</script>"""
       } 
       TemplateString(html)
     }
