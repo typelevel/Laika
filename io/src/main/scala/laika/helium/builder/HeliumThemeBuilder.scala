@@ -17,6 +17,7 @@
 package laika.helium.builder
 
 import cats.effect.{Resource, Sync}
+import laika.directive.{Blocks, DirectiveRegistry, Links, Spans, Templates}
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.io.runtime.Runtime
 import laika.helium.Helium
@@ -28,6 +29,14 @@ import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
   */
 private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
 
+  object directives extends DirectiveRegistry {
+    val spanDirectives: Seq[Spans.Directive] = Nil
+    val blockDirectives: Seq[Blocks.Directive] = Nil
+    val templateDirectives: Seq[Templates.Directive] = Seq(InitVersionsDirective.definition)
+    val linkDirectives: Seq[Links.Directive] = Nil
+  }
+  
+  
   def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]] = {
 
     import helium._
@@ -41,6 +50,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
       .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement)))
       .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
+      .addExtensions(directives)
       .processTree(treeProcessor.forHTML, HTML)
       .processTree(treeProcessor.forAllFormats)
       .build
