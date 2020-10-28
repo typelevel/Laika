@@ -61,6 +61,9 @@ header .row a {
   background-color: var(--secondary-color);
   color: var(--primary-light);
 }
+#nav-icon {
+  display: inline-block;
+}
 
 /* version dropdown ============================================== */
 
@@ -113,8 +116,26 @@ header .row a {
 #version-menu.versions-open {
   display: block;
 }
-#nav-icon {
+.left-column {
   display: inline-block;
+  width: 3.5em;
+}
+.version-label {
+  border-radius: 3px;
+  padding: 1px 3px;
+  color: white;
+  font-size: 0.8em;
+  margin-right: 1em;
+}
+.version-label.eol {
+  background-color: gray;
+}
+.version-label.stable {
+  background-color: green;
+}
+.version-label.dev, .version-label.development, .version-label.milestone {
+  background-color: yellow;
+  color: black;
 }
 
 /* left navigation bar =========================================== */

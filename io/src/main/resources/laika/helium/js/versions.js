@@ -14,7 +14,17 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion) {
         pathPrefix + currentPath : pathPrefix + version.defaultLinkTarget;
 
     const link = document.createElement('a');
-    link.innerText = version.displayValue;
+    if (version.label) {
+      const span = document.createElement("span");
+      span.innerText = version.label;
+      span.classList.add(version.label.toLowerCase());
+      span.classList.add("version-label");
+      const wrapper = document.createElement("span");
+      wrapper.classList.add("left-column");
+      wrapper.appendChild(span);
+      link.appendChild(wrapper);
+    }
+    link.appendChild(document.createTextNode(version.displayValue));
     link.setAttribute("href", href);
     document.body.appendChild(a);
     

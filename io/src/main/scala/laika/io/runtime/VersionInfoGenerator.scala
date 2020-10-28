@@ -32,7 +32,8 @@ private[runtime] object VersionInfoGenerator {
       |}""".stripMargin
   
   private def generateVersions (versions: Versions): String = versions.allVersions.map { version =>
-    s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${version.pathSegment}", "defaultLinkTarget": "${version.defaultLinkTarget}" }"""
+    val label = version.label.fold(""){ label => s""", "label": "$label""""}
+    s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${version.pathSegment}", "defaultLinkTarget": "${version.defaultLinkTarget}"$label }"""
   }.mkString("\n").trim
   
   private def generateLinkTargets (linkTargets: Seq[VersionedDocument]): String = 

@@ -269,7 +269,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         Version("0.40.x", "0.40", "toc.html")
       ),
       Seq(
-        Version("0.43.x", "0.43")
+        Version("0.43.x", "0.43", label = Some("dev"))
       )
     )
     
@@ -283,7 +283,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |      { displayValue = "0.40.x", pathSegment = "0.40", defaultLinkTarget = "toc.html" }
           |    ]
           |    newerVersions = [
-          |      { displayValue = "0.43.x", pathSegment = "0.43", defaultLinkTarget = "index.html" }
+          |      { displayValue = "0.43.x", pathSegment = "0.43", defaultLinkTarget = "index.html", label = "dev" }
           |    ]
           |  }
           |}

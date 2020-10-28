@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
-case class Version (displayValue: String, pathSegment: String, defaultLinkTarget: String = "index.html")
+case class Version (displayValue: String, pathSegment: String, defaultLinkTarget: String = "index.html", label: Option[String] = None)
 
 object Version {
 
@@ -27,8 +27,9 @@ object Version {
       displayName        <- config.get[String]("displayValue")
       pathSegment        <- config.get[String]("pathSegment")
       defaultLinkTarget  <- config.get[String]("defaultLinkTarget", "index.html")
+      label              <- config.getOpt[String]("label")
     } yield {
-      Version(displayName, pathSegment, defaultLinkTarget)
+      Version(displayName, pathSegment, defaultLinkTarget, label)
     }
   }
 
@@ -37,6 +38,7 @@ object Version {
       .withValue("displayValue", version.displayValue)
       .withValue("pathSegment", version.pathSegment)
       .withValue("defaultLinkTarget", version.defaultLinkTarget)
+      .withValue("label", version.label)
       .build
   }
   
