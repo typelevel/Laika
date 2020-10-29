@@ -26,6 +26,7 @@ import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model._
+import laika.rewrite.Versions
 import laika.rewrite.nav.Selections
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
@@ -107,7 +108,11 @@ object Tasks {
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
       val apiPath = targetDir / SiteConfig.apiPath(baseConfig).relative.toString
-      val filesToDelete = (targetDir.allPaths --- targetDir --- 
+      val versions = tree.root.config.get[Versions].toOption.map { versions =>
+        (versions.olderVersions ++ versions.newerVersions).map(v => new File(targetDir, v.pathSegment)).allPaths
+      }.reduceLeftOption(_ +++ _).getOrElse(PathFinder.empty)
+      
+      val filesToDelete = (targetDir.allPaths --- targetDir --- versions ---
         downloadPath.allPaths --- collectParents(downloadPath) --- apiPath.allPaths --- collectParents(apiPath)).get
       sbt.IO.delete(filesToDelete)
 
