@@ -36,7 +36,7 @@ abstract class Element extends Product with Serializable with Customizable {
   
 }
 
-/* TODO - deprecate before releasing 0.17 and merge into Element in 0.18 */
+@deprecated("API has been merged into Element", "0.17.0")
 trait Customizable {
 
   type Self <: Element
