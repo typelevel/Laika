@@ -38,7 +38,7 @@ header .row a {
 
 @media (min-width: 1020px) {
   #nav-icon {
-    visibility: hidden;
+    display: none;
   }
 }
 

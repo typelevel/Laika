@@ -26,7 +26,7 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion) {
     }
     link.appendChild(document.createTextNode(version.displayValue));
     link.setAttribute("href", href);
-    document.body.appendChild(a);
+    document.body.appendChild(link);
     
     const listItem = document.createElement("li");
     listItem.classList.add("level1");
@@ -38,7 +38,7 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion) {
 }
 
 function loadVersions (localRootPrefix, currentPath, currentVersion) {
-  const url = localRootPrefix + "/laika/versions.json";
+  const url = localRootPrefix + "/laika/versionInfo.json";
   const req = new XMLHttpRequest();
   req.open("GET", url);
   req.responseType = "json";
@@ -64,7 +64,7 @@ function initMenuToggle () {
     }
   });
   document.getElementById("version-menu-toggle").onclick = () => {
-    document.getElementById("version-menu").classList.add("versions-open");
+    document.getElementById("version-menu").classList.toggle("versions-open");
   };
 }
 
