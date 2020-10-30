@@ -31,7 +31,13 @@ class OPFRenderer {
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
     */
-  def fileContent (identifier: String, language: String, title: String, coverImage: Option[String], timestamp: String, docRefs: Seq[DocumentRef], authors: Seq[String] = Nil): String =
+  def fileContent (identifier: String, 
+                   language: String, 
+                   title: String, 
+                   coverImage: Option[String], 
+                   timestamp: String, 
+                   docRefs: Seq[DocumentRef], 
+                   authors: Seq[String] = Nil): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"
@@ -73,8 +79,7 @@ class OPFRenderer {
 
   }
 
-  /** Renders the content of an EPUB Package document (OPF) generated from
-    * the specified document tree.
+  /** Renders the content of an EPUB Package document (OPF) generated from the specified document tree.
     */
   def render[F[_]] (result: RenderedTreeRoot[F], title: String, config: EPUB.BookConfig): String = {
 
@@ -86,14 +91,24 @@ class OPFRenderer {
     }
 
     val staticDocs = result.staticDocuments.flatMap { in =>
-      in.path.suffix.flatMap(MimeTypes.supportedTypes.get).map { mediaType =>
-        DocumentRef(in.path, mediaType, isSpine = false)
-      }
+      in.path.suffix
+        .flatMap(suf => MimeTypes.supportedTypes.get(suf).orElse(MimeTypes.supportedTypes.get(suf.split("\\.").last)))
+        .map { mediaType =>
+          DocumentRef(in.path, mediaType, isSpine = false)
+        }
     }
 
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ renderedDocs ++ staticDocs
 
-    fileContent(config.identifier, config.language, title, config.coverImage.map(p => "content/" + p.relative.toString), config.formattedDate, docRefs, config.metadata.authors)
+    fileContent(
+      config.identifier, 
+      config.language, 
+      title, 
+      config.coverImage.map(p => "content/" + p.relative.toString), 
+      config.formattedDate, 
+      docRefs, 
+      config.metadata.authors
+    )
   }
 
 

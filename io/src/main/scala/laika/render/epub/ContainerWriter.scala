@@ -67,7 +67,8 @@ class ContainerWriter {
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments)
     
     val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
-      .filter(in => in.path.suffix.exists(MimeTypes.supportedTypes.contains))
+      .filter(in => in.path.suffix.exists(suf => MimeTypes.supportedTypes.contains(suf) || 
+        MimeTypes.supportedTypes.contains(suf.split("\\.").last)))
       .map { doc =>
         doc.copy(path = shiftContentPath(doc.path))
       }
