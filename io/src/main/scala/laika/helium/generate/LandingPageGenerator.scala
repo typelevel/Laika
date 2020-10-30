@@ -19,7 +19,7 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{Document, RootElement}
+import laika.ast.{/, Document, RootElement}
 import laika.config.LaikaKeys
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
@@ -34,9 +34,16 @@ private[helium] object LandingPageGenerator {
     }.getOrElse((RootElement.empty, tree.root.config))
     
     val titleDocument = tree.root.titleDocument.fold(
-      Document(Root / TitleDocumentConfig.inputName(tree.root.config), landingPageContent, config = landingPageConfig)
+      Document(
+        path = Root / TitleDocumentConfig.inputName(tree.root.config),
+        content = landingPageContent, 
+        config = landingPageConfig.withValue(LaikaKeys.versioned, false).build
+      )
     ) { titleDoc =>
-      titleDoc.copy(content = RootElement(titleDoc.content.content ++ landingPageContent.content))
+      titleDoc.copy(
+        content = RootElement(titleDoc.content.content ++ landingPageContent.content),
+        config = landingPageConfig.withFallback(titleDoc.config).withValue(LaikaKeys.versioned, false).build
+      )
     }
     
     val titleDocWithTemplate =
