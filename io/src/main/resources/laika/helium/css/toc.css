@@ -7,7 +7,7 @@ ul.toc, .toc ul {
 }
 .toc.nav-list a {
   font-weight: bold;
-  color: var(--primary-color-color);
+  color: var(--primary-color);
 }
 .toc.nav-list li.nav-header {
   font-size: var(--title-font-size);

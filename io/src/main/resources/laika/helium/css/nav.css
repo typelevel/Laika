@@ -36,6 +36,9 @@ header .row a {
   margin: 0 0 0 20px;
 }
 
+#nav-icon {
+  display: inline-block;
+}
 @media (min-width: 1020px) {
   #nav-icon {
     display: none;
@@ -60,9 +63,6 @@ header .row a {
 .button-link:hover {
   background-color: var(--secondary-color);
   color: var(--primary-light);
-}
-#nav-icon {
-  display: inline-block;
 }
 
 /* version dropdown ============================================== */
