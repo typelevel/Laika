@@ -11,5 +11,5 @@ enablePlugins(LaikaPlugin)
 
 laikaExtensions += laikaDocTypeMatcher {
   case path: Path if path.name == "hello.md" => Markup
-  case path: Path if path.name == "hello2.md" => Static
+  case path: Path if path.name == "hello2.md" => Static()
 }
