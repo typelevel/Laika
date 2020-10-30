@@ -705,19 +705,19 @@ class TreeRendererSpec extends IOWordSpec
         val expectedVersionInfo = 
           """{
             |  "versions": [
-            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "index.html" }
-            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "index.html" }
-            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "index.html" }
-            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "index.html" }
-            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "toc.html" }
+            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html" },
+            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html" },
+            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html" },
+            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html" },
+            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
             |  ],
             |  "linkTargets": [
-            |    { "path": "/dir1/doc3.html", "versions": ["0.1,0.2,0.3,0.4"] }
-            |    { "path": "/dir1/doc4.html", "versions": ["0.1,0.2,0.3,0.4"] }
-            |    { "path": "/dir2/doc5.html", "versions": ["0.1,0.2,0.3,0.4"] }
-            |    { "path": "/dir2/doc6.html", "versions": ["0.1,0.2,0.4"] }
-            |    { "path": "/doc1.html", "versions": ["0.1,0.3"] }
-            |    { "path": "/doc2.html", "versions": ["0.1,0.2,0.3"] }
+            |    { "path": "/dir1/doc3.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/dir1/doc4.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/dir2/doc5.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/dir2/doc6.html", "versions": ["0.1","0.2","0.4"] },
+            |    { "path": "/doc1.html", "versions": ["0.1","0.3"] },
+            |    { "path": "/doc2.html", "versions": ["0.1","0.2","0.3"] }
             |  ]
             |}""".stripMargin
 

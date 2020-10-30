@@ -16,6 +16,7 @@
 
 package laika.rewrite
 
+import laika.ast.Path
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 
 /** Configuration for a single version of the documentation.
@@ -58,8 +59,9 @@ object Version {
   * @param currentVersion the version that the sources of a transformation produce
   * @param olderVersions list of older versions that have previously been rendered (may be empty)
   * @param newerVersions list of newer versions that have previously been rendered (may be empty)
+  * @param excludeFromScanning paths to be skipped when scanning the output directory for existing versions (e.g. for API docs)
   */
-case class Versions (currentVersion: Version, olderVersions: Seq[Version], newerVersions: Seq[Version] = Nil) {
+case class Versions (currentVersion: Version, olderVersions: Seq[Version], newerVersions: Seq[Version] = Nil, excludeFromScanning: Seq[Path] = Nil) {
   
   def allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
   
@@ -71,11 +73,12 @@ object Versions {
 
   implicit val decoder: ConfigDecoder[Versions] = ConfigDecoder.config.flatMap { config =>
     for {
-      currentVersion <- config.get[Version]("currentVersion")
-      olderVersions  <- config.get[Seq[Version]]("olderVersions")
-      newerVersions  <- config.get[Seq[Version]]("newerVersions")
+      currentVersion      <- config.get[Version]("currentVersion")
+      olderVersions       <- config.get[Seq[Version]]("olderVersions")
+      newerVersions       <- config.get[Seq[Version]]("newerVersions")
+      excludeFromScanning <- config.get[Seq[Path]]("excludeFromScanning", Nil)
     } yield {
-      Versions(currentVersion, olderVersions, newerVersions)
+      Versions(currentVersion, olderVersions, newerVersions, excludeFromScanning)
     }
   }
 
@@ -84,6 +87,7 @@ object Versions {
       .withValue("currentVersion", versions.currentVersion)
       .withValue("olderVersions", versions.olderVersions)
       .withValue("newerVersions", versions.newerVersions)
+      .withValue("excludeFromScanning", versions.excludeFromScanning)
       .build
   }
   

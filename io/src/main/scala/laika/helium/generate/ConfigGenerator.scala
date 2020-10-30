@@ -114,7 +114,7 @@ private[laika] object ConfigGenerator {
     def withOptions(options: Options): RelativePath = this
   }
   
-  implicit val navIconEncoder: ConfigEncoder[Favicon] = ConfigEncoder[Favicon] { icon =>
+  implicit val favIconEncoder: ConfigEncoder[Favicon] = ConfigEncoder[Favicon] { icon =>
     val sizes = icon.sizes.fold("")(s => s"""sizes="$s"""")
     val mediaType = icon.mediaType.fold("")(t => s"""type="$t"""")
     val elements: Seq[TemplateSpan] = Seq(

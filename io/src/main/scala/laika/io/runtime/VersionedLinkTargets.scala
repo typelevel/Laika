@@ -21,6 +21,7 @@ import cats.effect.Sync
 import cats.syntax.all._
 import laika.collection.TransitionalCollectionOps._
 import laika.ast.DocumentType.{Ignored, Static}
+import laika.ast.Path.Root
 import laika.ast.{DocumentType, Path, SegmentedPath}
 import laika.io.model.{BinaryInput, DirectoryInput, DirectoryOutput}
 import laika.rewrite.Versions
@@ -29,11 +30,19 @@ private[runtime] object VersionedLinkTargets {
 
   def scanExistingVersions[F[_]: Sync] (versions: Versions, output: DirectoryOutput): F[Map[String, Seq[Path]]] = {
     val existingVersions = (versions.newerVersions ++ versions.olderVersions).map(_.pathSegment).toSet
+    val excluded = versions.excludeFromScanning.flatMap { exclude =>
+      existingVersions.toSeq.map(v => Root / v / exclude.relative)
+    }.toSet
+    
+    def included (path: Path, segments: NonEmptyChain[String]): Boolean = {
+      path.suffix.contains("html") &&
+        existingVersions.contains(segments.head) && 
+        segments.size > 1 && 
+        !excluded.exists(ex => path.isSubPath(ex))
+    }
     val docTypeMather: Path => DocumentType = {
-      case SegmentedPath(segments, _, _) =>
-        if (existingVersions.contains(segments.head) && segments.size > 1) Static() else Ignored
-      case _ =>
-        Ignored
+      case p @ SegmentedPath(segments, _, _) if included(p, segments) => Static()
+      case _ => Ignored
     }
     val input = DirectoryInput(Seq(output.directory), output.codec, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
