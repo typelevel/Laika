@@ -20,8 +20,9 @@ import cats.syntax.all._
 import cats.data.{NonEmptyChain, NonEmptySet}
 import laika.ast.{DocumentCursor, Path, RawContent, RelativePath, TemplateElement}
 import laika.ast.Path.Root
-import laika.config.LaikaKeys
+import laika.config.{Config, LaikaKeys}
 import laika.directive.Templates
+import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorSpec}
 
 /** Provides the implementation for the standard directives for the head section in HTML templates.
   *
@@ -56,8 +57,21 @@ object HTMLHeadDirectives {
       (remaining, acc ++ newIncludes.map(_.path))
     }._2
 
+    // TODO - this directive should insert a relative path resolver and leave the translation to the renderer
+    // OR obtain access to a centralized path translator API (e.g. via the Cursor)
+    def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+
+    val staticLookup = included.map { staticPath =>
+      val config = cursor.root.treeConfig(staticPath)
+      (staticPath, TranslatorSpec(isStatic = true, isVersioned = isVersioned(config)))
+    }.toMap
+    val lookup = staticLookup ++ Map(
+      cursor.path -> TranslatorSpec(isStatic = false, isVersioned = isVersioned(cursor.config))
+    )
+    val translator = ConfigurablePathTranslator(cursor.root.config, "html", cursor.root.targetFormat.getOrElse("none"), cursor.path, lookup.get)
+    
     val allLinks = included.map { staticPath =>
-      val path = staticPath.relativeTo(cursor.path)
+      val path = translator.translate(staticPath).relativeTo(translator.translate(cursor.path))
       render(path)
     }
     TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), allLinks.mkString("\n    ")))
