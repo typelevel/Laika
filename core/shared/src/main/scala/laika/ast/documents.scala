@@ -259,9 +259,13 @@ trait TreeStructure { this: TreeContent =>
     * as this instance is not aware of its parents.
     */
   def selectDocument (path: RelativePath): Option[Document] = path.withoutFragment match {
-    case CurrentTree / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
-    case other / localName if path.parentLevels == 0 => selectSubtree(other).flatMap(_.selectDocument(localName))
-    case _ => None
+    case CurrentTree / localName => (titleDocument.toSeq ++: content).collectFirst { 
+      case d: Document if d.path.name == localName => d 
+    }
+    case other / localName if path.parentLevels == 0 => 
+      selectSubtree(other).flatMap(_.selectDocument(localName))
+    case _ => 
+      None
   }
 
   /** Selects a template from this tree or one of its subtrees by the specified path.

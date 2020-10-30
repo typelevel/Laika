@@ -40,8 +40,11 @@ class DocumentTreeAPISpec extends AnyFlatSpec
 
     def treeWithTitleDoc (path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, Nil, Some(Document(path / "title", root, config = createConfig(path / "title", config))))
-    def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree =
-      DocumentTree(path, List(Document(path / name, root, config = createConfig(path / name, config))))
+    def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree = {
+      val doc = Document(path / name, root, config = createConfig(path / name, config))
+      if (name == "README") DocumentTree(path, Nil, titleDocument = Some(doc))
+      else DocumentTree(path, List(doc))
+    }
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
@@ -149,6 +152,13 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree = treeWithDoc(Root, "doc", root())
       tree.selectDocument(CurrentTree / "doc").map(_.path) should be (Some(Root / "doc"))
+    }
+  }
+
+  it should "allow to select a title document in the current directory using a relative path" in {
+    new TreeModel {
+      val tree = treeWithDoc(Root, "README", root())
+      tree.selectDocument(CurrentTree / "README").map(_.path) should be (Some(Root / "README"))
     }
   }
   
