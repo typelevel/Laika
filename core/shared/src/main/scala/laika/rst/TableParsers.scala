@@ -85,7 +85,7 @@ object TableParsers {
     }
     
     def trimmedCellContent: Option[BlockSource] = {
-      NonEmptyChain.fromSeq(allLines).map { nonEmptyLines =>
+      NonEmptyChain.fromSeq(allLines.toSeq).map { nonEmptyLines =>
         val minIndent = nonEmptyLines.map { line =>
           if (line.input.trim.isEmpty) Int.MaxValue
           else line.input.prefixLength(_ == ' ')
