@@ -34,12 +34,12 @@ private[runtime] object VersionInfoGenerator {
   private def generateVersions (versions: Versions): String = versions.allVersions.map { version =>
     val label = version.label.fold(""){ label => s""", "label": "$label""""}
     s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${version.pathSegment}", "fallbackLink": "${version.fallbackLink}"$label }"""
-  }.mkString("\n").trim
+  }.mkString(",\n").trim
   
   private def generateLinkTargets (linkTargets: Seq[VersionedDocument]): String = 
     linkTargets.sortBy(_.path.toString).map { doc =>
-      s"""    { "path": "${doc.path.toString}", "versions": ["${doc.versions.sorted.mkString(",")}"] }"""
-    }.mkString("\n").trim
+      s"""    { "path": "${doc.path.toString}", "versions": ["${doc.versions.sorted.mkString("\",\"")}"] }"""
+    }.mkString(",\n").trim
 
   def generate (versions: Versions, linkTargets: Seq[VersionedDocument]): String = template
     .replace("$VERSIONS", generateVersions(versions))
