@@ -82,9 +82,9 @@ Further Information
 * Ask questions on [Stackoverflow], tagging with Laika and Scala.
  
 
-[Manual]: http://planet42.github.com/Laika/index.html
+[Manual]: https://planet42.github.com/Laika/index.html
 [Demo App]: http://planet42.org/
-[API]: http://planet42.github.com/Laika/api/laika/api/
+[API]: https://planet42.github.com/Laika/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
