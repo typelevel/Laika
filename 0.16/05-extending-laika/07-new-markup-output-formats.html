@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+    <title>New Markup or Output Formats</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
+    <script src="../helium/laika-versions.js"></script>
+    <script>initVersions("../../", "/05-extending-laika/07-new-markup-output-formats.html", "0.16");</script>
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika">&#xefa2;</i>
+        </a>
+        
+        <div id="version-menu-container">
+          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+            Version 0.16
+          </a>
+          <nav id="version-menu">
+            <ul id="version-list" class="nav-list">
+            </ul>
+          </nav>
+        </div>
+        
+      </div>
+  
+      <a href="../../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
+    <nav id="sidebar">
+
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li class="level2"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+        <li class="level2"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+        <li class="level2"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+        <li class="level2"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2"><a href="01-overview.html">Overview</a></li>
+        <li class="level2"><a href="02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2 active"><a href="#">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+      </ul>
+      
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">New Markup or Output Formats</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#implementing-a-markup-format">Implementing a Markup Format</a></li>
+          <li class="level2"><a href="#parser-prerequisites">Parser Prerequisites</a></li>
+          <li class="level2"><a href="#the-markupformat-trait">The MarkupFormat Trait</a></li>
+          <li class="level2"><a href="#parser-precedence">Parser Precedence</a></li>
+          <li class="level1"><a href="#implementing-a-render-format">Implementing a Render Format</a></li>
+          <li class="level2"><a href="#renderer-prerequisites">Renderer Prerequisites</a></li>
+          <li class="level2"><a href="#the-renderformat-trait">The RenderFormat Trait</a></li>
+          <li class="level2"><a href="#the-render-function">The Render Function</a></li>
+          <li class="level2"><a href="#choosing-a-formatter-api">Choosing a Formatter API</a></li>
+          <li class="level2"><a href="#costs-of-avoiding-side-effects">Costs of Avoiding Side Effects</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/05-extending-laika/07-new-markup-output-formats.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="new-markup-or-output-formats" class="title">New Markup or Output Formats</h1>
+        <p>All the other chapters in the &quot;Extending Laika&quot; section of the manual deal with a customization option 
+        that at some point becomes part of an <code>ExtensionBundle</code>. 
+        As <a href="../02-running-laika/02-library-api.html#anatomy-of-the-api">Anatomy of the API</a> showed, it is one of the major API hooks for building a transformer:</p>
+        <div class="default-image-block">
+          <img src="../../img/anatomy-api.png" alt="Anatomy of the API" width="602" height="345">
+        </div>
+        <p>While an <code>ExtensionBundle</code> is about enhancing functionality for existing input and output formats,
+        this chapter finally is about actually adding new formats. 
+        Therefore it deals with the other two types in the diagram: <code>MarkupFormat</code> and <code>RenderFormat[FMT]</code>. </p>
+        
+        <h2 id="implementing-a-markup-format" class="section">Implementing a Markup Format<a class="anchor-link right" href="#implementing-a-markup-format"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Laika currently supports two markup formats out of the box: Markdown and reStructuredText.
+        Having two formats from the beginning greatly helped in shaping a document model
+        that is not tied to the specifics of a particular text markup language.</p>
+        <p>Making it as straightforward as possible to add support for more formats like ASCIIDoc or Textile 
+        was one of Laika&#39;s initial design goals.</p>
+        
+        <h3 id="parser-prerequisites" class="section">Parser Prerequisites<a class="anchor-link right" href="#parser-prerequisites"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>The content of this chapter builds on top of concepts introduced in other chapters,
+        therefore it&#39;s recommended to read those first.</p>
+        <p>First, all parsers build on top of <a href="../06-sub-modules/02-laikas-parser-combinators.html#laika-s-parser-combinators">Laika&#39;s Parser Combinators</a>.
+        Having its own implementation helps with keeping all functionality tightly integrated and adding
+        some optimizations useful for the specific use case of markup parsing right into the base parsers.</p>
+        <p>Second, since block and span parsers that together provide the markup implementation all produce AST nodes, 
+        it might help to get familiar with <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> first.</p>
+        <p>Finally, <a href="04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a> covers a lot of ground relevant for adding a new format, too.
+        It walks through the sample implementation of a span parser.</p>
+        <p>The main difference is merely that a block or span parser serving as an extension for existing markup languages 
+        will be registered with an <code>ExtensionBundle</code>, 
+        while the parsers for a new format need to be registered in a <code>MarkupFormat</code>.</p>
+        
+        <h3 id="the-markupformat-trait" class="section">The MarkupFormat Trait<a class="anchor-link right" href="#the-markupformat-trait"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>The contract a markup implementation has to adhere to is captured in the following trait:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">trait</span><span> </span><span class="type-name">MarkupFormat</span><span> {
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">fileSuffixes</span><span>: </span><span class="type-name">Set</span><span>[</span><span class="type-name">String</span><span>]
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">blockParsers</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">BlockParserBuilder</span><span>]
+  
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">spanParsers</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">SpanParserBuilder</span><span>]
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">extensions</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">ExtensionBundle</span><span>]
+  
+}</span></code></pre>
+        <p>These are the four abstract method each parser has to implement.  <br></p>
+        <ul>
+          <li>
+            <p>The <code>fileSuffixes</code> method should simply return the set of supported file suffixes (without the &#39;.&#39;). 
+            For Markdown this would be <code>Set(&quot;md&quot;, &quot;markdown&quot;)</code> for example. 
+            It is not recommended to support generic suffixes like <code>txt</code> as this could lead to conflicts with other parsers.</p>
+            <p>Laika supports a setup where input directories may contain source files written in different markup languages.
+            In this case the format detection is solely based on the file suffix.</p>
+          </li>
+          <li>
+            <p>The <code>blockParsers</code> and <code>spanParsers</code> collections provide the definitions for the actual markup parsers. 
+            These are the same types you&#39;ve already seen when registering parsers as extensions.</p>
+            <p>It may sound too good to be true, but the task of assembling the building blocks of a markup language
+            in Laika is indeed merely declarative. 
+            The parsers for individual elements like lists or links can almost always be implemented in isolation
+            with little or no interdependencies.</p>
+            <p><a href="04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a> contains a walk-through of a span parser implementation.
+            You can also browse the code for Laika&#39;s Markdown and reStructuredText support for more examples. </p>
+          </li>
+          <li>
+            <p>The <code>extensions</code> collection allows to add functionality beyond just markup parsing.
+            It uses the same <code>ExtensionBundle</code> trait that exists for users to customize a transformation.</p>
+            <p>Whenever a format that defines extensions is used, they are merged with the user-supplied extensions.
+            This collection may very well remain empty for some formats.</p>
+          </li>
+        </ul>
+        <p>Finally there are three concrete methods that may be overridden if required:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">description</span><span>: </span><span class="type-name">String</span><span> = </span><span class="identifier">toString</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">escapedChar</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">String</span><span>] = </span><span class="type-name">TextParsers</span><span>.</span><span class="identifier">oneChar</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">createBlockListParser</span><span> (</span><span class="identifier">parser</span><span>: </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Block</span><span>]): </span><span class="type-name">Parser</span><span>[</span><span class="type-name">Seq</span><span>[</span><span class="type-name">Block</span><span>]] = 
+  (</span><span class="identifier">parser</span><span> &lt;~ </span><span class="identifier">opt</span><span>(</span><span class="identifier">blankLines</span><span>)).</span><span class="identifier">rep</span></code></pre>
+        <ul>
+          <li>
+            <p>The <code>description</code> method allows to add details for tooling and logging.</p>
+          </li>
+          <li>
+            <p>The <code>escapedChar</code> method controls the parsing of an escape sequence (the character after a backslash). 
+            The default implementation accepts any character.</p>
+          </li>
+          <li>
+            <p>Finally, <code>createBlockListParser</code> controls how a parser for a single block is turned into a parser for
+            a sequence of blocks.
+            The default implementation just skips blank lines between the blocks and repeats the same parser.
+            The parser passed to this method already includes all the (merged) block parsers this trait has specified 
+            as well as any extensions a user might have installed.</p>
+          </li>
+        </ul>
+        
+        <h3 id="parser-precedence" class="section">Parser Precedence<a class="anchor-link right" href="#parser-precedence"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>The parser precedence is determined by the order you specify them in.
+        This means they will be &quot;tried&quot; on input in that exact order.
+        The second parser in the list will only be invoked on a particular input when the first fails, and so on.</p>
+        <p>This is the logical execution model only, the exact runtime behaviour may differ due to performance optimizations,
+        but without breaking the guarantees of respecting the order you specify.</p>
+        <p>Normally the difference in the syntax between markup constructs is high enough that the precedence does not matter.
+        But in some cases extra care is needed.
+        If, for example, you provide parsers for spans between double asterisk <code>**</code> and between single asterisk <code>*</code>,
+        the former must be specified first, as otherwise the single asterisk parser would 100% shadow the double one
+        and consume all matching input itself, unless it contains a guard against it.</p>
+        
+        <h2 id="implementing-a-render-format" class="section">Implementing a Render Format<a class="anchor-link right" href="#implementing-a-render-format"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Laika currently supports several output formats out of the box: HTML, EPUB, PDF, XSL-FO and AST.
+        XSL-FO mostly serves as an interim format for PDF output, but can also be used as the final target format.
+        AST is a renderer that provides a formatted output of the document AST for debugging purposes.</p>
+        <p>Making it as straightforward as possible to add support for additional output formats, 
+        potentially as a 3rd-party library, was one of Laika&#39;s initial design goals.</p>
+        
+        <h3 id="renderer-prerequisites" class="section">Renderer Prerequisites<a class="anchor-link right" href="#renderer-prerequisites"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>The content of this chapter builds on top of concepts introduced in other chapters,
+        therefore it&#39;s recommended to read those first.</p>
+        <p>First, since renderers have to pattern match on AST nodes the engine passes over, 
+        it might help to get familiar with <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> first.</p>
+        <p>Second, <a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a> shows examples for how to override the renderer of a particular output format
+        for one or more specific AST node types only.</p>
+        <p>The main difference is that a renderer serving as an override for existing output formats 
+        will be registered with an <code>ExtensionBundle</code>, 
+        while the renderers for a new format need to be registered in a <code>RenderFormat</code>.</p>
+        <p>The second difference is that a <code>RenderFormat</code> naturally has to deal with all potential AST nodes,
+        not just a subset like an override.</p>
+        
+        <h3 id="the-renderformat-trait" class="section">The RenderFormat Trait<a class="anchor-link right" href="#the-renderformat-trait"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>A renderer has to implement the following trait:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">trait</span><span> </span><span class="type-name">RenderFormat</span><span>[</span><span class="type-name">FMT</span><span>] {
+  
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">fileSuffix</span><span>: </span><span class="type-name">String</span><span>
+  
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">defaultRenderer</span><span>: (</span><span class="type-name">FMT</span><span>, </span><span class="type-name">Element</span><span>) =&gt; </span><span class="type-name">String</span><span>
+  
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">formatterFactory</span><span>: </span><span class="type-name">RenderContext</span><span>[</span><span class="type-name">FMT</span><span>] =&gt; </span><span class="type-name">FMT</span><span>
+
+}</span></code></pre>
+        <ul>
+          <li>
+            <p>The <code>fileSuffix</code> method provides the suffix to append when writing files in this format
+            (without the &quot;.&quot;).</p>
+          </li>
+          <li>
+            <p>The <code>defaultRenderer</code> represents the actual renderer. 
+            It takes both, a formatter instance and the element to render and returns a String in the target format.  <br></p>
+          </li>
+          <li>
+            <p><code>formatterFactory</code> is the formatter instance for the target format. 
+            A new instance of this formatter gets created for each render operation. </p>
+          </li>
+          <li>
+            <p>The <code>RenderContext</code> passed to the factory function contains the root element of the AST
+            and the delegate render function which your formatter is supposed to use for rendering children.
+            You need to use this indirection as the provided delegate contains the render overrides the user might
+            have installed which your default render implementation cannot be aware of.</p>
+          </li>
+          <li>
+            <p><code>FMT</code> is a type parameter representing the Formatter API specific to the output format.
+            For the built-in renderers, this is <code>FOFormatter</code> for <code>PDF</code>,
+            <code>HTMLFormatter</code> for <code>HTML</code> and <code>EPUB</code> and finally <code>TextFormatter</code> for the <code>AST</code> renderer.</p>
+          </li>
+        </ul>
+        
+        <h3 id="the-render-function" class="section">The Render Function<a class="anchor-link right" href="#the-render-function"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>This <code>defaultRenderer</code> function should usually adhere to these rules:</p>
+        <ul>
+          <li>
+            <p>When given an element that is a container type that contains child elements (like <code>Paragraph</code> or <code>BulletList</code>), 
+            it should never render the children itself, but instead delegate to the Formatter API, 
+            so that user-defined render overrides can kick in for individual element types.</p>
+          </li>
+          <li>
+            <p>It should expect unknown element types. 
+            Since parsers can also be extended, the document tree can contain nodes which are not part of the default 
+            node types provided by Laika. 
+            The root trait <code>Element</code> is <em>not</em> sealed on purpose.</p>
+            <p>Dealing with unknown types is best achieved by not only matching on concrete types,
+            but also on some of the base traits.</p>
+            <p>If, for example, you already handled all the known <code>SpanContainers</code>, like <code>Paragraph</code>, <code>Header</code> or <code>CodeBlock</code>,
+            you would ideally add a fallback pattern that matches on any <code>SpanContainer</code> and provides a default fallback.
+            This way, even though you don&#39;t know how to best render this particular container, 
+            at least all its children will most likely get rendered correctly. </p>
+            <p>As an absolute worst-case fallback it should add a catch-all pattern that returns an empty string.</p>
+          </li>
+        </ul>
+        <p>Let&#39;s look at a minimal excerpt of a hypothetical HTML render function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">renderElement</span><span> (</span><span class="identifier">fmt</span><span>: </span><span class="type-name">HTMLFormatter</span><span>, </span><span class="identifier">elem</span><span>: </span><span class="type-name">Element</span><span>): </span><span class="type-name">String</span><span> = {
+
+  </span><span class="identifier">elem</span><span> </span><span class="keyword">match</span><span> {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Paragraph</span><span>(</span><span class="identifier">content</span><span>,</span><span class="identifier">opt</span><span>) =&gt; </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;p&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>)
+    
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>,</span><span class="identifier">opt</span><span>) =&gt; </span><span class="identifier">fmt</span><span>.</span><span class="identifier">element</span><span>(</span><span class="string-literal">&quot;em&quot;</span><span>, </span><span class="identifier">opt</span><span>, </span><span class="identifier">content</span><span>)
+    
+    </span><span class="comment">/* [other cases ...] */</span><span>
+    
+    </span><span class="comment">/* [fallbacks for unknown elements] */</span><span>
+  }   
+}</span></code></pre>
+        <p>As you see, the function never deals with children (the <code>content</code> attribute of many node types) directly.
+        Instead it passes them to the Formatter API which delegates to the composed render function.
+        This way user-specified render overrides can kick in on every step of the recursion.</p>
+        <p>In the context of HTML it means that in most cases your implementation renders one tag only before delegating, 
+        in the example above those are <code>&lt;p&gt;</code> and <code>&lt;em&gt;</code> tags respectively.</p>
+        
+        <h3 id="choosing-a-formatter-api" class="section">Choosing a Formatter API<a class="anchor-link right" href="#choosing-a-formatter-api"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Depending on the target format your renderer may use the <code>TextFormatter</code> or <code>HTMLFormatter</code> APIs, 
+        which are explained in <a href="../04-customizing-laika/06-overriding-renderers.html#the-formatter-apis">The Formatter APIs</a>. </p>
+        <p>Alternatively it may create its own API, but you should keep in mind then, 
+        that this API will also get used by users overriding renderers for specific nodes.
+        Therefore it should be convenient and straightforward to use and well documented (e.g. full scaladoc).</p>
+        <p>Even when creating your own formatter it&#39;s probably most convenient to at least extend <code>TextFormatter</code>,
+        which contains base logic for indentation and delegating to child renderers.</p>
+        
+        <h3 id="costs-of-avoiding-side-effects" class="section">Costs of Avoiding Side Effects<a class="anchor-link right" href="#costs-of-avoiding-side-effects"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>As you have seen the render function returns a <code>String</code> value, which the engine will then build up
+        recursively to represent the final output.
+        It can therefore get implemented as a pure function, fully referentially transparent.</p>
+        <p>Earlier Laika releases had a different API which was side-effecting and returning Unit.
+        Renderers directly wrote to the output stream, only hidden behind a generic, side-effecting delegate API.</p>
+        <p>Version 0.12 in 2019 then introduced full referential transparency and one of the necessary changes was the change of
+        the render function signature.
+        These changes (taken together, not specifically that for the Render API) caused a performance drop of roughly 10%.
+        It felt reasonable to accept this cost given how much it cleaned up the API and how it lifted the library
+        to meet expectations of developers who prefer a purely functional programming style.</p>
+        <p>The decent performance of Laika stems mostly from a few radical optimization on the parser side,
+        which led to much better performance compared to some older combinator-based Markdown parsers.</p>
+        <p>The alternative would have been to build on top of a functional streaming API like fs2,
+        as this might have preserved both, the old performance characteristics as well as full referential transparency.
+        But it still would have complicated the API and introduced a dependency that is not needed anywhere
+        else in the <code>laika-core</code> module, which does not even require <code>cats-effect</code>.</p>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>

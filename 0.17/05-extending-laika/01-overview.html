@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+    <title>Overview</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
+    <script src="../helium/laika-versions.js"></script>
+    <script>initVersions("../../", "/05-extending-laika/01-overview.html", "0.17");</script>
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika">&#xefa2;</i>
+        </a>
+        
+        <div id="version-menu-container">
+          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+            Version 0.17
+          </a>
+          <nav id="version-menu">
+            <ul id="version-list" class="nav-list">
+            </ul>
+          </nav>
+        </div>
+        
+      </div>
+  
+      <a href="../../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
+    <nav id="sidebar">
+
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li class="level2"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+        <li class="level2"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+        <li class="level2"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+        <li class="level2"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2 active"><a href="#">Overview</a></li>
+        <li class="level2"><a href="02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2"><a href="07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+        
+      </ul>
+      
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">Overview</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#transformation-phases">Transformation Phases</a></li>
+          <li class="level1"><a href="#the-extensionbundle-api">The ExtensionBundle API</a></li>
+          <li class="level2"><a href="#the-theme-api">The Theme API</a></li>
+          <li class="level2"><a href="#extending-markup-syntax">Extending Markup Syntax</a></li>
+          <li class="level2"><a href="#additional-syntax-highlighters">Additional Syntax Highlighters</a></li>
+          <li class="level2"><a href="#additional-markup-or-output-formats">Additional Markup or Output Formats</a></li>
+          <li class="level2"><a href="#customization-hooks">Customization Hooks</a></li>
+          <li class="level2"><a href="#replacing-internal-parsers">Replacing Internal Parsers</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/05-extending-laika/01-overview.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="overview" class="title">Overview</h1>
+        <p>Laika&#39;s Documentation comes with separate sections for &quot;Customizing&quot; and &quot;Extending&quot; Laika.
+        While the line between the two is naturally quite blurry, 
+        the distinction is mostly meant to be between these two scenarios:</p>
+        <ul>
+          <li>
+            <p>Customizing Laika refers to the things you most like want to tweak and adjust in your own project.</p>
+          </li>
+          <li>
+            <p>Extending Laika refers to the kind of re-usable extensions you might want to write as an in-house library 
+            or a 3rd-party open source extension.</p>
+          </li>
+        </ul>
+        <p>This section deals with the latter scenario.</p>
+        
+        <h2 id="transformation-phases" class="section">Transformation Phases<a class="anchor-link right" href="#transformation-phases"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>For a better understanding of the extension points listed below it is good to a have a rough idea about how
+        a transformation in Laika is performed. It can be divided into 4 phases:</p>
+        <p>1) <strong>The parsing step</strong>. Text markup and template documents get parsed and translated into an internal AST.
+           The AST is a generic abstraction of the document&#39;s structure and is not tied to any specific semantics
+           of a particular input or output format.</p>
+        <p>2) <strong>The AST transformation</strong>. The original AST is only what each parser for the corresponding block or inline
+           element can process locally, without access to other nodes or even other documents. 
+           One of the advantages of this design, apart from separation of concerns, is that parsers can run in parallel.
+           As a consequence nodes like internal references or auto-numbered footnotes require further processing with access to
+           a <code>DocumentCursor</code> that allows to access content from anywhere in the input tree.</p>
+        <p>3) <strong>Applying templates to markup documents</strong>. 
+           Since both are just AST structures, this step is merely a second AST transformation.
+           The AST representing the markup document will be inserted into the node of the template AST that holds
+           a reference to the content.</p>
+        <p>4) <strong>Rendering</strong>. As the last step the final AST obtained from the two previous transformation steps will get rendered
+           to one or more output format. 
+           This is the only step specific to a particular output format, meaning the same AST structure obtained in 3) will
+           get used as the input for the renderers of all formats.</p>
+        
+        <h2 id="the-extensionbundle-api" class="section">The ExtensionBundle API<a class="anchor-link right" href="#the-extensionbundle-api"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Hooks into the 4 transformation phases described above as well as other customization hooks
+        can be used by implementing an <code>ExtensionBundle</code>.
+        See <a href="../../api/laika/bundle/ExtensionBundle.html">ExtensionBundle</a> for its API documentation.</p>
+        <p>The trait comes with empty default implementations for most of its properties,
+        so that you only need to override the ones you intend to use.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="type-name">MyExtensions</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ExtensionBundle</span><span> {
+
+  </span><span class="keyword">override</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">docTypeMatcher</span><span>: </span><span class="type-name">PartialFunction</span><span>[</span><span class="type-name">Path</span><span>, </span><span class="type-name">DocumentType</span><span>] = ???
+
+  </span><span class="comment">// ... optionally other customizations
+</span><span>}</span></code></pre>
+        <p>Such a bundle can then be passed to the transformer:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> := </span><span class="type-name">Seq</span><span>(
+  </span><span class="type-name">GitHubFlavor</span><span>,
+  </span><span class="type-name">MyExtensions</span><span>
+)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">MyExtensions</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>You&#39;ve probably already seen examples for specifying <code>GitHubFlavor</code> or <code>SyntaxHighlighting</code> extensions in this way.
+        These are implementations of <code>ExtensionBundle</code>, too, and come bundled with the <code>laika-core</code> module.</p>
+        
+        <h3 id="the-theme-api" class="section">The Theme API<a class="anchor-link right" href="#the-theme-api"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Creating themes expands on the extension hooks provided by bundles and adds the capability of pre-populating
+        the input tree with templates and styles.
+        It allows to offer users ready-to-use rendering styles without the need to craft their own templates, 
+        CSS or JavaScript.</p>
+        <p>Laika also comes with a lightweight default theme called Helium, and in many cases just tweaking its settings
+        might give you enough flexibility for achieving the desired look &amp; feel.
+        The theme comes with default styles for the three main output formats of Laika: web site, EPUB and PDF.
+        Configuring Helium is covered in detail in the chapter <a href="../03-preparing-content/03-theme-settings.html#theme-settings">Theme Settings</a>.</p>
+        <p>If you need full control over all aspect of the design, see the chapter <a href="02-creating-themes.html#creating-themes">Creating Themes</a> for instructions.
+        The remainder of this chapter deals with the functionality of the <code>ExtensionBundle</code> API introduced above. </p>
+        
+        <h3 id="extending-markup-syntax" class="section">Extending Markup Syntax<a class="anchor-link right" href="#extending-markup-syntax"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Laika offers two major options for extending the native syntax of a text markup language:</p>
+        <ul>
+          <li>
+            <p><a href="03-implementing-directives.html#implementing-directives">Implementing Directives</a> is an option that allows to quickly add custom functionality without 
+            implementing a custom parser.
+            Laika comes bundled with a handful of directives which are documented in <a href="../07-reference/01-standard-directives.html#standard-directives">Standard Directives</a>.</p>
+          </li>
+          <li>
+            <p><a href="04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a> is the alternative for cases where you have special requirements for the syntax
+            so that the convenient path of writing a directive is not feasible.
+            In this case you also need to become familiar with <a href="../06-sub-modules/02-laikas-parser-combinators.html#laika-s-parser-combinators">Laika&#39;s Parser Combinators</a>.</p>
+          </li>
+        </ul>
+        <p>Technically directives hook into phase 2 of a transformation while parser extensions live in phase 1. 
+        Parsing of directives is performed by Laika&#39;s built-in parsers as they all have a common syntax.
+        A directive implementation is then invoked during AST transformation, 
+        receiving all the attributes and body elements the user specified to produce a new AST node to insert.</p>
+        
+        <h3 id="additional-syntax-highlighters" class="section">Additional Syntax Highlighters<a class="anchor-link right" href="#additional-syntax-highlighters"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Laika has its own built-in syntax highlighters (based on its parser combinators).
+        See <a href="../03-preparing-content/05-syntax-highlighting.html#syntax-highlighting">Syntax Highlighting</a> for a list of languages supported out of the box.</p>
+        <p>If you want to use a language that is not supported yet, you can either decide to use an external tool like
+        <code>highlight.js</code> for this task (Laika renders code elements with attributes compatible with that tool)
+        or write your own implementation for Laika&#39;s highlighters.</p>
+        <p>If you look at the existing implementations, you&#39;ll notice that some of them are almost purely declarative,
+        as the library provides a set of building blocks for parsing the most common literal formats or comments.</p>
+        <p>But in most cases you&#39;d also need to get familiar with <a href="../06-sub-modules/02-laikas-parser-combinators.html#laika-s-parser-combinators">Laika&#39;s Parser Combinators</a>.
+        See <a href="06-adding-syntax-highlighters.html#adding-syntax-highlighters">Adding Syntax Highlighters</a> for more details.</p>
+        
+        <h3 id="additional-markup-or-output-formats" class="section">Additional Markup or Output Formats<a class="anchor-link right" href="#additional-markup-or-output-formats"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Apart from extending or customizing existing markup or output formats, you can also add support for additional formats.
+        If you want to support a different text markup language like ASCIIDoc or Textile, 
+        or if you want to produce Word output or slide formats, 
+        you can implement a <code>MarkupFormat</code> or <code>RenderFormat</code> as shown in <a href="07-new-markup-output-formats.html#new-markup-or-output-formats">New Markup or Output Formats</a>.</p>
+        
+        <h3 id="customization-hooks" class="section">Customization Hooks<a class="anchor-link right" href="#customization-hooks"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Two of the most commonly used hooks in the <code>ExtensionBundle</code> API are described in the 
+        &quot;Customizing Laika&quot; section of the manual:</p>
+        <ul>
+          <li>
+            <p><a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a>, a hook into phase 2 that allows to replace or remove nodes from the AST model 
+            between parsing and rendering.</p>
+          </li>
+          <li>
+            <p><a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a>, a hook into phase 4 that allows to override the rendered output for specific
+            AST nodes.</p>
+          </li>
+        </ul>
+        <p>There are two further hooks that drive more low-level functionality:</p>
+        <ul>
+          <li>
+            <p>The <code>docTypeMatcher</code> property in <code>ExtensionBundle</code> controls how a virtual path is used to determine the document type
+            (e.g. markup document vs. template vs. configuration file).</p>
+          </li>
+          <li>
+            <p>The <code>slugBuilder</code> property in <code>ExtensionBundle</code> controls how the text from a section headline is translated
+            to a slug for element ids. 
+            It is a simple function <code>String =&gt; String</code>.</p>
+          </li>
+        </ul>
+        
+        <h3 id="replacing-internal-parsers" class="section">Replacing Internal Parsers<a class="anchor-link right" href="#replacing-internal-parsers"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Laika does not only come with parsers for supported text markup languages.
+        It uses additional parsers for its HOCON configuration support, for parsing templates
+        and for its &quot;CSS for PDF&quot; functionality.</p>
+        <p>Although probably the least likely extension point you need to use, 
+        these three parsers can all be replaced by implementing the respective properties in the 
+        ParserBundle API: <code>configProvider</code>, <code>templateParser</code> and <code>styleSheetParser</code>.
+        Such a bundle can then be declared in an <code>ExtensionBundle</code> with the <code>parsers</code> property.</p>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>

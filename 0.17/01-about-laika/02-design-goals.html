@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+    <title>Design Goals</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
+    <script src="../helium/laika-versions.js"></script>
+    <script>initVersions("../../", "/01-about-laika/02-design-goals.html", "0.17");</script>
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika">&#xefa2;</i>
+        </a>
+        
+        <div id="version-menu-container">
+          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+            Version 0.17
+          </a>
+          <nav id="version-menu">
+            <ul id="version-list" class="nav-list">
+            </ul>
+          </nav>
+        </div>
+        
+      </div>
+  
+      <a href="../../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
+    <nav id="sidebar">
+
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="01-features.html">Features</a></li>
+        <li class="level2 active"><a href="#">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+        <li class="level2"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="../04-customizing-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+        <li class="level2"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+        <li class="level2"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2"><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+        
+      </ul>
+      
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">Design Goals</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#not-tied-to-external-tools">Not Tied to External Tools</a></li>
+          <li class="level1"><a href="#not-tied-to-the-jvm">Not Tied to the JVM</a></li>
+          <li class="level1"><a href="#not-tied-to-sbt">Not Tied to sbt</a></li>
+          <li class="level1"><a href="#not-tied-to-markdown">Not Tied to Markdown</a></li>
+          <li class="level1"><a href="#not-tied-to-html">Not Tied to HTML</a></li>
+          <li class="level1"><a href="#not-tied-to-the-file-system">Not Tied to the File System</a></li>
+          <li class="level1"><a href="#purely-functional">Purely Functional</a></li>
+          <li class="level1"><a href="#a-toolkit-for-creating-toolkits">A Toolkit for Creating Toolkits</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/01-about-laika/02-design-goals.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="design-goals" class="title">Design Goals</h1>
+        <p>Laika is designed around a few guiding principles that are outlined below.</p>
+        <p>They may be of interest for finding out how Laika tries to differentiate itself from comparable tools used in the
+        Scala ecosystem. 
+        It may also be relevant for potential contributors as a very high-level introduction to the library&#39;s 
+        underlying design choices.</p>
+        
+        <h2 id="not-tied-to-external-tools" class="section">Not Tied to External Tools<a class="anchor-link right" href="#not-tied-to-external-tools"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Laika is released as a standalone library.
+        It does not rely on any external tool or language installed on your machine, apart from the JVM or the browser,
+        depending on whether you use it with Scala.js or not.</p>
+        <p>The Scala ecosystem still heavily relies on installed tools for project documentation.
+        While it is attractive to benefit from the wide adoption of projects like Jekyll or Hugo and all its available
+        themes and extensions, the fact that a contributor has to perform installations on her machine just to verify
+        a small documentation change presents an extra hurdle that would be nice to avoid.</p>
+        <p>Scala project documentation is not the only use case Laika supports though.
+        Its independence from tools also makes it easier to embed it in server-side or browser applications.</p>
+        
+        <h2 id="not-tied-to-the-jvm" class="section">Not Tied to the JVM<a class="anchor-link right" href="#not-tied-to-the-jvm"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>The <code>laika-core</code> module, about 80% - 90% of the library&#39;s functionality is published for both, the JVM and Scala.js.
+        This way Laika can be used in the browser, e.g. for processing user input right on the client.</p>
+        <p>The implementation is also free of any runtime reflection, a prerequisite for Scala.js support and has
+        minimal dependencies. 
+        <code>laika-core</code> only depends on <code>cats-core</code> while the <code>laika-io</code> module adds a dependency on <code>cats-effect</code>.</p>
+        <p>The only module definitely tied to the JVM is the <code>laika-pdf</code> module which depends on a fairly heavy Java library
+        (Apache FOP). </p>
+        
+        <h2 id="not-tied-to-sbt" class="section">Not Tied to sbt<a class="anchor-link right" href="#not-tied-to-sbt"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>While Laika does include an sbt plugin, it is a separate artifact and only a very thin layer
+        of sbt settings and tasks on top of the library API.
+        In fact, Laika started as a library and only added the sbt plugin in version 0.5 in 2014.</p>
+        <p>Due to this design, less than 2% of the code lines in the Laika project depend on the sbt APIs.
+        Laika can easily be used with other build tools such as Mill or as a library in application code.</p>
+        <p>This is in contrast to many sbt plugins which &quot;bury&quot; the provided functionality under the sbt APIs,
+        making it unavailable for any other use case.</p>
+        
+        <h2 id="not-tied-to-markdown" class="section">Not Tied to Markdown<a class="anchor-link right" href="#not-tied-to-markdown"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Even though Markdown has become fairly ubiquitous, Laika avoided tying its internal design entirely to this one
+        markup format, in contrast to many similar tools and libraries.
+        It is decoupled from Markdown in several ways:</p>
+        <ul>
+          <li>
+            <p>In addition to its Markdown parser it comes with support for a second, 
+            advanced text markup format right out of the box: reStructuredText.
+            Which brings advanced table formats and footnotes to the table.
+            It is probably the only complete and actively maintained implementation of reStructuredText on the JVM.</p>
+          </li>
+          <li>
+            <p>The Markdown parser produces a generic AST model as a result, instead of directly producing an output format.
+            This AST does not reflect any specific semantics of Markdown and other text markup formats produce the exact
+            same kind of model. The AST can get analyzed and transformed before being fed to any of the supported
+            renderers. (See <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> and <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> for details)</p>
+          </li>
+          <li>
+            <p>The Markdown and reStructuredText parser sit behind a well-defined (and fairly simple) abstraction, 
+            the <code>MarkupFormat</code> trait. 
+            This allows 3rd-parties (or future Laika releases) to add support for additional markup formats while
+            still benefiting from the subsequent processing steps the library provides, like validating links or
+            producing tables of contents. (See <a href="../05-extending-laika/07-new-markup-output-formats.html#new-markup-or-output-formats">New Markup or Output Formats</a> for details)</p>
+          </li>
+          <li>
+            <p>Finally there is another hook for extending the syntax of existing text markup parsers. 
+            A syntax extension can be written in such a way that it works with any markup language as long as the
+            syntax does not conflict with its &quot;native&quot; syntax. (See <a href="../05-extending-laika/04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a> for details)</p>
+          </li>
+        </ul>
+        
+        <h2 id="not-tied-to-html" class="section">Not Tied to HTML<a class="anchor-link right" href="#not-tied-to-html"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Similar to Laika&#39;s independence from a particular input format, it also avoids the coupling to HTML output
+        found in many other tools.</p>
+        <p>It supports HTML, EPUB and PDF out of the box, together with an <code>AST</code> renderer that provides a formatted
+        representation of the document AST for debugging purposes.</p>
+        <p>All renderers will be fed with an AST model which is usually obtained by parsing text markup,
+        but can alternatively be generated in memory (or a combination of the two). (See <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> for details)</p>
+        <p>Like the parsers the renderers are all based on a well-defined abstraction, the <code>RenderFormat</code> trait.
+        This allows 3rd-parties (or future Laika releases) to add support for additional output formats.
+        (See <a href="../05-extending-laika/07-new-markup-output-formats.html#new-markup-or-output-formats">New Markup or Output Formats</a> for details) </p>
+        
+        <h2 id="not-tied-to-the-file-system" class="section">Not Tied to the File System<a class="anchor-link right" href="#not-tied-to-the-file-system"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>While the most common forms of specifying the input and output are file-based with the default
+        settings of the sbt plugin specifying a single directory as input, this is by no means the only option to compose 
+        the sources.</p>
+        <p>Laika internally uses a <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> to organize markup documents, templates and configuration files.
+        The decoupling from the file system gives additional flexibility. </p>
+        <p>For example, when two directories are specified as input the resulting, logical tree will be a recursive merge
+        of the two trees. 
+        This way reusable templates, styles and static files can be kept separate from the markup files.<br></p>
+        <p>A second example is the need to add generated content to the files from the input directory.
+        The content can simply be generated in-memory and get a virtual path assigned that will cause the generated
+        content to be &quot;mounted&quot; at the specified location.
+        There is no need to write the content back to the file system first, which is also very CI-friendly.</p>
+        <p>All internal link references between documents happen based on the virtual path, 
+        meaning a path in the form of <code>../intro.md</code> inside a file may refer to something generated in-memory.</p>
+        
+        <h2 id="purely-functional" class="section">Purely Functional<a class="anchor-link right" href="#purely-functional"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>All Laika APIs are designed to be purely functional. 
+        The only minor exception is the implementation of the sbt plugin (&lt; 2% of Laika&#39;s code), 
+        which has to code against sbt&#39;s impure APIs.</p>
+        <p>The library API is fully referentially transparent and abstracts all effectful computations behind a polymorphic
+        effect type based on <code>cats-effect</code> typeclasses, so that any compatible library can be used with Laika (<code>cats.IO</code>,
+        <code>Monix</code>, <code>Zio</code>).</p>
+        <p>While the target audience of this project is larger than the purely functional part of the Scala community,
+        it is always easier to ignore the aspect of referential transparency of a library that supports it in
+        case it is not your design approach than the other way round: trying to wrap pure code around an impure library.</p>
+        
+        <h2 id="a-toolkit-for-creating-toolkits" class="section">A Toolkit for Creating Toolkits<a class="anchor-link right" href="#a-toolkit-for-creating-toolkits"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>This design goal is mostly achieved &quot;for free&quot; by following the previously mentioned goals of decoupling on many levels,
+        but still deserves an explicit entry.</p>
+        <p>While Laika does also aim to be a useful tool right out of the box, the fact that almost every parsing,
+        processing or rendering step can either be heavily customized or replaced in its entirety by alternative implementations,
+        makes it a good candidate for building other engines on top of it which offer a different focus of use cases. </p>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>

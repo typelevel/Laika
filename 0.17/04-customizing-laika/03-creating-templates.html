@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+    <title>Creating Templates</title>
+    
+    
+      <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="../../img/laika-favicon.png" />
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+    <script src="../helium/laika-helium.js"></script>
+    <script src="../helium/laika-versions.js"></script>
+    <script>initVersions("../../", "/04-customizing-laika/03-creating-templates.html", "0.17");</script>
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika">&#xefa2;</i>
+        </a>
+        
+        <div id="version-menu-container">
+          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+            Version 0.17
+          </a>
+          <nav id="version-menu">
+            <ul id="version-list" class="nav-list">
+            </ul>
+          </nav>
+        </div>
+        
+      </div>
+  
+      <a href="../../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row"><a class="icon-link svg-link" href="https://github.com/planet42/Laika">
+      <span title="Source Code">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link svg-link" href="../api/laika/api/index.html">
+      <span title="API">
+           <svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+             <g class="svg-shape">
+               <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+             </g>
+           </svg>
+         </span>
+      </a><a class="icon-link" href="../downloads.html"><i class="icofont-laika" title="Download">&#xef08;</i></a><a class="icon-link" href="http://planet42.org"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></span>
+      
+    </header>
+
+    <nav id="sidebar">
+
+      <ul class="nav-list">
+        <li class="level1"><a href="../table-of-content.html">Table of Content</a></li>
+        <li class="level1"><a href="../downloads.html">Documentation Downloads</a></li>
+        <li class="level1 nav-header">About Laika</li>
+        <li class="level2"><a href="../01-about-laika/01-features.html">Features</a></li>
+        <li class="level2"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+        <li class="level1 nav-header">Running Laika</li>
+        <li class="level2"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+        <li class="level2"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+        <li class="level2"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+        <li class="level1 nav-header">Preparing Content</li>
+        <li class="level2"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+        <li class="level2"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+        <li class="level2"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+        <li class="level2"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+        <li class="level2"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+        <li class="level1 nav-header">Customizing Laika</li>
+        <li class="level2"><a href="01-overview.html">Overview</a></li>
+        <li class="level2 active"><a href="#">Creating Templates</a></li>
+        <li class="level2"><a href="04-document-ast.html">The Document AST</a></li>
+        <li class="level2"><a href="05-ast-rewriting.html">AST Rewriting</a></li>
+        <li class="level2"><a href="06-overriding-renderers.html">Overriding Renderers</a></li>
+        <li class="level1 nav-header">Extending Laika</li>
+        <li class="level2"><a href="../05-extending-laika/01-overview.html">Overview</a></li>
+        <li class="level2"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+        <li class="level2"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+        <li class="level2"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+        <li class="level2"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+        <li class="level2"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+        <li class="level1 nav-header">Sub-Modules</li>
+        <li class="level2"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+        <li class="level2"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+        <li class="level1 nav-header">Reference</li>
+        <li class="level2"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+        <li class="level2"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+        <li class="level2"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+        <li class="level2"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+        <li class="level2"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+        
+      </ul>
+      
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">Creating Templates</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#document-names-and-locations">Document Names and Locations</a></li>
+          <li class="level2"><a href="#default-templates">Default Templates</a></li>
+          <li class="level2"><a href="#overrides-per-directory">Overrides per Directory</a></li>
+          <li class="level2"><a href="#overrides-per-document">Overrides per Document</a></li>
+          <li class="level1"><a href="#template-syntax">Template Syntax</a></li>
+          <li class="level1"><a href="#inserting-content-from-markup-documents">Inserting Content from Markup Documents</a></li>
+          <li class="level2"><a href="#main-document-body">Main Document Body</a></li>
+          <li class="level2"><a href="#document-fragments">Document Fragments</a></li>
+          <li class="level1"><a href="#substitution-variables">Substitution Variables</a></li>
+          <li class="level1"><a href="#directives">Directives</a></li>
+          <li class="level1"><a href="#internal-representation">Internal Representation</a></li>
+        </ul>
+        
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/04-customizing-laika/03-creating-templates.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="creating-templates" class="title">Creating Templates</h1>
+        <p>Laika comes with a lightweight template engine that allows to customize the output
+        of the transformed markup documents.</p>
+        <p>When using a theme, creating a custom template is often not necessary, 
+        as the theme will have higher level configuration options that drive the look and feel of the output,
+        based on its own internal templates.</p>
+        <p>When subtle tweaks to a theme are not sufficient or when working without a theme,
+        adding custom templates will give you additional flexibility in controlling the output.</p>
+        <p>A template lets you specify where the content from text markup documents gets inserted
+        and allows to add additional dynamic elements like navigation bars. 
+        It does not give control over how individual AST nodes from the markup document get rendered.
+        For customizing this aspect, see <a href="06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a>. </p>
+        
+        <h2 id="document-names-and-locations" class="section">Document Names and Locations<a class="anchor-link right" href="#document-names-and-locations"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>There are two kinds of template documents you can add to your input directories:</p>
+        <ul>
+          <li>
+            <p>Default templates that get applied to all markup documents that do not explicitly specify a template</p>
+          </li>
+          <li>
+            <p>Additional templates that only get applied when a markup document explicitly refers to them</p>
+          </li>
+        </ul>
+        
+        <h3 id="default-templates" class="section">Default Templates<a class="anchor-link right" href="#default-templates"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>A default template for each output format can be placed into the root directory of the input tree.
+        If you have multiple input directories, it needs to be placed into one of the roots.</p>
+        <p>The naming pattern for default templates is <code>default.template.&lt;suffix&gt;</code>.
+        Concretely this would be:</p>
+        <ul>
+          <li><code>default.template.html</code> for generating sites.</li>
+          <li><code>default.template.epub.xhtml</code> for EPUB.</li>
+          <li><code>default.template.fo</code> for PDF (since PDF uses XSL-FO as an interim format).</li>
+        </ul>
+        <p>This template is then used for all markup documents unless overridden by one of the two mechanisms described
+        in the following sections. </p>
+        
+        <h3 id="overrides-per-directory" class="section">Overrides per Directory<a class="anchor-link right" href="#overrides-per-directory"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>A sub-directory may contain an overriding default template.
+        It would be detected by the same naming pattern as the root default template, 
+        and would be applied to all markup documents in this directory and its sub-directories.</p>
+        
+        <h3 id="overrides-per-document" class="section">Overrides per Document<a class="anchor-link right" href="#overrides-per-document"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Finally, when you want to apply a custom template to individual markup documents,
+        you can explicitly refer to it in the configuration header of the markup document:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">laika.template</span><span> = </span><span class="string-literal">../custom.template.html</span><span>
+</span><span class="keyword">%}</span></code></pre>
+        <p>The path is interpreted relative to the document, 
+        but has to be somewhere within one of the specified input directories, 
+        as templates are parsed and cached upfront before getting applied to documents.</p>
+        <p>All non-default templates must have a name with the pattern <code>&lt;name&gt;.template.&lt;suffix&gt;</code> 
+        where <code>&lt;name&gt;</code> is anything other than <code>default</code> and <code>&lt;suffix&gt;</code> is the same matching suffix as for default templates.</p>
+        
+        <h2 id="template-syntax" class="section">Template Syntax<a class="anchor-link right" href="#template-syntax"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>The following, minimal example shows a template for HTML output:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${cursor.currentDocument.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> { </span><span class="attribute-name">entries</span><span> = [{ </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span> }] } 
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;content&quot;</span><span class="tag-punctuation">&gt;</span><span>
+      </span><span class="substitution">${cursor.currentDocument.content}</span><span>
+    </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>Apart from raw content in the target format HTML, it contains:</p>
+        <ul>
+          <li>
+            <p>A substitution variable that inserts the title (<code>${cursor.currentDocument.title}</code>).
+            See <a href="#substitution-variables">Substitution Variables</a> for details.</p>
+          </li>
+          <li>
+            <p>Another substitution variable that inserts the content of the markup document (<code>${cursor.currentDocument.content}</code>).
+            See <a href="#inserting-content-from-markup-documents">Inserting Content from Markup Documents</a> for details.</p>
+          </li>
+          <li>
+            <p>A directive <code>@:navigationTree</code> for rendering a navigation tree from the root (<code>&quot;/&quot;</code>) of the input tree.
+            See <a href="#directives">Directives</a> for details.</p>
+          </li>
+        </ul>
+        
+        <h2 id="inserting-content-from-markup-documents" class="section">Inserting Content from Markup Documents<a class="anchor-link right" href="#inserting-content-from-markup-documents"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>When a template gets applied to text markup documents, 
+        you need to explicitly specify where the content from those documents should be inserted.</p>
+        
+        <h3 id="main-document-body" class="section">Main Document Body<a class="anchor-link right" href="#main-document-body"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>As shown in the example above, the substitution reference <code>${cursor.currentDocument.content}</code> causes
+        the main body of the associated text markup document to be rendered in that position.</p>
+        <p>The main body is the entire content of the markup document except for regions marked as fragments.</p>
+        <p>The internal mechanics of this insertion, which is technically just a merging of two ASTs,
+        is described in more detail in <a href="#internal-representation">Internal Representation</a>.</p>
+        
+        <h3 id="document-fragments" class="section">Document Fragments<a class="anchor-link right" href="#document-fragments"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>In some cases you might want the rendered content from the markup document to appear in more than just one place.
+        You may have a central column in the template for the main content and a sidebar or footer that needs to be
+        populated separately.</p>
+        <p>The separate sections can be marked in the text markup with the <code>@:fragment</code> directive:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">fragment</span><span>(</span><span class="string-literal">sidebar</span><span>)
+
+This content will be </span><span class="markup-emphasized">*parsed*</span><span> like all other
+content, but will be available separately from the document content.
+The block elements extend until the </span><span class="string-literal">`@:@`</span><span> fence below.
+  
+Therefore this line still belongs to the fragment.
+
+</span><span class="keyword">@:@</span><span>
+  
+This line doesn&#39;t and will be part of the main document content.</span></code></pre>
+        <p>Within templates you can then refer to this content with the substitution variable: </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>`</span><span class="substitution">${cursor.currentDocument.fragments.sidebar}</span><span>`</span></code></pre>
+        <p>The fragment names (<code>sidebar</code> in this case) can be freely chosen, they do not have any predefined meaning within Laika.</p>
+        
+        <h2 id="substitution-variables" class="section">Substitution Variables<a class="anchor-link right" href="#substitution-variables"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>The previous section already introduced the substitution variables for inserting content from markup documents,
+        but there are plenty of other predefined variables you can use, in addition to your own definitions.</p>
+        <p>The syntax is part of Laika&#39;s HOCON support and matches the <a href="https://github.com/lightbend/config/blob/master/HOCON.md">HOCON spec</a>.</p>
+        <p>A mandatory reference can be inserted with the key of the variable enclosed between <code>${</code> and <code>}</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="substitution">${cursor.currentDocument.title}</span></code></pre>
+        <p>If such a value is undefined, the transformation will fail (unless you tweaked the configuration for <a href="../02-running-laika/03-configuration.html#error-handling">Error Handling</a>).</p>
+        <p>An optional reference can be expressed by adding an additional <code>?</code> right before the variable key:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="substitution">${?cursor.currentDocument.title}</span></code></pre>
+        <p>If an optional reference points to an undefined value, the reference in the template is substituted with an empty string.</p>
+        <p>For a full list of predefined values see <a href="#substitution-variables">Substitution Variables</a> in the Reference section.
+        For instructions on defining your own see <a href="../02-running-laika/03-configuration.html#user-defined-variables">User-Defined Variables</a>.</p>
+        
+        <h2 id="directives" class="section">Directives<a class="anchor-link right" href="#directives"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Directives are Laika&#39;s mechanism for extending the syntax of templates or text markup without the need to implement
+        a custom parser.</p>
+        <p>A directive always starts with an <code>@:</code>, the name of the directive and optionally attributes or body elements.</p>
+        <ul>
+          <li>
+            <p>Positional attributes can follow enclosed in <code>(</code> and <code>)</code>, e.g. <code>@:fragment(sidebar)</code>.</p>
+          </li>
+          <li>
+            <p>Named attributes in HOCON format can follow between <code>{</code> and <code>}</code> and can be any valid HOCON structure,
+            e.g. <code>@:navigationTree { entries = [{ target = &quot;/&quot; }] }</code>.</p>
+          </li>
+          <li>
+            <p>Body elements is regular markup or template content immediately after the directive declaration until
+            a <code>@:@</code> fence, as shown in the example in <a href="#document-fragments">Document Fragments</a>. 
+            The AST for these parsed body elements will be passed to the directive implementation for processing. </p>
+          </li>
+          <li>
+            <p>Positional and named attribute can theoretically both appear in the same directive, 
+            but is usually avoided for sakes of clarity and simplicity.</p>
+          </li>
+        </ul>
+        <p>Some directive implementations require a set of mandatory attributes and may cause the transformation to fail
+        should they be missing.</p>
+        <p>The most relevant directives for templates are those for generating navigation elements, 
+        like <a href="../03-preparing-content/02-navigation.html#generating-navigation-trees">Generating Navigation Trees</a> or <a href="../03-preparing-content/02-navigation.html#breadcrumbs">Breadcrumbs</a>.</p>
+        <p>For a full reference of the directives provided by Laika out of the box, see <a href="../07-reference/01-standard-directives.html#standard-directives">Standard Directives</a>.</p>
+        <p>For instructions on how to write your own, see <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>.</p>
+        
+        <h2 id="internal-representation" class="section">Internal Representation<a class="anchor-link right" href="#internal-representation"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <p>Templates get parsed into an AST just like text markup documents.
+        This has several convenient consequences.</p>
+        <p>First, custom elements like directives can be implemented in a way that they produce AST nodes and not
+        immediately string content in the output format.
+        Therefore a single implementation of a template directive can usually be used for all supported output formats. </p>
+        <p>Secondly the implementation of &quot;applying a template to a markup document&quot; becomes close to trivial.
+        It is merely the insertion of one AST at a particular node in another AST.
+        Let&#39;s illustrate this with an example.</p>
+        <p>This is the template shown earlier in this chapter, further simplified to keep the AST output concise:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${cursor.currentDocument.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
+  </span><span class="tag-punctuation">&lt;</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+    </span><span class="substitution">${cursor.currentDocument.content}</span><span>
+  </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
+</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>The AST for this template looks like this:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">TemplateRoot</span><span> - </span><span class="keyword">TemplateSpans</span><span>: </span><span class="number-literal">5</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;&lt;html&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;head&gt;</span><span class="escape-sequence">|</span><span class="string-literal">    &lt;title&gt;&#39;</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateContextReference</span><span>(</span><span class="string-literal">cursor</span><span>.</span><span class="string-literal">currentDocument</span><span>.</span><span class="string-literal">title</span><span>,</span><span class="string-literal">true</span><span>)
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;&lt;/title&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;/head&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;body&gt;</span><span class="escape-sequence">|</span><span class="string-literal">    &#39;</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateContextReference</span><span>(</span><span class="string-literal">cursor</span><span>.</span><span class="string-literal">currentDocument</span><span>.</span><span class="string-literal">content</span><span>,</span><span class="string-literal">true</span><span>)
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;/body&gt;</span><span class="escape-sequence">|</span><span class="string-literal">&lt;/html&gt;&#39;</span></code></pre>
+        <p>The raw content gets represented by <code>TemplateString</code> nodes.
+        The AST renderer truncates beyond a certain length and replaces newlines with <code>|</code> for putting more emphasis 
+        on the structure.
+        The variable reference gets represented by a <code>TemplateContextReference</code> which will be resolved later.</p>
+        <p>More complex real-world scenarios will have additional node types, like those for representing a directive.</p>
+        <p>Next we create an equally minimal text markup document:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="markup-headline">Headline
+========</span><span>
+
+Some Text.</span></code></pre>
+        <p>This produces just the Title node and a Paragraph in the resulting AST:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">2</span><span>
+</span><span class="tag-punctuation">. </span><span class="markup-headline">Title</span><span>(</span><span class="identifier">Id</span><span>(</span><span class="string-literal">headline</span><span>) + </span><span class="identifier">Styles</span><span>(</span><span class="string-literal">title</span><span>)) - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;Headline&#39;</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;Some Text.&#39;</span></code></pre>
+        <p>This is just the tip of iceberg of available node types, for a general overview see <a href="04-document-ast.html#the-document-ast">The Document AST</a>.</p>
+        <p>We then finally apply the template to the document. 
+        In a normal Laika transformation this happens automatically as the final step before rendering,
+        but when working directly with the document model, 
+        you can alternatively call <code>applyTo</code> on a <code>TemplateDocument</code> instance.</p>
+        <p>The result will look like this:</p>
+        <pre><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">TemplateRoot</span><span> - </span><span class="keyword">TemplateSpans</span><span>: </span><span class="number-literal">5</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;&lt;html&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;head&gt;</span><span class="escape-sequence">|</span><span class="string-literal">    &lt;title&gt;&#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">TemplateElement</span><span>(</span><span class="number-literal">0</span><span>)
+</span><span class="tag-punctuation">. . . </span><span class="type-name">SpanSequence</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . . . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;Headline&#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;&lt;/title&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;/head&gt;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;body&gt;</span><span class="escape-sequence">|</span><span class="string-literal">    &#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">EmbeddedRoot</span><span>(</span><span class="number-literal">4</span><span>) - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">2</span><span>
+</span><span class="tag-punctuation">. . . </span><span class="markup-headline">Title</span><span>(</span><span class="identifier">Id</span><span>(</span><span class="string-literal">headline</span><span>) + </span><span class="identifier">Styles</span><span>(</span><span class="string-literal">title</span><span>)) - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . . . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;Headline&#39;</span><span>
+</span><span class="tag-punctuation">. . . </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . . . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;Some Text.&#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">TemplateString</span><span> - </span><span class="string-literal">&#39;</span><span class="escape-sequence">|</span><span class="string-literal">  &lt;/body&gt;</span><span class="escape-sequence">|</span><span class="string-literal">&lt;/html&gt;&#39;</span></code></pre>
+        <p>The two nodes which previously represented the two context references have been replaced
+        by the corresponding AST from the parsed markup.</p>
+        <p>In case of the main content, the node <code>EmbeddedRoot</code> represents the insertion point of one AST into another.</p>
+        <p>This final AST is the model that will be passed on to renderers.</p>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>
