@@ -7,7 +7,7 @@ Toolkit for transforming lightweight text markup and template based site and e-b
 Latest Release
 --------------
 
-The latest release is version **0.16.1**.  
+The latest release is version **0.17.0**.  
 
 It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
 

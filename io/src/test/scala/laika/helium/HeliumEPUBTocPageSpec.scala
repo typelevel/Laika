@@ -63,7 +63,7 @@ class HeliumEPUBTocPageSpec extends IOFunSuite with InputBuilder with ResultExtr
     val expected = """<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title>Contents</title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |</head>

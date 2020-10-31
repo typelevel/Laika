@@ -3,6 +3,51 @@ Release Notes
 =============
 
 
+0.17.0 (Oct ??, 2020)
+---------------------
+
+* New Support for Versioned Documentation
+    * Allows to configure individual inputs (directories or documents) as versioned or unversioned.
+    * Writes versioned documents into a sub-path (e.g. `/0.17/...`).
+    * Includes a version dropdown in the Helium theme to switch between versions.
+    * Dropdown is populated from JSON, therefore *older versions see newer versions*.
+    * Support for "smart linking" where the version switcher picks the same page in the target version when it exists.
+    
+* Position Tracking for Multi-Pass Parsers
+    * Previous releases only supported position tracking for single-pass parsers (e.g. CSS, HOCON, templates),
+      but not for multi-pass (text markup), where the 2nd and subsequent passes lost track of the position.
+    * Support for multi-pass tracking was introduced by replacing the old `ParserContext` type 
+      by an ADT (`SourceCursor`), with concrete sub-types for recursive parsing (e.g. `BlockSource` or `LineSource`),
+      that remember their relative position into the `RootSource`.
+    * Formatting of parser errors for Markdown and reStructuredText was improved to carry line number information.
+    
+* Configuration Enhancements
+    * New configuration options `laika.targetFormats`, available for directory and document configuration,
+      which allows to restrict the output formats a document is rendered in.
+    * Allows to configure a document to only be part of the site output, but not the PDF and EPUB for example,
+      or, when specifying an empty array, to not be rendered at all, in case you intend to use 
+      a document solely via the new `@:include` directive.
+    * Link Validation is aware of this configuration and prevents you from linking to a document that is available
+      in fewer output formats than the link source.
+    
+* New Directives
+    * `@:include` and `@:embed` allow to include other text markup documents or templates in the current document.
+      The latter also allows to pass a parsed body element which can be referenced inside the included resources,
+      which may be useful for creating "master templates" that act as a frame for child templates.
+    
+* New Link Validation API
+    * `DocumentCursor` has several new `validate` methods to validate internal targets by relative or absolute paths, 
+      allowing this previously internal logic to be used by custom rewrite rules or directives.
+    
+* Improved Fenced Code Blocks for Markdown
+    * Lifts the requirement of a preceding blank line to detect a code fence.
+    
+* Bugfixes
+    * One of the default fonts (Lato) in the Helium theme had a `http` URL and thus did not work over `https`.
+    * `selectDocument(Path)` on `DocumentTree` did not work for title documents, which also caused issues for
+      navigation directives when used on input trees with title documents.
+    
+
 0.16.1 (Sep 12, 2020)
 ---------------------
 

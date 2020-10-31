@@ -66,7 +66,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                         |<meta charset="utf-8">
                         |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                        |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                         |<title></title>
                         |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                         |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
@@ -125,7 +125,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
@@ -152,7 +152,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
@@ -173,7 +173,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title></title>
                      |<meta name="author" content="Maria Green"/>
                      |<meta name="author" content="Elena Blue"/>
@@ -207,7 +207,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png" />
                      |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
@@ -228,7 +228,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" href="http://fonts.com/font-1.css">
                      |<link rel="stylesheet" href="http://fonts.com/font-2.css">
@@ -254,7 +254,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     |<meta charset="utf-8">
                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    |<meta name="generator" content="Laika 0.16.0 + Helium Theme" />
+                    |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
                     |<title></title>
                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
