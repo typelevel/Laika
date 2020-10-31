@@ -3,7 +3,7 @@ Release Notes
 =============
 
 
-0.17.0 (Oct ??, 2020)
+0.17.0 (Oct 31, 2020)
 ---------------------
 
 * New Support for Versioned Documentation
