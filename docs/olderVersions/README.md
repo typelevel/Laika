@@ -1,3 +1,6 @@
+{%
+  laika.template = "reduced.template.html"
+%}
 
 Older Versions
 ==============
@@ -5,7 +8,7 @@ Older Versions
 Documentation for versions 0.1 through 0.15 is no longer available on this site, 
 but you can still browse the documentation sources and scaladoc as linked in the table below.
 
-It's strongly recommended to upgrade to the latest release, which has increased functionality and robustness
+It's strongly recommended to upgrade to the latest release (0.17), which has increased functionality and robustness
 and now also more API stability than those older releases.
 
 
@@ -53,6 +56,7 @@ and now also more API stability than those older releases.
 [api08]: https://javadoc.io/doc/org.planet42/laika-core_2.12/0.8.0/laika/api/index.html
 [api07]: https://javadoc.io/doc/org.planet42/laika-core_2.12/0.7.0/laika/api/index.html
 [api06]: https://javadoc.io/doc/org.planet42/laika-core_2.11/0.6.0/index.html#package
+[api05]: https://javadoc.io/doc/org.planet42/laika-core_2.10/0.5.0/index.html#package
 [api04]: https://javadoc.io/doc/org.planet42/laika_2.10/0.4.0/index.html#package
 [api03]: https://javadoc.io/doc/org.planet42/laika_2.10/0.3.0/index.html#package
 [api02]: https://javadoc.io/doc/org.planet42/laika_2.10/0.2.0/index.html#package
