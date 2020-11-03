@@ -304,13 +304,20 @@ class RewriteRulesSpec extends AnyWordSpec
       ))
     }
 
+    "resolve internal link references to a target in the same tree" in {
+      val relPath = "doc-4.md#target-4"
+      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+        internalLink(RelativePath.parse(relPath))
+      ))
+    }
+
     "resolve internal link references to a target in the parent tree" in {
       rewrittenTreeDoc(pathRef("../doc-1.md#ref")) should be(p(
         internalLink(RelativePath.parse("../doc-1.md#ref"))
       ))
     }
 
-    "resolve internal link references to a target in a sibling tree with external link mapping" in {
+    "resolve internal link references to a target in a sibling tree" in {
       rewrittenTreeDoc(pathRef("../tree-2/doc-5.md#ref")) should be(p(
         internalLink(RelativePath.parse("../tree-2/doc-5.md#ref"))
       ))
