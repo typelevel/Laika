@@ -16,19 +16,21 @@
 
 package laika.rewrite
 
-import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.ast.sample.SampleTrees
-import laika.config.{ConfigParser, LaikaKeys}
+import laika.ast.sample.SampleConfig.{noLinkValidation, siteBaseURL, targetFormats}
+import laika.ast.sample.{SampleSixDocuments, SampleTrees}
+import laika.config.LaikaKeys
 import laika.parse.GeneratedSource
+import laika.rewrite.link.{LinkConfig, TargetDefinition}
 import laika.rewrite.nav.TargetFormats
 import laika.rst.ast.Underline
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
 
 class RewriteRulesSpec extends AnyWordSpec
   with Matchers
@@ -228,189 +230,190 @@ class RewriteRulesSpec extends AnyWordSpec
 
   "The rewrite rules for global link definitions" should {
 
-    val rootWithTarget = root(InternalLinkTarget(Id("ref")))
+    val linkTarget = root(InternalLinkTarget(Id("ref")))
 
-    val linkDefinitions =
-      """{ 
-        |  laika.links.targets {
-        |    int = "../doc1.md#ref" 
-        |    ext = "https://www.foo.com/"
-        |    inv = "../doc99.md#ref"
-        |  }
-        |}""".stripMargin
+    val linkConfig = LinkConfig(targets = Seq(
+      TargetDefinition("int", InternalTarget(RelativePath.parse("../doc-1.md#ref"))),
+      TargetDefinition("ext", ExternalTarget("https://www.foo.com/")),
+      TargetDefinition("inv", InternalTarget(RelativePath.parse("../doc-99.md#ref")))
+    ))
 
-    def rewrittenTreeDoc (rootToRewrite: RootElement): RootElement = {
-      val tree = DocumentTree(Root, Seq(
-        Document(Root / "doc1.md", rootWithTarget),
-        Document(Root / "doc2.md", rootWithTarget),
-        DocumentTree(Root / "tree1", Seq(
-          Document(Root / "tree1" / "doc3.md", rootToRewrite, config = ConfigParser.parse(linkDefinitions).resolve().toOption.get),
-          Document(Root / "tree1" / "doc4.md", rootWithTarget),
-        )),
-      ))
-      val root = DocumentTreeRoot(tree, staticDocuments = Seq(StaticDocument(Root / "images" / "frog.jpg")))
+    def rewrittenTreeDoc (ref: LinkIdReference): Block = {
+      val root =
+        SampleTrees.sixDocuments
+          .config(_.withValue(linkConfig))
+          .docContent(linkTarget)
+          .doc3.content(p(ref))
+          .suffix("md")
+          .build
       val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
-      rewrittenTree.tree.selectDocument("tree1/doc3.md").get.content
+      rewrittenTree.tree.selectDocument("tree-1/doc-3.md").get.content.content.head
     }
 
     "resolve internal link references to a target in the parent tree" in {
-      val rootElem = root(p(linkIdRef("int")))
-      val internalLink = SpanLink(List(Text("text")), InternalTarget(RelativePath.parse("../doc1.md#ref")).relativeTo(Root / "tree1"))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink)))
+      val internalLink = SpanLink(List(Text("text")), InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1"))
+      rewrittenTreeDoc(linkIdRef("int")) should be(p(internalLink))
     }
 
     "resolve external link references" in {
-      val rootElem = root(p(linkIdRef("ext")))
       val externalLink = SpanLink(List(Text("text")), ExternalTarget("https://www.foo.com/"))
-      rewrittenTreeDoc(rootElem) should be(root(p(externalLink)))
+      rewrittenTreeDoc(linkIdRef("ext")) should be(p(externalLink))
     }
 
     "produce an invalid span for an unresolved id" in {
-      val rootElem = root(p(linkIdRef("missing")))
-      val expected = root(p(invalidSpan("unresolved link id reference: missing", "<<missing>>")))
-      rewrittenTreeDoc(rootElem) should be(expected)
+      val expected = p(invalidSpan("unresolved link id reference: missing", "<<missing>>"))
+      rewrittenTreeDoc(linkIdRef("missing")) should be(expected)
     }
 
     "produce an invalid span for an unresolved reference" in {
-      val rootElem = root(p(linkIdRef("inv")))
-      val expected = root(p(invalidSpan("unresolved internal reference: ../doc99.md#ref", "<<inv>>")))
-      rewrittenTreeDoc(rootElem) should be(expected)
+      val expected = p(invalidSpan("unresolved internal reference: ../doc-99.md#ref", "<<inv>>"))
+      rewrittenTreeDoc(linkIdRef("inv")) should be(expected)
     }
 
   }
 
   "The rewrite rules for internal links" should {
-
-    val refPath = Root / "tree-1" / "doc-3.md"
     
-    def contentWithHeader (level: Int): Seq[Block] = 
-      Seq(Header(level, Seq(Text("Header"))), InternalLinkTarget(Id("ref")))
+    val pathUnderTest = Root / "tree-1" / "doc-3.md"
+    val defaultTarget = InternalLinkTarget(Id("ref"))
 
-    def rewrittenTreeDoc (rootToRewrite: RootElement, doc4TargetFormats: Seq[String] = Nil, validateTree1: Boolean = true): RootElement = {
+    def rewrittenTreeDoc (ref: Span, builder: SampleSixDocuments => SampleSixDocuments = identity): Block = {
       
-      val content: Int => Seq[Block] = {
-        case 1     => contentWithHeader(1)
-        case 2     => contentWithHeader(2)
-        case 3     => rootToRewrite.content
-        case 4     => Seq(InternalLinkTarget(Id("target-4")))
-        case 5 | 6 => Seq(InternalLinkTarget(Id("ref")))
-      }
-      
-      val tree2 = SampleTrees.sixDocuments
-        .docContent(content)
-        .suffix("md")
-        .root.config(_.withValue(LaikaKeys.siteBaseURL, "http://external/"))
-        .tree1.config(if (validateTree1) identity else _.withValue(LaikaKeys.validateLinks, false))
-        .doc4.config(if (doc4TargetFormats.isEmpty) identity else _.withValue(LaikaKeys.targetFormats, doc4TargetFormats))
-        .build.tree
+      val root = 
+        SampleTrees.sixDocuments
+          .docContent(defaultTarget)
+          .doc3.content(p(ref), defaultTarget)
+          .doc4.content(InternalLinkTarget(Id("target-4")))
+          .suffix("md")
+          .config(siteBaseURL("http://external/"))
+          .apply(builder)
+          .build
 
-      val staticDocs = Seq(
-        StaticDocument(Root / "images" / "frog.jpg"),
-        StaticDocument(Root / "static" / "doc.html", NonEmptyChain
-          .fromSeq(doc4TargetFormats)
-          .map(_.toNes)
-          .fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_))
-        )
-      )
-      val root = DocumentTreeRoot(tree2, staticDocuments = staticDocs)
-      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
-      rewrittenTree.tree.selectDocument(refPath.relative).get.content
+      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root)) // TODO - integrate these two lines into builder API together with template rewriting
+      rewrittenTree.tree.selectDocument(pathUnderTest.relative).get.content.content.head
     }
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
-    def imgPathRef (ref: String) = ImagePathReference(RelativePath.parse(ref), GeneratedSource, alt = Some("text"))
+    
     def internalLink (path: RelativePath, targetFormats: TargetFormats = TargetFormats.All) =
-      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(Root / "tree-1" / "doc-3.md").copy(internalFormats = targetFormats))
-    def docLink (ref: String) =
-      SpanLink(List(Text("text")), InternalTarget(CurrentDocument(ref)).relativeTo(refPath))
+      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(pathUnderTest).copy(internalFormats = targetFormats))
 
     "resolve internal link references to a target in the same document" in {
-      val rootElem = root(p(pathRef("#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(pathRef("#ref")) should be(p(
+        internalLink(CurrentDocument("ref"))
+      ))
     }
 
     "resolve internal link references to a target in the parent tree" in {
-      val rootElem = root(p(pathRef("../doc-1.md#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../doc-1.md#ref"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(pathRef("../doc-1.md#ref")) should be(p(
+        internalLink(RelativePath.parse("../doc-1.md#ref"))
+      ))
     }
 
     "resolve internal link references to a target in a sibling tree with external link mapping" in {
-      val rootElem = root(p(pathRef("../tree-2/doc-5.md#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree-2/doc-5.md#ref"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md#ref")) should be(p(
+        internalLink(RelativePath.parse("../tree-2/doc-5.md#ref"))
+      ))
     }
 
     "resolve internal link references to a markup document" in {
-      val rootElem = root(p(pathRef("../tree-2/doc-5.md")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../tree-2/doc-5.md"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md")) should be(p(
+        internalLink(RelativePath.parse("../tree-2/doc-5.md"))
+      ))
     }
 
     "resolve internal link references to a static document" in {
-      val rootElem = root(p(pathRef("../images/frog.jpg")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../images/frog.jpg"))), InternalLinkTarget(Id("ref"))))
+      val relPath = "../images/frog.txt"
+      val absPath = Root / "images" / "frog.txt"
+      
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath)) should be(p(
+        internalLink(RelativePath.parse(relPath))
+      ))
     }
 
     "resolve internal link references to an image" in {
-      val rootElem = root(p(imgPathRef("../images/frog.jpg")))
-      val target = InternalTarget(Parent(1) / "images" / "frog.jpg").relativeTo(refPath)
-      rewrittenTreeDoc(rootElem) should be(root(p(Image(target, alt = Some("text")))))
+      val relPath = Parent(1) / "images" / "frog.jpg"
+      val absPath = Root / "images" / "frog.jpg"
+      val imgPathRef = ImagePathReference(relPath, GeneratedSource, alt = Some("text"))
+      val target = InternalTarget(relPath).relativeTo(refPath)
+      
+      rewrittenTreeDoc(imgPathRef, _.staticDoc(absPath)) should be(p(
+        Image(target, alt = Some("text"))
+      ))
     }
 
     "produce an invalid span for an unresolved reference" in {
-      val rootElem = root(p(pathRef("../tree-2/doc99.md#ref")), InternalLinkTarget(Id("ref")))
-      val expected = root(p(invalidSpan("unresolved internal reference: ../tree-2/doc99.md#ref", "[<../tree-2/doc99.md#ref>]")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(expected)
+      val relPath = "../tree-2/doc99.md#ref"
+      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+        invalidSpan(s"unresolved internal reference: $relPath", s"[<$relPath>]")
+      ))
     }
 
     "produce an invalid span for a reference to a markup document with fewer target formats than the source" in {
-      val rootElem = root(p(pathRef("doc-4.md#target-4")), InternalLinkTarget(Id("ref")))
-      val msg = "document for all output formats cannot reference document 'doc-4.md#target-4' " +
+      val relPath = "doc-4.md#target-4"
+      val msg = s"document for all output formats cannot reference document '$relPath' " +
         s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
-      val expected = root(p(invalidSpan(msg, "[<doc-4.md#target-4>]")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
+      
+      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("pdf"))) should be(p(
+        invalidSpan(msg, s"[<$relPath>]")
+      ))
     }
 
-    "produce an invalid span for a reference to a static document with fewer target formats than the source ZZZ" in {
-      val rootElem = root(p(pathRef("../static/doc.html")), InternalLinkTarget(Id("ref")))
-      val msg = "document for all output formats cannot reference document '../static/doc.html' " +
+    "produce an invalid span for a reference to a static document with fewer target formats than the source" in {
+      val relPath = "../static/doc.html"
+      val absPath = Root / "static" / "doc.html"
+      val msg = s"document for all output formats cannot reference document '$relPath' " +
         "with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
-      val expected = root(p(invalidSpan(msg, "[<../static/doc.html>]")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf")) should be(expected)
+      
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "pdf")) should be(p(
+        invalidSpan(msg, s"[<$relPath>]")
+      ))
     }
 
     "allow links to missing target documents when one of the parent trees has the validateLinks flag set to false" in {
-      val rootElem = root(p(pathRef("doc99.md#ref")), InternalLinkTarget(Id("ref")))
-      val expected = root(p(internalLink(RelativePath.parse("doc99.md#ref"))), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("pdf"), validateTree1 = false) should be(expected)
+      rewrittenTreeDoc(pathRef("doc99.md#ref"), _
+        .doc4.config(targetFormats("pdf"))
+        .tree1.config(noLinkValidation)
+      ) should be(p(
+        internalLink(RelativePath.parse("doc99.md#ref"))
+      ))
     }
 
     "add a restricted target format parameter for a reference to a markup document with fewer target formats than the source when siteBaseURL is defined" in {
-      val rootElem = root(p(pathRef("doc-4.md#target-4")), InternalLinkTarget(Id("ref")))
-      val enhancedLink = internalLink(RelativePath.parse("doc-4.md#target-4"), TargetFormats.Selected("html"))
-      val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
+      val relPath = "doc-4.md#target-4"
+      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("html"))) should be(p(
+        internalLink(RelativePath.parse(relPath), TargetFormats.Selected("html"))
+      ))
     }
 
     "add a restricted target format parameter for a reference to a static document with fewer target formats than the source when siteBaseURL is defined" in {
-      val rootElem = root(p(pathRef("..static/doc.html")), InternalLinkTarget(Id("ref")))
-      val enhancedLink = internalLink(RelativePath.parse("..static/doc.html"), TargetFormats.Selected("html"))
-      val expected = root(p(enhancedLink), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem, doc4TargetFormats = Seq("html")) should be(expected)
+      val relPath = "../static/doc.html"
+      val absPath = Root / "static" / "doc.html"
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "html")) should be(p(
+        internalLink(RelativePath.parse(relPath), TargetFormats.Selected("html"))
+      ))
     }
 
     "avoid validation for references beyond the virtual root" in {
-      val rootElem = root(p(pathRef("../../doc99.md#ref")), InternalLinkTarget(Id("ref")))
-      val expected = root(p(extLink("../../doc99.md#ref")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(expected)
+      val relPath = "../../doc99.md#ref"
+      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+        extLink(relPath)
+      ))
     }
 
     "resolve a link id reference to a target in the same tree" in {
-      val rootElem = root(p(linkIdRef("target-4")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("doc-4.md#target-4"))), InternalLinkTarget(Id("ref"))))
+      rewrittenTreeDoc(linkIdRef("target-4")) should be(p(internalLink(RelativePath.parse("doc-4.md#target-4"))))
     }
 
     "resolve a link id reference to a header with a duplicate id by precedence" in {
-      val rootElem = root(p(linkIdRef("header")), InternalLinkTarget(Id("ref")))
-      rewrittenTreeDoc(rootElem) should be(root(p(internalLink(RelativePath.parse("../doc-1.md#header"))), InternalLinkTarget(Id("ref"))))
+      def header (level: Int): Block = Header(level, Seq(Text("Header")))
+      
+      rewrittenTreeDoc(linkIdRef("header"), _
+        .doc1.content(header(1))
+        .doc2.content(header(2))
+      ) should be(p(
+        internalLink(RelativePath.parse("../doc-1.md#header"))
+      ))
     }
 
   }

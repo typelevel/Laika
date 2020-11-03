@@ -17,8 +17,8 @@
 package laika.ast.sample
 
 import laika.ast.Path.Root
-import laika.ast.{Block, Document, DocumentCursor, DocumentTree, DocumentTreeRoot, Paragraph, Path, RootElement, Title, TreeContent}
-import laika.config.{Config, ConfigBuilder, Origin}
+import laika.ast.{Block, Document, DocumentCursor, DocumentTree, DocumentTreeRoot, Paragraph, Path, RootElement, StaticDocument, Title, TreeContent}
+import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
 
 object SampleTrees {
 
@@ -88,6 +88,21 @@ class SampleSixDocuments (protected val sampleRoot: SampleRoot) extends SampleOp
   
   def suffix (value: String): RootApi = new SampleSixDocuments(sampleRoot.copy(suffix = Some(value)))
   def docContent (f: Int => Seq[Block]): RootApi = new SampleSixDocuments(sampleRoot.copy(defaultContent = f))
+  def docContent (blocks: Seq[Block]): RootApi = new SampleSixDocuments(sampleRoot.copy(defaultContent = _ => blocks))
+  def docContent (block: Block, blocks: Block*): RootApi = docContent(block +: blocks)
+  def config (f: ConfigBuilder => ConfigBuilder): RootApi = root.config(f)
+  def apply (f: SampleSixDocuments => SampleSixDocuments): RootApi = f(this)
+  
+  def staticDoc (path: Path): RootApi = 
+    new SampleSixDocuments(sampleRoot.copy(
+      staticDocuments = sampleRoot.staticDocuments :+ StaticDocument(path)
+    ))
+    
+  def staticDoc (path: Path, format: String, formats: String*): RootApi =
+    new SampleSixDocuments(sampleRoot.copy(
+      staticDocuments = sampleRoot.staticDocuments :+ StaticDocument(path, format, formats:_*)
+    ))  
+  
   
   private[sample] def copyWith (root: SampleRoot): RootApi = new SampleSixDocuments(root)
   
@@ -98,16 +113,20 @@ class SampleSixDocuments (protected val sampleRoot: SampleRoot) extends SampleOp
         sampleRoot.docBuilders(docNum + 1),
       ), parentConfig, sampleRoot)
     val tree = buildTree(0, 0, Config.empty)
-    DocumentTreeRoot(tree.copy(
-      content = tree.content ++ Seq(buildTree(1, 2, tree.config), buildTree(2, 4, tree.config))
-    ))
+    DocumentTreeRoot(
+      tree = tree.copy(
+        content = tree.content ++ Seq(buildTree(1, 2, tree.config), buildTree(2, 4, tree.config))
+      ),
+      staticDocuments = sampleRoot.staticDocuments
+    )
   }
 }
 
 private[sample] case class SampleRoot (treeBuilders: IndexedSeq[SampleTree],
                                        docBuilders: IndexedSeq[SampleDocument],
                                        defaultContent: Int => Seq[Block],
-                                       suffix: Option[String] = None) {
+                                       suffix: Option[String] = None,
+                                       staticDocuments: Seq[StaticDocument] = Nil) {
   
 }
 
@@ -127,6 +146,8 @@ trait SampleDocumentOps extends NumberedSampleOps {
   // TODO - configValue API
 
   def content (f: Int => Seq[Block]): RootApi = setDocumentContent(num, f)
+  def content (blocks: Seq[Block]): RootApi = setDocumentContent(num, _ => blocks)
+  def content (block: Block, blocks: Block*): RootApi = content(block +: blocks)
   
   def buildCursor: DocumentCursor = ???
   
@@ -183,6 +204,11 @@ object SampleContent {
 }
 
 object SampleConfig {
+  
+  val noLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue(LaikaKeys.validateLinks, false)
+  def targetFormats (formats: String*): ConfigBuilder => ConfigBuilder = _.withValue(LaikaKeys.targetFormats, formats)
+  def siteBaseURL (value: String): ConfigBuilder => ConfigBuilder = _.withValue(LaikaKeys.siteBaseURL, value)
+  
   
 //  val versions: ConfigBuilder => ConfigBuilder = ???
 //  val selections: ConfigBuilder => ConfigBuilder = ???

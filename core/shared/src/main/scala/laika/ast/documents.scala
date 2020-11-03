@@ -16,11 +16,12 @@
 
 package laika.ast
 
+import cats.data.NonEmptySet
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.IncludeMap
 import laika.config._
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 import laika.rewrite.nav.{AutonumberConfig, TargetFormats}
+import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
 
 
 /** A navigatable object is anything that has an associated path.
@@ -104,6 +105,11 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   * Used for evaluating links and other AST transformation phases. 
   */
 case class StaticDocument (path: Path, formats: TargetFormats = TargetFormats.All)
+
+object StaticDocument {
+  def apply (path: Path, format: String, formats: String*): StaticDocument = 
+    StaticDocument(path, TargetFormats.Selected(NonEmptySet.of(format, formats:_*)))
+}
 
 /** A temporary structure usually not exposed to user code.
   * It holds a document with an empty Config instance and its actual config
