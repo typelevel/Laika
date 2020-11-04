@@ -37,7 +37,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     StaticDocument(Root / "doc-1.css", TargetFormats.Selected("html")),
     StaticDocument(Root / "doc-2.epub.css", TargetFormats.Selected("epub", "epub.xhtml")),
     StaticDocument(Root / "doc-3.shared.css", TargetFormats.Selected("epub", "epub.xhtml", "html")),
-    StaticDocument(Root / "sub2" / "doc-4.css", TargetFormats.Selected("html")),
+    StaticDocument(Root / "tree-2" / "doc-4.css", TargetFormats.Selected("html")),
   )
 
   def parseAndRewrite(template: String, 
@@ -51,8 +51,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     }
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
-      val templateDoc = TemplateDocument(templatePath, root)
-      val inputTree = buildTree(List(templateDoc))
+      val inputTree = buildTree(Some(templatePath.name, root.content))
       val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
       val treeRoot = DocumentTreeRoot(tree, staticDocuments = static)
       TemplateRewriter.applyTemplates(treeRoot, ctx).left.map(_.message)
@@ -61,7 +60,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     for {
       templateRoot <- templateParser.parse(template).toEither
       treeRoot     <- applyTemplate(templateRoot)
-      docUnderTest <- treeRoot.tree.selectDocument(CurrentTree / "sub2" / "doc6").toRight("document under test missing")
+      docUnderTest <- treeRoot.tree.selectDocument(CurrentTree / "tree-2" / "doc-6").toRight("document under test missing")
     } yield docUnderTest.content
   }
 
@@ -92,7 +91,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     val input =
       """aaa
         |
-        |@:linkCSS { paths = [ /sub2 ] }
+        |@:linkCSS { paths = [ /tree-2 ] }
         |
         |bbb""".stripMargin
     
@@ -104,7 +103,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     val input =
       """aaa
         |
-        |@:linkCSS { paths = [ /sub2, / ] }
+        |@:linkCSS { paths = [ /tree-2, / ] }
         |
         |bbb""".stripMargin
 
@@ -132,7 +131,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
       StaticDocument(Root / "doc-1.js", TargetFormats.Selected("html")),
       StaticDocument(Root / "doc-2.foo"),
       StaticDocument(Root / "doc-3.bar"),
-      StaticDocument(Root / "sub2" / "doc-4.js", TargetFormats.Selected("html")),
+      StaticDocument(Root / "tree-2" / "doc-4.js", TargetFormats.Selected("html")),
     )
     val input =
       """aaa

@@ -20,7 +20,8 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import laika.config.{Config, ConfigParser}
+import laika.ast.sample.SampleTrees
+import laika.config.ConfigParser
 import laika.parse.GeneratedSource
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -38,12 +39,12 @@ class SectionNumberSpec extends AnyFlatSpec
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
 
     def tree (content: RootElement): DocumentTree = {
-      val autonumberConfig = parseConfig(config)
-      def docs (path: Path, nums: Int*) = nums map (n => Document(path / ("doc"+n), content, config = autonumberConfig))
-      DocumentTree(Root, docs(Root, 1,2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), config = autonumberConfig),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6), config = autonumberConfig)
-      ), config = autonumberConfig)
+      val autonumberConfig = ConfigParser.parse(config).resolve().toOption.get
+      SampleTrees.sixDocuments
+        .docContent(content.content)
+        .config(_.withFallback(autonumberConfig))
+        .build
+        .tree
     }
 
     def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
@@ -62,15 +63,13 @@ class SectionNumberSpec extends AnyFlatSpec
     def treeView (content: List[Int] => List[DocumentContent]): TreeView = {
       def numbers (titleNums: List[Int]) = if (numberDocs) titleNums else Nil
       def docs (path: Path, nums: (Int, List[Int])*) = nums map {
-        case (fileNum, titleNums) => DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
+        case (fileNum, titleNums) => DocumentView(path / ("doc-"+fileNum), content(numbers(titleNums)))
       }
       TreeView(Root, Docs(docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
-        TreeView(Root / "sub1", Docs(docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
-        TreeView(Root / "sub2", Docs(docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
+        TreeView(Root / "tree-1", Docs(docs(Root / "tree-1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
+        TreeView(Root / "tree-2", Docs(docs(Root / "tree-2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
       )) :: Nil)
     }
-
-    def parseConfig (source: String): Config = ConfigParser.parse(config).resolve().toOption.get
 
     def config: String
     def numberSections: Boolean

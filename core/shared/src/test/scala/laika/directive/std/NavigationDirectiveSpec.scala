@@ -18,8 +18,9 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import laika.ast.Path.Root
-import laika.ast.{Element, EmbeddedRoot, ExternalTarget, Header, Id, InternalTarget, InvalidSpan, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, Path, RootElement, Section, SpanSequence, Style, TemplateElement, TemplateRoot, Text, Title}
 import laika.ast.helper.ModelBuilder
+import laika.ast.sample.{BuilderKey, SampleContent}
+import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -37,7 +38,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
 
     def itemStyles: Options = NoOpt
 
-    val refPath: Path = Root / "sub2" / "doc6"
+    val refPath: Path = Root / "tree-2" / "doc-6"
 
     def styles (level: Int): Options = Style.level(level) + itemStyles
 
@@ -51,7 +52,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     )
 
     def docList (path: Path, doc: Int, level: Int, title: Option[String] = None): NavigationItem = NavigationItem(
-      SpanSequence(title.getOrElse(s"Doc $doc")),
+      SpanSequence(title.getOrElse(s"Title $doc")),
       if (level == maxLevels || excludeSections) Nil else Seq(
         sectionList(path, 1, level+1),
         sectionList(path, 3, level+1)
@@ -63,13 +64,13 @@ class NavigationDirectiveSpec extends AnyFlatSpec
 
     def treeList (tree: Int, docStartNum: Int, level: Int, excludeSelf: Boolean = false): NavigationItem = {
       val children = if (level == maxLevels) Nil else List(
-        docList(Root / s"sub$tree" / s"doc$docStartNum", docStartNum, level + 1),
-        docList(Root / s"sub$tree" / s"doc${docStartNum + 1}", docStartNum + 1, level + 1),
+        docList(Root / s"tree-$tree" / s"doc-$docStartNum", docStartNum, level + 1),
+        docList(Root / s"tree-$tree" / s"doc-${docStartNum + 1}", docStartNum + 1, level + 1),
       )
       if (hasTitleDocs) NavigationItem(
-        SpanSequence("TitleDoc"),
+        SpanSequence(s"Tree $tree"),
         children,
-        Some(NavigationLink(InternalTarget(Root / s"sub$tree" / "title").relativeTo(refPath))),
+        Some(NavigationLink(InternalTarget(Root / s"tree-$tree" / "README").relativeTo(refPath))),
         options = styles(level)
       )
       else NavigationItem(
@@ -83,8 +84,8 @@ class NavigationDirectiveSpec extends AnyFlatSpec
 
     def rootList: NavigationItem =
       NavigationItem(SpanSequence("/"), List(
-        docList(Root / "doc1", 1, 2),
-        docList(Root / "doc2", 2, 2),
+        docList(Root / "doc-1", 1, 2),
+        docList(Root / "doc-2", 2, 2),
         treeList(1, 3, 2),
         treeList(2, 5, 2)
       ), options = styles(1))
@@ -95,26 +96,17 @@ class NavigationDirectiveSpec extends AnyFlatSpec
       buildResult(InvalidSpan(msg, source(fragment, input)))
     }
 
-    private val sections = Seq(
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), Seq(
-        Section(Header(2, List(Text("Section 2")), Id("section-2") + Style.section), Nil)
-      )),
-      Section(Header(1, List(Text("Section 3")), Id("section-3") + Style.section), Seq(
-        Section(Header(2, List(Text("Section 4")), Id("section-4") + Style.section), Nil)
-      ))
-    )
-
     private def buildResult (element: Element): RootElement = {
       root(TemplateRoot(
         t("aaa "),
         TemplateElement(element),
         t(" bbb "),
-        EmbeddedRoot(sections)
+        EmbeddedRoot(SampleContent.fourSections(BuilderKey.Doc(6)))
       ))
     }
 
     def blockResult (items: NavigationItem*): RootElement = root(
+      Title("Title 6").withOptions(Id("title-6") + Style.title),
       p("aaa"),
       NavigationList(items, itemStyles),
       p("bbb")
@@ -150,7 +142,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) shouldBe Right(templateResult(extLink(1), docList(Root / "sub2" / "doc6", 6, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(extLink(1), docList(Root / "tree-2" / "doc-6", 6, 1)))
   }
 
   it should "produce an entry generated from the root of the tree" in new TreeModel with NavModel {
@@ -171,10 +163,10 @@ class NavigationDirectiveSpec extends AnyFlatSpec
 
     val filteredRootList: NavigationItem =
       NavigationItem(SpanSequence("/"), List(
-        docList(Root / "doc1", 1, 2),
+        docList(Root / "doc-1", 1, 2),
         NavigationItem(SpanSequence("Tree 1"),
           List(
-            docList(Root / s"sub1" / s"doc3", 3, 3).copy(targetFormats = TargetFormats.Selected(NonEmptySet.of("html", "txt")))
+            docList(Root / s"tree-1" / s"doc-3", 3, 3).copy(targetFormats = TargetFormats.Selected(NonEmptySet.of("html", "txt")))
           ), options = styles(2)),
         treeList(2, 5, 2)
       ), options = styles(1))
@@ -277,7 +269,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub2" / "doc6", 6, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "tree-2" / "doc-6", 6, 1)))
   }
 
   it should "produce an entry generated from the current document with a custom title" in new TreeModel with NavModel {
@@ -289,7 +281,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub2" / "doc6", 6, 1, title = Some("Custom"))))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "tree-2" / "doc-6", 6, 1, title = Some("Custom"))))
   }
 
   it should "produce an entry generated from a document referred to with an absolute path" in new TreeModel with NavModel {
@@ -297,25 +289,25 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     val template =
       """aaa @:navigationTree { 
         |  entries = [
-        |    { target = "/sub1/doc3" }
+        |    { target = "/tree-1/doc-3" }
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "sub1" / "doc3", 3, 1)))
+    parseTemplateAndRewrite(template) shouldBe Right(templateResult(docList(Root / "tree-1" / "doc-3", 3, 1)))
   }
 
   it should "fail when referring to a path that does not exist" in new TreeModel with NavModel {
 
     val directive = """@:navigationTree {
                       |  entries = [
-                      |   { target = "/sub2/doc99" }
+                      |   { target = "/tree-2/doc99" }
                       |  ]
                       |}""".stripMargin
 
     val template =
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /sub2/doc99"
+    val msg = "One or more errors processing directive 'navigationTree': One or more errors generating navigation: Unable to resolve document or tree with path: /tree-2/doc99"
     parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 
@@ -352,7 +344,10 @@ class NavigationDirectiveSpec extends AnyFlatSpec
   "The block nav directive" should "produce two manual entries" in new TreeModel with NavModel {
 
     val input =
-      """aaa
+      """Title 6
+        |=======
+        |
+        |aaa
         |
         |@:navigationTree { 
         |  entries = [
@@ -366,6 +361,25 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     parseDocumentAndRewrite(input) shouldBe Right(blockResult(extLink(1), extLink(2)))
   }
 
+  it should "produce an entry generated from a document referred to with a relative path" in new TreeModel with NavModel {
+
+    val input =
+      """Title 6
+        |=======
+        |
+        |aaa
+        |
+        |@:navigationTree { 
+        |  entries = [
+        |    { target = "../tree-1/doc-3" }
+        |  ] 
+        |}
+        |
+        |bbb""".stripMargin
+
+    parseDocumentAndRewrite(input) shouldBe Right(blockResult(docList(Root / "tree-1" / "doc-3", 3, 1)))
+  }
+
   "The template breadcrumb directive" should "produce three entries" in new TreeModel with NavModel {
 
     override val maxLevels: Int = 1
@@ -376,7 +390,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     parseTemplateAndRewrite(input) shouldBe Right(templateResult(
       rootEntry,
       treeList(2, 0, 1),
-      docList(Root / "sub2" / "doc6", 6, 1)
+      docList(Root / "tree-2" / "doc-6", 6, 1)
     ))
   }
 
@@ -386,7 +400,10 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     override def itemStyles: Options = Style.breadcrumb
 
     val input =
-      """aaa
+      """Title 6
+        |=======
+        |
+        |aaa
         |
         |@:breadcrumb
         |
@@ -395,7 +412,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     parseDocumentAndRewrite(input) shouldBe Right(blockResult(
       rootEntry,
       treeList(2, 0, 1),
-      docList(Root / "sub2" / "doc6", 6, 1)
+      docList(Root / "tree-2" / "doc-6", 6, 1)
     ))
   }
 
@@ -406,7 +423,10 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     override def hasTitleDocs: Boolean = true
 
     val input =
-      """aaa
+      """Title 6
+        |=======
+        |
+        |aaa
         |
         |@:breadcrumb
         |
@@ -415,24 +435,8 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     parseDocumentAndRewrite(input) shouldBe Right(blockResult(
       rootEntry,
       treeList(2, 0, 1),
-      docList(Root / "sub2" / "doc6", 6, 1)
+      docList(Root / "tree-2" / "doc-6", 6, 1)
     ))
   }
 
-  it should "produce an entry generated from a document referred to with a relative path" in new TreeModel with NavModel {
-
-    val input =
-      """aaa
-        |
-        |@:navigationTree { 
-        |  entries = [
-        |    { target = "../sub1/doc3" }
-        |  ] 
-        |}
-        |
-        |bbb""".stripMargin
-
-    parseDocumentAndRewrite(input) shouldBe Right(blockResult(docList(Root / "sub1" / "doc3", 3, 1)))
-  }
-  
 }
