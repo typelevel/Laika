@@ -23,7 +23,7 @@ import laika.ast.{Block, Document, DocumentTree, DocumentTreeRoot, Header, Inter
 import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
-trait TreeModel extends TemplateParserSetup with MarkupParserSetup {
+trait RewriteSetup extends TemplateParserSetup with MarkupParserSetup {
 
   import Path.Root
 

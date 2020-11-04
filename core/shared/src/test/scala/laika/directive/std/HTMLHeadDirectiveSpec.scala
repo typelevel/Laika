@@ -30,7 +30,7 @@ import org.scalatest.matchers.should.Matchers
 class HTMLHeadDirectiveSpec extends AnyFlatSpec
   with Matchers
   with ModelBuilder
-  with TreeModel {
+  with RewriteSetup {
 
 
   val staticDocs = Seq(
