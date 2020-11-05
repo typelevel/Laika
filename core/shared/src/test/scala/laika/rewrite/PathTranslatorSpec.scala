@@ -20,6 +20,8 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.ModelBuilder
 import laika.ast._
+import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
+import laika.ast.sample.SampleConfig.{siteBaseURL, targetFormats}
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetLookup}
 import org.scalatest.funsuite.AnyFunSuite
@@ -31,34 +33,23 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers with ModelBuilder {
   private val rootCursor = {
 
     val versions = Versions(Version("0.42.x", "0.42"), Nil)
-    val rootConfig = ConfigBuilder.empty.withValue(versions).build
-    val versionedConfig = ConfigBuilder.withFallback(rootConfig).withValue(LaikaKeys.versioned, true).build
-    val versionedDocConfig = ConfigBuilder.withFallback(versionedConfig).build
-    
-    def doc (num: Int): Document = {
-      val basePath = if (num < 3) Root else if (num < 5) Root / "tree-1" else Root / "tree-2"
-      val config = if (num < 3) rootConfig else versionedDocConfig
-      val blocks = Seq(
-        Header(1, "Title").withOptions(Id("ref")),
-        Paragraph("text")
-      )
-      Document(basePath / ("doc-" + num + ".md"), RootElement(blocks), config = config)
-    }
 
-    val tree1 = DocumentTree(Root / "tree-1", Seq(doc(3), doc(4)), config = versionedConfig)
-    val tree2 = DocumentTree(Root / "tree-2", Seq(doc(5), doc(6)), config = versionedConfig)
-    val tree3 = DocumentTree(Root / "tree-3", Nil)
-    val tree4 = DocumentTree(Root / "tree-4", Nil, config = versionedConfig)
-
-    val root = DocumentTreeRoot(
-      DocumentTree(Root, Seq(doc(1), doc(2), tree1, tree2, tree3, tree4), config = rootConfig),
-      staticDocuments = Seq(
-        StaticDocument(Root / "tree-3" / "doc-7.txt"),
-        StaticDocument(Root / "tree-4" / "doc-8.txt")
-      )
+    def doc2 (key: BuilderKey): Seq[Block] = Seq(
+      Header(1, "Title").withOptions(Id("ref")),
+      Paragraph("text")
     )
 
-    RootCursor(root)
+    SampleTrees.sixDocuments
+      .root.config(_.withValue(versions))
+      .root.config(SampleConfig.versioned(true))
+      .doc1.config(SampleConfig.versioned(false))
+      .doc2.config(SampleConfig.versioned(false))
+      .static1.config(SampleConfig.versioned(false))
+      .staticDoc(Root / "static-1" / "doc-7.txt")
+      .staticDoc(Root / "static-2" / "doc-8.txt")
+      .docContent(doc2 _)
+      .suffix("md")
+      .buildCursor
   }
   
   val versionedRef = ConfigurablePathTranslator(rootCursor.config, "html", "html", Root / "tree-1" / "doc-3.md", new TargetLookup(rootCursor))
@@ -97,8 +88,8 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers with ModelBuilder {
   }
 
   test("static versioned document") {
-    val input    = ResolvedInternalTarget(Root / "tree-4" / "doc-8.txt", RelativePath.parse("../tree-4/doc-8.txt"))
-    val expected = ResolvedInternalTarget(Root / "0.42" / "tree-4" / "doc-8.txt", RelativePath.parse("../tree-4/doc-8.txt"))
+    val input    = ResolvedInternalTarget(Root / "static-2" / "doc-8.txt", RelativePath.parse("../static-2/doc-8.txt"))
+    val expected = ResolvedInternalTarget(Root / "0.42" / "static-2" / "doc-8.txt", RelativePath.parse("../static-2/doc-8.txt"))
     versionedRef.translate(input) shouldBe expected
   }
   
