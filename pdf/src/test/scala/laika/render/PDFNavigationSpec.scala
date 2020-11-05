@@ -133,7 +133,7 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
   }
   
   
-  trait Setup extends TreeModel with ResultModel {
+  trait Setup extends PDFTreeModel with ResultModel {
     
     lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = {
       val builder = Renderer.of(FOTest)

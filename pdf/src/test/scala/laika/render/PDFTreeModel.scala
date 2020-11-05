@@ -20,7 +20,7 @@ import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees}
 import laika.format.PDF
 
-trait TreeModel {
+trait PDFTreeModel {
   
   def navigationDepth: Int = 23
 

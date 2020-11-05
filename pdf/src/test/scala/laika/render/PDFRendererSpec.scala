@@ -72,7 +72,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
       DocumentTreeRoot(treeWithTemplate)
     }
 
-    "render a tree to a file" in new TreeModel with FileSetup {
+    "render a tree to a file" in new PDFTreeModel with FileSetup {
       val renderer = Renderer.of(PDF)
         .io(blocker)
         .parallel[IO]
@@ -85,7 +85,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
       firstCharAvailable(res)
     }
 
-    "render a tree to an OutputStream" in new TreeModel {
+    "render a tree to an OutputStream" in new PDFTreeModel {
       val renderer = Renderer
         .of(PDF)
         .io(blocker)
