@@ -25,6 +25,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
 import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.format._
@@ -50,8 +51,6 @@ class TreeRendererSpec extends IOWordSpec
                            with ModelBuilder
                            with FileIO { self =>
 
-  val rootElem: RootElement = root(p("aaö"), p("bbb"))
-
   val expected: String = """RootElement - Blocks: 2
       |. Paragraph - Spans: 1
       |. . Text - 'aaö'
@@ -60,23 +59,18 @@ class TreeRendererSpec extends IOWordSpec
 
   trait DocBuilder extends InputBuilder {
     
-    def config (formats: Option[Seq[String]]): Config = ConfigBuilder.empty
-      .withValue(LaikaKeys.targetFormats, formats)
-      .build
-    
-    def markupDoc (num: Int, path: Path = Root, format: Option[String] = None): Document = 
-      Document(path / ("doc"+num), root(p("Doc"+num)), config = config(format.map(Seq(_))))
-    
     def staticDoc (num: Int, path: Path = Root, formats: Option[String] = None) = 
       ByteInput("Static"+num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
     
-    def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
-      |. TemplateRoot - TemplateSpans: 1
-      |. . TemplateString - 'Doc""".stripMargin + num + "'"
-      
-    def renderedDoc (num: Int): String = """RootElement - Blocks: 1
+    def renderedDoc (num: Int): String = 
+      """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
-        |. . Text - 'Doc""".stripMargin + num + "'"
+        |. . Text - 'Text """.stripMargin + num + "'"
+
+    def twoDocs (rootDoc: RootElement, subDoc: RootElement): DocumentTree = DocumentTree(Root, List(
+      Document(Root / "doc", rootDoc),
+      DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subDoc)))
+    ))
   }
   
   trait TreeRendererSetup[FMT] {
@@ -112,6 +106,12 @@ class TreeRendererSpec extends IOWordSpec
     val fontConfigTree: DocumentTree = DocumentTree(Root / "laika", List(
       DocumentTree(Root / "laika" / "fonts", Nil, config = ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build)
     ))
+    
+    def rootElem: RootElement = root(p("aaö"), p("bbb"))
+    
+    def rootTree: DocumentTree = rootTree(rootElem)
+    def rootTree (content: RootElement): DocumentTree = DocumentTree(Root, List(Document(Root / "doc", content)))
+    
   }
   
   trait ASTRenderer extends TreeRendererSetup[TextFormatter] {
@@ -119,12 +119,12 @@ class TreeRendererSpec extends IOWordSpec
   }
 
   trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
-    val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
+    override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
-    val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
+    override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
@@ -132,7 +132,7 @@ class TreeRendererSpec extends IOWordSpec
     override def styles: StyleDeclarationSet = TestTheme.foStyles
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
-    val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
+    override val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
     val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
     val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
     val overriddenParagraphStyles = """font-family="serif" font-size="11pt" line-height="1.5" space-after="3mm" text-align="justify""""
@@ -159,14 +159,14 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document" in {
       new ASTRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.txt", expected))))))
       }
     }
   
     "render a tree with a single document to HTML using the default template" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
@@ -196,15 +196,15 @@ class TreeRendererSpec extends IOWordSpec
     }
 
     "collect errors from multiple documents" in {
-      def invalidLink (num: Int): RootElement = 
-        root(InvalidBlock(s"unresolved link reference: link$num", generatedSource(s"[link$num]")))
+      
+      def invalidLink (key: BuilderKey): Seq[Block] = 
+        Seq(InvalidBlock(s"unresolved link reference: link${key.num}", generatedSource(s"[link${key.num}]")))
+
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(
-          Document(Root / "doc1", invalidLink(1)),
-          Document(Root / "doc2", invalidLink(2)),
-          Document(Root / "sub" / "doc3", invalidLink(3)),
-          Document(Root / "sub" / "doc4", invalidLink(4))
-        ))
+        val input = SampleTrees.sixDocuments
+          .docContent(invalidLink _)
+          .build.tree
+
         val invalidDocuments = input.allDocuments.map { doc =>
           val msg = s"unresolved link reference: link${doc.path.name.last}"
           val invalidSpan = InvalidBlock(msg, generatedSource(s"[link${doc.path.name.last}]"))
@@ -230,7 +230,7 @@ class TreeRendererSpec extends IOWordSpec
           TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
+        val input = rootTree.copy(templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
@@ -239,7 +239,7 @@ class TreeRendererSpec extends IOWordSpec
 
     "render a tree with a single document to HTML using a render override in a theme" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         override lazy val renderer = Renderer.of(HTML).io(blocker).parallel[IO]
           .withTheme(TestThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
             case (fmt, Text(txt, _)) => fmt.text(txt + "!")
@@ -253,7 +253,7 @@ class TreeRendererSpec extends IOWordSpec
 
     "render a tree with a single document to HTML with a render override that shadows an override in a theme" in {
       new HTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         override lazy val renderer = Renderer
           .of(HTML)
           .using(BundleProvider.forOverrides(HTML.Overrides {
@@ -288,7 +288,7 @@ class TreeRendererSpec extends IOWordSpec
           .parallel[IO]
           .withTheme(TestThemeBuilder.forInputs(inputs))
           .build
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
@@ -320,7 +320,7 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to EPUB.XHTML using the default template" in {
       new EPUB_XHTMLRenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |<p>bbb</p>""".stripMargin)
         val path = (Root / "doc").withSuffix("epub.xhtml")
@@ -335,7 +335,7 @@ class TreeRendererSpec extends IOWordSpec
           TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
+        val input = rootTree.copy(templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
         val path = (Root / "doc").withSuffix("epub.xhtml")
@@ -361,7 +361,7 @@ class TreeRendererSpec extends IOWordSpec
             .parallel[IO]
             .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
         val path = (Root / "doc").withSuffix("epub.xhtml")
@@ -371,7 +371,7 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to XSL-FO using the default template and default CSS" in {
       new FORenderer {
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+        val input = rootTree
         val expected = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
@@ -385,7 +385,7 @@ class TreeRendererSpec extends IOWordSpec
           TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
           t("]")
         ))
-        val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
+        val input = rootTree.copy(templates = Seq(template))
         val expected = s"""[${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin
         renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
@@ -393,7 +393,7 @@ class TreeRendererSpec extends IOWordSpec
     }
   
     "render a tree with two documents to XSL-FO using a custom style sheet in a theme" in {
-      new FORenderer {
+      new FORenderer with DocBuilder {
         val inputs = new TestThemeBuilder.Inputs {
           def build[F[_]: Sync: Runtime] = InputTree[F]
             .addStyles(customThemeStyles, FOStyles.defaultPath)
@@ -406,10 +406,7 @@ class TreeRendererSpec extends IOWordSpec
             .parallel[IO]
             .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
-        val input = DocumentTree(Root, List(
-          Document(Root / "doc", rootElem),
-          DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
-        ))
+        val input = twoDocs(rootElem, subElem)
         val expectedRoot = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
           |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
@@ -424,14 +421,11 @@ class TreeRendererSpec extends IOWordSpec
     }
   
     "render a tree with two documents to XSL-FO using a custom style sheet in the tree root" in {
-      new FORenderer {
-        val input = DocumentTree(Root, List(
-          Document(Root / "doc", rootElem),
-          DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
-        ))
-        def foStyles (path: Path): Map[String, StyleDeclarationSet] =
+      new FORenderer with DocBuilder {
+        val input = twoDocs(rootElem, subElem)
+        val foStyles: Map[String, StyleDeclarationSet] =
           Map("fo" -> (styles ++ StyleDeclarationSet(FOStyles.defaultPath, customStyle)))
-        override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
+        override def treeRoot = DocumentTreeRoot(input, styles = foStyles)
         val expectedRoot = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
           |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
@@ -482,19 +476,16 @@ class TreeRendererSpec extends IOWordSpec
     }
   
     "render a tree with all available file types" in new ASTRenderer with DocBuilder {
-      val input = addPosition(DocumentTree(Root,
-        content = List(
-          markupDoc(1),
-          markupDoc(2),
-          DocumentTree(Root / "dir1",
-            content = List(markupDoc(3, Root / "dir1"), markupDoc(4, Root / "dir1"))
-          ),
-          DocumentTree(Root / "dir2",
-            content = List(markupDoc(5, Root / "dir2"), markupDoc(6, Root / "dir2"), markupDoc(7, Root / "dir2", Some("zzz")))
-          ),
-          fontConfigTree
-        )
-      ))
+      
+      val input = addPosition(
+        SampleTrees.sixDocuments
+          .doc6.config(SampleConfig.targetFormats("zzz"))
+          .build
+          .tree
+      )
+        
+      val finalInput = input.copy(content = input.content :+ fontConfigTree)
+      
       val staticDocs = Seq(
         staticDoc(1, Root),
         staticDoc(2, Root),
@@ -504,25 +495,24 @@ class TreeRendererSpec extends IOWordSpec
         staticDoc(6, Root / "dir2"),
         staticDoc(7, Root / "dir2", Some("zzz"))
       )
-      override def treeRoot = DocumentTreeRoot(input, staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats)))
+      override def treeRoot = DocumentTreeRoot(finalInput, staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats)))
       
       val expectedStatic = staticDocs.dropRight(1).map(_.path)
       val expectedRendered = RenderedTreeView(Root, List(
         DocumentViews(List(
-          RenderedDocumentView(Root / "doc1.txt", renderedDoc(1)),
-          RenderedDocumentView(Root / "doc2.txt", renderedDoc(2))
+          RenderedDocumentView(Root / "doc-1.txt", renderedDoc(1)),
+          RenderedDocumentView(Root / "doc-2.txt", renderedDoc(2))
         )),
         SubtreeViews(List(
-          RenderedTreeView(Root / "dir1", List(
+          RenderedTreeView(Root / "tree-1", List(
             DocumentViews(List(
-              RenderedDocumentView(Root / "dir1" / "doc3.txt", renderedDoc(3)),
-              RenderedDocumentView(Root / "dir1" / "doc4.txt", renderedDoc(4))
+              RenderedDocumentView(Root / "tree-1" / "doc-3.txt", renderedDoc(3)),
+              RenderedDocumentView(Root / "tree-1" / "doc-4.txt", renderedDoc(4))
            ))
         )),
-        RenderedTreeView(Root / "dir2", List(
+        RenderedTreeView(Root / "tree-2", List(
           DocumentViews(List(
-            RenderedDocumentView(Root / "dir2" / "doc5.txt", renderedDoc(5)),
-            RenderedDocumentView(Root / "dir2" / "doc6.txt", renderedDoc(6))
+            RenderedDocumentView(Root / "tree-2" / "doc-5.txt", renderedDoc(5))
           ))
         ))))
       ))
@@ -538,16 +528,11 @@ class TreeRendererSpec extends IOWordSpec
         .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths))
     }
     
-    trait TwoPhaseRenderer {
+    trait TwoPhaseRenderer extends DocBuilder {
       val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
       val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
   
-      val input = DocumentTree(Root, List(
-        Document(Root / "doc", rootElem),
-        DocumentTree(Root / "tree", List(
-          Document(Root / "tree" / "sub", subElem)
-        ))
-      ))
+      val input = twoDocs(rootElem, subElem)
   
       val expectedResult: String = """RootElement - Blocks: 2
         |. Title(Id(title) + Styles(title)) - Spans: 1
@@ -606,27 +591,16 @@ class TreeRendererSpec extends IOWordSpec
     trait FileSystemTest extends DocBuilder {
       import cats.implicits._
       
-      val input = DocumentTreeRoot(DocumentTree(Root, List(
-        markupDoc(1),
-        markupDoc(2),
-        DocumentTree(Root / "dir1", List(
-          markupDoc(3, Root / "dir1"),
-          markupDoc(4, Root / "dir1")
-        )),
-        DocumentTree(Root / "dir2", List(
-          markupDoc(5, Root / "dir2"),
-          markupDoc(6, Root / "dir2")
-        ))
-      )))
+      val input = SampleTrees.sixDocuments.build
       
       def readFiles (base: String): IO[List[String]] = {
         List(
-          readFile(base+"/doc1.txt"),
-          readFile(base+"/doc2.txt"),
-          readFile(base+"/dir1/doc3.txt"),
-          readFile(base+"/dir1/doc4.txt"),
-          readFile(base+"/dir2/doc5.txt"),
-          readFile(base+"/dir2/doc6.txt")
+          readFile(base+"/doc-1.txt"),
+          readFile(base+"/doc-2.txt"),
+          readFile(base+"/tree-1/doc-3.txt"),
+          readFile(base+"/tree-1/doc-4.txt"),
+          readFile(base+"/tree-2/doc-5.txt"),
+          readFile(base+"/tree-2/doc-6.txt")
         ).sequence
       }
     }
@@ -652,10 +626,6 @@ class TreeRendererSpec extends IOWordSpec
 
     "render to a directory with existing versioned renderer output" in {
       new FileSystemTest {
-        val renderer = Renderer.of(AST)
-          .io(blocker)
-          .parallel[IO]
-          .build
 
         val htmlRenderer = Renderer.of(HTML)
           .io(blocker)
@@ -667,30 +637,17 @@ class TreeRendererSpec extends IOWordSpec
           Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")), 
           Seq(Version("0.5.x", "0.5"))
         )
-        val rootConfig = ConfigBuilder.empty.withValue(versions).build
-        val versionedConfig = ConfigBuilder.withFallback(rootConfig).withValue(LaikaKeys.versioned, true).build
-        val versionedDocConfig = ConfigBuilder.withFallback(versionedConfig).build
-        
-        val versionedInput = DocumentTreeRoot(DocumentTree(Root, List(
-          markupDoc(1),
-          markupDoc(2),
-          DocumentTree(Root / "dir1", List(
-            markupDoc(3, Root / "dir1").copy(config = versionedDocConfig),
-            markupDoc(4, Root / "dir1").copy(config = versionedDocConfig)
-          )),
-          DocumentTree(Root / "dir2", List(
-            markupDoc(5, Root / "dir2").copy(config = versionedDocConfig),
-            markupDoc(6, Root / "dir2").copy(config = versionedDocConfig)
-          ))
-        ), config = rootConfig))
+
+        val versionedInput = SampleTrees.sixDocuments
+          .root.config(_.withValue(versions))
+          .tree1.config(SampleConfig.versioned(true))
+          .tree2.config(SampleConfig.versioned(true))
+          .build
         
         def mkDirs (dir: File): IO[Unit] = IO {
-          new File(dir, "0.1/dir1").mkdirs()
-          new File(dir, "0.1/dir2").mkdirs()
-          new File(dir, "0.2/dir1").mkdirs()
-          new File(dir, "0.2/dir2").mkdirs()
-          new File(dir, "0.3/dir1").mkdirs()
-          new File(dir, "0.3/dir2").mkdirs()
+          Seq("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").foreach { name =>
+            new File(dir, name).mkdirs()
+          }
         }
 
         val paths = versionedInput.tree.allDocuments.map(_.path.withSuffix("html").toString)
@@ -700,7 +657,7 @@ class TreeRendererSpec extends IOWordSpec
           writeFile(file, "<html></html>")
         }.sequence.void
 
-        val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Doc$num</p>").toList
+        val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Text $num</p>").toList
         
         val expectedVersionInfo = 
           """{
@@ -712,23 +669,23 @@ class TreeRendererSpec extends IOWordSpec
             |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
             |  ],
             |  "linkTargets": [
-            |    { "path": "/dir1/doc3.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/dir1/doc4.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/dir2/doc5.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/dir2/doc6.html", "versions": ["0.1","0.2","0.4"] },
-            |    { "path": "/doc1.html", "versions": ["0.1","0.3"] },
-            |    { "path": "/doc2.html", "versions": ["0.1","0.2","0.3"] }
+            |    { "path": "/doc-1.html", "versions": ["0.1","0.3"] },
+            |    { "path": "/doc-2.html", "versions": ["0.1","0.2","0.3"] },
+            |    { "path": "/tree-1/doc-3.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/tree-1/doc-4.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/tree-2/doc-5.html", "versions": ["0.1","0.2","0.3","0.4"] },
+            |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2","0.4"] }
             |  ]
             |}""".stripMargin
 
         def readVersionedFiles (base: String): IO[List[String]] = {
           List(
-            readFile(base+"/doc1.html"),
-            readFile(base+"/doc2.html"),
-            readFile(base+"/0.4/dir1/doc3.html"),
-            readFile(base+"/0.4/dir1/doc4.html"),
-            readFile(base+"/0.4/dir2/doc5.html"),
-            readFile(base+"/0.4/dir2/doc6.html")
+            readFile(base+"/doc-1.html"),
+            readFile(base+"/doc-2.html"),
+            readFile(base+"/0.4/tree-1/doc-3.html"),
+            readFile(base+"/0.4/tree-1/doc-4.html"),
+            readFile(base+"/0.4/tree-2/doc-5.html"),
+            readFile(base+"/0.4/tree-2/doc-6.html")
           ).sequence
         }
         
@@ -747,21 +704,15 @@ class TreeRendererSpec extends IOWordSpec
       }
     }
   
-    "render to a directory using a document with non-ASCII characters" in new DocBuilder {
+    "render to a directory using a document with non-ASCII characters" in new ASTRenderer {
       val expected = """RootElement - Blocks: 1
                        |. Paragraph - Spans: 1
                        |. . Text - 'Doc äöü'""".stripMargin
-      val input = DocumentTreeRoot(DocumentTree(Root, List(
-        Document(Root / "doc", root(p("Doc äöü")))
-      )))
-      val renderer = Renderer.of(AST)
-        .io(blocker)
-        .parallel[IO]
-        .build
+      val input = rootTree(root(p("Doc äöü")))
       
       val res = for {
         f   <- newTempDirectory
-        _   <- renderer.use(_.from(input).toDirectory(f)(Codec.ISO8859).render)
+        _   <- renderer.use(_.from(treeRoot).toDirectory(f)(Codec.ISO8859).render)
         res <- readFile(new File(f, "doc.txt"), Codec.ISO8859)
       } yield res
       
