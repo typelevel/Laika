@@ -183,7 +183,6 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: /main.template.html")).copy(templates = List(template))
-      val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -193,7 +192,6 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.html.template: /main.template.html")).copy(templates = List(template))
-      val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -203,7 +201,6 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../main.template.html")).copy(templates = List(template))
-      val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -213,7 +210,6 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
       val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../missing.template.html")).copy(templates = List(template))
-      val targetDoc = tree.selectDocument("sub/doc").get
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Left(ValidationError("Template with path '/missing.template.html' not found")))
     }

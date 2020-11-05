@@ -42,7 +42,7 @@ class SectionNumberSpec extends AnyFlatSpec
       val autonumberConfig = ConfigParser.parse(config).resolve().toOption.get
       SampleTrees.sixDocuments
         .docContent(content.content)
-        .config(_.withFallback(autonumberConfig))
+        .root.config(_.withFallback(autonumberConfig))
         .build
         .tree
     }

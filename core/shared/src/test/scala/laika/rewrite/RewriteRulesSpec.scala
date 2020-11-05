@@ -241,7 +241,7 @@ class RewriteRulesSpec extends AnyWordSpec
     def rewrittenTreeDoc (ref: LinkIdReference): Block = {
       val root =
         SampleTrees.sixDocuments
-          .config(_.withValue(linkConfig))
+          .root.config(_.withValue(linkConfig))
           .docContent(linkTarget)
           .doc3.content(p(ref))
           .suffix("md")
@@ -285,7 +285,7 @@ class RewriteRulesSpec extends AnyWordSpec
           .doc3.content(p(ref), defaultTarget)
           .doc4.content(InternalLinkTarget(Id("target-4")))
           .suffix("md")
-          .config(siteBaseURL("http://external/"))
+          .root.config(siteBaseURL("http://external/"))
           .apply(builder)
           .build
 
