@@ -16,9 +16,8 @@
 
 package laika.render
 
-import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
 import laika.ast._
-import laika.ast.Path.Root
+import laika.ast.sample.{BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees}
 import laika.format.PDF
 
 trait TreeModel {
@@ -27,44 +26,30 @@ trait TreeModel {
 
   def useTitleDocuments: Boolean = false
   
-  private def pdfFileConfig: Config = ConfigBuilder.empty
-    .withValue(PDF.BookConfig.defaultKey.value.child("navigationDepth"), navigationDepth)
-    .build
-  
-  def doc (num: Int): Document = {
-    val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
-    Document(parent / s"doc$num.md", RootElement(
-      Title(Seq(Text(s"Title $num & More")), Id(s"title-$num") + Style.title),
-      Paragraph(s"Text $num")
-    ))
-  }
-  
-  def configWithTreeTitle (num: Int): Config = ConfigBuilder
-    .withFallback(pdfFileConfig, Origin(Origin.TreeScope, Root))
-    .withValue(LaikaKeys.title, s"Tree $num & More")
-    .build
-
-  def configWithFallback: Config = ConfigBuilder.withFallback(pdfFileConfig).build
-
-  def subtreeDocs (nums: Int*): Seq[Document] = nums.map(doc)
-  
-  def subtreeTitle (subTreeNum: Int): Option[Document] = {
-    val parent = Root / s"tree${subTreeNum - 1}"
-    if (useTitleDocuments) Some(Document(parent / "README.md", RootElement(
-      Title(Seq(Text(s"Title Doc $subTreeNum")), Id(s"title-$subTreeNum") + Style.title),
-      Paragraph(s"Text $subTreeNum")
-    ))) else None
-  }
-  
-  lazy val tree = DocumentTree(Root, Seq(
-      doc(1), 
-      doc(2),
-      DocumentTree(Root / "tree1", subtreeDocs(3,4), titleDocument = subtreeTitle(2), 
-        config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(2)),
-      DocumentTree(Root / "tree2", subtreeDocs(5,6), titleDocument = subtreeTitle(3), 
-        config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(3))
-    ),
-    config = configWithTreeTitle(1)
+  def content (key: BuilderKey): Seq[Block] = Seq(
+    Title(Seq(Text(s"Title ${key.num} & More")), Id(s"title-${key.num}") + Style.title),
+    Paragraph(s"Text ${key.num}")
   )
+  def titleDocContent (num: Int): Seq[Block] = Seq(
+    Title(Seq(Text(s"Title Doc $num")), Id(s"title-$num") + Style.title),
+    Paragraph(s"Text $num")
+  )
+  
+  lazy val treeSetup: SampleSixDocuments => SampleSixDocuments = 
+    if (!useTitleDocuments) _
+      .tree1.config(SampleConfig.title("Tree 1 & More"))
+      .tree2.config(SampleConfig.title("Tree 2 & More"))
+    else 
+      _.tree1.titleDoc.content(titleDocContent(2))
+       .tree2.titleDoc.content(titleDocContent(3))
+          
+  val navConfigKey = PDF.BookConfig.defaultKey.value.child("navigationDepth")
+  
+  lazy val tree = SampleTrees.sixDocuments
+    .root.config(_.withValue(navConfigKey, navigationDepth))
+    .docContent(content _)
+    .apply(treeSetup)
+    .build
+    .tree
   
 }
