@@ -19,9 +19,8 @@ package laika.ast
 import laika.config.{Config, ConfigParser, Key, Origin, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import laika.ast.sample.{BuilderKey, SampleTrees}
+import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.parse.GeneratedSource
 import laika.rewrite.TemplateRewriter
@@ -30,7 +29,8 @@ import org.scalatest.matchers.should.Matchers
 
 class DocumentTreeAPISpec extends AnyFlatSpec 
                       with Matchers
-                      with ModelBuilder {
+                      with ModelBuilder 
+                      with DocumentTreeAssertions {
   
   trait TreeModel {
     def rootElement (b: Block): RootElement = root(b, p("b"), p("c"))
@@ -69,49 +69,45 @@ class DocumentTreeAPISpec extends AnyFlatSpec
         .children.last.asInstanceOf[TreeCursor]
         .children.last.asInstanceOf[DocumentCursor]
     
-    def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
-      TreeView(path, List(Docs(List(DocumentView(path / name, List(Content(root.content)))))))
-    def treeViewWithSubtree (path: Path, treeName: String, docName: String, root: RootElement): TreeView =
-      TreeView(path, List(Subtrees(List(treeViewWithDoc(path / treeName, docName, root)))))
   }
   
   "The DocumentTree API" should "give access to the root tree when rewriting a document in the root tree" in {
     new TreeModel {
-      val tree = treeWithDoc(Root, "doc", rootElement(p("a")))
-      val treeResult = treeViewWithDoc(Root, "doc", rootElement(p("/")))
-      viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
+      val tree     = treeWithDoc(Root, "doc", rootElement(p("a")))
+      val expected = treeWithDoc(Root, "doc", rootElement(p("/")))
+      tree.rewrite { cursor => RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
-      }}) should be (treeResult)
+      }}.assertEquals(expected)
     }
   }
   
   it should "give access to the parent tree when rewriting a document in the root tree" in {
     new TreeModel {
-      val tree = treeWithDoc(Root, "doc", rootElement(p("a")))
-      val treeResult = treeViewWithDoc(Root, "doc", rootElement(p("/")))
-      viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
+      val tree     = treeWithDoc(Root, "doc", rootElement(p("a")))
+      val expected = treeWithDoc(Root, "doc", rootElement(p("/")))
+      tree.rewrite { cursor => RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.parent.target.path.toString)) 
-      }}) should be (treeResult)
+      }}.assertEquals(expected)
     }
   }
   
   it should "give access to the root tree when rewriting a document in a child tree" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
-      val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/")))
-      viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
+      val tree     = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
+      val expected = treeWithSubtree(Root, "sub", "doc", rootElement(p("/")))
+      tree.rewrite { cursor => RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
-      }}) should be (treeResult)
+      }}.assertEquals(expected)
     }
   }
   
   it should "give access to the parent tree when rewriting a document in a child tree" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
-      val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/sub")))
-      viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
+      val tree     = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
+      val expected = treeWithSubtree(Root, "sub", "doc", rootElement(p("/sub")))
+      tree.rewrite { cursor => RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.parent.target.path.toString)) 
-      }}) should be (treeResult)
+      }}.assertEquals(expected)
     }
   }
 

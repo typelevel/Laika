@@ -61,6 +61,9 @@ trait SampleOps { self =>
   private[sample] def setDocumentContent (key: BuilderKey, f: BuilderKey => Seq[Block]): RootApi =
     updateDocument(key, target => target.copy(content = Some(f)))
 
+  private[sample] def setDocumentSuffix (key: BuilderKey, value: String): RootApi =
+    updateDocument(key, target => target.copy(suffix = Some(value)))
+  
   private[sample] def updateDocument (key: BuilderKey, f: SampleDocument => SampleDocument): RootApi = {
     key match {
       case _: BuilderKey.Doc =>
@@ -109,6 +112,7 @@ trait SampleRootOps extends SampleOps { self =>
     def content (f: BuilderKey => Seq[Block]): RootApi  = setDocumentContent(key, f)
     def content (blocks: Seq[Block]): RootApi           = setDocumentContent(key, _ => blocks)
     def content (block: Block, blocks: Block*): RootApi = content(block +: blocks)
+    def suffix (value: String): RootApi                 = setDocumentSuffix(key, value)
 
     def buildCursor: DocumentCursor = ???
   }
@@ -261,15 +265,16 @@ private[sample] case class SampleTree (key: BuilderKey,
 
 private[sample] case class SampleDocument (key: BuilderKey, 
                                            config: SampleConfigBuilder, 
-                                           content: Option[BuilderKey => Seq[Block]] = None) {
+                                           content: Option[BuilderKey => Seq[Block]] = None,
+                                           suffix: Option[String] = None) {
 
   def build (treePath: Path, parentConfig: Config, root: SampleRoot): Document = {
-    val suffix = root.suffix.fold("")("." + _)
+    val suffixString = suffix.orElse(root.suffix).fold("")("." + _)
     val localName = key match {
       case _: BuilderKey.Tree => "README"
       case _: BuilderKey.Doc  => "doc-" + key.num
     } 
-    val path = treePath / (localName + suffix)
+    val path = treePath / (localName + suffixString)
     Document(
       path, 
       RootElement(content.getOrElse(root.defaultContent)(key)),

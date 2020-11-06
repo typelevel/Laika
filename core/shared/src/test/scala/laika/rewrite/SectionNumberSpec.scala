@@ -18,9 +18,8 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import laika.ast.sample.SampleTrees
+import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
 import laika.config.ConfigParser
 import laika.parse.GeneratedSource
 import org.scalatest.flatspec.AnyFlatSpec
@@ -28,12 +27,18 @@ import org.scalatest.matchers.should.Matchers
 
 class SectionNumberSpec extends AnyFlatSpec
                         with Matchers
-                        with ModelBuilder {
+                        with ModelBuilder 
+                        with DocumentTreeAssertions {
 
 
   trait TreeModel {
+    
+    def config: String
+    def numberSections: Boolean
+    def numberDocs: Boolean
+    def depth: Option[Int] = None
 
-    import Path.Root
+    def isIncluded (level: Int): Boolean = depth.forall(_ >= level)
 
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
@@ -56,28 +61,47 @@ class SectionNumberSpec extends AnyFlatSpec
     def numberedSection (level: Int, title: Int, num: List[Int], children: Section*): Section =
       Section(numberedHeader(level, title, num), children)
 
-    def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*): SectionInfo =
-      SectionInfo(s"title-$title", SpanSequence(numberedHeader(level, title, num).content), children)
+    val sections = RootElement(
+      header(1,1,"title") ::
+        header(2,2) ::
+        header(3,3) ::
+        header(2,4) ::
+        header(3,5) ::
+        Nil
+    )
+    
+    def resultContent (docNum: List[Int]): Seq[Block] = List(
+      Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
+      numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
+      numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
+    )
 
-
-    def treeView (content: List[Int] => List[DocumentContent]): TreeView = {
-      def numbers (titleNums: List[Int]) = if (numberDocs) titleNums else Nil
-      def docs (path: Path, nums: (Int, List[Int])*) = nums map {
-        case (fileNum, titleNums) => DocumentView(path / ("doc-"+fileNum), content(numbers(titleNums)))
+    lazy val expected: DocumentTree = {
+      val docNums = List(List(1), List(2), List(3,1), List(3,2), List(4,1), List(4,2))
+      def contents (key: BuilderKey): Seq[Block] = {
+        val docNum = if (!numberDocs) Nil else docNums(key.num - 1)
+        resultContent(docNum)
       }
-      TreeView(Root, Docs(docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
-        TreeView(Root / "tree-1", Docs(docs(Root / "tree-1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
-        TreeView(Root / "tree-2", Docs(docs(Root / "tree-2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
-      )) :: Nil)
+      
+      SampleTrees.sixDocuments
+        .docContent(contents _)
+        .build
+        .tree
     }
 
-    def config: String
-    def numberSections: Boolean
-    def numberDocs: Boolean
+    lazy val result: DocumentTree = {
+      val docTree = tree(sections)
+      docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree)))
+    }
+  }
 
-    def depth: Option[Int] = None
-
-    def isIncluded (level: Int): Boolean = depth.forall(_ >= level)
+  trait SectionsWithConfigError extends TreeModel {
+    override def resultContent(docNum: List[Int]): List[Block] = List(
+      InvalidBlock("Invalid value for autonumbering.scope: xxx", GeneratedSource),
+      Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
+      numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
+      numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
+    )
   }
 
   trait NumberAllConfig {
@@ -130,88 +154,40 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
 
-  trait SectionsWithTitle extends TreeModel {
-    val sections = RootElement(
-      header(1,1,"title") ::
-      header(2,2) ::
-      header(3,3) ::
-      header(2,4) ::
-      header(3,5) ::
-      Nil
-    )
-
-    def resultView (docNum: List[Int]): List[DocumentContent] = List(
-      Content(List(
-        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
-        numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
-        numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
-      )),
-      laika.ast.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
-      Sections(List(
-        numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
-        numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))
-      ))
-    )
-
-    lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = {
-      val docTree = tree(sections)
-      viewOf(docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree))), 
-        includeConfig = false)
-    }
-  }
-
-  trait SectionsWithConfigError extends SectionsWithTitle {
-    override def resultView (docNum: List[Int]): List[DocumentContent] = List(
-      Content(List(
-        InvalidBlock("Invalid value for autonumbering.scope: xxx", GeneratedSource),
-        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
-        numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
-        numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
-      )),
-      laika.ast.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
-      Sections(List(
-        numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
-        numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))
-      ))
-    )
-  }
-
-
   "The section numbering" should "number documents, sections and titles" in {
-    new SectionsWithTitle with NumberAllConfig {
-      result should be (expected)
+    new TreeModel with NumberAllConfig {
+      result.assertEquals(expected)
     }
   }
 
   it should "number documents and titles" in {
-    new SectionsWithTitle with NumberDocumentsConfig {
-      result should be (expected)
+    new TreeModel with NumberDocumentsConfig {
+      result.assertEquals(expected)
     }
   }
 
   it should "number sections only" in {
-    new SectionsWithTitle with NumberSectionsConfig {
-      result should be (expected)
+    new TreeModel with NumberSectionsConfig {
+      result.assertEquals(expected)
     }
   }
 
   it should "number nothing" in {
-    new SectionsWithTitle with NumberNothingConfig {
-      result should be (expected)
+    new TreeModel with NumberNothingConfig {
+      result.assertEquals(expected)
     }
   }
 
   it should "number documents and sections two levels deep" in {
-    new SectionsWithTitle with NumberTwoLevels {
+    new TreeModel with NumberTwoLevels {
       override val depth = Some(2)
-      result should be (expected)
+      result.assertEquals(expected)
     }
   }
 
   it should "insert an invalid element for invalid configuration" in {
     new SectionsWithConfigError with InvalidConfig {
-      result should be (expected)
+      result.assertEquals(expected)
     }
   }
 

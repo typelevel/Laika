@@ -669,30 +669,30 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. . Text - 'Doc""".stripMargin + num + "'"
 
       def readFiles (base: String): IO[List[String]] = List(
-        readFile(base + "/doc1.txt"),
-        readFile(base + "/doc2.txt"),
-        readFile(base + "/dir1/doc3.txt"),
-        readFile(base + "/dir1/doc4.txt"),
-        readFile(base + "/dir2/doc5.txt"),
-        readFile(base + "/dir2/doc6.txt"),
+        readFile(base + "/doc-1.txt"),
+        readFile(base + "/doc-2.txt"),
+        readFile(base + "/tree-1/doc-3.txt"),
+        readFile(base + "/tree-1/doc-4.txt"),
+        readFile(base + "/tree-2/doc-5.txt"),
+        readFile(base + "/tree-2/doc-6.txt"),
       ).sequence
 
       def readFilesFiltered (base: String): IO[List[String]] = List(
-        readFile(base + "/doc2.txt"),
-        readFile(base + "/dir2/doc5.txt"),
-        readFile(base + "/dir2/doc6.txt"),
+        readFile(base + "/doc-2.txt"),
+        readFile(base + "/tree-2/doc-5.txt"),
+        readFile(base + "/tree-2/doc-6.txt"),
       ).sequence
 
       def readFilesMerged (base: String): IO[List[String]] = List(
-        readFile(base + "/doc1.txt"),
-        readFile(base + "/doc2.txt"),
-        readFile(base + "/dir1/doc3.txt"),
-        readFile(base + "/dir1/doc4.txt"),
-        readFile(base + "/dir2/doc5.txt"),
-        readFile(base + "/dir2/doc6.txt"),
-        readFile(base + "/dir1/doc7.txt"),
-        readFile(base + "/dir3/doc8.txt"),
-        readFile(base + "/doc9.txt"),
+        readFile(base + "/doc-1.txt"),
+        readFile(base + "/doc-2.txt"),
+        readFile(base + "/tree-1/doc-3.txt"),
+        readFile(base + "/tree-1/doc-4.txt"),
+        readFile(base + "/tree-2/doc-5.txt"),
+        readFile(base + "/tree-2/doc-6.txt"),
+        readFile(base + "/tree-2/doc-7.txt"),
+        readFile(base + "/tree-3/doc-8.txt"),
+        readFile(base + "/doc-9.txt"),
       ).sequence
     }
 

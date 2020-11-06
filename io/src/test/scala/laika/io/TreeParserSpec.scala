@@ -23,10 +23,11 @@ import cats.effect.{IO, Resource, Sync}
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
-import laika.ast.helper.DocumentViewBuilder.{viewOf, _}
+import laika.ast.RelativePath.CurrentTree
 import laika.ast.helper.ModelBuilder
+import laika.ast.sample.{DocumentTreeAssertions, SampleSixDocuments, SampleTrees}
 import laika.ast.{StylePredicate, _}
-import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle, SpanParser, SpanParserBuilder}
+import laika.bundle._
 import laika.config.Origin.TreeScope
 import laika.config.{ConfigBuilder, Origin}
 import laika.format.{Markdown, ReStructuredText}
@@ -36,17 +37,18 @@ import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.io.runtime.Runtime
-import laika.theme.Theme
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
+import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
-import org.scalatest.Assertion
+import laika.theme.Theme
 
 
 class TreeParserSpec extends IOWordSpec 
                          with ModelBuilder
-                         with FileIO {
+                         with FileIO
+                         with DocumentTreeAssertions {
 
   trait ParserSetup {
 
@@ -72,7 +74,6 @@ class TreeParserSpec extends IOWordSpec
         .of(Markdown)
         .io(blocker)
         .parallel[IO]
-        .withTheme(Theme.empty)
         .withTheme(TestThemeBuilder.forBundle(bundle))
         .build
 
@@ -84,8 +85,6 @@ class TreeParserSpec extends IOWordSpec
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(themeBundle))
         .build
-
-    def toTreeView (parsed: ParsedTree[IO]): TreeView = viewOf(parsed.root.tree)
   }
   
   trait TreeParserSetup extends InputBuilder with ParserSetup {
@@ -121,19 +120,16 @@ class TreeParserSpec extends IOWordSpec
     
     val docTypeMatcher: Path => DocumentType = MarkupParser.of(Markdown).build.config.docTypeMatcher
     
-    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
-    def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
+    val defaultContent = Seq(p("foo"))
     
-    def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
+    def docResult (num: Int, path: Path = Root) = Document(path / s"doc-$num.md", RootElement(defaultContent))
+    def docResult(name: String)                 = Document(Root / name, RootElement(defaultContent))
+    def customDocResult(name: String, content: Seq[Block], path: Path = Root) = Document(path / name, RootElement(content))
 
-    def toView (parsed: ParsedTree[IO]): RootView = viewOf(parsed.root)
-
-    def toViewWithTemplating (parsed: ParsedTree[IO]): RootView = viewOf(TemplateRewriter.applyTemplates(parsed.root, TemplateContext("html")).toOption.get)
+    def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = TemplateRewriter.applyTemplates(parsed.root, TemplateContext("html")).toOption.get
+    def parsedTree: IO[DocumentTreeRoot] = defaultParser.use(_.fromInput(build(inputs)).parse).map(applyTemplates)
     
-    
-    def parsedTree: IO[RootView] = defaultParser.use(_.fromInput(build(inputs)).parse).map(toViewWithTemplating)
-    
-    def mixedParsedTree: IO[RootView] = {
+    def mixedParsedTree: IO[DocumentTreeRoot] = {
       val parser = MarkupParser
         .of(Markdown)
         .io(blocker)
@@ -141,13 +137,13 @@ class TreeParserSpec extends IOWordSpec
         .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
         .build
-      parser.use(_.fromInput(build(inputs)).parse).map(toView)
+      parser.use(_.fromInput(build(inputs)).parse).map(_.root)
     }
     
-    def parsedWith (bundle: ExtensionBundle): IO[RootView] =
+    def parsedWith (bundle: ExtensionBundle): IO[DocumentTreeRoot] =
       parserWithBundle(bundle)
         .use(_.fromInput(build(inputs)).parse)
-        .map(toViewWithTemplating)
+        .map(applyTemplates)
 
     def parsedTemplates (bundle: ExtensionBundle): IO[Seq[TemplateRoot]] = {
       parserWithBundle(bundle)
@@ -167,45 +163,42 @@ class TreeParserSpec extends IOWordSpec
 
     "parse an empty tree" in new TreeParserSetup {
       val inputs = Nil
-      val treeResult = RootView(Nil)
-      parsedTree.assertEquals(treeResult)
+      parsedTree.assertEquals(DocumentTreeRoot(DocumentTree(Root, Nil)))
     }
 
     "parse a tree with a single document" in new TreeParserSetup {
       val inputs = Seq(
         Root / "name.md" -> Contents.name
       )
-      val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
+      val docResult = Document(Root / "name.md", RootElement(p("foo")))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
       parsedTree.assertEquals(treeResult)
     }
 
     "parse a tree with multiple subtrees" in new TreeParserSetup {
       val inputs = Seq(
-        Root / "doc1.md" -> Contents.name,
-        Root / "doc2.md" -> Contents.name,
-        Root / "dir1" / "doc3.md" -> Contents.name,
-        Root / "dir1" / "doc4.md" -> Contents.name,
-        Root / "dir2" / "doc5.md" -> Contents.name,
-        Root / "dir2" / "doc6.md" -> Contents.name
+        Root / "doc-1.md" -> Contents.name,
+        Root / "doc-2.md" -> Contents.name,
+        Root / "tree-1" / "doc-3.md" -> Contents.name,
+        Root / "tree-1" / "doc-4.md" -> Contents.name,
+        Root / "tree-2" / "doc-5.md" -> Contents.name,
+        Root / "tree-2" / "doc-6.md" -> Contents.name
       )
-      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(1), docView(2))),
-        Subtrees(List(subtree1, subtree2))
-      )).asRoot
-      parsedTree.assertEquals(treeResult)
+      val expected = SampleTrees.sixDocuments
+        .docContent(defaultContent)
+        .suffix("md")
+        .build
+      parsedTree.assertEquals(expected)
     }
     
     "collect errors from multiple documents" in new TreeParserSetup {
       val inputs = Seq(
-        Root / "doc1.md" -> "[link1]",
-        Root / "doc2.md" -> "[link2]",
-        Root / "dir1" / "doc3.md" -> "[link3]",
-        Root / "dir1" / "doc4.md" -> "[link4]",
-        Root / "dir2" / "doc5.md" -> "[link5]",
-        Root / "dir2" / "doc6.md" -> "[link6]"
+        Root / "doc-1.md" -> "[link1]",
+        Root / "doc-2.md" -> "[link2]",
+        Root / "tree-1" / "doc-3.md" -> "[link3]",
+        Root / "tree-1" / "doc-4.md" -> "[link4]",
+        Root / "tree-2" / "doc-5.md" -> "[link5]",
+        Root / "tree-2" / "doc-6.md" -> "[link6]"
       )
       val invalidDocuments = inputs.map { case (path, markup) => 
         val msg = s"unresolved link id reference: link${markup.charAt(5)}"
@@ -214,42 +207,42 @@ class TreeParserSpec extends IOWordSpec
       }
       val expectedError = InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments)))
       val expectedMessage =
-        """/doc1.md
+        """/doc-1.md
           |
           |  [1]: unresolved link id reference: link1
           |
           |  [link1]
           |  ^
           |
-          |/doc2.md
+          |/doc-2.md
           |
           |  [1]: unresolved link id reference: link2
           |
           |  [link2]
           |  ^
           |
-          |/dir1/doc3.md
+          |/tree-1/doc-3.md
           |
           |  [1]: unresolved link id reference: link3
           |
           |  [link3]
           |  ^
           |
-          |/dir1/doc4.md
+          |/tree-1/doc-4.md
           |
           |  [1]: unresolved link id reference: link4
           |
           |  [link4]
           |  ^
           |
-          |/dir2/doc5.md
+          |/tree-2/doc-5.md
           |
           |  [1]: unresolved link id reference: link5
           |
           |  [link5]
           |  ^
           |
-          |/dir2/doc6.md
+          |/tree-2/doc-6.md
           |
           |  [1]: unresolved link id reference: link6
           |
@@ -262,40 +255,30 @@ class TreeParserSpec extends IOWordSpec
 
     "parse a tree with a cover and a title document" in new TreeParserSetup {
       val inputs = Seq(
-        Root / "doc1.md" -> Contents.name,
-        Root / "doc2.md" -> Contents.name,
+        Root / "doc-1.md" -> Contents.name,
+        Root / "doc-2.md" -> Contents.name,
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      val treeResult = RootView(Seq(
-        CoverDocument(docView("cover.md")),
-        TreeView(Root, List(
-          TitleDocument(docView("README.md")),
-          Documents(List(docView(1), docView(2)))
-        ))
-      ))
+      val treeResult = DocumentTreeRoot(
+        DocumentTree(Root, List(docResult(1), docResult(2)), titleDocument = Some(docResult("README.md"))),
+        coverDocument = Some(docResult("cover.md")),
+      )
       parsedTree.assertEquals(treeResult)
     }
 
     "parse a tree with a title document with a custom document name configuration" in new TreeParserSetup {
       val inputs = Seq(
         Root / "directory.conf" -> Contents.titleDocNameConf,
-        Root / "doc1.md" -> Contents.name,
-        Root / "doc2.md" -> Contents.name,
+        Root / "doc-1.md" -> Contents.name,
+        Root / "doc-2.md" -> Contents.name,
         Root / "alternative-title.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      val treeResult = RootView(Seq(
-        CoverDocument(docView("cover.md")),
-        TreeView(Root, List(
-          TitleDocument(docView("alternative-title.md")),
-          Documents(List(docView(1), docView(2)))
-        ), ConfigBuilder
-            .withOrigin(Origin(TreeScope, Root / "directory.conf"))
-            .withValue("laika.titleDocuments.inputName", "alternative-title")
-            .build
-        )
-      ))
+      val treeResult = DocumentTreeRoot(
+        DocumentTree(Root, List(docResult(1), docResult(2)), titleDocument = Some(docResult("alternative-title.md"))),
+        coverDocument = Some(docResult("cover.md")),
+      )
       parsedTree.assertEquals(treeResult)
     }
 
@@ -303,8 +286,8 @@ class TreeParserSpec extends IOWordSpec
       val inputs = Seq(
         Root / "main.template.html" -> Contents.name
       )
-      val template = TemplateView(Root / "main.template.html", TemplateRoot("foo"))
-      val treeResult = TreeView(Root, List(TemplateDocuments(List(template)))).asRoot
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot("foo"))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template)))
       parsedTree.assertEquals(treeResult)
     }
 
@@ -325,40 +308,38 @@ class TreeParserSpec extends IOWordSpec
       val inputs = Seq(
         Root / "omg.js" -> Contents.name
       )
-      val treeResult = RootView(List(StaticDocuments(List(Root / "omg.js"))))
+      val staticDoc = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil), staticDocuments = List(staticDoc))
       parsedTree.assertEquals(treeResult)
     }
 
     "parse a tree with all available file types and multiple markup formats" in new TreeParserSetup {
       val inputs = Seq(
-        Root / "doc1.md" -> Contents.link,
-        Root / "doc2.rst" -> Contents.link,
+        Root / "doc-1.md" -> Contents.link,
+        Root / "doc-2.rst" -> Contents.link,
         Root / "mainA.template.html" -> Contents.name,
-        Root / "dir1" / "mainB.template.html" -> Contents.name,
-        Root / "dir1" / "doc3.md" -> Contents.name,
-        Root / "dir1" / "doc4.md" -> Contents.name,
-        Root / "dir2" / "omg.js" -> Contents.name,
-        Root / "dir2" / "doc5.md" -> Contents.name,
-        Root / "dir2" / "doc6.md" -> Contents.name,
+        Root / "tree-1" / "mainB.template.html" -> Contents.name,
+        Root / "tree-1" / "doc-3.md" -> Contents.name,
+        Root / "tree-1" / "doc-4.md" -> Contents.name,
+        Root / "tree-2" / "doc-5.md" -> Contents.name,
+        Root / "tree-2" / "doc-6.md" -> Contents.name,
+        Root / "static-1" / "omg.js" -> Contents.name,
       )
-
-      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot("foo"))
-
-      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot("foo"))
-      val subtree1 = TreeView(Root / "dir1", List(
-        Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1"))),
-        TemplateDocuments(List(template('B', Root / "dir1")))
-      ))
-      val subtree2 = TreeView(Root / "dir2", List(
-        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
-      ))
-      val tree = TreeView(Root, List(
-        Documents(List(customDocView("doc1.md", Seq(p(SpanLink(Seq(Text("link")), ExternalTarget("/foo"))))), customDocView("doc2.rst", Seq(p("[link](/foo)"))))),
-        TemplateDocuments(List(template('A', Root))),
-        Subtrees(List(subtree1, subtree2))
-      ))
-      val expectedRoot = RootView(Seq(StaticDocuments(Seq(Root / "dir2" / "omg.js")), tree))
-      mixedParsedTree.assertEquals(expectedRoot)
+      
+      val linkResult = Seq(p(SpanLink(Seq(Text("link")), ExternalTarget("/foo"))))
+      val rstResult = Seq(p("[link](/foo)"))
+      
+      val expected = SampleTrees.sixDocuments
+        .staticDoc(Root / "static-1" / "omg.js", "html")
+        .docContent(defaultContent)
+        .suffix("md")
+        .doc1.content(linkResult)
+        .doc2.content(rstResult)
+        .doc2.suffix("rst")
+        .root.template("mainA.template.html", TemplateString("foo"))
+        .tree1.template("mainB.template.html", TemplateString("foo"))
+        .build
+      mixedParsedTree.assertEquals(expected)
     }
 
     "allow to specify a custom template engine" ignore new TreeParserSetup {
@@ -368,9 +349,9 @@ class TreeParserSpec extends IOWordSpec
         Root / "main2.template.html" -> Contents.name
       )
 
-      def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot("$$foo"))
+      def template (num: Int) = TemplateDocument(Root / s"main$num.template.html", TemplateRoot("$$foo"))
 
-      val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1), template(2))))).asRoot
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template(1), template(2))))
       parsedWith(BundleProvider.forTemplateParser(parser)).assertEquals(treeResult)
     }
 
@@ -392,10 +373,10 @@ class TreeParserSpec extends IOWordSpec
         Root / "main2.bbb.css" -> Contents.name2,
         Root / "main3.aaa.css" -> Contents.name
       )
-      val treeResult = RootView(List(StyleSheets(Map(
-        "aaa" -> StyleDeclarationSet(Set(Path.parse("/main1.aaa.css"), Path.parse("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
-        "bbb" -> StyleDeclarationSet(Set(Path.parse("/main2.bbb.css")), Set(styleDecl("bar")))
-      ))))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil), styles = Map(
+        "aaa" -> StyleDeclarationSet(Set(Root / "main1.aaa.css", Root / "main3.aaa.css"), Set(styleDecl("foo"), styleDecl("foo", 1))),
+        "bbb" -> StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
+      ))
       parsedWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
         .withBase(BundleProvider.forStyleSheetParser(parser))).assertEquals(treeResult)
     }
@@ -427,12 +408,12 @@ class TreeParserSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.template,
         Root / "doc.md" -> Contents.multiline
       )
-      val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(
+      val docResult = Document(Root / "doc.md", RootElement(TemplateRoot(
         t("<div>\n  "),
         EmbeddedRoot(List(p("aaa"), p("bbb")), 2),
         t("\n</div>")
-      ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
+      )))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
       parsedTree.assertEquals(treeResult)
     }
 
@@ -444,12 +425,12 @@ class TreeParserSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.template2,
         Root / "doc.md" -> Contents.multiline
       )
-      val docResult = DocumentView(Root / "doc.md", Content(List(TemplateRoot(
+      val docResult = Document(Root / "doc.md", RootElement(TemplateRoot(
         t("<div>\nxx"),
         EmbeddedRoot(p("aaa"), p("bbb")),
         t("\n</div>")
-      ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(List(docResult)))).asRoot
+      )))
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
       parsedTree.assertEquals(treeResult)
     }
 
@@ -496,15 +477,12 @@ class TreeParserSpec extends IOWordSpec
     "read a directory from the file system using the fromDirectory method" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
 
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
-
-      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(1), docView(2))),
-        Subtrees(List(subtree1, subtree2))
-      ))
-      defaultParser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
+      val expected = SampleTrees.sixDocuments
+        .docContent(key => Seq(p("Doc" + key.num)))
+        .suffix("md")
+        .build
+      
+      defaultParser.use(_.fromDirectory(dirname).parse).map(_.root).assertEquals(expected)
     }
 
     trait SpanParserSetup extends ParserSetup {
@@ -539,8 +517,6 @@ class TreeParserSpec extends IOWordSpec
     "use a span parser from a theme" in new SpanParserSetup {
       override def themeParsers: Seq[SpanParserBuilder] = Seq(spanFor('+'))
 
-      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
-
       parse.assertEquals(RootElement(Paragraph(
         Text("aaa "),
         DecoratedSpan('+', "bbb"),
@@ -560,21 +536,24 @@ class TreeParserSpec extends IOWordSpec
     }
 
     trait CustomInputSetup extends ParserSetup {
-      val dirname: String = getClass.getResource("/trees/a/").getFile
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
-      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      
-      def subtree2: TreeView
 
-      lazy val treeResult = TreeView(Root, List(
-        Documents(List(docView(1), docView(2))),
-        Subtrees(List(subtree1, subtree2))
-      ))
+      def customizeResult (sample: SampleSixDocuments): SampleSixDocuments = sample
+
+      def customizeTree (sample: DocumentTreeRoot): DocumentTreeRoot = sample
       
+      lazy val expected = customizeTree(SampleTrees.sixDocuments
+        .docContent(key => Seq(p("Doc" + key.num)))
+        .suffix("md")
+        .apply(customizeResult)
+        .build)
+      
+      val dirname: String = getClass.getResource("/trees/a/").getFile
+
       def input: InputTreeBuilder[IO]
       def parser: Resource[IO, TreeParser[IO]]
       
-      def run (): Assertion = parser.use(_.fromInput(input).parse).map(toTreeView).assertEquals(treeResult)
+      def result: IO[DocumentTreeRoot] = parser.use(_.fromInput(input).parse).map(_.root)
+      def run (): Unit = result.assertEquals(expected)
     }
 
     trait CustomInput extends CustomInputSetup {
@@ -593,56 +572,59 @@ class TreeParserSpec extends IOWordSpec
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
-      lazy val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(7, Root / "dir2")))))
+      val extraPath = Root / "tree-2" / "doc-7.md"
+      val extraDoc = Document(extraPath, RootElement(p("Doc7")))
+      override def customizeTree (sample: DocumentTreeRoot): DocumentTreeRoot = sample.copy(
+        tree = sample.tree.copy(
+          content = sample.tree.content.map {
+            case tree: DocumentTree if tree.path.name == "tree-2" => tree.copy(content = tree.content :+ extraDoc)
+            case other => other
+          }
+        )
+      )
     }
 
     trait ExtraTemplateSetup extends CustomInputSetup {
-      val templatePath: Path = Root / "dir2" / "tmpl.template.html"
-      lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"))), 
-        TemplateDocuments(List(TemplateView(templatePath, TemplateRoot(TemplateString("Template")))))
-      ))
+      val templatePath: Path = Root / "tree-2" / "tmpl.template.html"
+      override def customizeResult(sample: SampleSixDocuments): SampleSixDocuments = 
+        sample.tree2.template(templatePath.name, TemplateString("Template"))
     }
 
     trait ExtraConfigSetup extends CustomInputSetup {
-      val configPath: Path = Root / "dir2" / "directory.conf"
-      lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
-      ), ConfigBuilder.withOrigin(Origin(TreeScope, configPath)).withValue("foo", 7).build)
-    }
-
-    trait ExtraStylesSetup extends CustomInputSetup {
-      val configPath: Path = Root / "dir2" / "directory.conf"
-      lazy val subtree2 = TreeView(Root / "dir2", List(
-        Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
-      ))
+      val configPath: Path = Root / "tree-2" / "directory.conf"
+      
+      override def run(): Unit = result.asserting { root =>
+        root.assertEquals(expected)
+        
+        root.tree.selectSubtree(CurrentTree / "tree-2").flatMap(_.config.get[Int]("foo").toOption) shouldBe Some(7) 
+      }
     }
 
     "read a directory from the file system plus one AST input" in new ExtraDocSetup with CustomInput {
       def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = 
-        input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
+        input.addDocument(Document(extraPath, RootElement(Paragraph("Doc7"))))
       run()
     }
 
     "read a directory from the file system plus one AST input from a theme" in new ExtraDocSetup with CustomTheme {
       def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
-        input.addDocument(Document(Root / "dir2" / "doc7.md", RootElement(Paragraph("Doc7"))))
+        input.addDocument(Document(extraPath, RootElement(Paragraph("Doc7"))))
       run()
     }
 
     "read a directory from the file system plus one string input" in new ExtraDocSetup with CustomInput {
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Doc7", Root / "dir2" / "doc7.md")
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addString("Doc7", extraPath)
       run()
     }
 
     "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup with CustomInput {
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(new ByteArrayInputStream("Doc7".getBytes), Root / "dir2" / "doc7.md")
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(new ByteArrayInputStream("Doc7".getBytes), extraPath)
       run()
     }
 
     "read a directory from the file system plus one extra file" in new ExtraDocSetup with CustomInput {
-      lazy val filename: String = getClass.getResource("/trees/d/doc7.md").getFile
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addFile(filename, Root / "dir2" / "doc7.md")
+      lazy val filename: String = getClass.getResource("/trees/d/doc-7.md").getFile
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addFile(filename, extraPath)
       run()
     }
 
@@ -681,32 +663,42 @@ class TreeParserSpec extends IOWordSpec
     "read a directory from the file system using a custom document type matcher" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
 
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
-
-      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(2))),
-        Subtrees(List(subtree1, subtree2))
-      ))
-      val parser = parserWithBundle(BundleProvider.forDocTypeMatcher { case Root / "doc1.md" => Ignored })
-      parser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
+      val baseTree = SampleTrees.sixDocuments
+        .docContent(key => Seq(p("Doc" + key.num)))
+        .suffix("md")
+        .build
+      
+      val expected = baseTree.copy(
+        tree = baseTree.tree.copy(
+          content = baseTree.tree.content.filter(_.path.name != "doc-1.md")
+        )
+      )
+      
+      val parser = parserWithBundle(BundleProvider.forDocTypeMatcher { case Root / "doc-1.md" => Ignored })
+      parser
+        .use(_.fromDirectory(dirname).parse)
+        .map(_.root)
+        .assertEquals(expected)
     }
 
     "allow to specify a custom exclude filter" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/a/").getFile
 
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
+      val baseTree = SampleTrees.sixDocuments
+        .docContent(key => Seq(p("Doc" + key.num)))
+        .suffix("md")
+        .build
 
-      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(2))),
-        Subtrees(List(subtree2))
-      ))
+      val expected = baseTree.copy(
+        tree = baseTree.tree.copy(
+          content = baseTree.tree.content.filter(c => c.path.name != "doc-1.md" && c.path.name != "tree-1")
+        )
+      )
+      
       defaultParser
-        .use(_.fromDirectory(dirname, { f: java.io.File => f.getName == "doc1.md" || f.getName == "dir1" }).parse)
-        .map(toTreeView)
-        .assertEquals(treeResult)
+        .use(_.fromDirectory(dirname, { f: java.io.File => f.getName == "doc-1.md" || f.getName == "tree-1" }).parse)
+        .map(_.root)
+        .assertEquals(expected)
     }
 
       // TODO - reactivate these tests for the removed sequential parser
@@ -737,31 +729,45 @@ class TreeParserSpec extends IOWordSpec
       val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
       val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
 
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc" + num))) :: Nil)
+      val baseTree = SampleTrees.sixDocuments
+        .docContent(key => Seq(p("Doc" + key.num)))
+        .suffix("md")
+        .build
+    }
+    
+    trait TopLevelMergeSetup extends MergedDirectorySetup {
+      val doc7 = Document(Root / "tree-2" / "doc-7.md", RootElement("Doc7"))
+      val doc8 = Document(Root / "tree-3" / "doc-8.md", RootElement("Doc8"))
+      val doc9 = Document(Root / "doc-9.md", RootElement("Doc9"))
 
-      val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1"), docView(7, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))))
-      val subtree3 = TreeView(Root / "dir3", List(Documents(List(docView(8, Root / "dir3")))))
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(1), docView(2), docView(9))),
-        Subtrees(List(subtree1, subtree2, subtree3))
-      ))
+      val tree2 = baseTree.tree.content(3).asInstanceOf[DocumentTree]
+      
+      val expected = baseTree.copy(
+        tree = baseTree.tree.copy(
+          content =
+            baseTree.tree.content.take(2) :+
+              doc9 :+
+              baseTree.tree.content(2) :+
+              tree2.copy(content = tree2.content :+ doc7) :+
+              DocumentTree(Root / "tree-3", Seq(doc8))
+        )
+      )
     }
 
-    "merge two directories from the file system using the fromDirectories method" in new MergedDirectorySetup {
-      defaultParser.use(_.fromDirectories(Seq(dir1, dir2)).parse).map(toTreeView).assertEquals(treeResult)
+    "merge two directories from the file system using the fromDirectories method" in new TopLevelMergeSetup {
+      defaultParser.use(_.fromDirectories(Seq(dir1, dir2)).parse).map(_.root).assertEquals(expected)
     }
 
-    "merge two directories from the file system using an InputTreeBuilder" in new MergedDirectorySetup {
+    "merge two directories from the file system using an InputTreeBuilder" in new TopLevelMergeSetup {
       val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2)
 
-      defaultParser.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(treeResult)
+      defaultParser.use(_.fromInput(treeInput).parse).map(_.root).assertEquals(expected)
     }
 
     "merge a directory with a directory from a theme" ignore new MergedDirectorySetup {
       // TODO - remove or adjust - using markup documents as theme inputs is currently not possible
-      val treeInput = InputTree[IO].addDirectory(dir1)
-      val themeInput = InputTree[IO].addDirectory(dir2).build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
+//      val treeInput = InputTree[IO].addDirectory(dir1)
+//      val themeInput = InputTree[IO].addDirectory(dir2).build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
 
 //      val theme = themeInput.map{ themeInputs => new Theme[IO] {
 //        def inputs = themeInputs
@@ -769,47 +775,51 @@ class TreeParserSpec extends IOWordSpec
 //        def treeProcessor = PartialFunction.empty
 //      }}
 
-      val inputs = new TestThemeBuilder.Inputs {
-        def build[F[_]: Sync: Runtime] = InputTree[F].addDirectory(dir2)//.build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
-      }
-      
-      defaultBuilder
-        .withTheme(TestThemeBuilder.forInputs(inputs))
-        .build
-        .use(_.fromInput(treeInput).parse)
-        .map(toTreeView)
-        .assertEquals(treeResult)
+//      val inputs = new TestThemeBuilder.Inputs {
+//        def build[F[_]: Sync: Runtime] = InputTree[F].addDirectory(dir2)//.build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
+//      }
+//      
+//      defaultBuilder
+//        .withTheme(TestThemeBuilder.forInputs(inputs))
+//        .build
+//        .use(_.fromInput(treeInput).parse)
+//        .map(_.root)
+        //.assertEquals(treeResult)
     }
 
     "merge a directory at a specific mount-point using an InputTreeBuilder" in new MergedDirectorySetup {
-      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "dir2")
+      val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "tree-1")
 
-      val mergedResult = {
-        val subtree1 = TreeView(Root / "dir1", List(Documents(List(docView(3, Root / "dir1"), docView(4, Root / "dir1")))))
-        val subtree1Nested = TreeView(Root / "dir2" / "dir1", List(Documents(List(docView(7, Root / "dir2" / "dir1")))))
-        val subtree3 = TreeView(Root / "dir2" / "dir3", List(Documents(List(docView(8, Root / "dir2" / "dir3")))))
-        val subtree2 = TreeView(Root / "dir2", List(
-          Documents(List(docView(5, Root / "dir2"), docView(6, Root / "dir2"), docView(9, Root / "dir2"))),
-          Subtrees(List(subtree1Nested, subtree3))
-        ))
-        TreeView(Root, List(
-          Documents(List(docView(1), docView(2))),
-          Subtrees(List(subtree1, subtree2))
-        ))
-      }
-      
-      defaultParser.use(_.fromInput(treeInput).parse).map(toTreeView).assertEquals(mergedResult)
+      val doc7 = Document(Root / "tree-1" / "tree-2" / "doc-7.md", RootElement("Doc7"))
+      val doc8 = Document(Root / "tree-1" / "tree-3" / "doc-8.md", RootElement("Doc8"))
+      val doc9 = Document(Root / "tree-1" / "doc-9.md", RootElement("Doc9"))
+
+      val tree1 = baseTree.tree.content(2).asInstanceOf[DocumentTree]
+      val tree1Merged = tree1.copy(
+        content = tree1.content :+
+          doc9 :+
+          DocumentTree(Root / "tree-1" / "tree-2", Seq(doc7)) :+
+          DocumentTree(Root / "tree-1" / "tree-3", Seq(doc8))
+      )
+
+      val expected = baseTree.copy(
+        tree = baseTree.tree.copy(
+          content =
+            baseTree.tree.content.take(2) :+
+              tree1Merged :+
+              baseTree.tree.content.drop(3).head
+        )
+      )
+      defaultParser.use(_.fromInput(treeInput).parse).map(_.root).assertEquals(expected)
     }
 
     "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
       val dirname: String = getClass.getResource("/trees/c/").getFile
 
-      def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p(s"Doc$num äöü"))) :: Nil)
+      def doc (num: Int, path: Path = Root) = Document(path / s"doc-$num.md", RootElement(p(s"Doc$num äöü")))
 
-      val treeResult = TreeView(Root, List(
-        Documents(List(docView(1)))
-      ))
-      defaultParser.use(_.fromDirectory(dirname).parse).map(toTreeView).assertEquals(treeResult)
+      val treeResult = DocumentTreeRoot(DocumentTree(Root, List(doc(1))))
+      defaultParser.use(_.fromDirectory(dirname).parse).map(_.root).assertEquals(treeResult)
     }
   }
 }
