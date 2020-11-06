@@ -28,8 +28,11 @@ import scala.io.Codec
 trait InputBuilder {
 
   object ByteInput {
+    private val emptyBytes = "".getBytes
     def apply(input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All)(implicit codec: Codec): BinaryInput[IO] =
       BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(codec.charSet)), targetFormats)
+    def apply(path: Path): BinaryInput[IO] =
+      BinaryInput(path, () => new ByteArrayInputStream(emptyBytes), TargetFormats.All)
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =

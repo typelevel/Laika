@@ -31,16 +31,16 @@ import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.format._
 import laika.helium.generate.FOStyles
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
-import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTree, StringTreeOutput}
+import laika.io.model.{InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.runtime.Runtime
 import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
+import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.{DefaultTemplatePath, Version, Versions}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.TargetFormats
@@ -58,22 +58,44 @@ class TreeRendererSpec extends IOWordSpec
       |. . Text - 'bbb'""".stripMargin
 
   trait DocBuilder extends InputBuilder {
-    
-    def staticDoc (num: Int, path: Path = Root, formats: Option[String] = None) = 
-      ByteInput("Static"+num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
-    
-    def renderedDoc (num: Int): String = 
+
+    def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None) =
+      ByteInput("Static" + num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
+
+    def renderedDoc(num: Int): String =
       """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
         |. . Text - 'Text """.stripMargin + num + "'"
 
-    def twoDocs (rootDoc: RootElement, subDoc: RootElement): DocumentTree = DocumentTree(Root, List(
+    def twoDocs(rootDoc: RootElement, subDoc: RootElement): DocumentTree = DocumentTree(Root, List(
       Document(Root / "doc", rootDoc),
       DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subDoc)))
     ))
+
+    def renderedRoot(content: Seq[RenderContent],
+                     title: Option[SpanSequence],
+                     titleDocument: Option[RenderedDocument] = None,
+                     coverDocument: Option[RenderedDocument] = None,
+                     staticDocuments: Seq[Path] = Nil): RenderedTreeRoot[IO] = RenderedTreeRoot(
+      RenderedTree(Root, title, content, titleDocument),
+      TemplateRoot.fallback,
+      Config.empty,
+      coverDocument = coverDocument,
+      staticDocuments = staticDocuments.map(ByteInput.apply(_))
+    )
+    
+    def renderedTree(path: Path, content: Seq[RenderedDocument]): RenderedTree = RenderedTree(path, None, content)
+
+    def renderedDoc(path: Path): RenderedDocument = renderedDoc(path, expected, "Title")
+    def renderedDoc(path: Path, expected: String): RenderedDocument = renderedDoc(path, expected, "Title")
+
+    def renderedDoc(path: Path, expected: String, title: String): RenderedDocument =
+      RenderedDocument(path, if (hasTitle) Some(SpanSequence(title)) else None, Nil, expected, Config.empty)
+    
+    def hasTitle: Boolean = true
   }
   
-  trait TreeRendererSetup[FMT] {
+  trait TreeRendererSetup[FMT] extends DocBuilder {
 
     def styles: StyleDeclarationSet = StyleDeclarationSet.empty
     
@@ -83,15 +105,12 @@ class TreeRendererSpec extends IOWordSpec
     
     def renderer: Resource[IO, TreeRenderer[IO]]
     
-    def renderedTree: IO[RenderedTreeView] = renderedRoot.map(_.tree)
-
-    def renderedRoot: IO[RenderedTreeViewRoot] = renderer
+    def renderedTree: IO[RenderedTreeRoot[IO]] = renderer
       .use (_
         .from(treeRoot)
         .toOutput(StringTreeOutput)
         .render
       )
-      .map(RenderedTreeViewRoot.apply[IO])
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
@@ -115,20 +134,43 @@ class TreeRendererSpec extends IOWordSpec
   }
   
   trait ASTRenderer extends TreeRendererSetup[TextFormatter] {
+    val staticPaths = Seq( // TODO - why do they differ from TreeTransformerSpec?
+      Root / "laika" / "fonts" / "Lato-Regular.ttf",
+      Root / "laika" / "fonts" / "Lato-Italic.ttf",
+      Root / "laika" / "fonts" / "Lato-Bold.ttf",
+      Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
+      Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+      Root / "laika" / "fonts" / "icofont.ttf",
+      Root / "helium" / "fonts"/ "icofont.woff",
+      Root / "helium" / "fonts"/ "icofont.woff2",
+    )
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(AST).io(blocker).parallel[IO].build
+    override def hasTitle = false
   }
 
   trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
+    val staticPaths = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
     override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
+    val staticPaths = staticHTMLPaths.filterNot(path => path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains("js"))
     override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
   trait FORenderer extends TreeRendererSetup[FOFormatter] {
+    val staticPaths = Seq(
+      Root / "laika" / "fonts" / "Lato-Regular.ttf",
+      Root / "laika" / "fonts" / "Lato-Italic.ttf",
+      Root / "laika" / "fonts" / "Lato-Bold.ttf",
+      Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
+      Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+      Root / "laika" / "fonts" / "icofont.ttf",
+      Root / "helium" / "fonts"/ "icofont.woff",
+      Root / "helium" / "fonts"/ "icofont.woff2",
+    )
     override def styles: StyleDeclarationSet = TestTheme.foStyles
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
@@ -147,20 +189,22 @@ class TreeRendererSpec extends IOWordSpec
       .withTheme(TestTheme.heliumTestProps.build)
       .build
   }
+    
+    
 
   "The tree renderer" should {
     
     "render an empty tree" in {
       new ASTRenderer {
         val input = DocumentTree(Root, Nil)
-        renderedTree.assertEquals(RenderedTreeView(Root, Nil))
+        renderedTree.assertEquals(renderedRoot(Nil, None, staticDocuments = staticPaths))
       }
     }
   
     "render a tree with a single document" in {
       new ASTRenderer {
         val input = rootTree
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.txt", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.txt")), None, staticDocuments = staticPaths))
       }
     }
   
@@ -169,7 +213,7 @@ class TreeRendererSpec extends IOWordSpec
         val input = rootTree
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>""".stripMargin)
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.html", expected)), None, staticDocuments = staticPaths))
       }
     }
   
@@ -233,7 +277,7 @@ class TreeRendererSpec extends IOWordSpec
         val input = rootTree.copy(templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
           |<p>bbb</p>]""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.html", expected)), None, staticDocuments = staticPaths))
       }
     }
 
@@ -247,7 +291,7 @@ class TreeRendererSpec extends IOWordSpec
           ).build
         val expected = """<h1 id="title" class="title">Title!</h1>
                          |<p>bbb!</p>""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.html", expected)), None))
       }
     }
 
@@ -268,7 +312,7 @@ class TreeRendererSpec extends IOWordSpec
           .build
         val expected = """<h1 id="title" class="title">Title?</h1>
                          |<p>bbb?</p>""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.html", expected)), None))
       }
     }
   
@@ -291,7 +335,7 @@ class TreeRendererSpec extends IOWordSpec
         val input = rootTree
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(Root / "doc.html", expected)), None))
       }
     }
   
@@ -301,19 +345,19 @@ class TreeRendererSpec extends IOWordSpec
         override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
         val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |<p>bbb</p>""".stripMargin)
-        renderedRoot.assertEquals(RenderedTreeViewRoot(
-          RenderedTreeView(Root, List( 
-            TitleDocument(RenderedDocumentView(Root / "index.html", expected)),
-            DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
-          )),
-          Some(RenderedDocumentView(Root / "cover.html", expected)),
-          Seq(
+        renderedTree.assertEquals(renderedRoot(
+          List(renderedDoc(Root / "doc.html", expected)),
+          None,
+          Some(renderedDoc(Root / "index.html", expected)),
+          Some(renderedDoc(Root / "cover.html", expected)),
+          staticDocuments = Seq(
             Root / "helium" / "laika-helium.js",
             Root / "helium" / "landing.page.css",
             Root / "helium" / "icofont.min.css",
             Root / "helium" / "fonts"/ "icofont.woff",
             Root / "helium" / "fonts"/ "icofont.woff2",
-            Root / "helium" / "laika-helium.css")
+            Root / "helium" / "laika-helium.css"
+          )
         ))
       }
     }
@@ -324,7 +368,7 @@ class TreeRendererSpec extends IOWordSpec
         val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
                                                                         |<p>bbb</p>""".stripMargin)
         val path = (Root / "doc").withSuffix("epub.xhtml")
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(path, expected)), None, staticDocuments = staticPaths))
       }
     }
   
@@ -339,7 +383,7 @@ class TreeRendererSpec extends IOWordSpec
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
         val path = (Root / "doc").withSuffix("epub.xhtml")
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(path, expected)), None, staticDocuments = staticPaths))
       }
     }
   
@@ -365,7 +409,7 @@ class TreeRendererSpec extends IOWordSpec
         val expected = """[<h1 id="title" class="title">Title</h1>
                          |<p>bbb</p>]""".stripMargin
         val path = (Root / "doc").withSuffix("epub.xhtml")
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(path, expected))))))
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(path, expected)), None, staticDocuments = Nil))
       }
     }
   
@@ -374,7 +418,8 @@ class TreeRendererSpec extends IOWordSpec
         val input = rootTree
         val expected = RenderResult.fo.withFallbackTemplate(s"""${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin)
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
+        val path = Root / "doc.fo"
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(path, expected)), None, staticDocuments = staticPaths))
       }
     }
   
@@ -388,7 +433,8 @@ class TreeRendererSpec extends IOWordSpec
         val input = rootTree.copy(templates = Seq(template))
         val expected = s"""[${title("_doc_title", "Title")}
           |<fo:block $defaultParagraphStyles>bbb</fo:block>]""".stripMargin
-        renderedTree.assertEquals(RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
+        val path = Root / "doc.fo"
+        renderedTree.assertEquals(renderedRoot(List(renderedDoc(path, expected)), None, staticDocuments = staticPaths))
       }
     }
   
@@ -411,12 +457,12 @@ class TreeRendererSpec extends IOWordSpec
           |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
           |<fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
-        renderedTree.assertEquals(RenderedTreeView(Root, List(
-          DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
-          SubtreeViews(List(RenderedTreeView(Root / "tree", List(
-            DocumentViews(List(RenderedDocumentView(Root / "tree" / "subdoc.fo", expectedSub)))
-          ))))
-        )))
+        renderedTree.assertEquals(renderedRoot(List(
+          renderedDoc(Root / "doc.fo", expectedRoot),
+          renderedTree(Root / "tree", List(
+            renderedDoc(Root / "tree" / "subdoc.fo", expectedSub, "Sub Title")
+          ))
+        ), None))
       }
     }
   
@@ -430,12 +476,12 @@ class TreeRendererSpec extends IOWordSpec
           |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin)
         val expectedSub = RenderResult.fo.withFallbackTemplate(s"""${title("_tree_subdoc_sub-title", "Sub Title")}
           |<fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin)
-        renderedTree.assertEquals(RenderedTreeView(Root, List(
-          DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
-          SubtreeViews(List(RenderedTreeView(Root / "tree", List(
-              DocumentViews(List(RenderedDocumentView(Root / "tree" / "subdoc.fo", expectedSub)))
-            ))))
-        )))
+        renderedTree.assertEquals(renderedRoot(List(
+          renderedDoc(Root / "doc.fo", expectedRoot),
+          renderedTree(Root / "tree", List(
+            renderedDoc(Root / "tree" / "subdoc.fo", expectedSub, "Sub Title")
+          ))
+        ), None, staticDocuments = staticPaths))
       }
     }
   
@@ -449,8 +495,7 @@ class TreeRendererSpec extends IOWordSpec
           .toOutput(StringTreeOutput)
           .render
         )
-        .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticASTPaths))
+        .assertEquals(renderedRoot(Nil, None, staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticASTPaths))
     }
 
     "render a tree with a single static document from a theme" in new ASTRenderer with DocBuilder {
@@ -471,8 +516,7 @@ class TreeRendererSpec extends IOWordSpec
           .toOutput(StringTreeOutput)
           .render
         )
-        .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
+        .assertEquals(renderedRoot(Nil, None, staticDocuments = Seq(Root / "static1.txt")))
     }
   
     "render a tree with all available file types" in new ASTRenderer with DocBuilder {
@@ -498,24 +542,17 @@ class TreeRendererSpec extends IOWordSpec
       override def treeRoot = DocumentTreeRoot(finalInput, staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats)))
       
       val expectedStatic = staticDocs.dropRight(1).map(_.path)
-      val expectedRendered = RenderedTreeView(Root, List(
-        DocumentViews(List(
-          RenderedDocumentView(Root / "doc-1.txt", renderedDoc(1)),
-          RenderedDocumentView(Root / "doc-2.txt", renderedDoc(2))
+      val expectedRendered = renderedRoot(List(
+        renderedDoc(Root / "doc-1.txt", renderedDoc(1)),
+        renderedDoc(Root / "doc-2.txt", renderedDoc(2)),
+        renderedTree(Root / "tree-1", List(
+          renderedDoc(Root / "tree-1" / "doc-3.txt", renderedDoc(3)),
+          renderedDoc(Root / "tree-1" / "doc-4.txt", renderedDoc(4))
         )),
-        SubtreeViews(List(
-          RenderedTreeView(Root / "tree-1", List(
-            DocumentViews(List(
-              RenderedDocumentView(Root / "tree-1" / "doc-3.txt", renderedDoc(3)),
-              RenderedDocumentView(Root / "tree-1" / "doc-4.txt", renderedDoc(4))
-           ))
-        )),
-        RenderedTreeView(Root / "tree-2", List(
-          DocumentViews(List(
-            RenderedDocumentView(Root / "tree-2" / "doc-5.txt", renderedDoc(5))
-          ))
-        ))))
-      ))
+        renderedTree(Root / "tree-2", List(
+          renderedDoc(Root / "tree-2" / "doc-5.txt", renderedDoc(5))
+        ))
+      ), None, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths)
 
       renderer
         .use (_
@@ -524,8 +561,7 @@ class TreeRendererSpec extends IOWordSpec
           .toOutput(StringTreeOutput)
           .render
         )
-        .map(RenderedTreeViewRoot.apply[IO])
-        .assertEquals(RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths))
+        .assertEquals(expectedRendered)
     }
     
     trait TwoPhaseRenderer extends DocBuilder {

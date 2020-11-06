@@ -25,14 +25,14 @@ import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.config.Config
 import laika.directive.Templates
 import laika.format._
 import laika.io.api.{BinaryTreeTransformer, TreeTransformer}
 import laika.io.descriptor.TransformerDescriptor
-import laika.io.helper.OutputBuilder._
-import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
+import laika.io.helper.{InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTree, StringTreeOutput}
+import laika.io.model.{InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -40,9 +40,8 @@ import laika.render.fo.TestTheme
 import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
 import laika.theme.ThemeProvider
-import org.scalatest.Assertion
 
-class TreeTransformerSpec extends IOWordSpec with FileIO {
+class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssertions {
 
   
   private val transformer: Resource[IO, TreeTransformer[IO]] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
@@ -59,14 +58,14 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
 
     def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] = build(in, docTypeMatcher)
 
-    def transformTree: IO[RenderedTreeViewRoot] = transformWith()
+    def transformTree: IO[RenderedTreeRoot[IO]] = transformWith()
     
-    def transformWithConfig (config: String): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forConfigString(config))
-    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
-    def transformWithTemplates (parser: Parser[TemplateRoot]): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateParser(parser))
-    def transformWithSlugBuilder (f: String => String): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forSlugBuilder(f))
-    def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeViewRoot] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
-    def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeViewRoot] = 
+    def transformWithConfig (config: String): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forConfigString(config))
+    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
+    def transformWithTemplates (parser: Parser[TemplateRoot]): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forTemplateParser(parser))
+    def transformWithSlugBuilder (f: String => String): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forSlugBuilder(f))
+    def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
+    def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeRoot[IO]] = 
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
     
     def describe: IO[TransformerDescriptor] = Transformer
@@ -83,21 +82,18 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         .describe
       )
     
-    protected def transformWith (transformer: Resource[IO, TreeTransformer[IO]] = transformer): IO[RenderedTreeViewRoot] =
+    protected def transformWith (transformer: Resource[IO, TreeTransformer[IO]] = transformer): IO[RenderedTreeRoot[IO]] =
       transformer.use (_
         .fromInput(build(inputs))
         .toOutput(StringTreeOutput)
         .transform
       )
-      .map(RenderedTreeViewRoot.apply[IO])
 
-    private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeViewRoot] =
+    private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeRoot[IO]] =
       transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
 
-    def transformMixedMarkup: IO[RenderedTreeViewRoot] =
+    def transformMixedMarkup: IO[RenderedTreeRoot[IO]] =
       transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withAlternativeParser(MarkupParser.of(ReStructuredText)).build)
-    
-    def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
     object Contents {
       val name = "foo"
@@ -125,21 +121,26 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
     val mappedResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'foo-bar'""".stripMargin
-      
-    def docs (values: (Path, String)*): DocumentViews = DocumentViews(values map { case (path, content) => RenderedDocumentView(path, content) })
 
-    def sorted (tree: RenderedTreeView): RenderedTreeView = tree.copy(content = tree.content map sortedContent)
-        
-    def sortedContent (content: TreeContentView): TreeContentView = content match {
-      case DocumentViews(cnt,_) => DocumentViews(cnt.sortBy(_.path.name))
-      case SubtreeViews(cnt,_)  => SubtreeViews(cnt.sortBy(_.path.name) map sorted)
-    }
+    def renderedRoot(content: Seq[RenderContent],
+                     titleDocument: Option[RenderedDocument] = None,
+                     coverDocument: Option[RenderedDocument] = None,
+                     staticDocuments: Seq[Path] = Nil): RenderedTreeRoot[IO] = RenderedTreeRoot(
+      RenderedTree(Root, None, content, titleDocument),
+      TemplateRoot.fallback,
+      Config.empty,
+      coverDocument = coverDocument,
+      staticDocuments = staticDocuments.map(ByteInput.apply(_))
+    )
+
+    def renderedTree(path: Path, content: Seq[RenderContent]): RenderedTree = RenderedTree(path, None, content)
+
+    def renderedDoc(path: Path, expected: String): RenderedDocument = RenderedDocument(path, None, Nil, expected, Config.empty)
     
-    def trees (values: (Path, Seq[TreeContentView])*) = SubtreeViews(values map { case (path, content) => RenderedTreeView(path, content) })
+    def docs (values: (Path, String)*): Seq[RenderedDocument] = values.map { case (path, content) => renderedDoc(path, content) }
 
-    implicit class TreeAssertions[A](private val self: IO[RenderedTreeViewRoot]) {
-      def assertTree(tree: RenderedTreeView): Assertion = self.asserting(_.tree shouldBe tree)
-    }
+    def trees (values: (Path, Seq[RenderContent])*) = values.map { case (path, content) => renderedTree(path, content) }
+
   }
 
 
@@ -147,14 +148,14 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
 
     "transform an empty tree" in new TreeTransformerSetup {
       val inputs = Nil
-      transformTree.assertTree(root(Nil))
+      transformTree.assertEquals(renderedRoot(Nil, staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a single document" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "name.md" -> Contents.name
       )
-      transformTree.assertTree(root(List(docs((Root / "name.txt", simpleResult)))))
+      transformTree.assertEquals(renderedRoot(docs((Root / "name.txt", simpleResult)), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a cover, title document and one content document" in new TreeTransformerSetup {
@@ -163,13 +164,11 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "README.md" -> Contents.name,
         Root / "cover.md" -> Contents.name
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(
-        root(List(
-          TitleDocument(RenderedDocumentView(Root / "index.txt", simpleResult)),
-          docs((Root / "name.txt", simpleResult))
-        )),
-        Some(RenderedDocumentView(Root / "cover.txt", simpleResult)),
-        TestTheme.staticASTPaths
+      transformTree.assertEquals(renderedRoot(
+        docs((Root / "name.txt", simpleResult)),
+        Some(renderedDoc(Root / "index.txt", simpleResult)),
+        Some(renderedDoc(Root / "cover.txt", simpleResult)),
+        staticDocuments = TestTheme.staticASTPaths
       ))
     }
 
@@ -181,17 +180,11 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "cover.md" -> Contents.name
       )
       transformWithDocumentMapper(doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar")))))
-        .assertEquals(RenderedTreeViewRoot(
-          root(List(
-            TitleDocument(RenderedDocumentView(Root / "index.txt", mappedResult)),
-            docs((Root / "rootDoc.txt", mappedResult)),
-            trees(
-              (Root / "sub", List(docs(
-                (Root / "sub" / "subDoc.txt", mappedResult)
-              )))
-            )
-          )),
-          Some(RenderedDocumentView(Root / "cover.txt", mappedResult)),
+        .assertEquals(renderedRoot(
+          docs((Root / "rootDoc.txt", mappedResult)) ++ 
+            trees((Root / "sub", docs((Root / "sub" / "subDoc.txt", mappedResult)))),
+          Some(renderedDoc(Root / "index.txt", mappedResult)),
+          Some(renderedDoc(Root / "cover.txt", mappedResult)),
           TestTheme.staticASTPaths
         ))
     }
@@ -207,21 +200,15 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
       def expectedDocResult: String
       
       val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
-      def transformWithProcessor: IO[RenderedTreeViewRoot] =
+      def transformWithProcessor: IO[RenderedTreeRoot[IO]] =
         transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(theme).build)
 
       transformWithProcessor
-        .assertEquals(RenderedTreeViewRoot(
-          root(List(
-            TitleDocument(RenderedDocumentView(Root / "index.txt", expectedDocResult)),
-            docs((Root / "rootDoc.txt", expectedDocResult)),
-            trees(
-              (Root / "sub", List(docs(
-                (Root / "sub" / "subDoc.txt", expectedDocResult)
-              )))
-            )
-          )),
-          Some(RenderedDocumentView(Root / "cover.txt", expectedDocResult))
+        .assertEquals(renderedRoot(
+          docs((Root / "rootDoc.txt", expectedDocResult)) ++
+            trees((Root / "sub", docs((Root / "sub" / "subDoc.txt", expectedDocResult)))),
+          Some(renderedDoc(Root / "index.txt", expectedDocResult)),
+          Some(renderedDoc(Root / "cover.txt", expectedDocResult))
         ))
     }
 
@@ -253,7 +240,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. . . Paragraph - Spans: 1
           |. . . . Text - 'aa'
           |. . TemplateString - 'abc'""".stripMargin
-      transformTree.assertTree(root(List(docs((Root / "main.txt", result)))))
+      transformTree.assertEquals(renderedRoot(docs((Root / "main.txt", result)), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a template document populated by a root config string" in new TreeTransformerSetup {
@@ -268,7 +255,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. . . Paragraph - Spans: 1
           |. . . . Text - 'aa'
           |. . TemplateString - 'def'""".stripMargin
-      transformWithConfig("value: def").assertTree(root(List(docs((Root / "main.txt", result)))))
+      transformWithConfig("value: def").assertEquals(renderedRoot(docs((Root / "main.txt", result)), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a custom template engine" in new TreeTransformerSetup {
@@ -285,10 +272,10 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. . . Paragraph - Spans: 1
           |. . . . Text - 'aa'
           |. . TemplateString - 'cc'""".stripMargin
-      transformWithTemplates(parser).assertTree(root(List(docs(
+      transformWithTemplates(parser).assertEquals(renderedRoot(docs(
         (Root / "main1.txt", result),
         (Root / "main2.txt", result)
-      ))))
+      ), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a custom style sheet engine" in new TreeTransformerSetup {
@@ -320,10 +307,9 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           .toOutput(StringTreeOutput)
           .transform
         )
-        .map(RenderedTreeViewRoot.apply[IO])
-      renderResult.map(_.tree).assertEquals(root(List(docs(
+      renderResult.assertEquals(renderedRoot(docs(
         (Root / "doc1.fo", result)
-      ))))
+      ), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a template directive" in new TreeTransformerSetup {
@@ -349,16 +335,16 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. . TemplateString - ' '
           |. . TemplateString - 'bar'
           |. . TemplateString - ' bb'""".stripMargin
-      transformWithDirective(directive).assertTree(root(List(docs(
+      transformWithDirective(directive).assertEquals(renderedRoot(docs(
         (Root / "aa.txt", result)
-      ))))
+      ), staticDocuments = TestTheme.staticASTPaths))
     }
 
     "transform a tree with a static document" in new TreeTransformerSetup {
       val inputs = Seq(
         Root / "omg.txt" -> Contents.name
       )
-      transformTree.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
+      transformTree.assertEquals(renderedRoot(Nil, staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
     }
     
     trait DocWithSection extends TreeTransformerSetup {
@@ -373,6 +359,8 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
       
       def titleSlug: String
       def sectionSlug: String
+      
+      val title = SpanSequence("Doc Title")
 
       def refSrc: String =
         s"""
@@ -400,16 +388,13 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         Root / "foo" / "bar.md" -> refSrc
       )
 
-      def assertTree(f: IO[RenderedTreeViewRoot]): Assertion = f.assertEquals(RenderedTreeViewRoot(RenderedTreeView(Root, Seq(
-        docs(
-          (Root / "baz.txt", targetRes)
-        ),
-        trees(
-          (Root / "foo", List(docs(
-            (Root / "foo" / "bar.txt", refRes)
-          )))
-        )
-      )), staticDocuments = TestTheme.staticASTPaths))
+      def assertTree(f: IO[RenderedTreeRoot[IO]]): Unit = f.assertEquals(renderedRoot(
+        docs((Root / "baz.txt", targetRes)).map(_.copy(
+          title = Some(title), 
+          sections = Seq(SectionInfo(sectionSlug, SpanSequence("Section Title"), Nil))
+        )) ++
+        trees((Root / "foo", docs((Root / "foo" / "bar.txt", refRes)))),
+        staticDocuments = TestTheme.staticASTPaths))
     }
     
     "transform a tree with an internal reference using the default slug builder" in new DocWithSection {
@@ -458,22 +443,24 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
           |. . Text - '[link](/foo)'""".stripMargin
-      transformMixedMarkup.assertEquals(RenderedTreeViewRoot(root(List(
+          
+      transformMixedMarkup.assertEquals(renderedRoot(
         docs(
           (Root / "doc1.txt", markdown),
           (Root / "doc2.txt", rst)
-        ),
+        ) ++
         trees(
-          (Root / "dir1", List(docs(
+          (Root / "dir1", docs(
             (Root / "dir1" / "doc3.txt", withTemplate2),
             (Root / "dir1" / "doc4.txt", withTemplate2)
-          ))),
-          (Root / "dir2", List(docs(
+          )),
+          (Root / "dir2", docs(
             (Root / "dir2" / "doc5.txt", withTemplate1),
             (Root / "dir2" / "doc6.txt", withTemplate1),
-          )))
-        )
-      )), staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths))
+          ))
+        ), 
+        staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths
+      ))
     }
 
     "transform a tree with while filtering documents based on their targetFormats setting" in new TreeTransformerSetup {
@@ -490,20 +477,21 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         """RootElement - Blocks: 1
           |. Paragraph - Spans: 1
           |. . Text - 'foo'""".stripMargin
-      transformTree.assertEquals(RenderedTreeViewRoot(root(List(
+      transformTree.assertEquals(renderedRoot(
         docs(
           (Root / "doc1.txt", result)
-        ),
+        ) ++
         trees(
-          (Root / "dir1", List(docs(
+          (Root / "dir1", docs(
             (Root / "dir1" / "doc3.txt", result)
-          ))),
-          (Root / "dir2", List(docs(
+          )),
+          (Root / "dir2", docs(
             (Root / "dir2" / "doc5.txt", result),
             (Root / "dir2" / "doc6.txt", result),
-          )))
-        )
-      )), staticDocuments = TestTheme.staticASTPaths))
+          ))
+        ),
+        staticDocuments = TestTheme.staticASTPaths
+      ))
     }
 
     "describe a tree with all available file types and multiple markup formats" in new TreeTransformerSetup {
@@ -578,20 +566,10 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |
           |ccc""".stripMargin
 
-      val contents: Map[String, String] = Map(
-        "docRoot" -> srcRoot,
-        "docSub" -> srcSub
-      )
-
       val inputs: Seq[(Path, String)] = Seq(
         Root / "docRoot.rst" -> srcRoot,
         Root / "dir" / "docSub.rst" -> srcSub
       )
-
-      val dirs: String =
-        """- docRoot.rst:docRoot
-          |+ dir
-          |  - docSub.rst:docSub""".stripMargin
 
       val expectedResult: String =
         """RootElement - Blocks: 2
@@ -605,8 +583,6 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
           |. Paragraph - Spans: 1
           |. . Text - 'ccc'
           |""".stripMargin
-
-      def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] = build(in, docTypeMatcher)
     }
 
     "render a tree with a RenderResultProcessor writing to an output stream" in new TwoPhaseTransformer {
@@ -647,7 +623,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
         f   <- IO(File.createTempFile("output", null))
         _   <- transformTo(f)
         res <- readFile(f)
-      } yield res.toString
+      } yield res
 
       res.assertEquals(expectedResult)
     }
@@ -657,11 +633,6 @@ class TreeTransformerSpec extends IOWordSpec with FileIO {
       import cats.implicits._
 
       def resourcePath (path: String): String = getClass.getResource(path).getFile
-
-      def renderedDynDoc (num: Int): String =
-        """RootElement - Blocks: 1
-          |. TemplateRoot - Spans: 1
-          |. . TemplateString - 'Doc""".stripMargin + num + "'"
 
       def renderedDoc (num: Int): String =
         """RootElement - Blocks: 1

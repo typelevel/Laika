@@ -20,6 +20,8 @@ import cats.implicits._
 import cats.effect.{ContextShift, IO, Timer}
 import laika.ast.DocumentTreeRoot
 import laika.ast.sample.DocumentTreeAssertions
+import laika.io.helper.RenderedTreeAssertions
+import laika.io.model.RenderedTreeRoot
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -43,6 +45,13 @@ trait IOSpec extends Matchers {
     def assertEquals(tree: DocumentTreeRoot): Unit = 
       self.map(_.assertEquals(tree)).unsafeRunSync()
     
+  }
+
+  implicit class AssertingRenderedTree(private val self: IO[RenderedTreeRoot[IO]]) extends RenderedTreeAssertions {
+
+    def assertEquals(tree: RenderedTreeRoot[IO]): Unit =
+      self.map(_.assertEquals(tree)).unsafeRunSync()
+
   }
   
   implicit class Asserting[A](private val self: IO[A]) {
