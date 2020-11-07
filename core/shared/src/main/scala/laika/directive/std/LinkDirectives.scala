@@ -79,7 +79,7 @@ object LinkDirectives {
               else fqName.replace(".", "/") + ".html"
             link.baseUri + typePath + method.fold("")("#" + _)
           }
-          cursor.validate(SpanLink(Seq(Text(linkText)), Target.parse(uri)))
+          cursor.validate(SpanLink(Target.parse(uri))(linkText))
         }
       }
   }
@@ -94,16 +94,19 @@ object LinkDirectives {
   lazy val source: Links.Directive = Links.eval("source") { (linkId, cursor) =>
     linkConfig(cursor, _.sourceLinks)
       .flatMap { sourceLinks =>
-        val matching = sourceLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
-        matching.orElse(sourceLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
-          Left(s"No base URI defined for '$linkId' and no default URI available.")
-        ) { link =>
-          val typePath = linkId.replace(".", "/") + "." + link.suffix
-          val uri = link.baseUri + typePath
-          val text = linkId.split('.').last
-          cursor.validate(SpanLink(Seq(Text(text)), Target.parse(uri)))
+        sourceLinks.toList
+          .filter(l => linkId.startsWith(l.packagePrefix))
+          .maximumByOption(_.packagePrefix.length)
+          .orElse(sourceLinks.find(_.packagePrefix == "*"))
+          .fold[Either[String, SpanLink]] (
+            Left(s"No base URI defined for '$linkId' and no default URI available.")
+          ) { link =>
+            val typePath = linkId.replace(".", "/") + "." + link.suffix
+            val uri = link.baseUri + typePath
+            val text = linkId.split('.').last
+            cursor.validate(SpanLink(Target.parse(uri))(text))
+          }
         }
-      }
   }
   
 }

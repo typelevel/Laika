@@ -16,6 +16,7 @@
 
 package laika.ast
 
+import laika.ast
 import laika.parse.SourceFragment
 
 /** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
@@ -102,6 +103,37 @@ case class SpanLink (content: Seq[Span], target: Target, title: Option[String] =
   def withTarget (newTarget: Target): SpanLink = copy(target = newTarget)
   def withContent (newContent: Seq[Span]): SpanLink = copy(content = newContent)
   def withOptions (options: Options): SpanLink = copy(options = options)
+}
+
+/** Companion for creating SpanLink instances. */
+object SpanLink {
+  
+  trait Companion extends SpanContainerCompanion {
+    type ContainerType = SpanLink
+  }
+
+  /** Creates a new instance for the specified internal link.
+   *  The string value represents a virtual path into the input tree of a transformation
+   *  and may be absolute (starting with '/') or relative.
+   */
+  def internal (path: String): Companion = internal(PathBase.parse(path))
+
+  /** Creates a new instance for the specified internal link.
+   *  The path value represents a virtual path into the input tree of a transformation
+   *  and may be absolute or relative.
+   */
+  def internal (path: PathBase): Companion = apply(InternalTarget(path))
+
+  /** Creates a new instance for the specified external URL.
+   */
+  def external (url: String): Companion = apply(ExternalTarget(url))
+
+  /** Creates a new instance for the specified target which may be internal or external.
+   */
+  def apply (target: Target): Companion = new Companion {
+    protected def createSpanContainer (spans: Seq[Span]): ContainerType = SpanLink(spans, target)
+  }
+  
 }
 
 /** A resolved link to a footnote.
@@ -257,9 +289,9 @@ case class CitationReference (label: String, source: SourceFragment, options: Op
   * to the current tree (directory) upwards to the root tree.
   */
 case class LinkIdReference (content: Seq[Span], ref: String, source: SourceFragment, options: Options = NoOpt) extends Reference
-  with SpanContainer {
+  with ast.SpanContainer {
   type Self = LinkIdReference
   def withContent (newContent: Seq[Span]): LinkIdReference = copy(content = newContent)
-  def withOptions (options: Options): LinkIdReference = copy(options = options)
+  def withOptions (options: ast.Options): LinkIdReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved link id reference '$ref'"
 }

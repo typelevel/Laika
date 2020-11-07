@@ -58,7 +58,7 @@ private[helium] object HeliumRenderOverrides {
 
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
-      def link (style: String) = opt.id.map(id => SpanLink(Seq(HeliumIcon.link), InternalTarget(CurrentDocument(id)), options = Styles("anchor-link", style)))
+      def link (style: String) = opt.id.map(id => SpanLink.internal(CurrentDocument(id))(HeliumIcon.link).withOptions(Styles("anchor-link", style)))
       val linkedContent = anchorPlacement match {
         case AnchorPlacement.None => content
         case AnchorPlacement.Left => link("left").toSeq ++ content
@@ -75,7 +75,7 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)
     case (fmt, tab: Tab)        => 
-      val link = SpanLink(Seq(Text(tab.label)), InternalTarget(CurrentDocument()))
+      val link = SpanLink.internal(CurrentDocument())(tab.label)
       fmt.element("li", Styles("tab") + tab.options, Seq(link), "data-choice-name" -> tab.name)
   }
   

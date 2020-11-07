@@ -54,7 +54,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
     parse(input("def.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget("https://default.api/def/bar/Baz.html")),
+      SpanLink.external("https://default.api/def/bar/Baz.html")("Baz"),
       Text(" bb")
     )))
   }
@@ -62,7 +62,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
     parse(input("foo.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget("https://bar.api/foo/bar/Baz.html")),
+      SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"),
       Text(" bb")
     )))
   }
@@ -70,7 +70,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
     parse(input("foo.baz.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget("https://foo.api/foo/baz/Baz.html")),
+      SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz"),
       Text(" bb")
     )))
   }
@@ -78,7 +78,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link to a method" in new ApiDirectiveSetup {
     parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz.canEqual")), ExternalTarget("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")),
+      SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual"),
       Text(" bb")
     )))
   }
@@ -86,7 +86,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link for a package" in new ApiDirectiveSetup {
     parse(input("foo.bar.package")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("foo.bar")), ExternalTarget("https://bar.api/foo/bar/index.html")),
+      SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar"),
       Text(" bb")
     )))
   }
@@ -123,7 +123,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |bb""".stripMargin
     parse(blockInput(input)).content should be (root(
       p("aa"),
-      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html"))),
+      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz")),
       p("bb")
     ))
   }
@@ -136,7 +136,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |cc""".stripMargin
     parse(blockInput(input)).content should be (root(
       p("aa"),
-      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")), Text(" bb")),
+      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
       p("cc")
     ))
   }
@@ -150,7 +150,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |cc""".stripMargin
     parse(blockInput(input)).content should be (root(
       p("aa"),
-      p(SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.api/foo/bar/Baz.html")), Text(" bb")),
+      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
       p("cc")
     ))
   }
@@ -172,7 +172,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   "The source directive" should "create a span link based on the default base URI" in new SourceDirectiveSetup {
     parse(input("def.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://default.source/def/bar/Baz.scala")),
+      SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz"),
       Text(" bb")
     )))
   }
@@ -180,7 +180,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the longest prefix match" in new SourceDirectiveSetup {
     parse(input("foo.bar.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://bar.source/foo/bar/Baz.java")),
+      SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz"),
       Text(" bb")
     )))
   }
@@ -188,7 +188,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   it should "create a span link based on the shorter prefix match" in new SourceDirectiveSetup {
     parse(input("foo.baz.Baz")).content should be (root(p(
       Text("aa "),
-      SpanLink(Seq(Text("Baz")), ExternalTarget(s"https://foo.source/foo/baz/Baz.scala")),
+      SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz"),
       Text(" bb")
     )))
   }

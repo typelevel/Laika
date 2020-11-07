@@ -57,7 +57,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "?param="+p) getOrElse "")
-    *          SpanLink(Seq(Text("Ticket "+ticketNo)), ExternalTarget(url), options = Styles("ticket"))
+    *          SpanLink.external(url)("Ticket "+ticketNo).withOptions(Styles("ticket"))
     *        }
     *      }
     *    )
@@ -113,7 +113,8 @@ trait DirectiveRegistry extends ExtensionBundle {
     *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "&param="+p) getOrElse "")
-    *          TemplateElement(SpanLink(Seq(Text("Ticket "+ticketNo)), ExternalTarget(url), options = Styles("ticket")))
+    *          val link = SpanLink.external(url)("Ticket "+ticketNo).withOptions(Styles("ticket"))
+    *          TemplateElement(link)
     *        }
     *      }
     *    )
@@ -145,7 +146,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *         .toEither
     *         .fold(
     *           _ => Left(s"Not a valid RFC id: \$linkId"), 
-    *           id => Right(SpanLink(Seq(Text(s"RFC \$id")), ExternalTarget(s"http://tools.ietf.org/html/rfc\$linkId")))
+    *           id => Right(SpanLink.external(s"http://tools.ietf.org/html/rfc\$linkId")(s"RFC \$id"))
     *         )
     *      }
     *    )

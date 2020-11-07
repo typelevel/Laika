@@ -52,7 +52,7 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
         val uri = startTrimmed + sep + endTrimmed
         val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri
         val nextIn = in.consume(endTrimmed.length - end.length)
-        Success(Reverse(startTrimmed.length, SpanLink(List(Text(uri)), ExternalTarget(uriWithScheme)), Text(sep+endTrimmed)), nextIn)
+        Success(Reverse(startTrimmed.length, SpanLink.external(uriWithScheme)(uri), Text(sep+endTrimmed)), nextIn)
     }
   }}
 

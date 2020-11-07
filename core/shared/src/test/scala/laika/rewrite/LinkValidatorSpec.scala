@@ -91,19 +91,19 @@ class LinkValidatorSpec extends AnyFunSuite with Matchers with ModelBuilder {
   }
 
   test("valid span link") {
-    val link = SpanLink(Seq(Text("text")), Target.parse("../tree-1/doc-3.md"))
+    val link = SpanLink.internal("../tree-1/doc-3.md")("text")
     testCursor.validate(link) shouldBe Right(link)
   }
 
   test("invalid span link") {
-    val link = SpanLink(Seq(Text("text")), Target.parse("../tree-1/doc-9.md"))
+    val link = SpanLink.internal("../tree-1/doc-9.md")("text")
     testCursor.validate(link) shouldBe Left("unresolved internal reference: ../tree-1/doc-9.md")
   }
 
   test("recovered span link") {
     val absPath = Path.parse("/tree-1/doc-4.md")
     val relPath = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
-    val link = SpanLink(Seq(Text("text")), InternalTarget(relPath))
+    val link = SpanLink.internal(relPath)("text")
     val recoveredTarget = ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
     testCursor.validate(link) shouldBe Right(link.copy(target = recoveredTarget))
   }

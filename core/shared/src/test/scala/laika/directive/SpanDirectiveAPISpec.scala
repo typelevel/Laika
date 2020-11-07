@@ -135,7 +135,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
           .toEither
           .fold(
             _ => Left(s"Not a valid RFC id: $linkId"),
-            id => Right(SpanLink(Seq(Text(s"RFC $id")), ExternalTarget(s"http://tools.ietf.org/html/rfc$linkId")))
+            id => Right(SpanLink.external(s"http://tools.ietf.org/html/rfc$linkId")(s"RFC $id"))
           )
       }
       object bundle extends DirectiveRegistry {
@@ -439,7 +439,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     val input = "aa @:rfc(222) bb"
     Parsing (input) should produce (ss(
       Text("aa "),
-      SpanLink(Seq(Text("RFC 222")), ExternalTarget("http://tools.ietf.org/html/rfc222")),
+      SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222"),
       Text(" bb")
     ))
   }
@@ -448,7 +448,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     val input = "aa [RFC-222][@:rfc(222)] bb"
     parseAsMarkdown(input) shouldBe Right(p(
       Text("aa "),
-      SpanLink(Seq(Text("RFC-222")), ExternalTarget("http://tools.ietf.org/html/rfc222")),
+      SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222"),
       Text(" bb")
     ))
   }

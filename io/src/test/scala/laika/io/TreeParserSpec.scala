@@ -326,7 +326,7 @@ class TreeParserSpec extends IOWordSpec
         Root / "static-1" / "omg.js" -> Contents.name,
       )
       
-      val linkResult = Seq(p(SpanLink(Seq(Text("link")), ExternalTarget("/foo"))))
+      val linkResult = Seq(p(SpanLink.external("/foo")("link")))
       val rstResult = Seq(p("[link](/foo)"))
       
       val expected = SampleTrees.sixDocuments

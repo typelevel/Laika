@@ -529,28 +529,28 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")),InternalTarget(PathBase.parse("#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal(PathBase.parse("#foo"))(Text("link"),Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar#foo"))(Text("link"),Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar"))(Text("link"),Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with an input filename without suffix" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(Path.parse("/bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar"))(Text("link"),Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
   it should "render a paragraph containing an internal link while ignoring the restricted type parameter" in {
     val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), TargetFormats.Selected("html"))
-    val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
+    val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
   }
   
@@ -593,7 +593,11 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an icon link" in {
-    val elem = p(Text("some "), SpanLink(Seq(Icon('\uefa2', options = Styles("icofont-laika"))), ExternalTarget("/foo")), Text(" span"))
+    val elem = p(
+      Text("some "), 
+      SpanLink.external("/foo")(Icon('\uefa2', options = Styles("icofont-laika"))), 
+      Text(" span")
+    )
     render (elem) should be ("""<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")
   }
   

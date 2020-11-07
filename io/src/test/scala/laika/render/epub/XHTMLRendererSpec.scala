@@ -134,7 +134,7 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
 
     "translate to external URL when an internal link is not defined for EPUB as a target" in {
       val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
-      val elem = p(Text("some "), SpanLink(List(Text("link")), target), Text(" span"))
+      val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
       val lookup: Path => Option[TranslatorSpec] = path => if (path == Root / "doc") Some(TranslatorSpec(false, false)) else None
       val translator = ConfigurablePathTranslator(config, "epub.xhtml", "epub", Root / "doc", lookup)

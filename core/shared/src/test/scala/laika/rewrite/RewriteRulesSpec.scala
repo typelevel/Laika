@@ -68,13 +68,13 @@ class RewriteRulesSpec extends AnyWordSpec
 
   def pathRef (id: String = "name") = LinkPathReference(List(Text("text")), RelativePath.parse(s"#$id"), generatedSource(s"[<$id>]"))
 
-  def extLink (url: String) = SpanLink(List(Text("text")), ExternalTarget(url))
+  def extLink (url: String) = SpanLink.external(url)("text")
 
-  def intLink (ref: String) = SpanLink(List(Text("text")), rootLinkTarget(ref))
+  def intLink (ref: String) = SpanLink(rootLinkTarget(ref))("text")
 
-  def intLink (path: RelativePath) = SpanLink(List(Text("text")), InternalTarget(path).relativeTo(refPath))
+  def intLink (path: RelativePath) = SpanLink(InternalTarget(path).relativeTo(refPath))("text")
 
-  def docLink (ref: String) = SpanLink(List(Text("text")), InternalTarget(CurrentDocument(ref)).relativeTo(refPath))
+  def docLink (ref: String) = SpanLink(InternalTarget(CurrentDocument(ref)).relativeTo(refPath))("text")
 
   def rootLinkTarget (fragment: String): InternalTarget = InternalTarget(RelativePath.parse(s"#$fragment"))
 
@@ -251,12 +251,12 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "resolve internal link references to a target in the parent tree" in {
-      val internalLink = SpanLink(List(Text("text")), InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1"))
-      rewrittenTreeDoc(linkIdRef("int")) should be(p(internalLink))
+      val target = InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1")
+      rewrittenTreeDoc(linkIdRef("int")) should be(p(SpanLink(target)("text")))
     }
 
     "resolve external link references" in {
-      val externalLink = SpanLink(List(Text("text")), ExternalTarget("https://www.foo.com/"))
+      val externalLink = SpanLink.external("https://www.foo.com/")("text")
       rewrittenTreeDoc(linkIdRef("ext")) should be(p(externalLink))
     }
 
@@ -296,7 +296,7 @@ class RewriteRulesSpec extends AnyWordSpec
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
     
     def internalLink (path: RelativePath, targetFormats: TargetFormats = TargetFormats.All) =
-      SpanLink(List(Text("text")), InternalTarget(path).relativeTo(pathUnderTest).copy(internalFormats = targetFormats))
+      SpanLink(InternalTarget(path).relativeTo(pathUnderTest).copy(internalFormats = targetFormats))("text")
 
     "resolve internal link references to a target in the same document" in {
       rewrittenTreeDoc(pathRef("#ref")) should be(p(

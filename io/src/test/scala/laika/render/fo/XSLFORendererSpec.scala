@@ -690,35 +690,36 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("#foo")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar#foo"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("../bar#foo")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("../bar")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a cross link with a filename without suffix" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link"),Emphasized("text")), InternalTarget(RelativePath.parse("../bar"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("../bar")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "translate to external URL when an internal link is not defined for PDF as a target" in {
-    val elem = p(Text("some "), SpanLink(List(Text("link")), ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))), Text(" span"))
+    val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
+    val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="http://external/foo.html#ref" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
@@ -758,7 +759,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an icon link" in {
-    val elem = p(Text("some "), SpanLink(Seq(Icon('\uefa2', options = Styles("icofont-laika"))), ExternalTarget("/foo")), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")(Icon('\uefa2', options = Styles("icofont-laika"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold"><fo:inline font-family="IcoFont" font-size="16pt">&#xefa2;</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
