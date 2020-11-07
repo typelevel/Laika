@@ -46,7 +46,7 @@ class ParseAPISpec extends AnyFlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    parser.parse(input).toOption.get.content should be (root(p(link(Text("link")).url("http://foo/"))))
+    parser.parse(input).toOption.get.content should be (root(p(SpanLink.external("http://foo/")("link"))))
   }
   
   it should "allow to set a config value programmatically" in {

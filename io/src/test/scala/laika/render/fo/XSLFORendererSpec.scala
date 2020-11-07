@@ -671,19 +671,19 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing a link without title" in {
-    val elem = p(Text("some "), link(Text("link")).url("/foo"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")("link"), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a link with title" in {
-    val elem = p(Text("some "), link(Text("link")).url("/foo").title("title"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")("link").copy(title = Some("title")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold">link</fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
   it should "render a paragraph containing a link with emphasized text" in {
-    val elem = p(Text("some "), link(Text("link"),Emphasized("text")).url("/foo"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")(Text("link"),Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" external-destination="/foo" font-weight="bold">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)

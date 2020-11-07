@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.{Emphasized, ExternalTarget, Image, Literal, Span, Strong, Text}
+import laika.ast.{Emphasized, ExternalTarget, Image, Literal, Span, SpanLink, Strong, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.Parser
@@ -164,19 +164,19 @@ class InlineParsersSpec extends AnyFlatSpec
   
   "The link parser" should "parse an inline link without title" in {
     Parsing ("some [link](http://foo) here") should produce {
-      spans(Text("some "), link(Text("link")).url("http://foo"), Text(" here"))
+      spans(Text("some "), SpanLink.external("http://foo")("link"), Text(" here"))
     }
   }
   
   it should "parse an inline link with an optional title enclosed in double quotes" in {
     Parsing ("""some [link](http://foo "a title") here""") should produce {
-      spans(Text("some "), link(Text("link")).url("http://foo").title("a title"), Text(" here"))
+      spans(Text("some "), SpanLink.external("http://foo")("link").copy(title = Some("a title")), Text(" here"))
     }
   }
   
   it should "parse an inline link with an optional title enclosed in single quotes" in {
     Parsing ("""some [link](http://foo 'a title') here""") should produce (
-        spans(Text("some "), link(Text("link")).url("http://foo").title("a title"), Text(" here")))
+        spans(Text("some "), SpanLink.external("http://foo")("link").copy(title = Some("a title")), Text(" here")))
   }
   
   it should "ignore an inline link with a malformed title" in {
@@ -188,13 +188,13 @@ class InlineParsersSpec extends AnyFlatSpec
   
   it should "parse markup inside the text of an inline link" in {
     Parsing ("some [link *text*](http://foo) here") should produce {
-      spans(Text("some "), link(Text("link "),Emphasized("text")).url("http://foo"), Text(" here"))
+      spans(Text("some "), SpanLink.external("http://foo")(Text("link "), Emphasized("text")), Text(" here"))
     }
   }
 
   it should "properly parse escape sequences in the text of an inline link" in {
     Parsing ("some [link \\_text\\_](http://foo) here") should produce {
-      spans(Text("some "), link(Text("link _text_")).url("http://foo"), Text(" here"))
+      spans(Text("some "), SpanLink.external("http://foo")("link _text_"), Text(" here"))
     }
   }
   
@@ -295,7 +295,7 @@ class InlineParsersSpec extends AnyFlatSpec
   
   "The simple link parser" should "parse a link enclosed in angle brackets and set the url as the link text" in {
     Parsing ("some <http://foo> here") should produce {
-      spans(Text("some "), link(Text("http://foo")).url("http://foo"), Text(" here"))
+      spans(Text("some "), SpanLink.external("http://foo")("http://foo"), Text(" here"))
     }
   }
   

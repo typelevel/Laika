@@ -39,18 +39,6 @@ trait ModelBuilder { self =>
 
   def titleWithId (text: String): Title = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
 
-
-  def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
-  
-  class LinkBuilder private[ModelBuilder] (content: List[Span], url: String = "", title: Option[String] = None) {
-    
-    def url (value: String): LinkBuilder = new LinkBuilder(content, value, title)
-    
-    def title (value: String): LinkBuilder = new LinkBuilder(content, url, Some(value))
-    
-    def toLink = SpanLink(content, ExternalTarget(url), title)
-    
-  }
   
   def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList, "", GeneratedSource)
   
@@ -115,9 +103,6 @@ trait ModelBuilder { self =>
     ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
   
   
-  implicit def builderToLink (builder: LinkBuilder): Link = builder.toLink
-
   implicit def builderToLinkRef (builder: LinkRefBuilder): LinkIdReference = builder.toLink
-  
   
 }

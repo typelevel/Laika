@@ -514,37 +514,37 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing a link without title" in {
-    val elem = p(Text("some "), link(Text("link")).url("/foo"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")("link"), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with title" in {
-    val elem = p(Text("some "), link(Text("link")).url("/foo").title("title"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")("link").copy(title = Some("title")), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo" title="title">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with emphasized text" in {
-    val elem = p(Text("some "), link(Text("link"),Emphasized("text")).url("/foo"), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")(Text("link"), Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink.internal(PathBase.parse("#foo"))(Text("link"),Emphasized("text")), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("#foo")(Text("link"), Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar#foo"))(Text("link"),Emphasized("text")), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar"))(Text("link"),Emphasized("text")), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("/bar")(Text("link"), Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with an input filename without suffix" in {
-    val elem = p(Text("some "), SpanLink.internal(Path.parse("/bar"))(Text("link"),Emphasized("text")), Text(" span"))
+    val elem = p(Text("some "), SpanLink.internal("/bar")(Text("link"), Emphasized("text")), Text(" span"))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 

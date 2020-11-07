@@ -23,6 +23,7 @@ import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast.{InterpretedText, RstStyle, SubstitutionReference}
 import laika.rst.ext.{ExtensionProvider, RootParserProvider}
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers
      
 class InlineParsersSpec extends AnyFlatSpec 
@@ -232,8 +233,9 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "parse an external phrase link with text and url" in {
-    val spanSeq = List(link(Text("link")).url("http://foo.com").toLink, LinkDefinition("link", ExternalTarget("http://foo.com")))
-    Parsing ("some `link<http://foo.com>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
+    val uri = "http://foo.com"
+    val spanSeq = List(SpanLink.external(uri)("link"), LinkDefinition("link", ExternalTarget(uri)))
+    Parsing (s"some `link<$uri>`_ here") should produce (spans(Text("some "), SpanSequence(spanSeq), Text(" here")))
   }
 
   it should "parse an internal phrase link with text and url" in new RefBuilder {
@@ -247,11 +249,12 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "parse a phrase link with only a url" in {
-    Parsing ("some `<http://foo.com>`_ here") should produce (spans(
+    val uri = "http://foo.com"
+    Parsing (s"some `<$uri>`_ here") should produce (spans(
       Text("some "), 
       SpanSequence(
-        link(Text("http://foo.com")).url("http://foo.com").toLink, 
-        LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))
+        SpanLink.external(uri)(uri), 
+        LinkDefinition(uri, ExternalTarget(uri))
       ), 
       Text(" here")
     ))
@@ -268,10 +271,11 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "remove whitespace from an url" in {
+    val uri = "http://foo.com"
     val input = """some `<http://
       | foo.com>`_ here""".stripMargin
     Parsing (input) should produce (spans(Text("some "), 
-        SpanSequence(link(Text("http://foo.com")).url("http://foo.com").toLink, LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
+        SpanSequence(SpanLink.external(uri)(uri), LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))), Text(" here")))
   }
   
   it should "parse an anonymous phrase link without url" in new RefBuilder {
@@ -280,13 +284,14 @@ class InlineParsersSpec extends AnyFlatSpec
   }
   
   it should "parse an anonymous phrase link with text and url" in {
-    Parsing ("some `link<http://foo.com>`__ here") should produce (spans(Text("some "), 
-        link(Text("link")).url("http://foo.com"), Text(" here")))
+    Parsing ("some `link<http://foo.com>`__ here") should produce (spans(Text("some "),
+      SpanLink.external("http://foo.com")("link"), Text(" here")))
   }
   
   it should "parse an anonymous phrase link with only an url" in {
-    Parsing ("some `<http://foo.com>`__ here") should produce (spans(Text("some "), 
-        link(Text("http://foo.com")).url("http://foo.com"), Text(" here")))
+    val uri = "http://foo.com"
+    Parsing ("some `<http://foo.com>`__ here") should produce (spans(Text("some "),
+      SpanLink.external(uri)(uri), Text(" here")))
   }
   
   it should "parse a named link reference" in new RefBuilder {
@@ -309,31 +314,31 @@ class InlineParsersSpec extends AnyFlatSpec
   "The standalone link parser" should "parse a http URI" in {
     val uri = "http://www.link.com"
     Parsing ("some http://www.link.com here") should produce (spans(Text("some "),
-        link(Text(uri)).url(uri), Text(" here")))
+      SpanLink.external(uri)(uri), Text(" here")))
   }
 
   it should "parse a http URI containing an IP4 address" in {
     val uri = "http://127.0.0.1/path"
     Parsing (s"some $uri here") should produce (spans(Text("some "),
-      link(Text(uri)).url(uri), Text(" here")))
+      SpanLink.external(uri)(uri), Text(" here")))
   }
   
   it should "parse a https URI" in {
     val uri = "https://www.link.com"
     Parsing ("some https://www.link.com here") should produce (spans(Text("some "),
-        link(Text(uri)).url(uri), Text(" here")))
+      SpanLink.external(uri)(uri), Text(" here")))
   }
   
   it should "parse an email address" in {
     val email = "user@domain.com"
     Parsing ("some user@domain.com here") should produce (spans(Text("some "),
-        link(Text(email)).url("mailto:"+email), Text(" here")))
+      SpanLink.external("mailto:"+email)(email), Text(" here")))
   }
   
   it should "parse a http URI without trailing punctuation" in {
     val uri = "http://www.link.com"
     Parsing ("some http://www.link.com. here") should produce (spans(Text("some "),
-        link(Text(uri)).url(uri), Text(". here")))
+      SpanLink.external(uri)(uri), Text(". here")))
   }
 
   it should "not parse a URI containing unicode characters" in {
@@ -344,7 +349,7 @@ class InlineParsersSpec extends AnyFlatSpec
   it should "parse an email address without surrounding punctuation" in {
     val email = "user@domain.com"
     Parsing ("some {user@domain.com} here") should produce (spans(Text("some {"),
-        link(Text(email)).url("mailto:"+email), Text("} here")))
+      SpanLink.external("mailto:"+email)(email), Text("} here")))
   }
   
   
