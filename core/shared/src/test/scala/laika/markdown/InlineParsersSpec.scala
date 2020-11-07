@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.{Emphasized, ExternalTarget, Image, Literal, Span, SpanLink, Strong, Text}
+import laika.ast.{Emphasized, ExternalTarget, Image, LinkIdReference, Literal, Span, SpanLink, Strong, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.Parser
@@ -181,8 +181,9 @@ class InlineParsersSpec extends AnyFlatSpec
   
   it should "ignore an inline link with a malformed title" in {
     val input = """some [link](http://foo 'a title) here"""
+    val ref = LinkIdReference("link", source("[link]", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]", input), Text("(http://foo 'a title) here"))
+      spans(Text("some "), ref, Text("(http://foo 'a title) here"))
     }
   }
   
@@ -235,36 +236,41 @@ class InlineParsersSpec extends AnyFlatSpec
   
   "The link reference parser" should "parse a link reference with an explicit id" in {
     val input = "some [link][id] here"
+    val ref = LinkIdReference("id", source("[link][id]", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("id").source("[link][id]", input), Text(" here"))
+      spans(Text("some "), ref, Text(" here"))
     }
   }
   
   it should "parse a link reference with an empty id" in {
     val input = "some [link][] here"
+    val ref = LinkIdReference("link", source("[link][]", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link][]", input), Text(" here"))
+      spans(Text("some "), ref, Text(" here"))
     }
   }
   
   it should "parse a link reference with an explicit id separated by a space" in {
     val input = "some [link] [id] here"
+    val ref = LinkIdReference("id", source("[link] [id]", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]", input), Text(" here"))
+      spans(Text("some "), ref, Text(" here"))
     }
   }
   
   it should "parse a link reference with an empty id separated by a space" in {
     val input = "some [link] [] here"
+    val ref = LinkIdReference("link", source("[link] []", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link] []", input), Text(" here"))
+      spans(Text("some "), ref, Text(" here"))
     }
   }
   
   it should "parse a link reference with an implicit id" in {
     val input = "some [link] here"
+    val ref = LinkIdReference("link", source("[link]", input))("link")
     Parsing (input) should produce {
-      spans(Text("some "), linkRef(Text("link")).id("link").source("[link]", input), Text(" here"))
+      spans(Text("some "), ref, Text(" here"))
     }
   }
   

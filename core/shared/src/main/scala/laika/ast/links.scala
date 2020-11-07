@@ -295,3 +295,20 @@ case class LinkIdReference (content: Seq[Span], ref: String, source: SourceFragm
   def withOptions (options: ast.Options): LinkIdReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved link id reference '$ref'"
 }
+
+/** Companion for creating LinkIdReference instances. */
+object LinkIdReference {
+
+  trait Companion extends SpanContainerCompanion {
+    type ContainerType = LinkIdReference
+  }
+
+  /** Creates a new instance for the specified reference id and parser source.
+   *  The returned builder instance allows to provide the span content of the reference
+   *  in the form of a span sequence or simple string.
+   */
+  def apply (ref: String, source: SourceFragment): Companion = new Companion {
+    protected def createSpanContainer (spans: Seq[Span]): ContainerType = LinkIdReference(spans, ref, source)
+  }
+
+}

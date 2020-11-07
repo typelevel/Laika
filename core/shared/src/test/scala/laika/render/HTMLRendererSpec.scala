@@ -602,7 +602,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an unresolved link reference" in {
-    val elem = p(Text("some "), linkRef(Text("link")).id("id").source("[link] [id]", "[link] [id]"), Text(" span"))
+    val elem = p(Text("some "), LinkIdReference("id", generatedSource("[link] [id]"))("link"), Text(" span"))
     render (elem) should be ("""<p>some [link] [id] span</p>""")
   }
   

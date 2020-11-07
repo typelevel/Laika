@@ -22,7 +22,6 @@ import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
 
 trait ModelBuilder { self =>
 
-  
   def spans (elements: Span*): List[Span] = elements.toList
 
   def root (blocks: Block*): RootElement = RootElement(blocks.toList)
@@ -38,20 +37,6 @@ trait ModelBuilder { self =>
   def quote (text: String, attribution: String): QuotedBlock = QuotedBlock(List(p(text)), List(Text(attribution)))
 
   def titleWithId (text: String): Title = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
-
-  
-  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList, "", GeneratedSource)
-  
-  class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String, source: SourceFragment) {
-    
-    def id (value: String): LinkRefBuilder = new LinkRefBuilder(content, value, source)
-    
-    def source (fragment: String, input: String): LinkRefBuilder = 
-      new LinkRefBuilder(content, id, self.source(fragment, input))
-    
-    def toLink = LinkIdReference(content, id, source)
-     
-  }
   
   def imgRef (text: String, id: String) = ImageIdReference(text, id, GeneratedSource)
   def imgRef (text: String, id: String, fragment: String, input: String) = ImageIdReference(text, id, source(fragment, input))
@@ -101,8 +86,4 @@ trait ModelBuilder { self =>
   
   val disableInternalLinkValidation: Config = 
     ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
-  
-  
-  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkIdReference = builder.toLink
-  
 }
