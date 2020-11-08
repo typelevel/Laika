@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.ast.helper.ParagraphCompanionShortcuts
+import laika.ast.sample.ParagraphCompanionShortcuts
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
  

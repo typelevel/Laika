@@ -18,7 +18,7 @@ package laika.api
 
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.TemplateRewriter

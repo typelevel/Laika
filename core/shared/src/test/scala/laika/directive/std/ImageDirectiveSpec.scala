@@ -18,8 +18,8 @@ package laika.directive.std
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, RootElement, SpanSequence, Styles, Text}
-import laika.ast.helper.ParagraphCompanionShortcuts
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

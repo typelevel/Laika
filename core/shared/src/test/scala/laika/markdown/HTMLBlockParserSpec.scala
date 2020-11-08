@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{RootElement, Text}
-import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement}
 import laika.parse.Parser

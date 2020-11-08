@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.helper.TestSourceBuilders
 import laika.ast._
+import laika.ast.sample.TestSourceBuilders
 import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

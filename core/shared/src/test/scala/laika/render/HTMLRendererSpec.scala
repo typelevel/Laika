@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory

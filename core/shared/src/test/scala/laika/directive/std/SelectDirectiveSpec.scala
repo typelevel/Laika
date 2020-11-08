@@ -19,7 +19,8 @@ package laika.directive.std
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.TestSourceBuilders
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
 import laika.format.Markdown
 import laika.rewrite.TemplateRewriter

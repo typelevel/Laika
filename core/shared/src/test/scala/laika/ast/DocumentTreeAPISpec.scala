@@ -19,8 +19,7 @@ package laika.ast
 import laika.config.{Config, ConfigParser, Key, Origin, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
+import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders}
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.parse.GeneratedSource
 import laika.rewrite.TemplateRewriter

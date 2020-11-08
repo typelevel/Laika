@@ -19,7 +19,7 @@ package laika.rst
 import cats.implicits._
 import laika.api._
 import laika.ast._
-import laika.ast.helper.ParagraphCompanionShortcuts
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.directive.{Blocks, DirectiveRegistry, Spans}
 import laika.format.ReStructuredText
 import laika.rst.ext.Directives.Parts._

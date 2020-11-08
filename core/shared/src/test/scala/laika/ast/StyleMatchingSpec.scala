@@ -18,7 +18,7 @@ package laika.ast
 
 import laika.ast.Path.Root
 import laika.ast.StylePredicate._
-import laika.ast.helper.StyleBuilders
+import laika.ast.sample.StyleBuilders
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

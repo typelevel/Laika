@@ -18,8 +18,8 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import laika.ast.Path.Root
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.ast.sample.{BuilderKey, SampleContent}
+import laika.ast.sample.TestSourceBuilders
+import laika.ast.sample.{BuilderKey, ParagraphCompanionShortcuts, SampleContent, TestSourceBuilders}
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import org.scalatest.flatspec.AnyFlatSpec

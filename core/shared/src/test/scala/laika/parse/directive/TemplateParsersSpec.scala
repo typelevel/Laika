@@ -17,7 +17,7 @@
 package laika.parse.directive
 
 import laika.ast._
-import laika.ast.helper.TestSourceBuilders
+import laika.ast.sample.TestSourceBuilders
 import laika.config.Key
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

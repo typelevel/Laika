@@ -20,7 +20,7 @@ import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.TestSourceBuilders
+import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.config.ConfigBuilder
 import laika.format.Markdown

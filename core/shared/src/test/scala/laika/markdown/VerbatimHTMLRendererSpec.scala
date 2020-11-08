@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.{MarkupParser, Renderer}
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{Element, QuotedBlock, Text}
-import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
 import org.scalatest.flatspec.AnyFlatSpec

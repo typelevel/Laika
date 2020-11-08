@@ -21,7 +21,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.DocumentTypeMatcher
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO

@@ -20,7 +20,8 @@ import cats.implicits._
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.TestSourceBuilders
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
 import laika.directive.std.StandardDirectives
 import laika.parse.{BlockSource, Parser}

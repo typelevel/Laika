@@ -24,8 +24,7 @@ import cats.effect.{IO, Resource, Sync}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
+import laika.ast.sample.{BuilderKey, ParagraphCompanionShortcuts, SampleConfig, SampleTrees, TestSourceBuilders}
 import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.format._

@@ -19,7 +19,7 @@ package laika.ast
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.helper.ParagraphCompanionShortcuts
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.LaikaKeys
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError

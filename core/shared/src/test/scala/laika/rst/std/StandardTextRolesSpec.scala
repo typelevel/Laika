@@ -19,7 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.ReStructuredText
 import laika.rst.ast.RstStyle
 import laika.rst.ext.ExtensionProvider

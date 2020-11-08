@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast._
-import laika.ast.helper.TestSourceBuilders
+import laika.ast.sample.TestSourceBuilders
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast.{InterpretedText, RstStyle, SubstitutionReference}

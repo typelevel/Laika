@@ -18,7 +18,7 @@ package laika.rst
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BundleProvider}
 import laika.format.ReStructuredText
 import laika.parse.Parser

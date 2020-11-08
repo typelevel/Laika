@@ -18,8 +18,8 @@ package laika.markdown
 
 import cats.implicits._
 import laika.api.MarkupParser
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{RootElement, Text}
-import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec

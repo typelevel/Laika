@@ -20,9 +20,8 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.ast.sample.SampleConfig.{noLinkValidation, siteBaseURL, targetFormats}
-import laika.ast.sample.{SampleSixDocuments, SampleTrees}
+import laika.ast.sample.{ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees, TestSourceBuilders}
 import laika.config.{Config, ConfigParser, LaikaKeys}
 import laika.parse.GeneratedSource
 import laika.rewrite.link.{LinkConfig, TargetDefinition}

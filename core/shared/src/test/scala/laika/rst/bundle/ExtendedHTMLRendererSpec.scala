@@ -18,7 +18,7 @@ package laika.rst.bundle
 
 import laika.api.Renderer
 import laika.ast._
-import laika.ast.helper.ParagraphCompanionShortcuts
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{HTML, ReStructuredText}
 import laika.rst.ast._
 import org.scalatest.flatspec.AnyFlatSpec

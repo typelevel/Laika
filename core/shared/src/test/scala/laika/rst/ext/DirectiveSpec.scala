@@ -17,7 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.{Parser, SourceFragment}
 import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

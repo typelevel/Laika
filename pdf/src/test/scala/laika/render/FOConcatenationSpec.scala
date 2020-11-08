@@ -21,7 +21,7 @@ import cats.effect.IO
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.TestSourceBuilders
+import laika.ast.sample.TestSourceBuilders
 import laika.config.Config
 import laika.format.PDF
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}

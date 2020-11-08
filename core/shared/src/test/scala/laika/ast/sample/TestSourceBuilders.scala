@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package laika.ast.helper
+package laika.ast.sample
 
-import laika.ast.{Autonumber, AutonumberLabel, Autosymbol, FootnoteLabel, NumericLabel}
+import laika.ast._
 import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
 /**

@@ -21,7 +21,7 @@ import java.io.File
 import cats.effect._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.helper.TestSourceBuilders
+import laika.ast.sample.TestSourceBuilders
 import laika.bundle.BundleProvider
 import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config._

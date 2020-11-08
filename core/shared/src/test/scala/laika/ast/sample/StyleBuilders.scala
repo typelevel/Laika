@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.ast.helper
+package laika.ast.sample
 
 import laika.ast.{ParentSelector, StyleDeclaration, StylePredicate, StyleSelector}
 

@@ -18,8 +18,8 @@ package laika.directive.std
 
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.{Document, ExternalTarget, InvalidSpan, MessageFilter, Path, RootElement, SpanLink, Text}
-import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast._
 import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

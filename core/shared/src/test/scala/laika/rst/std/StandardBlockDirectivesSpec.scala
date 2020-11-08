@@ -22,8 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.helper.ParagraphCompanionShortcuts
-import laika.ast.sample.SampleTrees
+import laika.ast.sample.{ParagraphCompanionShortcuts, SampleTrees}
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
 import laika.parse.GeneratedSource
