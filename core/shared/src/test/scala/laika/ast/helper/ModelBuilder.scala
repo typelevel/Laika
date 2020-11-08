@@ -42,18 +42,6 @@ trait ModelBuilder { self =>
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
 
 
-  def enumList (textItem: String, textItems: String*): EnumList = enumList(EnumFormat())(textItem +: textItems:_*)
-
-  def enumList (format: EnumFormat, start: Int = 1)(textItems: String*): EnumList =
-    EnumList(textItems.zipWithIndex.map { case (txt, index) => 
-      EnumListItem(Seq(p(txt)), format, start + index) 
-    }, format, start)
-
-  def enumList (blocks: Block*): EnumList =
-    EnumList(blocks.zipWithIndex.map { case (block, index) =>
-      EnumListItem(Seq(block), EnumFormat(), 1 + index)
-    }, EnumFormat(), 1)
-  
   def defListItem(term: String, blocks: Block*): DefinitionListItem = 
     DefinitionListItem(List(Text(term)), blocks.toList)
   

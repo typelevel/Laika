@@ -98,7 +98,7 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList("aaa", "bbb", "ccc")))
   }
   
   it should "parse items prefixed by numbers and separated by blank lines as ordered list items with paragraph" in {
@@ -107,7 +107,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(fp("aaa"), fp("bbb"), fp("ccc"))))
+    Parsing (input) should produce (root(EnumList(fp("aaa"), fp("bbb"), fp("ccc"))))
   }
   
   it should "parse items prefixed by numbers containing multiple paragraphs in a single item" in {
@@ -119,11 +119,11 @@ class BlockParsersSpec extends AnyFlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    val expected = EnumList(Seq(
-      EnumListItem(Seq(p("aaa"), p("bbb\nbbb")), EnumFormat(), 1),
-      EnumListItem(Seq(fp("ccc") ), EnumFormat(), 2),
-      EnumListItem(Seq(fp("ddd")), EnumFormat(), 3)
-    ), EnumFormat(), 1)
+    val expected = EnumList(
+      Seq(p("aaa"), p("bbb\nbbb")),
+      Seq(fp("ccc")),
+      Seq(fp("ddd"))
+    )
     Parsing (input) should produce (root(expected))
   }
   
@@ -160,11 +160,11 @@ class BlockParsersSpec extends AnyFlatSpec
       |3. 333""".stripMargin
       
     val nestedList = BulletList("aaa","bbb","ccc")
-    val expected = EnumList(Seq(
-      EnumListItem(Seq(p("111")), EnumFormat(), 1),
-      EnumListItem(Seq(SpanSequence("222"), nestedList), EnumFormat(), 2),
-      EnumListItem(Seq(p("333")), EnumFormat(), 3)
-    ), EnumFormat(), 1)
+    val expected = EnumList(
+      Seq(p("111")),
+      Seq(SpanSequence("222"), nestedList),
+      Seq(p("333"))
+    )
     Parsing (input) should produce (root(expected))
   }
   
@@ -179,11 +179,11 @@ class BlockParsersSpec extends AnyFlatSpec
       |3. 333""".stripMargin
       
     val nestedList = BulletList("aaa","bbb","ccc")
-    val expected = EnumList(Seq(
-      EnumListItem(Seq(fp("111")), EnumFormat(), 1),
-      EnumListItem(Seq(p("222"), nestedList), EnumFormat(), 2),
-      EnumListItem(Seq(fp("333")), EnumFormat(), 3)
-    ), EnumFormat(), 1)
+    val expected = EnumList(
+      Seq(fp("111")),
+      Seq(p("222"), nestedList),
+      Seq(fp("333"))
+    )
     Parsing (input) should produce (root(expected))
   }
   

@@ -150,65 +150,65 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", "."))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(Arabic, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with lowercase alphabetic enumeration style" in {
     val input = """a. aaa
       |b. bbb
       |c. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", "."))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(LowerAlpha, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with uppercase alphabetic enumeration style" in {
     val input = """A. aaa
       |B. bbb
       |C. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", "."))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(UpperAlpha, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with lowercase Roman enumeration style" in {
     val input = """i. aaa
       |ii. bbb
       |iii. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", "."))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(LowerRoman, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items with uppercase Roman enumeration style" in {
     val input = """I. aaa
       |II. bbb
       |III. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(UpperRoman, "", "."))("aaa", "bbb", "ccc")))
   }
   
   it should "keep the right start value for arabic enumeration style" in {
     val input = """4. aaa
       |5. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", "."), 4)("aaa", "bbb")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(Arabic, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for lowercase alphabetic enumeration style" in {
     val input = """d. aaa
       |e. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerAlpha, "", "."), 4)("aaa", "bbb")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(LowerAlpha, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for uppercase alphabetic enumeration style" in {
     val input = """D. aaa
       |E. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperAlpha, "", "."), 4)("aaa", "bbb")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(UpperAlpha, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for lowercase Roman enumeration style" in {
     val input = """iv. aaa
       |v. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(LowerRoman, "", "."), 4)("aaa", "bbb")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(LowerRoman, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "keep the right start value for uppercase Roman enumeration style" in {
     val input = """IV. aaa
       |V. bbb""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."), 4)("aaa", "bbb")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(UpperRoman, "", "."), 4)("aaa", "bbb")))
   }
   
   it should "not try to parse a Roman Numeral in a normal paragraph (issue #19)" in {
@@ -220,14 +220,14 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """1) aaa
       |2) bbb
       |3) ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic, "", ")"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(Arabic, "", ")"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items surrounded by parenthesis" in {
     val input = """(1) aaa
       |(2) bbb
       |(3) ccc""".stripMargin
-    Parsing (input) should produce(root(enumList(EnumFormat(Arabic, "(", ")"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce(root(EnumList(EnumFormat(Arabic, "(", ")"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -236,7 +236,7 @@ class ListParsersSpec extends AnyFlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (root(enumList(EnumFormat(Arabic))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(EnumList(EnumFormat(Arabic))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -248,11 +248,11 @@ class ListParsersSpec extends AnyFlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    val expected = EnumList(Seq(
-      EnumListItem(Seq(p("aaa"), p("bbb\nbbb")), EnumFormat(), 1),
-      EnumListItem(Seq(fp("ccc")), EnumFormat(), 2),
-      EnumListItem(Seq(fp("ddd")), EnumFormat(), 3)
-    ), EnumFormat(), 1)
+    val expected = EnumList(
+      Seq(p("aaa"), p("bbb\nbbb")),
+      Seq(fp("ccc")),
+      Seq(fp("ddd"))
+    )
     Parsing (input) should produce (root(expected))
   }
   
@@ -262,9 +262,9 @@ class ListParsersSpec extends AnyFlatSpec
                   |   1. bbb
                   |
                   |      1. ccc""".stripMargin
-    val list3 = enumList("ccc")
-    val list2 = EnumList(Seq(EnumListItem(List(SpanSequence("bbb"), list3), EnumFormat(), 1)), EnumFormat(), 1)
-    val list1 = EnumList(Seq(EnumListItem(List(SpanSequence("aaa"), list2), EnumFormat(), 1)), EnumFormat(), 1)
+    val list3 = EnumList("ccc")
+    val list2 = EnumList(Seq(SpanSequence("bbb"), list3))
+    val list1 = EnumList(Seq(SpanSequence("aaa"), list2))
     Parsing (input) should produce (root(list1))
   }
   
@@ -277,7 +277,7 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |2) ddd""".stripMargin
     val f = EnumFormat(Arabic,"",")")
-    Parsing (input) should produce (root(enumList("aaa","bbb"), enumList(f)("ccc","ddd")))
+    Parsing (input) should produce (root(EnumList("aaa","bbb"), EnumList(f)("ccc","ddd")))
   }
   
   
@@ -428,7 +428,7 @@ class ListParsersSpec extends AnyFlatSpec
       defListItem("term 1", p("aaa")),
       defListItem("term 2", p("bbb"))
     ))
-    Parsing (input) should produce (root(list, enumList(EnumFormat(Arabic))("list\nlist")))
+    Parsing (input) should produce (root(list, EnumList(EnumFormat(Arabic))("list\nlist")))
   }
   
   it should "ignore subsequent headers with overline" in {

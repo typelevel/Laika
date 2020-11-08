@@ -75,6 +75,49 @@ case class EnumList (content: Seq[EnumListItem], format: EnumFormat, start: Int 
   def withOptions (options: Options): EnumList = copy(options = options)
 }
 
+/** Base trait for companions that create EnumList instances. */
+trait EnumListCompanion extends BlockContainerCompanion {
+  type ContainerType = EnumList
+  def format: EnumFormat = EnumFormat()
+  def startIndex: Int = 1
+
+  override protected def createSpanContainer (spans: Seq[Span]): ContainerType =
+    createBlockContainer(spans.map(Paragraph(_)))
+
+  /** Create an instance containing one or more list items comprised of any number of blocks each. */
+  def apply(block: Seq[Block], blocks: Seq[Block]*): ContainerType = EnumList(
+    (block +: blocks).zipWithIndex.map {
+      case (item, index) => EnumListItem(item, format, startIndex + index)
+    },
+    format,
+    startIndex
+  )
+
+  def createBlockContainer (blocks: Seq[Block]): ContainerType = EnumList(
+    blocks.zipWithIndex.map {
+      case (item, index) => EnumListItem(Seq(item), format, startIndex + index)
+    },
+    format,
+    startIndex
+  )
+
+}
+
+/** Companion for creating BulletList instances. */
+object EnumList extends EnumListCompanion {
+
+  /** Creates a builder for the specified enum format that allows to specify the content of the list. */
+  def apply(f: EnumFormat): EnumListCompanion = apply(f,1)
+  
+  /** Creates a builder for the specified enum format and start position 
+   * that allows to specify the content of the list. */
+  def apply(f: EnumFormat, startPos: Int): EnumListCompanion = new EnumListCompanion {
+    override def format: EnumFormat = f
+    override def startIndex: Int = startPos
+  }
+
+}
+
 /** The format of a bullet list item.
   */
 trait BulletFormat

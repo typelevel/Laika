@@ -172,7 +172,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with simple flow content" in {
-    val elem = enumList("aaa", "bbb")
+    val elem = EnumList("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -195,7 +195,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -218,7 +218,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -241,7 +241,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -264,7 +264,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -287,7 +287,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with the start value other than 1" in {
-    val elem = enumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -335,7 +335,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an enumerated list with forced paragraphs as list items the same way as normal paragraphs" in {
-    val elem = enumList(fp("aaa"), fp("bbb"))
+    val elem = EnumList(fp("aaa"), fp("bbb"))
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">

@@ -88,8 +88,8 @@ class RewriteSpec extends AnyFlatSpec
   }
 
   it should "rewrite text in enum list items" in {
-    val before = RootElement(enumList("a", "b", "c"))
-    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (RootElement(enumList("a", "x", "c")))
+    val before = RootElement(EnumList("a", "b", "c"))
+    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (RootElement(EnumList("a", "x", "c")))
   }
 
   it should "rewrite text in a template element" in {

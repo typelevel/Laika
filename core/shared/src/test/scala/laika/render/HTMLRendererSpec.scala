@@ -114,7 +114,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with simple flow content" in {
-    val elem = enumList("aaa", "bbb")
+    val elem = EnumList("aaa", "bbb")
     val html = """<ol class="arabic">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -123,7 +123,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
     val html = """<ol class="lowerroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -132,7 +132,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
     val html = """<ol class="upperroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -141,7 +141,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
     val html = """<ol class="loweralpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -150,7 +150,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
     val html = """<ol class="upperalpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -159,7 +159,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with the start value if it is not 1" in {
-    val elem = enumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
+    val elem = EnumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
     val html = """<ol class="arabic" start="7">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -183,7 +183,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an enumerated list with forced paragraphs as list items" in {
-    val elem = enumList(fp("aaa"), fp("bbb"))
+    val elem = EnumList(fp("aaa"), fp("bbb"))
     val html = """<ol class="arabic">
       |  <li>
       |    <p>aaa</p>
