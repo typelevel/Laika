@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast.{EnumFormat, _}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast._
@@ -28,10 +28,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
      
 class ListParsersSpec extends AnyFlatSpec 
-                        with Matchers 
-                        with ParseResultHelpers
-                        with DefaultParserHelpers[RootElement] 
-                        with ModelBuilder {
+  with Matchers 
+  with ParseResultHelpers
+  with DefaultParserHelpers[RootElement] 
+  with ModelBuilder
+  with TestSourceBuilders {
 
   import EnumType._
 

@@ -21,7 +21,7 @@ import java.io.File
 import cats.effect._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.bundle.BundleProvider
 import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config.{ConfigValue, Field, LongValue, ObjectValue, Origin}
@@ -34,8 +34,9 @@ import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 
 class ConfigSpec extends IOWordSpec 
-                    with ModelBuilder
-                    with FileIO {
+  with ModelBuilder
+  with FileIO
+  with TestSourceBuilders {
 
 
   trait Inputs extends InputBuilder  {

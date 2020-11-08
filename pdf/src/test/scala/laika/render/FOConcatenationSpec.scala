@@ -21,7 +21,7 @@ import cats.effect.IO
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.TestSourceBuilders
 import laika.config.Config
 import laika.format.PDF
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
@@ -34,7 +34,7 @@ import org.scalatest.matchers.should.Matchers
 /**
   * @author Jens Halm
   */
-class FOConcatenationSpec extends AnyFlatSpec with Matchers with ModelBuilder {
+class FOConcatenationSpec extends AnyFlatSpec with Matchers with TestSourceBuilders {
 
   val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
   

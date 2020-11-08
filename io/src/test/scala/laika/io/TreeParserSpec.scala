@@ -24,7 +24,7 @@ import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.ast.sample.{DocumentTreeAssertions, SampleSixDocuments, SampleTrees}
 import laika.ast.{StylePredicate, _}
 import laika.bundle._
@@ -46,9 +46,10 @@ import laika.theme.Theme
 
 
 class TreeParserSpec extends IOWordSpec 
-                         with ModelBuilder
-                         with FileIO
-                         with DocumentTreeAssertions {
+  with ModelBuilder
+  with FileIO
+  with DocumentTreeAssertions
+  with TestSourceBuilders {
 
   trait ParserSetup {
 

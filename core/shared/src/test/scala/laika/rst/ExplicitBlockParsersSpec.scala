@@ -18,7 +18,7 @@ package laika.rst
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -29,10 +29,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
     
 class ExplicitBlockParsersSpec extends AnyFlatSpec 
-                        with Matchers 
-                        with ParseResultHelpers
-                        with DefaultParserHelpers[RootElement] 
-                        with ModelBuilder {
+  with Matchers 
+  with ParseResultHelpers
+  with DefaultParserHelpers[RootElement] 
+  with ModelBuilder
+  with TestSourceBuilders {
 
 
   val rootParser = new RootParser(ReStructuredText, OperationConfig(ReStructuredText.extensions).markupExtensions)

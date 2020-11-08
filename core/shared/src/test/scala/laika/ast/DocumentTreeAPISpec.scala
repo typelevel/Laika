@@ -19,7 +19,7 @@ package laika.ast
 import laika.config.{Config, ConfigParser, Key, Origin, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.parse.GeneratedSource
@@ -30,7 +30,8 @@ import org.scalatest.matchers.should.Matchers
 class DocumentTreeAPISpec extends AnyFlatSpec 
                       with Matchers
                       with ModelBuilder 
-                      with DocumentTreeAssertions {
+                      with DocumentTreeAssertions
+                      with TestSourceBuilders {
   
   trait TreeModel {
     def rootElement (b: Block): RootElement = RootElement(b, p("b"), p("c"))

@@ -21,7 +21,7 @@ import laika.api.MarkupParser
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.bundle.ParserBundle
 import laika.format.Markdown
 import laika.parse.Parser
@@ -36,7 +36,8 @@ import scala.util.Try
 
 class SpanDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
-                          with ModelBuilder {
+                          with ModelBuilder
+                          with TestSourceBuilders {
 
   
   object DirectiveSetup {

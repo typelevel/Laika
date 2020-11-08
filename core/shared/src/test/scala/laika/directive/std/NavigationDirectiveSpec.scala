@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import laika.ast.Path.Root
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.ast.sample.{BuilderKey, SampleContent}
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
@@ -27,7 +27,8 @@ import org.scalatest.matchers.should.Matchers
 
 class NavigationDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder {
+  with ModelBuilder
+  with TestSourceBuilders {
 
   trait NavModel {
 

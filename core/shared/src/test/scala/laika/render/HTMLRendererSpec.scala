@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
@@ -29,8 +29,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class HTMLRendererSpec extends AnyFlatSpec 
-                       with Matchers
-                       with ModelBuilder {
+  with Matchers
+  with ModelBuilder
+  with TestSourceBuilders {
  
   
   def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 

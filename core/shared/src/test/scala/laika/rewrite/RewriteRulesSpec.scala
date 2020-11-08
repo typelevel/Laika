@@ -20,10 +20,10 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.ast.sample.SampleConfig.{noLinkValidation, siteBaseURL, targetFormats}
 import laika.ast.sample.{SampleSixDocuments, SampleTrees}
-import laika.config.LaikaKeys
+import laika.config.{Config, ConfigParser, LaikaKeys}
 import laika.parse.GeneratedSource
 import laika.rewrite.link.{LinkConfig, TargetDefinition}
 import laika.rewrite.nav.TargetFormats
@@ -34,8 +34,12 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class RewriteRulesSpec extends AnyWordSpec
   with Matchers
-  with ModelBuilder {
+  with ModelBuilder
+  with TestSourceBuilders {
 
+  val disableInternalLinkValidation: Config =
+    ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
+  
   def rewritten (root: RootElement, withTitles: Boolean = true): RootElement = {
     val config = if (withTitles) disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
                  else disableInternalLinkValidation

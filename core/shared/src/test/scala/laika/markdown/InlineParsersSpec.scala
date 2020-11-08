@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.api.builder.OperationConfig
 import laika.ast.{Emphasized, ExternalTarget, Image, ImageIdReference, LinkIdReference, Literal, Span, SpanLink, Strong, Text}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -27,10 +27,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
      
 class InlineParsersSpec extends AnyFlatSpec 
-                        with Matchers 
-                        with ParseResultHelpers
-                        with DefaultParserHelpers[List[Span]] 
-                        with ModelBuilder {
+  with Matchers 
+  with ParseResultHelpers
+  with DefaultParserHelpers[List[Span]] 
+  with ModelBuilder
+  with TestSourceBuilders {
 
 
   val rootParser = new RootParserWrapper(Markdown, OperationConfig(Markdown.extensions).markupExtensions)

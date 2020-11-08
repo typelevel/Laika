@@ -20,7 +20,7 @@ import cats.implicits._
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -30,7 +30,8 @@ import org.scalatest.matchers.should.Matchers
 
 class TemplateDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
-                          with ModelBuilder {
+                          with ModelBuilder
+                          with TestSourceBuilders {
 
   def result (span: TemplateSpan): TemplateRoot = TemplateRoot(
     TemplateString("aa "),

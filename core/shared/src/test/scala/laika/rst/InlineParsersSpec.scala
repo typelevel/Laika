@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast.{InterpretedText, RstStyle, SubstitutionReference}
@@ -27,10 +27,11 @@ import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers
      
 class InlineParsersSpec extends AnyFlatSpec 
-                        with Matchers 
-                        with ParseResultHelpers
-                        with DefaultParserHelpers[List[Span]] 
-                        with ModelBuilder {
+  with Matchers 
+  with ParseResultHelpers
+  with DefaultParserHelpers[List[Span]] 
+  with ModelBuilder
+  with TestSourceBuilders {
 
 
   val defaultTextRole = "foo"

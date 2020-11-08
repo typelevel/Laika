@@ -17,8 +17,6 @@
 package laika.ast.helper
 
 import laika.ast._
-import laika.config.{Config, ConfigParser}
-import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
 trait ModelBuilder { self =>
 
@@ -26,22 +24,4 @@ trait ModelBuilder { self =>
 
   def p (text: String): Paragraph = Paragraph(text)
 
-  
-  def toSource (label: FootnoteLabel): String = label match {
-    case Autonumber => "[#]_"
-    case Autosymbol => "[*]_"
-    case AutonumberLabel(label) => s"[#$label]_"
-    case NumericLabel(label) => s"[$label]_"
-  }
-  
-  def source (fragment: String, root: String): SourceFragment = {
-    val offset = root.indexOf(fragment)
-    LineSource(fragment, SourceCursor(root).consume(offset))
-  }
-
-  def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
-
-  
-  val disableInternalLinkValidation: Config = 
-    ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
 }

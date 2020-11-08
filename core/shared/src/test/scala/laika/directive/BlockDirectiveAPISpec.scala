@@ -20,7 +20,7 @@ import cats.implicits._
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
 import laika.directive.std.StandardDirectives
 import laika.parse.{BlockSource, Parser}
@@ -36,7 +36,8 @@ import org.scalatest.matchers.should.Matchers
 
 class BlockDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
-                          with ModelBuilder {
+                          with ModelBuilder
+                          with TestSourceBuilders {
 
   
   object DirectiveSetup {

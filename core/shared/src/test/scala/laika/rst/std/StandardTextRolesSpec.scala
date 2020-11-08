@@ -19,7 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.api.MarkupParser
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
 import laika.format.ReStructuredText
 import laika.rst.ast.RstStyle
 import laika.rst.ext.ExtensionProvider
@@ -30,8 +30,9 @@ import org.scalatest.matchers.should.Matchers
  * @author Jens Halm
  */
 class StandardTextRolesSpec extends AnyFlatSpec 
-                            with Matchers 
-                            with ModelBuilder {
+  with Matchers 
+  with ModelBuilder
+  with TestSourceBuilders {
 
   private val parser = MarkupParser
     .of(ReStructuredText)
