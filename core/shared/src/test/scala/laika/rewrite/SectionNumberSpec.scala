@@ -18,7 +18,6 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.ModelBuilder
 import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
 import laika.config.ConfigParser
 import laika.parse.GeneratedSource

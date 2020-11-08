@@ -17,14 +17,14 @@
 package laika.api
 
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class RenderAPISpec extends AnyFlatSpec 
                     with Matchers
-                    with ModelBuilder { self =>
+                    with ParagraphCompanionShortcuts { self =>
 
   
   val rootElem = RootElement(p("aaö"), p("bbb"))

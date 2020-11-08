@@ -18,7 +18,7 @@ package laika.rst.bundle
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.ReStructuredText
 import laika.parse.GeneratedSource
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
@@ -27,7 +27,7 @@ import org.scalatest.matchers.should.Matchers
  
 class RewriteRulesSpec extends AnyFlatSpec 
                   with Matchers
-                  with ModelBuilder {
+                  with ParagraphCompanionShortcuts {
 
   
   def rewritten (root: RootElement): RootElement = {

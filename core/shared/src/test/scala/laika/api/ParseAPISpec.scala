@@ -18,7 +18,7 @@ package laika.api
 
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.TemplateRewriter
@@ -29,7 +29,7 @@ import org.scalatest.matchers.should.Matchers
 
 class ParseAPISpec extends AnyFlatSpec 
                    with Matchers
-                   with ModelBuilder
+                   with ParagraphCompanionShortcuts
                    with TestSourceBuilders {
   
   

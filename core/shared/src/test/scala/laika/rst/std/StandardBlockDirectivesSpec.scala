@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.ast.sample.SampleTrees
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
 import laika.format.ReStructuredText
@@ -39,7 +39,7 @@ import org.scalatest.matchers.should.Matchers
  */
 class StandardBlockDirectivesSpec extends AnyFlatSpec 
                                   with Matchers 
-                                  with ModelBuilder {
+                                  with ParagraphCompanionShortcuts {
 
   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
 

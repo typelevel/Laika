@@ -20,7 +20,7 @@ import cats.implicits._
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

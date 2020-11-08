@@ -18,7 +18,7 @@ package laika.ast.helper
 
 import laika.ast._
 
-trait ModelBuilder { self =>
+trait ParagraphCompanionShortcuts { self =>
 
   def p (spans: Span*): Paragraph = Paragraph(spans.toList)
 

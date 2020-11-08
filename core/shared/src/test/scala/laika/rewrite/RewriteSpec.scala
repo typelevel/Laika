@@ -17,13 +17,13 @@
 package laika.rewrite
 
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
  
 class RewriteSpec extends AnyFlatSpec 
                   with Matchers
-                  with ModelBuilder {
+                  with ParagraphCompanionShortcuts {
 
   
   "The rewriter" should "replace the first element of the children in a container" in {

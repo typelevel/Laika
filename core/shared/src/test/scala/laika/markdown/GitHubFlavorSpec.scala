@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
 import laika.parse.Parser
@@ -31,7 +31,7 @@ class GitHubFlavorSpec extends AnyWordSpec
   with Matchers
   with ParseResultHelpers
   with DefaultParserHelpers[RootElement]
-  with ModelBuilder {
+  with ParagraphCompanionShortcuts {
 
   val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions)
     .withBundles(Seq(GitHubFlavor)).markupExtensions)

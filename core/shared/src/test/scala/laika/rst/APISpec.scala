@@ -19,7 +19,7 @@ package laika.rst
 import cats.implicits._
 import laika.api._
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.directive.{Blocks, DirectiveRegistry, Spans}
 import laika.format.ReStructuredText
 import laika.rst.ext.Directives.Parts._
@@ -31,7 +31,7 @@ import org.scalatest.matchers.should.Matchers
 
 class APISpec extends AnyFlatSpec 
                  with Matchers
-                 with ModelBuilder {
+                 with ParagraphCompanionShortcuts {
   
   
   "The API" should "support registration of block directives" in {

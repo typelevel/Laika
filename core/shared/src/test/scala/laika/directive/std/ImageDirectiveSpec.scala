@@ -19,13 +19,13 @@ package laika.directive.std
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, RootElement, SpanSequence, Styles, Text}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class ImageDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with MarkupParserSetup {
 
 

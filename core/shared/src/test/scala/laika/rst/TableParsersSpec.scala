@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.bundle.ParserBundle
 import laika.format.ReStructuredText
 import laika.parse.Parser
@@ -30,7 +30,7 @@ class TableParsersSpec extends AnyFlatSpec
                         with Matchers 
                         with ParseResultHelpers
                         with DefaultParserHelpers[RootElement] 
-                        with ModelBuilder {
+                        with ParagraphCompanionShortcuts {
 
 
   val rootParser = new RootParser(ReStructuredText, ParserBundle().markupExtensions)

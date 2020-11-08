@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{Element, QuotedBlock, Text}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -27,7 +27,7 @@ import org.scalatest.matchers.should.Matchers
 
 class VerbatimHTMLRendererSpec extends AnyFlatSpec 
                                with Matchers
-                               with ModelBuilder 
+                               with ParagraphCompanionShortcuts 
                                with HTMLModelBuilder {
 
   val renderer: Renderer = {

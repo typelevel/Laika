@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.parse.markup.DocumentParser.ParserError
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -28,7 +28,7 @@ import org.scalatest.matchers.should.Matchers
 
 class StandardDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TemplateParserSetup 
   with MarkupParserSetup {
 

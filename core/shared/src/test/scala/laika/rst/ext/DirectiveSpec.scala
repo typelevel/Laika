@@ -17,7 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.{Parser, SourceFragment}
 import laika.parse.combinator.Parsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -32,7 +32,7 @@ class DirectiveSpec extends AnyFlatSpec
   with Matchers 
   with ParseResultHelpers
   with DefaultParserHelpers[RootElement] 
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
   val stringContent: DirectivePartBuilder[String] = content(src => Right(src.input))

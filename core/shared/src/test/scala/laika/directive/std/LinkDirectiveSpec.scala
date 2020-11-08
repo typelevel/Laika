@@ -19,14 +19,14 @@ package laika.directive.std
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.{Document, ExternalTarget, InvalidSpan, MessageFilter, Path, RootElement, SpanLink, Text}
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class LinkDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
 

@@ -24,7 +24,7 @@ import cats.effect.{IO, Resource, Sync}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
 import laika.bundle.{BundleOrigin, BundleProvider}
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
@@ -48,7 +48,7 @@ import laika.rewrite.nav.TargetFormats
 import scala.io.Codec
 
 class TreeRendererSpec extends IOWordSpec 
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with FileIO
   with TestSourceBuilders { self =>
 

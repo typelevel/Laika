@@ -18,7 +18,7 @@ package laika.rst.bundle
 
 import laika.api.Renderer
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.{HTML, ReStructuredText}
 import laika.rst.ast._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -26,7 +26,7 @@ import org.scalatest.matchers.should.Matchers
 
 class ExtendedHTMLRendererSpec extends AnyFlatSpec
                        with Matchers
-                       with ModelBuilder {
+                       with ParagraphCompanionShortcuts {
  
   
   def render (elem: Element): String = Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)

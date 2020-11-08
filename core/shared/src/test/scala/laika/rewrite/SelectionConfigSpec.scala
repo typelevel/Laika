@@ -19,7 +19,6 @@ package laika.rewrite
 import cats.data.{NonEmptyChain, NonEmptyVector}
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.ast.helper.ModelBuilder
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections, Classifiers, CoverImage}

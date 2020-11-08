@@ -20,7 +20,6 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse._

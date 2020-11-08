@@ -22,7 +22,7 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.ReStructuredText
 import laika.rewrite.link.LinkConfig
 import laika.time.PlatformDateFormat
@@ -32,7 +32,7 @@ import org.scalatest.matchers.should.Matchers
 /**
  * @author Jens Halm
  */
-class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with ModelBuilder {
+class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with ParagraphCompanionShortcuts {
 
   private val parser = MarkupParser
     .of(ReStructuredText)

@@ -18,7 +18,7 @@ package laika.markdown
 
 import laika.api.builder.OperationConfig
 import laika.ast.{RootElement, Text}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement}
 import laika.parse.Parser
@@ -31,7 +31,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
                           with Matchers 
                           with ParseResultHelpers
                           with DefaultParserHelpers[RootElement] 
-                          with ModelBuilder 
+                          with ParagraphCompanionShortcuts 
                           with HTMLModelBuilder {
 
 

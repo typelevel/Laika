@@ -19,7 +19,7 @@ package laika.markdown
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.{RootElement, Text}
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec
@@ -27,7 +27,7 @@ import org.scalatest.matchers.should.Matchers
 
 class APISpec extends AnyFlatSpec 
                  with Matchers
-                 with ModelBuilder {
+                 with ParagraphCompanionShortcuts {
   
   
   trait BlockDirectives {

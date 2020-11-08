@@ -16,11 +16,9 @@
 
 package laika.rewrite
 
-import laika.ast.{/, Block, Document, DocumentCursor, DocumentTree, DocumentTreeRoot, Header, Id, Image, InternalTarget, InvalidSpan, Paragraph, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, SpanLink, StaticDocument, Target, Text}
 import laika.ast.Path.Root
-import laika.ast.helper.ModelBuilder
 import laika.ast.sample.{BuilderKey, SampleTrees}
-import laika.config.{Config, ConfigBuilder, LaikaKeys}
+import laika.ast._
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 import laika.rewrite.nav.TargetFormats
 import org.scalatest.funsuite.AnyFunSuite

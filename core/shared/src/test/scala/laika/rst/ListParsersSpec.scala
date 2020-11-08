@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast.{EnumFormat, _}
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.rst.ast._
@@ -31,7 +31,7 @@ class ListParsersSpec extends AnyFlatSpec
   with Matchers 
   with ParseResultHelpers
   with DefaultParserHelpers[RootElement] 
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
   import EnumType._

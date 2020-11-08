@@ -18,11 +18,8 @@ package laika.rewrite
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.helper.ModelBuilder
 import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
-import laika.ast.sample.SampleConfig.{siteBaseURL, targetFormats}
-import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetLookup}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

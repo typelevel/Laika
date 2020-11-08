@@ -19,7 +19,7 @@ package laika.ast
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.config.LaikaKeys
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
@@ -28,7 +28,7 @@ import org.scalatest.matchers.should.Matchers
 
 class DocumentAPISpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder {
+  with ParagraphCompanionShortcuts {
 
 
   val defaultParser = MarkupParser.of(Markdown).build

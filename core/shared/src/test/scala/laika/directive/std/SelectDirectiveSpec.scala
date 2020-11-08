@@ -19,7 +19,7 @@ package laika.directive.std
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
 import laika.format.Markdown
 import laika.rewrite.TemplateRewriter
@@ -29,7 +29,7 @@ import org.scalatest.matchers.should.Matchers
 
 class SelectDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
 

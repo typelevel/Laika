@@ -18,11 +18,11 @@ package laika.directive
 
 import cats.implicits._
 import laika.api.MarkupParser
-import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.TestSourceBuilders
 import laika.bundle.ParserBundle
+import laika.config.ConfigBuilder
 import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

@@ -18,7 +18,7 @@ package laika.rst
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BundleProvider}
 import laika.format.ReStructuredText
 import laika.parse.Parser
@@ -35,7 +35,7 @@ class BlockParsersSpec extends AnyFlatSpec
   with Matchers 
   with ParseResultHelpers
   with DefaultParserHelpers[RootElement] 
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
 

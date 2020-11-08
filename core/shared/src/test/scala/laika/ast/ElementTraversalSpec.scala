@@ -16,13 +16,13 @@
 
 package laika.ast
 
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
  
 class ElementTraversalSpec extends AnyFlatSpec 
                            with Matchers
-                           with ModelBuilder {
+                           with ParagraphCompanionShortcuts {
 
   
   "The select method" should "select all elements that satisfy the predicate" in {

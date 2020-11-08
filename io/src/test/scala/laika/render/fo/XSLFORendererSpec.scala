@@ -21,7 +21,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.DocumentTypeMatcher
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
@@ -33,7 +33,7 @@ import org.scalatest.matchers.should.Matchers
 
 class XSLFORendererSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
+  with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
   private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)

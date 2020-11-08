@@ -20,7 +20,7 @@ import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
+import laika.ast.helper.ParagraphCompanionShortcuts
 import laika.bundle.DocumentTypeMatcher
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.EPUB
@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 /**
   * @author Jens Halm
   */
-class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
+class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with FileIO {
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
