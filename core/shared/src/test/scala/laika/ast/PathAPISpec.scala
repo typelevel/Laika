@@ -597,8 +597,24 @@ class PathAPISpec extends AnyWordSpec
       abs_c.isSubPath(abs_c) shouldBe true
     }
 
+    "be true for two identical paths with suffix" in {
+      abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("foo")) shouldBe true
+    }
+
+    "be false for two identical paths with different suffix" in {
+      abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("bar")) shouldBe false
+    }
+
+    "be false for two identical paths when one is without suffix" in {
+      abs_c.withSuffix("foo").isSubPath(abs_c) shouldBe false
+    }
+
     "be true for a child path" in {
       abs_c.isSubPath(abs_a) shouldBe true
+    }
+
+    "be false for a parent path with a suffix" in {
+      abs_c.isSubPath(abs_a.withSuffix("foo")) shouldBe false
     }
 
     "be false for a parent path" in {

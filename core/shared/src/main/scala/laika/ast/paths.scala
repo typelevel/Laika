@@ -214,7 +214,15 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
 
   def isSubPath (other: Path): Boolean = other match {
     case Root => true
-    case SegmentedPath(otherSegments, _, _) => segments.toList.startsWith(otherSegments.toList)
+    case SegmentedPath(otherSegments, otherSuffix, otherFragment) => 
+      if (segments.length == otherSegments.length) 
+        segments == otherSegments && 
+        suffix == otherSuffix && 
+        (fragment == otherFragment || otherFragment.isEmpty)
+      else 
+        segments.toList.startsWith(otherSegments.toList) && 
+        otherSuffix.isEmpty && 
+        otherFragment.isEmpty
   } 
   
   override def withBasename (name: String): Path = copy(segments = NonEmptyChain.fromChainAppend(segments.init, name))
