@@ -143,7 +143,7 @@ trait BlockContainerCompanion extends SpanContainerCompanion {
 
   override def empty: ContainerType = createBlockContainer(Nil)
 
-  protected def createSpanContainer (spans: Seq[Span]): ContainerType = createBlockContainer(Seq(Paragraph(spans)))
+  protected def createSpanContainer (spans: Seq[Span]): ContainerType = createBlockContainer(spans.map(Paragraph(_)))
 
   /** Create an instance containing one or more blocks */
   def apply(block: Block, blocks: Block*): ContainerType = createBlockContainer(block +: blocks.toList)
