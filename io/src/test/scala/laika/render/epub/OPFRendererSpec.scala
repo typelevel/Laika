@@ -22,12 +22,11 @@ import java.util.{Date, Locale}
 import cats.effect.IO
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class OPFRendererSpec extends AnyFlatSpec with Matchers with ModelBuilder {
+class OPFRendererSpec extends AnyFlatSpec with Matchers {
 
   val renderer = new OPFRenderer
   

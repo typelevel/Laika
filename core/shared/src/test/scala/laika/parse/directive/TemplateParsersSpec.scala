@@ -16,9 +16,9 @@
 
 package laika.parse.directive
 
-import laika.config.Key
 import laika.ast._
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.TestSourceBuilders
+import laika.config.Key
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -28,7 +28,6 @@ class TemplateParsersSpec extends AnyFlatSpec
   with Matchers 
   with ParseResultHelpers
   with DefaultParserHelpers[List[Span]] 
-  with ModelBuilder
   with TestSourceBuilders {
 
 

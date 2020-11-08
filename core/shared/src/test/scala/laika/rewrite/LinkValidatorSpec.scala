@@ -29,7 +29,7 @@ import org.scalatest.matchers.should.Matchers
 /**
   * @author Jens Halm
   */
-class LinkValidatorSpec extends AnyFunSuite with Matchers with ModelBuilder {
+class LinkValidatorSpec extends AnyFunSuite with Matchers {
 
   
   private val testCursor: DocumentCursor = {

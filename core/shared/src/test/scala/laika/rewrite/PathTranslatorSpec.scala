@@ -28,7 +28,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 
-class PathTranslatorSpec extends AnyFunSuite with Matchers with ModelBuilder {
+class PathTranslatorSpec extends AnyFunSuite with Matchers {
 
   private val rootCursor = {
 

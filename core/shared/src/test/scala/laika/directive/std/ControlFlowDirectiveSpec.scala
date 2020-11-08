@@ -16,7 +16,6 @@
 
 package laika.directive.std
 
-import laika.ast.helper.ModelBuilder
 import laika.ast.{RootElement, TemplateRoot, TemplateSpan, TemplateSpanSequence, TemplateString}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -24,7 +23,6 @@ import org.scalatest.matchers.should.Matchers
 
 class ControlFlowDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
   with TemplateParserSetup {
 
   def root (spans: TemplateSpan*): RootElement = RootElement(TemplateRoot(spans))

@@ -18,12 +18,10 @@ package laika.markdown
 
 import laika.api.builder.OperationConfig
 import laika.ast.{Emphasized, Span, Text}
-import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.markdown.ast.HTMLAttribute
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.markup.RootParser
 import laika.parse.markup.RootParserProvider.RootParserWrapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -32,7 +30,6 @@ class HTMLParsersSpec extends AnyFlatSpec
                       with Matchers 
                       with ParseResultHelpers
                       with DefaultParserHelpers[List[Span]] 
-                      with ModelBuilder 
                       with HTMLModelBuilder {
 
 

@@ -20,8 +20,7 @@ import cats.data.NonEmptySet
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.{DocumentTreeRoot, Path, RawContent, RootElement, StaticDocument, TemplateDocument, TemplateElement, TemplateRoot, TemplateString}
-import laika.ast.helper.ModelBuilder
+import laika.ast.{DocumentTreeRoot, Path, RawContent, RootElement, StaticDocument, TemplateElement, TemplateRoot, TemplateString}
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import laika.rewrite.nav.TargetFormats
 import org.scalatest.flatspec.AnyFlatSpec
@@ -29,7 +28,6 @@ import org.scalatest.matchers.should.Matchers
 
 class HTMLHeadDirectiveSpec extends AnyFlatSpec
   with Matchers
-  with ModelBuilder
   with RewriteSetup {
 
 

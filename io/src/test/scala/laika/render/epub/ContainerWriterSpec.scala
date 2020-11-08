@@ -17,14 +17,13 @@
 package laika.render.epub
 
 import cats.effect.IO
-import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
 import laika.io.model.RenderedTreeRoot
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 
-class ContainerWriterSpec extends AnyFlatSpec with Matchers with ModelBuilder {
+class ContainerWriterSpec extends AnyFlatSpec with Matchers {
 
 
   val writer = new ContainerWriter

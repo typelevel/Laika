@@ -29,9 +29,7 @@ import org.scalatest.wordspec.AnyWordSpec
 /**
   * @author Jens Halm
   */
-class SelectionConfigSpec extends AnyWordSpec
-  with Matchers
-  with ModelBuilder {
+class SelectionConfigSpec extends AnyWordSpec with Matchers {
 
   val selectionFoo = SelectionConfig("foo", NonEmptyChain(
     ChoiceConfig("foo-a", "foo-label-a"),

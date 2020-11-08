@@ -32,9 +32,7 @@ import org.scalatest.matchers.should.Matchers
 /**
  * @author Jens Halm
  */
-class StandardSpanDirectivesSpec extends AnyFlatSpec 
-                                  with Matchers 
-                                  with ModelBuilder {
+class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with ModelBuilder {
 
   private val parser = MarkupParser
     .of(ReStructuredText)

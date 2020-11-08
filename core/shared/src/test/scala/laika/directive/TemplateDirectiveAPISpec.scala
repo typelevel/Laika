@@ -30,7 +30,6 @@ import org.scalatest.matchers.should.Matchers
 
 class TemplateDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
-                          with ModelBuilder
                           with TestSourceBuilders {
 
   def result (span: TemplateSpan): TemplateRoot = TemplateRoot(

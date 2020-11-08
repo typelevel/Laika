@@ -36,7 +36,6 @@ import scala.util.Try
 
 class SpanDirectiveAPISpec extends AnyFlatSpec
                           with Matchers
-                          with ModelBuilder
                           with TestSourceBuilders {
 
   
@@ -447,7 +446,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
 
   it should "parse a link directive inside a native link expression" in new LinkParser with LinkDirectiveSetup {
     val input = "aa [RFC-222][@:rfc(222)] bb"
-    parseAsMarkdown(input) shouldBe Right(p(
+    parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
       SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222"),
       Text(" bb")
@@ -456,7 +455,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
 
   it should "detect an unknown link directive" in new LinkParser with LinkDirectiveSetup {
     val input = "aa [RFC-222][@:rfx(222)] bb"
-    parseAsMarkdown(input) shouldBe Right(p(
+    parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
       invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx"),
       Text(" bb")
@@ -465,18 +464,18 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
 
   it should "detect an invalid link directive" in new LinkParser with LinkDirectiveSetup {
     val input = "aa [RFC-222][@:rfc(foo)] bb"
-    parseAsMarkdown(input) shouldBe Right(p(
+    parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
-        invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo"),
+      invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo"),
       Text(" bb")
     ))
   }
 
   it should "detect an invalid link directive syntax" in new LinkParser with LinkDirectiveSetup {
     val input = "aa [RFC-222][@:rfc foo] bb"
-    parseAsMarkdown(input) shouldBe Right(p(
+    parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
-        invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found"),
+      invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found"),
       Text(" bb")
     ))
   }

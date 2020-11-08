@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.{Emphasized, ExternalTarget, Image, ImageIdReference, LinkIdReference, Literal, Span, SpanLink, Strong, Text}
-import laika.ast.helper.{ModelBuilder, TestSourceBuilders}
+import laika.ast.helper.TestSourceBuilders
+import laika.ast._
 import laika.format.Markdown
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -30,7 +30,6 @@ class InlineParsersSpec extends AnyFlatSpec
   with Matchers 
   with ParseResultHelpers
   with DefaultParserHelpers[List[Span]] 
-  with ModelBuilder
   with TestSourceBuilders {
 
 

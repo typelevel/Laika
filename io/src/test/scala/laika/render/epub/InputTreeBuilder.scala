@@ -20,11 +20,10 @@ import cats.effect.IO
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.helper.ModelBuilder
 import laika.io.model._
 import laika.io.helper.InputBuilder
 
-trait InputTreeBuilder extends ModelBuilder with InputBuilder {
+trait InputTreeBuilder extends InputBuilder {
 
   val uuid = "some-uuid"
 

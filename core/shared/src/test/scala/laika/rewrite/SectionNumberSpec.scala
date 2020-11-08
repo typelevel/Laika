@@ -27,7 +27,6 @@ import org.scalatest.matchers.should.Matchers
 
 class SectionNumberSpec extends AnyFlatSpec
                         with Matchers
-                        with ModelBuilder 
                         with DocumentTreeAssertions {
 
 

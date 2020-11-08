@@ -407,7 +407,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
     }
 
-    "use the default parser when there is no parser installed" in new BundleSetup with ModelBuilder {
+    "use the default parser when there is no parser installed" in new BundleSetup {
       val parserBundles = Nil
       val appBundles = Nil
 
