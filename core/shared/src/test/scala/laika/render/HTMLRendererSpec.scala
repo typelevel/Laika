@@ -196,10 +196,10 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a definition list with paragraphs" in {
-    val elem = DefinitionList(Seq(
-      defListItem("term 1", p("1"), p("1")), 
-      defListItem("term 2", p("2"), p("2"))
-    ))
+    val elem = DefinitionList(
+      DefinitionListItem("term 1", p("1"), p("1")),
+      DefinitionListItem("term 2", p("2"), p("2"))
+    )
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>
@@ -216,10 +216,10 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a definition list with simple flow content" in {
-    val elem = DefinitionList(Seq(
-      defListItem("term 1", p("1")),
-      defListItem("term 2", p("2"))
-    ))
+    val elem = DefinitionList(
+      DefinitionListItem("term 1", p("1")),
+      DefinitionListItem("term 2", p("2"))
+    )
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>1</dd>

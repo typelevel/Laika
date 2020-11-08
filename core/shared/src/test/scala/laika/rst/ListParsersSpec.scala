@@ -287,10 +287,10 @@ class ListParsersSpec extends AnyFlatSpec
       | aaa
       |term 2
       | bbb""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -300,10 +300,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -313,10 +313,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem(List(Text("term 2"), Classifier(List(Text("classifier")))), List(p("bbb")))
-    ))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -329,10 +329,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa\naaa"), p("bbb")),
-      defListItem("term 2", p("ccc"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa\naaa"), p("bbb")),
+      DefinitionListItem("term 2", p("ccc"))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -345,10 +345,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", QuotedBlock("aaa\naaa"), p("bbb")),
-      defListItem("term 2", p("ccc"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", QuotedBlock("aaa\naaa"), p("bbb")),
+      DefinitionListItem("term 2", p("ccc"))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -358,10 +358,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    val list = DefinitionList(Seq(
+    val list = DefinitionList(
       DefinitionListItem(List(Text("term "), Emphasized("em")), List(p("aaa"))),
-      defListItem("term 2", p("bbb"))
-    ))
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list))
   }
   
@@ -375,10 +375,10 @@ class ListParsersSpec extends AnyFlatSpec
       |=== ===
       | a   b 
       |=== ===""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list, Table(Row(BodyCell("a"),BodyCell("b")))))
   }
   
@@ -392,10 +392,10 @@ class ListParsersSpec extends AnyFlatSpec
       | bbb
       |
       |$directive""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list, InvalidBlock("unknown directive: foo", source(directive, input))))
   }
   
@@ -408,10 +408,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |* list
       |  list""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list, BulletList(p("list\nlist"))))
   }
   
@@ -424,10 +424,10 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |1. list
       |   list""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list, EnumList(EnumFormat(Arabic))("list\nlist")))
   }
   
@@ -442,10 +442,10 @@ class ListParsersSpec extends AnyFlatSpec
       | bbb
       |
       |$header""".stripMargin
-    val list = DefinitionList(Seq(
-      defListItem("term 1", p("aaa")),
-      defListItem("term 2", p("bbb"))
-    ))
+    val list = DefinitionList(
+      DefinitionListItem("term 1", p("aaa")),
+      DefinitionListItem("term 2", p("bbb"))
+    )
     Parsing (input) should produce (root(list, DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), source(header, input))))
   }
   

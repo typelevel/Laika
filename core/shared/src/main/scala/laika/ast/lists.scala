@@ -190,6 +190,13 @@ case class DefinitionList (content: Seq[DefinitionListItem], options: Options = 
   def withOptions (options: Options): DefinitionList = copy(options = options)
 }
 
+/* Companion for creating DefinitionList instances. */
+object DefinitionList {
+  
+  def apply (items: DefinitionListItem*): DefinitionList = apply(items)
+  
+}
+
 /** A single definition item, containing the term and definition (as the content property).
   */
 case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
@@ -201,6 +208,13 @@ case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Op
 
   def withContent (newContent: Seq[Block]): DefinitionListItem = copy(content = newContent)
   def withOptions (options: Options): DefinitionListItem = copy(options = options)
+}
+/* Companion for creating DefinitionListItem instances. */
+object DefinitionListItem {
+
+  def apply (term: String, blocks: Block*): DefinitionListItem =
+    DefinitionListItem(List(Text(term)), blocks.toList)
+
 }
 
 /** The root node of a navigation structure */

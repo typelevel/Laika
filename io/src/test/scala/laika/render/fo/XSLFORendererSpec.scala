@@ -358,10 +358,10 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a definition list with paragraphs" in {
-    val elem = DefinitionList(Seq(
-      defListItem("term 1", p("1"), p("1")),
-      defListItem("term 2", p("2"), p("2"))
-    ))
+    val elem = DefinitionList(
+      DefinitionListItem("term 1", p("1"), p("1")),
+      DefinitionListItem("term 2", p("2"), p("2"))
+    )
     val fo = s"""<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -386,10 +386,10 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a definition list with simple flow content" in {
-    val elem = DefinitionList(Seq(
-      defListItem("term 1", p("1")),
-      defListItem("term 2", p("2"))
-    ))
+    val elem = DefinitionList(
+      DefinitionListItem("term 1", p("1")),
+      DefinitionListItem("term 2", p("2"))
+    )
     val fo = s"""<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">

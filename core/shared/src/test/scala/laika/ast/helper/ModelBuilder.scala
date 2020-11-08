@@ -41,9 +41,6 @@ trait ModelBuilder { self =>
 
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
 
-
-  def defListItem(term: String, blocks: Block*): DefinitionListItem = 
-    DefinitionListItem(List(Text(term)), blocks.toList)
   
   val disableInternalLinkValidation: Config = 
     ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
