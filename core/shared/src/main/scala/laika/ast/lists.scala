@@ -31,6 +31,37 @@ case class BulletList (content: Seq[BulletListItem], format: BulletFormat, optio
   def withOptions (options: Options): BulletList = copy(options = options)
 }
 
+/** Base trait for companions that create BulletList instances. */
+trait BulletListCompanion extends BlockContainerCompanion {
+  type ContainerType = BulletList
+  def bullet: BulletFormat = StringBullet("*")
+
+  override protected def createSpanContainer (spans: Seq[Span]): ContainerType = 
+    createBlockContainer(spans.map(Paragraph(_)))
+  
+  /** Create an instance containing one or more list items comprised of any number of blocks each. */
+  def apply(block: Seq[Block], blocks: Seq[Block]*): ContainerType = BulletList(
+    (block +: blocks).map(BulletListItem(_, bullet)),
+    bullet
+  )
+
+  def createBlockContainer (blocks: Seq[Block]): ContainerType = BulletList(
+    blocks.map(block => BulletListItem(Seq(block), bullet)),
+    bullet
+  )
+  
+}
+
+/** Companion for creating BulletList instances. */
+object BulletList extends BulletListCompanion {
+
+  /** Creates a builder for the specified bullet format that allows to specify the content of the list. */
+  def apply(format: BulletFormat): BulletListCompanion = new BulletListCompanion {
+    override def bullet: BulletFormat = format
+  }
+  
+}
+
 /** An enumerated list that may contain nested lists.
   */
 case class EnumList (content: Seq[EnumListItem], format: EnumFormat, start: Int = 1, options: Options = NoOpt) extends Block

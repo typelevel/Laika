@@ -67,7 +67,7 @@ class ListParsersSpec extends AnyFlatSpec
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList("aaa", "bbb", "ccc")))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -76,21 +76,21 @@ class ListParsersSpec extends AnyFlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList("aaa", "bbb", "ccc")))
   }
   
   it should "parse items starting with a '+' the same way as those starting with a '*'" in {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList(StringBullet("+"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList(StringBullet("+"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items starting with a '-' the same way as those starting with a '*'" in {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList(StringBullet("-"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList(StringBullet("-"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -103,12 +103,9 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |* ddd""".stripMargin
     val expected = BulletList(
-      Seq(
-        BulletListItem(Seq(p("aaa"), p("bbb\nbbb")), StringBullet("*")),
-        BulletListItem(Seq(fp("ccc")), StringBullet("*")),
-        BulletListItem(Seq(fp("ddd")), StringBullet("*"))
-      ),
-      StringBullet("*")
+      Seq(p("aaa"), p("bbb\nbbb")),
+      Seq(fp("ccc")),
+      Seq(fp("ddd"))
     )
     Parsing (input) should produce (root(expected))
   }
@@ -119,9 +116,9 @@ class ListParsersSpec extends AnyFlatSpec
                   |  * bbb
                   |
                   |    * ccc""".stripMargin
-    val list3 = bulletList("ccc")
-    val list2 = BulletList(Seq(BulletListItem(List(SpanSequence("bbb"), list3), StringBullet("*"))), StringBullet("*"))
-    val list1 = BulletList(Seq(BulletListItem(List(SpanSequence("aaa"), list2), StringBullet("*"))), StringBullet("*"))
+    val list3 = BulletList("ccc")
+    val list2 = BulletList(Seq(SpanSequence("bbb"), list3))
+    val list1 = BulletList(Seq(SpanSequence("aaa"), list2))
     Parsing (input) should produce (root(list1))
   }
   
@@ -141,12 +138,9 @@ class ListParsersSpec extends AnyFlatSpec
       |
       |* ddd""".stripMargin
     val expected = BulletList(
-      Seq(
-        BulletListItem(Seq(p("aaa:"), LiteralBlock("bbb\nbbb")), StringBullet("*")),
-        BulletListItem(Seq(fp("ccc")), StringBullet("*")),
-        BulletListItem(Seq(fp("ddd")), StringBullet("*"))
-      ),
-      StringBullet("*")
+      Seq(p("aaa:"), LiteralBlock("bbb\nbbb")),
+      Seq(fp("ccc")),
+      Seq(fp("ddd"))
     )
     Parsing (input) should produce (root(expected))
   }
@@ -418,7 +412,7 @@ class ListParsersSpec extends AnyFlatSpec
       defListItem("term 1", p("aaa")),
       defListItem("term 2", p("bbb"))
     ))
-    Parsing (input) should produce (root(list, bulletList(p("list\nlist"))))
+    Parsing (input) should produce (root(list, BulletList(p("list\nlist"))))
   }
   
   it should "ignore subsequent enum lists" in {

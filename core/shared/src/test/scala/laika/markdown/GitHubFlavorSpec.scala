@@ -236,12 +236,10 @@ class GitHubFlavorSpec extends AnyWordSpec
           |    code
           |    ~~~
         """.stripMargin
-      val result = BulletList(Seq(
-        BulletListItem(Seq(
-          Paragraph("list item:"),
-          CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
-        ), StringBullet("-"))
-      ), StringBullet("-"))
+      val result = BulletList(StringBullet("-"))(Seq(
+        Paragraph("list item:"),
+        CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
+      ))
       Parsing (input) should produce (root(result))
     }
 
@@ -403,7 +401,7 @@ class GitHubFlavorSpec extends AnyWordSpec
         """.stripMargin
       Parsing (input) should produce (root(
         Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
-        bulletList("DDD", "EEE")
+        BulletList("DDD", "EEE")
       ))
     }
 

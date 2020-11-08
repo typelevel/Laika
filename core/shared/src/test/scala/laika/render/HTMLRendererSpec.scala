@@ -105,7 +105,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a bullet list with simple flow content" in {
-    val elem = RootElement(bulletList("aaa","bbb"))
+    val elem = RootElement(BulletList("aaa","bbb"))
     val html = """<ul>
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -170,7 +170,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
   
   it should "render a bullet list with forced paragraphs as list items" in {
-    val elem = bulletList(fp("aaa"), fp("bbb"))
+    val elem = BulletList(fp("aaa"), fp("bbb"))
     val html = """<ul>
       |  <li>
       |    <p>aaa</p>

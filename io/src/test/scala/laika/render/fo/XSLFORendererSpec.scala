@@ -124,7 +124,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a bullet list with simple flow content" in {
-    val elem = bulletList("aaa","bbb")
+    val elem = BulletList("aaa","bbb")
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -147,7 +147,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a bullet list with a nested list" in {
-    val elem = BulletList(Seq(BulletListItem(Seq(SpanSequence(Text("aaa")), bulletList("bbb")), StringBullet("*"))), StringBullet("*"))
+    val elem = BulletList(Seq(SpanSequence(Text("aaa")), BulletList("bbb")))
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">
@@ -312,7 +312,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
 
   it should "render a bullet list with forced paragraphs as list items the same way as normal paragraphs" in {
-    val elem = bulletList(fp("aaa"), fp("bbb"))
+    val elem = BulletList(fp("aaa"), fp("bbb"))
     val fo = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
                |  <fo:list-item space-after="3mm">
                |    <fo:list-item-label end-indent="label-end()">

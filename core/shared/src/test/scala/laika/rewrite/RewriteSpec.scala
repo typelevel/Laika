@@ -83,8 +83,8 @@ class RewriteSpec extends AnyFlatSpec
   }
 
   it should "rewrite text in bullet list items" in {
-    val before = RootElement(bulletList("a","b","c"))
-    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (RootElement(bulletList("a","x","c")))
+    val before = RootElement(BulletList("a","b","c"))
+    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (RootElement(BulletList("a","x","c")))
   }
 
   it should "rewrite text in enum list items" in {

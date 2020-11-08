@@ -17,7 +17,6 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
@@ -62,7 +61,7 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList("aaa","bbb","ccc")))
+    Parsing (input) should produce (root(BulletList("aaa","bbb","ccc")))
   }
   
   it should "parse items that are separated by blank lines as list items with paragraph" in {
@@ -71,28 +70,28 @@ class BlockParsersSpec extends AnyFlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList(fp("aaa"), fp("bbb"), fp("ccc"))))
+    Parsing (input) should produce (root(BulletList(fp("aaa"), fp("bbb"), fp("ccc"))))
   }
   
   it should "parse items indented by a tab after the '*' in the same way as items indented by a space" in {
     val input = """*	aaa
       |*	bbb
       |*	ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList("aaa","bbb","ccc")))
+    Parsing (input) should produce (root(BulletList("aaa","bbb","ccc")))
   }
   
   it should "parse items starting with a '+' the same way as those starting with a '*'" in {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList(StringBullet("+"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList(StringBullet("+"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items starting with a '-' the same way as those starting with a '*'" in {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    Parsing (input) should produce (root(bulletList(StringBullet("-"))("aaa", "bbb", "ccc")))
+    Parsing (input) should produce (root(BulletList(StringBullet("-"))("aaa", "bbb", "ccc")))
   }
   
   it should "parse items prefixed by numbers as items of an enumerated list" in {
@@ -133,9 +132,9 @@ class BlockParsersSpec extends AnyFlatSpec
                   |    *   bbb
                   |        * ccc""".stripMargin
 
-    val list3 = bulletList("ccc")
-    val list2 = BulletList(Seq(BulletListItem(List(SpanSequence("bbb"), list3), StringBullet("*"))), StringBullet("*"))
-    val list1 = BulletList(Seq(BulletListItem(List(SpanSequence("aaa"), list2), StringBullet("*"))), StringBullet("*"))
+    val list3 = BulletList("ccc")
+    val list2 = BulletList(Seq(SpanSequence("bbb"), list3))
+    val list1 = BulletList(Seq(SpanSequence("aaa"), list2))
 
     Parsing (input) should produce (root(list1))
   }
@@ -145,9 +144,9 @@ class BlockParsersSpec extends AnyFlatSpec
       |	* bbb
       |		* ccc""".stripMargin
 
-    val list3 = bulletList("ccc")
-    val list2 = BulletList(Seq(BulletListItem(List(SpanSequence("bbb"), list3), StringBullet("*"))), StringBullet("*"))
-    val list1 = BulletList(Seq(BulletListItem(List(SpanSequence("aaa"), list2), StringBullet("*"))), StringBullet("*"))
+    val list3 = BulletList("ccc")
+    val list2 = BulletList(Seq(SpanSequence("bbb"), list3))
+    val list1 = BulletList(Seq(SpanSequence("aaa"), list2))
     
     Parsing (input) should produce (root(list1))
   }
@@ -160,7 +159,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |    * ccc
       |3. 333""".stripMargin
       
-    val nestedList = bulletList("aaa","bbb","ccc")
+    val nestedList = BulletList("aaa","bbb","ccc")
     val expected = EnumList(Seq(
       EnumListItem(Seq(p("111")), EnumFormat(), 1),
       EnumListItem(Seq(SpanSequence("222"), nestedList), EnumFormat(), 2),
@@ -179,7 +178,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |
       |3. 333""".stripMargin
       
-    val nestedList = bulletList("aaa","bbb","ccc")
+    val nestedList = BulletList("aaa","bbb","ccc")
     val expected = EnumList(Seq(
       EnumListItem(Seq(fp("111")), EnumFormat(), 1),
       EnumListItem(Seq(p("222"), nestedList), EnumFormat(), 2),
@@ -195,8 +194,8 @@ class BlockParsersSpec extends AnyFlatSpec
       |
       |	ccc""".stripMargin
       
-    val nestedList = bulletList("bbb")
-    val list = BulletList(Seq(BulletListItem(List(p("aaa"), nestedList, p("ccc")), StringBullet("*"))), StringBullet("*"))
+    val nestedList = BulletList("bbb")
+    val list = BulletList(List(p("aaa"), nestedList, p("ccc")))
     Parsing (input) should produce (root(list))
   }
   
@@ -508,12 +507,9 @@ class BlockParsersSpec extends AnyFlatSpec
       |        code
       |* ccc""".stripMargin
     val expected = BulletList(
-      Seq(
-        BulletListItem(Seq(p("aaa")), StringBullet("*")),
-        BulletListItem(Seq(p("bbb"), LiteralBlock("code")), StringBullet("*")),
-        BulletListItem(Seq(p("ccc")), StringBullet("*"))
-      ),
-      StringBullet("*")
+      Seq(p("aaa")),
+      Seq(p("bbb"), LiteralBlock("code")),
+      Seq(p("ccc"))
     )
     Parsing (input) should produce (root(expected))
   }
@@ -525,12 +521,9 @@ class BlockParsersSpec extends AnyFlatSpec
       |  >quote
       |* ccc""".stripMargin
     val expected = BulletList(
-      Seq(
-        BulletListItem(Seq(p("aaa")), StringBullet("*")),
-        BulletListItem(Seq(p("bbb"), QuotedBlock("quote")), StringBullet("*")),
-        BulletListItem(Seq(p("ccc")), StringBullet("*"))
-      ),
-      StringBullet("*")
+      Seq(p("aaa")),
+      Seq(p("bbb"), QuotedBlock("quote")),
+      Seq(p("ccc"))
     )
     Parsing (input) should produce (root(expected))
   }
@@ -541,7 +534,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |>
       |>* ccc
       |>* ddd""".stripMargin
-    Parsing (input) should produce (root( QuotedBlock( p("aaa\nbbb"), bulletList("ccc", "ddd"))))
+    Parsing (input) should produce (root( QuotedBlock( p("aaa\nbbb"), BulletList("ccc", "ddd"))))
   }
   
   it should "parse a code block nested inside a blockquote" in {

@@ -129,10 +129,10 @@ trait SpanContainerCompanion {
   /** Creates an empty instance */
   def empty: ContainerType = createSpanContainer(Nil)
 
-  /** Create an instance only containing a single Text span */
-  def apply(text: String): ContainerType = createSpanContainer(Seq(Text(text)))
+  /** Create an instance only containing only one or more Text spans */
+  def apply(text: String, texts: String*): ContainerType = createSpanContainer((text +: texts).map(Text(_)))
 
-  /** Create an instance containing a one or more spans */
+  /** Create an instance containing one or more spans */
   def apply(span: Span, spans: Span*): ContainerType = createSpanContainer(span +: spans.toList)
 
   protected def createSpanContainer (spans: Seq[Span]): ContainerType
@@ -145,7 +145,7 @@ trait BlockContainerCompanion extends SpanContainerCompanion {
 
   protected def createSpanContainer (spans: Seq[Span]): ContainerType = createBlockContainer(Seq(Paragraph(spans)))
 
-  /** Create an instance containing a one or more blocks */
+  /** Create an instance containing one or more blocks */
   def apply(block: Block, blocks: Block*): ContainerType = createBlockContainer(block +: blocks.toList)
 
   protected def createBlockContainer (blocks: Seq[Block]): ContainerType

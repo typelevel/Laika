@@ -18,7 +18,7 @@ package laika.ast.helper
 
 import laika.ast._
 import laika.config.{Config, ConfigParser}
-import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
+import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
 trait ModelBuilder { self =>
 
@@ -41,16 +41,6 @@ trait ModelBuilder { self =>
 
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
 
-  
-  private val defaultBullet = StringBullet("*")
-  
-  def bulletList(format: BulletFormat)(textItems: String*): BulletList =
-    BulletList(textItems.map(txt => BulletListItem(Seq(p(txt)), format)), format)
-
-  def bulletList(textItem: String, textItems: String*): BulletList = bulletList(defaultBullet)(textItem +: textItems:_*)
-
-  def bulletList(blocks: Block*): BulletList =
-    BulletList(blocks.map(b => BulletListItem(Seq(b), defaultBullet)), defaultBullet)
 
   def enumList (textItem: String, textItems: String*): EnumList = enumList(EnumFormat())(textItem +: textItems:_*)
 
