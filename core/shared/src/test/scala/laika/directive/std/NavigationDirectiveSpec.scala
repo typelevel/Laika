@@ -97,15 +97,15 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     }
 
     private def buildResult (element: Element): RootElement = {
-      root(TemplateRoot(
-        t("aaa "),
+      RootElement(TemplateRoot(
+        TemplateString("aaa "),
         TemplateElement(element),
-        t(" bbb "),
+        TemplateString(" bbb "),
         EmbeddedRoot(SampleContent.fourSections(BuilderKey.Doc(6)))
       ))
     }
 
-    def blockResult (items: NavigationItem*): RootElement = root(
+    def blockResult (items: NavigationItem*): RootElement = RootElement(
       Title("Title 6").withOptions(Id("title-6") + Style.title),
       p("aaa"),
       NavigationList(items, itemStyles),

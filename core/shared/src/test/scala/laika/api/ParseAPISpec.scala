@@ -39,19 +39,19 @@ class ParseAPISpec extends AnyFlatSpec
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    parser.parse(input).toOption.get.content should be (root(p(input)))
+    parser.parse(input).toOption.get.content should be (RootElement(p(input)))
   }
   
   it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    parser.parse(input).toOption.get.content should be (root(p(SpanLink.external("http://foo/")("link"))))
+    parser.parse(input).toOption.get.content should be (RootElement(p(SpanLink.external("http://foo/")("link"))))
   }
   
   it should "allow to set a config value programmatically" in {
     val input = "aa ${prop} bb"
-    MarkupParser.of(Markdown).withConfigValue("prop", "foo").build.parse(input).map(_.content) should be (Right(root(p(
+    MarkupParser.of(Markdown).withConfigValue("prop", "foo").build.parse(input).map(_.content) should be (Right(RootElement(p(
       Text("aa foo bb")
     ))))
   }
@@ -60,7 +60,7 @@ class ParseAPISpec extends AnyFlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (root(
+    MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (RootElement(
       p(LinkIdReference(List(Text("link")), "id", source("[link][id]", input))), 
       LinkDefinition("id", ExternalTarget("http://foo/"), None)
     ))
@@ -92,7 +92,7 @@ class ParseAPISpec extends AnyFlatSpec
                   |
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    doc.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(doc))).content should be (root(
+    doc.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(doc))).content should be (RootElement(
       p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input))),
       p("Text"),
       p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input))),

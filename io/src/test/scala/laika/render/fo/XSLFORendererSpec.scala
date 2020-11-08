@@ -65,14 +65,14 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a document with two paragraphs with plain text" in {
-    val elem = root( p("aaa"), p("bbb"))
+    val elem = RootElement(p("aaa"), p("bbb"))
     val fo = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
                |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
     render (elem) should be (fo)
   }
 
   it should "render a block sequence with a custom style" in {
-    val elem = root(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
+    val elem = RootElement(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
     val fo = s"""<fo:block font-weight="bold">
                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
@@ -82,7 +82,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a block sequence without a style" in {
-    val elem = root(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
+    val elem = RootElement(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
     val fo = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
                |<fo:block $defaultParagraphStyles>bbb</fo:block>
                |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
@@ -90,7 +90,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a block sequence with a single element" in {
-    val elem = root(p("aaa"), BlockSequence(p("bbb")), p("ccc"))
+    val elem = RootElement(p("aaa"), BlockSequence(p("bbb")), p("ccc"))
     val fo = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
                |<fo:block $defaultParagraphStyles>bbb</fo:block>
                |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
@@ -115,7 +115,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a blockquote with an attribution" in {
-    val elem = quote("aaa","bbb")
+    val elem = QuotedBlock(List(p("aaa")), List(Text("bbb")))
     val fo = s"""<fo:block font-style="italic" margin-left="8mm" margin-right="8mm" space-after="3mm">
                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
                |  <fo:block font-family="serif" font-size="10pt" line-height="1.5" text-align="right">bbb</fo:block>
@@ -523,7 +523,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a cell using colspan and rowspan attributes" in {
-    val elem = cell("a",3,2)
+    val elem = Cell(BodyCell, List(p("a")), 3, 2)
     val fo = s"""<fo:table-cell number-columns-spanned="3" number-rows-spanned="2" padding="2mm">
                |  <fo:block $defaultParagraphStyles>a</fo:block>
                |</fo:table-cell>""".stripMargin
@@ -581,7 +581,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a document with two paragraphs separated by a horizontal rule" in {
-    val elem = root( p("aaa"), Rule(), p("bbb"))
+    val elem = RootElement( p("aaa"), Rule(), p("bbb"))
     val fo = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
                |$ruleBlock
                |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
@@ -590,7 +590,7 @@ class XSLFORendererSpec extends AnyFlatSpec
 
   it should "render a document with two nested sections" in {
     val nested = Section(Header(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
-    val rootElem = root(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
+    val rootElem = RootElement(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val fo = s"""<fo:block font-family="sans-serif" font-size="14pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="12mm">Title 1</fo:block>
                |<fo:block $defaultParagraphStyles>Line 1</fo:block>
                |<fo:block $defaultParagraphStyles>Line 2</fo:block>
@@ -618,7 +618,7 @@ class XSLFORendererSpec extends AnyFlatSpec
                 |<fo:block $level2Props><fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_title-3">Title 3$leader<fo:page-number-citation ref-id="_doc_title-3" /></fo:basic-link></fo:block>
                 |<fo:block $level1Props><fo:basic-link color="#007c99" font-weight="bold" internal-destination="_doc_title-4">Title 4$leader<fo:page-number-citation ref-id="_doc_title-4" /></fo:basic-link></fo:block>
                 |<fo:block $level2Props><fo:basic-link color="#931813" font-weight="bold" internal-destination="_doc_title-5">Title 5$leader<fo:page-number-citation ref-id="_doc_title-5" /></fo:basic-link></fo:block>""".stripMargin
-    render (root(navList)) should be (fo)
+    render (RootElement(navList)) should be (fo)
   }
 
   it should "render a title containing emphasized text" in {
@@ -770,7 +770,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(Text("some "), imgRef("img","id","![img] [id]","![img] [id]"), Text(" span"))
+    val elem = p(Text("some "), ImageIdReference("img","id", source("![img] [id]", "![img] [id]")), Text(" span"))
     render (elem) should be (s"""<fo:block $defaultParagraphStyles>some ![img] [id] span</fo:block>""")
   }
 
@@ -781,22 +781,22 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a template root containing string elements" in {
-    val elem = TemplateRoot(t("aa"),t("bb"),t("cc"))
+    val elem = TemplateRoot(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
     render (elem) should be ("aabbcc")
   }
 
   it should "render a template span sequence containing string elements" in {
-    val elem = TemplateSpanSequence(t("aa"),t("bb"),t("cc"))
+    val elem = TemplateSpanSequence(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
     render (elem) should be ("aabbcc")
   }
 
   it should "render a template string without creating XML entities" in {
-    val elem = TemplateRoot(t("aa & bb"))
+    val elem = TemplateRoot(TemplateString("aa & bb"))
     render (elem) should be ("aa & bb")
   }
 
   it should "render a template root containing a TemplateElement" in {
-    val elem = TemplateRoot(t("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),t("cc"))
+    val elem = TemplateRoot(TemplateString("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),TemplateString("cc"))
     val fo = s"""aa<fo:block>
                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
@@ -946,10 +946,10 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an embedded root with correct indentation" in {
-    val elem = root(TemplateRoot(
-      t("<fo:block>\n  "),
+    val elem = RootElement(TemplateRoot(
+      TemplateString("<fo:block>\n  "),
       EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
-      t("\n</fo:block>")
+      TemplateString("\n</fo:block>")
     ))
     val fo = s"""<fo:block>
                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
@@ -959,10 +959,10 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render an embedded root without indentation" in {
-    val elem = root(TemplateRoot(
-      t("<fo:block>\n"),
+    val elem = RootElement(TemplateRoot(
+      TemplateString("<fo:block>\n"),
       EmbeddedRoot(p("aaa"),p("bbb")),
-      t("\n</fo:block>")
+      TemplateString("\n</fo:block>")
     ))
     val fo = s"""<fo:block>
                |<fo:block $defaultParagraphStyles>aaa</fo:block>

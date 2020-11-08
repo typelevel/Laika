@@ -145,7 +145,7 @@ class ConfigSpec extends IOWordSpec
         Root / "default.template.html" -> Contents.templateWithRef,
         Root / "input.md" -> Contents.markupWithConfig
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -162,7 +162,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -180,7 +180,7 @@ class ConfigSpec extends IOWordSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val msg = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<h1>"),
           TemplateElement(InvalidSpan(msg, source("${foox}", Contents.templateWithMissingRef))),
@@ -197,7 +197,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithOptRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<h1>"),
           TemplateString(""),
@@ -215,7 +215,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRef
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\nbar\nbbb"),
@@ -231,7 +231,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRefs
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
@@ -247,7 +247,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
         Root / "input.md" -> Contents.markupWithRefs
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<div>"),
           EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
@@ -307,7 +307,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithRef,
         Root / "input.rst" -> "txt"
       )
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -346,7 +346,7 @@ class ConfigSpec extends IOWordSpec
         Root / "dir" / "input.md" -> md,
       )
 
-      val expected = root(
+      val expected = RootElement(
         TemplateRoot(
           (1 to 6) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
         )

@@ -39,7 +39,7 @@ class TemplateParsersSpec extends AnyFlatSpec
   
   "The template parser" should "parse content without any markup as plain text" in {
     
-    Parsing ("some text") should produce (spans(t("some text")))
+    Parsing ("some text") should produce (spans(TemplateString("some text")))
     
   }
   
@@ -55,7 +55,7 @@ class TemplateParsersSpec extends AnyFlatSpec
     val input = s"$ref some text"
     Parsing (input) should produce (spans(
       TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
-      t(" some text")
+      TemplateString(" some text")
     ))
   }
   
@@ -63,7 +63,7 @@ class TemplateParsersSpec extends AnyFlatSpec
     val ref = "${document.content}"
     val input = s"some text $ref"
     Parsing (input) should produce (spans(
-      t("some text "), 
+      TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = true, source(ref, input))
     ))
     
@@ -73,9 +73,9 @@ class TemplateParsersSpec extends AnyFlatSpec
     val ref = "${document.content}"
     val input = s"some text $ref some more"
     Parsing (input) should produce (spans(
-      t("some text "), 
+      TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
-      t(" some more")
+      TemplateString(" some more")
     ))
   }
 
@@ -83,9 +83,9 @@ class TemplateParsersSpec extends AnyFlatSpec
     val ref = "${?document.content}"
     val input = s"some text $ref some more"
     Parsing (input) should produce (spans(
-      t("some text "), 
+      TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = false, source(ref, input)), 
-      t(" some more")
+      TemplateString(" some more")
     ))
   }
 
@@ -97,9 +97,9 @@ class TemplateParsersSpec extends AnyFlatSpec
 
     val ref = "${document = content}"
     val input = s"some text $ref some more"
-    Parsing (input) should produce (spans(t("some text "), 
+    Parsing (input) should produce (spans(TemplateString("some text "), 
       TemplateElement(InvalidSpan(errorMsg, source(ref, input))), 
-      t(" some more")
+      TemplateString(" some more")
     ))
 
   }

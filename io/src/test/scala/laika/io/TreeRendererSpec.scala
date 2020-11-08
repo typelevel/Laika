@@ -59,6 +59,15 @@ class TreeRendererSpec extends IOWordSpec
 
   trait DocBuilder extends InputBuilder {
 
+    def titleWithId (text: String): Title = {
+      val id = text
+        .replaceAll("[^a-zA-Z0-9-]+","-")
+        .replaceFirst("^-","")
+        .replaceFirst("-$","")
+        .toLowerCase
+      Title(text).withOptions(Id(id) + Style.title)
+    }
+    
     def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None) =
       ByteInput("Static" + num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
 
@@ -93,6 +102,9 @@ class TreeRendererSpec extends IOWordSpec
       RenderedDocument(path, if (hasTitle) Some(SpanSequence(title)) else None, Nil, expected, Config.empty)
     
     def hasTitle: Boolean = true
+    
+    def betweenBrackets (span: TemplateSpan): TemplateRoot = 
+      TemplateRoot(TemplateString("["), span, TemplateString("]"))
   }
   
   trait TreeRendererSetup[FMT] extends DocBuilder {
@@ -126,7 +138,7 @@ class TreeRendererSpec extends IOWordSpec
       DocumentTree(Root / "laika" / "fonts", Nil, config = ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build)
     ))
     
-    def rootElem: RootElement = root(p("aaö"), p("bbb"))
+    def rootElem: RootElement = RootElement(p("aaö"), p("bbb"))
     
     def rootTree: DocumentTree = rootTree(rootElem)
     def rootTree (content: RootElement): DocumentTree = DocumentTree(Root, List(Document(Root / "doc", content)))
@@ -150,13 +162,13 @@ class TreeRendererSpec extends IOWordSpec
 
   trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val staticPaths = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
-    override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
+    override val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).io(blocker).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val staticPaths = staticHTMLPaths.filterNot(path => path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains("js"))
-    override val rootElem: RootElement = root(titleWithId("Title"), p("bbb"))
+    override val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).io(blocker).parallel[IO].build
   }
 
@@ -174,8 +186,8 @@ class TreeRendererSpec extends IOWordSpec
     override def styles: StyleDeclarationSet = TestTheme.foStyles
     val customStyle: StyleDeclaration = StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
     val customThemeStyles: Set[StyleDeclaration] = TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
-    override val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
-    val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
+    override val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
+    val subElem: RootElement = RootElement(titleWithId("Sub Title"), p("ccc"))
     val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
     val overriddenParagraphStyles = """font-family="serif" font-size="11pt" line-height="1.5" space-after="3mm" text-align="justify""""
 
@@ -269,10 +281,8 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to HTML using a custom template in the root directory" in {
       new HTMLRenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(
-          t("["), 
-          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
-          t("]")
+        val template = TemplateDocument(DefaultTemplatePath.forHTML, betweenBrackets(
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
         ))
         val input = rootTree.copy(templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -318,10 +328,8 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to HTML using a custom template in an extension bundle" in {
       new HTMLRenderer {
-        val template = TemplateRoot(
-          t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
-          t("]")
+        val template = betweenBrackets(
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
         )
         val inputs = new TestThemeBuilder.Inputs {
           def build[F[_]: Sync: Runtime] = InputTree[F]
@@ -374,10 +382,8 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forEPUB, TemplateRoot(
-          t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
-          t("]")
+        val template = TemplateDocument(DefaultTemplatePath.forEPUB, betweenBrackets(
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
         ))
         val input = rootTree.copy(templates = Seq(template))
         val expected = """[<h1 id="title" class="title">Title</h1>
@@ -389,10 +395,8 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to EPUB.XHTML using a custom template in a theme" in {
       new EPUB_XHTMLRenderer {
-        val template = TemplateRoot(
-          t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
-          t("]")
+        val template = betweenBrackets(
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
         )
         val inputs = new TestThemeBuilder.Inputs {
           def build[F[_]: Sync: Runtime] = InputTree[F]
@@ -425,10 +429,8 @@ class TreeRendererSpec extends IOWordSpec
   
     "render a tree with a single document to XSL-FO using a custom template" in {
       new FORenderer {
-        val template = TemplateDocument(DefaultTemplatePath.forFO, TemplateRoot(
-          t("["),
-          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource),
-          t("]")
+        val template = TemplateDocument(DefaultTemplatePath.forFO, betweenBrackets(
+          TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
         ))
         val input = rootTree.copy(templates = Seq(template))
         val expected = s"""[${title("_doc_title", "Title")}
@@ -565,8 +567,8 @@ class TreeRendererSpec extends IOWordSpec
     }
     
     trait TwoPhaseRenderer extends DocBuilder {
-      val rootElem: RootElement = root(self.titleWithId("Title"), p("bbb"))
-      val subElem: RootElement = root(self.titleWithId("Sub Title"), p("ccc"))
+      val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
+      val subElem: RootElement = RootElement(titleWithId("Sub Title"), p("ccc"))
   
       val input = twoDocs(rootElem, subElem)
   
@@ -744,7 +746,7 @@ class TreeRendererSpec extends IOWordSpec
       val expected = """RootElement - Blocks: 1
                        |. Paragraph - Spans: 1
                        |. . Text - 'Doc äöü'""".stripMargin
-      val input = rootTree(root(p("Doc äöü")))
+      val input = rootTree(RootElement(p("Doc äöü")))
       
       val res = for {
         f   <- newTempDirectory

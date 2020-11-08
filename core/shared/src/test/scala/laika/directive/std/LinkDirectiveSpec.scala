@@ -18,7 +18,7 @@ package laika.directive.std
 
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.{Document, ExternalTarget, InvalidSpan, MessageFilter, Path, SpanLink, Text}
+import laika.ast.{Document, ExternalTarget, InvalidSpan, MessageFilter, Path, RootElement, SpanLink, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import org.scalatest.flatspec.AnyFlatSpec
@@ -52,7 +52,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
-    parse(input("def.bar.Baz")).content should be (root(p(
+    parse(input("def.bar.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://default.api/def/bar/Baz.html")("Baz"),
       Text(" bb")
@@ -60,7 +60,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
-    parse(input("foo.bar.Baz")).content should be (root(p(
+    parse(input("foo.bar.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"),
       Text(" bb")
@@ -68,7 +68,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
-    parse(input("foo.baz.Baz")).content should be (root(p(
+    parse(input("foo.baz.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz"),
       Text(" bb")
@@ -76,7 +76,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link to a method" in new ApiDirectiveSetup {
-    parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (root(p(
+    parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual"),
       Text(" bb")
@@ -84,7 +84,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link for a package" in new ApiDirectiveSetup {
-    parse(input("foo.bar.package")).content should be (root(p(
+    parse(input("foo.bar.package")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar"),
       Text(" bb")
@@ -96,7 +96,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val input = blockInput(s"aa $directive bb")
     val path = Path.parse("/local/path/internal/foo/Foo.html")
     val msg = "One or more errors processing directive 'api': unresolved internal reference: local/path/internal/foo/Foo.html"
-    parse(input).content should be (root(p(
+    parse(input).content should be (RootElement(p(
       Text("aa "),
       InvalidSpan(msg, source(directive, input)),
       Text(" bb")
@@ -107,7 +107,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val directive = "@:api(foo.bar.Baz)"
     val input = s"aa $directive bb"
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
-    parse(input).content should be (root(p(
+    parse(input).content should be (RootElement(p(
       Text("aa "),
       InvalidSpan(msg, source(directive, input)),
       Text(" bb")
@@ -121,7 +121,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |@:api(foo.bar.Baz)
                   |
                   |bb""".stripMargin
-    parse(blockInput(input)).content should be (root(
+    parse(blockInput(input)).content should be (RootElement(
       p("aa"),
       p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz")),
       p("bb")
@@ -134,7 +134,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |@:api(foo.bar.Baz) bb
                   |
                   |cc""".stripMargin
-    parse(blockInput(input)).content should be (root(
+    parse(blockInput(input)).content should be (RootElement(
       p("aa"),
       p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
       p("cc")
@@ -148,7 +148,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
                   |bb
                   |
                   |cc""".stripMargin
-    parse(blockInput(input)).content should be (root(
+    parse(blockInput(input)).content should be (RootElement(
       p("aa"),
       p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
       p("cc")
@@ -170,7 +170,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   "The source directive" should "create a span link based on the default base URI" in new SourceDirectiveSetup {
-    parse(input("def.bar.Baz")).content should be (root(p(
+    parse(input("def.bar.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz"),
       Text(" bb")
@@ -178,7 +178,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link based on the longest prefix match" in new SourceDirectiveSetup {
-    parse(input("foo.bar.Baz")).content should be (root(p(
+    parse(input("foo.bar.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz"),
       Text(" bb")
@@ -186,7 +186,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
   }
 
   it should "create a span link based on the shorter prefix match" in new SourceDirectiveSetup {
-    parse(input("foo.baz.Baz")).content should be (root(p(
+    parse(input("foo.baz.Baz")).content should be (RootElement(p(
       Text("aa "),
       SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz"),
       Text(" bb")
@@ -197,7 +197,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val directive = "@:api(foo.bar.Baz)"
     val input = s"aa $directive bb"
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
-    parse(input).content should be (root(p(
+    parse(input).content should be (RootElement(p(
       Text("aa "),
       InvalidSpan(msg, source(directive, input)),
       Text(" bb")

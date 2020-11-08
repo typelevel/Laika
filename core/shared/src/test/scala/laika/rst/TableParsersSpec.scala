@@ -23,8 +23,6 @@ import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.RootParser
-import laika.rst.ext.Directives.DirectivePart
-import laika.rst.ext.TextRoles.RoleDirectivePart
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
      
@@ -38,12 +36,8 @@ class TableParsersSpec extends AnyFlatSpec
   val rootParser = new RootParser(ReStructuredText, ParserBundle().markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
-  
-  def blockDirective (name: String): Option[DirectivePart[Block]] = None
-  def spanDirective (name: String): Option[DirectivePart[Span]] = None
-  def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
-
   def textRow (cells: String*) = Row(cells.map(BodyCell(_)))
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
   
   
   "The grid table parser" should "parse a small table with 2 rows and 2 cells" in {

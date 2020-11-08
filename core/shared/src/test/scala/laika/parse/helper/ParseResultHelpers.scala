@@ -16,11 +16,15 @@
 
 package laika.parse.helper
 
-import laika.ast.{Element, ElementContainer}
+import laika.ast.{Block, Element, ElementContainer, RootElement, Span}
 import laika.parse.{Failure, Parsed, Success}
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ParseResultHelpers {
+
+  // needed to help with type inference for the `should produce List(spans*)` syntax which will be removed when migrating to munit
+  def root (blocks: Block*): RootElement = RootElement(blocks.toList)
+  def spans (elements: Span*): List[Span] = elements.toList
 
   class ParserSuccessMatcher[T] (expected: T) extends Matcher[Parsed[T]] {
 

@@ -73,7 +73,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, RstStyle.compound))
+    val result = RootElement(BlockSequence(simplePars, RstStyle.compound))
     parse(input) should be (result)
   }
   
@@ -84,7 +84,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, RstStyle.compound + Id("foo")))
+    val result = RootElement(BlockSequence(simplePars, RstStyle.compound + Id("foo")))
     parse(input) should be (result)
   }
   
@@ -95,7 +95,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, Styles("foo", "compound")))
+    val result = RootElement(BlockSequence(simplePars, Styles("foo", "compound")))
     parse(input) should be (result)
   }
   
@@ -106,7 +106,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars))
+    val result = RootElement(BlockSequence(simplePars))
     parse(input) should be (result)
   }
   
@@ -116,7 +116,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (BlockSequence(simplePars, Styles("foo", "bar")))
+    val result = RootElement(BlockSequence(simplePars, Styles("foo", "bar")))
     parse(input) should be (result)
   }
   
@@ -127,7 +127,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.admonition))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.admonition))
     parse(input) should be (result)
   }
   
@@ -139,7 +139,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","admonition")))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","admonition")))
     parse(input) should be (result)
   }
   
@@ -149,7 +149,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Attention!")), simplePars, Styles("attention")))
+    val result = RootElement(TitledBlock(List(Text("Attention!")), simplePars, Styles("attention")))
     parse(input) should be (result)
   }
   
@@ -161,7 +161,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
+    val result = RootElement(TitledBlock(List(Text("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
     parse(input) should be (result)
   }
   
@@ -171,7 +171,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st *Para*
       |
       |  2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), QuotedBlock("2nd Para")), Styles("attention")))
+    val result = RootElement(TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), QuotedBlock("2nd Para")), Styles("attention")))
     parse(input) should be (result)
   }
   
@@ -181,7 +181,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Caution!")), simplePars, Styles("caution")))
+    val result = RootElement(TitledBlock(List(Text("Caution!")), simplePars, Styles("caution")))
     parse(input) should be (result)
   }
   
@@ -191,7 +191,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("!DANGER!")), simplePars, Styles("danger")))
+    val result = RootElement(TitledBlock(List(Text("!DANGER!")), simplePars, Styles("danger")))
     parse(input) should be (result)
   }
   
@@ -201,7 +201,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Error")), simplePars, Styles("error")))
+    val result = RootElement(TitledBlock(List(Text("Error")), simplePars, Styles("error")))
     parse(input) should be (result)
   }
   
@@ -211,7 +211,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Hint")), simplePars, Styles("hint")))
+    val result = RootElement(TitledBlock(List(Text("Hint")), simplePars, Styles("hint")))
     parse(input) should be (result)
   }
   
@@ -221,7 +221,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Important")), simplePars, Styles("important")))
+    val result = RootElement(TitledBlock(List(Text("Important")), simplePars, Styles("important")))
     parse(input) should be (result)
   }
   
@@ -231,7 +231,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Note")), simplePars, Styles("note")))
+    val result = RootElement(TitledBlock(List(Text("Note")), simplePars, Styles("note")))
     parse(input) should be (result)
   }
   
@@ -241,7 +241,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Tip")), simplePars, Styles("tip")))
+    val result = RootElement(TitledBlock(List(Text("Tip")), simplePars, Styles("tip")))
     parse(input) should be (result)
   }
   
@@ -251,7 +251,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
+    val result = RootElement(TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
     parse(input) should be (result)
   }
   
@@ -261,7 +261,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
+    val result = RootElement(TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
     parse(input) should be (result)
   }
   
@@ -272,7 +272,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.topic))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.topic))
     parse(input) should be (result)
   }
   
@@ -284,7 +284,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","topic")))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","topic")))
     parse(input) should be (result)
   }
   
@@ -295,7 +295,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, RstStyle.sidebar))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.sidebar))
     parse(input) should be (result)
   }
   
@@ -307,7 +307,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","sidebar")))
+    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","sidebar")))
     parse(input) should be (result)
   }
   
@@ -319,7 +319,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = root (TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), RstStyle.subtitle) :: simplePars, 
+    val result = RootElement(TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), RstStyle.subtitle) :: simplePars, 
         Id("foo") + RstStyle.sidebar))
     parse(input) should be (result)
   }
@@ -327,7 +327,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   
   "The rubric directive" should "parse spans without other options" in {
     val input = """.. rubric:: some *text*"""
-    val result = root (Paragraph(List(Text("some "),Emphasized("text")), RstStyle.rubric))
+    val result = RootElement(Paragraph(List(Text("some "),Emphasized("text")), RstStyle.rubric))
     parse(input) should be (result)
   }
   
@@ -335,14 +335,14 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val input = """.. rubric:: some *text*
       | :name: foo
       | :class: bar""".stripMargin
-    val result = root (Paragraph(List(Text("some "),Emphasized("text")), Id("foo") + Styles("bar","rubric")))
+    val result = RootElement(Paragraph(List(Text("some "),Emphasized("text")), Id("foo") + Styles("bar","rubric")))
     parse(input) should be (result)
   }
   
   
   "The epigraph directive" should "parse a single line" in {
     val input = """.. epigraph:: some *text*"""
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("epigraph")))
+    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("epigraph")))
     parse(input) should be (result)
   }
   
@@ -351,7 +351,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       | some *text*
       | some more""".stripMargin
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), Nil, Styles("epigraph")))
+    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), Nil, Styles("epigraph")))
     parse(input) should be (result)
   }
   
@@ -362,19 +362,19 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some more
       | 
       | -- attr""".stripMargin
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr", Style.attribution)), Styles("epigraph")))
+    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr", Style.attribution)), Styles("epigraph")))
     parse(input) should be (result)
   }
   
   "The highlights directive" should "parse a single line" in {
     val input = """.. highlights:: some *text*"""
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("highlights")))
+    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("highlights")))
     parse(input) should be (result)
   }
   
   "The pull-quote directive" should "parse a single line" in {
     val input = """.. pull-quote:: some *text*"""
-    val result = root (QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("pull-quote")))
+    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("pull-quote")))
     parse(input) should be (result)
   }
   
@@ -384,7 +384,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 
       | some *text*
       | some more""".stripMargin
-    val result = root (ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more"))))
+    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more"))))
     parse(input) should be (result)
   }
   
@@ -395,7 +395,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       | some *text*
       | some more""".stripMargin
-    val result = root (ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more")), Id("foo") + Styles("bar")))
+    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more")), Id("foo") + Styles("bar")))
     parse(input) should be (result)
   }
   
@@ -406,7 +406,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some more
       |
       |  indented""".stripMargin
-    val result = root (ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more\n\n indented"))))
+    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more\n\n indented"))))
     parse(input) should be (result)
   }
   
@@ -416,7 +416,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 
       | some banana
       | some more""".stripMargin
-    val result = root (CodeBlock("banana-script", List(Text("some banana\nsome more"))))
+    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more"))))
     parse(input) should be (result)
   }
   
@@ -427,7 +427,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       | some banana
       | some more""".stripMargin
-    val result = root (CodeBlock("banana-script", List(Text("some banana\nsome more")), Id("foo") + Styles("bar")))
+    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more")), Id("foo") + Styles("bar")))
     parse(input) should be (result)
   }
   
@@ -438,7 +438,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some more
       |
       |  indented""".stripMargin
-    val result = root (CodeBlock("banana-script", List(Text("some banana\nsome more\n\n indented"))))
+    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more\n\n indented"))))
     parse(input) should be (result)
   }
   
@@ -451,7 +451,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | +---+---+
       | | c | d |
       | +---+---+""".stripMargin
-    val result = root (Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
+    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
     parse(input) should be (result)
   }
   
@@ -462,7 +462,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = root (Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
+    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
     parse(input) should be (result)
   }
   
@@ -473,7 +473,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = root (Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))))
+    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))))
     parse(input) should be (result)
   }
   
@@ -484,14 +484,14 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""
-    val result = root (p(Image(resolvedImageTarget)))
+    val result = RootElement(p(Image(resolvedImageTarget)))
     parse(input) should be (result)
   }
   
   it should "support the alt option" in {
     val input = """.. image:: picture.jpg
       | :alt: alt""".stripMargin
-    val result = root (p(Image(resolvedImageTarget, alt = Some("alt"))))
+    val result = RootElement(p(Image(resolvedImageTarget, alt = Some("alt"))))
     parse(input) should be (result)
   }
   
@@ -500,7 +500,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | :target: ref_
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (p(imgLink))
+    val result = RootElement(p(imgLink))
     parse(input) should be (result)
   }
   
@@ -509,28 +509,28 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | :target: `some ref`_
       |
       |.. _`some ref`: http://foo.com/""".stripMargin
-    val result = root (p(imgLink))
+    val result = RootElement(p(imgLink))
     parse(input) should be (result)
   }
   
   it should "support the target option with a uri" in {
     val input = """.. image:: picture.jpg
       | :target: http://foo.com/""".stripMargin
-    val result = root (p(imgLink))
+    val result = RootElement(p(imgLink))
     parse(input) should be (result)
   }
   
   it should "support the class option" in {
     val input = """.. image:: picture.jpg
       | :class: foo""".stripMargin
-    val result = root (p(Image(resolvedImageTarget, options=Styles("foo"))))
+    val result = RootElement(p(Image(resolvedImageTarget, options=Styles("foo"))))
     parse(input) should be (result)
   }
   
   
   "The figure directive" should "parse the URI argument" in {
     val input = """.. figure:: picture.jpg"""
-    val result = root (Figure(Image(resolvedImageTarget),Nil,Nil))
+    val result = RootElement(Figure(Image(resolvedImageTarget),Nil,Nil))
     parse(input) should be (result)
   }
   
@@ -538,7 +538,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val input = """.. figure:: picture.jpg
       |
       | This is the *caption*""".stripMargin
-    val result = root (Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), Nil))
+    val result = RootElement(Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), Nil))
     parse(input) should be (result)
   }
   
@@ -548,7 +548,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | This is the *caption*
       |
       | And this is the legend""".stripMargin
-    val result = root (Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), List(p("And this is the legend"))))
+    val result = RootElement(Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), List(p("And this is the legend"))))
     parse(input) should be (result)
   }
   
@@ -556,7 +556,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val input = """.. figure:: picture.jpg
       | :class: img
       | :figclass: fig""".stripMargin
-    val result = root (Figure(Image(resolvedImageTarget, options=Styles("img")), Nil, Nil, Styles("fig")))
+    val result = RootElement(Figure(Image(resolvedImageTarget, options=Styles("img")), Nil, Nil, Styles("fig")))
     parse(input) should be (result)
   }
   
@@ -567,7 +567,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | This is the *caption*
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (Figure(imgLink, List(Text("This is the "),Emphasized("caption")), Nil))
+    val result = RootElement(Figure(imgLink, List(Text("This is the "),Emphasized("caption")), Nil))
     parse(input) should be (result)
   }
   
@@ -579,7 +579,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       |This isn't""".stripMargin
     val fragments = Map("header" -> BlockSequence("This is\na header"))
-    val rootElem = root (p("This isn't"))
+    val rootElem = RootElement(p("This isn't"))
     parseWithFragments(input) should be ((fragments, rootElem))
   }
   
@@ -590,13 +590,13 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       |This isn't""".stripMargin
     val fragments = Map("footer" -> BlockSequence("This is\na footer"))
-    val rootElem = root (p("This isn't"))
+    val rootElem = RootElement(p("This isn't"))
     parseWithFragments(input) should be ((fragments, rootElem))
   }
   
   "The include directive" should "create a placeholder in the document" in {
     val input = """.. include:: other.rst"""
-    val expected = root (Include("other.rst", GeneratedSource))
+    val expected = RootElement(Include("other.rst", GeneratedSource))
     parseRaw(input) should be (expected)
   }
   
@@ -611,7 +611,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
     val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html")).toOption.get.tree
-    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (root(BlockSequence("text")))
+    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (RootElement(BlockSequence("text")))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -647,7 +647,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | :depth: 3
       | :local: true""".stripMargin
     val elem = Contents("This is the title", GeneratedSource, depth = 3, local = true)
-    parseRaw(input) should be (root(elem))
+    parseRaw(input) should be (RootElement(elem))
   }
   
   "The contents rewriter" should "replace the node with the corresponding list element" in {
@@ -678,7 +678,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       link(1, 4, Seq(link(2, 5)))
     ))
     
-    val result = root(
+    val result = RootElement(
       title(1),
       TitledBlock(List(Text("This is the title")), List(navList), Style.nav),
       Section(header(2,2), List(Section(header(3,3), Nil))),
@@ -701,7 +701,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | some input
       |
       | some more""".stripMargin
-    val result = root (RawContent(NonEmptySet.one("format"), "some input\n\nsome more"))
+    val result = RootElement(RawContent(NonEmptySet.one("format"), "some input\n\nsome more"))
     MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
   

@@ -155,7 +155,7 @@ trait TemplateSpanContainerCompanion {
   def empty: ContainerType = createSpanContainer(Nil)
 
   /** Create an instance only containing a single TemplateString span */
-  def apply(text: String): ContainerType = createSpanContainer(Seq(TemplateString(text)))
+  def apply(text: String, texts: String*): ContainerType = createSpanContainer((text +: texts).map(TemplateString(_)))
 
   /** Create an instance containing a one or more spans */
   def apply(span: TemplateSpan, spans: TemplateSpan*): ContainerType = createSpanContainer(span +: spans.toList)

@@ -33,7 +33,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
                       with DocumentTreeAssertions {
   
   trait TreeModel {
-    def rootElement (b: Block): RootElement = root(b, p("b"), p("c"))
+    def rootElement (b: Block): RootElement = RootElement(b, p("b"), p("c"))
     
     def createConfig (path: Path, source: Option[String], scope: Scope = DocumentScope): Config =
       source.map(c => ConfigParser.parse(c).resolve(Origin(scope, path)).toOption.get)
@@ -114,7 +114,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "obtain the tree title from the title document if present" in {
     new TreeModel {
       val title = Seq(Text("Title"))
-      val tree = treeWithTitleDoc(Root, root(laika.ast.Title(title)))
+      val tree = treeWithTitleDoc(Root, RootElement(laika.ast.Title(title)))
       tree.title should be (Some(SpanSequence(title)))
     }
   }
@@ -122,7 +122,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "obtain the title from the document config if present" in {
     new TreeModel {
       val title = Seq(Text("from-content"))
-      val tree = treeWithDoc(Root, "doc", root(laika.ast.Title(title)), Some("laika.title: from-config"))
+      val tree = treeWithDoc(Root, "doc", RootElement(laika.ast.Title(title)), Some("laika.title: from-config"))
       tree.content.head.title should be (Some(SpanSequence("from-config")))
     }
   }
@@ -133,7 +133,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       val treeConfig = createConfig(Root, Some("laika.title: from-config"), TreeScope)
       val docConfig = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
       val tree = DocumentTree(Root, List(
-        Document(Root / "doc", root(laika.ast.Title(title)), config = docConfig)
+        Document(Root / "doc", RootElement(laika.ast.Title(title)), config = docConfig)
       ), config = treeConfig)
       tree.content.head.title should be (Some(SpanSequence(title)))
     }
@@ -141,28 +141,28 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   
   it should "allow to select a document from a subdirectory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root())
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty)
       tree.selectDocument(CurrentTree / "sub" / "doc").map(_.path) should be (Some(Root / "sub" / "doc"))
     }
   }
   
   it should "allow to select a document in the current directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithDoc(Root, "doc", root())
+      val tree = treeWithDoc(Root, "doc", RootElement.empty)
       tree.selectDocument(CurrentTree / "doc").map(_.path) should be (Some(Root / "doc"))
     }
   }
 
   it should "allow to select a title document in the current directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithDoc(Root, "README", root())
+      val tree = treeWithDoc(Root, "README", RootElement.empty)
       tree.selectDocument(CurrentTree / "README").map(_.path) should be (Some(Root / "README"))
     }
   }
   
   it should "allow to select a subtree in a child directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root / "top", "sub", "doc", root())
+      val tree = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
       val treeRoot = DocumentTree(Root, List(tree))
       treeRoot.selectSubtree(CurrentTree / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
     }
@@ -170,7 +170,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   
   it should "allow to select a subtree in the current directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root())
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty)
       tree.selectSubtree(CurrentTree / "sub").map(_.path) should be (Some(Root / "sub"))
     }
   }
@@ -178,7 +178,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document using an absolute path" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: /main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty, Some("laika.template: /main.template.html")).copy(templates = List(template))
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -187,7 +187,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document for a specific output format" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.html.template: /main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty, Some("laika.html.template: /main.template.html")).copy(templates = List(template))
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -196,7 +196,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to specify a template for a document using a relative path" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../main.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty, Some("laika.template: ../main.template.html")).copy(templates = List(template))
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Right(Some(template)))
     }
@@ -205,7 +205,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "fail if a specified template does not exist" in {
     new TreeModel {
       val template = TemplateDocument(Root / "main.template.html", TemplateRoot.empty)
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("laika.template: ../missing.template.html")).copy(templates = List(template))
+      val tree = treeWithSubtree(Root, "sub", "doc", RootElement.empty, Some("laika.template: ../missing.template.html")).copy(templates = List(template))
       val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
       TemplateRewriter.selectTemplate(cursor,  "html") should be (Left(ValidationError("Template with path '/missing.template.html' not found")))
     }
@@ -218,7 +218,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
         case Text("a",_) => Replace(Text("x"))
       }}
       val target = rewritten.selectDocument("sub/doc")
-      target.get.content should be (root(p("x"), p("b"), p("c")))
+      target.get.content should be (RootElement(p("x"), p("b"), p("c")))
     }
   }
 
@@ -243,17 +243,17 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   
   it should "resolve a substitution reference to the previous document" in new TreeModel {
     val cursor = leafDocCursor(Some("cursor.previousDocument.relativePath"))
-    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("doc-5"))
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe RootElement(p("doc-5"))
   }
 
   it should "be empty for the next document in the final leaf node of the tree" in new TreeModel {
     val cursor = leafDocCursor(Some("cursor.nextDocument.relativePath"))
-    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p(""))
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe RootElement(p(""))
   }
 
   it should "resolve a substitution reference to the parent document" in new TreeModel {
     val cursor = leafDocCursor(Some("cursor.parentDocument.relativePath"))
-    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("README"))
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe RootElement(p("README"))
   }
 
   it should "resolve a substitution reference to the previous document in a flattened view" in new TreeModel {
@@ -261,7 +261,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       .flattenedSiblings.previousDocument
       .flatMap(_.flattenedSiblings.previousDocument)
       .get
-    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe root(p("../tree-1/doc-4"))
+    cursor.target.rewrite(TemplateRewriter.rewriteRules(cursor)).content shouldBe RootElement(p("../tree-1/doc-4"))
   }
   
   import BuilderKey._

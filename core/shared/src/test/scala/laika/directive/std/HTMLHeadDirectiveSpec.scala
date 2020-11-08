@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.{DocumentTreeRoot, Path, RawContent, RootElement, StaticDocument, TemplateDocument, TemplateElement, TemplateRoot}
+import laika.ast.{DocumentTreeRoot, Path, RawContent, RootElement, StaticDocument, TemplateDocument, TemplateElement, TemplateRoot, TemplateString}
 import laika.ast.helper.ModelBuilder
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import laika.rewrite.nav.TargetFormats
@@ -65,10 +65,10 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
   }
 
   def buildResult (content: String): Either[String, RootElement] = {
-    Right(root(TemplateRoot(
-      t("aaa\n\n"),
+    Right(RootElement(TemplateRoot(
+      TemplateString("aaa\n\n"),
       TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), content)),
-      t("\n\nbbb")
+      TemplateString("\n\nbbb")
     )))
   }
 

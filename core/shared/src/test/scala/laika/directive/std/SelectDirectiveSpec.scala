@@ -66,7 +66,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
       Choice("a","label-a", List(p("11\n22"))),
       Choice("b","label-b", List(p("33\n44")))
     ))
-    parse(input) should be (root(p("aa"), group, p("bb")))
+    parse(input) should be (RootElement(p("aa"), group, p("bb")))
   }
 
   it should "parse a body with a two alternatives and a common body" in {
@@ -91,7 +91,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
-    parse(input) should be (root(p("aa"), group, p("bb")))
+    parse(input) should be (RootElement(p("aa"), group, p("bb")))
   }
 
   it should "fail with less than two alternatives in the body" in {
@@ -110,7 +110,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid = InvalidBlock(message, source(directive, input))
-    parse(input) should be (root(p("aa"), invalid, p("bb")))
+    parse(input) should be (RootElement(p("aa"), invalid, p("bb")))
   }
 
   it should "fail when a label is missing in the configuration" in {
@@ -134,7 +134,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
          |bb""".stripMargin
     val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
     val invalid = InvalidBlock(message, source(directive, input))
-    parse(input) should be (root(p("aa"),
+    parse(input) should be (RootElement(p("aa"),
       invalid, p("bb")))
   }
 
@@ -146,11 +146,11 @@ class SelectDirectiveSpec extends AnyFlatSpec
     val config = Selections(
       SelectionConfig("config", ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true))
     )
-    val doc = Document(Root / "doc", root(group))
+    val doc = Document(Root / "doc", RootElement(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
     val cursor = DocumentCursor(doc, TreeCursor(RootCursor(tree)), tree.config, TreePosition(Nil))
     val rewritten = TemplateRewriter.applyTemplate(cursor, TemplateDocument(Root, TemplateRoot.fallback))
-    rewritten.map(_.content) shouldBe Right(root(BlockSequence(List(p("common"), p("33\n44")))))
+    rewritten.map(_.content) shouldBe Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
   }
   
 }

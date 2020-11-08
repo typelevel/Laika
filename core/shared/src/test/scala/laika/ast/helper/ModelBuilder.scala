@@ -22,28 +22,10 @@ import laika.parse.{GeneratedSource, LineSource, SourceCursor, SourceFragment}
 
 trait ModelBuilder { self =>
 
-  def spans (elements: Span*): List[Span] = elements.toList
-
-  def root (blocks: Block*): RootElement = RootElement(blocks.toList)
-
-  def t (text: String): TemplateString = TemplateString(text)
-
   def p (spans: Span*): Paragraph = Paragraph(spans.toList)
 
   def p (text: String): Paragraph = Paragraph(text)
 
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
-
-  def quote (text: String, attribution: String): QuotedBlock = QuotedBlock(List(p(text)), List(Text(attribution)))
-
-  def titleWithId (text: String): Title = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Style.title)
-  
-  def imgRef (text: String, id: String) = ImageIdReference(text, id, GeneratedSource)
-  def imgRef (text: String, id: String, fragment: String, input: String) = ImageIdReference(text, id, source(fragment, input))
-  
-  def citRef (label: String, input: String) = CitationReference(label, source(s"[$label]_", input))
-  
-  def fnRef (label: FootnoteLabel, input: String) = FootnoteReference(label, source(toSource(label), input))
   
   def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
@@ -59,6 +41,7 @@ trait ModelBuilder { self =>
 
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))
 
+  
   private val defaultBullet = StringBullet("*")
   
   def bulletList(format: BulletFormat)(textItems: String*): BulletList =

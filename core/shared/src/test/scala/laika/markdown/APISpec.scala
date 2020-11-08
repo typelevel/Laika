@@ -18,7 +18,7 @@ package laika.markdown
 
 import cats.implicits._
 import laika.api.MarkupParser
-import laika.ast.Text
+import laika.ast.{RootElement, Text}
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
@@ -81,7 +81,7 @@ class APISpec extends AnyFlatSpec
       val input = """@:oneArg(arg)
         |
         |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("arg"),p("arg1arg2")))
+      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("arg1arg2")))
     }
   }
 
@@ -90,7 +90,7 @@ class APISpec extends AnyFlatSpec
       val input = """@:oneArg(arg)
         |
         |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
     }
   }
   
@@ -101,21 +101,21 @@ class APISpec extends AnyFlatSpec
         |@:oneArg(arg)
         |
         |@:inheritedArg""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("arg"),p("fromHeader")))
+      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("fromHeader")))
     }
   }
   
   it should "support the registration of span directives" in {
     new SpanDirectives {
       val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("one arg two arg1arg2 three")))
+      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of span directives when run in strict mode" in {
     new SpanDirectives {
       val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
     }
   }
   

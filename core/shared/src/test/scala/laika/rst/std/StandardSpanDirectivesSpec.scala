@@ -49,7 +49,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image(imgTarget)))
+    val result = RootElement(p(Text("Some "),Image(imgTarget)))
     parse(input) should be (result)
   }
   
@@ -58,7 +58,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :alt: alt
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),Image(imgTarget, alt = Some("alt"))))
+    val result = RootElement(p(Text("Some "),Image(imgTarget, alt = Some("alt"))))
     parse(input) should be (result)
   }
   
@@ -69,7 +69,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _ref: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
+    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
     parse(input) should be (result)
   }
   
@@ -80,7 +80,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |.. _`some ref`: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
+    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
     parse(input) should be (result)
   }
   
@@ -89,7 +89,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :target: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
+    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
     parse(input) should be (result)
   }
   
@@ -98,7 +98,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "), Image(imgTarget, options = Styles("foo"))))
+    val result = RootElement(p(Text("Some "), Image(imgTarget, options = Styles("foo"))))
     parse(input) should be (result)
   }
 
@@ -107,7 +107,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   | :align: top
                   |
                   |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "), Image(imgTarget, options=Styles("align-top"))))
+    val result = RootElement(p(Text("Some "), Image(imgTarget, options=Styles("align-top"))))
     parse(input) should be (result)
   }
 
@@ -119,7 +119,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(200))
     val expectedHeight = Some(LengthUnit.px(120))
-    val result = root (p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
+    val result = RootElement(p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }
 
@@ -132,7 +132,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(100))
     val expectedHeight = Some(LengthUnit.px(60))
-    val result = root (p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
+    val result = RootElement(p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
     parse(input) should be (result)
   }
   
@@ -141,7 +141,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| replace:: *text* here
       |
       |Some |subst|""".stripMargin
-    val result = root (p(Text("Some "),SpanSequence(Emphasized("text"),Text(" here"))))
+    val result = RootElement(p(Text("Some "),SpanSequence(Emphasized("text"),Text(" here"))))
     parse(input) should be (result)
   }
   
@@ -151,7 +151,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
-    val result = root (p(Text(s"Some $date")))
+    val result = RootElement(p(Text(s"Some $date")))
     parse(input) should be (result)
   }
   
@@ -160,7 +160,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
-    val result = root (p(Text(s"Some $date")))
+    val result = RootElement(p(Text(s"Some $date")))
     parse(input) should be (result)
   }
   
@@ -169,7 +169,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: 0xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -177,7 +177,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -185,7 +185,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: \xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -193,7 +193,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: U+A9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -201,7 +201,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -209,7 +209,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: \""" + """uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -217,7 +217,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: &#xA9; Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   
@@ -225,7 +225,7 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec
     val input = """.. |subst| unicode:: 169 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = root (p(Text("Copyright " + '\u00a9'.toString + " Company")))
+    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
     parse(input) should be (result)
   }
   

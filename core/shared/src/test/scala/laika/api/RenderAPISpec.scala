@@ -27,7 +27,7 @@ class RenderAPISpec extends AnyFlatSpec
                     with ModelBuilder { self =>
 
   
-  val rootElem = root(p("aaö"), p("bbb"))
+  val rootElem = RootElement(p("aaö"), p("bbb"))
 
   val expected = """RootElement - Blocks: 2
       |. Paragraph - Spans: 1

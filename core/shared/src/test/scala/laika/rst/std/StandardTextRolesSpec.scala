@@ -43,7 +43,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
   
   "The emphasis text role" should "produce an Emphasized node without styles" in {
     val input = "some :emphasis:`text`"
-    val result = root(p(Text("some "),Emphasized("text")))
+    val result = RootElement(p(Text("some "),Emphasized("text")))
     parse(input) should be (result)
   }
   
@@ -52,14 +52,14 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Emphasized(List(Text("text")),Styles("foo"))))
+    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")),Styles("foo"))))
     parse(input) should be (result)
   }
   
   
   "The strong text role" should "produce a Strong node without styles" in {
     val input = "some :strong:`text`"
-    val result = root(p(Text("some "),Strong("text")))
+    val result = RootElement(p(Text("some "),Strong("text")))
     parse(input) should be (result)
   }
   
@@ -68,14 +68,14 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Strong(List(Text("text")),Styles("foo"))))
+    val result = RootElement(p(Text("some "), Strong(List(Text("text")),Styles("foo"))))
     parse(input) should be (result)
   }
   
   
   "The literal text role" should "produce a Literal node without styles" in {
     val input = "some :literal:`text`"
-    val result = root(p(Text("some "), Literal("text")))
+    val result = RootElement(p(Text("some "), Literal("text")))
     parse(input) should be (result)
   }
   
@@ -84,14 +84,14 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Literal("text",Styles("foo"))))
+    val result = RootElement(p(Text("some "), Literal("text",Styles("foo"))))
     parse(input) should be (result)
   }
   
   
   "The subscript text role" should "produce a text node with subscript style" in {
     val input = "some :subscript:`text`"
-    val result = root(p(Text("some "), Text("text", RstStyle.subscript)))
+    val result = RootElement(p(Text("some "), Text("text", RstStyle.subscript)))
     parse(input) should be (result)
   }
   
@@ -100,20 +100,20 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Text("text", Styles("foo") + RstStyle.subscript)))
+    val result = RootElement(p(Text("some "), Text("text", Styles("foo") + RstStyle.subscript)))
     parse(input) should be (result)
   }
   
   it should "support the sub alias" in {
     val input = "some :sub:`text`"
-    val result = root(p(Text("some "), Text("text", RstStyle.subscript)))
+    val result = RootElement(p(Text("some "), Text("text", RstStyle.subscript)))
     parse(input) should be (result)
   }
   
   
   "The superscript text role" should "produce a text node with superscript style" in {
     val input = "some :superscript:`text`"
-    val result = root(p(Text("some "), Text("text", RstStyle.superscript)))
+    val result = RootElement(p(Text("some "), Text("text", RstStyle.superscript)))
     parse(input) should be (result)
   }
   
@@ -122,20 +122,20 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Text("text", Styles("foo") + RstStyle.superscript)))
+    val result = RootElement(p(Text("some "), Text("text", Styles("foo") + RstStyle.superscript)))
     parse(input) should be (result)
   }
   
   it should "support the sup alias" in {
     val input = "some :sup:`text`"
-    val result = root(p(Text("some "), Text("text", RstStyle.superscript)))
+    val result = RootElement(p(Text("some "), Text("text", RstStyle.superscript)))
     parse(input) should be (result)
   }
   
   
   "The title-reference text role" should "produce an Emphasized node with title-reference style" in {
     val input = "some :title-reference:`text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
+    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
@@ -144,26 +144,26 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), Styles("foo") + RstStyle.titleReference)))
+    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), Styles("foo") + RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
   it should "support the title alias" in {
     val input = "some :title:`text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
+    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
   it should "be used as the default role if none is specified" in {
     val input = "some `text`"
-    val result = root(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
+    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
     parse(input) should be (result)
   }
   
   
   "The code text role" should "produce a code span without styles" in {
     val input = "some :code:`text`"
-    val result = root(p(Text("some "), InlineCode("", List(Text("text")))))
+    val result = RootElement(p(Text("some "), InlineCode("", List(Text("text")))))
     parse(input) should be (result)
   }
   
@@ -173,7 +173,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :language: banana-script
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), InlineCode("banana-script", List(Text("text")), Styles("foo"))))
+    val result = RootElement(p(Text("some "), InlineCode("banana-script", List(Text("text")), Styles("foo"))))
     parse(input) should be (result)
   }
   
@@ -184,7 +184,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
       | :format: AML BML CML
       |
       |some :foo:`text`""".stripMargin
-    val result = root(p(Text("some "), RawContent(NonEmptySet.of("AML","BML","CML"), "text", Styles("foo"))))
+    val result = RootElement(p(Text("some "), RawContent(NonEmptySet.of("AML","BML","CML"), "text", Styles("foo"))))
     MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
 
@@ -194,7 +194,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
     val input = s"""$role
       |
       |some :foo:`text`""".stripMargin
-    val result = root(
+    val result = RootElement(
       InvalidBlock("unknown text role: raw", source(role, input)),
       p(Text("some "), InvalidSpan("unknown text role: foo", source(":foo:`text`", input)))
     )
@@ -204,7 +204,7 @@ class StandardTextRolesSpec extends AnyFlatSpec
   
   "The default text role" should "be adjustable through the API" in {
     val input = "some `text`"
-    val result = root(p(Text("some "), Emphasized("text")))
+    val result = RootElement(p(Text("some "), Emphasized("text")))
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forDefaultTextRole("emphasis")).build.parse(input)
       .toOption.get.content should be (result)
   } 

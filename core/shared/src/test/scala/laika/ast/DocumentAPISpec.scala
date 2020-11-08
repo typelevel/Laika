@@ -117,7 +117,7 @@ class DocumentAPISpec extends AnyFlatSpec
     }
     val rules = testRule ++ OperationConfig.default.rewriteRulesFor(raw.copy(position = TreePosition.root))
     val rewritten = raw.rewrite(rules)
-    rewritten.content should be (root(
+    rewritten.content should be (RootElement(
       Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),
       Section(Header(1, List(Text("Section 2")), Id("section-2") + Style.section), List(p("Some more text")))

@@ -144,7 +144,7 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """ Paragraph 1
       |
       | -- attribution""".stripMargin
-    Parsing (input) should produce (root (quote("Paragraph 1", "attribution")))  
+    Parsing (input) should produce (root(QuotedBlock(List(p("Paragraph 1")), List(Text("attribution")))))
   }
   
   

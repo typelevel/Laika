@@ -43,7 +43,7 @@ class APISpec extends AnyFlatSpec
       |
       |.. twoArgs:: arg arg""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(blocks = directives)).build.parse(input)
-      .toOption.get.content should be (root (p("arg"),p("argarg")))
+      .toOption.get.content should be (RootElement(p("arg"),p("argarg")))
   }
   
   it should "support registration of span directives" in {
@@ -57,7 +57,7 @@ class APISpec extends AnyFlatSpec
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
-      .toOption.get.content should be (root
+      .toOption.get.content should be (RootElement
         (p(Text("foo arg foo argarg"))))
   }
   
@@ -80,7 +80,7 @@ class APISpec extends AnyFlatSpec
       | :name1: val1
       | :name2: val2""".stripMargin
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
-      .toOption.get.content should be (root (p(Text("foo valone foo val1val2two"))))
+      .toOption.get.content should be (RootElement(p(Text("foo valone foo val1val2two"))))
   }
   
   trait BlockDirectives {
@@ -126,7 +126,7 @@ class APISpec extends AnyFlatSpec
       val input = """@:oneArg(arg)
         |
         |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("arg"),p("arg1arg2")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("arg1arg2")))
     }
   }
 
@@ -135,21 +135,21 @@ class APISpec extends AnyFlatSpec
       val input = """@:oneArg(arg)
         |
         |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
     }
   }
   
   it should "support the registration of Laika span directives" in {
     new SpanDirectives {
       val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (root (p("one arg two arg1arg2 three")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of Laika span directives when run in strict mode" in {
     new SpanDirectives {
       val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (root (p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
     }
   }
   
@@ -158,7 +158,7 @@ class APISpec extends AnyFlatSpec
     val list = DefinitionList(Seq(
       defListItem("Line1", p("Line2\nLine3"))
     ))
-    MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content should be (root( QuotedBlock(list)))
+    MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content should be (RootElement(QuotedBlock(list)))
   }
   
 

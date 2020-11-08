@@ -199,29 +199,47 @@ class InlineParsersSpec extends AnyFlatSpec
   
   "The citation reference parser" should "parse content enclosed between [ and ]_" in {
     val input = "some [text]_ here"
-    Parsing (input) should produce (spans(Text("some "), citRef("text", input), Text(" here")))
+    Parsing (input) should produce (spans(Text("some "), CitationReference("text", source("[text]_", input)), Text(" here")))
   }
   
   
   
   "The footnote reference parser" should "parse content enclosed between [ and ]_ with autonumber label" in {
     val input = "some [#]_ here"
-    Parsing (input) should produce (spans(Text("some "), fnRef(Autonumber, input), Text(" here")))
+    Parsing (input) should produce (spans(
+      Text("some "), 
+      FootnoteReference(Autonumber, source(toSource(Autonumber), input)), 
+      Text(" here")
+    ))
   }
   
   it should "parse content enclosed between [ and ]_ with autosymbol label" in {
     val input = "some [*]_ here"
-    Parsing (input) should produce (spans(Text("some "), fnRef(Autosymbol, input), Text(" here")))
+    Parsing (input) should produce (spans(
+      Text("some "), 
+      FootnoteReference(Autosymbol, source(toSource(Autosymbol), input)), 
+      Text(" here")
+    ))
   }
   
   it should "parse content enclosed between [ and ]_ with an autonumber named label" in {
     val input = "some [#foo]_ here"
-    Parsing (input) should produce (spans(Text("some "), fnRef(AutonumberLabel("foo"), input), Text(" here")))
+    val label = AutonumberLabel("foo")
+    Parsing (input) should produce (spans(
+      Text("some "), 
+      FootnoteReference(label, source(toSource(label), input)), 
+      Text(" here")
+    ))
   }
   
   it should "parse content enclosed between [ and ]_ with a numeric label" in {
     val input = "some [17]_ here"
-    Parsing (input) should produce (spans(Text("some "), fnRef(NumericLabel(17), input), Text(" here")))
+    val label = NumericLabel(17)
+    Parsing (input) should produce (spans(
+      Text("some "), 
+      FootnoteReference(label, source(toSource(label), input)), 
+      Text(" here")
+    ))
   }
   
   

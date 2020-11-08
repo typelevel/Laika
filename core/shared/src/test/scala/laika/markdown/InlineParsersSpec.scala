@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast.{Emphasized, ExternalTarget, Image, LinkIdReference, Literal, Span, SpanLink, Strong, Text}
+import laika.ast.{Emphasized, ExternalTarget, Image, ImageIdReference, LinkIdReference, Literal, Span, SpanLink, Strong, Text}
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.Parser
@@ -222,7 +222,7 @@ class InlineParsersSpec extends AnyFlatSpec
   it should "ignore an inline image with a malformed title" in {
     val input = """some ![link](http://foo.jpg 'a title) here"""
     Parsing (input) should produce {
-      spans(Text("some "), imgRef("link","link","![link]", input), Text("(http://foo.jpg 'a title) here"))
+      spans(Text("some "), ImageIdReference("link","link", source("![link]", input)), Text("(http://foo.jpg 'a title) here"))
     }
   }
   
@@ -279,21 +279,21 @@ class InlineParsersSpec extends AnyFlatSpec
   "The image reference parser" should "parse an image reference with an explicit id" in {
     val input = "some ![image][id] here"
     Parsing (input) should produce {
-      spans(Text("some "), imgRef("image","id","![image][id]",input), Text(" here"))
+      spans(Text("some "), ImageIdReference("image","id", source("![image][id]", input)), Text(" here"))
     }
   }
   
   it should "parse an image reference with an empty id" in {
     val input = "some ![image][] here"
     Parsing (input) should produce {
-      spans(Text("some "), imgRef("image","image","![image][]",input), Text(" here"))
+      spans(Text("some "), ImageIdReference("image","image", source("![image][]", input)), Text(" here"))
     }
   }
   
   it should "parse an image reference with an implicit id" in {
     val input = "some ![image] here"
     Parsing (input) should produce {
-      spans(Text("some "), imgRef("image","image","![image]",input), Text(" here"))
+      spans(Text("some "), ImageIdReference("image","image", source("![image]", input)), Text(" here"))
     }
   }
   

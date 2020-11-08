@@ -49,7 +49,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a document with two paragraphs with plain text" in {
-    val elem = root( p("aaa"), p("bbb"))
+    val elem = RootElement( p("aaa"), p("bbb"))
     val html = """<p>aaa</p>
       |<p>bbb</p>""".stripMargin
     render (elem) should be (html) 
@@ -65,7 +65,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a block sequence with a style" in {
-    val elem = root(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
+    val elem = RootElement(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
     val html = """<div class="foo">
       |  <p>aaa</p>
       |  <p>bbb</p>
@@ -74,7 +74,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a block sequence without a style" in {
-    val elem = root(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
+    val elem = RootElement(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
@@ -82,7 +82,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a block sequence with a single element" in {
-    val elem = root(p("aaa"), BlockSequence("bbb"), p("ccc"))
+    val elem = RootElement(p("aaa"), BlockSequence("bbb"), p("ccc"))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
@@ -96,7 +96,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a blockquote with an attribution" in {
-    val elem = quote("aaa","bbb")
+    val elem = QuotedBlock(List(p("aaa")), List(Text("bbb")))
     val html = """<blockquote>
       |  <p>aaa</p>
       |  <p class="attribution">bbb</p>
@@ -105,7 +105,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a bullet list with simple flow content" in {
-    val elem = root(bulletList("aaa","bbb"))
+    val elem = RootElement(bulletList("aaa","bbb"))
     val html = """<ul>
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -366,7 +366,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a cell using colspan and rowspan attributes" in {
-    val elem = cell("a",3,2)
+    val elem = Cell(BodyCell, List(p("a")), 3, 2)
     val html = """<td colspan="3" rowspan="2">a</td>"""
     render(elem) should be (html)
   } 
@@ -406,7 +406,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a document with two paragraphs separated by a horizontal rule" in {
-    val elem = root( p("aaa"), Rule(), p("bbb"))
+    val elem = RootElement( p("aaa"), Rule(), p("bbb"))
     val html = """<p>aaa</p>
       |<hr>
       |<p>bbb</p>""".stripMargin
@@ -415,7 +415,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   it should "render a document with two nested sections" in {
     val nested = Section(Header(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
-    val rootElem = root(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
+    val rootElem = RootElement(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html = """
       |<h1>Title 1</h1>
       |<p>Line 1</p>
@@ -432,7 +432,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
     ))
-    val elem = root( p("aaa"), group, p("bbb"))
+    val elem = RootElement( p("aaa"), group, p("bbb"))
     val html = """<p>aaa</p>
                  |<p><strong>label-a</strong></p>
                  |<p>common</p>
@@ -451,7 +451,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
     ))
-    val elem = root( p("aaa"), group, p("bbb"))
+    val elem = RootElement( p("aaa"), group, p("bbb"))
     val html = """<p>aaa</p>
                  |<div class="tab-container" data-tab-group="config">
                  |  <ul class="tab-group">
@@ -607,7 +607,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(Text("some "), imgRef("img","id","![img] [id]","![img] [id]"), Text(" span"))
+    val elem = p(Text("some "), ImageIdReference("img","id", source("![img] [id]", "![img] [id]")), Text(" span"))
     render (elem) should be ("""<p>some ![img] [id] span</p>""") 
   }
   
@@ -617,22 +617,26 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a template root containing string elements" in {
-    val elem = TemplateRoot(t("aa"),t("bb"),t("cc"))
+    val elem = TemplateRoot(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template span sequence containing string elements" in {
-    val elem = TemplateSpanSequence(t("aa"),t("bb"),t("cc"))
+    val elem = TemplateSpanSequence(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
     render (elem) should be ("aabbcc")
   }
   
   it should "render a template string without creating html entities" in {
-    val elem = TemplateRoot(t("aa & bb"))
+    val elem = TemplateRoot(TemplateString("aa & bb"))
     render (elem) should be ("aa & bb")
   }
   
   it should "render a template root containing a TemplateElement" in {
-    val elem = TemplateRoot(t("aa"),TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),t("cc"))
+    val elem = TemplateRoot(
+      TemplateString("aa"),
+      TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),
+      TemplateString("cc")
+    )
     val html = """aa<div class="foo">
       |  <p>aaa</p>
       |  <p>bbb</p>
@@ -786,10 +790,10 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an embedded root with correct indentation" in {
-    val elem = root(TemplateRoot(
-      t("<div>\n  "),
+    val elem = RootElement(TemplateRoot(
+      TemplateString("<div>\n  "),
       EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
-      t("\n</div>")
+      TemplateString("\n</div>")
     ))
     val html = """<div>
       |  <p>aaa</p>
@@ -799,10 +803,10 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render an embedded root without indentation" in {
-    val elem = root(TemplateRoot(
-      t("<div>\n"),
+    val elem = RootElement(TemplateRoot(
+      TemplateString("<div>\n"),
       EmbeddedRoot(p("aaa"),p("bbb")),
-      t("\n</div>")
+      TemplateString("\n</div>")
     ))
     val html = """<div>
       |<p>aaa</p>

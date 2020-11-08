@@ -49,7 +49,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |
                   |bb""".stripMargin
     val expectedFragments = Map("foo" -> Paragraph(List(Text("Fragment Text")), Styles("foo")))
-    val expectedRoot      = root(p("aa"), p("bb"))
+    val expectedRoot      = RootElement(p("aa"), p("bb"))
     parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
   }
 
@@ -66,7 +66,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |
                   |bb""".stripMargin
     val expectedFragments = Map("foo" -> BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo")))
-    val expectedRoot      = root(p("aa"), p("bb"))
+    val expectedRoot      = RootElement(p("aa"), p("bb"))
     parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
   }
 
@@ -77,7 +77,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:pageBreak
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"),PageBreak(),p("bb")))
+    parse(input).map(_.content) shouldBe Right(RootElement(p("aa"),PageBreak(),p("bb")))
   }
 
 
@@ -87,30 +87,30 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:todo(FIXME LATER)
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(p("aa"),BlockSequence(Nil),p("bb")))
+    parse(input).map(_.content) shouldBe Right(RootElement(p("aa"),BlockSequence(Nil),p("bb")))
   }
 
   it should "parse a span directive" in {
     val input = """aa @:todo(FIXME LATER) bb"""
-    parse(input).map(_.content) shouldBe Right(root(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
+    parse(input).map(_.content) shouldBe Right(RootElement(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
   }
 
 
   "The relativePath directive" should "translate a relative path" in {
     val input = """aa @:relativePath(theme.css) bb"""
-    parseTemplateWithConfig(input, "") shouldBe Right(root(TemplateRoot(
-      t("aa "),
+    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("aa "),
       TemplateString("../theme/theme.css"),
-      t(" bb")
+      TemplateString(" bb")
     )))
   }
 
   it should "translate an absolute path" in {
     val input = """aa @:relativePath(/theme/theme.css) bb"""
-    parseTemplateWithConfig(input, "") shouldBe Right(root(TemplateRoot(
-      t("aa "),
+    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("aa "),
       TemplateString("../theme/theme.css"),
-      t(" bb")
+      TemplateString(" bb")
     )))
   }
 
@@ -126,7 +126,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"), 
       Paragraph(List(Text("11\n22")), Styles("foo")), 
       p("bb")
@@ -144,7 +144,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"), 
       Paragraph(List(Text("11\n22")), Styles("foo", "bar", "baz")), 
       p("bb")
@@ -164,7 +164,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"), 
       BlockSequence(List(p("11\n22"),p("33")), Styles("foo")),
       p("bb")
@@ -173,7 +173,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "parse a single nested span" in {
     val input = """aa @:style(foo) 11 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(root(p(
+    parse(input).map(_.content) shouldBe Right(RootElement(p(
       Text("aa "), 
       Text(" 11 ", Styles("foo")), 
       Text(" bb")
@@ -182,7 +182,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "parse two nested spans" in {
     val input = """aa @:style(foo) 11 *22* 33 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p(
         Text("aa "),
         SpanSequence(
@@ -206,7 +206,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"),
       BlockSequence("11\n22").withStyles("callout", "info"),
       p("bb")
@@ -226,7 +226,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"),
       BlockSequence(List(p("11\n22"),p("33")), Styles("callout", "info")),
       p("bb")
@@ -244,7 +244,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"),
       TargetFormat(NonEmptySet.one("foo"), p("11\n22")), 
       p("bb")
@@ -264,7 +264,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"),
       TargetFormat(NonEmptySet.one("foo"), BlockSequence(
         p("11\n22"),
@@ -285,7 +285,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(root(
+    parse(input).map(_.content) shouldBe Right(RootElement(
       p("aa"),
       TargetFormat(NonEmptySet.of("foo", "bar", "baz"), p("11\n22")),
       p("bb")

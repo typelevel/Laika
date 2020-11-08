@@ -54,7 +54,9 @@ class RewriteRulesSpec extends AnyWordSpec
   def invalidSpan (message: String, fallback: Span): InvalidSpan =
     InvalidSpan(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
 
-  def fnRefs (labels: FootnoteLabel*): Paragraph = p(labels.map { label => fnRef(label, toSource(label)) }:_*)
+  def fnRefs (labels: FootnoteLabel*): Paragraph = Paragraph(labels.map { label => 
+    FootnoteReference(label, generatedSource(toSource(label))) 
+  })
 
   def fnLinks (labels: (String,String)*): Paragraph = p(labels.map { label => FootnoteLink(label._1,label._2)}:_*)
 
@@ -84,13 +86,13 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for citations" should {
 
     "retain a single reference when it has a matching target" in {
-      val rootElem = root(p(CitationReference("label", generatedSource("[label]_"))), Citation("label", List(p("citation"))))
-      val resolved = root(p(CitationLink("__cit-label", "label")), Citation("label", List(p("citation")), Id("__cit-label")))
+      val rootElem = RootElement(p(CitationReference("label", generatedSource("[label]_"))), Citation("label", List(p("citation"))))
+      val resolved = RootElement(p(CitationLink("__cit-label", "label")), Citation("label", List(p("citation")), Id("__cit-label")))
       rewritten(rootElem) should be(resolved)
     }
 
     "retain multiple references when they all have a matching targets" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         p(
           CitationReference("label1", generatedSource("[label1]_")), 
           CitationReference("label2", generatedSource("[label2]_")), 
@@ -99,15 +101,15 @@ class RewriteRulesSpec extends AnyWordSpec
         Citation("label1", List(p("citation1"))), 
         Citation("label2", List(p("citation2")))
       )
-      val resolved = root(p(CitationLink("__cit-label1", "label1"), CitationLink("__cit-label2", "label2"), CitationLink("__cit-label1", "label1")),
+      val resolved = RootElement(p(CitationLink("__cit-label1", "label1"), CitationLink("__cit-label2", "label2"), CitationLink("__cit-label1", "label1")),
         Citation("label1", List(p("citation1")), Id("__cit-label1")), Citation("label2", List(p("citation2")), Id("__cit-label2")))
       rewritten(rootElem) should be(resolved)
     }
 
     "replace a reference with an unknown label with an invalid span" in {
       val sourceRef = generatedSource("[label1]_")
-      val rootElem = root(p(CitationReference("label1", sourceRef)), Citation("label2", List(p("citation2"))))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved citation reference: label1", "[label1]_")),
+      val rootElem = RootElement(p(CitationReference("label1", sourceRef)), Citation("label2", List(p("citation2"))))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved citation reference: label1", "[label1]_")),
         Citation("label2", List(p("citation2")), Id("__cit-label2"))))
     }
   }
@@ -116,48 +118,48 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for footnotes" should {
 
     "retain a group of footnotes with a mix of explicit numeric and autonumber labels" in {
-      val rootElem = root(fnRefs(Autonumber, NumericLabel(1), Autonumber),
+      val rootElem = RootElement(fnRefs(Autonumber, NumericLabel(1), Autonumber),
         fn(Autonumber, 1), fn(NumericLabel(1), 1), fn(Autonumber, 2))
-      val resolved = root(fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
+      val resolved = RootElement(fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
         fn("__fn-1", "1"), fn("__fnl-1", "1"), fn("__fn-2", "2"))
       rewritten(rootElem) should be(resolved)
     }
 
     "retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes" in {
-      val rootElem = root(fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")),
+      val rootElem = RootElement(fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")),
         fn(NumericLabel(2), 2), fn(AutonumberLabel("label"), 1), fn(Autonumber, 2))
-      val resolved = root(fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
+      val resolved = RootElement(fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
         fn("__fnl-2", "2"), fn("label", "1"), fn("__fn-2", "2"))
       rewritten(rootElem) should be(resolved)
     }
 
     "retain a group of footnotes with autosymbol labels" in {
-      val rootElem = root(fnRefs(Autosymbol, Autosymbol, Autosymbol),
+      val rootElem = RootElement(fnRefs(Autosymbol, Autosymbol, Autosymbol),
         fn(Autosymbol, "*"), fn(Autosymbol, "\u2020"), fn(Autosymbol, "\u2021"))
-      val resolved = root(fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
+      val resolved = RootElement(fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
         fn("__fns-1", "*"), fn("__fns-2", "\u2020"), fn("__fns-3", "\u2021"))
       rewritten(rootElem) should be(resolved)
     }
 
     "replace references with unresolvable autonumber or numeric labels with invalid spans" in {
-      val rootElem = root(fnRefs(NumericLabel(2), AutonumberLabel("labelA")),
+      val rootElem = RootElement(fnRefs(NumericLabel(2), AutonumberLabel("labelA")),
         fn(NumericLabel(3), 3), fn(AutonumberLabel("labelB"), 1))
-      val resolved = root(p(invalidSpan("unresolved footnote reference: 2", "[2]_"),
+      val resolved = RootElement(p(invalidSpan("unresolved footnote reference: 2", "[2]_"),
         invalidSpan("unresolved footnote reference: labelA", "[#labelA]_")),
         fn("__fnl-3", "3"), fn("labelb", "1"))
       rewritten(rootElem) should be(resolved)
     }
 
     "replace surplus autonumber references with invalid spans" in {
-      val rootElem = root(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
-      val resolved = root(p(FootnoteLink("__fn-1", "1"), invalidSpan("too many autonumber references", "[#]_")),
+      val rootElem = RootElement(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
+      val resolved = RootElement(p(FootnoteLink("__fn-1", "1"), invalidSpan("too many autonumber references", "[#]_")),
         fn("__fn-1", "1"))
       rewritten(rootElem) should be(resolved)
     }
 
     "replace surplus autosymbol references with invalid spans" in {
-      val rootElem = root(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
-      val resolved = root(p(FootnoteLink("__fns-1", "*"), invalidSpan("too many autosymbol references", "[*]_")),
+      val rootElem = RootElement(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
+      val resolved = RootElement(p(FootnoteLink("__fns-1", "*"), invalidSpan("too many autosymbol references", "[*]_")),
         fn("__fns-1", "*"))
       rewritten(rootElem) should be(resolved)
     }
@@ -167,70 +169,70 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for link id references" should {
 
     "resolve external link definitions" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(root(p(extLink("http://foo/"))))
+      val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
+      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"))))
     }
 
     "resolve internal link definitions" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.md#ref"))))
-      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")))))
+      val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.md#ref"))))
+      rewritten(rootElem) should be(RootElement(p(intLink(RelativePath.parse("foo.md#ref")))))
     }
 
     "interpret internal link definitions as external when they point upwards beyond the virtual root" in {
-      val rootElem = root(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("../../foo.md#ref"))))
-      rewritten(rootElem) should be(root(p(extLink("../../foo.md#ref"))))
+      val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("../../foo.md#ref"))))
+      rewritten(rootElem) should be(RootElement(p(extLink("../../foo.md#ref"))))
     }
 
     "resolve internal link targets" in {
-      val rootElem = root(p(linkIdRef("id 5")), InternalLinkTarget(Id("id-5")))
-      rewritten(rootElem) should be(root(p(docLink("id-5")), InternalLinkTarget(Id("id-5"))))
+      val rootElem = RootElement(p(linkIdRef("id 5")), InternalLinkTarget(Id("id-5")))
+      rewritten(rootElem) should be(RootElement(p(docLink("id-5")), InternalLinkTarget(Id("id-5"))))
     }
 
     "resolve anonymous link references" in {
-      val rootElem = root(p(linkIdRef(""), linkIdRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
-      rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
+      val rootElem = RootElement(p(linkIdRef(""), linkIdRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
+      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
     "resolve anonymous internal link definitions" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         p(linkIdRef(""), linkIdRef("")),
         LinkDefinition("", InternalTarget(RelativePath.parse("foo.md#ref"))),
         LinkDefinition("", InternalTarget(RelativePath.parse("bar.md#ref")))
       )
-      rewritten(rootElem) should be(root(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
+      rewritten(rootElem) should be(RootElement(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
     }
 
     "resolve anonymous external link definitions" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         p(linkIdRef(""), linkIdRef("")),
         LinkDefinition("", ExternalTarget("http://foo/")),
         LinkDefinition("", ExternalTarget("http://bar/"))
       )
-      rewritten(rootElem) should be(root(p(extLink("http://foo/"), extLink("http://bar/"))))
+      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"), extLink("http://bar/"))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
-      val rootElem = root(p(linkIdRef()))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved link id reference: name", "<<name>>"))))
+      val rootElem = RootElement(p(linkIdRef()))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved link id reference: name", "<<name>>"))))
     }
 
     "replace a surplus anonymous reference with an invalid span" in {
-      val rootElem = root(p(linkIdRef("")))
-      rewritten(rootElem) should be(root(p(invalidSpan("too many anonymous references", "<<>>"))))
+      val rootElem = RootElement(p(linkIdRef("")))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("too many anonymous references", "<<>>"))))
     }
 
     "resolve references when some parent element also gets rewritten" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource), 
         LinkDefinition("name", ExternalTarget("http://foo/"))
       )
-      rewritten(rootElem) should be(root(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
+      rewritten(rootElem) should be(RootElement(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
     }
   }
 
   "The rewrite rules for global link definitions" should {
 
-    val linkTarget = root(InternalLinkTarget(Id("ref")))
+    val linkTarget = RootElement(InternalLinkTarget(Id("ref")))
 
     val linkConfig = LinkConfig(targets = Seq(
       TargetDefinition("int", InternalTarget(RelativePath.parse("../doc-1.md#ref"))),
@@ -429,18 +431,18 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for link aliases" should {
 
     "resolve indirect link references" in {
-      val rootElem = root(p(pathRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
-      rewritten(rootElem) should be(root(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
+      val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
+      rewritten(rootElem) should be(RootElement(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
     }
 
     "replace an unresolvable reference to a link alias with an invalid span" in {
-      val rootElem = root(p(pathRef()), LinkAlias("name", "ref"))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved link alias: ref", "[<name>]"))))
+      val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved link alias: ref", "[<name>]"))))
     }
 
     "replace circular indirect references with invalid spans" in {
-      val rootElem = root(p(pathRef()), LinkAlias("name", "ref"), LinkAlias("ref", "name"))
-      rewritten(rootElem) should be(root(p(invalidSpan("circular link reference: ref", "[<name>]"))))
+      val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), LinkAlias("ref", "name"))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("circular link reference: ref", "[<name>]"))))
     }
 
   }
@@ -449,26 +451,26 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for image id references" should {
 
     "resolve external link references" in {
-      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
-      rewritten(rootElem) should be(root(p(Image(ExternalTarget("http://foo.com/bar.jpg"), alt = Some("text")))))
+      val rootElem = RootElement(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
+      rewritten(rootElem) should be(RootElement(p(Image(ExternalTarget("http://foo.com/bar.jpg"), alt = Some("text")))))
     }
 
     "resolve internal link references" in {
-      val rootElem = root(p(simpleImgRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(root(p(Image(InternalTarget(Root / "foo.jpg").relativeTo(refPath), alt = Some("text")))))
+      val rootElem = RootElement(p(simpleImgRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.jpg"))))
+      rewritten(rootElem) should be(RootElement(p(Image(InternalTarget(Root / "foo.jpg").relativeTo(refPath), alt = Some("text")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
-      val rootElem = root(p(simpleImgRef()))
-      rewritten(rootElem) should be(root(p(invalidSpan("unresolved image reference: name", "!<name>"))))
+      val rootElem = RootElement(p(simpleImgRef()))
+      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved image reference: name", "!<name>"))))
     }
   }
 
   "The rewrite rules for header ids" should {
 
     "create the id for the header based on the header text" in {
-      val rootElem = root(Header(1, List(Text("Header"))))
-      rewritten(rootElem) should be(root(Title(List(Text("Header")), Id("header") + Style.title)))
+      val rootElem = RootElement(Header(1, List(Text("Header"))))
+      rewritten(rootElem) should be(RootElement(Title(List(Text("Header")), Id("header") + Style.title)))
     }
 
   }
@@ -477,12 +479,12 @@ class RewriteRulesSpec extends AnyWordSpec
   "The rewrite rules for decorated headers" should {
 
     "set the level of the header in a flat list of headers" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
-      rewritten(rootElem) should be(root(
+      rewritten(rootElem) should be(RootElement(
         Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
         Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
@@ -490,13 +492,13 @@ class RewriteRulesSpec extends AnyWordSpec
     }
 
     "set the level of the header in a nested list of headers" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
         DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
       )
-      rewritten(rootElem) should be(root(
+      rewritten(rootElem) should be(RootElement(
         Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), List(
           Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))),
@@ -504,12 +506,12 @@ class RewriteRulesSpec extends AnyWordSpec
     }
     
     "not create title nodes in the default configuration for orphan documents" in {
-      val rootElem = root(
+      val rootElem = RootElement(
         DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
-      rewritten(rootElem, withTitles = false) should be(root(
+      rewritten(rootElem, withTitles = false) should be(RootElement(
         Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
         Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
@@ -525,32 +527,32 @@ class RewriteRulesSpec extends AnyWordSpec
       val target1a = Citation("name", List(p("citation 1")))
       val target1b = Citation("name", List(p("citation 2")))
       val msg = "More than one link target with id 'name' in path /doc"
-      val rootElem = root(target1a, target1b)
-      rewritten(rootElem) should be(root
+      val rootElem = RootElement(target1a, target1b)
+      rewritten(rootElem) should be(RootElement
       (invalidBlock(msg, target1a), invalidBlock(msg, target1b)))
     }
 
     "remove invalid external link definitions altogether" in {
       val target2a = LinkDefinition("id2", ExternalTarget("http://foo/"))
       val target2b = LinkDefinition("id2", ExternalTarget("http://bar/"))
-      val rootElem = root(target2a, target2b)
-      rewritten(rootElem) should be(root())
+      val rootElem = RootElement(target2a, target2b)
+      rewritten(rootElem) should be(RootElement.empty)
     }
 
     "replace ambiguous references to duplicate ids with invalid spans" in {
       val target1a = LinkDefinition("name", ExternalTarget("http://foo/1"))
       val target1b = LinkDefinition("name", ExternalTarget("http://foo/2"))
       val msg = "More than one link definition with id 'name' in path /doc"
-      val rootElem = root(p(linkIdRef()), target1a, target1b)
-      rewritten(rootElem) should be(root(p(invalidSpan(msg, "<<name>>"))))
+      val rootElem = RootElement(p(linkIdRef()), target1a, target1b)
+      rewritten(rootElem) should be(RootElement(p(invalidSpan(msg, "<<name>>"))))
     }
 
     "replace ambiguous references for a link alias pointing to duplicate ids with invalid spans" in {
       val target = InternalLinkTarget(Id("ref"))
       val targetMsg = "More than one link target with id 'ref' in path /doc"
       val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
-      val rootElem = root(p(pathRef()), LinkAlias("name", "ref"), target, target)
-      rewritten(rootElem) should be(root(p(invalidSpan(targetMsg, "[<name>]")), invalidTarget, invalidTarget))
+      val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
+      rewritten(rootElem) should be(RootElement(p(invalidSpan(targetMsg, "[<name>]")), invalidTarget, invalidTarget))
     }
 
   }

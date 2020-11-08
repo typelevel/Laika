@@ -42,7 +42,7 @@ class XHTMLRendererSpec extends IOWordSpec with ModelBuilder with FileIO {
   
   trait DocBuilder {
 
-    def markupDoc (num: Int, path: Path = Root) = Document(path / ("doc"+num), root(p("Doc"+num)))
+    def markupDoc (num: Int, path: Path = Root) = Document(path / ("doc"+num), RootElement(p("Doc"+num)))
 
   }
 

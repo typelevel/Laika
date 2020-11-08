@@ -395,7 +395,7 @@ class TreeParserSpec extends IOWordSpec
         Root / "main1.template.html" -> Contents.directive,
         Root / "main2.template.html" -> Contents.directive
       )
-      val template = TemplateRoot(t("aa "), t("bar"), t(" bb"))
+      val template = TemplateRoot(TemplateString("aa "), TemplateString("bar"), TemplateString(" bb"))
       val result = Seq(template, template)
       parsedTemplates(BundleProvider.forTemplateDirective(directive)).assertEquals(result)
     }
@@ -409,9 +409,9 @@ class TreeParserSpec extends IOWordSpec
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = Document(Root / "doc.md", RootElement(TemplateRoot(
-        t("<div>\n  "),
+        TemplateString("<div>\n  "),
         EmbeddedRoot(List(p("aaa"), p("bbb")), 2),
-        t("\n</div>")
+        TemplateString("\n</div>")
       )))
       val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
       parsedTree.assertEquals(treeResult)
@@ -426,9 +426,9 @@ class TreeParserSpec extends IOWordSpec
         Root / "doc.md" -> Contents.multiline
       )
       val docResult = Document(Root / "doc.md", RootElement(TemplateRoot(
-        t("<div>\nxx"),
+        TemplateString("<div>\nxx"),
         EmbeddedRoot(p("aaa"), p("bbb")),
-        t("\n</div>")
+        TemplateString("\n</div>")
       )))
       val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
       parsedTree.assertEquals(treeResult)

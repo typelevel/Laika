@@ -18,7 +18,7 @@ package laika.directive.std
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, SpanSequence, Styles, Text}
+import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, RootElement, SpanSequence, Styles, Text}
 import laika.ast.helper.ModelBuilder
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -44,7 +44,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
 
   
   "The image block directive" should "succeed without any HOCON attributes" in {
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), defaultBlockStyle), p("bbb"))
+    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), defaultBlockStyle), p("bbb"))
     parse(blocks("@:image(picture.jpg)")).map(_.content) shouldBe Right(result)
   }
 
@@ -53,7 +53,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  alt = alt
                   |  title = desc
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
+    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
     parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
@@ -62,7 +62,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
+    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
     parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
@@ -70,12 +70,12 @@ class ImageDirectiveSpec extends AnyFlatSpec
     val input = """@:image(picture.jpg) {
                   |  style = small-image
                   |}""".stripMargin
-    val result = root(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), Styles("small-image")), p("bbb"))
+    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), Styles("small-image")), p("bbb"))
     parse(blocks(input)).map(_.content) shouldBe Right(result)
   }
 
   "The image span directive" should "succeed without any HOCON attributes" in {
-    val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = defaultSpanStyle), Text(" bbb")))
+    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, options = defaultSpanStyle), Text(" bbb")))
     parse("aaa @:image(picture.jpg) bbb").map(_.content) shouldBe Right(result)
   }
 
@@ -84,7 +84,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  alt = alt
                   |  title = desc
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
+    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
     parse(input).map(_.content) shouldBe Right(result)
   }
 
@@ -93,7 +93,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
+    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
     parse(input).map(_.content) shouldBe Right(result)
   }
 
@@ -101,7 +101,7 @@ class ImageDirectiveSpec extends AnyFlatSpec
     val input = """aaa @:image(picture.jpg) {
                   |  style = small-image
                   |} bbb""".stripMargin
-    val result = root(p(Text("aaa "), Image(resolvedImageTarget, options = Styles("small-image")), Text(" bbb")))
+    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, options = Styles("small-image")), Text(" bbb")))
     parse(input).map(_.content) shouldBe Right(result)
   }
 
