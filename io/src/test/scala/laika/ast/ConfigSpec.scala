@@ -71,6 +71,13 @@ class ConfigSpec extends IOWordSpec
           |aaa
           |bbb""".stripMargin
 
+      val markupWithConfigAfterWhitespace =
+        """
+          |
+          |  {% foo: bar %}
+          |aaa
+          |bbb""".stripMargin
+
       val markupWithPathConfig =
         """{% foo: ../foo.txt %}
           |aaa
@@ -139,21 +146,32 @@ class ConfigSpec extends IOWordSpec
   }
   
   "The Config parser" should {
+    
+    def result(span: TemplateSpan): RootElement = RootElement(
+      TemplateRoot(
+        TemplateString("<h1>"),
+        span,
+        TemplateString("</h1>\n<div>"),
+        EmbeddedRoot("aaa\nbbb"),
+        TemplateString("</div>\nCCC")
+      )
+    )
 
     "parse configuration sections embedded in Markdown documents" in new Inputs {
       val inputs = Seq(
         Root / "default.template.html" -> Contents.templateWithRef,
         Root / "input.md" -> Contents.markupWithConfig
       )
-      val expected = RootElement(
-        TemplateRoot(
-          TemplateString("<h1>"),
-          TemplateString("bar"),
-          TemplateString("</h1>\n<div>"),
-          EmbeddedRoot("aaa\nbbb"),
-          TemplateString("</div>\nCCC")
-        )
+      val expected = result(TemplateString("bar"))
+      parseMD(build(inputs)).assertEquals(expected)
+    }
+
+    "parse configuration sections embedded in Markdown documents after blank lines and whitespace" in new Inputs {
+      val inputs = Seq(
+        Root / "default.template.html" -> Contents.templateWithRef,
+        Root / "input.md" -> Contents.markupWithConfigAfterWhitespace
       )
+      val expected = result(TemplateString("bar"))
       parseMD(build(inputs)).assertEquals(expected)
     }
 
@@ -162,15 +180,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
-      val expected = RootElement(
-        TemplateRoot(
-          TemplateString("<h1>"),
-          TemplateString("bar"),
-          TemplateString("</h1>\n<div>"),
-          EmbeddedRoot("aaa\nbbb"),
-          TemplateString("</div>\nCCC")
-        )
-      )
+      val expected = result(TemplateString("bar"))
       parseRST(build(inputs)).assertEquals(expected)
     }
 
@@ -180,15 +190,7 @@ class ConfigSpec extends IOWordSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val msg = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
-      val expected = RootElement(
-        TemplateRoot(
-          TemplateString("<h1>"),
-          TemplateElement(InvalidSpan(msg, source("${foox}", Contents.templateWithMissingRef))),
-          TemplateString("</h1>\n<div>"),
-          EmbeddedRoot("aaa\nbbb"),
-          TemplateString("</div>\nCCC")
-        )
-      )
+      val expected = result(TemplateElement(InvalidSpan(msg, source("${foox}", Contents.templateWithMissingRef))))
       parseRST(build(inputs)).assertEquals(expected)
     }
 
@@ -197,15 +199,7 @@ class ConfigSpec extends IOWordSpec
         DefaultTemplatePath.forHTML -> Contents.templateWithOptRef,
         Root / "input.rst" -> Contents.markupWithConfig
       )
-      val expected = RootElement(
-        TemplateRoot(
-          TemplateString("<h1>"),
-          TemplateString(""),
-          TemplateString("</h1>\n<div>"),
-          EmbeddedRoot("aaa\nbbb"),
-          TemplateString("</div>\nCCC")
-        )
-      )
+      val expected = result(TemplateString(""))
       parseRST(build(inputs)).assertEquals(expected)
     }
 

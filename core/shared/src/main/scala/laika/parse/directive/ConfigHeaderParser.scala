@@ -38,7 +38,7 @@ object ConfigHeaderParser {
     * These delimiters are expected to be both on a separate line.
     */
   def betweenLines(startDelim: String, endDelim: String): Parser[ConfigParser] = {
-    val parser = startDelim ~> delimitedBy(endDelim) <~ wsEol
+    val parser = (blankLine.rep ~ ws ~ startDelim) ~> delimitedBy(endDelim) <~ wsEol
     forTextParser(parser)
   }
 
