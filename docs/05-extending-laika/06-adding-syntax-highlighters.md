@@ -86,7 +86,8 @@ def spanParsers: Seq[CodeSpanParser]
   when syntax like fenced code blocks are used.
   
   Concretely this means that if you specify `python` and `py` as the names for example, 
-  the implementation will be used for any fenced code block that starts with either @:lit(```py) or @:lit(```python).
+  the implementation will be used for any fenced code block that starts with either 
+  ```` ```py ```` or ```` ```python ````.
   
   It's not tied to Markdown syntax though. 
   reStructuredText has its own way of specifying a code block with language identifier, 

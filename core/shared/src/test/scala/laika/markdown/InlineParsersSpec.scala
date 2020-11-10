@@ -139,6 +139,14 @@ class InlineParsersSpec extends AnyFlatSpec
   it should "not treat a single ` as markup when the code span is enclosed in double ``" in {
     Parsing ("some ``text`text`` here") should produce (spans(Text("some "),Literal("text`text"),Text(" here")))
   }
+
+  it should "support three ` characters as delimiter" in {
+    Parsing ("some ``` text`text ``` here") should produce (spans(Text("some "),Literal("text`text"),Text(" here")))
+  }
+
+  it should "support five ` characters as delimiter" in {
+    Parsing ("some ````` text```text ````` here") should produce (spans(Text("some "),Literal("text```text"),Text(" here")))
+  }
   
   
   

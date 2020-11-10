@@ -23,7 +23,7 @@ import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
 
 import scala.util.Try
 
@@ -102,26 +102,27 @@ object InlineParsers {
     span(start, end)
   }
   
-  /** Parses a literal span enclosed by a single backtick.
-   *  Does neither parse nested spans nor Markdown escapes. 
-   */
+  @deprecated("use literalSpan", "0.17.1")
   val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
     val start = delimiter('`').nextNot('`')
     val end = '`'
     start ~> delimitedBy(end).trim.map(Literal(_))
   }
-  
-  /** Parses a literal span enclosed by double backticks.
-   *  Does neither parse nested spans nor Markdown escapes. 
-   */
+
+  @deprecated("use literalSpan", "0.17.1")
   val literalEnclosedByDoubleChar: PrefixedParser[Literal] = {
     val delim = "``"
     delim ~> delimitedBy(delim).trim.map(Literal(_))
   }
 
-  /** Parses a literal span enclosed by double or single backticks.
-    */
-  val literalSpan: SpanParserBuilder = SpanParser.standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
+  /** Parses a literal span enclosed by one or more backticks.
+   *  Does neither parse nested spans nor Markdown escapes. 
+   */
+  val literalSpan: SpanParserBuilder = SpanParser.standalone {
+    someOf('`').count >> { cnt =>
+      delimitedBy("`" * cnt).trim.map(Literal(_))
+    }
+  }
   
   
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
