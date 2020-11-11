@@ -1,7 +1,10 @@
 
-![Laika](docs/img/laika-dog@2x.png)
+![Laika](docs/img/laika-dog@1.5x.png)
 
 Toolkit for transforming lightweight text markup and template based site and e-book generation.
+
+![Build Status](https://github.com/planet42/Laika/workflows/CI/badge.svg)
+![Maven Central Release](https://img.shields.io/maven-central/v/org.planet42/laika-core_2.12.svg)
 
 
 Latest Release
@@ -22,49 +25,33 @@ Open Source under the Apache 2.0 License.
 Features
 --------
 
-* Supported Platforms 
+* **No External Tools**
+
+  Easy setup without any external tools or languages and only minimal library dependencies.
   
-    * Integrated plugin for sbt 1.x, to run Laika as part of your build or CI pipeline.
-    
-    * Purely functional library API for Scala 2.13 and 2.12 and Scala.js 1.0, 
-      with full referential transparency, no exceptions and no runtime reflection.
-    
-    * The library API abstracts all effectful computations behind a polymorphic effect type based on 
-      `cats-effect` typeclasses, so that any compatible library can be used with Laika (`cats.IO`, `Monix`, `Zio`).
-     
-    * Full control over ExecutionContexts for blocking IO and CPU-bound processing.
-    
-    * All functionality is available without the need to install any external tools.
-    
-    * Scaling up to producing complex e-books and sites from dozens of inputs, 
-      to scaling down to transform a snippet of Markdown with three lines of code.
+* **Flexible Runtime**
 
-* Supported Formats
+  Laika can be used as an sbt plugin, as a Scala library for the JVM or in the browser via Scala.js.
   
-    * Markdown including GitHub Flavor and reStructuredText as input formats
-    
-    * HTML, EPUB and PDF as output formats
-    
-* Content Organization
+* **Purely Functional**
 
-    * Convenient navigation with validated internal links, global link definitions, cross-referencing by headline text,
-      auto-generated navigation trees or breadcrumbs with optional auto-numbering.
-      
-    * Use integrated parsers for syntax highlighting that work for all output formats. 
-      Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), 
-      HTML, CSS, XML, JSON, HOCON, SQL, EBNF
-      
-    * Freely organize and merge content from multiple input directories or generated in-memory 
-      with the library's virtual path abstraction.
-    
-* Customizations & Extensibility
+  Fully referentially transparent, no exceptions or runtime reflection and integration 
+  with cats-effect for polymorphic effect handling.
+  
+* **Rich Feature Set**
 
-    * Process and transform the Document AST between parsing and rendering.
-      
-    * Adjust the rendered output for individual AST node types or control the final output of documents with custom templates. 
-    
-    * Extend the syntax of text markup languages, either with custom directives or by writing a parser extension.
-    
+  Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated syntax highlighting, 
+  link validation, auto-generated navigation, versioned documentation, and much more.
+  
+* **Lightweight Theme**
+
+  The default Helium theme includes only a minimal amount of handcrafted CSS and JS, no Bootstrap, no frameworks.
+
+* **Highly Extensible**
+
+  Process the document AST, adjust rendering for individual AST nodes 
+  or extend text markup languages with custom directives.
+  
 
 Further Information
 -------------------
