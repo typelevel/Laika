@@ -1,3 +1,5 @@
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
 import sbt.Keys.artifactPath
 
 lazy val basicSettings = Seq(
@@ -77,6 +79,17 @@ lazy val root = project.in(file("."))
   .settings(
     crossScalaVersions := Nil,
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js)
+  )
+
+lazy val docs = project.in(file("docs"))
+  .enablePlugins(LaikaPlugin)
+  .settings(noPublishSettings)
+  .settings(
+    name := "laika-docs",
+    laikaTheme := ManualSettings.helium,
+    laikaConfig := ManualSettings.config,
+    laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting, ManualBundle),
+    Laika / sourceDirectories := Seq(baseDirectory.value / "src")
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
