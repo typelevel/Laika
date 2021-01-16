@@ -694,6 +694,57 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         keyword("PRIMARY"), space, keyword("KEY"), other(" ("), id("`BAZ_ID`"), other(")\n);")
       )
     }
+
+    "parse a YAML document" in {
+      val input =
+        """# Doc
+          |
+          |```yaml
+          |# Source: mychart/templates/configmaps.yaml
+          |apiVersion: v1
+          |kind: 'ConfigMap'
+          |metadata:
+          |  name: port_overriden # Some comment
+          |  tag: abc#def
+          |data:
+          |  host: "localhost"
+          |  port: 9876 # That's fine
+          |  timeout: 23.56
+          |  null_value: null
+          |  boolean:    true
+          |  octal  :    0o14
+          |  hex: 0x0281Cc
+          |a_sequence : 
+          |  - Item 1
+          |  - 123
+          |  - key : value
+          |```
+        """.stripMargin
+
+      val nl = other("\n")
+      val nl2 = other("\n  ")
+      val colon = other(": ")
+      parse(input) shouldBe result("yaml",
+        comment("# Source: mychart/templates/configmaps.yaml\n"),
+        attrName("apiVersion"), colon, string("v1"), nl,
+        attrName("kind"), colon, string("'ConfigMap'"), nl,
+        attrName("metadata"), other(":\n  "),
+        attrName("name"), colon, string("port_overriden"), other(" "), comment("# Some comment\n"), other("  "),
+        attrName("tag"), colon, string("abc#def"), nl,
+        attrName("data"), other(":\n  "),
+        attrName("host"), colon, string("\"localhost\""), nl2,
+        attrName("port"), colon, number("9876"), other(" "), comment("# That's fine\n"), other("  "),
+        attrName("timeout"), colon, number("23.56"), nl2,
+        attrName("null_value"), colon, literal("null"), nl2,
+        attrName("boolean"), other(":    "), boolean("true"), nl2,
+        attrName("octal"), other("  :    "), number("0o14"), nl2,
+        attrName("hex"), colon, number("0x0281Cc"), nl,
+        attrName("a_sequence"), other(" : \n  - "),
+        string("Item 1"), other("\n  - "),
+        number("123"), other("\n  - "),
+        attrName("key"), other(" : "), string("value")
+      )
+    }
     
     "parse an EBNF document" in {
       val input =
