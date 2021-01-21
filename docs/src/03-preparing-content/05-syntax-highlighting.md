@@ -51,6 +51,7 @@ Laika currently supports the following languages and formats:
 * Python
 * JavaScript / JSX
 * TypeScript / TSX
+* Haskell
 * HTML
 * CSS
 * XML

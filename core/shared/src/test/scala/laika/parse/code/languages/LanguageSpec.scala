@@ -298,6 +298,58 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         other(") });\n  }\n}")
       )
     }
+
+    "parse Haskell code" in {
+      val input =
+        """#Doc
+          |
+          |```hs
+          |module Main where
+          |
+          |-- comment
+          |import qualified Data.Map as M -- some comment
+          |
+          |errorsPerLine = M.fromList
+          |    [ ("Chr\"is module", 472), ("Don import", 100), ("Simon case", -5) ]
+          |
+          |aChar = 'b'
+          |
+          |changePrice :: Thing -> Price -> Thing
+          |changePrice x new = x { price = new }
+          |
+          |{- multiline
+          |   comment
+          |-}
+          |main = do putStrLn "Who are you?"
+          |          name <- getLine
+          |          case M.lookup name errorsPerLine of
+          |              Nothing -> putStrLn "I don't know you"
+          |              Just n  -> do putStr "Errors per line: "
+          |                            print n
+          |```
+          |""".stripMargin
+
+
+      val nl = other("\n")
+      val arrow = other(" -> ")
+      val leftArrow = other(" <- ")
+      parse(input) shouldBe result("hs",
+        keyword("module"), space, typeName("Main"), space, keyword("where"), other("\n\n"),
+        comment("-- comment\n"), keyword("import"), space, keyword("qualified"), space, typeName("Data"), dot, typeName("Map"), space, keyword("as"), space, typeName("M"), space, comment("-- some comment\n"), nl,
+        id("errorsPerLine"), other(" = "), typeName("M"), dot, id("fromList"),
+        other("\n    [ ("), string("\"Chr"), escape("\\\""), string("is module\""), comma, number("472"), other("), ("), string("\"Don import\""), comma, number("100"), other("), ("), string("\"Simon case\""), other(", -"), number("5"), other(") ]\n\n"),
+        id("aChar"), other(" = "), char("'b'"), other("\n\n"),
+        id("changePrice"), other(" :: "), typeName("Thing"), arrow, typeName("Price"), arrow, typeName("Thing"), nl,
+        id("changePrice"), space, id("x"), space, id("new"), other(" = "), id("x"), other(" { "), id("price"), other(" = "), id("new"), other(" }\n\n"),
+        comment("{- multiline\n   comment\n-}"), nl,
+        id("main"), other(" = "), keyword("do"), space, id("putStrLn"), space, string("\"Who are you?\""), other("\n          "),
+        id("name"), leftArrow, id("getLine"), other("\n          "),
+        keyword("case"), space, typeName("M"), other("."), id("lookup"), space, id("name"), space, id("errorsPerLine"), space, keyword("of"), other("\n              "),
+        typeName("Nothing"), arrow, id("putStrLn"), space, string("\"I don't know you\""), other("\n              "),
+        typeName("Just"), space, id("n"), other("  -> "), keyword("do"), space, id("putStr"), space, string("\"Errors per line: \""), other("\n                            "),
+        id("print"), space, id("n")
+      )
+    }
     
     "parse TypeScript code" in {
       val input =

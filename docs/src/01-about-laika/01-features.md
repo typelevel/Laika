@@ -62,7 +62,7 @@ Content Organization
   optionally with [Auto-Numbering].
 
 * Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
-  Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), 
+  Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), Haskell,
   HTML, CSS, XML, JSON, HOCON, SQL, EBNF, Alloy
   
 * Freely organize and merge content from multiple input directories or generated in-memory 
