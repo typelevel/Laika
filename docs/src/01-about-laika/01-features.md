@@ -63,7 +63,7 @@ Content Organization
 
 * Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
   Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), 
-  HTML, CSS, XML, JSON, HOCON, SQL, EBNF
+  HTML, CSS, XML, JSON, HOCON, SQL, EBNF, Alloy
   
 * Freely organize and merge content from multiple input directories or generated in-memory 
   with the library's [Virtual Tree Abstraction].

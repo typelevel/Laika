@@ -378,6 +378,46 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         id("setEditingName"), other("("), id("e"), dot, id("target"), dot, id("value"), other(");\n  };\n\n}")
       )
     }
+
+    "parse Alloy code" in {
+      val input =
+        """# Doc
+          |
+          |```alloy
+          |open util/ordering[House]
+          |
+          |enum Color {Red, White, Blue, Green, Yellow} // some comment
+          |sig House {
+          |        color: disj Color
+          |}
+          |/* Another
+          |   comment */
+          |abstract sig Owner {
+          |        house: disj House
+          |}
+          |one sig Brit extends Owner {}
+          |fact constraints {
+          |        one b: Brit | b.house.color = Red
+          |        #House = 5
+          |}
+          |run {} for 5
+          |```
+          |""".stripMargin
+
+      val dot = other(".")
+      parse(input) shouldBe result("alloy",
+        keyword("open"), space, id("util"), other("/"), id("ordering"), other("["), id("House"), other("]\n\n"),
+        keyword("enum"), space, id("Color"), other(" {"), id("Red"), other(", "), id("White"), other(", "), id("Blue"), other(", "), id("Green"), other(", "), id("Yellow"), other("} "), comment("// some comment\n"),
+        keyword("sig"), space, id("House"), other(" {\n        "), id("color"), colonSpace, keyword("disj"), space, id("Color"), other("\n}\n"),
+        comment("/* Another\n   comment */"), other("\n"),
+        keyword("abstract"), space, keyword("sig"), space, id("Owner"), other(" {\n        "), id("house"), colonSpace, keyword("disj"), space, id("House"), other("\n}\n"),
+        keyword("one"), space, keyword("sig"), space, id("Brit"), space, keyword("extends"), space, id("Owner"), other(" {}\n"),
+        keyword("fact"), space, id("constraints"), other(" {\n        "),
+        keyword("one"), space, id("b"), colonSpace, id("Brit"), other(" | "), id("b"), dot, id("house"), dot, id("color"), other(" = "), id("Red"), other("\n        #"),
+        id("House"), other(" = "), number("5"), other("\n}\n"),
+        keyword("run"), other(" {} "), keyword("for"), space, number("5")
+      )
+    }
     
     "parse an XML document" in new TagFormats {
       val input =
