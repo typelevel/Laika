@@ -61,6 +61,7 @@ Laika currently supports the following languages and formats:
 * SQL
 * EBNF
 * Alloy
+* Dhall
 * Laika Extensions
 
 The last highlighter can be used when writing documentation about Laika itself: 
