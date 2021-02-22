@@ -66,10 +66,14 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     Root / "home.png" -> ""
   )
   
-  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
+  def transformAndExtract(inputs: Seq[(Path, String)], 
+                          helium: Helium, 
+                          start: String, 
+                          end: String, 
+                          docPath: Path = Root / "doc-1.html"): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "doc-1.html", start, end)
+      res        <- IO.fromEither(resultTree.extractTidiedSubstring(docPath, start, end)
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
@@ -108,6 +112,18 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
     val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project")
     transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+  }
+
+  test("page navigation - without footer link on generated page") {
+    val expected =
+      """<p class="header"><a href="#">Table of Content</a></p>
+        |<ul class="nav-list">
+        |</ul>
+        |<p class="footer"></p>""".stripMargin
+    val helium = Helium.defaults
+      .site.markupEditLinks("Source for this page", "https://github.com/my-project")
+      .site.tableOfContent("Table of Content", 2)
+    transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>", Root / "table-of-content.html").assertEquals(expected)
   }
 
   test("top navigation - defaults") {

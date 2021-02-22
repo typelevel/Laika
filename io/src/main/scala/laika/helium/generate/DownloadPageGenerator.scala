@@ -69,7 +69,7 @@ private[helium] object DownloadPageGenerator {
           BlockSequence(epubAST ++ pdfAST).withStyle("downloads")
         }
       val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
-      val doc = Document(Root / "downloads", RootElement(blocks), config = tree.root.config)
+      val doc = Document(Root / "downloads", RootElement(blocks), config = tree.root.config.withValue("helium.markupEditLinks", false).build)
       Sync[F].pure(tree.copy(
         root = tree.root.copy(
           tree = tree.root.tree.copy(
