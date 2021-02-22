@@ -10,7 +10,7 @@
   "author": "Jens Halm",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"
   },
