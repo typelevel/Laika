@@ -105,22 +105,22 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         case unknown                          => fmt.indentedElement("div", unknown.options, unknown.content)
       }
     }
+    
+    def renderTarget (target: Target): String = fmt.pathTranslator.translate(target) match {
+      case ext: ExternalTarget => ext.url
+      case int: InternalTarget => int.relativeTo(fmt.path).relativePath.toString
+    }
 
     def renderSpanContainer (con: SpanContainer): String = {
       
       def codeStyles (language: String, hasHighlighting: Boolean) = 
         if (hasHighlighting) Style.noHighlight else Styles(language)
       
-      def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] = {
-        val href = fmt.pathTranslator.translate(target) match {
-          case ext: ExternalTarget => ext.url
-          case int: InternalTarget => int.relativeTo(fmt.path).relativePath.toString
-        }
+      def linkAttributes (target: Target, title: Option[String]): Seq[(String, String)] =
         fmt.optAttributes(
-          "href" -> Some(href),
+          "href" -> Some(renderTarget(target)),
           "title" -> title.map(fmt.text)
         )
-      }
 
       con match {
 
@@ -131,7 +131,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         case Inserted(content,opt)          => fmt.element("ins", opt, content)
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
         case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
-        case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, false), content))
+        case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, hasHighlighting = false), content))
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
@@ -205,6 +205,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
     def renderSimpleSpan (span: Span): String = span match {
       case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, s"[$label]", "href"->("#"+ref))
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
+      case RawLink(target,_)           => renderTarget(target)
         
       case Image(target,width,height,alt,title,opt) =>
         def sizeAttr (size: Option[Length], styleName: String): (Option[String],Option[String]) = size map {

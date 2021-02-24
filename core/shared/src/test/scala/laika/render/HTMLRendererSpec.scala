@@ -564,6 +564,16 @@ class HTMLRendererSpec extends AnyFlatSpec
     val elem = p(Text("some "), FootnoteLink("id","label"), Text(" span"))
     render (elem) should be ("""<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
   }
+
+  it should "render a raw internal link" in {
+    val elem = p(Text("some "), RawLink.internal("/doc#foo"), Text(" span"))
+    render (elem) should be ("""<p>some #foo span</p>""")
+  }
+
+  it should "render a raw external link" in {
+    val elem = p(Text("some "), RawLink.external("/foo"), Text(" span"))
+    render (elem) should be ("""<p>some /foo span</p>""")
+  }
   
   it should "render a paragraph containing an image without title" in {
     val elem = p(Text("some "), Image(imageTarget, alt = Some("img")), Text(" span"))

@@ -697,21 +697,21 @@ class XSLFORendererSpec extends AnyFlatSpec
     render (elem) should be (fo)
   }
 
-  it should "render a paragraph containing a cross link with a fragment part" in {
+  it should "render a paragraph containing an internal link with a fragment part" in {
     val elem = p(Text("some "), SpanLink.internal("../bar#foo")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
-  it should "render a paragraph containing a cross link without a fragment part" in {
+  it should "render a paragraph containing an internal link without a fragment part" in {
     val elem = p(Text("some "), SpanLink.internal("../bar")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
-  it should "render a paragraph containing a cross link with a filename without suffix" in {
+  it should "render a paragraph containing an internal link with a filename without suffix" in {
     val elem = p(Text("some "), SpanLink.internal("../bar")(Text("link"), Emphasized("text")), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some """ +
       """<fo:basic-link color="#931813" font-weight="bold" internal-destination="_bar">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
@@ -727,6 +727,18 @@ class XSLFORendererSpec extends AnyFlatSpec
     val lookup: Path => Option[TranslatorSpec] = path => if (path == Root / "doc") Some(TranslatorSpec(false, false)) else None
     val translator = ConfigurablePathTranslator(config, "fo", "pdf", Root / "doc", lookup)
     defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
+  }
+
+  it should "render a paragraph containing a raw internal link" in {
+    val elem = p(Text("some "), RawLink.internal("#foo"), Text(" span"))
+    val fo = s"""<fo:block $defaultParagraphStyles>some _doc_foo span</fo:block>"""
+    render (elem) should be (fo)
+  }
+
+  it should "render a paragraph containing a raw external link" in {
+    val elem = p(Text("some "), RawLink.external("/foo"), Text(" span"))
+    val fo = s"""<fo:block $defaultParagraphStyles>some /foo span</fo:block>"""
+    render (elem) should be (fo)
   }
 
   it should "render a paragraph containing only an image centered" in {

@@ -94,6 +94,40 @@ case class NumericLabel (number: Int) extends FootnoteLabel
  */
 case class AutonumberLabel (label: String) extends FootnoteLabel
 
+/** A raw link element without associated content (text or image).
+  * 
+  * One potential use case is to insert AST nodes that are only responsible for rendering
+  * a single tag attribute as opposed to rendering the full tag like all other link node types.
+  * 
+  * Raw links participate in path translation (e.g. for versioning) like all other link node types.
+  */
+case class RawLink (target: Target, options: Options = NoOpt) extends GlobalLink {
+  type Self = RawLink
+  val supportsExternalTargets: Boolean = true
+  def withTarget (newTarget: Target): RawLink = copy(target = newTarget)
+  def withOptions (options: Options): RawLink = copy(options = options)
+}
+
+/** Companion for creating RawLink instances. */
+object RawLink {
+  
+  /** Creates a new instance for the specified internal link.
+    * The string value represents a virtual path into the input tree of a transformation
+    * and may be absolute (starting with '/') or relative.
+    */
+  def internal (path: String): RawLink = internal(PathBase.parse(path))
+
+  /** Creates a new instance for the specified internal link.
+    * The path value represents a virtual path into the input tree of a transformation
+    * and may be absolute or relative.
+    */
+  def internal (path: PathBase): RawLink = apply(InternalTarget(path))
+
+  /** Creates a new instance for the specified external URL.
+    */
+  def external (url: String): RawLink = apply(ExternalTarget(url))
+}
+
 /** An link element, with the span content representing the text (description) of the link.
   */
 case class SpanLink (content: Seq[Span], target: Target, title: Option[String] = None, options: Options = NoOpt) extends GlobalLink

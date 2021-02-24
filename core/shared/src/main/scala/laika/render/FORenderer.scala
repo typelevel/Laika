@@ -198,9 +198,15 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case _                            => ""
     }
 
+    def renderTarget (target: Target): String = fmt.pathTranslator.translate(target) match {
+      case ext: ExternalTarget => ext.url
+      case int: InternalTarget => fmt.buildId(int.relativeTo(fmt.path).absolutePath)
+    }
+
     def renderSimpleSpan (span: Span): String = span match {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => fmt.withFootnote(ref)(f => fmt.footnote(e,label,f.content,f.options))
+      case RawLink(target,_)              => renderTarget(target)
       case SectionNumber(pos, opt)        => fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
       case e @ Image(target,_,_,_,_,_) =>
         val uri = target match {
