@@ -16,13 +16,12 @@
 
 package laika.directive.std
 
+import cats.data.NonEmptyChain
 import cats.syntax.all._
-import cats.data.{NonEmptyChain, NonEmptySet}
-import laika.ast.{DocumentCursor, Path, RawContent, RelativePath, TemplateElement}
 import laika.ast.Path.Root
-import laika.config.{Config, LaikaKeys}
+import laika.ast._
+import laika.config.LaikaKeys
 import laika.directive.Templates
-import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorSpec}
 
 /** Provides the implementation for the standard directives for the head section in HTML templates.
   *
@@ -41,14 +40,15 @@ object HTMLHeadDirectives {
 
   private def renderLinks (cursor: DocumentCursor,
                            suffixFilter: String => Boolean,
-                           format: Option[String],
                            includes: NonEmptyChain[Path],
-                           excludes: Seq[Path],
-                           render: RelativePath => String): TemplateElement = {
+                           embedIn: (TemplateSpan, TemplateSpan)): TemplateSpan = {
 
+    val excluded = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
+    val format = cursor.root.targetFormat
+    
     val preFiltered = cursor.root.target.staticDocuments.filter { doc =>
       doc.path.suffix.exists(suffixFilter) &&
-        !excludes.exists(doc.path.isSubPath) &&
+        !excluded.exists(doc.path.isSubPath) &&
         format.exists(doc.formats.contains)
     }
 
@@ -57,24 +57,14 @@ object HTMLHeadDirectives {
       (remaining, acc ++ newIncludes.map(_.path))
     }._2
 
-    // TODO - this directive should insert a relative path resolver and leave the translation to the renderer
-    // OR obtain access to a centralized path translator API (e.g. via the Cursor)
-    def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
-
-    val staticLookup = included.map { staticPath =>
-      val config = cursor.root.treeConfig(staticPath)
-      (staticPath, TranslatorSpec(isStatic = true, isVersioned = isVersioned(config)))
-    }.toMap
-    val lookup = staticLookup ++ Map(
-      cursor.path -> TranslatorSpec(isStatic = false, isVersioned = isVersioned(cursor.config))
-    )
-    val translator = ConfigurablePathTranslator(cursor.root.config, "html", cursor.root.targetFormat.getOrElse("none"), cursor.path, lookup.get)
+    val allLinks: Seq[TemplateSpan] = included
+      .map { path =>
+        Seq(embedIn._1, TemplateElement(RawLink.internal(path)), embedIn._2)
+      }
+      .reduceOption((s1, s2) => s1 ++: TemplateString("\n    ") +: s2)
+      .getOrElse(Seq())
     
-    val allLinks = included.map { staticPath =>
-      val path = translator.translate(staticPath).relativeTo(translator.translate(cursor.path))
-      render(path)
-    }
-    TemplateElement(RawContent(NonEmptySet.of("html","xhtml","epub"), allLinks.mkString("\n    ")))
+    TemplateSpanSequence(allLinks)
   }
   
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
@@ -93,9 +83,9 @@ object HTMLHeadDirectives {
         case Some("epub") | Some("epub.xhtml") | Some("html") => suffix: String => suffix.endsWith("css") && suffix != "page.css"
         case _ => _ => false
       }
-      val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      renderLinks(cursor, suffixFilter, cursor.root.targetFormat, includePaths, excludePaths, path => s"""<link rel="stylesheet" type="text/css" href="$path" />""")
+      val embedIn = (TemplateString(s"""<link rel="stylesheet" type="text/css" href=""""), TemplateString("\" />"))
+      renderLinks(cursor, suffixFilter, includePaths, embedIn)
     }
   }
 
@@ -112,8 +102,8 @@ object HTMLHeadDirectives {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      val excludePaths: Seq[Path] = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
-      renderLinks(cursor, _ == "js", cursor.root.targetFormat, includePaths, excludePaths, path => s"""<script src="$path"></script>""")
+      val embedIn = (TemplateString(s"""<script src=""""), TemplateString("\"></script>"))
+      renderLinks(cursor, _ == "js", includePaths, embedIn)
     }
   }
   
