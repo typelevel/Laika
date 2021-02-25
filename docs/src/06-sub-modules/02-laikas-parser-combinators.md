@@ -72,7 +72,7 @@ import laika.parse.implicits._
 ```
 
 The following section demonstrate some of the most commonly used text parsers.
-For the full API see @:api(laika.parse.core.text.TextParsers$).
+For the full API see @:api(laika.parse.text.TextParsers$).
 
 
 ### Literal Text
