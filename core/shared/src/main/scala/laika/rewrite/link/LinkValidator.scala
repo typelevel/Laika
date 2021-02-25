@@ -16,12 +16,13 @@
 
 package laika.rewrite.link
 
-import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.ast.{DocumentCursor, GlobalLink, InternalTarget, InvalidSpan, Link, LocalLink, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, Span, Target}
 import laika.config.{Config, LaikaKeys}
 import laika.parse.SourceFragment
 import laika.rewrite.nav.TargetFormats
+
+import scala.annotation.tailrec
 
 /** Validates internal links based on the presence and configuration of the targets it points to.
   * A link target may be valid for all formats or just some, and it may point to a sub-directory
@@ -39,8 +40,10 @@ private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: P
   private val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
   private val excludedPaths = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
+  
   private def excludeFromValidation (path: Path): Boolean = {
 
+    @tailrec
     def hasExcludedFlag (path: RelativePath): Boolean = cursor.root.tree.target.selectSubtree(path) match {
       case Some(tree) => !tree.config.get[Boolean](LaikaKeys.validateLinks).getOrElse(true)
       case None if path == CurrentTree => false
