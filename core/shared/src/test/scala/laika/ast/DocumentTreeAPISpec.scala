@@ -66,7 +66,7 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     }
     def leafDocCursor (contextRef: Option[String] = None, includeRuntimeMessage: Boolean = false): DocumentCursor = 
       RootCursor(treeWithTwoSubtrees(contextRef, includeRuntimeMessage)).tree
-        .children.last.asInstanceOf[TreeCursor]
+        .children(3).asInstanceOf[TreeCursor]
         .children.last.asInstanceOf[DocumentCursor]
     
   }

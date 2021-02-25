@@ -30,13 +30,20 @@ object SampleTrees {
 sealed trait BuilderKey {
   def num: Int
   def defaultTitle: String
+  def prefix: String
 }
 object BuilderKey {
   case class Doc(num: Int) extends BuilderKey {
     val defaultTitle = "Title " + num // TODO - should be Doc
+    val prefix = "doc"
   }
   case class Tree(num: Int) extends BuilderKey {
     val defaultTitle = "Tree " + num
+    val prefix = "tree"
+  }
+  case class StaticTree(num: Int) extends BuilderKey {
+    val defaultTitle = "Static " + num
+    val prefix = "static"
   }
 }
 
@@ -76,6 +83,7 @@ trait SampleOps { self =>
         copyWith(sampleRoot.copy(treeBuilders =
           sampleRoot.treeBuilders.updated(key.num, tree.copy(titleDoc = Some(f(target))))
         ))
+      case _: BuilderKey.StaticTree => copyWith(sampleRoot)
     }
   }
   
@@ -149,6 +157,10 @@ trait SampleRootOps extends SampleOps { self =>
     sampleRoot.treeBuilders(treeNum).build(docs, parentConfig, sampleRoot)
   }
 
+  protected def buildStaticTree (treeNum: Int, parentConfig: Config): DocumentTree = {
+    sampleRoot.staticConfigs(treeNum-1).build(Nil, parentConfig, sampleRoot)
+  }
+
   def titleDocuments (includeRoot: Boolean = true): RootApi = {
     val keys = sampleRoot.treeBuilders
       .map(_.key)
@@ -212,7 +224,12 @@ class SampleSixDocuments (protected val sampleRoot: SampleRoot) extends SampleRo
     val tree = buildTree(0, 0, Config.empty)
     DocumentTreeRoot(
       tree = tree.copy(
-        content = tree.content ++ Seq(buildTree(1, 2, tree.config), buildTree(2, 4, tree.config))
+        content = tree.content ++ Seq(
+          buildTree(1, 2, tree.config), 
+          buildTree(2, 4, tree.config), 
+          buildStaticTree(1, tree.config),
+          buildStaticTree(2, tree.config)
+        )
       ),
       staticDocuments = sampleRoot.staticDocuments
     )
@@ -236,7 +253,7 @@ private[sample] object SampleRoot {
       (0 to numTrees).map(num => SampleTree(BuilderKey.Tree(num), SampleConfigBuilder(Origin.TreeScope))).toVector, 
       (1 to numDocs).map(num => SampleDocument(BuilderKey.Doc(num), SampleConfigBuilder(Origin.DocumentScope))).toVector,
       SampleContent.text,
-      staticConfigs = (1 to numStatic).map(num => SampleTree(BuilderKey.Doc(num), SampleConfigBuilder(Origin.TreeScope)))
+      staticConfigs = (1 to numStatic).map(num => SampleTree(BuilderKey.StaticTree(num), SampleConfigBuilder(Origin.TreeScope)))
     )
 }
 
@@ -248,7 +265,7 @@ private[sample] case class SampleTree (key: BuilderKey,
   def versioned: SampleTree = ???
   def unversioned: SampleTree = ???
 
-  val path = if (key.num == 0) Root else Root / s"tree-${key.num}"
+  val path = if (key.num == 0) Root else Root / s"${key.prefix}-${key.num}"
 
   def build (content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
     val conf = config.build(parentConfig, path)
@@ -273,6 +290,7 @@ private[sample] case class SampleDocument (key: BuilderKey,
     val localName = key match {
       case _: BuilderKey.Tree => "README"
       case _: BuilderKey.Doc  => "doc-" + key.num
+      case _: BuilderKey.StaticTree => "static-" + key.num
     } 
     val path = treePath / (localName + suffixString)
     Document(

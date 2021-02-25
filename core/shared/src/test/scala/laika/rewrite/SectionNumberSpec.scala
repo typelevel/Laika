@@ -75,7 +75,7 @@ class SectionNumberSpec extends AnyFlatSpec
     )
 
     lazy val expected: DocumentTree = {
-      val docNums = List(List(1), List(2), List(3,1), List(3,2), List(4,1), List(4,2))
+      val docNums = List(List(1), List(2), List(5,1), List(5,2), List(6,1), List(6,2))
       def contents (key: BuilderKey): Seq[Block] = {
         val docNum = if (!numberDocs) Nil else docNums(key.num - 1)
         resultContent(docNum)

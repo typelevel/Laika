@@ -79,8 +79,8 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
   }
 
   test("static unversioned document") {
-    val input    = ResolvedInternalTarget(Root / "tree-3" / "doc-7.txt", RelativePath.parse("../tree-3/doc-7.txt"))
-    val expected = ResolvedInternalTarget(Root / "tree-3" / "doc-7.txt", RelativePath.parse("../../tree-3/doc-7.txt"))
+    val input    = ResolvedInternalTarget(Root / "static-1" / "doc-7.txt", RelativePath.parse("../static-1/doc-7.txt"))
+    val expected = ResolvedInternalTarget(Root / "static-1" / "doc-7.txt", RelativePath.parse("../../static-1/doc-7.txt"))
     versionedRef.translate(input) shouldBe expected
   }
 
