@@ -64,6 +64,7 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   private val titleDocOutputName = TitleDocumentConfig.outputName(rootConfig)
   private val siteBaseURL = rootConfig.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
   private val currentVersion = rootConfig.getOpt[Versions].toOption.flatten.map(_.currentVersion.pathSegment)
+  private val translatedRefPath = translate(refPath)
   
   def translate (input: Path): Path = {
     targetLookup(input).fold(input) { spec =>
@@ -82,7 +83,7 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   def translate (input: RelativePath): RelativePath = {
     val absolute = RelativeInternalTarget(input).relativeTo(refPath).absolutePath
     val translated = translate(absolute)
-    translated.relativeTo(translate(refPath))
+    translated.relativeTo(translatedRefPath)
   }
   
   override def translate (target: Target): Target = (target, siteBaseURL) match {
@@ -97,9 +98,9 @@ private[laika] case class TranslatorSpec(isStatic: Boolean, isVersioned: Boolean
 
 private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
 
+  def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+  
   private val lookup: Map[Path, TranslatorSpec] = {
-
-    def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
 
     val treeConfigs = cursor.target.staticDocuments.map(doc => doc.path.parent).toSet[Path].map { path =>
       (path, cursor.treeConfig(path))
@@ -120,7 +121,11 @@ private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[T
     case (path, TranslatorSpec(false, true)) => path
   }.toSeq
 
-  def apply (path: Path): Option[TranslatorSpec] = lookup.get(path.withoutFragment)
+  def apply (path: Path): Option[TranslatorSpec] = 
+    lookup.get(path.withoutFragment)
+      .orElse(Some(TranslatorSpec(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))))
+  // paths which have validation disabled might not appear in the lookup, we treat them as static and
+  // pick the versioned flag from its directory config.
 
 }
 
