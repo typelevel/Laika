@@ -316,7 +316,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
       context.root, 
       Nil, 
       context.pathTranslator, 
-      context.pathTranslator.translate(context.path), 
+      context.path, 
       context.styles, 
       context.indentation, 
       context.config.renderMessages

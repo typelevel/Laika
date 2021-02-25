@@ -66,7 +66,7 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified document as a String.
     */
-  def render (doc: Document): String = render(doc.content, doc.path, defaultPathTranslator, StyleDeclarationSet.empty)
+  def render (doc: Document): String = render(doc.content, doc.path)
 
   /** Renders the specified document as a String, using the given path translator and styles.
     * 
@@ -78,7 +78,7 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): String = render(element, Root / "doc", defaultPathTranslator, StyleDeclarationSet.empty)
+  def render (element: Element): String = render(element, (Root / "doc").withSuffix(format.fileSuffix))
 
   /** Renders the specified element as a String.
     * 
