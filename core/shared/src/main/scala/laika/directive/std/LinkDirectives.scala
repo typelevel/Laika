@@ -69,7 +69,7 @@ object LinkDirectives {
           val isPackage = className.contains("package")
           
           val linkText = {
-            val typeText = if (isPackage) packageName else className.getOrElse(fqName)
+            val typeText = if (isPackage) packageName else className.getOrElse(fqName).stripSuffix("$")
             typeText + method.fold("")(m => "." + m.split('(').head)
           }
           

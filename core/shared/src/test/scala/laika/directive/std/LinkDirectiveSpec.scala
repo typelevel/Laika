@@ -60,6 +60,14 @@ class LinkDirectiveSpec extends AnyFlatSpec
     )))
   }
 
+  it should "strip the $ postfix from the link text" in new ApiDirectiveSetup {
+    parse(input("def.bar.Baz$")).content should be (RootElement(p(
+      Text("aa "),
+      SpanLink.external("https://default.api/def/bar/Baz$.html")("Baz"),
+      Text(" bb")
+    )))
+  }
+
   it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
     parse(input("foo.bar.Baz")).content should be (RootElement(p(
       Text("aa "),
