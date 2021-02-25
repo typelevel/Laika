@@ -66,7 +66,9 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   private val currentVersion = rootConfig.getOpt[Versions].toOption.flatten.map(_.currentVersion.pathSegment)
   private val translatedRefPath = translate(refPath)
   
-  def translate (input: Path): Path = {
+  def translate (input: Path): Path = translate(input, outputFormat == "html")
+  
+  private def translate (input: Path, isHTMLTarget: Boolean): Path = {
     targetLookup(input).fold(input) { spec =>
       val shifted = if (spec.isVersioned && outputFormat == "html") currentVersion.fold(input) { version =>
         Root / version / input.relative
@@ -77,7 +79,6 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
       }
       else shifted
     }
-    
   }
 
   def translate (input: RelativePath): RelativePath = {
@@ -88,7 +89,7 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   
   override def translate (target: Target): Target = (target, siteBaseURL) match {
     case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputFormat) =>
-      ExternalTarget(baseURL + translate(absolutePath.relative.withSuffix("html")).toString)
+      ExternalTarget(baseURL + translate(absolutePath.withSuffix("html"), isHTMLTarget = true).relative.toString)
     case _ => super.translate(target)
   }
   

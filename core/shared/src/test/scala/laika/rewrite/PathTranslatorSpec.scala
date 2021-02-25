@@ -20,7 +20,8 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetLookup}
+import laika.config.LaikaKeys
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -37,7 +38,7 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
     )
 
     SampleTrees.sixDocuments
-      .root.config(_.withValue(versions))
+      .root.config(_.withValue(versions).withValue(LaikaKeys.siteBaseURL, "http://external.com/"))
       .root.config(SampleConfig.versioned(true))
       .doc1.config(SampleConfig.versioned(false))
       .doc2.config(SampleConfig.versioned(false))
@@ -93,6 +94,12 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
   test("ignore versions when output format is not HTML") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"))
     val expected = ResolvedInternalTarget(Root / "tree-2" / "doc-5.epub.xhtml", RelativePath.parse("../tree-2/doc-5.epub.xhtml"))
+    epubRef.translate(input) shouldBe expected
+  }
+
+  test("apply versions when substituting an internal target with an external one") {
+    val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"), TargetFormats.Selected("html"))
+    val expected = ExternalTarget("http://external.com/tree-2/doc-5.html")
     epubRef.translate(input) shouldBe expected
   }
   
