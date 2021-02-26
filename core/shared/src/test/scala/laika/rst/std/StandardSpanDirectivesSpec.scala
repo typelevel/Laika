@@ -142,15 +142,23 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
     val result = RootElement(p(Text("Some "),SpanSequence(Emphasized("text"),Text(" here"))))
     parse(input) should be (result)
   }
-  
+
+
+  /* Avoid flaky tests caused by potential time differences (1 second offset), 
+   * in particular when run on GitHub Actions with Scala.js
+   */
+  private def stripMinutesAndSeconds (root: RootElement): RootElement =
+    root.rewriteSpans {
+      case Text(str, opt) => Replace(Text(str.replaceFirst("[:]\\d\\d:\\d\\d", ":00:00"), opt))
+    }
   
   "The date directive" should "use the default pattern when no pattern is specified" in {
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
-    val result = RootElement(p(Text(s"Some $date")))
-    parse(input) should be (result)
+    val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
+    stripMinutesAndSeconds(parse(input)) should be (result)
   }
   
   it should "support custom patterns" in {
@@ -158,8 +166,8 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
-    val result = RootElement(p(Text(s"Some $date")))
-    parse(input) should be (result)
+    val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
+    stripMinutesAndSeconds(parse(input)) should be (result)
   }
   
   
