@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.IO
 import laika.api.{MarkupParser, Renderer, Transformer}
-import laika.ast.Path
+import laika.ast.{/, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
@@ -74,13 +74,24 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                         |<script src="helium/laika-helium.js"></script>
                         |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+
+  val versions = Versions(
+    Version("0.42.x", "0.42"),
+    Seq(
+      Version("0.41.x", "0.41"),
+      Version("0.40.x", "0.40", "toc.html")
+    ),
+    Seq(
+      Version("0.43.x", "0.43")
+    )
+  )
   
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 
-  def transformAndExtractHead(inputs: Seq[(Path, String)], helium: Helium): IO[String] = transformer(helium.build).use { t =>
+  def transformAndExtractHead(inputs: Seq[(Path, String)], helium: Helium, underTest: Path = Root / "name.html"): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- IO.fromEither(resultTree.extractTidiedTagContent(Root / "name.html", "head")
+      res        <- IO.fromEither(resultTree.extractTidiedTagContent(underTest, "head")
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
@@ -218,6 +229,40 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
                      |<script src="helium/laika-helium.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("unversioned favicons in a versioned input tree") {
+
+    val pathUnderTest = Root / "0.42" / "dir" / "name.html"
+    val inputs = Seq(
+      Root / "directory.conf"         -> "laika.versioned = true",
+      Root / "dir" / "name.md"        -> "text",
+      Root / "img" / "directory.conf" -> "laika.versioned = false",
+      Root / "img" / "icon-1.png"     -> "",
+      Root / "img" / "icon-2.png"     -> "",
+    )
+    val helium = Helium.defaults
+      .site.versions(versions)
+      .site.favIcons(
+        Favicon.internal(Root / "img" / "icon-1.png", "32x32"),
+        Favicon.internal(Root / "img" / "icon-2.png", "64x64")
+      )
+    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                     |<meta charset="utf-8">
+                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
+                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+                     |<title></title>
+                     |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png" />
+                     |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png" />
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+                     |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+                     |<script src="../helium/laika-helium.js"></script>
+                     |<script src="../helium/laika-versions.js"></script>
+                     |<script>initVersions("../../", "/dir/name.html", "0.42.x");</script>
+                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
 
   test("custom web fonts") {

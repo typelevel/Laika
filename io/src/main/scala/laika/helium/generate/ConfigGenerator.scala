@@ -104,7 +104,7 @@ private[laika] object ConfigGenerator {
     def resolve(cursor: DocumentCursor): Span = target match {
       case et: ExternalTarget => Text(et.url)
       case it: InternalTarget => cursor.validate(it) match {
-        case ValidTarget      => Text(it.relativeTo(cursor.path).relativePath.toString)
+        case ValidTarget      => RawLink.internal(it.relativeTo(cursor.path).absolutePath)
         case InvalidTarget(message)      => InvalidSpan(message, source)
         case RecoveredTarget(message, _) => InvalidSpan(message, source)
       }
