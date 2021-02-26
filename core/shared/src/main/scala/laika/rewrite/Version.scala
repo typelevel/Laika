@@ -74,8 +74,8 @@ object Versions {
   implicit val decoder: ConfigDecoder[Versions] = ConfigDecoder.config.flatMap { config =>
     for {
       currentVersion      <- config.get[Version]("currentVersion")
-      olderVersions       <- config.get[Seq[Version]]("olderVersions")
-      newerVersions       <- config.get[Seq[Version]]("newerVersions")
+      olderVersions       <- config.get[Seq[Version]]("olderVersions", Nil)
+      newerVersions       <- config.get[Seq[Version]]("newerVersions", Nil)
       excludeFromScanning <- config.get[Seq[Path]]("excludeFromScanning", Nil)
     } yield {
       Versions(currentVersion, olderVersions, newerVersions, excludeFromScanning)
