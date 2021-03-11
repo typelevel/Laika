@@ -58,6 +58,7 @@ Laika currently supports the following languages and formats:
 * HOCON
 * SQL
 * EBNF
+* Alloy
 * Laika Extensions
 
 The last highlighter can be used when writing documentation about Laika itself: 
