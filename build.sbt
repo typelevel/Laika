@@ -131,13 +131,11 @@ lazy val plugin = project.in(file("sbt"))
   .dependsOn(core.jvm, io, pdf)
   .enablePlugins(SbtPlugin)
   .settings(basicSettings)
+  .settings(publishSettings)
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
     crossScalaVersions := Seq("2.12.12"),
-    publishMavenStyle := false,
-    bintrayRepository := "sbt-plugins",
-    bintrayOrganization := None,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
