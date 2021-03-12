@@ -143,7 +143,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_image_jpg" href="content/sub/image.jpg" media-type="image/jpeg" />
+        |    <item id="sub_image-1_5x_jpg" href="content/sub/image-1.5x.jpg" media-type="image/jpeg" />
         |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
