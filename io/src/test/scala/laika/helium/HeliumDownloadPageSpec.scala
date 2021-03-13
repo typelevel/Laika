@@ -18,16 +18,17 @@ package laika.helium
 
 import java.util.Locale
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
+import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
+import laika.io.IOFunSuite
 import laika.render.HTMLFormatter
 import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
 import laika.theme._
@@ -36,10 +37,10 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
   
-  def transformer (theme: ThemeProvider, configure: ConfigureTransformer) = {
+  def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
     configure(builder)  
-      .io(FileIO.blocker)
+      .io
       .parallel[IO]
       .withTheme(theme)
       .build

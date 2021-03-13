@@ -17,7 +17,6 @@
 package laika.theme
 
 import cats.effect.{Resource, Sync}
-import laika.io.runtime.Runtime
 
 /** Responsible for building a theme resource with the user-provided effect type and runtime configuration.
   * 
@@ -35,6 +34,6 @@ trait ThemeProvider {
     * For convenience, implementations of this method usually utilize a [[laika.theme.ThemeBuilder]] to construct
     * `Theme` instances, but this is not mandatory.
     */
-  def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]]
+  def build[F[_]: Sync]: Resource[F, Theme[F]]
   
 }

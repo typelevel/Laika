@@ -16,9 +16,8 @@
 
 package laika.sbt
 
-import java.util.concurrent.Executors
-
-import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.effect.{IO, Resource}
+import cats.effect.unsafe.implicits.global
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
 import laika.bundle.{BundleOrigin, ExtensionBundle}
@@ -32,8 +31,6 @@ import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 
-import scala.concurrent.ExecutionContext
-
 /** Implementations for Laika's sbt settings.
   *
   * @author Jens Halm
@@ -41,11 +38,6 @@ import scala.concurrent.ExecutionContext
 object Settings {
 
   import Def._
-
-  implicit lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
-  lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
-
 
   val defaultInputs: Initialize[InputTreeBuilder[IO]] = setting {
     InputTree
@@ -75,7 +67,7 @@ object Settings {
       .to(HTML)
       .withConfig(mergedConfig(createParser(Markdown).config))
       .using(laikaExtensions.value: _*)
-      .io(blocker)
+      .io
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))
@@ -126,7 +118,7 @@ object Settings {
     }
 
     createParser(Markdown)
-      .io(blocker)
+      .io
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))

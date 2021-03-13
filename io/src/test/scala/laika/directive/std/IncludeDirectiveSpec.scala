@@ -35,7 +35,7 @@ class IncludeDirectiveSpec extends IOFunSuite with Matchers with InputBuilder wi
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .io(blocker)
+    .io
     .parallel[IO]
     .withTheme(Theme.empty)
     .build

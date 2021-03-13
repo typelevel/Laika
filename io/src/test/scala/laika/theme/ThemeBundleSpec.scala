@@ -17,6 +17,7 @@
 package laika.theme
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.{Markup, Static, Template}
@@ -47,7 +48,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
         .from(Markdown)
         .to(HTML)
         .using(appBundles:_*)
-        .io(FileIO.blocker)
+        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundles(themeBundles))
         .build

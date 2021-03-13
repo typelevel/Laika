@@ -32,20 +32,20 @@ import scala.io.Codec
   */
 object InputRuntime {
 
-  def readParserInput[F[_]: Sync: Runtime] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
+  def readParserInput[F[_]: Sync] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
     case PureReader(input) => 
       Sync[F].pure(DocumentInput(doc.path, SourceCursor(input)))
     case StreamReader(reader, sizeHint) => 
       readAll(reader, sizeHint).map(source => DocumentInput(doc.path, SourceCursor(source)))
   }
 
-  def readAll[F[_]: Sync: Runtime] (reader: Reader, sizeHint: Int): F[String] = Runtime[F].runBlocking {
+  def readAll[F[_]: Sync] (reader: Reader, sizeHint: Int): F[String] = {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {
-        amount <- Sync[F].delay(reader.read(inBuffer, 0, inBuffer.length))
+        amount <- Sync[F].blocking(reader.read(inBuffer, 0, inBuffer.length))
         _      <- if (amount == -1) Sync[F].unit
-                  else Sync[F].delay(outBuffer.appendAll(inBuffer, 0, amount)) >> read(inBuffer, outBuffer)
+                  else Sync[F].blocking(outBuffer.appendAll(inBuffer, 0, amount)) >> read(inBuffer, outBuffer)
       } yield ()
     }
     
@@ -63,7 +63,7 @@ object InputRuntime {
     readerResource(Resource.fromAutoCloseable(Sync[F].delay(new FileInputStream(file))), codec)
   
   def textStreamResource[F[_]: Sync] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
-    readerResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.liftF(inputStream), codec)
+    readerResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.eval(inputStream), codec)
 
   private def readerResource[F[_]: Sync](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
     resource.map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))

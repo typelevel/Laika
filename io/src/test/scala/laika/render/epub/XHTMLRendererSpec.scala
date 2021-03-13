@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -28,20 +28,16 @@ import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorSpec}
 
-import scala.concurrent.ExecutionContext
-
 /**
   * @author Jens Halm
   */
 class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with FileIO {
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  
   private val defaultRenderer = Renderer.of(EPUB.XHTML).build
   
   trait DocBuilder {
 
-    def markupDoc (num: Int, path: Path = Root) = Document(path / ("doc"+num), RootElement(p("Doc"+num)))
+    def markupDoc (num: Int, path: Path = Root): Document = Document(path / ("doc"+num), RootElement(p("Doc"+num)))
 
   }
 
@@ -54,7 +50,7 @@ class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with
     def renderedDocs (root: DocumentTreeRoot): IO[Seq[RenderedDocument]] =
       Renderer
         .of(EPUB.XHTML)
-        .io(blocker)
+        .io
         .parallel[IO]
         .build
         .use(_
@@ -135,7 +131,8 @@ class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with
       val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
       val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-      val lookup: Path => Option[TranslatorSpec] = path => if (path == Root / "doc") Some(TranslatorSpec(false, false)) else None
+      val lookup: Path => Option[TranslatorSpec] = path => 
+        if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
       val translator = ConfigurablePathTranslator(config, "epub.xhtml", "epub", Root / "doc", lookup)
       defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty) should be ("""<p>some <a href="http://external/foo.html#ref">link</a> span</p>""")
     }

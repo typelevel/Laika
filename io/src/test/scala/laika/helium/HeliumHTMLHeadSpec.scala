@@ -16,45 +16,46 @@
 
 package laika.helium
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.{MarkupParser, Renderer, Transformer}
-import laika.ast.{/, Path}
+import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
+import laika.io.IOFunSuite
+import laika.io.api.{TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
 import laika.rewrite.{Version, Versions}
 import laika.theme._
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
 
 class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  val parser = MarkupParser
+  val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .build
 
-  val renderer = {
+  val renderer: Resource[IO, TreeRenderer[IO]] = {
     val builder = Renderer.of(HTML)
     builder.withConfig(builder.config.withBundlesFor(Markdown)) // TODO - there should be dedicated API for this scenario
-      .io(FileIO.blocker)
+      .io
       .parallel[IO]
       .build
   }
   
-  val parserAndRenderer = for {
+  val parserAndRenderer: Resource[IO, (TreeParser[IO], TreeRenderer[IO])] = for {
     p <- parser
     r <- renderer
   } yield (p, r)
   
-  def transformer (theme: ThemeProvider) = Transformer
+  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .withTheme(theme)
     .build

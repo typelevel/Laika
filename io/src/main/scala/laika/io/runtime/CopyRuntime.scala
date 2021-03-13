@@ -30,28 +30,26 @@ object CopyRuntime {
   /**  Copies all bytes from the specified InputStream to the
     *  OutputStream, executing in the blocking ExecutionContext of the implicit Runtime.
     */
-  def copy[F[_]: Sync: Runtime] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
+  def copy[F[_]: Sync] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
       
     case (in: FileInputStream, out: FileOutputStream) =>
-      Runtime[F].runBlocking {
-        Sync[F].delay(in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel))
+      Sync[F].blocking {
+        in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel)
       }
       
     case _ =>
-      Runtime[F].runBlocking {
-        Sync[F].delay {
-          val buffer = new Array[Byte](8192)
-          Iterator.continually(input.read(buffer))
-            .takeWhile(_ != -1)
-            .foreach { output.write(buffer, 0 , _) }
-        }
+      Sync[F].blocking {
+        val buffer = new Array[Byte](8192)
+        Iterator.continually(input.read(buffer))
+          .takeWhile(_ != -1)
+          .foreach { output.write(buffer, 0 , _) }
       }
   }
 
   /** Copies all bytes from the specified binary Input to the binary Output,
     * executing in the blocking ExecutionContext of the implicit Runtime.
     */
-  def copy[F[_]: Sync: Runtime] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
+  def copy[F[_]: Sync] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
     (input, output).tupled.use { case (in, out) => copy(in, out) }
 
 }

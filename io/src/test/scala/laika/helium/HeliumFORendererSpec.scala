@@ -16,17 +16,18 @@
 
 package laika.helium
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.LengthUnit._
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{Markdown, XSLFO}
 import laika.helium.config.ColorQuintet
+import laika.io.IOFunSuite
+import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import laika.rewrite.nav.CoverImage
@@ -38,14 +39,14 @@ import laika.theme.config.Color
   */
 class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: ThemeProvider) = Transformer
+  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(XSLFO)
     .using(
       GitHubFlavor,
       SyntaxHighlighting
     )
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .withTheme(theme)
     .build

@@ -18,23 +18,17 @@ package laika.io
 
 import java.io.{ByteArrayOutputStream, File}
 import java.util.UUID
-import java.util.concurrent.Executors
 
-import cats.effect.{Blocker, IO}
+import cats.effect.IO
 import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.io.model.{TextInput, TextOutput}
 import laika.io.runtime.{InputRuntime, OutputRuntime}
 
-import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
 trait FileIO { this: IOSpec =>
 
-  val blocker: Blocker = FileIO.blocker
-
-  implicit private val runtime: laika.io.runtime.Runtime[IO] = laika.io.runtime.Runtime.sequential[IO](blocker)
-  
   def readFile (base: String): IO[String] = readFile(new File(base))
   
   def readFile (f: File): IO[String] = readFile(f, Codec.UTF8)
@@ -91,10 +85,4 @@ trait FileIO { this: IOSpec =>
       _      <- f(stream)
     } yield stream.toByteArray
     
-}
-
-object FileIO {
-
-  val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
-  
 }

@@ -16,9 +16,8 @@
 
 package laika.sbt
 
-import java.util.concurrent.Executors
-
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import laika.api.Renderer
 import laika.factory.{BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
@@ -33,7 +32,7 @@ import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
 
-import scala.concurrent.ExecutionContext
+import scala.annotation.tailrec
 
 /** Implementations for Laika's sbt tasks.
   *
@@ -42,10 +41,6 @@ import scala.concurrent.ExecutionContext
 object Tasks {
 
   import Def._
-
-  implicit lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
-  lazy val blocker: Blocker = Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
 
   /** Generates and copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
@@ -121,7 +116,7 @@ object Tasks {
       Renderer
         .of(format)
         .withConfig(Settings.parserConfig.value)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build
@@ -146,7 +141,7 @@ object Tasks {
       val ops = Renderer
         .of(format)
         .withConfig(Settings.parserConfig.value)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build 
@@ -246,6 +241,7 @@ object Tasks {
   /** Collects all parent directories of the specified file or directory.
     */
   def collectParents (file: File): Set[File] = {
+    @tailrec
     def collect (file: File, acc: Set[File]): Set[File] = {
       file.getParentFile match {
         case null => acc

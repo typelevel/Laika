@@ -16,25 +16,26 @@
 
 package laika.helium
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.LengthUnit.px
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.{AnchorPlacement, ColorQuintet}
+import laika.io.IOFunSuite
+import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
 import laika.theme.ThemeProvider
 
 class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: ThemeProvider) = Transformer
+  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -46,7 +47,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.css", start, end, FileIO.blocker)
+      res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.css", start, end)
     } yield res
   }
     

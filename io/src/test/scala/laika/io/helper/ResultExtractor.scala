@@ -19,7 +19,7 @@ package laika.io.helper
 import java.io.InputStream
 
 import cats.implicits._
-import cats.effect.{Blocker, ContextShift, Resource, Sync}
+import cats.effect.{Resource, Sync}
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
 import laika.io.runtime.{InputRuntime, Runtime}
@@ -31,27 +31,26 @@ import scala.io.Codec
   */
 trait ResultExtractor {
 
-  implicit class RenderedTreeRootOps[F[_]: Sync: ContextShift](val root: RenderedTreeRoot[F]) extends StringOps  {
+  implicit class RenderedTreeRootOps[F[_]: Sync](val root: RenderedTreeRoot[F]) extends StringOps  {
 
     // TODO - move to InputRuntime
-    private def readText (stream: Resource[F, InputStream], blocker: Blocker): F[String] = {
+    private def readText (stream: Resource[F, InputStream]): F[String] = {
       stream.flatMap { str =>
         InputRuntime.textStreamResource(Sync[F].pure(str), Codec.UTF8, autoClose = false)
       }.use { reader =>
-        implicit val runtime: Runtime[F] = Runtime.sequential(blocker)
         InputRuntime.readAll(reader, 4000)
       }
     }
 
-    def extractStaticContent (path: Path, blocker: Blocker): F[String] = for {
+    def extractStaticContent (path: Path): F[String] = for {
       input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)
         .toRight(new RuntimeException(s"Not found: '$path'")))
-      content <- readText(input.asResource, blocker)
+      content <- readText(input.asResource)
     } yield content
     
-    def extractStaticContent (path: Path, start: String, end: String, blocker: Blocker): F[String] =
+    def extractStaticContent (path: Path, start: String, end: String): F[String] =
       for {
-        content <- extractStaticContent(path, blocker)
+        content <- extractStaticContent(path)
         res     <- Sync[F].fromEither(content.extract(start, end)
                           .toRight(new RuntimeException(s"No substring between: '$start' and '$end'")))
       } yield res.removeIndentation.removeBlankLines

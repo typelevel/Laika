@@ -17,11 +17,11 @@
 package laika.io.runtime
 
 import cats.{Monad, Parallel, Traverse}
-import cats.effect.{Sync, Blocker, ContextShift}
+import cats.effect.Sync
 import cats.implicits._
 
 /** Type class for the effect F that encapsulates the mechanism 
-  * and configuration for running blocking and/or parallel operations.
+  * and configuration for running parallel operations.
   * 
   * @author Jens Halm
   */
@@ -33,27 +33,13 @@ trait Runtime[F[_]] {
 
   /** The optional `Parallel` instance for the type F.
     * 
-    * If it is missing all parallel invocation will downgrade
-    * to sequential execution.
+    * If it is missing all parallel invocation will downgrade to sequential execution.
     */
   def parallelInstance: Option[Parallel[F]]
 
   /** The desired level of parallelism for all parallel operations.
     */
   def parallelism: Int
-
-  /** The execution context for all CPU-bound processing.
-    */
-  implicit def contextShift: ContextShift[F]
-
-  /** The execution context for all blocking IO operations.
-    */
-  def blocker: Blocker
-
-  /** Runs the specified effect on the execution context for blocking IO
-    * and subsequently switches back to the processing context.
-    */
-  def runBlocking[A] (fa: F[A]): F[A] = blocker.blockOn(fa)
 
   /** Runs the specified batch in parallel, but may fall back to sequential execution
     * depending on configuration.
@@ -80,23 +66,19 @@ object Runtime {
   /** Creates a Runtime instance for sequential execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def sequential[F[_]: Sync: ContextShift] (blockerParam: Blocker): Runtime[F] = new Runtime[F] {
+  def sequential[F[_]: Sync]: Runtime[F] = new Runtime[F] {
     val F = implicitly[Sync[F]]
     val parallelInstance = None
     val parallelism = 1
-    val contextShift = implicitly[ContextShift[F]]
-    val blocker = blockerParam
   }
 
   /** Creates a Runtime instance for parallel execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def parallel[F[_]: Sync: Parallel: ContextShift] (blockerParam: Blocker, parallelismParam: Int): Runtime[F] = new Runtime[F] {
+  def parallel[F[_]: Sync: Parallel] (parallelismParam: Int): Runtime[F] = new Runtime[F] {
     val F = implicitly[Sync[F]]
     val parallelInstance = Some(implicitly[Parallel[F]])
     val parallelism = parallelismParam
-    val contextShift = implicitly[ContextShift[F]]
-    val blocker = blockerParam
   }
 
 }

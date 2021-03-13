@@ -49,7 +49,7 @@ import laika.theme.Theme
   *   .from(Markdown)
   *   .to(EPUB)
   *   .using(GitHubFlavor)
-  *   .io(blocker)
+  *   .io
   *   .parallel[IO]
   *   .build
   *

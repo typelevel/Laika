@@ -32,7 +32,7 @@ import laika.theme.config.{EmbeddedFontFile, EmbeddedFontResource}
   */
 private[helium] object HeliumInputBuilder {
 
-  def build[F[_]: Sync: Runtime] (helium: Helium): F[InputTreeBuilder[F]] = {
+  def build[F[_]: Sync] (helium: Helium): F[InputTreeBuilder[F]] = {
     
     import helium._
     

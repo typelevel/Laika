@@ -57,7 +57,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
   "The PDF Renderer" should {
     
     val templateParser = MarkupParser.of(Markdown)
-      .io(blocker)
+      .io
       .parallel[IO]
       .build
     
@@ -74,7 +74,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
 
     "render a tree to a file" in new PDFTreeModel with FileSetup {
       val renderer = Renderer.of(PDF)
-        .io(blocker)
+        .io
         .parallel[IO]
         .build
 
@@ -88,7 +88,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
     "render a tree to an OutputStream" in new PDFTreeModel {
       val renderer = Renderer
         .of(PDF)
-        .io(blocker)
+        .io
         .parallel[IO]
         .build
 

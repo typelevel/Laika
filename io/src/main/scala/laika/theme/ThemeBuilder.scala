@@ -133,7 +133,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
 
   /** Builds a theme resource based on the elements passed to this builder instance.
     */
-  def build: Resource[F, Theme[F]] = Resource.liftF(inputs.flatMap(_.build.map(in => new Theme[F] {
+  def build: Resource[F, Theme[F]] = Resource.eval(inputs.flatMap(_.build.map(in => new Theme[F] {
     def inputs: InputTree[F] = in
     def extensions: Seq[ExtensionBundle] = self.extensions ++ bundleBuilder.build.toSeq
     def treeProcessor: Format => TreeProcessor[F] = { format =>

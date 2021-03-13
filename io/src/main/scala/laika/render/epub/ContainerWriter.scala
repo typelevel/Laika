@@ -26,7 +26,6 @@ import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.format.EPUB
 import laika.io.model._
-import laika.io.runtime.Runtime
 import laika.render.TagFormatter
 
 /** Creates the EPUB container based on a document tree and the HTML result
@@ -99,7 +98,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+  def write[F[_]: Sync] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
       config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException))

@@ -25,7 +25,7 @@ import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.config.ConfigResourceError
 import laika.io.model.TextInput
-import laika.io.runtime.{InputRuntime, Runtime}
+import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
 
@@ -41,7 +41,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync : Runtime] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadFile[F[_]: Sync] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
     loadFile(new File(file))
 
   /** Load the specified file (which may be a file on the file system or a classpath resource).
@@ -50,7 +50,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync : Runtime] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadFile[F[_]: Sync] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
     
     def load: F[Either[ConfigResourceError, String]] = {
       val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
@@ -74,7 +74,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadClasspathResource[F[_]: Sync : Runtime] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadClasspathResource[F[_]: Sync] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
     Option(getClass.getClassLoader.getResource(resource)) match {
       case Some(url) => loadFile(url.getFile)
       case None => Sync[F].pure(None)
@@ -86,12 +86,12 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadUrl[F[_]: Sync : Runtime] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadUrl[F[_]: Sync] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
     
     val stream: F[InputStream] = for {
       con <- Sync[F].delay(url.openConnection())
       _   <- Sync[F].delay(con.setRequestProperty("Accept", "application/hocon"))
-      _   <- Runtime[F].runBlocking(Sync[F].delay(con.connect())) 
+      _   <- Sync[F].blocking(con.connect())
       str <- Sync[F].delay(con.getInputStream)
     } yield str
     
