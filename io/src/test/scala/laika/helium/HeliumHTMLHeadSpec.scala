@@ -35,14 +35,12 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .io
     .parallel[IO]
     .build
 
   val renderer: Resource[IO, TreeRenderer[IO]] = {
     val builder = Renderer.of(HTML)
     builder.withConfig(builder.config.withBundlesFor(Markdown)) // TODO - there should be dedicated API for this scenario
-      .io
       .parallel[IO]
       .build
   }
@@ -55,7 +53,6 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

@@ -116,7 +116,6 @@ object Tasks {
       Renderer
         .of(format)
         .withConfig(Settings.parserConfig.value)
-        .io
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build
@@ -141,7 +140,6 @@ object Tasks {
       val ops = Renderer
         .of(format)
         .withConfig(Settings.parserConfig.value)
-        .io
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build 

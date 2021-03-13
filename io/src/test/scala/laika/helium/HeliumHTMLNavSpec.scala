@@ -35,7 +35,6 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

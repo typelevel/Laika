@@ -25,10 +25,11 @@ import laika.io.api._
 import laika.io.ops.IOBuilderOps
 import laika.io.runtime.Runtime
 
-/** Implicits that add an `io` method to all builder instances for parsers, renderers and transformers
-  * from the laika-core module, adding support for file/stream IO, suspended in the effect of your choice.
+/** Implicits that add `sequential[F[_]]` and `parallel[F[_]]` methods to all builder instances for parsers, 
+  * renderers and transformers from the laika-core module, adding support for file/stream IO,
+  * suspended in the effect of your choice.
   * 
-  * The requirements for the effect are `Sync` and `ContextShift` for sequential execution,
+  * The requirements for the effect are `Sync` for sequential execution,
   * and additionally `cats.Parallel` for parallel execution.
   *
   * Example for transforming an entire directory from Markdown to HTML using the `parallel` builder:
@@ -38,7 +39,6 @@ import laika.io.runtime.Runtime
   *   .from(Markdown)
   *   .to(HTML)
   *   .using(GitHubFlavor)
-  *   .io
   *   .parallel[IO](4)
   *   .build
   *
@@ -69,67 +69,41 @@ import laika.io.runtime.Runtime
   */
 object implicits {
 
-  implicit class ImplicitParserOps (val builder: ParserBuilder) extends AnyVal {
+  implicit class ImplicitParserOps (val builder: ParserBuilder) extends IOBuilderOps[TreeParser.Builder] {
 
-    /** Builder step for specifying the blocker to use for all blocking IO operations.
-      */
-    def io: IOBuilderOps[TreeParser.Builder] =
-      new IOBuilderOps[TreeParser.Builder] {
-        protected def build[F[_]: Sync: Runtime]: TreeParser.Builder[F] =
-          new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
-      }
+    protected def build[F[_]: Sync: Runtime]: TreeParser.Builder[F] =
+      new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
   }
 
-  implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends AnyVal {
+  implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends IOBuilderOps[TreeRenderer.Builder] {
 
-    /** Builder step for specifying the blocker to use for all blocking IO operations.
-      */
-    def io: IOBuilderOps[TreeRenderer.Builder] =
-      new IOBuilderOps[TreeRenderer.Builder] {
-        protected def build[F[_]: Sync: Runtime]: TreeRenderer.Builder[F] =
-          new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
-      }
+    protected def build[F[_]: Sync: Runtime]: TreeRenderer.Builder[F] =
+      new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
   }
 
-  implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends AnyVal {
+  implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends IOBuilderOps[TreeTransformer.Builder] {
 
-    /** Builder step for specifying the blocker to use for all blocking IO operations.
-      */
-    def io: IOBuilderOps[TreeTransformer.Builder] =
-      new IOBuilderOps[TreeTransformer.Builder] {
-        protected def build[F[_]: Sync: Runtime]: TreeTransformer.Builder[F] = {
-          val transformer = builder.build 
-          new TreeTransformer.Builder[F](
-            NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
-        }
-      }
+    protected def build[F[_]: Sync: Runtime]: TreeTransformer.Builder[F] = {
+      val transformer = builder.build
+      new TreeTransformer.Builder[F](
+        NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
+    }
   }
 
-  implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]) extends AnyVal {
+  implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
-    /** Builder step for specifying the blocker to use for all blocking IO operations.
-      */
-    def io: IOBuilderOps[BinaryTreeRenderer.Builder] =
-      new IOBuilderOps[BinaryTreeRenderer.Builder] {
-
-        protected def build[F[_]: Sync: Runtime]: BinaryTreeRenderer.Builder[F] = {
-          new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build)
-        }
-      }
+    protected def build[F[_]: Sync: Runtime]: BinaryTreeRenderer.Builder[F] = {
+      new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build)
+    }
   }
 
-  implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]) extends AnyVal {
+  implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 
-    /** Builder step for specifying the blocker to use for all blocking IO operations.
-      */
-    def io: IOBuilderOps[BinaryTreeTransformer.Builder] =
-      new IOBuilderOps[BinaryTreeTransformer.Builder] {
-        protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
-          val parser = new ParserBuilder(builder.markupFormat, builder.config).build
-          new BinaryTreeTransformer.Builder[F](
-            NonEmptyList.of(parser), builder.twoPhaseRenderFormat, builder.config, Helium.defaults.build, Kleisli(Sync[F].pure))
-        }
-      }
+    protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
+      val parser = new ParserBuilder(builder.markupFormat, builder.config).build
+      new BinaryTreeTransformer.Builder[F](
+        NonEmptyList.of(parser), builder.twoPhaseRenderFormat, builder.config, Helium.defaults.build, Kleisli(Sync[F].pure))
+    }
   }
   
 }

@@ -38,18 +38,10 @@ import laika.theme.Theme
  *  May be directly passed to the `Renderer` or `Transformer` APIs:
  *
   * {{{
-  * implicit val cs: ContextShift[IO] = 
-  *   IO.contextShift(ExecutionContext.global)
-  *
-  * val blocker = Blocker.liftExecutionContext(
-  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-  * )
-  *
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(EPUB)
   *   .using(GitHubFlavor)
-  *   .io
   *   .parallel[IO]
   *   .build
   *

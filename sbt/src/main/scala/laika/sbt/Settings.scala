@@ -67,7 +67,6 @@ object Settings {
       .to(HTML)
       .withConfig(mergedConfig(createParser(Markdown).config))
       .using(laikaExtensions.value: _*)
-      .io
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))
@@ -118,7 +117,6 @@ object Settings {
     }
 
     createParser(Markdown)
-      .io
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))

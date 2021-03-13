@@ -132,9 +132,9 @@ class ConfigSpec extends IOWordSpec
     def resultTree (root: DocumentTreeRoot): DocumentTree =
       TemplateRewriter.applyTemplates(root, TemplateContext("html")).toOption.get.tree
 
-    val markdownParser = MarkupParser.of(Markdown).io.parallel[IO].build
+    val markdownParser = MarkupParser.of(Markdown).parallel[IO].build
 
-    val rstParser = MarkupParser.of(ReStructuredText).io.parallel[IO].build
+    val rstParser = MarkupParser.of(ReStructuredText).parallel[IO].build
 
     def parseMD (input: InputTreeBuilder[IO]): IO[RootElement] = parseMDTree(input).map(toResult)
     def parseMDTree (input: InputTreeBuilder[IO]): IO[ParsedTree[IO]] = markdownParser.use { p =>
@@ -349,7 +349,6 @@ class ConfigSpec extends IOWordSpec
       MarkupParser
         .of(Markdown)
         .using(BundleProvider.forConfigString(config5))
-        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
         .build

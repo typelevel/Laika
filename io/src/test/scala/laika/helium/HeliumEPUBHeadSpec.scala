@@ -33,7 +33,6 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(EPUB.XHTML)
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

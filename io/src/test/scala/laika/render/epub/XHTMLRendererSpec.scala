@@ -50,7 +50,6 @@ class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with
     def renderedDocs (root: DocumentTreeRoot): IO[Seq[RenderedDocument]] =
       Renderer
         .of(EPUB.XHTML)
-        .io
         .parallel[IO]
         .build
         .use(_
