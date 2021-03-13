@@ -2,6 +2,9 @@ import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import sbt.Keys.artifactPath
 
+val scala2_12 = "2.12.13"
+val scala2_13 = "2.13.5"
+
 lazy val basicSettings = Seq(
   version               := "0.17.1-SNAPSHOT",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
@@ -10,7 +13,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.12",
+  scalaVersion          := scala2_12,
   scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -29,7 +32,7 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq("2.12.12", "2.13.3")
+  crossScalaVersions := Seq(scala2_12, scala2_13)
 )
 
 lazy val publishSettings = Seq(
@@ -60,15 +63,15 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.2" % "test"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.5" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "2.2.0"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "2.3.3"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val http4s     = Seq(
-                   "org.http4s"           %% "http4s-dsl"          % "0.21.4",
-                   "org.http4s"           %% "http4s-blaze-server" % "0.21.4"
+                   "org.http4s"           %% "http4s-dsl"          % "0.21.20",
+                   "org.http4s"           %% "http4s-blaze-server" % "0.21.20"
                  )
 
 lazy val root = project.in(file("."))
@@ -101,8 +104,8 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.2.2" % "test",
-      "org.typelevel" %%% "cats-core" % "2.2.0"
+      "org.scalatest" %%% "scalatest" % "3.2.5" % "test",
+      "org.typelevel" %%% "cats-core" % "2.4.2"
     )
   )
   .jvmSettings(
@@ -135,7 +138,7 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
-    crossScalaVersions := Seq("2.12.12"),
+    crossScalaVersions := Seq(scala2_12),
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
