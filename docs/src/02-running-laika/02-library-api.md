@@ -83,23 +83,21 @@ The following example for creating a pure transformer shows the main building bl
 If you require support for file/stream IO, templating or binary output formats, 
 the `laika-io` module expands on the core API to add this functionality:
 
-@:image(../img/io-api.png) {
+@:image(../img/io-api-0_18.png) {
   alt = Anatomy of the IO API
   intrinsicWidth = 602
   intrinsicHeight = 433
 }
 
 The blue elements of the API are identical to the pure transformer.
-The new `io` method used above becomes available with `import laika.io.implicits._`.
+The new `parallel` method used above becomes available with `import laika.io.implicits._`.
 
 This API introduces a dependency on `cats-effect` which is used to model the effectful computations.
 You can use it with any effect that supports the `cats-effect` type classes, like cats-IO, Monix or Zio.
 
-* The blocker passed in the example gives you control over which `ExecutionContext` blocking IO is performed in.
-
-* The call to `parallel[IO]` builds a transformer that lets you specify entire directories as input and allows to instruct
-  the library which effect type to use (cats-IO in this example). There are two more variants, `sequential`, 
-  that processes inputs sequentially as well as an overload for `parallel` that allows to specify the level of parallelism.
+The call to `parallel[IO]` builds a transformer that lets you specify entire directories as input and allows to instruct
+the library which effect type to use (cats-IO in this example). There are two more variants, `sequential`, 
+that processes inputs sequentially as well as an overload for `parallel` that allows to specify the level of parallelism.
   
 Using a `Transformer` is the most convenient option when you want to go directly from the raw input format (text markup)
 to the final output format. There are also `Parser` and `Renderer` instances that only do one half of the transformation.
@@ -193,13 +191,11 @@ The following example assumes the use case of an application written around abst
 from cats.IO for initialization:
 
 ```scala
-def createTransformer[F[_]: Async: ContextShift]
-    (blocker: Blocker): Resource[F, TreeTransformer[F]] =
+def createTransformer[F[_]: Sync: Parallel]: Resource[F, TreeTransformer[F]] =
   Transformer
     .from(Markdown)
     .to(HTML)
     .using(GitHubFlavor)
-    .io(blocker)
     .parallel[F]
     .build
 ``` 
@@ -212,17 +208,17 @@ The setup method above can then be used inside `IOApp` initialization logic:
 object MyApp extends IOApp {
 
   def run(args: List[String]) = {
-    Blocker[IO].use { blocker =>
-      val transformer = createTransformer[IO](blocker)
-      // other setup code
+    createTransformer[IO].use { transformer =>
+      // create modules depending on transformer
     }.as(ExitCode.Success)
   }
 }
 ```
 
-This way Laika gives full control over the `ExecutionContext` in which the blocking IO and CPU-bound operations are performed.
-
 Setup for other libraries would be similar, Monix for example comes with a `TaskApp` which is similar to `IOApp`.
+
+The `Resource` provided by Laika is meant to be initialized only once per application,
+so that the initialization logic and the loading of themes from the jars does only execute once. 
 
 
 ### Applications without Effect Library
@@ -231,24 +227,11 @@ When using other stacks like Akka HTTP or the Play framework, you need to bridge
 cats-effect and the surrounding toolkit, often centering around the Future API (which, in contrast to cats-effect,
 is not referentially transparent).
 
-First, to create a transformer with the setup method created in the previous example, you need to create instances
-of `ContextShift` and `Blocker` yourself:
+Assuming we reuse the `createTransformer` method from the previous section, you can then run a transformation
+and obtain the resulting effect:
 
 ```scala
-implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
-  
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)
-
-val transformer = createTransformer(blocker)
-```
-
-The resulting instance can then be used to describe a transformation: 
-
-```scala
-val result: IO[String] = transformer.use {
+val result: IO[String] = createTransformer[IO].use {
   _.fromDirectory("docs")
    .toDirectory("target")
    .transform
@@ -260,6 +243,16 @@ in contrast to the Scala SDK's `Future` which starts processing eagerly.
 
 For actually running the effect and producing a result,
 you have several options depending on the stack you are using.
+
+First, for any of the following options, you need to add the following import:
+
+```scala
+import cats.effect.unsafe.implicits.global
+```
+
+Alternatively you can manually construct an `IORuntime` if you need precise control over the `ExecutionContext` used
+in your application.
+
 One common scenario is a toolkit like Akka HTTP or Play where you execute a route that is expected to return a `Future`.
 This can achieved by a simple translation:
 
@@ -286,6 +279,38 @@ Do not get too hung up on the scary sound of all these `unsync...` methods. The 
 when using them is referential transparency. But if you are using a `Future`-based API for example, 
 your program is not referentially transparent anyway.
 
+Finally, if you intend to reuse the transformer, for example in a web application based on the Play framework,
+it is more efficient to split the resource allocation , use and release into three distinct effects that you can run
+independently, as the sample `IO` above would re-create the transformer for each invocation:
+
+```scala
+val alloc = createTransformer[IO].allocated
+val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync()
+```
+
+You would usually run the above when initializing your web application. 
+The obtained transformer can then be used in your controllers and each transformation would produce a new `Future`:
+
+```scala
+val futureResult: Future[String] = transformer
+  .fromDirectory("docs")
+  .toDirectory("target")
+  .transform
+  .unsafeToFuture()
+```
+
+In this case you also need to ensure you run the release function on shutdown:
+
+```scala
+releaseF.unsfaceRunSync()
+```
+
+The default Helium theme currently has a no-op release function, but this might change in the future and 3rd-party
+themes might behave differently, too. Therefore, it is good practice to ensure that the release function is always run.
+
+When using an application based on cats-effect, the `Resource` type safely deals with this, but when integrating
+with impure environments, these extra manual steps are necessary.
+
 
 Entire Directories as Input
 ---------------------------
@@ -299,7 +324,6 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .io(blocker)
   .parallel[IO]
   .build
 ```
@@ -456,7 +480,6 @@ First we create a parser that reads from a directory:
 val parserRes = MarkupParser
   .of(Markdown)
   .using(GitHubFlavor)
-  .io(blocker)
   .parallel[IO]
   .build
 ```
@@ -464,9 +487,9 @@ val parserRes = MarkupParser
 Next we create the renderers for the three output formats:
 
 ```scala
-val htmlRendererRes = Renderer.of(HTML).io(blocker).parallel[IO].build
-val epubRendererRes = Renderer.of(EPUB).io(blocker).parallel[IO].build
-val pdfRendererRes  = Renderer.of(PDF).io(blocker).parallel[IO].build
+val htmlRendererRes = Renderer.of(HTML).parallel[IO].build
+val epubRendererRes = Renderer.of(EPUB).parallel[IO].build
+val pdfRendererRes  = Renderer.of(PDF).parallel[IO].build
 ```
 
 Since all four processors are a cats-effect `Resource`, we combine them into one:
@@ -537,7 +560,6 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .io(blocker)
   .parallel[IO]
   .withTheme(theme)
   .build
