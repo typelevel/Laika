@@ -18,23 +18,24 @@ package laika.helium
 
 import java.util.Locale
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
+import laika.io.IOFunSuite
+import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
 import laika.theme._
 
 class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: ThemeProvider) = Transformer
+  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .withTheme(theme)
     .build

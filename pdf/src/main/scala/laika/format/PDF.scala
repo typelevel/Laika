@@ -51,7 +51,7 @@ import org.apache.fop.apps.FopFactory
   *   .from(Markdown)
   *   .to(PDF)
   *   .using(GitHubFlavor)
-  *   .io(blocker)
+  *   .io
   *   .parallel[IO]
   *   .build
   *

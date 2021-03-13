@@ -45,7 +45,7 @@ case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, forma
     */
   def asResource: Resource[F, InputStream] = {
     val fStream = Sync[F].delay(stream())
-    if (autoClose) Resource.fromAutoCloseable(fStream) else Resource.liftF(fStream)
+    if (autoClose) Resource.fromAutoCloseable(fStream) else Resource.eval(fStream)
   } 
 }
 

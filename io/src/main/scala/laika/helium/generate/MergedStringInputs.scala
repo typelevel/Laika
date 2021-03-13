@@ -16,16 +16,16 @@
 
 package laika.helium.generate
 
-import cats.implicits._
 import cats.effect.Sync
+import cats.implicits._
 import laika.io.model.BinaryInput
-import laika.io.runtime.{InputRuntime, Runtime}
+import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
 
 private[helium] object MergedStringInputs {
 
-  def merge[F[_]: Sync: Runtime](inputs: Seq[BinaryInput[F]]): F[String] = {
+  def merge[F[_]: Sync](inputs: Seq[BinaryInput[F]]): F[String] = {
     inputs.map(_.asResource).toList.sequence.use { streams =>
       streams.map { stream =>
         InputRuntime.textStreamResource(Sync[F].pure(stream), Codec.UTF8, autoClose = false).use { reader =>

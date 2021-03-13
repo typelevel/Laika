@@ -54,7 +54,7 @@ class TreeParserSpec extends IOWordSpec
 
     val defaultBuilder: TreeParser.Builder[IO] = MarkupParser
       .of(Markdown)
-      .io(blocker)
+      .io
       .parallel[IO]
       .withTheme(Theme.empty)
     
@@ -64,7 +64,7 @@ class TreeParserSpec extends IOWordSpec
       MarkupParser
         .of(Markdown)
         .using(bundle)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(Theme.empty)
         .build
@@ -72,7 +72,7 @@ class TreeParserSpec extends IOWordSpec
     def parserWithTheme (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
       MarkupParser
         .of(Markdown)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(bundle))
         .build
@@ -81,7 +81,7 @@ class TreeParserSpec extends IOWordSpec
       MarkupParser
         .of(Markdown)
         .using(appBundle)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(themeBundle))
         .build
@@ -132,7 +132,7 @@ class TreeParserSpec extends IOWordSpec
     def mixedParsedTree: IO[DocumentTreeRoot] = {
       val parser = MarkupParser
         .of(Markdown)
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))
@@ -565,10 +565,10 @@ class TreeParserSpec extends IOWordSpec
     trait CustomTheme extends CustomInputSetup {
       lazy val input: InputTreeBuilder[IO] = InputTree[IO].addDirectory(dirname)
       val themInputs = new TestThemeBuilder.Inputs {
-        def build[F[_]: Sync: Runtime] = addDoc(InputTree[F])
+        def build[F[_]: Sync] = addDoc(InputTree[F])
       }
       lazy val parser: Resource[IO, TreeParser[IO]] = defaultBuilder.withTheme(TestThemeBuilder.forInputs(themInputs)).build
-      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F]
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F]
     }
     
     trait ExtraDocSetup extends CustomInputSetup {
@@ -607,7 +607,7 @@ class TreeParserSpec extends IOWordSpec
     }
 
     "read a directory from the file system plus one AST input from a theme" in new ExtraDocSetup with CustomTheme {
-      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(extraPath, RootElement(Paragraph("Doc7"))))
       run()
     }
@@ -634,7 +634,7 @@ class TreeParserSpec extends IOWordSpec
     }
 
     "read a directory from the file system plus one extra template from a string in a theme" in new ExtraTemplateSetup with CustomTheme {
-      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("Template", templatePath)
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("Template", templatePath)
       run()
     }
 
@@ -650,7 +650,7 @@ class TreeParserSpec extends IOWordSpec
     }
 
     "read a directory from the file system plus one extra config document from a string in a theme" in new ExtraConfigSetup with CustomTheme {
-      def addDoc[F[_]: Sync: Runtime] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("foo = 7", configPath)
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] = input.addString("foo = 7", configPath)
       run()
     }
 

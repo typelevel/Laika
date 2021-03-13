@@ -18,14 +18,14 @@ package laika.helium
 
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
-import laika.ast.{/, Path}
+import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
+import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.{FileIO, IOFunSuite}
 import laika.theme._
 
 class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
@@ -33,7 +33,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(EPUB.XHTML)
-    .io(FileIO.blocker)
+    .io
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -42,11 +42,11 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     Root / "name.md" -> "text"
   )
   
-  val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                        |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                        |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
-                        |<title></title>
-                        |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
+  private val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                                |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                                |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
+                                |<title></title>
+                                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
   
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 

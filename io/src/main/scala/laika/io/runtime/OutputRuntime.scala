@@ -32,7 +32,7 @@ object OutputRuntime {
 
   /** Creates a Writer for the specified output model and writes the given string to it.
     */
-  def write[F[_]: Sync: Runtime] (result: String, output: TextOutput[F]): F[Unit] = {
+  def write[F[_]: Sync] (result: String, output: TextOutput[F]): F[Unit] = {
     output.resource.use {
       case PureWriter => Sync[F].unit
       case StreamWriter(writer) => Sync[F].delay {
@@ -42,8 +42,7 @@ object OutputRuntime {
     }
   }
 
-  /** Creates a directory for the specified file, including parent directories
-    * of that file if they do not exist yet.
+  /** Creates a directory for the specified file, including parent directories of that file if they do not exist yet.
     */
   def createDirectory[F[_]: Sync] (file: File): F[Unit] = 
     Sync[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Sync[F].unit 
@@ -54,7 +53,7 @@ object OutputRuntime {
   })
 
   def textStreamResource[F[_]: Sync] (stream: F[OutputStream], codec: Codec, autoClose: Boolean): Resource[F, Writer] = {
-    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream)
+    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
     resource.map(out => new BufferedWriter(new OutputStreamWriter(out, codec.charSet)))
   }
   
@@ -62,6 +61,6 @@ object OutputRuntime {
     Resource.fromAutoCloseable(Sync[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
 
   def binaryStreamResource[F[_]: Sync] (stream: F[OutputStream], autoClose: Boolean): Resource[F, OutputStream] =
-    if (autoClose) Resource.fromAutoCloseable(stream) else Resource.liftF(stream)
+    if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
 
 }

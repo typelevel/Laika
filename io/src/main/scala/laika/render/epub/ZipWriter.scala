@@ -37,16 +37,16 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Sync: Runtime] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
+  def zipEPUB[F[_]: Sync] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
 
     def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
     
       def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit): F[Unit] = for {
         entry <- Sync[F].delay(new ZipEntry(input._2.relative.toString))
         _     <- prepareEntry(entry)
-        _     <- Sync[F].delay(zipOut.putNextEntry(entry))
+        _     <- Sync[F].blocking(zipOut.putNextEntry(entry))
         _     <- CopyRuntime.copy(input._1, zipOut)
-        _     <- Sync[F].delay(zipOut.closeEntry())
+        _     <- Sync[F].blocking(zipOut.closeEntry())
       } yield ()
       
       
@@ -61,7 +61,7 @@ object ZipWriter {
 
       writeEntry(inputs.head, prepareUncompressedEntry) >> 
         inputs.tail.map(writeEntry(_)).sequence >> 
-          Sync[F].delay(zipOut.close())
+          Sync[F].blocking(zipOut.close())
     }
     
     val in = inputFs.toVector.map { doc =>
@@ -69,11 +69,9 @@ object ZipWriter {
     }.sequence
 
     val out = output.resource.map(new ZipOutputStream(_))
-    
-    Runtime[F].runBlocking {
-      (in, out).tupled.use {
-        case (ins, zip) => copy(ins, zip)
-      }
+
+    (in, out).tupled.use {
+      case (ins, zip) => copy(ins, zip)
     }
   }
   

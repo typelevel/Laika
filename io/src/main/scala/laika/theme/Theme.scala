@@ -87,7 +87,7 @@ object Theme {
     * right into the input directories.
     */
   def empty: ThemeProvider = new ThemeProvider {
-    def build[F[_]: Sync: Runtime] = ThemeBuilder("Empty Theme").build
+    def build[F[_]: Sync] = ThemeBuilder("Empty Theme").build
   }
 
 }

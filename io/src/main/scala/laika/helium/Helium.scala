@@ -62,7 +62,7 @@ import laika.theme._
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(EPUB)
-  *   .io(blocker)
+  *   .io
   *   .parallel[IO]
   *   .witTheme(theme)
   *   .build

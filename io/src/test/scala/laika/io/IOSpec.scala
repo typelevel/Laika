@@ -17,7 +17,8 @@
 package laika.io
 
 import cats.implicits._
-import cats.effect.{ContextShift, IO, Timer}
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import laika.ast.DocumentTreeRoot
 import laika.ast.sample.DocumentTreeAssertions
 import laika.io.helper.RenderedTreeAssertions
@@ -25,7 +26,6 @@ import laika.io.model.RenderedTreeRoot
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.concurrent.ExecutionContext
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -34,12 +34,6 @@ trait IOSpec extends Matchers {
   /* not using AsyncWordSpec/unsafeToFuture due to poor support in sbt and IntelliJ 
      (wrong grouping of tests in reports) */
   
-  val executionContext: ExecutionContext = ExecutionContext.global
-  
-  implicit val ioContextShift: ContextShift[IO] = IO.contextShift(executionContext)
-  
-  implicit val ioTimer: Timer[IO] = IO.timer(executionContext)
-
   implicit class AssertingTree(private val self: IO[DocumentTreeRoot]) extends DocumentTreeAssertions {
 
     def assertEquals(tree: DocumentTreeRoot): Unit = 

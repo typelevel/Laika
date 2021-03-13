@@ -17,7 +17,7 @@
 package laika.io
 
 import cats.data.{Kleisli, NonEmptyList}
-import cats.effect.{Blocker, Sync}
+import cats.effect.Sync
 import laika.api.builder._
 import laika.factory.BinaryPostProcessorBuilder
 import laika.helium.Helium
@@ -31,45 +31,14 @@ import laika.io.runtime.Runtime
   * The requirements for the effect are `Sync` and `ContextShift` for sequential execution,
   * and additionally `cats.Parallel` for parallel execution.
   *
-  * Example for transforming a file from Markdown to HTML using the `sequential` builder:
-  *
-  * {{{
-  * implicit val cs: ContextShift[IO] = 
-  *   IO.contextShift(ExecutionContext.global)
-  *
-  * val blocker = Blocker.liftExecutionContext(
-  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-  * )
-  *
-  * val transformer = Transformer
-  *   .from(Markdown)
-  *   .to(HTML)
-  *   .using(GitHubFlavor)
-  *   .io(blocker)
-  *   .sequential[IO]
-  *   .build
-  *
-  * val res: IO[Unit] = transformer
-  *   .fromFile("hello.md")
-  *   .toFile("hello.html")
-  *   .transform
-  * }}}
-  * 
   * Example for transforming an entire directory from Markdown to HTML using the `parallel` builder:
   *
   * {{{
-  * implicit val cs: ContextShift[IO] = 
-  *   IO.contextShift(ExecutionContext.global)
-  *
-  * val blocker = Blocker.liftExecutionContext(
-  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-  * )
-  *
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(HTML)
   *   .using(GitHubFlavor)
-  *   .io(blocker)
+  *   .io
   *   .parallel[IO](4)
   *   .build
   *
@@ -79,7 +48,7 @@ import laika.io.runtime.Runtime
   *   .transform
   * }}}
   * 
-  * The parallel variants of parser, renderer and transformer are the most powerful of the library, and the only
+  * These variants of parser, renderer and transformer are the most powerful of the library, and the only
   * options that support templating, style sheets and the copying of static files from input to output directory.
   *
   * This API can be used to produce an entire HTML site or e-books in the EPUB or PDF format.
@@ -104,8 +73,8 @@ object implicits {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
-    def io (blocker: Blocker): IOBuilderOps[TreeParser.Builder] =
-      new IOBuilderOps[TreeParser.Builder](blocker) {
+    def io: IOBuilderOps[TreeParser.Builder] =
+      new IOBuilderOps[TreeParser.Builder] {
         protected def build[F[_]: Sync: Runtime]: TreeParser.Builder[F] =
           new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
       }
@@ -115,8 +84,8 @@ object implicits {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
-    def io (blocker: Blocker): IOBuilderOps[TreeRenderer.Builder] =
-      new IOBuilderOps[TreeRenderer.Builder](blocker) {
+    def io: IOBuilderOps[TreeRenderer.Builder] =
+      new IOBuilderOps[TreeRenderer.Builder] {
         protected def build[F[_]: Sync: Runtime]: TreeRenderer.Builder[F] =
           new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
       }
@@ -126,8 +95,8 @@ object implicits {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
-    def io (blocker: Blocker): IOBuilderOps[TreeTransformer.Builder] =
-      new IOBuilderOps[TreeTransformer.Builder](blocker) {
+    def io: IOBuilderOps[TreeTransformer.Builder] =
+      new IOBuilderOps[TreeTransformer.Builder] {
         protected def build[F[_]: Sync: Runtime]: TreeTransformer.Builder[F] = {
           val transformer = builder.build 
           new TreeTransformer.Builder[F](
@@ -140,8 +109,8 @@ object implicits {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
-    def io (blocker: Blocker): IOBuilderOps[BinaryTreeRenderer.Builder] =
-      new IOBuilderOps[BinaryTreeRenderer.Builder](blocker) {
+    def io: IOBuilderOps[BinaryTreeRenderer.Builder] =
+      new IOBuilderOps[BinaryTreeRenderer.Builder] {
 
         protected def build[F[_]: Sync: Runtime]: BinaryTreeRenderer.Builder[F] = {
           new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build)
@@ -153,8 +122,8 @@ object implicits {
 
     /** Builder step for specifying the blocker to use for all blocking IO operations.
       */
-    def io (blocker: Blocker): IOBuilderOps[BinaryTreeTransformer.Builder] =
-      new IOBuilderOps[BinaryTreeTransformer.Builder](blocker) {
+    def io: IOBuilderOps[BinaryTreeTransformer.Builder] =
+      new IOBuilderOps[BinaryTreeTransformer.Builder] {
         protected def build[F[_]: Sync: Runtime]: BinaryTreeTransformer.Builder[F] = {
           val parser = new ParserBuilder(builder.markupFormat, builder.config).build
           new BinaryTreeTransformer.Builder[F](

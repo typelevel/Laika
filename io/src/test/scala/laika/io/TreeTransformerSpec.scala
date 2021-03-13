@@ -44,9 +44,9 @@ import laika.theme.ThemeProvider
 class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssertions {
 
   
-  private val transformer: Resource[IO, TreeTransformer[IO]] = Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].build
+  private val transformer: Resource[IO, TreeTransformer[IO]] = Transformer.from(Markdown).to(AST).io.parallel[IO].build
   private def transformerWithBundle (bundle: ExtensionBundle): Resource[IO, TreeTransformer[IO]] = 
-    Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build
+    Transformer.from(Markdown).to(AST).using(bundle).io.parallel[IO].build
   
   
   trait TreeTransformerSetup extends InputBuilder {
@@ -66,13 +66,13 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
     def transformWithSlugBuilder (f: String => String): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forSlugBuilder(f))
     def transformWithDirective (directive: Templates.Directive): IO[RenderedTreeRoot[IO]] = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     def transformWithDocumentMapper (f: Document => Document): IO[RenderedTreeRoot[IO]] = 
-      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].mapDocuments(f).build)
+      transformWith(Transformer.from(Markdown).to(AST).io.parallel[IO].mapDocuments(f).build)
     
     def describe: IO[TransformerDescriptor] = Transformer
       .from(Markdown)
       .to(AST)
       .using(SyntaxHighlighting)
-      .io(blocker)
+      .io
       .parallel[IO]
       .withAlternativeParser(MarkupParser.of(ReStructuredText))
       .build
@@ -90,10 +90,10 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
       )
 
     private def transformWithBundle (bundle: ExtensionBundle): IO[RenderedTreeRoot[IO]] =
-      transformWith(Transformer.from(Markdown).to(AST).using(bundle).io(blocker).parallel[IO].build)
+      transformWith(Transformer.from(Markdown).to(AST).using(bundle).io.parallel[IO].build)
 
     def transformMixedMarkup: IO[RenderedTreeRoot[IO]] =
-      transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withAlternativeParser(MarkupParser.of(ReStructuredText)).build)
+      transformWith(Transformer.from(Markdown).to(AST).io.parallel[IO].withAlternativeParser(MarkupParser.of(ReStructuredText)).build)
     
     object Contents {
       val name = "foo"
@@ -201,7 +201,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
       
       val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
       def transformWithProcessor: IO[RenderedTreeRoot[IO]] =
-        transformWith(Transformer.from(Markdown).to(AST).io(blocker).parallel[IO].withTheme(theme).build)
+        transformWith(Transformer.from(Markdown).to(AST).io.parallel[IO].withTheme(theme).build)
 
       transformWithProcessor
         .assertEquals(renderedRoot(
@@ -292,7 +292,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
         .from(Markdown)
         .to(XSLFO)
         .using(BundleProvider.forStyleSheetParser(parser))
-        .io(blocker)
+        .io
         .parallel[IO]
         .withTheme(TestTheme.heliumTestProps.build)
         .build
@@ -550,7 +550,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
       val transformer: Resource[IO, BinaryTreeTransformer[IO]] = Transformer
         .from(ReStructuredText)
         .to(TestRenderResultProcessor)
-        .io(blocker)
+        .io
         .parallel[IO]
         .build
       

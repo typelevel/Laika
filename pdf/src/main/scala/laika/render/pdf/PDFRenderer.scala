@@ -16,20 +16,16 @@
 
 package laika.render.pdf
 
-import java.io.{InputStream, OutputStream, StringReader}
-import java.net.URI
+import java.io.{OutputStream, StringReader}
 
 import cats.effect.Sync
 import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.{Transformer, TransformerFactory}
-import laika.ast.{DocumentMetadata, Path}
+import laika.ast.DocumentMetadata
 import laika.io.model.{BinaryInput, BinaryOutput}
-import laika.io.runtime.Runtime
-import org.apache.fop.apps.io.ResourceResolverFactory
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
-import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
 
 /** Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream 
@@ -47,7 +43,7 @@ class PDFRenderer (fopFactory: FopFactory) {
     *  @param staticDocuments additional files like fonts or images that the renderer should resolve for FOP
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Sync: Runtime] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
+  def render[F[_] : Sync] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
@@ -67,15 +63,13 @@ class PDFRenderer (fopFactory: FopFactory) {
       factory.newTransformer // identity transformer
     }
     
-    Runtime[F].runBlocking {
-      output.resource.use { out =>
-        for {
-          source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
-          result      <- createSAXResult(out)
-          transformer <- createTransformer
-          _           <- Sync[F].delay(transformer.transform(source, result))
-        } yield ()
-      }
+    output.resource.use { out =>
+      for {
+        source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
+        result      <- createSAXResult(out)
+        transformer <- createTransformer
+        _           <- Sync[F].blocking(transformer.transform(source, result))
+      } yield ()
     }
 
   }
