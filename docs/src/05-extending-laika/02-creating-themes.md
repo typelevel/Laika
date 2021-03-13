@@ -25,7 +25,6 @@ laikaTheme := Theme.empty
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .io(blocker)
   .parallel[IO]
   .witTheme(Theme.empty)
   .build

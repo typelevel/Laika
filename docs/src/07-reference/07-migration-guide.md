@@ -8,8 +8,54 @@ towards 1.0.
 Most of the content in this guide is not relevant if you either use the integrated sbt plugin or the library API
 without any lower-level customizations.
 
-The only change of the top-level library API in 8 years had been the 0.12.0 release, which has very detailed
+The only major change of the top-level library API in 8 years had been the 0.12.0 release, which has very detailed
 migration instructions below.
+
+
+Versions older than 0.18.0
+--------------------------
+
+Version 0.18 is based on cats-effect 3, and the API changes in that library had to surface in API changes in Laika
+in some places.
+If you either use the sbt plugin or just the pure `laika-core` module, you are not affected.
+
+But users of the library API in either `laika-io` or `laika-pdf` need to make an easy, minor change:
+
+Before:
+
+```scala
+implicit val cs: ContextShift[IO] = 
+  IO.contextShift(ExecutionContext.global)
+      
+val blocker = Blocker.liftExecutionContext(
+  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
+
+)
+    
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .io(blocker)
+  .parallel[IO]
+  .build
+```
+
+After:
+
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .parallel[IO]
+  .build
+```
+
+The manual creation of `ContextShift` and `Blocker` instances is no longer needed,
+and consequently the `.io(blocker)` builder step is gone, too.
+
+If required, control over the thread pool configuration is still available centrally, e.g. in `IOApp`.
 
 
 Versions older than 0.16.0
@@ -209,6 +255,7 @@ val transformer = Transform
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
+  .build
   
 val res: Unit = transformer
   .fromDirectory("src")
@@ -220,18 +267,10 @@ After (ensure you added the new `laika-io` dependency):
 ```scala
 import laika.io.implicits._
 
-implicit val cs: ContextShift[IO] = 
-  IO.contextShift(ExecutionContext.global)
-      
-val blocker = Blocker.liftExecutionContext(
-  ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-)
-    
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .io(blocker)
   .parallel[IO]
   .build
   

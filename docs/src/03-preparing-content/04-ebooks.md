@@ -35,7 +35,6 @@ val transformer = Transformer
   .from(Markdown)
   .to(EPUB)
   .using(GitHubFlavor)
-  .io(blocker)
   .parallel[IO]
   .build
 

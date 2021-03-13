@@ -37,7 +37,6 @@ laikaTheme := Helium.defaults.build
 val transformer = Transformer
   .from(Markdown)
   .to(EPUB)
-  .io(blocker)
   .parallel[IO]
   .witTheme(Helium.defaults.build)
   .build
@@ -109,7 +108,6 @@ laikaTheme := theme
 val transformer = Transformer
   .from(Markdown)
   .to(EPUB)
-  .io(blocker)
   .parallel[IO]
   .witTheme(theme)
   .build
