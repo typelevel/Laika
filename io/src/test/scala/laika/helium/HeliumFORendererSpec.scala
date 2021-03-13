@@ -46,7 +46,6 @@ class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtra
       GitHubFlavor,
       SyntaxHighlighting
     )
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

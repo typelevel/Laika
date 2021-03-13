@@ -36,7 +36,6 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

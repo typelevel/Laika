@@ -33,7 +33,6 @@ class HeliumFOTocPageSpec extends IOFunSuite with InputBuilder with ResultExtrac
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(XSLFO)
-    .io
     .parallel[IO]
     .withTheme(theme)
     .build

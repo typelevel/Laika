@@ -25,7 +25,7 @@ import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.format.{Markdown, PDF}
 import laika.io.implicits._
 import laika.io.model.{InputTree, ParsedTree}
-import laika.io.{FileIO, IOSpec, IOWordSpec}
+import laika.io.{FileIO, IOWordSpec}
 import laika.rewrite.DefaultTemplatePath
 import org.scalatest.Assertion
 
@@ -56,10 +56,7 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
   
   "The PDF Renderer" should {
     
-    val templateParser = MarkupParser.of(Markdown)
-      .io
-      .parallel[IO]
-      .build
+    val templateParser = MarkupParser.of(Markdown).parallel[IO].build
     
     // run a parser with an empty input tree to obtain a parsed default template
     val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
@@ -74,7 +71,6 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
 
     "render a tree to a file" in new PDFTreeModel with FileSetup {
       val renderer = Renderer.of(PDF)
-        .io
         .parallel[IO]
         .build
 
@@ -88,7 +84,6 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
     "render a tree to an OutputStream" in new PDFTreeModel {
       val renderer = Renderer
         .of(PDF)
-        .io
         .parallel[IO]
         .build
 

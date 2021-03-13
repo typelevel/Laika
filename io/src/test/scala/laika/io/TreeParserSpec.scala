@@ -54,7 +54,6 @@ class TreeParserSpec extends IOWordSpec
 
     val defaultBuilder: TreeParser.Builder[IO] = MarkupParser
       .of(Markdown)
-      .io
       .parallel[IO]
       .withTheme(Theme.empty)
     
@@ -64,7 +63,6 @@ class TreeParserSpec extends IOWordSpec
       MarkupParser
         .of(Markdown)
         .using(bundle)
-        .io
         .parallel[IO]
         .withTheme(Theme.empty)
         .build
@@ -72,7 +70,6 @@ class TreeParserSpec extends IOWordSpec
     def parserWithTheme (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
       MarkupParser
         .of(Markdown)
-        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(bundle))
         .build
@@ -81,7 +78,6 @@ class TreeParserSpec extends IOWordSpec
       MarkupParser
         .of(Markdown)
         .using(appBundle)
-        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundle(themeBundle))
         .build
@@ -132,7 +128,6 @@ class TreeParserSpec extends IOWordSpec
     def mixedParsedTree: IO[DocumentTreeRoot] = {
       val parser = MarkupParser
         .of(Markdown)
-        .io
         .parallel[IO]
         .withTheme(Theme.empty)
         .withAlternativeParser(MarkupParser.of(ReStructuredText))

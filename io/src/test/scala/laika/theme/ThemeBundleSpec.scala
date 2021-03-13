@@ -48,7 +48,6 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
         .from(Markdown)
         .to(HTML)
         .using(appBundles:_*)
-        .io
         .parallel[IO]
         .withTheme(TestThemeBuilder.forBundles(themeBundles))
         .build

@@ -138,7 +138,6 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
     lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = {
       val builder = Renderer.of(FOTest)
       builder.withConfig(builder.config.withBundlesFor(Markdown))
-        .io
         .parallel[IO]
         .withTheme(TestTheme.heliumTestProps.build)
         .build

@@ -40,18 +40,10 @@ import org.apache.fop.apps.FopFactory
  *  May be directly passed to the `Render` or `Transform` APIs:
  *
   * {{{
-  * implicit val cs: ContextShift[IO] = 
-  *   IO.contextShift(ExecutionContext.global)
-  *
-  * val blocker = Blocker.liftExecutionContext(
-  *   ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
-  * )
-  *
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(PDF)
   *   .using(GitHubFlavor)
-  *   .io
   *   .parallel[IO]
   *   .build
   *

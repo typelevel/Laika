@@ -39,7 +39,6 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
     configure(builder)  
-      .io
       .parallel[IO]
       .withTheme(theme)
       .build

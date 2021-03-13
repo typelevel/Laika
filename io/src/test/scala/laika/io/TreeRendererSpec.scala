@@ -156,20 +156,20 @@ class TreeRendererSpec extends IOWordSpec
       Root / "helium" / "fonts"/ "icofont.woff",
       Root / "helium" / "fonts"/ "icofont.woff2",
     )
-    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(AST).io.parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(AST).parallel[IO].build
     override def hasTitle = false
   }
 
   trait HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val staticPaths = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
     override val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
-    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).io.parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).parallel[IO].build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     val staticPaths = staticHTMLPaths.filterNot(path => path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains("js"))
     override val rootElem: RootElement = RootElement(titleWithId("Title"), p("bbb"))
-    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).io.parallel[IO].build
+    lazy val renderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).parallel[IO].build
   }
 
   trait FORenderer extends TreeRendererSetup[FOFormatter] {
@@ -196,7 +196,6 @@ class TreeRendererSpec extends IOWordSpec
 
     def renderer: Resource[IO, TreeRenderer[IO]] = Renderer
       .of(XSLFO)
-      .io
       .parallel[IO]
       .withTheme(TestTheme.heliumTestProps.build)
       .build
@@ -294,7 +293,7 @@ class TreeRendererSpec extends IOWordSpec
     "render a tree with a single document to HTML using a render override in a theme" in {
       new HTMLRenderer {
         val input = rootTree
-        override lazy val renderer = Renderer.of(HTML).io.parallel[IO]
+        override lazy val renderer = Renderer.of(HTML).parallel[IO]
           .withTheme(TestThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
             case (fmt, Text(txt, _)) => fmt.text(txt + "!")
           }, origin = BundleOrigin.Theme))
@@ -313,7 +312,6 @@ class TreeRendererSpec extends IOWordSpec
           .using(BundleProvider.forOverrides(HTML.Overrides {
             case (fmt, Text(txt, _)) => fmt.text(txt + "?")
           }))
-          .io
           .parallel[IO]
           .withTheme(TestThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
             case (fmt, Text(txt, _)) => fmt.text(txt + "!")
@@ -336,7 +334,6 @@ class TreeRendererSpec extends IOWordSpec
             .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
         }
         override lazy val renderer = Renderer.of(HTML)
-          .io
           .parallel[IO]
           .withTheme(TestThemeBuilder.forInputs(inputs))
           .build
@@ -405,7 +402,6 @@ class TreeRendererSpec extends IOWordSpec
         override lazy val renderer = 
           Renderer
             .of(EPUB.XHTML)
-            .io
             .parallel[IO]
             .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
@@ -450,7 +446,6 @@ class TreeRendererSpec extends IOWordSpec
         override val renderer =
           Renderer
             .of(XSLFO)
-            .io
             .parallel[IO]
             .withTheme(TestThemeBuilder.forInputs(inputs))
             .build
@@ -509,7 +504,6 @@ class TreeRendererSpec extends IOWordSpec
       val theme = TestThemeBuilder.forInputs(inputs)
       Renderer
         .of(AST)
-        .io
         .parallel[IO]
         .withTheme(theme)
         .build
@@ -586,7 +580,6 @@ class TreeRendererSpec extends IOWordSpec
       
       val renderer: Resource[IO, BinaryTreeRenderer[IO]] = Renderer
         .of(TestRenderResultProcessor)
-        .io
         .parallel[IO]
         .build
     }
@@ -646,7 +639,6 @@ class TreeRendererSpec extends IOWordSpec
     "render to a directory using the toDirectory method" in {
       new FileSystemTest {
         val renderer = Renderer.of(AST)
-          .io
           .parallel[IO]
           .build
 
@@ -666,7 +658,6 @@ class TreeRendererSpec extends IOWordSpec
       new FileSystemTest {
 
         val htmlRenderer = Renderer.of(HTML)
-          .io
           .parallel[IO]
           .build
 

@@ -40,7 +40,6 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
     configure(builder)  
-      .io
       .parallel[IO]
       .withTheme(theme)
       .build
