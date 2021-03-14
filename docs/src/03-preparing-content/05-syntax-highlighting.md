@@ -55,6 +55,7 @@ Laika currently supports the following languages and formats:
 * HTML
 * CSS
 * XML
+* YAML
 * JSON
 * HOCON
 * SQL
