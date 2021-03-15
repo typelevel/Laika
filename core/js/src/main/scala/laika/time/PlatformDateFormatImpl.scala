@@ -32,8 +32,24 @@ object PlatformDateFormatImpl extends PlatformDateFormat {
     else Right(new Date(ms.toLong))
   }
   
-  // For now the js impl ignores the pattern, this might be enhanced in the future
-  private[laika] def format (date: Date, pattern: String): Either[String, String] =
-    Try(new js.Date(date.getTime.toDouble).toLocaleString).toEither.left.map(_.getMessage)
-  
+  private[laika] def format (date: Date, pattern: String): Either[String, String] = {
+    /*
+    Formatting based on an explicit pattern is not supported for JavaScript Dates.
+    The specified pattern is therefore mostly ignored, apart from looking for a colon as a hint whether
+    a time component should be included.
+    
+    A proper way to handle this would be to parse the pattern and translate it to a JavaScript options object,
+    but this is currently considered beyond the scope of Laika.
+    For this reason this is currently not public API.
+    The only place where it is indirectly exposed to users is the date directive for reStructuredText,
+    which allows to pass a pattern.
+    As a consequence, using this directive with Scala.js is currently not fully supported.
+     */
+    val attempt = {
+      if (pattern.contains(":")) Try(new js.Date(date.getTime.toDouble).toLocaleString)
+      else Try(new js.Date(date.getTime.toDouble).toLocaleDateString())
+    }
+    attempt.toEither.left.map(_.getMessage)
+  }
+
 }
