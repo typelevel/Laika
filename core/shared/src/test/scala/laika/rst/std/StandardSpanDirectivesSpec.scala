@@ -27,6 +27,7 @@ import laika.format.ReStructuredText
 import laika.rewrite.link.LinkConfig
 import laika.time.PlatformDateFormat
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers
 
 /**
@@ -143,22 +144,12 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
     parse(input) should be (result)
   }
 
-
-  /* Avoid flaky tests caused by potential time differences (1 second offset), 
-   * in particular when run on GitHub Actions with Scala.js
-   */
-  private def stripMinutesAndSeconds (root: RootElement): RootElement =
-    root.rewriteSpans {
-      case Text(str, opt) => Replace(Text(str.replaceFirst("[:]\\d\\d:\\d\\d", ":00:00"), opt))
-    }
-  
   "The date directive" should "use the default pattern when no pattern is specified" in {
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
-    val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
-    stripMinutesAndSeconds(parse(input)) should be (result)
+    parse(input) should be (RootElement(p(Text(s"Some $date"))))
   }
   
   it should "support custom patterns" in {
@@ -166,10 +157,27 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
+    parse(input) should be (RootElement(p(Text(s"Some $date"))))
+  }
+
+  it should "support custom patterns with a time component" in {
+
+    /* Avoid flaky tests caused by potential time differences (1 second offset), 
+     * in particular when run on GitHub Actions with Scala.js
+     */
+    def stripMinutesAndSeconds (root: RootElement): RootElement =
+      root.rewriteSpans {
+        case Text(str, opt) => Replace(Text(str.replaceFirst("[:]\\d\\d:\\d\\d", ":00:00"), opt))
+      }
+    
+    val format = "yyyy-MM-dd HH:mm:ss"
+    val input = s""".. |subst| date:: $format
+                  |
+                  |Some |subst|""".stripMargin
+    val date = PlatformDateFormat.format(new Date, format).toOption.get
     val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
     stripMinutesAndSeconds(parse(input)) should be (result)
   }
-  
   
   "The unicode directive" should "support unicode hex values starting with '0x' intertwined with normal text" in {
     val input = """.. |subst| unicode:: 0xA9 Company
