@@ -658,6 +658,62 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         attrName("d e f"), equals, multiline("multiline\n          string"), other("\n}"),
       )
     }
+
+    "parse a Dhall document" in {
+      val input =
+        """# Doc
+          |
+          |```dhall
+          |-- Single-line comment
+          |let multilineText =
+          |  ''
+          |  Multi-line
+          |  text
+          |  ''
+          |let bool = True
+          |let renderedBool : Text = if bool then "True" else "False"
+          |let naturalNumber : Natural = 42
+          |let positiveInteger : Integer = +55
+          |let negativeInteger : Integer = -12
+          |let pi : Double = 3.14159265359
+          |let untyped = 123
+          |let AttributeDefinition = {
+          |  AttributeName: List Text,
+          |  AttributeType:  Types.AttributeType
+          |}
+          |{- Multi-line comment
+          |   continued
+          |-}
+          |let exampleFunction : Natural -> List Natural =
+          |        \(n : Natural) -> [ n, n + 1 ]
+          |in { exampleFunction = exampleFunction }
+          |```
+        """.stripMargin
+
+      val nl = other("\n")
+      val let = keyword("let")
+      val colon = other(" : ")
+
+      parse(input) shouldBe result("dhall",
+        comment("-- Single-line comment\n"),
+        let, space, declName("multilineText"), other(" =\n  "),
+        string("''\n  Multi-line\n  text\n  ''"), nl,
+        let, space, declName("bool"), equals, id("True"), nl,
+        let, space, declName("renderedBool"), colon, typeName("Text"), equals, keyword("if"), space, id("bool"), space, keyword("then"), space, string("\"True\""), space, keyword("else"), space, string("\"False\""), nl,
+        let, space, declName("naturalNumber"), colon, typeName("Natural"), equals, number("42"), nl,
+        let, space, declName("positiveInteger"), colon, typeName("Integer"), equals, number("+55"), nl,
+        let, space, declName("negativeInteger"), colon, typeName("Integer"), equals, number("-12"), nl,
+        let, space, declName("pi"), colon, typeName("Double"), equals, number("3.14159265359"), nl,
+        let, space, declName("untyped"), equals, number("123"), nl,
+        let, space, declName("AttributeDefinition"), other(" = {\n  "),
+        attrName("AttributeName"), other(": "), typeName("List"), space, typeName("Text"), other(",\n  "),
+        attrName("AttributeType"), other(":  "), id("Types"), other("."), typeName("AttributeType"), other("\n}\n"),
+        comment("{- Multi-line comment\n   continued\n-}"), nl,
+        let, space, declName("exampleFunction"), colon, typeName("Natural"), other(" -> "), typeName("List"), space, typeName("Natural"), other(" =\n        \\("),
+        attrName("n"), colon, typeName("Natural"), other(") -> [ "), id("n"), comma, id("n"), other(" + "), number("1"), other(" ]\n"),
+        keyword("in"), other(" { "), attrName("exampleFunction"), equals, id("exampleFunction"), other(" }")
+      )
+    }
     
     "parse an SQL document" in {
       val input =
