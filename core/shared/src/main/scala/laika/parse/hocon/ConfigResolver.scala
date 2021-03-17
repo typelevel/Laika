@@ -92,6 +92,7 @@ object ConfigResolver {
             if (!optional) invalidPaths += ((key, s"Missing required reference: '$ref'"))
             None
           }
+        case _ => None
       }
 
       def resolveMergedValue(key: Key)(values: Seq[ConfigBuilderValue]): Option[ConfigValue] = {
