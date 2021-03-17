@@ -46,7 +46,7 @@ object PlatformDateFormatImpl extends PlatformDateFormat {
     As a consequence, using this directive with Scala.js is currently not fully supported.
      */
     val attempt = {
-      if (pattern.contains(":")) Try(new js.Date(date.getTime.toDouble).toLocaleString)
+      if (pattern.contains(":")) Try(new js.Date(date.getTime.toDouble).toLocaleString())
       else Try(new js.Date(date.getTime.toDouble).toLocaleDateString())
     }
     attempt.toEither.left.map(_.getMessage)
