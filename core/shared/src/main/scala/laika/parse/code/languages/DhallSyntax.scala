@@ -21,8 +21,9 @@ import cats.implicits._
 import laika.ast.~
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.NumberLiteral.NumericParser
+import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
 import laika.parse.code.common._
+import laika.parse.code.implicits._
 import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.implicits._
 import laika.parse.text.{CharGroup, PrefixedParser}
@@ -33,13 +34,14 @@ import laika.parse.text.TextParsers._
  * @author Michał Sitko
  */
 object DhallSyntax extends SyntaxHighlighter {
+  
   /** The names of the language (and its optional aliases) as used in text markup */
   override def language: NonEmptyList[String] = NonEmptyList.of("dhall")
 
-  val comment =
+  val comment: CodeSpanParser =
     Comment.singleLine("--") ++ Comment.multiLine("{-", "-}")
 
-  val keywords = Keywords(
+  val keywords: CodeSpanParser = Keywords(
     "if", "then", "else", "let", "in",
     "using", "missing", "assert", "as",
     "Infinity", "NaN", "merge", "Some",
@@ -48,16 +50,16 @@ object DhallSyntax extends SyntaxHighlighter {
 
   val stringLiteral = StringLiteral.singleLine('"') ++ StringLiteral.multiLine("''")
 
-  val numberLiteral = NumberLiteral.hex ++
+  val numberLiteral: CodeSpanParser = NumberLiteral.hex ++
     NumberLiteral.decimalFloat ++
     NumericParser(CharGroup.digit, someOf('-', '+').max(1).some) ++
     NumberLiteral.decimalInt
 
-  val identifier = Identifier.alphaNum
+  val identifier: Identifier.IdParser = Identifier.alphaNum
 
-  val anyOfWs = anyOf(' ', '\t', '\n')
+  private val anyOfWs = anyOf(' ', '\t', '\n')
 
-  val tpe: PrefixedParser[Seq[CodeSpan]] = {
+  private val tpe: PrefixedParser[Seq[CodeSpan]] = {
     val t = someOf(CharGroup.alphaNum.add('_'))
     val nonKindedType = (t ~ ("." ~ t).rep).map { case a ~ seq =>
       seq.lastOption match {
@@ -70,30 +72,29 @@ object DhallSyntax extends SyntaxHighlighter {
       }
     }
 
-    (nonKindedType ~ ((" -> " | someOf(' ', '\t')).source.map(CodeSpan(_)) ~ nonKindedType).rep.map(_.flatMap { case h ~ t =>
+    (nonKindedType ~ ((" -> " | someOf(' ', '\t')).source.asCode() ~ nonKindedType).rep.map(_.flatMap { case h ~ t =>
       h +: t
     })).concat
   }
 
-  val beginningOfLet =
-    ((literal("let").map(s => Seq(CodeSpan(s, CodeCategory.Keyword))) ~ someOf(' ', '\t').map(s => Seq(CodeSpan(s)))).concat ~
-      Identifier.alphaNum.withCategory(CodeCategory.DeclarationName).map(Seq(_))).concat
+  private val beginningOfLet =
+    (literal("let").asCode(CodeCategory.Keyword) ~ someOf(' ', '\t').asCode() ~
+      Identifier.alphaNum.withCategory(CodeCategory.DeclarationName)).mapN(Seq(_, _, _))
 
-  val equals = (anyOfWs ~ "=").source.map(s => Seq(CodeSpan(s)))
+  private val equals = (anyOfWs ~ "=").source.map(s => Seq(CodeSpan(s)))
 
-  val colon = (anyOfWs ~ ": " ~ anyOfWs).source.map(s => Seq(CodeSpan(s)))
-  val typedDeclaration =
-    CodeSpanParser((beginningOfLet ~ colon ~ tpe ~ equals).concat)
+  private val colon = (anyOfWs ~ ": " ~ anyOfWs).source.map(s => Seq(CodeSpan(s)))
+  
+  val typedDeclaration: CodeSpanParser = CodeSpanParser((beginningOfLet ~ colon ~ tpe ~ equals).concat)
 
-  val untypedDeclaration =
-    CodeSpanParser((beginningOfLet ~ equals).concat)
+  val untypedDeclaration: CodeSpanParser = CodeSpanParser((beginningOfLet ~ equals).concat)
 
-  val attrName = identifier.withCategory(CodeCategory.AttributeName)
+  val attributeName: Identifier.IdParser = identifier.withCategory(CodeCategory.AttributeName)
 
-  val recordEntry = CodeSpanParser((attrName ~ (anyOfWs ~ oneOf('=')).source.map(CodeSpan(_))).mapN(Seq(_, _)))
+  val recordEntry: CodeSpanParser = CodeSpanParser((attributeName ~ (anyOfWs ~ oneOf('=')).source.asCode()).mapN(Seq(_, _)))
 
-  val recordTypeEntry =
-    CodeSpanParser((attrName ~ colon ~ tpe).concat)
+  val recordTypeEntry: CodeSpanParser =
+    CodeSpanParser((attributeName ~ colon ~ tpe).concat)
 
   /** The parsers for individual code spans written in this language */
   override def spanParsers: Seq[CodeSpanParser] = Seq(
