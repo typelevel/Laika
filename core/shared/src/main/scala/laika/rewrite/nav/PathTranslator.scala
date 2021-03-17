@@ -70,7 +70,7 @@ case class ConfigurablePathTranslator (rootConfig: Config, outputSuffix: String,
   
   private def translate (input: Path, isHTMLTarget: Boolean): Path = {
     targetLookup(input).fold(input) { spec =>
-      val shifted = if (spec.isVersioned && outputFormat == "html") currentVersion.fold(input) { version =>
+      val shifted = if (spec.isVersioned && isHTMLTarget) currentVersion.fold(input) { version =>
         Root / version / input.relative
       } else input
       if (!spec.isStatic) {

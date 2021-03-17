@@ -99,7 +99,7 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
 
   test("apply versions when substituting an internal target with an external one") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"), TargetFormats.Selected("html"))
-    val expected = ExternalTarget("http://external.com/tree-2/doc-5.html")
+    val expected = ExternalTarget("http://external.com/0.42/tree-2/doc-5.html")
     epubRef.translate(input) shouldBe expected
   }
   
