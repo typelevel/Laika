@@ -48,7 +48,18 @@ object DhallSyntax extends SyntaxHighlighter {
     "toMap", "forall-keyword", "with"
   )
 
-  val stringLiteral = StringLiteral.singleLine('"') ++ StringLiteral.multiLine("''")
+  val bracedUnicodeEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
+    ("\\u{" ~ anyOf('0') ~ DigitParsers.hex.min(1).max(6) ~ "}").source
+  }
+  val singleLineEscapes: CodeSpanParser =  bracedUnicodeEscape ++ StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
+  
+  val multiLineEscapes: CodeSpanParser = Keywords(CodeCategory.EscapeSequence)("'''","''${")
+  
+  val substitutions: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
+
+  val stringLiteral: CodeSpanParser = 
+    StringLiteral.singleLine('"').embed(substitutions, singleLineEscapes) ++ 
+      StringLiteral.multiLine("''").embed(substitutions, multiLineEscapes)
 
   val numberLiteral: CodeSpanParser = NumberLiteral.hex ++
     NumberLiteral.decimalFloat ++

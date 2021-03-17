@@ -665,9 +665,11 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |
           |```dhall
           |-- Single-line comment
+          |let txt = "some \t text"
           |let multilineText =
           |  ''
           |  Multi-line
+          |  ${txt}
           |  text
           |  ''
           |let bool = True
@@ -696,8 +698,9 @@ class LanguageSpec extends AnyWordSpec with Matchers {
 
       parse(input) shouldBe result("dhall",
         comment("-- Single-line comment\n"),
+        let, space, declName("txt"), equals, string("\"some "), escape("\\t"), string(" text\""), nl,
         let, space, declName("multilineText"), other(" =\n  "),
-        string("''\n  Multi-line\n  text\n  ''"), nl,
+        string("''\n  Multi-line\n  "), subst("${txt}"), string("\n  text\n  ''"), nl,
         let, space, declName("bool"), equals, id("True"), nl,
         let, space, declName("renderedBool"), colon, typeName("Text"), equals, keyword("if"), space, id("bool"), space, keyword("then"), space, string("\"True\""), space, keyword("else"), space, string("\"False\""), nl,
         let, space, declName("naturalNumber"), colon, typeName("Natural"), equals, number("42"), nl,
