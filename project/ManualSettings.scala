@@ -35,7 +35,7 @@ object ManualSettings {
     val coverImageLib = CoverImage(images / s"e-book-cover-library-${versions.current.displayValue}.png", "library")
     val latestVersion = Root / versions.current.pathSegment
     val api           = Root / "api" / "laika" / "api" / "index.html"
-    val downloads     = Root / "downloads"
+    val downloads     = Root / "downloads.gen"
     val logo          = images / "laika-dog-big@1.5x.png"
     val favicon       = images / "laika-favicon.png"
     val docsURL       = "http://planet42.github.io/Laika/"

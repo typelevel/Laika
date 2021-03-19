@@ -53,7 +53,7 @@ private[helium] object TocPageGenerator {
           item.link match {
             case Some(NavigationLink(in: InternalTarget, _, _)) => 
               val path = in.relativeTo(Root / "doc").absolutePath
-              path != Root / "downloads" && path != Root / "cover"
+              path != Root / "downloads.gen" && path != Root / "cover"
             case _ => true
           }
         }

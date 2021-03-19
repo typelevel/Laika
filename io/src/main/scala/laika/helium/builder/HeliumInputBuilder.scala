@@ -59,7 +59,8 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
-      .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts")
+      .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts" / "generated.conf")
+      .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build, Root / "downloads" / "generated.conf")
     
     val versionedInputs = 
       if (helium.siteSettings.versions.isEmpty) themeInputs
