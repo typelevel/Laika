@@ -63,17 +63,19 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     Root / "name.md" -> "text"
   )
   
-  val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                        |<meta charset="utf-8">
-                        |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                        |<title></title>
-                        |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                        |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                        |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                        |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                        |<script src="helium/laika-helium.js"></script>
-                        |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+  val meta = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+               |<meta charset="utf-8">
+               |<meta name="viewport" content="width=device-width, initial-scale=1.0">
+               |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />""".stripMargin
+  
+  val defaultResult = meta ++ """
+    |<title></title>
+    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+    |<script src="helium/laika-helium.js"></script>
+    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
 
   val versions = Versions(
     Version("0.42.x", "0.42"),
@@ -133,19 +135,16 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       Root / "web" / "foo.js" -> "",
       Root / "web" / "foo.css" -> "",
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                     |<link rel="stylesheet" type="text/css" href="web/foo.css" />
-                     |<script src="helium/laika-helium.js"></script>
-                     |<script src="web/foo.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<link rel="stylesheet" type="text/css" href="web/foo.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script src="web/foo.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs).assertEquals(expected)
   }
 
@@ -160,19 +159,16 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     val helium = Helium.defaults
       .site.autoLinkCSS(Root / "custom-css")
       .site.autoLinkJS(Root / "custom-js")
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                     |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
-                     |<script src="helium/laika-helium.js"></script>
-                     |<script src="custom-js/foo.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script src="custom-js/foo.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
   
@@ -181,20 +177,17 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       authors = Seq("Maria Green", "Elena Blue"),
       description = Some("Some description")
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<meta name="author" content="Maria Green"/>
-                     |<meta name="author" content="Elena Blue"/>
-                     |<meta name="description" content="Some description"/>
-                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                     |<script src="helium/laika-helium.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<meta name="author" content="Maria Green"/>
+                   |<meta name="author" content="Elena Blue"/>
+                   |<meta name="description" content="Some description"/>
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
@@ -215,19 +208,16 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       Favicon.internal(Root / "icon-1.png", "32x32"),
       Favicon.internal(Root / "icon-2.png", "64x64")
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png" />
-                     |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
-                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                     |<script src="helium/laika-helium.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png" />
+                   |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
 
@@ -247,21 +237,18 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
         Favicon.internal(Root / "img" / "icon-1.png", "32x32"),
         Favicon.internal(Root / "img" / "icon-2.png", "64x64")
       )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png" />
-                     |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png" />
-                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-                     |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
-                     |<script src="../helium/laika-helium.js"></script>
-                     |<script src="../helium/laika-versions.js"></script>
-                     |<script>initVersions("../../", "/dir/name.html", "0.42.x");</script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png" />
+                   |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png" />
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+                   |<script src="../helium/laika-helium.js"></script>
+                   |<script src="../helium/laika-versions.js"></script>
+                   |<script>initVersions("../../", "/dir/name.html", "0.42.x");</script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
 
@@ -270,17 +257,14 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       FontDefinition(Font.webCSS("http://fonts.com/font-1.css"), "Font-1", FontWeight.Normal, FontStyle.Normal),
       FontDefinition(Font.webCSS("http://fonts.com/font-2.css"), "Font-2", FontWeight.Normal, FontStyle.Normal)
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                     |<meta charset="utf-8">
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="stylesheet" href="http://fonts.com/font-1.css">
-                     |<link rel="stylesheet" href="http://fonts.com/font-2.css">
-                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                     |<script src="helium/laika-helium.js"></script>
-                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="stylesheet" href="http://fonts.com/font-1.css">
+                   |<link rel="stylesheet" href="http://fonts.com/font-2.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
@@ -296,10 +280,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       )
     )
     val helium = Helium.defaults.site.landingPage().site.versions(versions)
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    |<meta charset="utf-8">
-                    |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+    val expected = meta ++ """
                     |<title></title>
                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">

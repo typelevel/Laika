@@ -16,11 +16,12 @@
 
 package laika.helium
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.{/, Path}
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
+import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
@@ -29,7 +30,7 @@ import laika.theme._
 
 class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
 
-  def transformer (theme: ThemeProvider) = Transformer
+  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(EPUB.XHTML)
     .io(FileIO.blocker)
@@ -43,7 +44,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   
   val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                         |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                        |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+                        |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
                         |<title></title>
                         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
   
@@ -86,7 +87,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     )
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
@@ -106,7 +107,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       .epub.autoLinkJS(Root / "custom-js")
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
@@ -120,7 +121,7 @@ class HeliumEPUBHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     )
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.17.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.17.1 + Helium Theme" />
                      |<title></title>
                      |<meta name="author" content="Maria Green"/>
                      |<meta name="author" content="Elena Blue"/>

@@ -6,7 +6,7 @@ val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.5"
 
 lazy val basicSettings = Seq(
-  version               := "0.17.1-SNAPSHOT",
+  version               := "0.17.1",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
@@ -92,7 +92,8 @@ lazy val docs = project.in(file("docs"))
     laikaTheme := ManualSettings.helium,
     laikaConfig := ManualSettings.config,
     laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting, ManualBundle),
-    Laika / sourceDirectories := Seq(baseDirectory.value / "src")
+    Laika / sourceDirectories := Seq(baseDirectory.value / "src"),
+    Laika / target := baseDirectory.value / "target"
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)

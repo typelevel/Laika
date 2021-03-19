@@ -62,7 +62,7 @@ object ManualSettings {
   
   val config: LaikaConfig = LaikaConfig.defaults
     .withConfigValue(LinkConfig(
-      apiLinks = Seq(ApiLinks("../api/")), // TODO - will not work on top level pages, but fine for now
+      apiLinks = Seq(ApiLinks("../api/")), // TODO - will not work on top level pages, but fine for now - change to absolute path
       excludeFromValidation = Seq(Root / "api")
     ))
     .withConfigValue(Selections(
@@ -107,7 +107,7 @@ object ManualSettings {
                          width = Some(px(327)), height = Some(px(393)), alt = Some("Laika Logo")
                        )),
       subtitle       = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.17.0")),
+      latestReleases = Seq(ReleaseInfo("Latest Release", "0.17.1")),
       license        = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),

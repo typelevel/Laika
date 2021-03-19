@@ -10,11 +10,9 @@ Toolkit for transforming lightweight text markup and template based site and e-b
 Latest Release
 --------------
 
-The latest release is version **0.17.0**.  
+The latest release is version **0.17.1**.  
 
-It is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.0.
-
-The sbt plugin is published to the sbt plugin repository for sbt 1.x.
+The library is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.x and the sbt plugin for sbt 1.x.
 
 The last release supporting Scala 2.11 had been 0.10.0, 
 the last release for Scala 2.10 and sbt 0.13 was 0.7.0.

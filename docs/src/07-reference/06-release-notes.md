@@ -2,6 +2,23 @@
 Release Notes
 =============
 
+0.17.1 (Mar 19, 2021)
+---------------------
+
+* New syntax highlighters for YAML, Haskell, Dhall and Alloy.
+* AST: new companions for list and link types to reduce boilerplate and new `RawLink` type.
+* Reduction of boilerplate in test suites by re-using common directory tree structures.
+* Publish sbt plugin to Maven Central instead of bintray to deal with the impending sunsetting of the latter.
+* Include manual build and GitHub Actions in repository.
+* Bugfixes
+    * Versioning support in Helium theme: fix several issues where versioned path were rendered unversioned
+      and vice versa; affected links to API documentation, e-book downloads and the favicon.
+    * Fix incorrect merging of configuration instances when using `InputTreeBuilder` to manually assemble inputs.
+    * `Path.isSubPath` no longer fails when the only difference is suffix or fragment.
+    * Markdown parser now supports literal spans with multiple backticks as delimiter.
+    * The date directive for reStructured text now excludes the time component by default to align with the spec.
+    * Whitespace before a configuration header in a markup file does no longer prevent detection of the header.
+
 
 0.17.0 (Oct 31, 2020)
 ---------------------
