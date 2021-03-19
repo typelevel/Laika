@@ -90,12 +90,12 @@ object TreeResultBuilder {
   
   def resolveConfig (result: TreeResult, baseConfig: Config, includes: IncludeMap, titleDocName: Option[String] = None): Either[ConfigError, DocumentTree] = {
 
-    val resolvedConfig = result.hocon.foldLeft[Either[ConfigError, Config]](Right(baseConfig)) {
+    val mergedGeneratedConfig = result.config.foldLeft(baseConfig) {
+      case (acc, conf) => conf.config.withFallback(acc).withOrigin(Origin(TreeScope, conf.path))
+    }
+    
+    val resolvedConfig = result.hocon.foldLeft[Either[ConfigError, Config]](Right(mergedGeneratedConfig)) {
       case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(TreeScope, unresolved.path), base, includes))
-    }.map { hoconConfig =>
-      result.config.foldLeft(hoconConfig) {
-        case (acc, conf) => acc.withFallback(conf.config).withOrigin(Origin(TreeScope, conf.path))
-      }
     }
     
     resolvedConfig.flatMap { treeConfig =>
