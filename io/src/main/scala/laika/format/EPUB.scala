@@ -28,8 +28,7 @@ import laika.config.Config.ConfigResult
 import laika.config._
 import laika.factory._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.io.runtime.Runtime
-import laika.render.epub.{ContainerWriter, StyleSupport, XHTMLRenderer}
+import laika.render.epub.{ContainerWriter, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
 import laika.theme.Theme
@@ -154,8 +153,8 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
    *    and the configuration of this instance.
    */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
-    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
-      def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] =
+    def build[F[_]: Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
+      def process[G[_]: Sync](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] =
         writer.write(result, output)
     })
   }

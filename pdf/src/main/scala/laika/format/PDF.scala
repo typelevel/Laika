@@ -28,13 +28,11 @@ import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key}
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.io.runtime.Runtime
 import laika.theme.Theme
 import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{FOConcatenation, FopFactoryBuilder, PDFRenderer}
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
-import org.apache.fop.apps.FopFactory
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -81,12 +79,12 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
     */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
     
-    def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.liftF {
+    def build[F[_]: Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.eval {
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
       FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs).map { fopFactory =>
         new BinaryPostProcessor {
           private val renderer = new PDFRenderer(fopFactory)
-          override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
+          override def process[G[_]: Sync](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
             for {
               fo <- Sync[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
               _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)

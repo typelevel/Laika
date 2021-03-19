@@ -28,7 +28,6 @@ import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.io.runtime.Runtime
 import laika.io.{FileIO, IOWordSpec}
 import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
@@ -54,7 +53,7 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
 
       def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
 
-        override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
+        override def process[G[_]: Sync](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
 
           val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
           output.resource.use { out =>
