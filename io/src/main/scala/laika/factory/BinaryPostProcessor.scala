@@ -20,7 +20,6 @@ import cats.effect.{Resource, Sync}
 import laika.api.builder.OperationConfig
 import laika.config.Config
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.io.runtime.Runtime
 import laika.theme.Theme
 
 /** Post processor for the result output of a renderer.
@@ -37,7 +36,7 @@ trait BinaryPostProcessor {
     * @param output the binary output to render to
     * @param config the operation config that had been used for the interim result 
    */
-  def process[F[_]: Sync: Runtime] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit]
+  def process[F[_]: Sync] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit]
   
 }
 

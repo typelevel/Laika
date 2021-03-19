@@ -22,7 +22,6 @@ import laika.ast.DocumentTreeRoot
 import laika.config.Config
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
-import laika.io.runtime.Runtime
 import laika.render.TextFormatter
 import laika.theme.Theme
 
@@ -36,7 +35,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
     def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
 
-      override def process[G[_] : Sync : Runtime](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] = {
+      override def process[G[_]: Sync](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] = {
 
         def append(sb: StringBuilder, result: RenderedTree): Unit = {
           result.content.foreach {
