@@ -627,43 +627,7 @@
       <p class="shortcomment cmt">Parses a link, including nested spans in the link text.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a link, including nested spans in the link text.
  Recognizes both, an inline link <code>[text](url)</code> and a link reference <code>[text][id]</code>.
 </p></div></div>
-    </li><li name="laika.markdown.InlineParsers#literalEnclosedByDoubleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedByDoubleChar:PrefixedParser[Literal]"></a>
-      <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">literalEnclosedByDoubleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses a literal span enclosed by double backticks.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by double backticks.
- Does neither parse nested spans nor Markdown escapes.
-</p></div></div>
-    </li><li name="laika.markdown.InlineParsers#literalEnclosedBySingleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedBySingleChar:PrefixedParser[Literal]"></a>
-      <span class="permalink">
-      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">literalEnclosedBySingleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Parses a literal span enclosed by a single backtick.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by a single backtick.
- Does neither parse nested spans nor Markdown escapes.
-</p></div></div>
-    </li><li name="laika.markdown.InlineParsers#literalSpan" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.markdown.InlineParsers#literalSpan" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="literalSpan:laika.bundle.SpanParserBuilder"></a><a id="literalSpan:SpanParserBuilder"></a>
       <span class="permalink">
       <a href="../../laika/markdown/InlineParsers$.html#literalSpan:laika.bundle.SpanParserBuilder" title="Permalink">
@@ -678,7 +642,9 @@
         <span class="name">literalSpan</span><span class="result">: <a href="../bundle/SpanParserBuilder.html" class="extype" name="laika.bundle.SpanParserBuilder">SpanParserBuilder</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses a literal span enclosed by double or single backticks.</p>
+      <p class="shortcomment cmt">Parses a literal span enclosed by one or more backticks.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by one or more backticks.
+ Does neither parse nested spans nor Markdown escapes.
+</p></div></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -891,7 +857,48 @@
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.markdown.InlineParsers#literalEnclosedByDoubleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedByDoubleChar:PrefixedParser[Literal]"></a>
+      <span class="permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedByDoubleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.17.1) use literalSpan">literalEnclosedByDoubleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.17.1)</i> use literalSpan</p></dd></dl></div>
+    </li><li name="laika.markdown.InlineParsers#literalEnclosedBySingleChar" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]"></a><a id="literalEnclosedBySingleChar:PrefixedParser[Literal]"></a>
+      <span class="permalink">
+      <a href="../../laika/markdown/InlineParsers$.html#literalEnclosedBySingleChar:laika.parse.text.PrefixedParser[laika.ast.Literal]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.17.1) use literalSpan">literalEnclosedBySingleChar</span><span class="result">: <a href="../parse/text/PrefixedParser.html" class="extype" name="laika.parse.text.PrefixedParser">PrefixedParser</a>[<a href="../ast/Literal.html" class="extype" name="laika.ast.Literal">Literal</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.17.1)</i> use literalSpan</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

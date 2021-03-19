@@ -1,0 +1,60 @@
+*.class
+*.log
+
+# SBT
+test-output/
+.cache/
+.history/
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.sbtrc
+
+# IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Scala-IDE
+.scala_dependencies
+.worksheet
+.cache
+.cache-main
+.cache-tests
+.classpath
+.project
+.settings
+.target/
+bin/
+*.sc
+
+# ENSIME
+.ensime
+.ensime_lucene
+
+# SUBLIME
+*.sublime-project
+*.sublime-workspace
+
+# Mac
+.DS_Store
+
+# Other
+local/
+release/
+*.pyc
+.*.swp
+\#*#
+*~
+.#*
+
+# demo project
+node_modules/
+demo/jvm/src/main/resources/public/
+demo/client/src/transformer/

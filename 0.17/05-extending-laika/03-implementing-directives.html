@@ -365,7 +365,7 @@
         <p>The <code>DocumentCursor</code> instance passed to our function provides access to the project configuration which we use
         in this example, but also to all ASTs of the input tree, including other documents. 
         It can therefore be used for advanced functionality like producing a table of contents.</p>
-        <p>The API of the <code>cursor.config</code> property is documented in <a href="../../api/laika/config/Config.html">Config</a>.</p>
+        <p>The API of the <code>cursor.config</code> property is documented in <a href="../api/laika/config/Config.html">Config</a>.</p>
         <p>In our case we expect a string, but we also need to handle errors now, as the access might fail
         when the value is missing or it&#39;s not a string. 
         We return an <code>InvalidElement</code> for errors, which is a useful kind of AST node as it allows the user to control the
@@ -448,7 +448,7 @@
             This naturally leaves the burden of validation and error handling (e.g. for required values or type conversions)
             with the implementor of the directive. 
             It should therefore only be used when this level of flexibility is really required.
-            See <a href="../../api/laika/config/Config.html">Config</a> for the API documentation.</p>
+            See <a href="../api/laika/config/Config.html">Config</a> for the API documentation.</p>
           </li>
         </ul>
         <p>Combinator Example:</p>

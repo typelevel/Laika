@@ -121,6 +121,7 @@
         <p class="header"><a href="#">Release Notes</a></p>
         
         <ul class="nav-list">
+          <li class="level1"><a href="#_0-17-1-mar-19-2021">0.17.1 (Mar 19, 2021)</a></li>
           <li class="level1"><a href="#_0-17-0-oct-31-2020">0.17.0 (Oct 31, 2020)</a></li>
           <li class="level1"><a href="#_0-16-1-sep-12-2020">0.16.1 (Sep 12, 2020)</a></li>
           <li class="level1"><a href="#_0-15-0-may-29-2020">0.15.0 (May 29, 2020)</a></li>
@@ -149,6 +150,27 @@
       <main class="content">
 
         <h1 id="release-notes" class="title">Release Notes</h1>
+        
+        <h2 id="_0-17-1-mar-19-2021" class="section">0.17.1 (Mar 19, 2021)<a class="anchor-link right" href="#_0-17-1-mar-2021"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <ul>
+          <li>New syntax highlighters for YAML, Haskell, Dhall and Alloy.</li>
+          <li>AST: new companions for list and link types to reduce boilerplate and new <code>RawLink</code> type.</li>
+          <li>Reduction of boilerplate in test suites by re-using common directory tree structures.</li>
+          <li>Publish sbt plugin to Maven Central instead of bintray to deal with the impending sunsetting of the latter.</li>
+          <li>Include manual build and GitHub Actions in repository.</li>
+          <li>
+            Bugfixes
+            <ul>
+              <li>Versioning support in Helium theme: fix several issues where versioned path were rendered unversioned
+              and vice versa; affected links to API documentation, e-book downloads and the favicon. </li>
+              <li>Fix incorrect merging of configuration instances when using <code>InputTreeBuilder</code> to manually assemble inputs.</li>
+              <li><code>Path.isSubPath</code> no longer fails when the only difference is suffix or fragment.</li>
+              <li>Markdown parser now supports literal spans with multiple backticks as delimiter.</li>
+              <li>The date directive for reStructured text now excludes the time component by default to align with the spec.</li>
+              <li>Whitespace before a configuration header in a markup file does no longer prevent detection of the header.</li>
+            </ul>
+          </li>
+        </ul>
         
         <h2 id="_0-17-0-oct-31-2020" class="section">0.17.0 (Oct 31, 2020)<a class="anchor-link right" href="#_0-17-0-oct-31-2020"><i class="icofont-laika">&#xef71;</i></a></h2>
         <ul>

@@ -304,7 +304,7 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
        .toEither
        .fold(
          _ <span class="kw">=&gt;</span> Left(s<span class="lit">"Not a valid RFC id: $linkId"</span>),
-         id <span class="kw">=&gt;</span> Right(SpanLink(<span class="std">Seq</span>(Text(s<span class="lit">"RFC $id"</span>)), ExternalTarget(s<span class="lit">"http://tools.ietf.org/html/rfc$linkId"</span>)))
+         id <span class="kw">=&gt;</span> Right(SpanLink.external(s<span class="lit">"http://tools.ietf.org/html/rfc$linkId"</span>)(s<span class="lit">"RFC $id"</span>))
        )
     }
   )
@@ -337,7 +337,7 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
       (defaultAttribute.as[<span class="std">String</span>] ~ attribute(<span class="lit">"param"</span>).optional).map { <span class="kw">case</span> ticketNo ~ param <span class="kw">=&gt;</span>
         <span class="kw">val</span> base = <span class="lit">"http://tickets.service.com/"</span>+ticketNo
         <span class="kw">val</span> url = base + (param map (p <span class="kw">=&gt;</span> <span class="lit">"?param="</span>+p) getOrElse <span class="lit">""</span>)
-        SpanLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), ExternalTarget(url), options = Styles(<span class="lit">"ticket"</span>))
+        SpanLink.external(url)(<span class="lit">"Ticket "</span>+ticketNo).withOptions(Styles(<span class="lit">"ticket"</span>))
       }
     }
   )
@@ -371,7 +371,8 @@ them to Parse, Render or Transform operations:</p><pre><span class="kw">object</
       (defaultAttribute.as[<span class="std">String</span>] ~ attribute(<span class="lit">"param"</span>).optional).map { <span class="kw">case</span> ticketNo ~ param <span class="kw">=&gt;</span>
         <span class="kw">val</span> base = <span class="lit">"http://tickets.service.com/"</span>+ticketNo
         <span class="kw">val</span> url = base + (param map (p <span class="kw">=&gt;</span> <span class="lit">"&param="</span>+p) getOrElse <span class="lit">""</span>)
-        TemplateElement(SpanLink(<span class="std">Seq</span>(Text(<span class="lit">"Ticket "</span>+ticketNo)), ExternalTarget(url), options = Styles(<span class="lit">"ticket"</span>)))
+        <span class="kw">val</span> link = SpanLink.external(url)(<span class="lit">"Ticket "</span>+ticketNo).withOptions(Styles(<span class="lit">"ticket"</span>))
+        TemplateElement(link)
       }
     }
   )
