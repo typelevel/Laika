@@ -47,6 +47,7 @@ private[helium] object HeliumInputBuilder {
     }
     
     val heliumPath = Root / "helium"
+    val unversioned = ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build
   
     val themeInputs = fontInputs
       .addClasspathResource("laika/helium/templates/default.template.epub.xhtml", DefaultTemplatePath.forEPUB)
@@ -60,7 +61,8 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
       .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts" / "generated.conf")
-      .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build, Root / "downloads" / "generated.conf")
+      .addConfig(unversioned, Root / "laika" / "generated.conf")
+      .addConfig(unversioned, Root / "downloads" / "generated.conf")
     
     val versionedInputs = 
       if (helium.siteSettings.versions.isEmpty) themeInputs
