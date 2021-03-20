@@ -18,7 +18,7 @@ package laika.io.runtime
 
 import java.io.File
 
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -197,12 +197,12 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Sync: Batch] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Async: Batch] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
     val context = TemplateContext(op.renderer.interimRenderer.format.fileSuffix, op.renderer.description.toLowerCase)
     val template = op.input.tree.getDefaultTemplate(context.templateSuffix)
                      .fold(getDefaultTemplate(op.theme.inputs, context.templateSuffix))(_.content)
     for {
-      preparedTree <- Sync[F].fromEither(op.renderer.prepareTree(op.input))
+      preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput, op.staticDocuments), op.theme.inputs, context)
       finalTree    =  renderedTree.copy[F](defaultTemplate = template)
       _            <- op.renderer.postProcessor.process(finalTree, op.output, op.config)

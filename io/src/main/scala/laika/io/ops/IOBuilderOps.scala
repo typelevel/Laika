@@ -20,10 +20,10 @@ import cats.effect.{Async, Sync}
 import laika.io.runtime.Batch
 
 /** Builder step that allows to choose between sequential and parallel execution and specify the effect type. 
-  * 
+  *
   * @author Jens Halm
   */
-abstract class IOBuilderOps[T[_[_]]] {
+abstract class SyncIOBuilderOps[T[_[_]]] {
 
   /** Creates a builder for sequential execution.
     */
@@ -33,7 +33,7 @@ abstract class IOBuilderOps[T[_[_]]] {
   }
 
   /** Creates a builder for parallel execution.
-    * 
+    *
     * This builder creates instances with a level of parallelism matching the available cores.
     * For explicit control of parallelism use the other `parallel` method.
     */
@@ -47,7 +47,44 @@ abstract class IOBuilderOps[T[_[_]]] {
     implicit val runtime: Batch[F] = Batch.parallel(parallelism)
     build
   }
-  
+
   protected def build[F[_]: Sync: Batch]: T[F]
+  
+}
+
+/** Builder step that allows to choose between sequential and parallel execution and specify the effect type.
+  * 
+  * This API has the additional requirement that even sequential execution requires `Async`,
+  * reflecting the needs of binary renderers which might integrate with impure tools that require
+  * the use of a `Dispatcher`.
+  *
+  * @author Jens Halm
+  */
+abstract class AsyncIOBuilderOps[T[_[_]]] {
+
+  /** Creates a builder for sequential execution.
+    */
+  def sequential[F[_]: Async]: T[F] = {
+    implicit val runtime: Batch[F] = Batch.sequential
+    build
+  }
+
+  /** Creates a builder for parallel execution.
+    *
+    * This builder creates instances with a level of parallelism matching the available cores.
+    * For explicit control of parallelism use the other `parallel` method.
+    */
+  def parallel[F[_]: Async]: T[F] = parallel(Runtime.getRuntime.availableProcessors)
+
+  /** Creates a builder for parallel execution.
+    *
+    * This builder creates instances with the specified level of parallelism.
+    */
+  def parallel[F[_]: Async](parallelism: Int): T[F] = {
+    implicit val runtime: Batch[F] = Batch.parallel(parallelism)
+    build
+  }
+
+  protected def build[F[_]: Async: Batch]: T[F]
 
 }

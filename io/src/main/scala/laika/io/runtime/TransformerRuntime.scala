@@ -19,7 +19,7 @@ package laika.io.runtime
 import java.io.File
 
 import cats.Monad
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
@@ -56,7 +56,7 @@ object TransformerRuntime {
 
   /** Process the specified transform operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Sync: Batch] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
+  def run[F[_]: Async: Batch] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
     res        <- BinaryTreeRenderer.Op[F](op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render

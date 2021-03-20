@@ -17,7 +17,7 @@
 package laika.io.api
 
 import cats.data.{Kleisli, NonEmptyList}
-import cats.effect.{Resource, Sync}
+import cats.effect.{Resource, Async}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.{DocumentType, TextDocumentType}
@@ -33,14 +33,14 @@ import laika.theme.{Theme, ThemeProvider}
   *
   * @author Jens Halm
   */
-class BinaryTreeTransformer[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+class BinaryTreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                                 renderer: BinaryRenderer,
                                                 theme: Theme[F],
                                                 mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = BinaryTreeTransformer.OutputOps[F]
 
-  val F: Sync[F] = Sync[F]
+  val F: Async[F] = Async[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -63,7 +63,7 @@ object BinaryTreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Builder[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                          renderFormat: BinaryRenderFormat,
                                          config: OperationConfig,
                                          theme: ThemeProvider,
@@ -105,13 +105,13 @@ object BinaryTreeTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class OutputOps[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                            renderer: BinaryRenderer,
                                            theme: Theme[F],
                                            input: InputTreeBuilder[F],
                                            mapper: TreeMapper[F]) extends BinaryOutputOps[F] {
 
-    val F: Sync[F] = Sync[F]
+    val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
@@ -125,7 +125,7 @@ object BinaryTreeTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Op[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                     renderer: BinaryRenderer,
                                     theme: Theme[F],
                                     input: InputTreeBuilder[F],

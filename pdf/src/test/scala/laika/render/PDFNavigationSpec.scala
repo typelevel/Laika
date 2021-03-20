@@ -16,7 +16,7 @@
 
 package laika.render
 
-import cats.effect.{IO, Resource, Sync}
+import cats.effect.{Async, IO, Resource}
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.{OperationConfig, TwoPhaseRendererBuilder}
@@ -51,16 +51,16 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
 
     def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-      def build[F[_] : Sync](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
+      def build[F[_] : Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
 
-        override def process[G[_]: Sync](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
+        override def process[G[_]: Async](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
 
           val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
           output.resource.use { out =>
             for {
-              config <- Sync[G].fromEither(pdfConfig.left.map(ConfigException))
-              fo <- Sync[G].fromEither(FOConcatenation(result, config, opConfig)): G[String]
-              _ <- Sync[G].delay(out.write(fo.getBytes("UTF-8"))): G[Unit]
+              config <- Async[G].fromEither(pdfConfig.left.map(ConfigException))
+              fo <- Async[G].fromEither(FOConcatenation(result, config, opConfig)): G[String]
+              _ <- Async[G].delay(out.write(fo.getBytes("UTF-8"))): G[Unit]
             } yield ()
           }
 
