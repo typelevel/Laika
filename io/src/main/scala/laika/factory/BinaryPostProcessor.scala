@@ -28,7 +28,7 @@ import laika.theme.Theme
  *  
  *  @author Jens Halm
  */
-trait BinaryPostProcessor {
+abstract class BinaryPostProcessor[F[_]: Async] {
 
   /** Processes the interim render result and writes it to the specified final output.
     * 
@@ -36,12 +36,12 @@ trait BinaryPostProcessor {
     * @param output the binary output to render to
     * @param config the operation config that had been used for the interim result 
    */
-  def process[F[_]: Async] (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit]
+  def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit]
   
 }
 
 trait BinaryPostProcessorBuilder {
   
-  def build[F[_]: Async] (config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor]
+  def build[F[_]: Async] (config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]]
   
 }

@@ -26,7 +26,7 @@ import scala.io.Codec
 private[helium] object MergedStringInputs {
 
   def merge[F[_]: Sync](inputs: Seq[BinaryInput[F]]): F[String] = {
-    inputs.map(_.asResource).toList.sequence.use { streams =>
+    inputs.map(_.input).toList.sequence.use { streams =>
       streams.map { stream =>
         InputRuntime.textStreamResource(Sync[F].pure(stream), Codec.UTF8, autoClose = false).use { reader =>
           InputRuntime.readAll(reader, 4000)

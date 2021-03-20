@@ -34,7 +34,7 @@ import laika.theme.{Theme, ThemeProvider}
   * @author Jens Halm
   */
 class BinaryTreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                                renderer: BinaryRenderer,
+                                                renderer: BinaryRenderer[F],
                                                 theme: Theme[F],
                                                 mapper: TreeMapper[F]) extends InputOps[F] {
 
@@ -106,7 +106,7 @@ object BinaryTreeTransformer {
   /** Builder step that allows to specify the output to render to.
     */
   case class OutputOps[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                           renderer: BinaryRenderer,
+                                           renderer: BinaryRenderer[F],
                                            theme: Theme[F],
                                            input: InputTreeBuilder[F],
                                            mapper: TreeMapper[F]) extends BinaryOutputOps[F] {
@@ -126,7 +126,7 @@ object BinaryTreeTransformer {
     * the transformation based on this operation's properties.
     */
   case class Op[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                    renderer: BinaryRenderer,
+                                    renderer: BinaryRenderer[F],
                                     theme: Theme[F],
                                     input: InputTreeBuilder[F],
                                     mapper: TreeMapper[F],

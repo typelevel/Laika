@@ -33,9 +33,9 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-    def build[F[_] : Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
+    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] = Resource.pure(new BinaryPostProcessor[F] {
 
-      override def process[G[_]: Async](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] = {
+      override def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = {
 
         def append(sb: StringBuilder, result: RenderedTree): Unit = {
           result.content.foreach {
@@ -50,7 +50,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
         val resultString = sb.toString
 
         output.resource.use { out =>
-          Async[G].delay(out.write(resultString.getBytes("UTF-8")))
+          Async[F].delay(out.write(resultString.getBytes("UTF-8")))
         }
       }
     })

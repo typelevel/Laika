@@ -98,7 +98,7 @@ object RendererRuntime {
       if (doc.sourceFile.contains(outFile)) None
       else {
         val out = OutputRuntime.binaryFileResource(outFile)
-        Some(CopyRuntime.copy(doc.asResource, out).as(Left(CopiedDocument(doc.path)): RenderResult))
+        Some(CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult))
       }
     }
     
@@ -163,7 +163,7 @@ object RendererRuntime {
           existingVersions.map { existing =>
             val pathTranslator = createPathTranslator(config.withValue(LaikaKeys.versions, NullValue).build, Root / "dummy", lookup)
             val targets = VersionedLinkTargets.groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
-            Some(BinaryInput.fromString[F](VersionInfoGenerator.generate(versions, targets), Root / "laika" / "versionInfo.json", TargetFormats.Selected("html")))
+            Some(BinaryInput.fromString[F](Root / "laika" / "versionInfo.json", VersionInfoGenerator.generate(versions, targets), TargetFormats.Selected("html")))
           }
         case _ =>
           Sync[F].pure(None)

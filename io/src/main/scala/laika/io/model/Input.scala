@@ -37,28 +37,27 @@ case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
 /** A binary input stream and its virtual path within the input tree.
   */
-case class BinaryInput[F[_]: Sync] (path: Path, stream: () => InputStream, formats: TargetFormats = TargetFormats.All, autoClose: Boolean = true, sourceFile: Option[File] = None) extends Navigatable {
-
-  /** Provides the InputStream as a cats-effect Resource.
-    * 
-    * The resource only closes the stream in its tear-down effect when the autoClose property on this instance is true.
-    */
-  def asResource: Resource[F, InputStream] = {
-    val fStream = Sync[F].delay(stream())
-    if (autoClose) Resource.fromAutoCloseable(fStream) else Resource.eval(fStream)
-  } 
-}
+case class BinaryInput[F[_]: Sync] (path: Path, 
+                                    input: Resource[F, InputStream], 
+                                    formats: TargetFormats = TargetFormats.All, 
+                                    sourceFile: Option[File] = None) extends Navigatable
 
 object BinaryInput {
   
-  /** Creates a BinaryInput instance for the specified file, assigning the given virtual path.
-    */
-  def apply[F[_]: Sync] (file: File, path: Path, formats: TargetFormats): BinaryInput[F] = 
-    BinaryInput(path, () => new BufferedInputStream(new FileInputStream(file)), formats, autoClose = true, Some(file))
-  
-  def fromString[F[_]: Sync] (input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] =
-    BinaryInput(path, () => new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet)), targetFormats)
-  
+  def fromString[F[_]: Sync] (path: Path, input: String, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+    val resource = Resource.pure[F, InputStream](new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet)))
+    BinaryInput(path, resource, targetFormats)
+  }
+
+  def fromFile[F[_]: Sync] (path: Path, file: File, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+    val resource = Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
+    BinaryInput[F](path, resource, targetFormats, Some(file))
+  }
+
+  def fromStream[F[_]: Sync] (path: Path, stream: F[InputStream], autoClose: Boolean, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
+    BinaryInput(path, resource, targetFormats)
+  }
 }
 
 /** Character input for the various parsers of this library.
@@ -236,7 +235,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(formats) => _ + BinaryInput(file, mountPoint, formats)
+      case DocumentType.Static(formats) => _ + BinaryInput.fromFile(mountPoint, file, formats)
       case docType: TextDocumentType    => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
 
@@ -247,7 +246,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    def stream = {
+    val stream = F.delay {
       val res = getClass.getClassLoader.getResourceAsStream(name)
       if (res == null) throw new IOException(s"Classpath resource '$name' does not exist")
       else res
@@ -260,20 +259,16 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     * The content type of the stream will be determined by the suffix of the virtual path, e.g.
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     * 
-    * This is a by-name argument so that the effectful creation can be deferred internally.
-    * The method does not accept an `F[InputStream]` even though this would appear most intuitive,
-    * as there are cases like PDF rendering where the stream has to be passed to an impure Java callback,
-    * where Laika does the necessary effect-wrapping on a higher level.
-    * 
-    * The autoClose argument indicates whether the stream should be closed after use.
+    * The `autoClose` argument indicates whether the stream should be closed after use.
+    * In some integration scenarios with 3rd-party libraries, e.g. for PDF creation, `autoClose` is not
+    * guaranteed as the handling of the stream is entirely managed by the 3rd party tool.
     */
-  def addStream (stream: => InputStream, mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
+  def addStream (stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        // for binary inputs the wrap-into-effect step has to be deferred due to integration issues with impure libs (e.g. Apache FOP)
-        _ + BinaryInput(mountPoint, () => stream, formats, autoClose)
+        _ + BinaryInput.fromStream(mountPoint,stream, autoClose, formats)
       case docType: TextDocumentType => 
-        _ + TextInput.fromStream(mountPoint, docType, F.delay(stream), codec, autoClose)
+        _ + TextInput.fromStream(mountPoint, docType, stream, codec, autoClose)
     }
 
   /** Adds the specified string resource to the input tree, placing it at the specified mount point in the virtual tree.
@@ -283,7 +278,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addString (str: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(formats) => _ + BinaryInput(mountPoint, () => new ByteArrayInputStream(str.getBytes), formats)
+      case DocumentType.Static(formats) => _ + BinaryInput.fromString(mountPoint,str, formats)
       case docType: TextDocumentType    => _ + TextInput.fromString[F](mountPoint, docType, str)
     }
 

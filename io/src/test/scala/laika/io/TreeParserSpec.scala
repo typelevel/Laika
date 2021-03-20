@@ -612,7 +612,7 @@ class TreeParserSpec extends IOWordSpec
     }
 
     "read a directory from the file system plus one document from an input stream" in new ExtraDocSetup with CustomInput {
-      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(new ByteArrayInputStream("Doc7".getBytes), extraPath)
+      def addDoc (input: InputTreeBuilder[IO]): InputTreeBuilder[IO] = input.addStream(IO.delay(new ByteArrayInputStream("Doc7".getBytes)), extraPath)
       run()
     }
 

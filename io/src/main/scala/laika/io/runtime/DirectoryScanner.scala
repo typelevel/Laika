@@ -21,7 +21,6 @@ import java.nio.file.{DirectoryStream, Files, Path => JPath}
 import cats.effect.{Sync, Resource}
 import cats.implicits._
 import laika.ast.DocumentType.Static
-import laika.ast.Path.Root
 import laika.ast.{Path, TextDocumentType}
 import laika.io.model._
 
@@ -61,7 +60,7 @@ object DirectoryScanner {
       else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
       else input.docTypeMatcher(childPath) match {
         case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil, Nil).pure[F]
-        case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput(filePath.toFile, childPath, formats)), Nil).pure[F]
+        case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(childPath, filePath.toFile, formats)), Nil).pure[F]
         case _                         => InputTree.empty[F].pure[F]
       }
     }

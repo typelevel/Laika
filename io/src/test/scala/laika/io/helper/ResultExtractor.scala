@@ -45,7 +45,7 @@ trait ResultExtractor {
     def extractStaticContent (path: Path): F[String] = for {
       input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)
         .toRight(new RuntimeException(s"Not found: '$path'")))
-      content <- readText(input.asResource)
+      content <- readText(input.input)
     } yield content
     
     def extractStaticContent (path: Path, start: String, end: String): F[String] =

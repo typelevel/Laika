@@ -32,7 +32,7 @@ import laika.theme.{Theme, ThemeProvider}
   *
   * @author Jens Halm
   */
-class BinaryTreeRenderer[F[_]: Async: Batch] (renderer: BinaryRenderer, theme: Theme[F]) {
+class BinaryTreeRenderer[F[_]: Async: Batch] (renderer: BinaryRenderer[F], theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
@@ -60,16 +60,16 @@ object BinaryTreeRenderer {
     *                      result, the implementing type may vary from format to format
     * @param description short string describing the output format for tooling and logging 
     */
-  case class BinaryRenderer (interimRenderer: Renderer,
-                             prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
-                             postProcessor: BinaryPostProcessor,
-                             description: String)
+  case class BinaryRenderer[F[_]: Async] (interimRenderer: Renderer,
+                                          prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
+                                          postProcessor: BinaryPostProcessor[F],
+                                          description: String)
   
   type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
 
   private[laika] def buildRenderer[F[_]: Async] (format: BinaryRenderFormat, 
                                                 config: OperationConfig, 
-                                                theme: Theme[F]): Resource[F, BinaryRenderer] = {
+                                                theme: Theme[F]): Resource[F, BinaryRenderer[F]] = {
     val combinedConfig = config.withBundles(theme.extensions)
     format.postProcessor.build(combinedConfig.baseConfig, theme).map { pp =>
       val targetRenderer = new RendererBuilder(format.interimFormat, combinedConfig).build
@@ -95,10 +95,10 @@ object BinaryTreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Batch] (renderer: BinaryRenderer,
-                                           theme: Theme[F],
-                                           input: DocumentTreeRoot,
-                                           staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Batch] (renderer: BinaryRenderer[F],
+                                            theme: Theme[F],
+                                            input: DocumentTreeRoot,
+                                            staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -119,11 +119,11 @@ object BinaryTreeRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Batch] (renderer: BinaryRenderer,
-                                    theme: Theme[F],
-                                    input: DocumentTreeRoot,
-                                    output: BinaryOutput[F],
-                                    staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Async: Batch] (renderer: BinaryRenderer[F],
+                                     theme: Theme[F],
+                                     input: DocumentTreeRoot,
+                                     output: BinaryOutput[F],
+                                     staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer for the interim format.
       */

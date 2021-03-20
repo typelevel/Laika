@@ -51,16 +51,16 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
 
     def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-      def build[F[_] : Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure[F, BinaryPostProcessor](new BinaryPostProcessor {
+      def build[F[_] : Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] = Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {
 
-        override def process[G[_]: Async](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] = {
+        override def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] = {
 
           val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
           output.resource.use { out =>
             for {
-              config <- Async[G].fromEither(pdfConfig.left.map(ConfigException))
-              fo <- Async[G].fromEither(FOConcatenation(result, config, opConfig)): G[String]
-              _ <- Async[G].delay(out.write(fo.getBytes("UTF-8"))): G[Unit]
+              config <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
+              fo <- Async[F].fromEither(FOConcatenation(result, config, opConfig)): F[String]
+              _ <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
             } yield ()
           }
 
@@ -142,7 +142,7 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
         .build
     }
     
-    type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor]
+    type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor[IO]]
     
     def result: IO[String] = renderer.use { r =>
       withByteArrayTextOutput { out =>
