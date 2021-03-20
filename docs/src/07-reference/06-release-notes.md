@@ -2,6 +2,18 @@
 Release Notes
 =============
 
+0.18.0 (not released yet)
+-------------------------
+
+* Migrate to cats-effect 3
+    * Adjust public API in `laika-io` module by removing all usages of `ContextShift` and `Blocker`
+      which are gone in CE3.
+    * Remove the old `.io(blocker)` builder step as it is now redundant.
+    * Simplify requirements to just `Sync` for sequential transformation and `Async` for parallel execution.
+    * PDF support: remove the old callback hacks for integration with the blocking, synchronous `ResourceResolver` API
+      of Apache FOP by using the new `Dispatcher` from CE3 instead.
+
+
 0.17.1 (Mar 19, 2021)
 ---------------------
 
