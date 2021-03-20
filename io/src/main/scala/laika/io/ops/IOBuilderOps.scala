@@ -16,8 +16,7 @@
 
 package laika.io.ops
 
-import cats.Parallel
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import laika.io.runtime.Batch
 
 /** Builder step that allows to choose between sequential and parallel execution and specify the effect type. 
@@ -38,13 +37,13 @@ abstract class IOBuilderOps[T[_[_]]] {
     * This builder creates instances with a level of parallelism matching the available cores.
     * For explicit control of parallelism use the other `parallel` method.
     */
-  def parallel[F[_]: Sync: Parallel]: T[F] = parallel(Runtime.getRuntime.availableProcessors)
+  def parallel[F[_]: Async]: T[F] = parallel(Runtime.getRuntime.availableProcessors)
 
   /** Creates a builder for parallel execution.
     *
     * This builder creates instances with the specified level of parallelism.
     */
-  def parallel[F[_]: Sync: Parallel](parallelism: Int): T[F] = {
+  def parallel[F[_]: Async](parallelism: Int): T[F] = {
     implicit val runtime: Batch[F] = Batch.parallel(parallelism)
     build
   }
