@@ -16,9 +16,9 @@
 
 package laika.io.runtime
 
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
-import cats.Parallel
+import cats.effect.implicits._
 
 /** Type class for the effect F that encapsulates the mechanism 
   * and configuration for executing a batch of operations, either sequentially or in parallel.
@@ -49,7 +49,7 @@ object Batch {
 
   /** Creates a Batch instance for parallel execution.
     */
-  def parallel[F[_]: Sync: Parallel] (parallelism: Int): Batch[F] = new Batch[F] {
+  def parallel[F[_]: Async] (parallelism: Int): Batch[F] = new Batch[F] {
     def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = 
       if (parallelism > 1 && fas.size > 1) BatchRuntime
         .createBatches(fas, parallelism)
