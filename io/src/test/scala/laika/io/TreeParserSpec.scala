@@ -35,7 +35,6 @@ import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.io.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
-import laika.io.runtime.Runtime
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers

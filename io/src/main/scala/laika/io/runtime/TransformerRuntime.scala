@@ -48,7 +48,7 @@ object TransformerRuntime {
 
   /** Process the specified transform operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Runtime] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
+  def run[F[_]: Sync: Batch] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
     mappedTree <- op.mapper.run(tree)
     res        <- TreeRenderer.Op(op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
@@ -56,7 +56,7 @@ object TransformerRuntime {
 
   /** Process the specified transform operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Sync: Runtime] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
+  def run[F[_]: Sync: Batch] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
     res        <- BinaryTreeRenderer.Op[F](op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render

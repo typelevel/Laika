@@ -22,7 +22,7 @@ import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
-import laika.io.runtime.Runtime
+import laika.io.runtime.Batch
 
 /** Provides a description of a transform operation, including the parsers, renderers and extension bundles used,
   * as well as the sources and output target.
@@ -72,12 +72,12 @@ object TransformerDescriptor {
       renderer.renderFormatted
     )
   
-  def create[F[_]: Sync: Runtime] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+  def create[F[_]: Sync: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(TreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)
 
-  def create[F[_]: Sync: Runtime] (op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+  def create[F[_]: Sync: Batch] (op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(BinaryTreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)

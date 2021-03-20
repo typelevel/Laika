@@ -23,7 +23,7 @@ import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path
 import laika.io.model.{BinaryInput, BinaryOutput}
-import laika.io.runtime.{CopyRuntime, Runtime}
+import laika.io.runtime.CopyRuntime
 
 /**
   * @author Jens Halm

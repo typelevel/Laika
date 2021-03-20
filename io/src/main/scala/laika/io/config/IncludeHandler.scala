@@ -23,7 +23,7 @@ import cats.effect.Sync
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.{ConfigParser, ConfigResourceError}
-import laika.io.runtime.Runtime
+import laika.io.runtime.Batch
 import laika.parse.hocon.{IncludeAny, IncludeClassPath, IncludeFile, IncludeResource, IncludeUrl, ValidStringValue}
 
 /** Internal utility that provides configuration files requested by include statements in other
@@ -45,7 +45,7 @@ object IncludeHandler {
     * be mapped to the requested resource as a `Left`. Successfully loaded and parsed
     * resources appear in the result map as a `Right`.
     */
-  def load[F[_]: Sync : Runtime] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
+  def load[F[_]: Sync : Batch] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
     
     if (includes.isEmpty) Sync[F].pure(Map.empty) else {
       
@@ -103,7 +103,7 @@ object IncludeHandler {
         result.map(_.map(res => LoadedInclude(requestedResource, resolvedResource, res)))
       
       preparedIncludes.flatMap { includes =>
-        Runtime[F].runParallel(
+        Batch[F].runParallel(
           includes.map {
             case (i@IncludeFile(resourceId, _), orig)      => result(orig, i, ResourceLoader.loadFile(resourceId.value))
             case (i@IncludeClassPath(resourceId, _), orig) => result(orig, i, ResourceLoader.loadClasspathResource(resourceId.value))
