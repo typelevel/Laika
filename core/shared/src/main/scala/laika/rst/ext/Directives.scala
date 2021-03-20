@@ -336,7 +336,7 @@ object Directives {
      *  can exist in any single directive markup)
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def argument [T](convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }, 
+    def argument [T](convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }, 
                      withWS: Boolean = false): DirectivePartBuilder[T] = requiredPart(_.argument(withWS), simple(convert)) 
       
     /** Specifies an optional argument. 
@@ -347,7 +347,7 @@ object Directives {
      *  can exist in any single directive markup)
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def optArgument [T](convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }, 
+    def optArgument [T](convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }, 
                         withWS: Boolean = false): DirectivePartBuilder[Option[T]] = part(_.optArgument(withWS), simple(convert)) 
 
     /** Specifies a required named field. 
@@ -357,7 +357,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
-                  convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): DirectivePartBuilder[T] =
+                  convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }): DirectivePartBuilder[T] =
       requiredPart(_.field(name), simple(convert))
     
     /** Specifies an optional named field. 
@@ -368,7 +368,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
-                     convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): DirectivePartBuilder[Option[T]] = 
+                     convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }): DirectivePartBuilder[Option[T]] = 
                      part(_.optField(name), simple(convert))
     
     /** Specifies standard block-level content as the body of the directive.

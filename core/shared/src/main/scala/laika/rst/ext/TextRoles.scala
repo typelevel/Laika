@@ -242,7 +242,7 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
-                  convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): RoleDirectivePartBuilder[T] = 
+                  convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }): RoleDirectivePartBuilder[T] = 
                     requiredPart(_.field(name), simple(convert))
     
     /** Specifies an optional named field. 
@@ -253,7 +253,7 @@ object TextRoles {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
-                     convert: SourceFragment => Either[String,T] = { s:SourceFragment => Right(s.input) }): RoleDirectivePartBuilder[Option[T]] = 
+                     convert: SourceFragment => Either[String,T] = { (s:SourceFragment) => Right(s.input) }): RoleDirectivePartBuilder[Option[T]] = 
                      part(_.optField(name), simple(convert))
     
     /** Specifies standard block-level content as the body of the directive.

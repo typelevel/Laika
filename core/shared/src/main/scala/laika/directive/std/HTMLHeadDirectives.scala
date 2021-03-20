@@ -80,7 +80,7 @@ object HTMLHeadDirectives {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val suffixFilter: String => Boolean = cursor.root.targetFormat match {
-        case Some("epub") | Some("epub.xhtml") | Some("html") => suffix: String => suffix.endsWith("css") && suffix != "page.css"
+        case Some("epub") | Some("epub.xhtml") | Some("html") => (suffix: String) => suffix.endsWith("css") && suffix != "page.css"
         case _ => _ => false
       }
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
