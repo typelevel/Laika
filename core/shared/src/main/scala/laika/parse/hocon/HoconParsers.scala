@@ -86,7 +86,7 @@ object HoconParsers {
   object PathFragments {
     def unquoted(key: StringBuilderValue): PathFragments = {
       val fragments = key match {
-        case ValidStringValue(value) => value.split("\\.", -1).toSeq.map(ValidStringValue)
+        case ValidStringValue(value) => value.split("\\.", -1).toSeq.map(ValidStringValue.apply)
         case invalid => Seq(invalid)
       }
       apply(fragments)
@@ -175,7 +175,7 @@ object HoconParsers {
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
   def unquotedString(delimiters: NonEmptySet[Char]): Parser[StringBuilderValue] = {
     val unquotedChar = anyNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ','\t','\n')
-    val mainParser = unquotedChar.min(1).map(ValidStringValue)
+    val mainParser = unquotedChar.min(1).map(ValidStringValue.apply)
     val closingParser = lookAhead(ws ~ (oneOf(delimiters.add('"').add('$')) | unquotedChar.take(1) | eof))
     val delimMsg = if (delimiters.size == 1) " is" else "s are one of"
     val renderedDelimiters = delimiters.toSortedSet.map {
@@ -192,7 +192,7 @@ object HoconParsers {
     multilineString | quotedString | unquotedString(delimiter)
   
   def concatenatedValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = {
-    lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).mapN(ConcatPart).rep
+    lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).mapN(ConcatPart.apply).rep
     lazily {
       (anyValue(delimiter) ~ parts).map {
         case first ~ Nil => first
@@ -257,7 +257,7 @@ object HoconParsers {
         }
       }
     
-    "include " ~> (required | includeResource).map(IncludeBuilderValue) <~ ws
+    "include " ~> (required | includeResource).map(IncludeBuilderValue.apply) <~ ws
   }
 
   /** Parses a comment. */
@@ -274,8 +274,8 @@ object HoconParsers {
   lazy val arrayValue: Parser[ConfigBuilderValue] = {
     lazy val value = wsOrNl ~> concatenatedValue(NonEmptySet.of(']',',','\n','#')) <~ ws
     lazy val values = wsOrComment ~> value.rep(separator) <~ wsOrComment
-    val mainParser = lazily(("[" ~> values <~ trailingComma).map(ArrayBuilderValue))
-    mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue)
+    val mainParser = lazily(("[" ~> values <~ trailingComma).map(ArrayBuilderValue.apply))
+    mainParser.closeWith[ConfigBuilderValue](']')(InvalidBuilderValue.apply)
   }
 
   /** Parses the members of an object without the enclosing braces. */
@@ -299,13 +299,13 @@ object HoconParsers {
     lazy val member  = includeField | valueField
     lazy val members = member.rep(separator)
     
-    (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue)
+    (wsOrComment ~> members <~ wsOrComment <~ trailingComma).map(ObjectBuilderValue.apply)
   }
 
   /** Parses an object value enclosed in braces. */
   lazy val objectValue: Parser[ConfigBuilderValue] = {
     val mainParser = lazily("{" ~> objectMembers)
-    mainParser.closeWith[ConfigBuilderValue]('}')(InvalidBuilderValue)
+    mainParser.closeWith[ConfigBuilderValue]('}')(InvalidBuilderValue.apply)
   }
 
   /** Parses a root configuration object where the enclosing braces may be omitted. */

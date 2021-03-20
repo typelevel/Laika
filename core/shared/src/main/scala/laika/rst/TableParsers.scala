@@ -210,7 +210,7 @@ object TableParsers {
     val topBorder = intersect ~> (rowSep <~ intersect).rep.min(1) <~ wsEol
 
     val colSep = oneOf('|').as(CellSeparator("|")) | intersect
-    val colSepOrText = colSep | oneChar.line.map(CellElement)
+    val colSepOrText = colSep | oneChar.line.map(CellElement.apply)
 
     topBorder >> { cols =>
       
@@ -224,7 +224,7 @@ object TableParsers {
         intersect ~ anyOf('=').take(width).as(TableBoundary) <~ nextIn(intersectChar)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ anyChars.take(width).line.map(CellElement) <~ lookAhead(sepR)
+        sepL ~ anyChars.take(width).line.map(CellElement.apply) <~ lookAhead(sepR)
       
       val row = colsWithSep.map { 
         case (separatorL, colWidth, separatorR) => 
@@ -303,10 +303,10 @@ object TableParsers {
     topBorder >> { cols =>
       
       val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
-        val cellText = if (sep == 0) anyNot('\n', '\r').line.map(CellElement)
-                       else anyChars.take(col).line.map(CellElement) 
-        val separator = anyOf(' ').take(sep).map(CellSeparator)
-        val textInSep = anyChars.take(sep).map(CellSeparator)
+        val cellText = if (sep == 0) anyNot('\n', '\r').line.map(CellElement.apply)
+                       else anyChars.take(col).line.map(CellElement.apply) 
+        val separator = anyOf(' ').take(sep).map(CellSeparator.apply)
+        val textInSep = anyChars.take(sep).map(CellSeparator.apply)
         val textColumn = cellText ~ (separator | textInSep)
         
         val rowSep = anyOf('-').take(col).as(RowSeparator)

@@ -178,7 +178,7 @@ trait BuilderContext[E <: Element] {
         .map(new ObjectConfig(_, origin, cursor.config))
         .left.map(e => Seq(e.message))
       
-      val body = parsedResult.body.map(BodyContent.Source)
+      val body = parsedResult.body.map(BodyContent.Source.apply)
 
       for {
         dir   <- directiveOrMsg
