@@ -195,9 +195,9 @@ object InlineParsers {
     val url = ("<" ~> text(delimitedBy('>').failOn(' ')).embed(recParsers.escapeSequence)) |
        text(delimitedBy(')',' ','\t').keepDelimiter).embed(recParsers.escapeSequence)
     
-    val urlWithTitle = ("(" ~> url ~ opt(title) <~ ws ~ ")").mapN(TargetUrl).withCursor.map(t => (t._1, t._2.input))
+    val urlWithTitle = ("(" ~> url ~ opt(title) <~ ws ~ ")").mapN(TargetUrl.apply).withCursor.map(t => (t._1, t._2.input))
     
-    val refId = (ws ~ opt(eol) ~ "[" ~> recParsers.escapedUntil(']').map(TargetId)).withCursor.map(t => (t._1, t._2.input))
+    val refId = (ws ~ opt(eol) ~ "[" ~> recParsers.escapedUntil(']').map(TargetId.apply)).withCursor.map(t => (t._1, t._2.input))
 
     val refEmpty = (ws ~ opt(eol) ~ "[]").source.map((ImplicitTarget, _))
     val noRef = success((ImplicitTarget,""))

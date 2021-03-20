@@ -50,7 +50,7 @@ object ControlFlowDirectives {
 
     val emptyValues = Set[ConfigValue](StringValue(""), BooleanValue(false), NullValue)
     case class Empty (spans: Seq[TemplateSpan])
-    val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty))
+    val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty.apply))
 
     (attribute(0).as[String], separatedBody(Seq(emptySeparator)), cursor, Templates.dsl.source).mapN { (ref, multipart, cursor, source) =>
 
@@ -86,10 +86,10 @@ object ControlFlowDirectives {
     case class Else (body: Seq[TemplateSpan]) extends IfSeparator
 
     val elseIfSep = Templates.separator("elseIf") {
-      (attribute(0).as[String], parsedBody).mapN(ElseIf)
+      (attribute(0).as[String], parsedBody).mapN(ElseIf.apply)
     }
     val elseSep = Templates.separator("else", max = 1) {
-      parsedBody.map(Else)
+      parsedBody.map(Else.apply)
     }
     val multipartBody = separatedBody(Seq(elseIfSep, elseSep))
 

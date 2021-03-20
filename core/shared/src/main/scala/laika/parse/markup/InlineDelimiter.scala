@@ -39,14 +39,14 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
     if (endDelimiters.startChars.contains(startChar))
       endDelimiters.atStartChar(startChar, charsConsumed, source) match {
-        case Complete(s: Parsed[String]) => Complete(s.map(EndDelimiter))
+        case Complete(s: Parsed[String]) => Complete(s.map(EndDelimiter.apply))
         case Continue => if (nestedDelimiters.contains(startChar)) nestedDelimiter else Continue
       }
     else nestedDelimiter
   }
 
   def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[InlineResult] =
-    endDelimiters.atEOF(charsConsumed, source).map(EndDelimiter)
+    endDelimiters.atEOF(charsConsumed, source).map(EndDelimiter.apply)
 
 }
 

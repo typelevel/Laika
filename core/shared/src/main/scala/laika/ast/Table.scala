@@ -84,7 +84,7 @@ case class Columns (content: Seq[Column], options: Options = NoOpt) extends Tabl
   *  for the individual columns.
   */
 object Columns {
-  def options (options: Options*): Columns = Columns(options map Column)
+  def options (options: Options*): Columns = Columns(options.map(Column.apply))
 }
 
 /** The options (like styles) for a column table.

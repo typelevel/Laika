@@ -92,7 +92,7 @@ object StandardDirectiveParsers {
    */
   def target (p: RecursiveParsers)(input: SourceFragment): Either[String,Span] = {
     val phraseLinkRef = {
-      val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
+      val refName = p.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName.apply)
       ("`" ~> refName <~ "`_" ~ ws ~ eof).withCursor.map {
         case (name, src) => LinkIdReference(Nil, name.normalized, src) 
       }

@@ -60,7 +60,7 @@ object BaseParsers {
     val digit = someOf(CharGroup.digit)
     val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
     val unit = (simpleRefName | "%").evalMap(evalLength)
-    (amount ~ (ws ~> unit)).mapN(Length)
+    (amount ~ (ws ~> unit)).mapN(Length.apply)
   }
 
   /** Parses any of the four supported types of footnote labels.
@@ -71,7 +71,7 @@ object BaseParsers {
     val decimal = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
     val autonumber = literal("#").as(Autonumber)
     val autosymbol = literal("*").as(Autosymbol)
-    val autonumberLabel = "#" ~> simpleRefName.map(AutonumberLabel)
+    val autonumberLabel = "#" ~> simpleRefName.map(AutonumberLabel.apply)
 
     decimal | autonumberLabel | autonumber | autosymbol
   }

@@ -272,7 +272,7 @@ object InlineParsers {
     
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val urlPart = "<" ~> delimitedBy('>').map { _.replaceAll("[ \n]+", "") }
-    val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName)
+    val refName = recParsers.escapedText(delimitedBy('`','<').keepDelimiter).map(ReferenceName.apply)
     val end = markupEnd("`__").as(false) | markupEnd("`_").as(true)
     
     (markupStart("`", "`") ~> refName ~ opt(urlPart) ~ end).withCursor.map {

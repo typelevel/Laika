@@ -82,8 +82,8 @@ object CSSParsers {
    */
   val predicate: Parser[StylePredicate] = {
     
-    val id: Parser[StylePredicate]        = "#" ~> styleRefName.map(StylePredicate.Id)
-    val styleName: Parser[StylePredicate] = "." ~> styleRefName.map(StylePredicate.StyleName)
+    val id: Parser[StylePredicate]        = "#" ~> styleRefName.map(StylePredicate.Id.apply)
+    val styleName: Parser[StylePredicate] = "." ~> styleRefName.map(StylePredicate.StyleName.apply)
     
     id | styleName
   }
@@ -117,7 +117,7 @@ object CSSParsers {
 
   /** Parses a single style within a declaration.
     */
-  val style: Parser[Style] = ((styleRefName <~ ws ~ ":" ~ ws) ~ (styleValue <~ wsOrNl)).mapN(Style)
+  val style: Parser[Style] = ((styleRefName <~ ws ~ ":" ~ ws) ~ (styleValue <~ wsOrNl)).mapN(Style.apply)
 
   /** Parses a single CSS comment.
     */
