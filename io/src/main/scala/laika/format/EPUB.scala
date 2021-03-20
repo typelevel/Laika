@@ -153,10 +153,11 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
    *    and the configuration of this instance.
    */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
-    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.pure(new BinaryPostProcessor {
-      def process[G[_]: Async](result: RenderedTreeRoot[G], output: BinaryOutput[G], config: OperationConfig): G[Unit] =
-        writer.write(result, output)
-    })
+    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] = 
+      Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {
+        def process(result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] =
+          writer.write(result, output)
+      })
   }
   
 }

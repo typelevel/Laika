@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale, UUID}
 
+import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
 import cats.implicits._
 import laika.api.builder.OperationConfig
@@ -79,14 +80,14 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
     */
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
     
-    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor] = Resource.eval {
+    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] = Dispatcher[F].evalMap { dispatcher =>
       val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
-      FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs).map { fopFactory =>
-        new BinaryPostProcessor {
-          private val renderer = new PDFRenderer(fopFactory)
-          override def process[G[_]: Async](result: RenderedTreeRoot[G], output: BinaryOutput[G], opConfig: OperationConfig): G[Unit] =
+      FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs, dispatcher).map { fopFactory =>
+        new BinaryPostProcessor[F] {
+          private val renderer = new PDFRenderer(fopFactory, dispatcher)
+          override def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], opConfig: OperationConfig): F[Unit] =
             for {
-              fo <- Async[G].fromEither(FOConcatenation(result, pdfConfig, opConfig))
+              fo <- Async[F].fromEither(FOConcatenation(result, pdfConfig, opConfig))
               _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)
             } yield ()
         }

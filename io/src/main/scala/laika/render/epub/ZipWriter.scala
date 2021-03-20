@@ -65,7 +65,7 @@ object ZipWriter {
     }
     
     val in = inputFs.toVector.map { doc =>
-      doc.asResource.map((_, doc.path))
+      doc.input.map((_, doc.path))
     }.sequence
 
     val out = output.resource.map(new ZipOutputStream(_))

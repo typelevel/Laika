@@ -18,7 +18,8 @@ package laika.render.pdf
 
 import java.io.{OutputStream, StringReader}
 
-import cats.effect.Sync
+import cats.effect.std.Dispatcher
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
@@ -33,7 +34,7 @@ import org.apache.xmlgraphics.util.MimeConstants
   * 
   * @author Jens Halm
   */
-class PDFRenderer (fopFactory: FopFactory) {
+class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F]) {
 
   /** Render the given XSL-FO input as a PDF to the specified binary output. 
     *
@@ -43,7 +44,7 @@ class PDFRenderer (fopFactory: FopFactory) {
     *  @param staticDocuments additional files like fonts or images that the renderer should resolve for FOP
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Sync] (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
+  def render (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(d))
@@ -53,9 +54,9 @@ class PDFRenderer (fopFactory: FopFactory) {
 
     def createSAXResult (out: OutputStream): F[SAXResult] = 
       for {
-        foUserAgent <- Sync[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, new FopResourceResolver(staticDocuments)))
+        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, new FopResourceResolver(staticDocuments, dispatcher)))
         _           <- applyMetadata(foUserAgent)
-        fop         <- Sync[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
+        fop         <- Async[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
       } yield new SAXResult(fop.getDefaultHandler)
 
     def createTransformer: F[Transformer] = Sync[F].delay {
@@ -65,10 +66,10 @@ class PDFRenderer (fopFactory: FopFactory) {
     
     output.resource.use { out =>
       for {
-        source      <- Sync[F].delay(new StreamSource(new StringReader(foInput)))
+        source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
         result      <- createSAXResult(out)
         transformer <- createTransformer
-        _           <- Sync[F].blocking(transformer.transform(source, result))
+        _           <- Async[F].blocking(transformer.transform(source, result))
       } yield ()
     }
 

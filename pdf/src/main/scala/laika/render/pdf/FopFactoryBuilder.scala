@@ -18,13 +18,13 @@ package laika.render.pdf
 
 import java.io.{ByteArrayInputStream, File}
 
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
+import cats.effect.std.Dispatcher
 import laika.format.PDF
 import laika.io.model.BinaryInput
 import org.apache.fop.apps.{FopConfParser, FopFactory}
 
-/** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into
-  * the PDF.
+/** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.
   * 
   * @author Jens Halm
   */
@@ -51,12 +51,12 @@ object FopFactoryBuilder {
        |</fop>""".stripMargin
   }
 
-  def build[F[_]: Sync] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]]): F[FopFactory] = {
+  def build[F[_]: Async] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]], dispatcher: Dispatcher[F]): F[FopFactory] = {
     
     val confInput = new ByteArrayInputStream(generateXMLConfig(config).getBytes)
-    val resolver = new FopResourceResolver(staticDocs)
-    
-    Sync[F].delay { 
+    val resolver = new FopResourceResolver(staticDocs, dispatcher)
+
+    Async[F].delay { 
       val parser = new FopConfParser(confInput, new File(".").toURI, resolver)
       parser.getFopFactoryBuilder.build() 
     }
