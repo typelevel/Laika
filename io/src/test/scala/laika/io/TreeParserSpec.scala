@@ -770,7 +770,7 @@ class TreeParserSpec extends IOWordSpec
 //      }}
 
 //      val inputs = new TestThemeBuilder.Inputs {
-//        def build[F[_]: Sync: Runtime] = InputTree[F].addDirectory(dir2)//.build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
+//        def build[F[_]: Sync] = InputTree[F].addDirectory(dir2)//.build(MarkupParser.of(Markdown).build.config.docTypeMatcher)
 //      }
 //      
 //      defaultBuilder
