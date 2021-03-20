@@ -44,7 +44,7 @@ trait Batch[F[_]] {
   /** Runs the specified batch in parallel, but may fall back to sequential execution
     * depending on configuration.
     */
-  def runParallel[A] (fas: Vector[F[A]]): F[Vector[A]] = parallelInstance match {
+  def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = parallelInstance match {
     case Some(par) if parallelism > 1 && fas.size > 1 => BatchRuntime
       .createBatches(fas, parallelism)
       .parSequence(implicitly[Monad[F]], implicitly[Traverse[Vector]], par)

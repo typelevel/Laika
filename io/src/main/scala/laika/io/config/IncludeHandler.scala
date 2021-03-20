@@ -103,7 +103,7 @@ object IncludeHandler {
         result.map(_.map(res => LoadedInclude(requestedResource, resolvedResource, res)))
       
       preparedIncludes.flatMap { includes =>
-        Batch[F].runParallel(
+        Batch[F].execute(
           includes.map {
             case (i@IncludeFile(resourceId, _), orig)      => result(orig, i, ResourceLoader.loadFile(resourceId.value))
             case (i@IncludeClassPath(resourceId, _), orig) => result(orig, i, ResourceLoader.loadClasspathResource(resourceId.value))
