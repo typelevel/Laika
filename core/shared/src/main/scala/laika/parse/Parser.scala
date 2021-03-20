@@ -205,9 +205,9 @@ abstract class Parser[+T] {
     * @param f a partial function that will be applied to this parser's result.
     * @param error an optional function that takes the same argument as `f` and produces an error message.
     */
-  def collect [U](f: PartialFunction[T, U],
-                  error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = {
-    val msg: T => Message = Message.forRuntimeValue(error)
+  def collect [U, V >: T](f: PartialFunction[T, U],
+                          error: V => String = (r:V) => s"Constructor function not defined at $r"): Parser[U] = {
+    val msg: V => Message = Message.forRuntimeValue(error)
     Parser { in =>
       parse(in) match {
         case Success(result, next) =>
@@ -297,7 +297,7 @@ abstract class Parser[+T] {
     
     val combined = this ~ opt(endCondition)
 
-    @tailrec
+    //@tailrec
     def parse (input: SourceCursor): Parsed[(List[T], Option[U])] =
       combined.parse(input) match {
         case Success(result ~ Some(endCond), rest) =>

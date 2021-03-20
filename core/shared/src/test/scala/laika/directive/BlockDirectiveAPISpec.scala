@@ -20,7 +20,6 @@ import cats.implicits._
 import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.sample.TestSourceBuilders
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
 import laika.directive.std.StandardDirectives
@@ -36,9 +35,9 @@ import org.scalatest.matchers.should.Matchers
 
 
 class BlockDirectiveAPISpec extends AnyFlatSpec
-                          with Matchers
-                          with ParagraphCompanionShortcuts
-                          with TestSourceBuilders {
+                            with Matchers
+                            with ParagraphCompanionShortcuts
+                            with TestSourceBuilders {
 
   
   object DirectiveSetup {
@@ -89,10 +88,10 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       case class Bar (content: Seq[Block], attr: String) extends Child
       
       val sep1 = Blocks.separator("foo", min = 1) {
-        parsedBody.map(Foo)
+        parsedBody.map(Foo.apply)
       }
       val sep2 = Blocks.separator("bar", max = 1) {
-        (parsedBody, attribute(0).as[String]).mapN(Bar)
+        (parsedBody, attribute(0).as[String]).mapN(Bar.apply)
       }
       
       val directive = Blocks.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>

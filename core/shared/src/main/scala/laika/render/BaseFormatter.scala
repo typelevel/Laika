@@ -40,7 +40,7 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
   val newLine: String = indentation.newLine
 
   
-  private def renderCurrentElement: String = renderChild(this, currentElement)
+  private[BaseFormatter] def renderCurrentElement: String = renderChild(this, currentElement)
   
   private lazy val nextLevel: Rep = if (indentation == Indentation.none) this else withIndentation(indentation.nextLevel)
 

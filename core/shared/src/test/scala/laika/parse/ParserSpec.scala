@@ -269,7 +269,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with 
 
     import TextParsers._
 
-    val parser = literal("1").repWith { res:String => literal((res.toInt + 1).toString) }
+    val parser = literal("1").repWith { (res:String) => literal((res.toInt + 1).toString) }
 
     "parse a sequence based on a dynamically changing parser" in {
       parser.parse("12345999") should produce (List("1","2","3","4","5"))

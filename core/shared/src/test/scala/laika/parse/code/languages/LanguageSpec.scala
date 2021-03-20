@@ -74,12 +74,13 @@ class LanguageSpec extends AnyWordSpec with Matchers {
     
     trait TagFormats {
       def string(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
+      def qstring(value: String): CodeSpan = CodeSpan("\"" + value + "\"", StringLiteral)
       def dtdTag(value: String): CodeSpan = CodeSpan(value, CodeCategory.XML.DTDTagName)
       def nl(indent: Int): CodeSpan = CodeSpan("\n" + (" " * indent))
       def punct(content: String): CodeSpan = CodeSpan(content, CodeCategory.Tag.Punctuation)
       val open: CodeSpan = CodeSpan("<", CodeCategory.Tag.Punctuation)
       val close: CodeSpan = CodeSpan(">", CodeCategory.Tag.Punctuation)
-      val space: CodeSpan = CodeSpan(" ", CodeCategory.Tag.Punctuation)
+      val spacePunct: CodeSpan = CodeSpan(" ", CodeCategory.Tag.Punctuation)
       val eq: CodeSpan = CodeSpan("=", CodeCategory.Tag.Punctuation)
     }
     
@@ -286,7 +287,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         keyword("class"), space, id("App"), space, keyword("extends"), space, id("Component"), other(" {\n\n  "),
         id("state"), other(" = {\n    "),
         id("lastResult"), colonSpace, keyword("this"), dot, id("message"), other("("), string("'Apocalypse started'"), other(")\n  }\n\n  "),
-        id("tag"), equals, tags.punct("<"), tagName("div"), tags.space, attrName("className"), tags.eq,
+        id("tag"), equals, tags.punct("<"), tagName("div"), tags.spacePunct, attrName("className"), tags.eq,
         string("\"big\""), tags.punct("><"), typeName("Comp.Hello"), tags.punct(">"), other("See "), subst("{props.foo}"),
         tags.punct("</"), typeName("Comp.Hello"), tags.punct("></"), tagName("div"), tags.punct(">"), other("\n\n  "),
         id("handleError"), equals, id("error"), other(" => {\n    "),
@@ -423,7 +424,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         keyword("export"), space, keyword("const"), space, id("NameEditComponent"), other(" = ("), id("props"), colonSpace, id("Props"), other(") => {\n\n  "),
         keyword("const"), other(" ["), id("editingName"), comma, id("setEditingName"), other("] = "),
         id("React"), dot, id("useState"), other("("), id("props"), dot, id("initialUserName"), other(");\n\n  "),
-        keyword("const"), space, id("tag"), equals, tags.punct("<"), tagName("div"), tags.space, attrName("className"), tags.eq,
+        keyword("const"), space, id("tag"), equals, tags.punct("<"), tagName("div"), tags.spacePunct, attrName("className"), tags.eq,
         string("\"big\""), tags.punct("><"), typeName("Comp.Hello"), tags.punct(">"), other("See "), subst("{props.foo}"),
         tags.punct("</"), typeName("Comp.Hello"), tags.punct("></"), tagName("div"), tags.punct(">"), other(";\n\n  "),
         keyword("const"), space, id("onChange"), other(" = ("), id("e"), colonSpace, id("React"), dot, id("ChangeEvent"), other("<"), id("HTMLInputElement"), other(">) => {\n    "),
@@ -497,15 +498,15 @@ class LanguageSpec extends AnyWordSpec with Matchers {
       
 
       parse(input) shouldBe result("xml",
-        punct("<?"), tagName("xml"), space, attrName("version"), eq, string("1.0"), punct("?>"), nl(0),
-        punct("<!"), dtdTag("DOCTYPE"), space, id("foo"), punct(" [\n  <!"),
-        dtdTag("ELEMENT"), space, id("bar"), punct(" ("), id("baz"), punct(")>\n  <!"),
-        dtdTag("ELEMENT"), space, id("baz"), punct(" ("), keyword("#PCDATA"), punct(")>\n  <!"),
-        dtdTag("ATTLIST"), space, id("bar"), space, id("bar_no"), space, keyword("CDATA"), space, keyword("#REQUIRED"), punct(">\n  <!"),
-        dtdTag("ENTITY"), space, id("logo"), space, keyword("PUBLIC"), punct("  "), string("-//W3C//GIF logo//EN"), space, 
-        string("http://www.w3.org/logo.gif"), space, keyword("NDATA"), space, id("gif"), punct(">\n]>"), nl(0),
+        punct("<?"), tagName("xml"), spacePunct, attrName("version"), eq, qstring("1.0"), punct("?>"), nl(0),
+        punct("<!"), dtdTag("DOCTYPE"), spacePunct, id("foo"), punct(" [\n  <!"),
+        dtdTag("ELEMENT"), spacePunct, id("bar"), punct(" ("), id("baz"), punct(")>\n  <!"),
+        dtdTag("ELEMENT"), spacePunct, id("baz"), punct(" ("), keyword("#PCDATA"), punct(")>\n  <!"),
+        dtdTag("ATTLIST"), spacePunct, id("bar"), spacePunct, id("bar_no"), spacePunct, keyword("CDATA"), spacePunct, keyword("#REQUIRED"), punct(">\n  <!"),
+        dtdTag("ENTITY"), spacePunct, id("logo"), spacePunct, keyword("PUBLIC"), punct("  "), qstring("-//W3C//GIF logo//EN"), spacePunct,
+        qstring("http://www.w3.org/logo.gif"), spacePunct, keyword("NDATA"), spacePunct, id("gif"), punct(">\n]>"), nl(0),
         open, tagName("foo"), close, nl(2),
-        open, tagName("bar"), space, attrName("bar_no"), eq, string("xyz-123"), close, nl(4),
+        open, tagName("bar"), spacePunct, attrName("bar_no"), eq, qstring("xyz-123"), close, nl(4),
         open, tagName("baz"), close, other("Some text with "), subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("baz"), close, nl(2),
         punct("</"), tagName("bar"), close, nl(2),
         comment("<!-- some comment -->"), nl(2),
@@ -539,18 +540,18 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         """.stripMargin
 
       parse(input) shouldBe result("html",
-        punct("<!"), dtdTag("DOCTYPE"), space, id("html"), close, nl(0),
+        punct("<!"), dtdTag("DOCTYPE"), spacePunct, id("html"), close, nl(0),
         open, tagName("html"), close, nl(2),
         open, tagName("body"), close, nl(4),
         open, tagName("style"), close, nl(6),
         id("p"), other(" {"), attrName("color"), other(":"), id("blue"), other(";}\n    "),
         punct("</"), tagName("style"), close, nl(4),
         open, tagName("script"), close, nl(6),
-        keyword("var"), other(" "), id("x"), other(" = "), string("foo"), other(";\n      "),
+        keyword("var"), other(" "), id("x"), other(" = "), qstring("foo"), other(";\n      "),
         keyword("var"), other(" "), id("y"), other(" = "), number("97.5"), other(";\n    "),
         punct("</"), tagName("script"), close, nl(4),
-        open, tagName("script"), space, attrName("src"), eq, string("foo.js"), punct("/>"), nl(4),
-        open, tagName("p"), space, attrName("class"), eq, string("big"), close, other("Some text with "),
+        open, tagName("script"), spacePunct, attrName("src"), eq, qstring("foo.js"), punct("/>"), nl(4),
+        open, tagName("p"), spacePunct, attrName("class"), eq, qstring("big"), close, other("Some text with "),
         subst("&lt;"), other(" entities "), escape("&#x20;"), punct("</"), tagName("p"), close, nl(4),
         comment("<!-- some comment -->"), nl(2),
         punct("</"), tagName("body"), close, nl(0),
@@ -997,7 +998,7 @@ class LanguageSpec extends AnyWordSpec with Matchers {
         open, tagName("html"), close, nl(2),
         open, tagName("body"), close, nl(4),
         keyword("@:"), id("toc"), other(" { "), attrName("depth"), colonSpace, number("2"), other(" }\n    "),
-        open, tagName("div"), space, attrName("class"), eq, string("content"), close, nl(6),
+        open, tagName("div"), spacePunct, attrName("class"), eq, qstring("content"), close, nl(6),
         subst("${cursor.currentDocument.content}"), nl(4),
         punct("</"), tagName("div"), close, nl(2),
         punct("</"), tagName("body"), close, nl(0),
@@ -1018,17 +1019,17 @@ class LanguageSpec extends AnyWordSpec with Matchers {
           |```
         """.stripMargin
 
-      override def string(value: String): CodeSpan = CodeSpan(value, StringLiteral)
+      override def qstring(value: String): CodeSpan = CodeSpan(value, StringLiteral)
       def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
       val nl = other("\n")
       parse(input) shouldBe result("laika-ast",
         typeName("RootElement"), other(" - "), keyword("Blocks"), other(": "), number("2"), nl,
-        punct(". "), header("Title"), other("("), id("Id"), other("("), string("title"), other(") + "), 
-        id("Styles"), other("("), string("title"), other(")) - "), keyword("Spans"), other(": "), number("1"), nl,
-        punct(". . "), typeName("Text"), other(" - "), string("'This is the Title'"), nl,
+        punct(". "), header("Title"), other("("), id("Id"), other("("), qstring("title"), other(") + "), 
+        id("Styles"), other("("), qstring("title"), other(")) - "), keyword("Spans"), other(": "), number("1"), nl,
+        punct(". . "), typeName("Text"), other(" - "), qstring("'This is the Title'"), nl,
         punct(". "), typeName("Paragraph"), other(" - "), keyword("Spans"), other(": "), number("1"), nl,
-        punct(". . "), typeName("Text"), other(" - "), string("'text"), escape("|"), string("second line "),
-        punct("[...]"), string(" the end'")
+        punct(". . "), typeName("Text"), other(" - "), qstring("'text"), escape("|"), qstring("second line "),
+        punct("[...]"), qstring(" the end'")
       )
     }
         

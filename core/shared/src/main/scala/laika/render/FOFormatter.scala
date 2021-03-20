@@ -143,7 +143,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   def internalLinkTarget (element: Element): String = {
     parents.head match {
       case _: BlockContainer => block(element)
-      case _ => inline(element, Nil)
+      case _ => this.inline(element, Nil)
     }
   }
 
