@@ -4,6 +4,7 @@ import sbt.Keys.artifactPath
 
 val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.5"
+val scala3_0 = "3.0.0-RC1"
 
 lazy val basicSettings = Seq(
   version               := "0.18.0-SNAPSHOT",
@@ -32,7 +33,7 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq(scala2_12, scala2_13)
+  crossScalaVersions := Seq(scala2_12, scala2_13, scala3_0)
 )
 
 lazy val publishSettings = Seq(
