@@ -129,7 +129,7 @@ object ParserRuntime {
       
       for {
         ops      <- Sync[F].fromEither(createOps)
-        results  <- Batch[F].runParallel(ops)
+        results  <- Batch[F].execute(ops)
         includes <- loadIncludes(results)
         tree     <- Sync[F].fromEither(buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
         result   <- Sync[F].fromEither(rewriteTree(tree))

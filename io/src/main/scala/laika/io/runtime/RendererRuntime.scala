@@ -117,7 +117,7 @@ object RendererRuntime {
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
 
-      Batch[F].runParallel(ops.toVector).map { results =>
+      Batch[F].execute(ops.toVector).map { results =>
 
         val titleName = TitleDocumentConfig.outputName(finalRoot.config)
         val renderedDocs = results.collect { case Right(doc) => doc }
