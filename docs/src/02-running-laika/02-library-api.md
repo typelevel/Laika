@@ -191,7 +191,7 @@ The following example assumes the use case of an application written around abst
 from cats.IO for initialization:
 
 ```scala
-def createTransformer[F[_]: Sync: Parallel]: Resource[F, TreeTransformer[F]] =
+def createTransformer[F[_]: Async]: Resource[F, TreeTransformer[F]] =
   Transformer
     .from(Markdown)
     .to(HTML)

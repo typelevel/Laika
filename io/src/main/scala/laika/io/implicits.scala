@@ -29,8 +29,7 @@ import laika.io.runtime.Batch
   * renderers and transformers from the laika-core module, adding support for file/stream IO,
   * suspended in the effect of your choice.
   * 
-  * The requirements for the effect are `Sync` for sequential execution,
-  * and additionally `cats.Parallel` for parallel execution.
+  * The requirements for the effect are `Sync` for sequential execution and `Async` for parallel execution.
   *
   * Example for transforming an entire directory from Markdown to HTML using the `parallel` builder:
   *

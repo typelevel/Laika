@@ -297,7 +297,7 @@ so we just show Laika's own Helium theme builder as an example:
 ```scala
 class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
 
-  def build[F[_]: Sync: Runtime]: Resource[F, Theme[F]] = {
+  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
 
     import helium._
 
@@ -329,9 +329,6 @@ Let's just highlight the most important aspects:
 * The `build` method will be invoked by Laika when the transformer resource is created.
   It passes in the effect type as it is in the hand of the end user to select the concrete implementation,
   any implementation of `cats.Sync` is supported.
-  It also provides a `Runtime` instance, which is a Laika type that encapsulates user runtime configuration
-  (the execution contexts to use, level of parallelism, etc.).
-  It has an API that allows to call `runBlocking` or `runParallel` which will use the user provided contexts.
   
 * The `ThemeBuilder` is an optional API, but usually recommended as it reduces boilerplate.
   The only requirement is that the `build` method returns a cats-effect `Resource[F, Theme[F]]`.
