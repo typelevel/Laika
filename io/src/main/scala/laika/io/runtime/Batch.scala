@@ -50,12 +50,7 @@ object Batch {
   /** Creates a Batch instance for parallel execution.
     */
   def parallel[F[_]: Async] (parallelism: Int): Batch[F] = new Batch[F] {
-    def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = 
-      if (parallelism > 1 && fas.size > 1) BatchRuntime
-        .createBatches(fas, parallelism)
-        .parSequence
-        .map(_.flatten)
-      else fas.sequence
+    def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = fas.parSequenceN(parallelism)
   }
 
 }

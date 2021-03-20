@@ -16,14 +16,13 @@
 
 package laika.helium.generate
 
-import cats.Id
+import cats.{Applicative, Id}
 import laika.ast.Path.Root
 import laika.ast.{InternalTarget, _}
 import laika.config.ConfigEncoder.ObjectBuilder
 import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
-import laika.io.runtime.BatchRuntime
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
@@ -44,7 +43,7 @@ private[laika] object ConfigGenerator {
   }
   
   private def buildTeaserRows (teasers: Seq[Id[Teaser]]): Seq[ObjectValue] = if (teasers.isEmpty) Nil else
-    BatchRuntime.createBatches(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
+    BalancedGroups.create(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
       ObjectBuilder.empty.withValue("teasers", row).build
     }
 
@@ -153,4 +152,25 @@ private[laika] object ConfigGenerator {
       .withValue("laika.epub.coverImage", helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .build
   
+}
+
+/** Utility for splitting a collection into a balanced group of items as opposed to the unbalanced 
+  * `grouped` method of the Scala collection API.
+  */
+object BalancedGroups {
+
+  import cats.syntax.all._
+  
+  /** Creates a balanced group of items based on the given desired size.
+    */
+  def create[F[_]: Applicative, A] (items: Vector[F[A]], size: Int): Vector[F[Vector[A]]] = {
+    val mod = items.size % size
+    val loSize = items.size / size
+    val hiSize = loSize + 1
+    val (hi,lo) = items.splitAt(mod * hiSize)
+    val hiBatch = if (mod > 0)    hi.grouped(hiSize) else Vector()
+    val loBatch = if (loSize > 0) lo.grouped(loSize) else Vector()
+    hiBatch.toVector.map(_.sequence) ++ loBatch.toVector.map(_.sequence)
+  }
+
 }
