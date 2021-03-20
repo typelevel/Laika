@@ -34,7 +34,6 @@ import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model.{InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
-import laika.io.runtime.Runtime
 import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._

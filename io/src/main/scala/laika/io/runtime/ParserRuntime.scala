@@ -41,7 +41,7 @@ object ParserRuntime {
   
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
-  def run[F[_]: Sync: Runtime] (op: TreeParser.Op[F]): F[ParsedTree[F]] = {
+  def run[F[_]: Sync: Batch] (op: TreeParser.Op[F]): F[ParsedTree[F]] = {
     
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._
@@ -129,7 +129,7 @@ object ParserRuntime {
       
       for {
         ops      <- Sync[F].fromEither(createOps)
-        results  <- Runtime[F].runParallel(ops)
+        results  <- Batch[F].runParallel(ops)
         includes <- loadIncludes(results)
         tree     <- Sync[F].fromEither(buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(ParserError(_, Root)))
         result   <- Sync[F].fromEither(rewriteTree(tree))

@@ -43,10 +43,10 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
+  def run[F[_]: Sync: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
     run(op, op.theme.inputs, TemplateContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
 
-  private def run[F[_]: Sync: Runtime] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Sync: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -117,7 +117,7 @@ object RendererRuntime {
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
 
-      Runtime[F].runParallel(ops.toVector).map { results =>
+      Batch[F].runParallel(ops.toVector).map { results =>
 
         val titleName = TitleDocumentConfig.outputName(finalRoot.config)
         val renderedDocs = results.collect { case Right(doc) => doc }
@@ -197,7 +197,7 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Sync: Runtime] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Sync: Batch] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
     val context = TemplateContext(op.renderer.interimRenderer.format.fileSuffix, op.renderer.description.toLowerCase)
     val template = op.input.tree.getDefaultTemplate(context.templateSuffix)
                      .fold(getDefaultTemplate(op.theme.inputs, context.templateSuffix))(_.content)

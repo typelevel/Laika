@@ -16,16 +16,16 @@
 
 package laika.io.runtime
 
-import cats.{Monad, Parallel, Traverse}
 import cats.effect.Sync
 import cats.implicits._
+import cats.{Monad, Parallel, Traverse}
 
 /** Type class for the effect F that encapsulates the mechanism 
-  * and configuration for running parallel operations.
+  * and configuration for executing a batch of operations, either sequentially or in parallel.
   * 
   * @author Jens Halm
   */
-trait Runtime[F[_]] {
+trait Batch[F[_]] {
 
   /** The `Sync` instance for the type F.
     */
@@ -57,16 +57,16 @@ trait Runtime[F[_]] {
 
 /** Constructors for Runtime instances for parallel or sequential execution.
   */
-object Runtime {
+object Batch {
 
   /** Summoner for implicit Runtime instances.
     */
-  def apply[F[_]: Runtime]: Runtime[F] = implicitly[Runtime[F]]
+  def apply[F[_]: Batch]: Batch[F] = implicitly[Batch[F]]
 
   /** Creates a Runtime instance for sequential execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def sequential[F[_]: Sync]: Runtime[F] = new Runtime[F] {
+  def sequential[F[_]: Sync]: Batch[F] = new Batch[F] {
     val F = implicitly[Sync[F]]
     val parallelInstance = None
     val parallelism = 1
@@ -75,7 +75,7 @@ object Runtime {
   /** Creates a Runtime instance for parallel execution based on the specified
     * contexts for CPU-bound and blocking operations.
     */
-  def parallel[F[_]: Sync: Parallel] (parallelismParam: Int): Runtime[F] = new Runtime[F] {
+  def parallel[F[_]: Sync: Parallel] (parallelismParam: Int): Batch[F] = new Batch[F] {
     val F = implicitly[Sync[F]]
     val parallelInstance = Some(implicitly[Parallel[F]])
     val parallelism = parallelismParam

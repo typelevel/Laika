@@ -23,14 +23,14 @@ import laika.ast.DocumentTreeRoot
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
-import laika.io.runtime.{RendererRuntime, Runtime}
+import laika.io.runtime.{RendererRuntime, Batch}
 import laika.theme.{Theme, ThemeProvider}
 
 /** Renderer for a tree of output documents.
   *
   * @author Jens Halm
   */
-class TreeRenderer[F[_]: Sync: Runtime](renderer: Renderer, theme: Theme[F]) {
+class TreeRenderer[F[_]: Sync: Batch] (renderer: Renderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
@@ -45,7 +45,7 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (renderer: Renderer, theme: ThemeProvider) {
+  case class Builder[F[_]: Sync: Batch] (renderer: Renderer, theme: ThemeProvider) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
@@ -59,10 +59,10 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Runtime] (renderer: Renderer,
-                                              theme: Theme[F],
-                                              input: DocumentTreeRoot, 
-                                              staticDocuments: Seq[BinaryInput[F]]) extends TextOutputOps[F] {
+  case class OutputOps[F[_]: Sync: Batch] (renderer: Renderer,
+                                           theme: Theme[F],
+                                           input: DocumentTreeRoot,
+                                           staticDocuments: Seq[BinaryInput[F]]) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
@@ -81,11 +81,11 @@ object TreeRenderer {
     * It can be run by invoking the `render` method which delegates to the library's default runtime implementation
     * or by developing a custom runner that performs the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Runtime] (renderer: Renderer,
-                                       theme: Theme[F],
-                                       input: DocumentTreeRoot, 
-                                       output: TreeOutput, 
-                                       staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Sync: Batch] (renderer: Renderer,
+                                    theme: Theme[F],
+                                    input: DocumentTreeRoot,
+                                    output: TreeOutput,
+                                    staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer.
       */

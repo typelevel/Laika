@@ -22,7 +22,7 @@ import cats.implicits._
 import cats.effect.{Resource, Sync}
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
-import laika.io.runtime.{InputRuntime, Runtime}
+import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
 

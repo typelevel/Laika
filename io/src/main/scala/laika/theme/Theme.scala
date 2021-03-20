@@ -21,7 +21,6 @@ import cats.effect.Sync
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.{InputTree, ParsedTree}
-import laika.io.runtime.Runtime
 import laika.theme.Theme.TreeProcessor
 
 /** A theme is a way of pre-populating the input tree with a set of templates, styles and configurations

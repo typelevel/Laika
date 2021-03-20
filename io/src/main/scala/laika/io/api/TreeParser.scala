@@ -24,7 +24,7 @@ import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocum
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree}
 import laika.io.ops.InputOps
-import laika.io.runtime.{ParserRuntime, Runtime}
+import laika.io.runtime.{ParserRuntime, Batch}
 import laika.theme.{Theme, ThemeProvider}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, DocumentInput}
@@ -33,7 +33,7 @@ import laika.parse.markup.DocumentParser.{ParserError, DocumentInput}
   *
   * @author Jens Halm
   */
-class TreeParser[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
+class TreeParser[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
 
   type Result = TreeParser.Op[F]
 
@@ -57,7 +57,7 @@ object TreeParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: ThemeProvider) {
+  case class Builder[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], theme: ThemeProvider) {
 
     /** Specifies an additional parser for text markup.
       * 
@@ -91,7 +91,7 @@ object TreeParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: InputTreeBuilder[F]) {
+  case class Op[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], theme: Theme[F], input: InputTreeBuilder[F]) {
 
     /** The merged configuration of all markup parsers of this operation, including the theme extensions.
       */

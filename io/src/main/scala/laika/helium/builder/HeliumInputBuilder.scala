@@ -23,7 +23,6 @@ import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.helium.Helium
 import laika.helium.generate.{CSSVarGenerator, FOStyles, MergedCSSGenerator}
 import laika.io.model.{InputTree, InputTreeBuilder}
-import laika.io.runtime.Runtime
 import laika.rewrite.DefaultTemplatePath
 import laika.theme.config.{EmbeddedFontFile, EmbeddedFontResource}
 

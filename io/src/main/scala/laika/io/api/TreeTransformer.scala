@@ -26,17 +26,17 @@ import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
-import laika.io.runtime.{Runtime, TransformerRuntime}
+import laika.io.runtime.{Batch, TransformerRuntime}
 import laika.theme.{Theme, ThemeProvider}
 
 /** Transformer for a tree of input and output documents.
   *
   * @author Jens Halm
   */
-class TreeTransformer[F[_]: Sync: Runtime](parsers: NonEmptyList[MarkupParser],
-                                           renderer: Renderer,
-                                           theme: Theme[F],
-                                           mapper: TreeMapper[F]) extends InputOps[F] {
+class TreeTransformer[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+                                          renderer: Renderer,
+                                          theme: Theme[F],
+                                          mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = TreeTransformer.OutputOps[F]
 
@@ -61,10 +61,10 @@ object TreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser], 
-                                           renderer: Renderer, 
-                                           theme: ThemeProvider, 
-                                           mapper: TreeMapper[F]) extends TreeMapperOps[F] {
+  case class Builder[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+                                         renderer: Renderer,
+                                         theme: ThemeProvider,
+                                         mapper: TreeMapper[F]) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
     
@@ -101,11 +101,11 @@ object TreeTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                             renderer: Renderer,
-                                             theme: Theme[F],
-                                             input: InputTreeBuilder[F],
-                                             mapper: TreeMapper[F]) extends TextOutputOps[F] {
+  case class OutputOps[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+                                           renderer: Renderer,
+                                           theme: Theme[F],
+                                           input: InputTreeBuilder[F],
+                                           mapper: TreeMapper[F]) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
@@ -121,12 +121,12 @@ object TreeTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Runtime] (parsers: NonEmptyList[MarkupParser],
-                                      renderer: Renderer,
-                                      theme: Theme[F],
-                                      input: InputTreeBuilder[F],
-                                      mapper: TreeMapper[F],
-                                      output: TreeOutput) {
+  case class Op[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+                                    renderer: Renderer,
+                                    theme: Theme[F],
+                                    input: InputTreeBuilder[F],
+                                    mapper: TreeMapper[F],
+                                    output: TreeOutput) {
 
     /** Performs the transformation based on the library's default runtime implementation, suspended in the effect F.
       */
