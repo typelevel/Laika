@@ -49,8 +49,8 @@ object TableParsers {
   private case class CellElement (text: LineSource) extends TableElement {
     override def toString = text.input
   }
-      
-  class CellBuilder (recParser: RecursiveParsers) {
+
+  private class CellBuilder (recParser: RecursiveParsers) {
     
     private val seps = new ListBuffer[TableElement]
     private val previousLines = new ListBuffer[LineSource]
@@ -104,18 +104,18 @@ object TableParsers {
 
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
-  
-  class CellBuilderRef (val cell: CellBuilder, val mergedLeft: Boolean = false)
-  
-  class RowBuilder {
+
+  private class CellBuilderRef (val cell: CellBuilder, val mergedLeft: Boolean = false)
+
+  private class RowBuilder {
     private val cells = new ListBuffer[CellBuilder]
     
     def addCell (cell: CellBuilder): Unit = cells += cell
      
     def toRow (ct: CellType): Row = Row(cells.filterNot(_.removed).map(_.toCell(ct)).toList)
   }
-  
-  class ColumnBuilder (left: Option[ColumnBuilder], recParser: RecursiveParsers) {
+
+  private class ColumnBuilder (left: Option[ColumnBuilder], recParser: RecursiveParsers) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -166,8 +166,8 @@ object TableParsers {
       if (nextRow) rowSpan += 1
     }
   }
-  
-  class TableBuilder (columnWidths: List[Int], recParser: RecursiveParsers) {
+
+  private class TableBuilder (columnWidths: List[Int], recParser: RecursiveParsers) {
     private object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator

@@ -227,8 +227,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     }
 
     "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue(sample).build
-      encoded.get[Selections] shouldBe Right(sample)
+      val result = ConfigBuilder.empty.withValue(sample).build.get[Selections]
+      result shouldBe Right(sample)
     }
     
   }
@@ -274,7 +274,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     )
     
     "decode an instance with all fields populated" in {
-       val input =
+      val input =
          """{
           |  laika.versions {
           |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }

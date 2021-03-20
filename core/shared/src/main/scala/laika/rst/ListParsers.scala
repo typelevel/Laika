@@ -115,11 +115,11 @@ object ListParsers {
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
       
-      ("(" ~ firstEnumType ~ ")").map { 
-        case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) 
-      } | (firstEnumType ~ ")" | firstEnumType ~ ".").map { 
-        case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) 
-      }
+    ("(" ~ firstEnumType ~ ")").map { 
+      case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) 
+    } | (firstEnumType ~ ")" | firstEnumType ~ ".").map { 
+      case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) 
+    }
   }
   
   /** Parses an enumerated list in any of the supported combinations of enumeration style and formatting.

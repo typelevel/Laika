@@ -77,7 +77,7 @@ trait TextParsers extends Parsers {
   /** Succeeds at the start of the input.
    */
   val atStart: Parser[Unit] = Parser { in =>
-    if (in.offset == 0) Success(success(()), in) 
+    if (in.offset == 0) Success((), in) 
     else Failure(Message.ExpectedStart, in)
   }
 

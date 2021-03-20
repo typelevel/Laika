@@ -61,14 +61,16 @@ class SelectionConfigSpec extends AnyWordSpec with Matchers {
       val config = ConfigBuilder.empty.withValue(Selections.empty).build
       val result = Selections.createCombinations(config)
       result.length shouldBe 1
-      result.head._1.get[Selections] shouldBe Right(Selections.empty)
+      val decoded = result.head._1.get[Selections]
+      decoded shouldBe Right(Selections.empty)
     }
 
     "succeed with a single choice group without separation" in {
       val config = ConfigBuilder.empty.withValue(Selections(selectionFoo)).build
       val result = Selections.createCombinations(config)
       result.length shouldBe 1
-      result.head._1.get[Selections] shouldBe Right(Selections(selectionFoo))
+      val decoded = result.head._1.get[Selections]
+      decoded shouldBe Right(Selections(selectionFoo))
     }
 
     "succeed with a single choice group with separation" in {

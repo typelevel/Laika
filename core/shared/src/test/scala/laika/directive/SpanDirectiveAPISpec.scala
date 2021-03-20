@@ -87,10 +87,10 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       case class Bar (content: Seq[Span], attr: String) extends Child
       
       val sep1 = Spans.separator("foo", min = 1) { 
-        parsedBody.map(Foo) 
+        parsedBody.map(Foo.apply) 
       }
       val sep2 = Spans.separator("bar", max = 1) { 
-        (parsedBody, attribute(0).as[String]).mapN(Bar) 
+        (parsedBody, attribute(0).as[String]).mapN(Bar.apply) 
       }
       val directive = Spans.create("dir") { separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
         val seps = multipart.children.flatMap {
