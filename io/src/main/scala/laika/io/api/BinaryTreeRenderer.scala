@@ -16,7 +16,7 @@
 
 package laika.io.api
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource}
 import laika.api.Renderer
 import laika.api.builder.{OperationConfig, RendererBuilder}
 import laika.ast.DocumentTreeRoot
@@ -25,14 +25,14 @@ import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, BinaryOutput}
 import laika.io.ops.BinaryOutputOps
-import laika.io.runtime.{RendererRuntime, Batch}
+import laika.io.runtime.{Batch, RendererRuntime}
 import laika.theme.{Theme, ThemeProvider}
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *
   * @author Jens Halm
   */
-class BinaryTreeRenderer[F[_]: Sync: Batch] (renderer: BinaryRenderer, theme: Theme[F]) {
+class BinaryTreeRenderer[F[_]: Async: Batch] (renderer: BinaryRenderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
@@ -67,7 +67,7 @@ object BinaryTreeRenderer {
   
   type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
 
-  private[laika] def buildRenderer[F[_]: Sync] (format: BinaryRenderFormat, 
+  private[laika] def buildRenderer[F[_]: Async] (format: BinaryRenderFormat, 
                                                 config: OperationConfig, 
                                                 theme: Theme[F]): Resource[F, BinaryRenderer] = {
     val combinedConfig = config.withBundles(theme.extensions)
@@ -79,7 +79,7 @@ object BinaryTreeRenderer {
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Batch] (format: BinaryRenderFormat, config: OperationConfig, theme: ThemeProvider) {
+  case class Builder[F[_]: Async: Batch] (format: BinaryRenderFormat, config: OperationConfig, theme: ThemeProvider) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
@@ -95,12 +95,12 @@ object BinaryTreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Batch] (renderer: BinaryRenderer,
+  case class OutputOps[F[_]: Async: Batch] (renderer: BinaryRenderer,
                                            theme: Theme[F],
                                            input: DocumentTreeRoot,
                                            staticDocuments: Seq[BinaryInput[F]]) extends BinaryOutputOps[F] {
 
-    val F: Sync[F] = Sync[F]
+    val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
@@ -119,7 +119,7 @@ object BinaryTreeRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Batch] (renderer: BinaryRenderer,
+  case class Op[F[_]: Async: Batch] (renderer: BinaryRenderer,
                                     theme: Theme[F],
                                     input: DocumentTreeRoot,
                                     output: BinaryOutput[F],

@@ -24,7 +24,7 @@ import laika.io.model.BinaryInput
 import org.apache.fop.apps.io.ResourceResolverFactory
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 
-/** Adapter for the ResourceResolver API of Apache FOP, allowing Laika to server any kind of InputStream
+/** Adapter for the ResourceResolver API of Apache FOP, allowing Laika to serve any kind of InputStream
   * from its static input documents, including in-memory content or classpath resources, 
   * for which FOP does not have any support built in.
   * 
