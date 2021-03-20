@@ -122,7 +122,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max = lookup.length - 1
-        c:Char => c <= max && lookup(c) == 1
+        c => c <= max && lookup(c) == 1
     }
     new Characters(p, StringResultBuilder)
   }
@@ -144,7 +144,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max = lookup.length - 1
-        c:Char => c > max || lookup(c) == 0
+        c => c > max || lookup(c) == 0
     }
     new Characters(p, StringResultBuilder)
   }
