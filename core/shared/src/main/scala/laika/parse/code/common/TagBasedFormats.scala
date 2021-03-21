@@ -118,8 +118,8 @@ case class TagParser(tagCategory: String => CodeCategory,
     val tagNameParser = tagName.map(name => CodeSpan(name, tagCategory(name)))
     val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end)
 
-    (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).map {
-      case startPunct ~ tagNameSpan ~ content =>
+    (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).mapN {
+      (startPunct, tagNameSpan, content) =>
         CodeSpans.merge(Seq(startPunct, tagNameSpan) ++ content :+ CodeSpan(end, categories))
     }
   }
