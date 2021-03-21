@@ -99,9 +99,6 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   
   override def source: PrefixedParser[String] = PrefixedParser(startChars)(super.source)
 
-  
-  @deprecated("use withCursor which contains the input string", "0.17.0")
-  override def withSource: PrefixedParser[(T, String)] = withCursor.map(t => (t._1, t._2.input))
 }
 
 /** Factories and utilities for creating or processing PrefixedParser instances.

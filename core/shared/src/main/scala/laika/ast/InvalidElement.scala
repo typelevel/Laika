@@ -20,19 +20,6 @@ import laika.parse.SourceFragment
 
 import scala.math.Ordered
 
-@deprecated("use InvalidBlock or InvalidSpan directly, this class is no longer a useful shortcut", "0.17.0")
-case class InvalidElement (message: RuntimeMessage, source: SourceFragment) {
-  def asBlock: InvalidBlock = InvalidBlock(message, source)
-  def asSpan: InvalidSpan = InvalidSpan(message, source)
-  def asTemplateSpan: TemplateSpan = TemplateElement(asSpan)
-}
-
-@deprecated("use InvalidBlock or InvalidSpan directly, this class is no longer a useful shortcut", "0.17.0")
-object InvalidElement {
-  def apply (message: String, source: SourceFragment): InvalidElement =
-    apply(RuntimeMessage(MessageLevel.Error, message), source)
-}
-
 /** Groups a span that could not be successfully parsed with a runtime message.
   * Renderers may then choose to just render the fallback, the message or both.
   */

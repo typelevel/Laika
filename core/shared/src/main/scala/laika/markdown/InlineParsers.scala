@@ -102,19 +102,6 @@ object InlineParsers {
     span(start, end)
   }
   
-  @deprecated("use literalSpan", "0.17.1")
-  val literalEnclosedBySingleChar: PrefixedParser[Literal] = {
-    val start = delimiter('`').nextNot('`')
-    val end = '`'
-    start ~> delimitedBy(end).trim.map(Literal(_))
-  }
-
-  @deprecated("use literalSpan", "0.17.1")
-  val literalEnclosedByDoubleChar: PrefixedParser[Literal] = {
-    val delim = "``"
-    delim ~> delimitedBy(delim).trim.map(Literal(_))
-  }
-
   /** Parses a literal span enclosed by one or more backticks.
    *  Does neither parse nested spans nor Markdown escapes. 
    */

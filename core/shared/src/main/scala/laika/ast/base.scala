@@ -24,7 +24,11 @@ import laika.parse.SourceFragment
   *
   * All node types have an optional id and zero or more associated styles serving as render hints.
   */
-abstract class Element extends Product with Serializable with Customizable {
+abstract class Element extends Product with Serializable {
+
+  type Self <: Element
+  
+  def options: Options
 
   /** Indicates whether this element has the specified style assigned.
     */
@@ -33,15 +37,6 @@ abstract class Element extends Product with Serializable with Customizable {
   /** Indicates whether this element has an id assigned.
     */
   def hasId: Boolean = options.id.isDefined
-  
-}
-
-@deprecated("API has been merged into Element", "0.17.0")
-trait Customizable {
-
-  type Self <: Element
-
-  def options: Options
 
   /** Returns a new instance of this element without its id.
     */

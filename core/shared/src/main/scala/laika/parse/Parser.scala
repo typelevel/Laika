@@ -16,7 +16,6 @@
 
 package laika.parse
 
-import laika.ast.LengthUnit.in
 import laika.ast.~
 import laika.parse.combinator.Parsers.opt
 import laika.parse.combinator.Repeat
@@ -415,16 +414,6 @@ abstract class Parser[+T] {
     * consumed by this parser while discarding the original result.
     */
   def count: Parser[Int] = withCursor.map(_._2.length)
-
-  
-  @deprecated("use withCursor which contains the position", "0.17.0")
-  def withPosition: Parser[(T, Position)] = withCursor.map { case (result, cursor) => (result, cursor.position) }
-
-  @deprecated("use withCursor, which is positioned at the beginning of the consumed input", "0.17.0")
-  def withContext: Parser[(T, SourceFragment)] = withCursor.map(t => (t._1, t._2))
-  
-  @deprecated("use withCursor which contains the input string", "0.17.0")
-  def withSource: Parser[(T, String)] = withCursor.map(t => (t._1, t._2.input))
 
 }
 
