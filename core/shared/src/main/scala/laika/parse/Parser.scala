@@ -16,6 +16,7 @@
 
 package laika.parse
 
+import laika.ast.LengthUnit.in
 import laika.ast.~
 import laika.parse.combinator.Parsers.opt
 import laika.parse.combinator.Repeat
@@ -297,20 +298,21 @@ abstract class Parser[+T] {
     
     val combined = this ~ opt(endCondition)
 
-    //@tailrec
-    def parse (input: SourceCursor): Parsed[(List[T], Option[U])] =
+    @tailrec
+    def loop (input: SourceCursor): Parsed[(List[T], Option[U])] =
       combined.parse(input) match {
-        case Success(result ~ Some(endCond), rest) =>
+        // case Success(result ~ Some(endCond), rest) => // this infix syntax does not compile in Scala 3
+        case Success(laika.ast.~(result, Some(endCond)), rest) =>
           elems += result
           Success((elems.toList, Some(endCond)), rest)
-        case Success(result ~ None, rest) =>
+        case Success(laika.ast.~(result, None), rest) =>
           elems += result
-          parse(rest)
+          loop(rest)
         case _: Failure =>
           Success((elems.toList, None), input)
       }
 
-    parse(in)
+    loop(in)
   }
   
   /** Returns a parser that invokes the specified function repeatedly,

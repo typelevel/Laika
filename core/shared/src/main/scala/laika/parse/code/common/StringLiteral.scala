@@ -16,12 +16,12 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, ~}
+import laika.ast.{CodeSpan, CodeSpans}
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
 import laika.parse.builders._
-import laika.parse.implicits._
 import laika.parse.code.implicits._
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.implicits._
 import laika.parse.text.{PrefixedParser, TextParsers}
 
 /** Configurable base parsers for string literals.
@@ -141,8 +141,8 @@ object StringLiteral {
 
       val embeddedParser = EmbeddedCodeSpans.parser(textParser, embedded, defaultCategories)
 
-      (startParser ~ embeddedParser ~ endParser).map {
-        case start ~ content ~ post => CodeSpans.merge(start +: (content :+ post))
+      (startParser ~ embeddedParser ~ endParser).mapN {
+        (start, content, post) => CodeSpans.merge(start +: (content :+ post))
       }
     }
     
