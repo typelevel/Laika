@@ -58,7 +58,7 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
           val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
           output.resource.use { out =>
             for {
-              config <- Async[F].fromEither(pdfConfig.left.map(ConfigException))
+              config <- Async[F].fromEither(pdfConfig.left.map(ConfigException.apply))
               fo <- Async[F].fromEither(FOConcatenation(result, config, opConfig)): F[String]
               _ <- Async[F].delay(out.write(fo.getBytes("UTF-8"))): F[Unit]
             } yield ()

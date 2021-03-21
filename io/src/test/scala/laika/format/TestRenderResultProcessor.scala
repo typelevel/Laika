@@ -41,7 +41,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
           result.content.foreach {
             case d: RenderedDocument => sb.append(d.content + "\n")
             case t: RenderedTree => append(sb, t)
-            case _ => ()
+            //case _ => ()
           }
         }
 

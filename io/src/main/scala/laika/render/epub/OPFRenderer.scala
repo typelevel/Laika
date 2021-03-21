@@ -31,13 +31,13 @@ class OPFRenderer {
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
     */
-  def fileContent (identifier: String, 
-                   language: String, 
-                   title: String, 
-                   coverImage: Option[String], 
-                   timestamp: String, 
-                   docRefs: Seq[DocumentRef], 
-                   authors: Seq[String] = Nil): String =
+  private def fileContent (identifier: String, 
+                           language: String, 
+                           title: String, 
+                           coverImage: Option[String], 
+                           timestamp: String, 
+                           docRefs: Seq[DocumentRef], 
+                           authors: Seq[String] = Nil): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"

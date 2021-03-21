@@ -43,9 +43,9 @@ object TextOutput {
   def forString[F[_]: Applicative] (path: Path): TextOutput[F] =
     TextOutput[F](path, Resource.pure[F, OutputWriter](PureWriter))
   def forFile[F[_]: Sync] (path: Path, file: File, codec: Codec): TextOutput[F] =
-    TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter), Some(file))
+    TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter.apply), Some(file))
   def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
-    TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter))
+    TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter.apply))
 }
 
 /** A resource for binary output.

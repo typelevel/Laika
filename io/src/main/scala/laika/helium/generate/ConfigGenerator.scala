@@ -16,7 +16,6 @@
 
 package laika.helium.generate
 
-import cats.{Applicative, Id}
 import laika.ast.Path.Root
 import laika.ast.{InternalTarget, _}
 import laika.config.ConfigEncoder.ObjectBuilder
@@ -42,7 +41,7 @@ private[laika] object ConfigGenerator {
       .build
   }
   
-  private def buildTeaserRows (teasers: Seq[Id[Teaser]]): Seq[ObjectValue] = if (teasers.isEmpty) Nil else
+  private def buildTeaserRows (teasers: Seq[Teaser]): Seq[ObjectValue] = if (teasers.isEmpty) Nil else
     BalancedGroups.create(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
       ObjectBuilder.empty.withValue("teasers", row).build
     }
@@ -163,14 +162,14 @@ object BalancedGroups {
   
   /** Creates a balanced group of items based on the given desired size.
     */
-  def create[F[_]: Applicative, A] (items: Vector[F[A]], size: Int): Vector[F[Vector[A]]] = {
+  def create[A] (items: Vector[A], size: Int): Vector[Vector[A]] = {
     val mod = items.size % size
     val loSize = items.size / size
     val hiSize = loSize + 1
     val (hi,lo) = items.splitAt(mod * hiSize)
     val hiBatch = if (mod > 0)    hi.grouped(hiSize) else Vector()
     val loBatch = if (loSize > 0) lo.grouped(loSize) else Vector()
-    hiBatch.toVector.map(_.sequence) ++ loBatch.toVector.map(_.sequence)
+    hiBatch.toVector ++ loBatch.toVector
   }
 
 }

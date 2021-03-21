@@ -81,7 +81,7 @@ class IncludeDirectiveSpec extends IOFunSuite with Matchers with InputBuilder wi
     .flatMap { tree =>
       IO.fromEither {
         TemplateRewriter.applyTemplates(tree.root, TemplateContext("html", "html"))
-          .left.map(ConfigException)
+          .left.map(ConfigException.apply)
           .flatMap { root =>
             root.tree.selectDocument("dir2/doc-4.md")
               .map(_.content.content)

@@ -100,7 +100,7 @@ class ContainerWriter {
   def write[F[_]: Sync] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
-      config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException))
+      config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException.apply))
       inputs =  collectInputs(result, config)
       _      <- ZipWriter.zipEPUB(inputs, output)
     } yield ()
