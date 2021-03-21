@@ -1,6 +1,6 @@
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
-import sbt.Keys.artifactPath
+import sbt.Keys.{artifactPath, crossScalaVersions}
 
 val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.5"
@@ -101,7 +101,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
-  .settings(moduleSettings)
+  .settings(basicSettings)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
@@ -111,7 +111,11 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jvmSettings(
-    libraryDependencies += jTidy
+    libraryDependencies += jTidy, 
+    crossScalaVersions := Seq(scala2_12, scala2_13, scala3_0)
+  )
+  .jsSettings(
+    crossScalaVersions := Seq(scala2_12, scala2_13)
   )
 
 lazy val io = project.in(file("io"))
