@@ -54,7 +54,7 @@ object ParserDescriptor {
     TreeInputDescriptor.create(op.input.build(op.config.docTypeMatcher)).map { inputDesc =>
     apply(
       op.parsers.map(_.format.description),
-      op.config.bundles.filter(op.config.bundleFilter).map(ExtensionBundleDescriptor),
+      op.config.bundles.filter(op.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
       inputDesc,
       op.config.bundleFilter.strict,
       op.config.bundleFilter.acceptRawContent

@@ -127,7 +127,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * a `TreeProcessor` (which is just a type alias for a plain `Kleisli`).
     */
   def processTree (f: TreeProcessor[F], format: Format): ThemeBuilder[F] =
-    new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, treeProcessors :+ { fmt: Format => 
+    new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, treeProcessors :+ { (fmt: Format) => 
       if (fmt == format) f else noOp
     })
 

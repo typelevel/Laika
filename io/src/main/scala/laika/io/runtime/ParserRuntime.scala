@@ -97,8 +97,8 @@ object ParserRuntime {
         Right(op.config.configProvider.configDocument(input.source.input))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
-        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult)))
-        case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
+        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parseUnresolved, MarkupResult.apply)))
+        case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult.apply)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format, _))).validNel
         case ConfigType         => Vector(parseDocument(in, parseConfig, HoconResult(in.path, _, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))

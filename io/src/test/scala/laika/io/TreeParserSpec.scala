@@ -113,12 +113,10 @@ class TreeParserSpec extends IOWordSpec
         |]""".stripMargin
     }
     
-    val docTypeMatcher: Path => DocumentType = MarkupParser.of(Markdown).build.config.docTypeMatcher
-    
     val defaultContent = Seq(p("foo"))
     
     def docResult (num: Int, path: Path = Root) = Document(path / s"doc-$num.md", RootElement(defaultContent))
-    def docResult(name: String)                 = Document(Root / name, RootElement(defaultContent))
+    def docResult (name: String)                = Document(Root / name, RootElement(defaultContent))
     def customDocResult(name: String, content: Seq[Block], path: Path = Root) = Document(path / name, RootElement(content))
 
     def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = TemplateRewriter.applyTemplates(parsed.root, TemplateContext("html")).toOption.get
@@ -350,7 +348,7 @@ class TreeParserSpec extends IOWordSpec
     }
 
     "allow to specify a custom style sheet engine" in new TreeParserSetup {
-      override val docTypeMatcher: PartialFunction[Path, DocumentType] = {
+      val customDocTypeMatcher: PartialFunction[Path, DocumentType] = {
         case path =>
           val Stylesheet = """.+\.([a,b]+).css$""".r
           path.name match {
@@ -371,7 +369,7 @@ class TreeParserSpec extends IOWordSpec
         "aaa" -> StyleDeclarationSet(Set(Root / "main1.aaa.css", Root / "main3.aaa.css"), Set(styleDecl("foo"), styleDecl("foo", 1))),
         "bbb" -> StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
       ))
-      parsedWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
+      parsedWith(BundleProvider.forDocTypeMatcher(customDocTypeMatcher)
         .withBase(BundleProvider.forStyleSheetParser(parser))).assertEquals(treeResult)
     }
 
@@ -690,7 +688,7 @@ class TreeParserSpec extends IOWordSpec
       )
       
       defaultParser
-        .use(_.fromDirectory(dirname, { f: java.io.File => f.getName == "doc-1.md" || f.getName == "tree-1" }).parse)
+        .use(_.fromDirectory(dirname, { (f: java.io.File) => f.getName == "doc-1.md" || f.getName == "tree-1" }).parse)
         .map(_.root)
         .assertEquals(expected)
     }

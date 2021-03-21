@@ -28,6 +28,7 @@ import laika.config.Config.ConfigResult
 import laika.config._
 import laika.factory._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
+import laika.parse.{Parsed, SourceCursor}
 import laika.render.epub.{ContainerWriter, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
@@ -140,7 +141,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
           ) +: root.tree.content
         ))
       }
-    }.left.map(ConfigException)
+    }.left.map(ConfigException.apply)
   }
 
   /** Produces an EPUB container from the specified result tree.

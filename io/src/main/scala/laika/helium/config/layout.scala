@@ -140,6 +140,6 @@ private[helium] object HeliumStyles {
   val iconLink: Options = Styles("icon-link")
 }
 
-private[helium] case class ThemeFonts private (body: String, headlines: String, code: String)
+private[helium] case class ThemeFonts (body: String, headlines: String, code: String)
 
 private[helium] case class FontSizes (body: Length, code: Length, title: Length, header2: Length, header3: Length, header4: Length, small: Length)

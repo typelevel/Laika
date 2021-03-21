@@ -545,7 +545,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
 
     trait TwoPhaseTransformer extends InputBuilder {
 
-      val transformer: Resource[IO, BinaryTreeTransformer[IO]] = Transformer
+      val binTransformer: Resource[IO, BinaryTreeTransformer[IO]] = Transformer
         .from(ReStructuredText)
         .to(TestRenderResultProcessor)
         .parallel[IO]
@@ -584,7 +584,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
 
     "render a tree with a RenderResultProcessor writing to an output stream" in new TwoPhaseTransformer {
       
-      def transformTo(out: IO[OutputStream]): IO[Unit] = transformer.use { t =>
+      def transformTo(out: IO[OutputStream]): IO[Unit] = binTransformer.use { t =>
         t.fromInput(build(inputs)).toStream(out).transform
       }
 
@@ -612,7 +612,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
     //    }
 
     "render a tree with a RenderResultProcessor writing to a file" in new TwoPhaseTransformer {
-      def transformTo(f: File): IO[Unit] = transformer.use { t =>
+      def transformTo(f: File): IO[Unit] = binTransformer.use { t =>
         t.fromInput(build(inputs)).toFile(f).transform
       }
 
@@ -695,7 +695,7 @@ class TreeTransformerSpec extends IOWordSpec with FileIO with RenderedTreeAssert
 
     "allow to specify custom exclude filter" in new FileSystemTest {
       val sourceName = resourcePath("/trees/a/")
-      val fileFilter = { f: File => f.getName == "doc1.md" || f.getName == "dir1" }
+      val fileFilter = { (f: File) => f.getName == "doc1.md" || f.getName == "dir1" }
       val expectedFileContents = List(2,5,6).map(renderedDoc)
       
       val res = for {

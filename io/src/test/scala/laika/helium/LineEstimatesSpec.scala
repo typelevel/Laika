@@ -38,15 +38,15 @@ class LineEstimatesSpec extends AnyFunSuite with Matchers {
   }
   
   test("count paragraph lines") {
-     val input = 
-       """
-         |1
-         |2
-         |3
-         |
-         |4
-         |5
-       """.stripMargin
+    val input = 
+      """
+        |1
+        |2
+        |3
+        |
+        |4
+        |5
+      """.stripMargin
     parseAndCount(input) shouldBe 5
   }
 
