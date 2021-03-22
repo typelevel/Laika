@@ -158,8 +158,6 @@ private[laika] object ConfigGenerator {
   */
 object BalancedGroups {
 
-  import cats.syntax.all._
-  
   /** Creates a balanced group of items based on the given desired size.
     */
   def create[A] (items: Vector[A], size: Int): Vector[Vector[A]] = {

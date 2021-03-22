@@ -300,7 +300,8 @@ abstract class Parser[+T] {
     @tailrec
     def loop (input: SourceCursor): Parsed[(List[T], Option[U])] =
       combined.parse(input) match {
-        // case Success(result ~ Some(endCond), rest) => // this infix syntax does not compile in Scala 3
+        // TODO - revert workaround when RC2 is released, this bug should be fixed: https://github.com/lampepfl/dotty/issues/11421
+        // case Success(result ~ Some(endCond), rest) =>
         case Success(laika.ast.~(result, Some(endCond)), rest) =>
           elems += result
           Success((elems.toList, Some(endCond)), rest)

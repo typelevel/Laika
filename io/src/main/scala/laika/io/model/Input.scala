@@ -21,6 +21,7 @@ import java.io._
 import cats.Applicative
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
+import cats.instances.stream
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
@@ -246,12 +247,11 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    val stream = F.delay {
-      val res = getClass.getClassLoader.getResourceAsStream(name)
-      if (res == null) throw new IOException(s"Classpath resource '$name' does not exist")
-      else res
+    val streamF = F.delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap {
+      case null   => F.raiseError(new IOException(s"Classpath resource '$name' does not exist"))
+      case stream => F.pure(stream)
     }
-    addStream(stream, mountPoint)
+    addStream(streamF, mountPoint)
   }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
