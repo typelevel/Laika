@@ -247,7 +247,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
   def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    val streamF = F.delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap {
+    val streamF = F.delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap[InputStream] {
       case null   => F.raiseError(new IOException(s"Classpath resource '$name' does not exist"))
       case stream => F.pure(stream)
     }
