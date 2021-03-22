@@ -18,7 +18,7 @@ package laika.parse
 
 import cats.data.NonEmptyChain
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
 
 /** Represents the state and context of a parsing operation,
@@ -209,6 +209,7 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
   
   def reverse: LineSource = new LineSource(input.reverse, parentRef.consume(input.length).reverse, remaining, nestLevel)
 
+  @nowarn("cat=deprecation")
   def trim: LineSource = {
     val spacesRemoved = input.prefixLength(_ == ' ')
     val moveOffset = Math.min(offset, spacesRemoved)

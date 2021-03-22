@@ -26,6 +26,7 @@ import laika.parse.implicits._
 import laika.parse._
 import laika.parse.markup.RecursiveParsers
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -83,7 +84,8 @@ object TableParsers {
       currentLine = newLines.headOption
       colSpan += 1
     }
-    
+
+    @nowarn("cat=deprecation")
     def trimmedCellContent: Option[BlockSource] = {
       NonEmptyChain.fromSeq(allLines.toSeq).map { nonEmptyLines =>
         val minIndent = nonEmptyLines.map { line =>
