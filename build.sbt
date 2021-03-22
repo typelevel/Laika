@@ -67,7 +67,7 @@ lazy val noPublishSettings = Seq(
 val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.5" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.0-RC2"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.0-RC3"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val http4s     = Seq(
