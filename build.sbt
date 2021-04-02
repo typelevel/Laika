@@ -4,7 +4,7 @@ import sbt.Keys.{artifactPath, crossScalaVersions}
 
 val scala2_12 = "2.12.13"
 val scala2_13 = "2.13.5"
-val scala3_0 = "3.0.0-RC1"
+val scala3_0 = "3.0.0-RC2"
 
 lazy val basicSettings = Seq(
   version               := "0.18.0-SNAPSHOT",
@@ -64,10 +64,10 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.5" % "test"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.7" % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.0-RC3"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.1"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 val http4s     = Seq(
@@ -106,8 +106,8 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.2.5" % "test",
-      "org.typelevel" %%% "cats-core" % "2.4.2"
+      "org.scalatest" %%% "scalatest" % "3.2.7" % "test",
+      "org.typelevel" %%% "cats-core" % "2.5.0"
     )
   )
   .jvmSettings(
