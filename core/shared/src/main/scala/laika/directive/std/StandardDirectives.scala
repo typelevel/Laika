@@ -21,6 +21,7 @@ import cats.syntax.all._
 import laika.ast._
 import laika.bundle.BundleOrigin
 import laika.directive._
+import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
 import scala.collection.immutable.TreeSet
 
@@ -116,11 +117,16 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  lazy val path: Templates.Directive = Templates.create("path") {
+  lazy val path: Templates.Directive = Templates.eval("path") {
     import Templates.dsl._
     
     (attribute(0).as[Path], cursor).mapN { (path, cursor) =>
-      TemplateString(path.relativeTo(cursor.path).toString)
+      val it = InternalTarget(path)
+      cursor.validate(it) match {
+        case ValidTarget                 => Right(TemplateString(path.relativeTo(cursor.path).toString))
+        case InvalidTarget(message)      => Left(message)
+        case RecoveredTarget(message, _) => Left(message)
+      }
     }
   }
   
