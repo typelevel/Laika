@@ -116,7 +116,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  lazy val relativePath: Templates.Directive = Templates.create("relativePath") {
+  lazy val path: Templates.Directive = Templates.create("path") {
     import Templates.dsl._
     
     (attribute(0).as[Path], cursor).mapN { (path, cursor) =>
@@ -232,7 +232,7 @@ object StandardDirectives extends DirectiveRegistry {
     IncludeDirectives.templateEmbed,
     HTMLHeadDirectives.linkCSS,
     HTMLHeadDirectives.linkJS,
-    relativePath
+    path
   )
 
   /** The complete list of standard directives for links.

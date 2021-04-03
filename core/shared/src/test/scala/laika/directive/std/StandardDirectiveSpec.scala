@@ -97,7 +97,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
 
   "The relativePath directive" should "translate a relative path" in {
-    val input = """aa @:relativePath(theme.css) bb"""
+    val input = """aa @:path(theme.css) bb"""
     parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
       TemplateString("../theme/theme.css"),
@@ -106,7 +106,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
   it should "translate an absolute path" in {
-    val input = """aa @:relativePath(/theme/theme.css) bb"""
+    val input = """aa @:path(/theme/theme.css) bb"""
     parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
       TemplateString("../theme/theme.css"),
