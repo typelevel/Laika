@@ -56,6 +56,22 @@ Serves as a shortcut for creating links to the source code of types, e.g. `@:sou
 See [Linking to Source Code] for details.
 
 
+### `@:path`
+
+Can only be used in templates.
+
+Renders a validated path from the virtual input tree which can be absolute or relative. 
+If it is relative, it is interpreted as relative to the template, 
+but when rendering translated for every document the template is applied to as relative to that rendered document.
+
+Example:
+```laika-html
+<link rel="icon" href="@:path(../styles/manual.css)" />
+```
+
+See [Disabling Validation] when you only want to path translation without the validation.
+
+
 Inclusions
 ----------
 
