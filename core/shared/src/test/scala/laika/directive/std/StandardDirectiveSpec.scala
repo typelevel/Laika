@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.sample.ParagraphCompanionShortcuts
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.markup.DocumentParser.ParserError
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -30,7 +30,8 @@ class StandardDirectiveSpec extends AnyFlatSpec
   with Matchers
   with ParagraphCompanionShortcuts
   with TemplateParserSetup 
-  with MarkupParserSetup {
+  with MarkupParserSetup
+  with TestSourceBuilders {
 
   def parseWithFragments (input: String, path: Path = Root / "doc"): Either[ParserError, (Map[String,Element], RootElement)] = {
     parse(input, path).map { doc =>
@@ -98,7 +99,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   "The relativePath directive" should "translate a relative path" in {
     val input = """aa @:path(theme.css) bb"""
-    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+    parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
       TemplateString("../theme/theme.css"),
       TemplateString(" bb")
@@ -107,9 +108,20 @@ class StandardDirectiveSpec extends AnyFlatSpec
 
   it should "translate an absolute path" in {
     val input = """aa @:path(/theme/theme.css) bb"""
-    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+    parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
       TemplateString("../theme/theme.css"),
+      TemplateString(" bb")
+    )))
+  }
+
+  it should "fail with an invalid target" in {
+    val dirSrc = "@:path(/theme/theme.css)"
+    val input = s"""aa $dirSrc bb"""
+    val msg = "One or more errors processing directive 'path': unresolved internal reference: ../theme/theme.css"
+    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("aa "),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
       TemplateString(" bb")
     )))
   }
