@@ -20,6 +20,7 @@ import cats.effect.{IO, Resource}
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.LaikaKeys
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
 import laika.io.IOFunSuite
@@ -53,6 +54,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
+    .withConfigValue(LaikaKeys.links.child("excludeFromValidation"), Seq("/"))
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -208,8 +210,8 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
     )
     val expected = meta ++ """
                    |<title></title>
-                   |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png" />
-                   |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png" />
+                   |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png"/>
+                   |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
@@ -237,8 +239,8 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
       )
     val expected = meta ++ """
                    |<title></title>
-                   |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png" />
-                   |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png" />
+                   |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png"/>
+                   |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                    |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
