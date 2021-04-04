@@ -101,7 +101,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input = """aa @:path(theme.css) bb"""
     parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
-      TemplateString("../theme/theme.css"),
+      TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
     )))
   }
@@ -110,7 +110,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val input = """aa @:path(/theme/theme.css) bb"""
     parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
-      TemplateString("../theme/theme.css"),
+      TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
     )))
   }
