@@ -12,10 +12,11 @@ Release Notes
     * Simplify requirements to just `Sync` for sequential transformation and `Async` for parallel execution.
     * PDF support: remove the old callback hacks for integration with the blocking, synchronous `ResourceResolver` API
       of Apache FOP by using the new `Dispatcher` from CE3 instead.
-* Support Scala 3.0
+* Support for Scala 3.0
 * New Directives:
     * `@:path`: Validates and translates a path in a template to a path relative to the rendered document the template
       is applied to.
+    * `@:attribute`: Renders an optional HTML or XML attribute.
 
 
 0.17.1 (Mar 19, 2021)

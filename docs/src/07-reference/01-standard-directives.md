@@ -388,7 +388,7 @@ HTML Templates
 --------------
 
 These directives can only be used in HTML or EPUB templates, 
-as they drive the inclusion of tags in the HTML `<head>` section.
+as they drive the inclusion of tags in the HTML `<head>` section or render content in HTML/XML syntax.
 
 If you use the Helium theme and do not design your own templates or themes, 
 you do not need to use these directives directly, as the Helium template already contain them.
@@ -447,6 +447,30 @@ In the latter case all files found in that directory or any sub-directory will b
 Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
 See [Virtual Tree Abstraction] for details.
 
+
+### `@:attribute`
+
+This directive can also be used in XSL-FO templates for PDF as it renders attribute syntax that is valid in both,
+HTML and XML.
+
+The primary use case for this directive is to render an attribute value from the configuration that may not be present:
+
+```laika-html
+<a @:attribute(src, myConf.myURL)/>
+```
+
+In the above example, the `src` attribute will only be rendered if the `myConf.myURL` key is defined in the 
+configuration. 
+Like all configuration values it can originate in global scope, in directory configuration or in a configuration 
+header of a markup document.
+
+When the value is not optional, it is recommended not to use this directive, 
+as a missing value will not trigger any warnings or errors, but instead just cause the omission of the attribute.
+Required attributes can be rendered with standard substitution syntax instead:
+
+```laika-html
+<a src="${myConf.myURL}"/>
+```
 
 Conditionals and Loops
 ----------------------
