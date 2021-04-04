@@ -97,7 +97,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
   }
 
 
-  "The relativePath directive" should "translate a relative path" in {
+  "The path directive" should "translate a relative path" in {
     val input = """aa @:path(theme.css) bb"""
     parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
@@ -123,6 +123,35 @@ class StandardDirectiveSpec extends AnyFlatSpec
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
       TemplateString(" bb")
+    )))
+  }
+  
+  "The attribute directive" should "produce a string value for a valid config value" in {
+    val input = """<a @:attribute(src, foo.bar)/>"""
+    parseTemplateWithConfig(input, "foo.bar = ../image.jpg") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("<a "),
+      TemplateString("""src="../image.jpg""""),
+      TemplateString("/>")
+    )))
+  }
+
+  it should "produce an empty string for a missing config value" in {
+    val input = """<a @:attribute(src, foo.baz)/>"""
+    parseTemplateWithConfig(input, "foo.bar = ../image.jpg") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("<a "),
+      TemplateString(""),
+      TemplateString("/>")
+    )))
+  }
+
+  it should "fail with an invalid config value" in {
+    val dirSrc = "@:attribute(src, foo.bar)"
+    val input = s"""<a $dirSrc/>"""
+    val msg = "One or more errors processing directive 'attribute': value with key 'foo.bar' is a structured value (Array, Object, AST) which is not supported by this directive"
+    parseTemplateWithConfig(input, "foo.bar = [1,2,3]") shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("<a "),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
+      TemplateString("/>")
     )))
   }
 

@@ -20,6 +20,7 @@ import cats.data.NonEmptySet
 import cats.syntax.all._
 import laika.ast._
 import laika.bundle.BundleOrigin
+import laika.config.{Key, SimpleConfigValue}
 import laika.directive._
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
@@ -126,6 +127,19 @@ object StandardDirectives extends DirectiveRegistry {
         case ValidTarget                 => Right(TemplateString(path.relativeTo(cursor.path).toString))
         case InvalidTarget(message)      => Left(message)
         case RecoveredTarget(message, _) => Left(message)
+      }
+    }
+  }
+  
+  lazy val attr: Templates.Directive = Templates.eval("attribute") {
+    import Templates.dsl._
+
+    (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (name, ref, cursor) =>
+      cursor.resolveReference(Key.parse(ref)).leftMap(_.message).flatMap {
+        case None                                   => Right(TemplateString(""))
+        case Some(value: SimpleConfigValue)         => Right(TemplateString(s"""$name="${value.render}""""))
+        case Some(_) => 
+          Left(s"value with key '$ref' is a structured value (Array, Object, AST) which is not supported by this directive")
       }
     }
   }
@@ -238,7 +252,8 @@ object StandardDirectives extends DirectiveRegistry {
     IncludeDirectives.templateEmbed,
     HTMLHeadDirectives.linkCSS,
     HTMLHeadDirectives.linkJS,
-    path
+    path,
+    attr
   )
 
   /** The complete list of standard directives for links.
