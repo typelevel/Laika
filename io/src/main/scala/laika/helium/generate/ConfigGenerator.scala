@@ -96,31 +96,12 @@ private[laika] object ConfigGenerator {
       .build
   }
   
-  case class RelativePath (target: Target) extends SpanResolver {
-    type Self = RelativePath
-    val source: SourceFragment = GeneratedSource
-    def resolve(cursor: DocumentCursor): Span = target match {
-      case et: ExternalTarget => Text(et.url)
-      case it: InternalTarget => cursor.validate(it) match {
-        case ValidTarget      => RawLink.internal(it.relativeTo(cursor.path).absolutePath)
-        case InvalidTarget(message)      => InvalidSpan(message, source)
-        case RecoveredTarget(message, _) => InvalidSpan(message, source)
-      }
-    }
-    def unresolvedMessage: String = s"Unresolved relative path '${target.toString}'"
-    def options: Options = NoOpt
-    def withOptions(options: Options): RelativePath = this
-  }
-  
   implicit val favIconEncoder: ConfigEncoder[Favicon] = ConfigEncoder[Favicon] { icon =>
-    val sizes = icon.sizes.fold("")(s => s"""sizes="$s"""")
-    val mediaType = icon.mediaType.fold("")(t => s"""type="$t"""")
-    val elements: Seq[TemplateSpan] = Seq(
-      TemplateString(s"""<link rel="icon" $sizes $mediaType href=""""),
-      TemplateElement(RelativePath(icon.target)),
-      TemplateString("""" />""")
-    )
-    ASTValue(TemplateSpanSequence(elements))
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("target", icon.target.render())
+      .withValue("sizes", icon.sizes)
+      .withValue("type", icon.mediaType)
+      .build
   }
 
   def populateConfig (helium: Helium): Config =
