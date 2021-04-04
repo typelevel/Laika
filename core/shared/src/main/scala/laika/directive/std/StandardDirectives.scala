@@ -121,13 +121,20 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val path: Templates.Directive = Templates.eval("path") {
     import Templates.dsl._
     
-    (attribute(0).as[Path], cursor).mapN { (path, cursor) =>
-      val it = InternalTarget(path)
-      cursor.validate(it) match {
-        case ValidTarget                 => Right(TemplateString(path.relativeTo(cursor.path).toString))
-        case InvalidTarget(message)      => Left(message)
-        case RecoveredTarget(message, _) => Left(message)
+    (attribute(0).as[Path], attribute(0).as[String], cursor).mapN { (literalPath, pathKey, cursor) =>
+
+      def resolvePath (path: Path): Either[String, TemplateSpan] = {
+        val it = InternalTarget(path)
+        cursor.validate(it) match {
+          case ValidTarget                 => Right(TemplateElement(RawLink.internal(path.relativeTo(cursor.path))))
+          case InvalidTarget(message)      => Left(message)
+          case RecoveredTarget(message, _) => Left(message)
+        }
       }
+
+      val config = cursor.resolver.config
+      if (config.hasKey(pathKey)) config.get[Path](pathKey).leftMap(_.message).flatMap(resolvePath)
+      else resolvePath(literalPath)
     }
   }
   
