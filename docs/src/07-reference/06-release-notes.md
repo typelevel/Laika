@@ -17,6 +17,8 @@ Release Notes
     * `@:path`: Validates and translates a path in a template to a path relative to the rendered document the template
       is applied to.
     * `@:attribute`: Renders an optional HTML or XML attribute.
+* Error Reporting: When a parser error originates in a template the error formatter now includes the path info
+  for the template instead of making the error appear as if it came from the markup document
 
 
 0.17.1 (Mar 19, 2021)
