@@ -236,7 +236,7 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
   }
 
   override def toString: String = {
-    val pathStr = path.fold("")(_ + ": ")
+    val pathStr = path.fold("")(_.toString + ": ")
     s"LineSource(${pathStr}offset $offset - length ${input.length} - root offset ${root.offset})"
   }
 }
