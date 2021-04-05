@@ -100,6 +100,9 @@ class TreeParserSpec extends IOWordSpec
       val template2 = """<div>
                        |xx${cursor.currentDocument.content}
                        |</div>""".stripMargin
+      val brokenTemplate = """<div>
+                        |${cursor.currentDocument.content} @:foo
+                        |</div>""".stripMargin
       val dynDoc = "${value}"
       val conf = "value: abc"
       val titleDocNameConf = "laika.titleDocuments.inputName = alternative-title"
@@ -243,6 +246,31 @@ class TreeParserSpec extends IOWordSpec
       InvalidDocuments.format(expectedError.documents) shouldBe expectedMessage
       
       parsedTree.assertFailsWith(expectedError)
+    }
+    
+    "report errors originating in templates with additional path info" in new TreeParserSetup {
+      val markup = "text"
+      val docPath = Root / "doc-1.md"
+      val inputs = Seq(
+        docPath -> markup,
+        DefaultTemplatePath.forHTML -> Contents.brokenTemplate
+      )
+      val msg = "One or more errors processing directive 'foo': No template directive registered with name: foo"
+      val invalidDocument = {
+        val invalidSpan2 = InvalidSpan(msg, source("@:foo", Contents.brokenTemplate, DefaultTemplatePath.forHTML))
+        InvalidDocument(NonEmptyChain(invalidSpan2), docPath)
+      }
+      val expectedError = InvalidDocuments(NonEmptyChain(invalidDocument))
+      val expectedMessage =
+        s"""/doc-1.md
+          |
+          |  [/default.template.html:2]: $msg
+          |
+          |  $${cursor.currentDocument.content} @:foo
+          |                                    ^""".stripMargin
+      parsedTree.map(root => 
+        InvalidDocuments.from(root, MessageFilter.Error).map(_.documents.head)
+      ).assertEquals(Some(invalidDocument))
     }
 
     "parse a tree with a cover and a title document" in new TreeParserSetup {
