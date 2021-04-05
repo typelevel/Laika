@@ -17,6 +17,7 @@
 package laika.parse
 
 import cats.data.NonEmptyChain
+import laika.ast.Path
 
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
@@ -76,6 +77,10 @@ trait SourceCursor {
     */
   def position: Position
 
+  /** The (virtual) path of the document this input originates from; may be empty in case of generated sources.
+    */
+  def path: Option[Path] = root.path
+  
   /** The nest level of this cursor in case of recursive parsing. */
   def nestLevel: Int
   
@@ -305,6 +310,8 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
   lazy val root: RootSource = activeLine.root
   
   lazy val position: Position = activeLine.position
+  
+  override val path: Option[Path] = inputRef.path
 
   def nextNestLevel: BlockSource = new BlockSource(inputRef, lines, offset, nestLevel + 1)
   
@@ -381,11 +388,15 @@ object SourceCursor {
     */
   def apply (input: String): SourceCursor = new RootSource(new InputString(input), 0, 0)
 
+  /** Builds a new instance for the specified input string and source path.
+    */
+  def apply (input: String, path: Path): SourceCursor = new RootSource(new InputString(input, Some(path)), 0, 0)
+
 }
 
 /** Represents the input string for a parsing operation.
   */
-private[parse] class InputString (val value: String, val isReverse: Boolean = false) {
+private[parse] class InputString (val value: String, val path: Option[Path] = None, val isReverse: Boolean = false) {
 
   /** An index that contains all line starts, including first line, and eof.
     */
@@ -404,7 +415,7 @@ private[parse] class InputString (val value: String, val isReverse: Boolean = fa
 
   /** Builds a new `Source` instance with the input string reversed.
     */
-  lazy val reverse = new InputString(value.reverse, !isReverse)
+  lazy val reverse = new InputString(value.reverse, path, !isReverse)
 
 }
 
