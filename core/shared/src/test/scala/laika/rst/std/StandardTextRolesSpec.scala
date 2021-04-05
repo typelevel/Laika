@@ -196,8 +196,8 @@ class StandardTextRolesSpec extends AnyFlatSpec
       |
       |some :foo:`text`""".stripMargin
     val result = RootElement(
-      InvalidBlock("unknown text role: raw", source(role, input)),
-      p(Text("some "), InvalidSpan("unknown text role: foo", source(":foo:`text`", input)))
+      InvalidBlock("unknown text role: raw", source(role, input, defaultPath)),
+      p(Text("some "), InvalidSpan("unknown text role: foo", source(":foo:`text`", input, defaultPath)))
     )
     parse(input) should be (result)
   }

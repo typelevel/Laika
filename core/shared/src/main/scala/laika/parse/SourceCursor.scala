@@ -151,6 +151,8 @@ class RootSource (inputRef: InputString, val offset: Int, val nestLevel: Int) ex
   
   lazy val position: Position = if (inputRef.isReverse) reverse.position else new Position(inputRef, offset)
 
+  override val path: Option[Path] = inputRef.path
+
   def nextNestLevel: RootSource = new RootSource(inputRef, offset, nestLevel + 1)
   
   def reverse: RootSource = new RootSource(inputRef.reverse, remaining, nestLevel)
@@ -221,18 +223,22 @@ class LineSource private (val input: String, private val parentRef: SourceCursor
     new LineSource(input.trim, parentRef.consume(spacesRemoved), offset - moveOffset, nestLevel)
   }
   
-  override def hashCode(): Int = (input, root.offset, offset, nestLevel).hashCode()
+  override def hashCode(): Int = (input, root.offset, offset, nestLevel, path).hashCode()
 
   override def equals(obj: Any): Boolean = obj match {
     case ls: LineSource => 
       ls.input == input && 
       ls.root.offset == root.offset &&
       ls.offset == offset &&
-      ls.nestLevel == nestLevel
+      ls.nestLevel == nestLevel &&
+      ls.path == path
     case _ => false
   }
 
-  override def toString: String = s"LineSource(offset $offset - length ${input.length} - root offset ${root.offset})"
+  override def toString: String = {
+    val pathStr = path.fold("")(_ + ": ")
+    s"LineSource(${pathStr}offset $offset - length ${input.length} - root offset ${root.offset})"
+  }
 }
 
 /** Companion for creating LineSource instances.
@@ -311,8 +317,6 @@ class BlockSource (inputRef: InputString, val lines: NonEmptyChain[LineSource], 
   
   lazy val position: Position = activeLine.position
   
-  override val path: Option[Path] = inputRef.path
-
   def nextNestLevel: BlockSource = new BlockSource(inputRef, lines, offset, nestLevel + 1)
   
   def reverse: BlockSource = new BlockSource(inputRef.reverse, lines.reverse.map(_.reverse), remaining, nestLevel)

@@ -20,6 +20,7 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
+import laika.ast.sample.TestSourceBuilders
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse._
@@ -60,7 +61,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  trait BundleSetup extends SetupBase {
+  trait BundleSetup extends SetupBase with TestSourceBuilders {
 
     def appBundles: Seq[ExtensionBundle]
 
@@ -224,7 +225,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
 
     def preProcess (append: String): DocumentInput => DocumentInput = { input =>
       val raw = input.source.input
-      input.copy(source = SourceCursor(raw + append))
+      input.copy(source = SourceCursor(raw + append, input.path))
     }
 
     def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(
@@ -411,7 +412,7 @@ class ParserBundleSpec extends AnyWordSpec with Matchers {
       val appBundles = Nil
 
       val input = "${cursor.currentDocument.content}"
-      val contextRef = TemplateContextReference(CursorKeys.documentContent, required = true, LineSource(input, SourceCursor(input)))
+      val contextRef = TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource(input))
       val templateParser = config.templateParser
       templateParser should not be empty
       templateParser.get.parse(input).toOption shouldBe Some(TemplateRoot(contextRef))

@@ -59,16 +59,18 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     */
   val fileSuffixes: Set[String] = format.fileSuffixes
   
+  private val fallbackPath: Path = Root / "doc"
+  
   private val docParser = DocumentParser.forMarkup(format, config.markupExtensions, config.configProvider)
 
   /** Parses the specified markup string into a document AST structure.
     */
-  def parse (input: String): Either[ParserError, Document] = parse(DocumentInput(Root / "doc", SourceCursor(input)))
+  def parse (input: String): Either[ParserError, Document] = parse(DocumentInput(fallbackPath, input))
 
   /** Parses the specified markup string into a document AST structure.
     * The given (virtual) path will be assigned to the result.
     */
-  def parse (input: String, path: Path): Either[ParserError, Document] = parse(DocumentInput(path, SourceCursor(input)))
+  def parse (input: String, path: Path): Either[ParserError, Document] = parse(DocumentInput(path, input))
 
   /** Parses the specified markup input into a document AST structure.
     */
@@ -100,10 +102,10 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
   }
 
   def parseUnresolved (input: String): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(DocumentInput(Root, SourceCursor(input)))
+    parseUnresolved(DocumentInput(fallbackPath, input))
 
   def parseUnresolved (input: String, path: Path): Either[ParserError, UnresolvedDocument] = 
-    parseUnresolved(DocumentInput(path, SourceCursor(input)))
+    parseUnresolved(DocumentInput(path, input))
 
   /** Returns an unresolved document without applying
     * the default rewrite rules and without resolving the configuration header (if present). 

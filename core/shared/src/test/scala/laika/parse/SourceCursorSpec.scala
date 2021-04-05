@@ -16,6 +16,7 @@
 
 package laika.parse
 
+import laika.ast.Path.Root
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -96,6 +97,10 @@ class SourceCursorSpec extends AnyWordSpec with Matchers {
     "indicate the correct column" in {
       cursor.consume(5).position.column shouldBe 2
     }
+    
+    "keep the path information" in {
+      SourceCursor("foo", Root / "bar").path shouldBe Some(Root / "bar")
+    }
 
   }
 
@@ -103,7 +108,7 @@ class SourceCursorSpec extends AnyWordSpec with Matchers {
     
     import cats.data.NonEmptyChain
 
-    val root = new RootSource(new InputString("000\nabc\ndef"), 4, 0)
+    val root = new RootSource(new InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
     val lines = NonEmptyChain(
       LineSource("abc", root),
       LineSource("def", root.consume(4))
@@ -176,6 +181,10 @@ class SourceCursorSpec extends AnyWordSpec with Matchers {
 
     "indicate the correct column" in {
       cursor.consume(5).position.column shouldBe 2
+    }
+
+    "keep the path information" in {
+      cursor.path shouldBe Some(Root / "doc")
     }
 
   }

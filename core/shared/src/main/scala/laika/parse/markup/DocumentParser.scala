@@ -36,6 +36,10 @@ object DocumentParser {
   
   case class DocumentInput (path: Path, source: SourceCursor)
   
+  object DocumentInput {
+    def apply(path: Path, input: String): DocumentInput = new DocumentInput(path, SourceCursor(input, path))
+  }
+  
   case class ParserError (message: String, path: Path) extends 
     RuntimeException(s"Error parsing document '$path': $message")
   

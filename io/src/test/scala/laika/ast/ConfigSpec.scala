@@ -190,7 +190,8 @@ class ConfigSpec extends IOWordSpec
         Root / "input.rst" -> Contents.markupWithConfig
       )
       val msg = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
-      val expected = result(TemplateElement(InvalidSpan(msg, source("${foox}", Contents.templateWithMissingRef))))
+      val src = source("${foox}", Contents.templateWithMissingRef, DefaultTemplatePath.forHTML)
+      val expected = result(TemplateElement(InvalidSpan(msg, src)))
       parseRST(build(inputs)).assertEquals(expected)
     }
 

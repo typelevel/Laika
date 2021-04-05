@@ -102,7 +102,7 @@ object WhitespacePreprocessor {
   val forInput: DocumentInput => DocumentInput = { input =>
     val raw = input.source.input
     val preprocessed = forString(raw.toString)
-    input.copy(source = SourceCursor(preprocessed))
+    input.copy(source = SourceCursor(preprocessed, input.path))
   }
 
 }
