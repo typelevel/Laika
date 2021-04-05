@@ -107,7 +107,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'api': unresolved internal reference: local/path/internal/foo/Foo.html"
     parse(input).content should be (RootElement(p(
       Text("aa "),
-      InvalidSpan(msg, source(directive, input)),
+      InvalidSpan(msg, source(directive, input, defaultPath)),
       Text(" bb")
     )))
   }
@@ -118,7 +118,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
     parse(input).content should be (RootElement(p(
       Text("aa "),
-      InvalidSpan(msg, source(directive, input)),
+      InvalidSpan(msg, source(directive, input, defaultPath)),
       Text(" bb")
     )))
   }
@@ -208,7 +208,7 @@ class LinkDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
     parse(input).content should be (RootElement(p(
       Text("aa "),
-      InvalidSpan(msg, source(directive, input)),
+      InvalidSpan(msg, source(directive, input, defaultPath)),
       Text(" bb")
     )))
   }

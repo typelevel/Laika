@@ -34,9 +34,9 @@ object InputRuntime {
 
   def readParserInput[F[_]: Sync] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
     case PureReader(input) => 
-      Sync[F].pure(DocumentInput(doc.path, SourceCursor(input)))
+      Sync[F].pure(DocumentInput(doc.path, SourceCursor(input, doc.path)))
     case StreamReader(reader, sizeHint) => 
-      readAll(reader, sizeHint).map(source => DocumentInput(doc.path, SourceCursor(source)))
+      readAll(reader, sizeHint).map(source => DocumentInput(doc.path, SourceCursor(source, doc.path)))
   }
 
   def readAll[F[_]: Sync] (reader: Reader, sizeHint: Int): F[String] = {

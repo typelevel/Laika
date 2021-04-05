@@ -111,7 +111,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
                    |
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
-    val invalid = InvalidBlock(message, source(directive, input))
+    val invalid = InvalidBlock(message, source(directive, input, defaultPath))
     parse(input) should be (RootElement(p("aa"), invalid, p("bb")))
   }
 
@@ -135,7 +135,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
          |
          |bb""".stripMargin
     val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
-    val invalid = InvalidBlock(message, source(directive, input))
+    val invalid = InvalidBlock(message, source(directive, input, defaultPath))
     parse(input) should be (RootElement(p("aa"),
       invalid, p("bb")))
   }

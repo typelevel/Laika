@@ -16,6 +16,7 @@
 
 package laika.ast.sample
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.parse.{LineSource, SourceCursor, SourceFragment}
 
@@ -23,6 +24,8 @@ import laika.parse.{LineSource, SourceCursor, SourceFragment}
  * @author Jens Halm
  */
 trait TestSourceBuilders {
+  
+  val defaultPath: Path = Root / "doc"
 
   def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
@@ -34,6 +37,11 @@ trait TestSourceBuilders {
   def source (fragment: String, root: String): SourceFragment = {
     val offset = root.indexOf(fragment)
     LineSource(fragment, SourceCursor(root).consume(offset))
+  }
+
+  def source (fragment: String, root: String, path: Path): SourceFragment = {
+    val offset = root.indexOf(fragment)
+    LineSource(fragment, SourceCursor(root, path).consume(offset))
   }
 
   def generatedSource (fragment: String): SourceFragment = LineSource(fragment, SourceCursor(fragment))

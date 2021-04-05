@@ -173,6 +173,8 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     }
 
     def invalid (fragment: String, error: String): InvalidSpan = InvalidSpan(error, source(fragment, input))
+    
+    def invalid (fragment: String, error: String, path: Path): InvalidSpan = InvalidSpan(error, source(fragment, input, path))
 
     def ss (spans: Span*): Span = SpanSequence(spans)
     
@@ -457,7 +459,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     val input = "aa [RFC-222][@:rfx(222)] bb"
     parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
-      invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx"),
+      invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx", defaultPath),
       Text(" bb")
     ))
   }
@@ -466,7 +468,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     val input = "aa [RFC-222][@:rfc(foo)] bb"
     parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
-      invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo"),
+      invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo", defaultPath),
       Text(" bb")
     ))
   }
@@ -475,7 +477,7 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
     val input = "aa [RFC-222][@:rfc foo] bb"
     parseAsMarkdown(input) shouldBe Right(Paragraph(
       Text("aa "),
-      invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found"),
+      invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found", defaultPath),
       Text(" bb")
     ))
   }

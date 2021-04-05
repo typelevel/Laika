@@ -194,7 +194,7 @@ class TreeParserSpec extends IOWordSpec
       )
       val invalidDocuments = inputs.map { case (path, markup) => 
         val msg = s"unresolved link id reference: link${markup.charAt(5)}"
-        val invalidSpan = InvalidSpan(msg, generatedSource(markup))
+        val invalidSpan = InvalidSpan(msg, source(markup, markup, path))
         InvalidDocument(NonEmptyChain.one(invalidSpan), path)
       }
       val expectedError = InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments)))
