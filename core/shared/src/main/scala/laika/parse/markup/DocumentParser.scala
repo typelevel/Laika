@@ -79,7 +79,7 @@ object DocumentParser {
   }
   
   case class InvalidDocument (invalidElements: NonEmptyChain[Invalid], path: Path) extends 
-    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(InvalidDocument.formatElement).toList.mkString}")
+    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(InvalidDocument.formatElement(path)).toList.mkString}")
   
   object InvalidDocument {
 
@@ -88,15 +88,20 @@ object DocumentParser {
       lines.head + "\n  " + lines.last
     }
     
-    def format (doc: InvalidDocument): String = doc.invalidElements.map(InvalidDocument.formatElement).toList.mkString
+    def format (doc: InvalidDocument): String = 
+      doc.invalidElements.map(InvalidDocument.formatElement(doc.path)).toList.mkString
     
-    def formatElement (element: Invalid): String =
-      s"""  [${element.source.position.line}]: ${element.message.content}
+    def formatElement (docPath: Path)(element: Invalid): String = {
+      val pathStr = element.source.path.fold("") { srcPath =>
+        if (srcPath == docPath) "" else srcPath.toString + ":"
+      }
+      s"""  [$pathStr${element.source.position.line}]: ${element.message.content}
          |
          |  ${indent(element.source.position.lineContentWithCaret)}
          |
          |""".stripMargin
-    
+    }
+
     def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
       val invalidElements = document.invalidElements(failOn)
       NonEmptyChain.fromSeq(invalidElements).map(InvalidDocument(_, document.path))
