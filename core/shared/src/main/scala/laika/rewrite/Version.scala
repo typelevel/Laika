@@ -60,8 +60,14 @@ object Version {
   * @param olderVersions list of older versions that have previously been rendered (may be empty)
   * @param newerVersions list of newer versions that have previously been rendered (may be empty)
   * @param excludeFromScanning paths to be skipped when scanning the output directory for existing versions (e.g. for API docs)
+  * @param renderUnversioned indicates whether unversioned documents should be rendered 
+  *                          (setting this to false may be useful when re-rendering older versions)
   */
-case class Versions (currentVersion: Version, olderVersions: Seq[Version], newerVersions: Seq[Version] = Nil, excludeFromScanning: Seq[Path] = Nil) {
+case class Versions (currentVersion: Version, 
+                     olderVersions: Seq[Version], 
+                     newerVersions: Seq[Version] = Nil, 
+                     excludeFromScanning: Seq[Path] = Nil,
+                     renderUnversioned: Boolean = true) {
   
   def allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
   
@@ -77,8 +83,9 @@ object Versions {
       olderVersions       <- config.get[Seq[Version]]("olderVersions", Nil)
       newerVersions       <- config.get[Seq[Version]]("newerVersions", Nil)
       excludeFromScanning <- config.get[Seq[Path]]("excludeFromScanning", Nil)
+      renderUnversioned   <- config.get[Boolean]("renderUnversioned", false)
     } yield {
-      Versions(currentVersion, olderVersions, newerVersions, excludeFromScanning)
+      Versions(currentVersion, olderVersions, newerVersions, excludeFromScanning, renderUnversioned)
     }
   }
 
@@ -88,6 +95,7 @@ object Versions {
       .withValue("olderVersions", versions.olderVersions)
       .withValue("newerVersions", versions.newerVersions)
       .withValue("excludeFromScanning", versions.excludeFromScanning)
+      .withValue("renderUnversioned", versions.renderUnversioned)
       .build
   }
   
