@@ -21,7 +21,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
 import laika.config.LaikaKeys
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TranslatorConfig}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -49,10 +49,12 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
       .suffix("md")
       .buildCursor
   }
-  
-  val versionedRef = ConfigurablePathTranslator(rootCursor.config, "html", "html", Root / "tree-1" / "doc-3.md", new TargetLookup(rootCursor))
-  val unversionedRef = ConfigurablePathTranslator(rootCursor.config, "html", "html", Root / "doc-1.md", new TargetLookup(rootCursor))
-  val epubRef = ConfigurablePathTranslator(rootCursor.config, "epub.xhtml", "epub", Root / "tree-1" / "doc-3.md", new TargetLookup(rootCursor))
+
+  val translatorConfig = TranslatorConfig.readFrom(rootCursor.config).getOrElse(TranslatorConfig.empty)
+  val lookup = new TargetLookup(rootCursor)
+  val versionedRef = ConfigurablePathTranslator(translatorConfig, "html", "html", Root / "tree-1" / "doc-3.md", lookup)
+  val unversionedRef = ConfigurablePathTranslator(translatorConfig, "html", "html", Root / "doc-1.md", lookup)
+  val epubRef = ConfigurablePathTranslator(translatorConfig, "epub.xhtml", "epub", Root / "tree-1" / "doc-3.md", lookup)
   
   
   test("between two unversioned documents") {

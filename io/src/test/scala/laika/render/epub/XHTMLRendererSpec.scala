@@ -26,7 +26,7 @@ import laika.format.EPUB
 import laika.io.{FileIO, IOWordSpec}
 import laika.io.implicits._
 import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorSpec}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
 
 /**
   * @author Jens Halm
@@ -129,10 +129,13 @@ class XHTMLRendererSpec extends IOWordSpec with ParagraphCompanionShortcuts with
     "translate to external URL when an internal link is not defined for EPUB as a target" in {
       val target = ResolvedInternalTarget(Path.parse("/foo#ref"), RelativePath.parse("foo#ref"), TargetFormats.Selected("html"))
       val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
-      val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
-      val lookup: Path => Option[TranslatorSpec] = path => 
-        if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
-      val translator = ConfigurablePathTranslator(config, "epub.xhtml", "epub", Root / "doc", lookup)
+      val translator = {
+        val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
+        val tConfig = TranslatorConfig.readFrom(config).getOrElse(TranslatorConfig.empty)
+        val lookup: Path => Option[TranslatorSpec] = path => 
+          if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
+        ConfigurablePathTranslator(tConfig, "epub.xhtml", "epub", Root / "doc", lookup)
+      }
       defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty) should be ("""<p>some <a href="http://external/foo.html#ref">link</a> span</p>""")
     }
     
