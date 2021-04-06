@@ -270,7 +270,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       ),
       Seq(
         Version("0.43.x", "0.43", label = Some("dev"))
-      )
+      ),
+      renderUnversioned = false
     )
     
     "decode an instance with all fields populated" in {
@@ -285,6 +286,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |    newerVersions = [
           |      { displayValue = "0.43.x", pathSegment = "0.43", fallbackLink = "index.html", label = "dev" }
           |    ]
+          |    renderUnversioned = false
           |  }
           |}
          """.stripMargin
