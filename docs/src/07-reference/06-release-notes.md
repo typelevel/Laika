@@ -17,6 +17,8 @@ Release Notes
     * `@:path`: Validates and translates a path in a template to a path relative to the rendered document the template
       is applied to.
     * `@:attribute`: Renders an optional HTML or XML attribute.
+* Versioning: new `renderUnversioned` flag, that can be set to false when rendering older versions 
+  (e.g. from a maintenance branch) to ensure that unversioned files always come from the main branch (newest version).
 * Error Reporting: When a parser error originates in a template the error formatter now includes the path info
   for the template instead of making the error appear as if it came from the markup document
 
