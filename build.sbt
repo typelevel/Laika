@@ -69,7 +69,7 @@ val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
 
 val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.1"
 
-val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
+val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.6"
 val http4s     = Seq(
                    "org.http4s"           %% "http4s-dsl"          % "0.21.20",
                    "org.http4s"           %% "http4s-blaze-server" % "0.21.20"
