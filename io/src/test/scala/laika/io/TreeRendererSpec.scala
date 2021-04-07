@@ -92,7 +92,7 @@ class TreeRendererSpec extends IOWordSpec
       staticDocuments = staticDocuments.map(ByteInput.apply(_))
     )
     
-    def renderedTree(path: Path, content: Seq[RenderedDocument]): RenderedTree = RenderedTree(path, None, content)
+    def renderedTree(path: Path, content: Seq[RenderContent]): RenderedTree = RenderedTree(path, None, content)
 
     def renderedDoc(path: Path): RenderedDocument = renderedDoc(path, expected, "Title")
     def renderedDoc(path: Path, expected: String): RenderedDocument = renderedDoc(path, expected, "Title")
@@ -548,6 +548,54 @@ class TreeRendererSpec extends IOWordSpec
           renderedDoc(Root / "tree-2" / "doc-5.txt", renderedDoc(5))
         ))
       ), None, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths)
+
+      renderer
+        .use (_
+          .from(treeRoot)
+          .copying(staticDocs)
+          .toOutput(StringTreeOutput)
+          .render
+        )
+        .assertEquals(expectedRendered)
+    }
+
+    "render a tree while excluding all unversioned documents, based on configuration" in new HTMLRenderer with DocBuilder {
+
+      val versions = Versions(Version("0.4.x", "0.4"), Seq(), Seq(), renderUnversioned = false)
+      val input = SampleTrees.sixDocuments
+        .root.config(_.withValue(versions))
+        .tree1.config(SampleConfig.versioned(true))
+        .tree2.config(SampleConfig.versioned(true))
+        .build
+        .tree
+      val finalInput = input.copy(content = input.content :+ fontConfigTree)
+
+      val staticDocs = Seq(
+        staticDoc(1, Root),
+        staticDoc(2, Root),
+        staticDoc(3, Root / "tree-1"),
+        staticDoc(4, Root / "tree-1"),
+        staticDoc(5, Root / "tree-2"),
+        staticDoc(6, Root / "tree-2")
+      )
+      override def treeRoot = DocumentTreeRoot(finalInput, staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats)))
+      override def hasTitle: Boolean = false
+
+      def docHTML(num: Int): String = s"<p>Text $num</p>"
+      
+      val expectedStatic = staticDocs.drop(2).map(_.path)
+      val expectedRendered = renderedRoot(List(
+        renderedTree(Root / "0.4", List(
+          renderedTree(Root / "0.4" / "tree-1", List(
+            renderedDoc(Root / "0.4" / "tree-1" / "doc-3.html", docHTML(3)),
+            renderedDoc(Root / "0.4" / "tree-1" / "doc-4.html", docHTML(4))
+          )),
+          renderedTree(Root / "0.4" / "tree-2", List(
+            renderedDoc(Root / "0.4" / "tree-2" / "doc-5.html", docHTML(5)),
+            renderedDoc(Root / "0.4" / "tree-2" / "doc-6.html", docHTML(6))
+          ))
+        ))
+      ), None, staticDocuments = expectedStatic :+ Root / "laika" / "versionInfo.json")
 
       renderer
         .use (_

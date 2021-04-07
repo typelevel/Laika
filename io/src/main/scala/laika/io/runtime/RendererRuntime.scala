@@ -65,16 +65,22 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], rootTree: DocumentTreeRoot): Seq[BinaryInput[F]] = {
+    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], 
+                               rootTree: DocumentTreeRoot,
+                               lookup: TargetLookup,
+                               config: TranslatorConfig): Seq[BinaryInput[F]] = {
 
       val cursor = RootCursor(rootTree)
+      val renderUnversioned = config.versions.fold(true)(_.renderUnversioned)
       
       staticDocs.filter { doc =>
-        doc.formats.contains(context.finalFormat) && 
-          cursor.treeConfig(doc.path.parent)
+        val treeConfig = cursor.treeConfig(doc.path.parent)
+        doc.formats.contains(context.finalFormat) &&
+          treeConfig
             .get[TargetFormats]
             .getOrElse(TargetFormats.All)
-            .contains(context.finalFormat)
+            .contains(context.finalFormat) &&
+          (renderUnversioned || lookup.isVersioned(treeConfig))
       }
     }
     
@@ -83,10 +89,12 @@ object RendererRuntime {
     
     def renderDocuments(finalRoot: DocumentTreeRoot, 
                         styles: StyleDeclarationSet, 
-                        lookup: Path => Option[TranslatorSpec],
+                        lookup: TargetLookup,
                         translatorConfig: TranslatorConfig)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
+      val renderUnversioned = translatorConfig.versions.fold(true)(_.renderUnversioned)
       finalRoot.allDocuments
-        .filter(_.targetFormats.contains(context.finalFormat))
+        .filter(doc => doc.targetFormats.contains(context.finalFormat) &&
+          (renderUnversioned || lookup.isVersioned(doc.config)))
         .map { document =>
           val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
           val pathTranslator = createPathTranslator(translatorConfig, document.path, lookup)
@@ -109,7 +117,7 @@ object RendererRuntime {
     
     def renderOps (finalRoot: DocumentTreeRoot, 
                    styles: StyleDeclarationSet, 
-                   lookup: Path => Option[TranslatorSpec],
+                   lookup: TargetLookup,
                    translatorConfig: TranslatorConfig,
                    staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
       case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p)))
@@ -192,7 +200,7 @@ object RendererRuntime {
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       lookup    = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
       vInfo     <- generateVersionInfo(lookup, tConfig)
-      static    = filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root) ++ vInfo.toSeq
+      static    =  filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig) ++ vInfo.toSeq
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, lookup, tConfig, static)
       _         <- ops.mkDirOps.toVector.sequence
