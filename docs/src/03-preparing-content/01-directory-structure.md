@@ -347,6 +347,28 @@ When overriding for an individual document, you can do this with the standard HO
 enclosed between `{%` and `%}`.
 
 
+**Re-Rendering Older Versions**
+
+When switching to a maintenance branch to fix something in the documentation for an older version,
+you might want to ensure that the build step excludes unversioned documents as you most likely would want
+them to originate in the sources for the newest version.
+
+You can achieve this by setting the `renderUnversioned` flag to `false` in your version config on
+the maintenance branch:
+
+```scala
+val versions = Versions(
+  currentVersion = Version("0.42.x", "0.42"),
+  olderVersions = Seq(),
+  newerVersions = Seq(
+    Version("0.43.x", "0.43", label = Some("dev"))
+  ),
+  renderUnversioned = false
+)
+Helium.defaults.site.versions(versions)
+```
+
+
 Virtual Tree Abstraction
 ------------------------
 
