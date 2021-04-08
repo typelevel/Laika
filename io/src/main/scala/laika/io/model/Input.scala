@@ -89,6 +89,7 @@ object TextInput {
 case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
                            binaryInputs: Seq[BinaryInput[F]] = Nil,
                            parsedResults: Seq[ParserResult] = Nil,
+                           providedPaths: Seq[StaticDocument] = Nil,
                            sourcePaths: Seq[String] = Nil) {
 
   /** A collection of all paths in this input tree, which may contain duplicates.
@@ -101,12 +102,14 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
     textInputs ++ other.textInputs, 
     binaryInputs ++ other.binaryInputs,
     parsedResults ++ other.parsedResults,
+    providedPaths ++ other.providedPaths,
     sourcePaths ++ other.sourcePaths
   )
   
   def + (textInput: TextInput[F]): InputTree[F] = copy(textInputs = textInputs :+ textInput)
   def + (binaryInput: BinaryInput[F]): InputTree[F] = copy(binaryInputs = binaryInputs :+ binaryInput)
   def + (parsedResult: ParserResult): InputTree[F] = copy(parsedResults = parsedResults :+ parsedResult)
+  def + (providedPath: StaticDocument): InputTree[F] = copy(providedPaths = providedPaths :+ providedPath)
 }
 
 /** Factory methods for creating `InputTreeBuilder` instances.
@@ -307,6 +310,14 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def addStyles (styles: Set[StyleDeclaration], path: Path, precedence: Precedence = Precedence.High): InputTreeBuilder[F] = 
     addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
+
+  /** Adds a path to the input tree that represents a document getting processed by some external tool.
+    * Such a path will be used in link validation, but no further processing for this document will be performed. 
+    */
+  def addProvidedPath (path: Path): InputTreeBuilder[F] = addStep(path) {
+    case DocumentType.Static(formats) => _ + StaticDocument(path, formats)
+    case _                            => _ + StaticDocument(path)
+  }
 
   /** Adds the specified file filter to this input tree.
     * 
