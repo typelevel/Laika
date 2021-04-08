@@ -118,9 +118,11 @@ class TreeParserSpec extends IOWordSpec
     
     val defaultContent = Seq(p("foo"))
     
-    def docResult (num: Int, path: Path = Root) = Document(path / s"doc-$num.md", RootElement(defaultContent))
-    def docResult (name: String)                = Document(Root / name, RootElement(defaultContent))
-    def customDocResult(name: String, content: Seq[Block], path: Path = Root) = Document(path / name, RootElement(content))
+    def docResult (num: Int, content: Seq[Block] = defaultContent, path: Path = Root) = 
+      Document(path / s"doc-$num.md", RootElement(content))
+    def docResult (name: String) = Document(Root / name, RootElement(defaultContent))
+    def customDocResult(name: String, content: Seq[Block], path: Path = Root): Document = 
+      Document(path / name, RootElement(content))
 
     def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = TemplateRewriter.applyTemplates(parsed.root, TemplateContext("html")).toOption.get
     def parsedTree: IO[DocumentTreeRoot] = defaultParser.use(_.fromInput(build(inputs)).parse).map(applyTemplates)
@@ -331,6 +333,21 @@ class TreeParserSpec extends IOWordSpec
       val staticDoc = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
       val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil), staticDocuments = List(staticDoc))
       parsedTree.assertEquals(treeResult)
+    }
+
+    "parse a tree with a provided path" in new TreeParserSetup {
+
+      val providedPath = Root / "provided" / "ext.html"
+      
+      override def build (inputs: Seq[(Path, String)]) = super.build(inputs).addProvidedPath(providedPath)
+
+      val inputs = Seq(
+        Root / "doc-1.md" -> "[link](provided/ext.html)"
+      )
+      val target = InternalTarget(providedPath).relativeTo(Root / "doc-1.md")
+      val expectedDocs = Seq(docResult(1, Seq(Paragraph(SpanLink.internal(providedPath)("link").withTarget(target)))))
+      val expectedResult = DocumentTreeRoot(DocumentTree(Root, expectedDocs), staticDocuments = List(StaticDocument(providedPath)))
+      parsedTree.assertEquals(expectedResult)
     }
 
     "parse a tree with all available file types and multiple markup formats" in new TreeParserSetup {
