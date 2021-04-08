@@ -19,6 +19,8 @@ Release Notes
     * `@:attribute`: Renders an optional HTML or XML attribute.
 * Versioning: new `renderUnversioned` flag, that can be set to false when rendering older versions 
   (e.g. from a maintenance branch) to ensure that unversioned files always come from the main branch (newest version).
+* Link Validation: new `addProvidedPath` method on `InputTreeBuilder` that adds a path representing a document which is 
+  processed by some external tool, making it available during link validation.
 * PDF Support: upgrade to Apache FOP 2.6 (2.4 and 2.5 were both skipped as they had an issue with dependencies 
   in their POMs)
 * Error Reporting: When a parser error originates in a template the error formatter now includes the path info
