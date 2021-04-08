@@ -91,13 +91,13 @@ object Tasks {
 
     lazy val tree = {
       val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
-        (inputs, path) => inputs.addString("", apiPath / path) // TODO - temporary hack until the builder API is enhanced
+        (inputs, path) => inputs.addProvidedPath(apiPath / path)
       }
       val tree = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
       Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
-      tree.copy(staticDocuments = tree.staticDocuments.filterNot(_.path.isSubPath(apiPath))) // TODO - remove filter when the above gets fixed
+      tree
     }
     
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
