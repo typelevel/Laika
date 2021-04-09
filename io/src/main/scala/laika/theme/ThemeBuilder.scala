@@ -20,6 +20,7 @@ import cats.implicits._
 import cats.Monad
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.{DocumentCursor, RewriteRules}
 import laika.bundle.{BundleOrigin, ExtensionBundle, RenderOverrides}
 import laika.config.Config
@@ -91,7 +92,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * This is an overload that allows to construct the rules based on looking at the corresponding
     * `DocumentCursor` first.
     */
-  def addRewriteRules (rules: DocumentCursor => RewriteRules): ThemeBuilder[F] =
+  def addRewriteRules (rules: RewriteRulesBuilder): ThemeBuilder[F] =
     new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(rules), treeProcessors)
 
   /** Adds a custom rewrite rule that can swap or remove individual nodes from the document AST.
@@ -99,7 +100,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * a rewrite rule looks at the individual AST nodes within a document.
     */
   def addRewriteRules (rules: RewriteRules): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(_ => rules), treeProcessors)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(_ => Right(rules)), treeProcessors)
 
   /** Adds a function that processes the document tree between parsing and rendering.
     * In contrast to the `addRewriteRule` hook which looks at AST nodes within a document,
@@ -149,11 +150,11 @@ object ThemeBuilder {
   private[theme] case class BundleBuilder (themeName: String,
                                            baseConfig: Config = Config.empty,
                                            renderOverrides: Seq[RenderOverrides] = Nil,
-                                           rewriteRules: Seq[DocumentCursor => RewriteRules] = Nil) { self =>
+                                           rewriteRules: Seq[RewriteRulesBuilder] = Nil) { self =>
     def addConfig (config: Config): BundleBuilder = copy(baseConfig = config.withFallback(baseConfig))
     def addRenderOverrides (overrides: RenderOverrides): BundleBuilder =
       copy(renderOverrides = renderOverrides :+ overrides)
-    def addRewriteRules (rules: DocumentCursor => RewriteRules): BundleBuilder =
+    def addRewriteRules (rules: RewriteRulesBuilder): BundleBuilder =
       copy(rewriteRules = rewriteRules :+ rules)
     def build: Option[ExtensionBundle] = 
       if (baseConfig == Config.empty && renderOverrides.isEmpty && rewriteRules.isEmpty) None else Some(new ExtensionBundle {

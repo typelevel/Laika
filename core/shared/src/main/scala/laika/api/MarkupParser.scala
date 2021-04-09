@@ -18,14 +18,14 @@ package laika.api
 
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, UnresolvedDocument}
+import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewriteRules, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.SourceCursor
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{InvalidDocument, ParserError, DocumentInput}
+import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocument, ParserError}
 import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
@@ -76,15 +76,18 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     */
   def parse (input: DocumentInput): Either[ParserError, Document] = {
     
-    def resolveDocument (unresolved: UnresolvedDocument, docConfig: Config): Either[ParserError, Document] = {
-      val embeddedConfig = unresolved.document.content.collect { 
-        case c: EmbeddedConfigValue => (c.key, c.value) 
+    def resolveDocument (unresolved: UnresolvedDocument, docConfig: Config): Document = {
+      val embeddedConfig = unresolved.document.content.collect {
+        case c: EmbeddedConfigValue => (c.key, c.value)
       }
-      val resolvedDoc = unresolved.document.copy(
+      unresolved.document.copy(
         config = ConfigHeaderParser.merge(docConfig, embeddedConfig)
       )
-      val phase1 = resolvedDoc.rewrite(config.rewriteRulesFor(resolvedDoc))
-      val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1)))
+    }
+    
+    def rewriteDocument (resolvedDoc: Document, rules: RewriteRules): Either[ParserError, Document] = {
+      val phase1 = resolvedDoc.rewrite(rules)
+      val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1))) // TODO - should return Either
       
       InvalidDocument
         .from(result, config.failOnMessages)
@@ -97,7 +100,9 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       resolvedConfig <- unresolved.config
                           .resolve(Origin(DocumentScope, input.path), config.baseConfig)
                           .left.map(ParserError(_, input.path))
-      result         <- resolveDocument(unresolved, resolvedConfig)
+      resolvedDoc    =  resolveDocument(unresolved, resolvedConfig)
+      rules          <- config.rewriteRulesFor(resolvedDoc).left.map(ParserError(_, input.path))
+      result         <- rewriteDocument(resolvedDoc, rules)
     } yield result
   }
 

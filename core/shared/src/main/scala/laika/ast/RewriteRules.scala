@@ -16,7 +16,11 @@
 
 package laika.ast
 
+import cats.data.NonEmptyChain
+import cats.syntax.all._
 import laika.ast.RewriteRules.ChainedRewriteRules
+import laika.config.Config.ConfigResult
+import laika.config.ConfigErrors
 import laika.rewrite.link.LinkResolver
 import laika.rewrite.nav.SectionBuilder
 
@@ -189,6 +193,8 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
   * @author Jens Halm
   */
 object RewriteRules {
+  
+  type RewriteRulesBuilder = DocumentCursor => ConfigResult[RewriteRules]
 
   /** Creates a new instance without any rules. Applying an empty instance to an AST will always
     * return the AST unchanged.
@@ -236,14 +242,18 @@ object RewriteRules {
 
   /** Chains the specified rule factory functions into a single factory function.
     */
-  def chainFactories (rules: Seq[DocumentCursor => RewriteRules]): DocumentCursor => RewriteRules =
-    cursor => rules.map(_(cursor)).reduceOption(_ ++ _).getOrElse(RewriteRules.empty)
+  def chainFactories (rules: Seq[RewriteRulesBuilder]): RewriteRulesBuilder =
+    cursor => rules.toList
+      .map(_(cursor).leftMap(err => NonEmptyChain(err)))
+      .parSequence
+      .map(_.reduceOption(_ ++ _).getOrElse(RewriteRules.empty))
+      .leftMap(ConfigErrors.apply)
 
   /** The default built-in rewrite rules, dealing with section building and link resolution.
     * These are not installed as part of any default extension bundle as they have specific
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
-  def defaultsFor (root: DocumentTreeRoot, slugBuilder: String => String): Seq[DocumentCursor => RewriteRules] = 
+  def defaultsFor (root: DocumentTreeRoot, slugBuilder: String => String): Seq[RewriteRulesBuilder] = 
     Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
 
 }

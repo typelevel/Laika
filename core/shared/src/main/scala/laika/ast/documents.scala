@@ -18,7 +18,8 @@ package laika.ast
 
 import cats.data.NonEmptySet
 import laika.ast.RelativePath.CurrentTree
-import laika.config.Config.IncludeMap
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.config.Config.{ConfigResult, IncludeMap}
 import laika.config._
 import laika.rewrite.nav.{AutonumberConfig, TargetFormats}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
@@ -426,7 +427,7 @@ case class DocumentTree (path: Path,
    *  The specified factory function will be invoked for each document contained in this
    *  tree and must return the rewrite rules for that particular document.
    */
-  def rewrite (rules: DocumentCursor => RewriteRules): DocumentTree = TreeCursor(this).rewriteTarget(rules)
+  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = TreeCursor(this).rewriteTarget(rules)
 
   protected val configScope: Origin.Scope = Origin.TreeScope
   
@@ -509,6 +510,6 @@ case class DocumentTreeRoot (tree: DocumentTree,
     * The specified factory function will be invoked for each document contained in this tree
     * and must return the rewrite rules for that particular document.
     */
-  def rewrite (rules: DocumentCursor => RewriteRules): DocumentTreeRoot = RootCursor(this).rewriteTarget(rules)
+  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = RootCursor(this).rewriteTarget(rules)
 
 }

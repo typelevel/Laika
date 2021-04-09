@@ -17,7 +17,9 @@
 package laika.rewrite.link
 
 import laika.ast.Path.Root
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
+import laika.config.Config.ConfigResult
 
 import scala.annotation.tailrec
 
@@ -37,16 +39,16 @@ import scala.annotation.tailrec
  * 
  *  @author Jens Halm
  */
-class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) extends (DocumentCursor => RewriteRules) {
+class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) extends RewriteRulesBuilder {
 
   val targets = new TreeTargets(root, slugBuilder)
   
   /** The default rules for resolving link references to be applied to the document.
    */
-  def apply (cursor: DocumentCursor): RewriteRules = {
-    
+  def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = {
+
     val validator = new LinkValidator(cursor, path => targets.select(Root, PathSelector(path)).map(_.targetFormats))
-    
+
     def replace (element: Element, selector: Selector): Option[Element] = 
       targets.select(cursor.path, selector)
         .flatMap(_.replaceTarget(element))
@@ -62,7 +64,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         case Some(b: Span) => Replace(b)
         case _             => Remove
       }
-    
+
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {
 
       val resolvedTarget = target.flatMap(_.resolveReference(LinkSource(ref, cursor.path))) match {
@@ -79,10 +81,10 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       }
       Replace(resolvedTarget)
     }
-    
+
     def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, targets.select(cursor.path, selector), msg)
-    
+
     def resolvePath (ref: Reference, path: RelativePath, msg: => String): RewriteAction[Span] = {
       val selector = PathSelector(InternalTarget(path).relativeTo(cursor.path).absolutePath)
       resolveWith(ref, targets.select(Root, selector), msg)
@@ -99,18 +101,18 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       }
       targets.select(cursor.path, selector).orElse(selectFromParent(cursor.parent, selector))
     }
-    
+
     def resolveId (ref: Reference, selector: UniqueSelector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, selectRecursive(selector), msg)
-        
+
     def resolveIdOrSlug (ref: LinkIdReference, msg: => String): RewriteAction[Span] = {
       val target = selectRecursive(LinkDefinitionSelector(ref.ref))
         .orElse(selectRecursive(TargetIdSelector(slugBuilder(ref.ref))))
       resolveWith(ref, target, msg)
     }
-      
-    RewriteRules.forBlocks {
-      
+
+    Right(RewriteRules.forBlocks {
+
       case f: FootnoteDefinition => f.label match {
         case NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
         case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(slugBuilder(id)))
@@ -147,7 +149,8 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
         
       case _: Hidden => Remove
 
-    }
+    })
+
   }
   
 }

@@ -22,6 +22,7 @@ import laika.ast.RelativePath.{CurrentDocument, Parent}
 import laika.ast._
 import laika.ast.sample.SampleConfig.{noLinkValidation, siteBaseURL, targetFormats}
 import laika.ast.sample.{ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees, TestSourceBuilders}
+import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigParser, LaikaKeys}
 import laika.parse.GeneratedSource
 import laika.rewrite.link.{LinkConfig, TargetDefinition}
@@ -39,12 +40,11 @@ class RewriteRulesSpec extends AnyWordSpec
   val disableInternalLinkValidation: Config =
     ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
   
-  def rewritten (root: RootElement, withTitles: Boolean = true): RootElement = {
+  def rewritten (root: RootElement, withTitles: Boolean = true): ConfigResult[RootElement] = {
     val config = if (withTitles) disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
                  else disableInternalLinkValidation
     val doc = Document(Path.Root / "doc", root, config = config)
-    val rules = OperationConfig.default.rewriteRulesFor(doc)
-    doc.rewrite(rules).content
+    OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite(_).content)
   }
   
   val refPath: Path = Root / "doc"
@@ -91,7 +91,7 @@ class RewriteRulesSpec extends AnyWordSpec
     "retain a single reference when it has a matching target" in {
       val rootElem = RootElement(p(CitationReference("label", generatedSource("[label]_"))), Citation("label", List(p("citation"))))
       val resolved = RootElement(p(CitationLink("__cit-label", "label")), Citation("label", List(p("citation")), Id("__cit-label")))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "retain multiple references when they all have a matching targets" in {
@@ -106,14 +106,14 @@ class RewriteRulesSpec extends AnyWordSpec
       )
       val resolved = RootElement(p(CitationLink("__cit-label1", "label1"), CitationLink("__cit-label2", "label2"), CitationLink("__cit-label1", "label1")),
         Citation("label1", List(p("citation1")), Id("__cit-label1")), Citation("label2", List(p("citation2")), Id("__cit-label2")))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "replace a reference with an unknown label with an invalid span" in {
       val sourceRef = generatedSource("[label1]_")
       val rootElem = RootElement(p(CitationReference("label1", sourceRef)), Citation("label2", List(p("citation2"))))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved citation reference: label1", "[label1]_")),
-        Citation("label2", List(p("citation2")), Id("__cit-label2"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("unresolved citation reference: label1", "[label1]_")),
+        Citation("label2", List(p("citation2")), Id("__cit-label2")))))
     }
   }
 
@@ -125,7 +125,7 @@ class RewriteRulesSpec extends AnyWordSpec
         fn(Autonumber, 1), fn(NumericLabel(1), 1), fn(Autonumber, 2))
       val resolved = RootElement(fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
         fn("__fn-1", "1"), fn("__fnl-1", "1"), fn("__fn-2", "2"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes" in {
@@ -133,7 +133,7 @@ class RewriteRulesSpec extends AnyWordSpec
         fn(NumericLabel(2), 2), fn(AutonumberLabel("label"), 1), fn(Autonumber, 2))
       val resolved = RootElement(fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
         fn("__fnl-2", "2"), fn("label", "1"), fn("__fn-2", "2"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "retain a group of footnotes with autosymbol labels" in {
@@ -141,7 +141,7 @@ class RewriteRulesSpec extends AnyWordSpec
         fn(Autosymbol, "*"), fn(Autosymbol, "\u2020"), fn(Autosymbol, "\u2021"))
       val resolved = RootElement(fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
         fn("__fns-1", "*"), fn("__fns-2", "\u2020"), fn("__fns-3", "\u2021"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "replace references with unresolvable autonumber or numeric labels with invalid spans" in {
@@ -150,21 +150,21 @@ class RewriteRulesSpec extends AnyWordSpec
       val resolved = RootElement(p(invalidSpan("unresolved footnote reference: 2", "[2]_"),
         invalidSpan("unresolved footnote reference: labelA", "[#labelA]_")),
         fn("__fnl-3", "3"), fn("labelb", "1"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "replace surplus autonumber references with invalid spans" in {
       val rootElem = RootElement(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
       val resolved = RootElement(p(FootnoteLink("__fn-1", "1"), invalidSpan("too many autonumber references", "[#]_")),
         fn("__fn-1", "1"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
 
     "replace surplus autosymbol references with invalid spans" in {
       val rootElem = RootElement(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
       val resolved = RootElement(p(FootnoteLink("__fns-1", "*"), invalidSpan("too many autosymbol references", "[*]_")),
         fn("__fns-1", "*"))
-      rewritten(rootElem) should be(resolved)
+      rewritten(rootElem) should be(Right(resolved))
     }
   }
 
@@ -173,27 +173,27 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve external link definitions" in {
       val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", ExternalTarget("http://foo/")))
-      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"))))
+      rewritten(rootElem) should be(Right(RootElement(p(extLink("http://foo/")))))
     }
 
     "resolve internal link definitions" in {
       val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.md#ref"))))
-      rewritten(rootElem) should be(RootElement(p(intLink(RelativePath.parse("foo.md#ref")))))
+      rewritten(rootElem) should be(Right(RootElement(p(intLink(RelativePath.parse("foo.md#ref"))))))
     }
 
     "interpret internal link definitions as external when they point upwards beyond the virtual root" in {
       val rootElem = RootElement(p(linkIdRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("../../foo.md#ref"))))
-      rewritten(rootElem) should be(RootElement(p(extLink("../../foo.md#ref"))))
+      rewritten(rootElem) should be(Right(RootElement(p(extLink("../../foo.md#ref")))))
     }
 
     "resolve internal link targets" in {
       val rootElem = RootElement(p(linkIdRef("id 5")), InternalLinkTarget(Id("id-5")))
-      rewritten(rootElem) should be(RootElement(p(docLink("id-5")), InternalLinkTarget(Id("id-5"))))
+      rewritten(rootElem) should be(Right(RootElement(p(docLink("id-5")), InternalLinkTarget(Id("id-5")))))
     }
 
     "resolve anonymous link references" in {
       val rootElem = RootElement(p(linkIdRef(""), linkIdRef("")), LinkDefinition("", ExternalTarget("http://foo/")), LinkDefinition("", ExternalTarget("http://bar/")))
-      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"), extLink("http://bar/"))))
+      rewritten(rootElem) should be(Right(RootElement(p(extLink("http://foo/"), extLink("http://bar/")))))
     }
 
     "resolve anonymous internal link definitions" in {
@@ -202,7 +202,9 @@ class RewriteRulesSpec extends AnyWordSpec
         LinkDefinition("", InternalTarget(RelativePath.parse("foo.md#ref"))),
         LinkDefinition("", InternalTarget(RelativePath.parse("bar.md#ref")))
       )
-      rewritten(rootElem) should be(RootElement(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref")))))
+      rewritten(rootElem) should be(Right(
+        RootElement(p(intLink(RelativePath.parse("foo.md#ref")), intLink(RelativePath.parse("bar.md#ref"))))
+      ))
     }
 
     "resolve anonymous external link definitions" in {
@@ -211,17 +213,17 @@ class RewriteRulesSpec extends AnyWordSpec
         LinkDefinition("", ExternalTarget("http://foo/")),
         LinkDefinition("", ExternalTarget("http://bar/"))
       )
-      rewritten(rootElem) should be(RootElement(p(extLink("http://foo/"), extLink("http://bar/"))))
+      rewritten(rootElem) should be(Right(RootElement(p(extLink("http://foo/"), extLink("http://bar/")))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
       val rootElem = RootElement(p(linkIdRef()))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved link id reference: name", "<<name>>"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("unresolved link id reference: name", "<<name>>")))))
     }
 
     "replace a surplus anonymous reference with an invalid span" in {
       val rootElem = RootElement(p(linkIdRef("")))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("too many anonymous references", "<<>>"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("too many anonymous references", "<<>>")))))
     }
 
     "resolve references when some parent element also gets rewritten" in {
@@ -229,7 +231,7 @@ class RewriteRulesSpec extends AnyWordSpec
         DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource), 
         LinkDefinition("name", ExternalTarget("http://foo/"))
       )
-      rewritten(rootElem) should be(RootElement(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title)))
+      rewritten(rootElem) should be(Right(RootElement(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title))))
     }
   }
 
@@ -243,7 +245,7 @@ class RewriteRulesSpec extends AnyWordSpec
       TargetDefinition("inv", InternalTarget(RelativePath.parse("../doc-99.md#ref")))
     ))
 
-    def rewrittenTreeDoc (ref: LinkIdReference): Block = {
+    def rewrittenTreeDoc (ref: LinkIdReference): ConfigResult[Option[Block]] = {
       val root =
         SampleTrees.sixDocuments
           .root.config(_.withValue(linkConfig))
@@ -251,28 +253,30 @@ class RewriteRulesSpec extends AnyWordSpec
           .doc3.content(p(ref))
           .suffix("md")
           .build
-      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root))
-      rewrittenTree.tree.selectDocument("tree-1/doc-3.md").get.content.content.head
+      
+      root
+        .rewrite(OperationConfig.default.rewriteRulesFor(root))
+        .map(_.tree.selectDocument("tree-1/doc-3.md").map(_.content.content.head))
     }
 
     "resolve internal link references to a target in the parent tree" in {
       val target = InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1")
-      rewrittenTreeDoc(linkIdRef("int")) should be(p(SpanLink(target)("text")))
+      rewrittenTreeDoc(linkIdRef("int")) should be(Right(Some(p(SpanLink(target)("text")))))
     }
 
     "resolve external link references" in {
       val externalLink = SpanLink.external("https://www.foo.com/")("text")
-      rewrittenTreeDoc(linkIdRef("ext")) should be(p(externalLink))
+      rewrittenTreeDoc(linkIdRef("ext")) should be(Right(Some(p(externalLink))))
     }
 
     "produce an invalid span for an unresolved id" in {
       val expected = p(invalidSpan("unresolved link id reference: missing", "<<missing>>"))
-      rewrittenTreeDoc(linkIdRef("missing")) should be(expected)
+      rewrittenTreeDoc(linkIdRef("missing")) should be(Right(Some(expected)))
     }
 
     "produce an invalid span for an unresolved reference" in {
       val expected = p(invalidSpan("unresolved internal reference: ../doc-99.md#ref", "<<inv>>"))
-      rewrittenTreeDoc(linkIdRef("inv")) should be(expected)
+      rewrittenTreeDoc(linkIdRef("inv")) should be(Right(Some(expected)))
     }
 
   }
@@ -282,7 +286,7 @@ class RewriteRulesSpec extends AnyWordSpec
     val pathUnderTest = Root / "tree-1" / "doc-3.md"
     val defaultTarget = InternalLinkTarget(Id("ref"))
 
-    def rewrittenTreeDoc (ref: Span, builder: SampleSixDocuments => SampleSixDocuments = identity): Block = {
+    def rewrittenTreeDoc (ref: Span, builder: SampleSixDocuments => SampleSixDocuments = identity): ConfigResult[Option[Block]] = {
       
       val root = 
         SampleTrees.sixDocuments
@@ -294,8 +298,9 @@ class RewriteRulesSpec extends AnyWordSpec
           .apply(builder)
           .build
 
-      val rewrittenTree = root.rewrite(OperationConfig.default.rewriteRulesFor(root)) // TODO - integrate these two lines into builder API together with template rewriting
-      rewrittenTree.tree.selectDocument(pathUnderTest.relative).get.content.content.head
+      root
+        .rewrite(OperationConfig.default.rewriteRulesFor(root))
+        .map(_.tree.selectDocument(pathUnderTest.relative).map(_.content.content.head))
     }
 
     def pathRef (ref: String) = LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
@@ -304,43 +309,43 @@ class RewriteRulesSpec extends AnyWordSpec
       SpanLink(InternalTarget(path).relativeTo(pathUnderTest).copy(internalFormats = targetFormats))("text")
 
     "resolve internal link references to a target in the same document" in {
-      rewrittenTreeDoc(pathRef("#ref")) should be(p(
+      rewrittenTreeDoc(pathRef("#ref")) should be(Right(Some(p(
         internalLink(CurrentDocument("ref"))
-      ))
+      ))))
     }
 
     "resolve internal link references to a target in the same tree" in {
       val relPath = "doc-4.md#target-4"
-      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+      rewrittenTreeDoc(pathRef(relPath)) should be(Right(Some(p(
         internalLink(RelativePath.parse(relPath))
-      ))
+      ))))
     }
 
     "resolve internal link references to a target in the parent tree" in {
-      rewrittenTreeDoc(pathRef("../doc-1.md#ref")) should be(p(
+      rewrittenTreeDoc(pathRef("../doc-1.md#ref")) should be(Right(Some(p(
         internalLink(RelativePath.parse("../doc-1.md#ref"))
-      ))
+      ))))
     }
 
     "resolve internal link references to a target in a sibling tree" in {
-      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md#ref")) should be(p(
+      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md#ref")) should be(Right(Some(p(
         internalLink(RelativePath.parse("../tree-2/doc-5.md#ref"))
-      ))
+      ))))
     }
 
     "resolve internal link references to a markup document" in {
-      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md")) should be(p(
+      rewrittenTreeDoc(pathRef("../tree-2/doc-5.md")) should be(Right(Some(p(
         internalLink(RelativePath.parse("../tree-2/doc-5.md"))
-      ))
+      ))))
     }
 
     "resolve internal link references to a static document" in {
       val relPath = "../images/frog.txt"
       val absPath = Root / "images" / "frog.txt"
       
-      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath)) should be(p(
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath)) should be(Right(Some(p(
         internalLink(RelativePath.parse(relPath))
-      ))
+      ))))
     }
 
     "resolve internal link references to an image" in {
@@ -349,16 +354,16 @@ class RewriteRulesSpec extends AnyWordSpec
       val imgPathRef = ImagePathReference(relPath, GeneratedSource, alt = Some("text"))
       val target = InternalTarget(relPath).relativeTo(refPath)
       
-      rewrittenTreeDoc(imgPathRef, _.staticDoc(absPath)) should be(p(
+      rewrittenTreeDoc(imgPathRef, _.staticDoc(absPath)) should be(Right(Some(p(
         Image(target, alt = Some("text"))
-      ))
+      ))))
     }
 
     "produce an invalid span for an unresolved reference" in {
       val relPath = "../tree-2/doc99.md#ref"
-      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+      rewrittenTreeDoc(pathRef(relPath)) should be(Right(Some(p(
         invalidSpan(s"unresolved internal reference: $relPath", s"[<$relPath>]")
-      ))
+      ))))
     }
 
     "produce an invalid span for a reference to a markup document with fewer target formats than the source" in {
@@ -366,9 +371,9 @@ class RewriteRulesSpec extends AnyWordSpec
       val msg = s"document for all output formats cannot reference document '$relPath' " +
         s"with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       
-      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("pdf"))) should be(p(
+      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("pdf"))) should be(Right(Some(p(
         invalidSpan(msg, s"[<$relPath>]")
-      ))
+      ))))
     }
 
     "produce an invalid span for a reference to a static document with fewer target formats than the source" in {
@@ -377,44 +382,44 @@ class RewriteRulesSpec extends AnyWordSpec
       val msg = s"document for all output formats cannot reference document '$relPath' " +
         "with restricted output formats unless html is one of the formats and siteBaseUrl is defined"
       
-      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "pdf")) should be(p(
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "pdf")) should be(Right(Some(p(
         invalidSpan(msg, s"[<$relPath>]")
-      ))
+      ))))
     }
 
     "allow links to missing target documents when one of the parent trees has the validateLinks flag set to false" in {
       rewrittenTreeDoc(pathRef("doc99.md#ref"), _
         .doc4.config(targetFormats("pdf"))
         .tree1.config(noLinkValidation)
-      ) should be(p(
+      ) should be(Right(Some(p(
         internalLink(RelativePath.parse("doc99.md#ref"))
-      ))
+      ))))
     }
 
     "add a restricted target format parameter for a reference to a markup document with fewer target formats than the source when siteBaseURL is defined" in {
       val relPath = "doc-4.md#target-4"
-      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("html"))) should be(p(
+      rewrittenTreeDoc(pathRef(relPath), _.doc4.config(targetFormats("html"))) should be(Right(Some(p(
         internalLink(RelativePath.parse(relPath), TargetFormats.Selected("html"))
-      ))
+      ))))
     }
 
     "add a restricted target format parameter for a reference to a static document with fewer target formats than the source when siteBaseURL is defined" in {
       val relPath = "../static/doc.html"
       val absPath = Root / "static" / "doc.html"
-      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "html")) should be(p(
+      rewrittenTreeDoc(pathRef(relPath), _.staticDoc(absPath, "html")) should be(Right(Some(p(
         internalLink(RelativePath.parse(relPath), TargetFormats.Selected("html"))
-      ))
+      ))))
     }
 
     "avoid validation for references beyond the virtual root" in {
       val relPath = "../../doc99.md#ref"
-      rewrittenTreeDoc(pathRef(relPath)) should be(p(
+      rewrittenTreeDoc(pathRef(relPath)) should be(Right(Some(p(
         extLink(relPath)
-      ))
+      ))))
     }
 
     "resolve a link id reference to a target in the same tree" in {
-      rewrittenTreeDoc(linkIdRef("target-4")) should be(p(internalLink(RelativePath.parse("doc-4.md#target-4"))))
+      rewrittenTreeDoc(linkIdRef("target-4")) should be(Right(Some(p(internalLink(RelativePath.parse("doc-4.md#target-4"))))))
     }
 
     "resolve a link id reference to a header with a duplicate id by precedence" in {
@@ -423,9 +428,9 @@ class RewriteRulesSpec extends AnyWordSpec
       rewrittenTreeDoc(linkIdRef("header"), _
         .doc1.content(header(1))
         .doc2.content(header(2))
-      ) should be(p(
+      ) should be(Right(Some(p(
         internalLink(RelativePath.parse("../doc-1.md#header"))
-      ))
+      ))))
     }
 
   }
@@ -435,17 +440,17 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve indirect link references" in {
       val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), InternalLinkTarget(Id("ref")))
-      rewritten(rootElem) should be(RootElement(p(docLink("ref")), InternalLinkTarget(Id("ref"))))
+      rewritten(rootElem) should be(Right(RootElement(p(docLink("ref")), InternalLinkTarget(Id("ref")))))
     }
 
     "replace an unresolvable reference to a link alias with an invalid span" in {
       val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved link alias: ref", "[<name>]"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("unresolved link alias: ref", "[<name>]")))))
     }
 
     "replace circular indirect references with invalid spans" in {
       val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), LinkAlias("ref", "name"))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("circular link reference: ref", "[<name>]"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("circular link reference: ref", "[<name>]")))))
     }
 
   }
@@ -455,17 +460,17 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "resolve external link references" in {
       val rootElem = RootElement(p(simpleImgRef()), LinkDefinition("name", ExternalTarget("http://foo.com/bar.jpg")))
-      rewritten(rootElem) should be(RootElement(p(Image(ExternalTarget("http://foo.com/bar.jpg"), alt = Some("text")))))
+      rewritten(rootElem) should be(Right(RootElement(p(Image(ExternalTarget("http://foo.com/bar.jpg"), alt = Some("text"))))))
     }
 
     "resolve internal link references" in {
       val rootElem = RootElement(p(simpleImgRef()), LinkDefinition("name", InternalTarget(RelativePath.parse("foo.jpg"))))
-      rewritten(rootElem) should be(RootElement(p(Image(InternalTarget(Root / "foo.jpg").relativeTo(refPath), alt = Some("text")))))
+      rewritten(rootElem) should be(Right(RootElement(p(Image(InternalTarget(Root / "foo.jpg").relativeTo(refPath), alt = Some("text"))))))
     }
 
     "replace an unresolvable reference with an invalid span" in {
       val rootElem = RootElement(p(simpleImgRef()))
-      rewritten(rootElem) should be(RootElement(p(invalidSpan("unresolved image reference: name", "!<name>"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan("unresolved image reference: name", "!<name>")))))
     }
   }
 
@@ -473,7 +478,7 @@ class RewriteRulesSpec extends AnyWordSpec
 
     "create the id for the header based on the header text" in {
       val rootElem = RootElement(Header(1, List(Text("Header"))))
-      rewritten(rootElem) should be(RootElement(Title(List(Text("Header")), Id("header") + Style.title)))
+      rewritten(rootElem) should be(Right(RootElement(Title(List(Text("Header")), Id("header") + Style.title))))
     }
 
   }
@@ -487,11 +492,11 @@ class RewriteRulesSpec extends AnyWordSpec
         DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
-      rewritten(rootElem) should be(RootElement(
+      rewritten(rootElem) should be(Right(RootElement(
         Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
         Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-      ))
+      )))
     }
 
     "set the level of the header in a nested list of headers" in {
@@ -501,11 +506,12 @@ class RewriteRulesSpec extends AnyWordSpec
         DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
       )
-      rewritten(rootElem) should be(RootElement(
+      rewritten(rootElem) should be(Right(RootElement(
         Title(List(Text("Title")), Id("title") + Style.title),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), List(
           Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))),
-        Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)))
+        Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)
+      )))
     }
     
     "not create title nodes in the default configuration for orphan documents" in {
@@ -514,11 +520,11 @@ class RewriteRulesSpec extends AnyWordSpec
         DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
         DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
       )
-      rewritten(rootElem, withTitles = false) should be(RootElement(
+      rewritten(rootElem, withTitles = false) should be(Right(RootElement(
         Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),
         Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
         Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-      ))
+      )))
     }
 
   }
@@ -531,15 +537,16 @@ class RewriteRulesSpec extends AnyWordSpec
       val target1b = Citation("name", List(p("citation 2")))
       val msg = "More than one link target with id 'name' in path /doc"
       val rootElem = RootElement(target1a, target1b)
-      rewritten(rootElem) should be(RootElement
-      (invalidBlock(msg, target1a), invalidBlock(msg, target1b)))
+      rewritten(rootElem) should be(Right(RootElement(
+        invalidBlock(msg, target1a), invalidBlock(msg, target1b)
+      )))
     }
 
     "remove invalid external link definitions altogether" in {
       val target2a = LinkDefinition("id2", ExternalTarget("http://foo/"))
       val target2b = LinkDefinition("id2", ExternalTarget("http://bar/"))
       val rootElem = RootElement(target2a, target2b)
-      rewritten(rootElem) should be(RootElement.empty)
+      rewritten(rootElem) should be(Right(RootElement.empty))
     }
 
     "replace ambiguous references to duplicate ids with invalid spans" in {
@@ -547,7 +554,7 @@ class RewriteRulesSpec extends AnyWordSpec
       val target1b = LinkDefinition("name", ExternalTarget("http://foo/2"))
       val msg = "More than one link definition with id 'name' in path /doc"
       val rootElem = RootElement(p(linkIdRef()), target1a, target1b)
-      rewritten(rootElem) should be(RootElement(p(invalidSpan(msg, "<<name>>"))))
+      rewritten(rootElem) should be(Right(RootElement(p(invalidSpan(msg, "<<name>>")))))
     }
 
     "replace ambiguous references for a link alias pointing to duplicate ids with invalid spans" in {
@@ -555,7 +562,9 @@ class RewriteRulesSpec extends AnyWordSpec
       val targetMsg = "More than one link target with id 'ref' in path /doc"
       val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
       val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
-      rewritten(rootElem) should be(RootElement(p(invalidSpan(targetMsg, "[<name>]")), invalidTarget, invalidTarget))
+      rewritten(rootElem) should be(Right(RootElement(
+        p(invalidSpan(targetMsg, "[<name>]")), invalidTarget, invalidTarget
+      )))
     }
 
   }

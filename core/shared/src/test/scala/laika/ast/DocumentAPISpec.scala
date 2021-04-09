@@ -95,9 +95,9 @@ class DocumentAPISpec extends AnyFlatSpec
     
     val doc = defaultParser.parseUnresolved(markup).toOption.get.document
 
-    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRulesFor(doc))
-    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRulesFor(rewritten1))
-    rewritten1.content should be (rewritten2.content)
+    val rewritten1 = OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite)
+    val rewritten2 = rewritten1.flatMap(doc => OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite))
+    rewritten1.map(_.content) should be (rewritten2.map(_.content))
   }
 
   it should "allow to rewrite the document using a custom rule" in {
@@ -115,13 +115,14 @@ class DocumentAPISpec extends AnyFlatSpec
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))
     }
-    val rules = testRule ++ OperationConfig.default.rewriteRulesFor(raw.copy(position = TreePosition.root))
-    val rewritten = raw.rewrite(rules)
-    rewritten.content should be (RootElement(
+    val rewritten = OperationConfig.default
+      .rewriteRulesFor(raw.copy(position = TreePosition.root))
+      .map(r => raw.rewrite(testRule ++ r))
+    rewritten.map(_.content) should be (Right(RootElement(
       Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),
       Section(Header(1, List(Text("Section 2")), Id("section-2") + Style.section), List(p("Some more text")))
-    ))
+    )))
   }
 
 

@@ -75,9 +75,9 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree     = treeWithDoc(Root, "doc", rootElement(p("a")))
       val expected = treeWithDoc(Root, "doc", rootElement(p("/")))
-      tree.rewrite { cursor => RewriteRules.forBlocks { 
+      tree.rewrite { cursor => Right(RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
-      }}.assertEquals(expected)
+      })}.assertEquals(expected)
     }
   }
   
@@ -85,9 +85,9 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree     = treeWithDoc(Root, "doc", rootElement(p("a")))
       val expected = treeWithDoc(Root, "doc", rootElement(p("/")))
-      tree.rewrite { cursor => RewriteRules.forBlocks { 
+      tree.rewrite { cursor => Right(RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.parent.target.path.toString)) 
-      }}.assertEquals(expected)
+      })}.assertEquals(expected)
     }
   }
   
@@ -95,9 +95,9 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree     = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
       val expected = treeWithSubtree(Root, "sub", "doc", rootElement(p("/")))
-      tree.rewrite { cursor => RewriteRules.forBlocks { 
+      tree.rewrite { cursor => Right(RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
-      }}.assertEquals(expected)
+      })}.assertEquals(expected)
     }
   }
   
@@ -105,9 +105,9 @@ class DocumentTreeAPISpec extends AnyFlatSpec
     new TreeModel {
       val tree     = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
       val expected = treeWithSubtree(Root, "sub", "doc", rootElement(p("/sub")))
-      tree.rewrite { cursor => RewriteRules.forBlocks { 
+      tree.rewrite { cursor => Right(RewriteRules.forBlocks { 
         case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.parent.target.path.toString)) 
-      }}.assertEquals(expected)
+      })}.assertEquals(expected)
     }
   }
 
@@ -214,11 +214,11 @@ class DocumentTreeAPISpec extends AnyFlatSpec
   it should "allow to rewrite the tree using a custom rule" in {
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
-      val rewritten = tree rewrite { _ => RewriteRules.forSpans {
+      val rewritten = tree rewrite { _ => Right(RewriteRules.forSpans {
         case Text("a",_) => Replace(Text("x"))
-      }}
-      val target = rewritten.selectDocument("sub/doc")
-      target.get.content should be (RootElement(p("x"), p("b"), p("c")))
+      })}
+      val target = rewritten.map(_.selectDocument("sub/doc").map(_.content))
+      target should be (Right(Some(RootElement(p("x"), p("b"), p("c")))))
     }
   }
 

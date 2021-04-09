@@ -16,10 +16,13 @@
 
 package laika.ast
 
+import cats.data.NonEmptyChain
+import cats.syntax.all._
 import laika.ast.Path.Root
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder, ConfigValue, Key}
+import laika.config.{Config, ConfigEncoder, ConfigErrors, ConfigValue, DocumentConfigErrors, Key, TreeConfigErrors}
 import laika.parse.SourceFragment
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.link.{LinkValidator, TargetLookup, TargetValidation}
@@ -92,12 +95,12 @@ case class RootCursor(target: DocumentTreeRoot, targetFormat: Option[String] = N
   /** Returns a new tree root, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
-  def rewriteTarget (rules: DocumentCursor => RewriteRules): DocumentTreeRoot = {
-
-    val rewrittenCover = coverDocument.map(doc => doc.rewriteTarget(rules(doc)))
-    val rewrittenTree = tree.rewriteTarget(rules)
-
-    target.copy(coverDocument = rewrittenCover, tree = rewrittenTree)
+  def rewriteTarget (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = {
+    val result = for {
+      rewrittenCover <- coverDocument.map(_.rewriteTarget(rules).leftMap(NonEmptyChain.one)).sequence
+      rewrittenTree  <- tree.rewriteTarget(rules).leftMap(_.failures)
+    } yield target.copy(coverDocument = rewrittenCover, tree = rewrittenTree)
+    result.leftMap(TreeConfigErrors.apply)
   }
 
   /** Selects the tree configuration for the specified path, 
@@ -164,22 +167,29 @@ case class TreeCursor(target: DocumentTree,
   /** Returns a new tree, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
-  def rewriteTarget (rules: DocumentCursor => RewriteRules): DocumentTree = {
+  def rewriteTarget (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = {
       
     val sortedContent = NavigationOrder.applyTo(children, config, position)
 
-    val rewrittenTitle = titleDocument.map { doc =>
-      doc
+    val rewrittenTitle = titleDocument
+      .map { doc => doc
         .copy(config = AutonumberConfig.withoutSectionNumbering(doc.config))
-        .rewriteTarget(rules(doc))
-    }
+        .rewriteTarget(rules)
+        .leftMap(NonEmptyChain.one)
+      }
+      .sequence
     
-    val rewrittenContent = sortedContent map {
-      case doc: DocumentCursor => doc.rewriteTarget(rules(doc))
-      case tree: TreeCursor => tree.rewriteTarget(rules)
+    val rewrittenContent: Either[NonEmptyChain[DocumentConfigErrors], Seq[TreeContent]] = sortedContent.toList
+      .map {
+        case doc: DocumentCursor => doc.rewriteTarget(rules).leftMap(NonEmptyChain.one)
+        case tree: TreeCursor    => tree.rewriteTarget(rules).leftMap(_.failures)
+      }
+      .parSequence
+      
+    (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
+      target.copy(content = content, titleDocument = title, position = position)
     }
-
-    target.copy(content = rewrittenContent, titleDocument = rewrittenTitle, position = position)
+    .leftMap(TreeConfigErrors.apply)
   }
 
 }
@@ -220,6 +230,11 @@ case class DocumentCursor (target: Document,
   
   private lazy val validator = new LinkValidator(this, root.targetLookup)
 
+  /** Returns a new, rewritten document model based on the specified rewrite rules.
+    */
+  def rewriteTarget (rules: RewriteRulesBuilder): Either[DocumentConfigErrors, Document] = 
+    rules(this).map(rewriteTarget).leftMap(DocumentConfigErrors(path, _))
+  
   /** Returns a new, rewritten document model based on the specified rewrite rules.
    */
   def rewriteTarget (rules: RewriteRules): Document = {

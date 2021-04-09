@@ -16,9 +16,11 @@
 
 package laika.api.builder
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key}
 import laika.ast._
 import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
+import laika.config.Config.ConfigResult
 import laika.directive.DirectiveSupport
 import laika.directive.std.StandardDirectives
 import laika.factory.{MarkupFormat, RenderFormat}
@@ -129,13 +131,13 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRulesFor (root: DocumentTreeRoot): DocumentCursor => RewriteRules =
+  def rewriteRulesFor (root: DocumentTreeRoot): RewriteRulesBuilder =
     RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaultsFor(root, slugBuilder))
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRulesFor (doc: Document): RewriteRules = {
+  def rewriteRulesFor (doc: Document): ConfigResult[RewriteRules] = {
     val cursor = DocumentCursor(doc)
     rewriteRulesFor(cursor.root.target)(cursor)
   }

@@ -46,7 +46,7 @@ class FOConcatenationSpec extends AnyFlatSpec with Matchers with TestSourceBuild
   )
   
   "The FO concatenation" should "fail when there are invalid elements in the template result" in {
-    FOConcatenation(result, PDF.BookConfig(), OperationConfig.default) shouldBe Left(InvalidDocument(NonEmptyChain.one(invalidElement), Root / "merged.fo"))
+    FOConcatenation(result, PDF.BookConfig(), OperationConfig.default) shouldBe Left(InvalidDocument(Root / "merged.fo", invalidElement))
   }
   
   it should "succeed when there are errors in the template result, but the filter is None" in {

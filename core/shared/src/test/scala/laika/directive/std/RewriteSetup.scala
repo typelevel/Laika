@@ -16,6 +16,7 @@
 
 package laika.directive.std
 
+import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees}
@@ -55,18 +56,21 @@ trait RewriteSetup extends TemplateParserSetup with MarkupParserSetup {
       .tree
   }
   
-  private def rewriteTree (inputTree: DocumentTree) = {
-    val rules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree))
-    val tree  = inputTree.rewrite(rules)
-    TemplateRewriter
-      .applyTemplates(DocumentTreeRoot(tree), TemplateContext("html"))
-      .left.map(_.message)
-      .flatMap { res =>
-        res.tree
-          .selectDocument(CurrentTree / "tree-2" / "doc-6")
-          .map(_.content)
-          .toRight("document under test missing")
-      }
+  private def rewriteTree (inputTree: DocumentTree): Either[String, RootElement] = {
+    inputTree
+      .rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
+      .leftMap(_.message)
+      .flatMap { tree =>
+        TemplateRewriter
+          .applyTemplates(DocumentTreeRoot(tree), TemplateContext("html"))
+          .leftMap(_.message)
+          .flatMap { res =>
+            res.tree
+              .selectDocument(CurrentTree / "tree-2" / "doc-6")
+              .map(_.content)
+              .toRight("document under test missing")
+          }
+        }
   }
 
   def parseTemplateAndRewrite (template: String): Either[String, RootElement] = {

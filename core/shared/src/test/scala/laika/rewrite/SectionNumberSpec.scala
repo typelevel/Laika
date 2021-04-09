@@ -19,6 +19,7 @@ package laika.rewrite
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
+import laika.config.Config.ConfigResult
 import laika.config.ConfigParser
 import laika.parse.GeneratedSource
 import org.scalatest.flatspec.AnyFlatSpec
@@ -87,7 +88,7 @@ class SectionNumberSpec extends AnyFlatSpec
         .tree
     }
 
-    lazy val result: DocumentTree = {
+    lazy val result: ConfigResult[DocumentTree] = {
       val docTree = tree(sections)
       docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree)))
     }

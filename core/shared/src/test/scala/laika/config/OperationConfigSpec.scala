@@ -154,8 +154,7 @@ class OperationConfigSpec extends AnyWordSpec with Matchers {
 
       val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
-      val rewriteRule = config.rewriteRulesFor(doc)
-      doc.rewrite(rewriteRule) shouldBe expected
+      config.rewriteRulesFor(doc).map(doc.rewrite) shouldBe Right(expected)
     }
 
     "apply a rewrite rule from an app config and a rule from a markup extension successively" in new BundleSetup {
@@ -165,8 +164,7 @@ class OperationConfigSpec extends AnyWordSpec with Matchers {
       val doc =      Document(Root, RootElement(Literal("foo")))
       val expected = Document(Root, RootElement(Literal("foo!?")))
 
-      val rewriteRule = config.rewriteRulesFor(doc)
-      doc.rewrite(rewriteRule) shouldBe expected
+      config.rewriteRulesFor(doc).map(doc.rewrite) shouldBe Right(expected)
     }
 
     "apply a rewrite rule from an app config and a rule from a previously installed app config successively" in new BundleSetup {
@@ -179,8 +177,7 @@ class OperationConfigSpec extends AnyWordSpec with Matchers {
       val doc =      Document(Root, RootElement(Literal("foo")))
       val expected = Document(Root, RootElement(Literal("foo!?")))
 
-      val rewriteRule = config.rewriteRulesFor(doc)
-      doc.rewrite(rewriteRule) shouldBe expected
+      val rewriteRule = config.rewriteRulesFor(doc).map(doc.rewrite) shouldBe Right(expected)
     }
 
   }
