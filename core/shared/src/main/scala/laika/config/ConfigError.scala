@@ -16,6 +16,9 @@
 
 package laika.config
 
+import cats.syntax.all._
+import cats.data.NonEmptyChain
+import laika.ast.Path
 import laika.parse.Failure
 
 /** Base trait for all configuration errors that occurred
@@ -48,6 +51,24 @@ case class ConfigParserError(failure: Failure) extends ConfigError {
 /** Multiple errors that occurred when parsing HOCON input. */
 case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
   val message = failures.map(_.toString).mkString("Multiple errors parsing HOCON: ", ", ", "")
+}
+/** Multiple errors that occurred when processing configuration. */
+case class ConfigErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
+  val message = failures.map(_.toString).mkString_("Multiple errors processing configuration: ", ", ", "")
+}
+/** Multiple errors that occurred when processing configuration for a document. */
+case class DocumentConfigErrors(path: Path, failures: NonEmptyChain[ConfigError]) extends ConfigError {
+  val message = failures.map(_.toString).mkString_(s"Multiple errors processing configuration for document '$path': ", ", ", "")
+}
+object DocumentConfigErrors {
+  def apply (path: Path, error: ConfigError): DocumentConfigErrors = error match {
+    case ConfigErrors(errors) => new DocumentConfigErrors(path, errors)
+    case other                => new DocumentConfigErrors(path, NonEmptyChain.one(other))
+  }
+}
+/** Multiple errors that occurred when processing configuration for a document tree. */
+case class TreeConfigErrors(failures: NonEmptyChain[DocumentConfigErrors]) extends ConfigError {
+  val message = failures.map(_.toString).mkString_(s"Multiple errors processing configuration for document tree: ", ", ", "")
 }
 
 /** An error that occurred when resolving the interim result of a parsing operation. */

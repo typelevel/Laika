@@ -262,7 +262,7 @@ class TreeRendererSpec extends IOWordSpec
         val invalidDocuments = input.allDocuments.map { doc =>
           val msg = s"unresolved link reference: link${doc.path.name.last}"
           val invalidSpan = InvalidBlock(msg, generatedSource(s"[link${doc.path.name.last}]"))
-          InvalidDocument(NonEmptyChain.one(invalidSpan), doc.path)
+          InvalidDocument(doc.path, invalidSpan)
         }
         renderer
           .use (_

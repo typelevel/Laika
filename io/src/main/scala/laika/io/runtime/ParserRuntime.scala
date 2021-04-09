@@ -108,8 +108,9 @@ object ParserRuntime {
           staticDocuments = inputs.binaryInputs.map(doc => StaticDocument(doc.path, doc.formats)) ++ inputs.providedPaths
         )
         val finalTree = rootToRewrite.rewrite(op.config.rewriteRulesFor(rootToRewrite))
-        InvalidDocuments.from(finalTree, op.config.failOnMessages)
-          .toLeft(ParsedTree(finalTree, inputs.binaryInputs))
+        InvalidDocuments
+          .from(finalTree, op.config.failOnMessages)
+          .map(ParsedTree(_, inputs.binaryInputs))
       }
       
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {

@@ -17,10 +17,10 @@
 package laika.parse.markup
 
 import cats.implicits._
-import cats.data.NonEmptyChain
+import cats.data.{Chain, NonEmptyChain}
 import laika.ast._
 import laika.bundle.{ConfigProvider, MarkupExtensions}
-import laika.config.{ConfigError, ConfigParser}
+import laika.config.{ConfigError, ConfigParser, TreeConfigErrors}
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Parser, SourceCursor}
@@ -68,6 +68,13 @@ object DocumentParser {
       
       documents.map(formatDoc).mkString_("").trim
     }
+
+    def from (result: Either[TreeConfigErrors, DocumentTreeRoot], failOn: MessageFilter): Either[InvalidDocuments, DocumentTreeRoot] = {
+      result.fold(
+        errors => Left(InvalidDocuments(errors.failures.map(err => InvalidDocument(Left(err.failures), err.path)))),
+        root   => from(root, failOn).toLeft(root)
+      )
+    }
     
     def from (root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {
       val invalidDocs = root.allDocuments
@@ -78,18 +85,29 @@ object DocumentParser {
     
   }
   
-  case class InvalidDocument (invalidElements: NonEmptyChain[Invalid], path: Path) extends 
-    RuntimeException(s"One or more errors processing document '$path': ${invalidElements.map(InvalidDocument.formatElement(path)).toList.mkString}")
+  case class InvalidDocument (errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]], path: Path) extends 
+    RuntimeException(s"One or more errors processing document '$path': ${InvalidDocument.format(errors, path)}")
   
   object InvalidDocument {
+    
+    def apply (path: Path, error: ConfigError, errors: ConfigError*): InvalidDocument =
+      new InvalidDocument(Left(NonEmptyChain.fromChainPrepend(error, Chain.fromSeq(errors))), path)
+
+    def apply (path: Path, error: Invalid, errors: Invalid*): InvalidDocument =
+      new InvalidDocument(Right(NonEmptyChain.fromChainPrepend(error, Chain.fromSeq(errors))), path)
 
     def indent (lineContent: String): String = {
       val lines = lineContent.split('\n')
       lines.head + "\n  " + lines.last
     }
+
+    def format (errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]], path: Path): String =
+      errors.fold(
+        configErrors => configErrors.map(_.message).mkString_("\n"),
+        invalidElems => invalidElems.map(InvalidDocument.formatElement(path)).toList.mkString
+      )
     
-    def format (doc: InvalidDocument): String = 
-      doc.invalidElements.map(InvalidDocument.formatElement(doc.path)).toList.mkString
+    def format (doc: InvalidDocument): String = format(doc.errors, doc.path)
     
     def formatElement (docPath: Path)(element: Invalid): String = {
       val pathStr = element.source.path.fold("") { srcPath =>
@@ -104,7 +122,7 @@ object DocumentParser {
 
     def from (document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
       val invalidElements = document.invalidElements(failOn)
-      NonEmptyChain.fromSeq(invalidElements).map(InvalidDocument(_, document.path))
+      NonEmptyChain.fromSeq(invalidElements).map(inv => InvalidDocument(Right(inv), document.path))
     }
     
   }

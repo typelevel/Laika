@@ -607,10 +607,13 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       .root.template(DefaultTemplatePath.forHTML.name, ref)
       .build
       .tree
-    
-    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html")).toOption.get.tree
-    templatesApplied.content.collect{ case doc: Document => doc }.head.content should be (RootElement(BlockSequence("text")))
+
+    val result = for {
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
+      templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html"))
+    } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
+
+    result should be (Right(RootElement(BlockSequence("text"))))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -677,7 +680,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       link(1, 4, Seq(link(2, 5)))
     ))
     
-    val result = RootElement(
+    val expected = RootElement(
       title(1),
       TitledBlock(List(Text("This is the title")), List(navList), Style.nav),
       Section(header(2,2), List(Section(header(3,3), Nil))),
@@ -688,9 +691,11 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
     val template = TemplateDocument(DefaultTemplatePath.forHTML, 
       TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
-    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html")).toOption.get.tree
-    templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
+    val result = for {
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
+      templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html"))
+    } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
+    result should be (Right(expected))
   }
   
   

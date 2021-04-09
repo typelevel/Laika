@@ -16,8 +16,10 @@
 
 package laika.rewrite.nav
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.collection.Stack
+import laika.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.parse.GeneratedSource
 import laika.rewrite.nav
@@ -29,7 +31,7 @@ import scala.collection.mutable.ListBuffer
   * 
   * @author Jens Halm
   */
-object SectionBuilder extends (DocumentCursor => RewriteRules) {
+object SectionBuilder extends RewriteRulesBuilder {
 
   
   class DefaultRule (cursor: DocumentCursor) {
@@ -123,6 +125,6 @@ object SectionBuilder extends (DocumentCursor => RewriteRules) {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (cursor: DocumentCursor): RewriteRules = new DefaultRule(cursor).rewrite
+  def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right(new DefaultRule(cursor).rewrite)
   
 }

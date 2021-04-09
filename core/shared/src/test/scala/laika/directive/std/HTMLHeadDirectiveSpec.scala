@@ -16,6 +16,7 @@
 
 package laika.directive.std
 
+import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -49,9 +50,11 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
       val inputTree = buildTree(Some(templatePath.name, root.content))
-      val tree = inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree)))
-      val treeRoot = DocumentTreeRoot(tree, staticDocuments = static)
-      TemplateRewriter.applyTemplates(treeRoot, ctx).left.map(_.message)
+      for {
+        tree     <- inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree))).leftMap(_.message)
+        treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)
+        result   <- TemplateRewriter.applyTemplates(treeRoot, ctx).leftMap(_.message)
+      } yield result
     }
     
     for {

@@ -16,6 +16,7 @@
 
 package laika.bundle
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Config
 import laika.parse.css.CSSParsers
@@ -106,7 +107,7 @@ trait ExtensionBundle { self =>
     * which is a partial function from `Element` to `Option[Element]` that allows
     * to remove or replace elements from the tree.
     */
-  def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq.empty
+  def rewriteRules: Seq[RewriteRulesBuilder] = Seq.empty
 
   /** The overrides for renderers defined by this bundle.
     *

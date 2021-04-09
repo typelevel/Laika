@@ -16,6 +16,7 @@
 
 package laika.api.builder
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.bundle.ExtensionBundle
 
@@ -134,7 +135,7 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
   def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
     val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
-    override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(newRules)
+    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(newRules.andThen(Right(_)))
   })
 
 }

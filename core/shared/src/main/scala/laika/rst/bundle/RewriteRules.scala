@@ -16,7 +16,9 @@
 
 package laika.rst.bundle
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
+import laika.config.Config.ConfigResult
 import laika.parse.SourceFragment
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
 import laika.rst.ext.TextRoles.TextRole
@@ -29,7 +31,7 @@ import laika.rst.ext.TextRoles.TextRole
  * 
  *  @author Jens Halm
  */
-class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => laika.ast.RewriteRules) {
+class RewriteRules (textRoles: Seq[TextRole]) extends RewriteRulesBuilder {
 
   val baseRoleElements: Map[String, String => Span] = textRoles.map { role => (role.name, role.default) }.toMap
 
@@ -60,7 +62,7 @@ class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => laika.a
    *  for the specified document. These rules usually get executed
    *  alongside the generic default rules.
    */
-  def apply (cursor: DocumentCursor): laika.ast.RewriteRules = new DefaultRules(cursor).rewrite
+  def apply (cursor: DocumentCursor): ConfigResult[laika.ast.RewriteRules] = Right(new DefaultRules(cursor).rewrite)
   
   
 }

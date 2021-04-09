@@ -200,7 +200,7 @@ class TreeParserSpec extends IOWordSpec
       val invalidDocuments = inputs.map { case (path, markup) => 
         val msg = s"unresolved link id reference: link${markup.charAt(5)}"
         val invalidSpan = InvalidSpan(msg, source(markup, markup, path))
-        InvalidDocument(NonEmptyChain.one(invalidSpan), path)
+        InvalidDocument(path, invalidSpan)
       }
       val expectedError = InvalidDocuments(NonEmptyChain.fromChainUnsafe(Chain.fromSeq(invalidDocuments)))
       val expectedMessage =
@@ -260,7 +260,7 @@ class TreeParserSpec extends IOWordSpec
       val msg = "One or more errors processing directive 'foo': No template directive registered with name: foo"
       val invalidDocument = {
         val invalidSpan2 = InvalidSpan(msg, source("@:foo", Contents.brokenTemplate, DefaultTemplatePath.forHTML))
-        InvalidDocument(NonEmptyChain(invalidSpan2), docPath)
+        InvalidDocument(docPath, invalidSpan2)
       }
       val expectedError = InvalidDocuments(NonEmptyChain(invalidDocument))
       val expectedMessage =
@@ -270,6 +270,8 @@ class TreeParserSpec extends IOWordSpec
           |
           |  $${cursor.currentDocument.content} @:foo
           |                                    ^""".stripMargin
+      InvalidDocuments.format(expectedError.documents) shouldBe expectedMessage
+      
       parsedTree.map(root => 
         InvalidDocuments.from(root, MessageFilter.Error).map(_.documents.head)
       ).assertEquals(Some(invalidDocument))

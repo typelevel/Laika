@@ -17,11 +17,34 @@
 package laika.ast.sample
 
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TemplateDocument}
+import laika.config.Config.ConfigResult
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 
 trait DocumentTreeAssertions extends Matchers {
 
+  implicit class DocumentTreeRootEitherOps (val root: ConfigResult[DocumentTreeRoot]) {
+
+    def assertEquals (expected: DocumentTreeRoot): Unit = {
+      root.fold(
+        err  => fail(s"rewriting failed: $err"), 
+        root => root.assertEquals(expected)
+      )
+    }
+    
+  }
+
+  implicit class DocumentTreeEitherOps (val root: ConfigResult[DocumentTree]) {
+
+    def assertEquals (expected: DocumentTree): Unit = {
+      root.fold(
+        err  => fail(s"rewriting failed: $err"),
+        root => root.assertEquals(expected)
+      )
+    }
+
+  }
+  
   implicit class DocumentTreeRootOps (val root: DocumentTreeRoot) {
 
     def assertEquals (expected: DocumentTreeRoot): Unit = {
