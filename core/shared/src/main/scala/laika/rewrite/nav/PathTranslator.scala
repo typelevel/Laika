@@ -106,12 +106,14 @@ private[laika] case class TranslatorConfig(versions: Option[Versions],
 
 private[laika] object TranslatorConfig {
   def readFrom (config: Config): ConfigResult[TranslatorConfig] = for {
-    versions <- config.getOpt[Versions]
-    siteBaseURL <- config.getOpt[String](LaikaKeys.siteBaseURL)
-  } yield TranslatorConfig(versions, TitleDocumentConfig.inputName(config), TitleDocumentConfig.outputName(config), siteBaseURL)
+    versions           <- config.getOpt[Versions]
+    titleDocInputName  <- TitleDocumentConfig.inputName(config)
+    titleDocOutputName <- TitleDocumentConfig.outputName(config)
+    siteBaseURL        <- config.getOpt[String](LaikaKeys.siteBaseURL)
+  } yield TranslatorConfig(versions, titleDocInputName, titleDocOutputName, siteBaseURL)
   
   val empty: TranslatorConfig = 
-    TranslatorConfig(None, TitleDocumentConfig.inputName(Config.empty), TitleDocumentConfig.outputName(Config.empty), None)
+    TranslatorConfig(None, TitleDocumentConfig.defaultInputName, TitleDocumentConfig.defaultOutputName, None)
 }
 
 private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {

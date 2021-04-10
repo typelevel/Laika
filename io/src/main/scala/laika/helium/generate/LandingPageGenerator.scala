@@ -17,10 +17,11 @@
 package laika.helium.generate
 
 import cats.data.Kleisli
+import cats.syntax.all._
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{/, Document, RootElement}
-import laika.config.LaikaKeys
+import laika.config.{ConfigException, LaikaKeys}
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor
@@ -34,27 +35,33 @@ private[helium] object LandingPageGenerator {
     }.getOrElse((RootElement.empty, tree.root.config))
     
     val titleDocument = tree.root.titleDocument.fold(
-      Document(
-        path = Root / TitleDocumentConfig.inputName(tree.root.config),
-        content = landingPageContent, 
-        config = landingPageConfig.withValue(LaikaKeys.versioned, false).build
-      )
+      TitleDocumentConfig.inputName(tree.root.config).map { inputName =>
+        Document(
+          path = Root / inputName,
+          content = landingPageContent, 
+          config = landingPageConfig.withValue(LaikaKeys.versioned, false).build
+        )
+      }
     ) { titleDoc =>
-      titleDoc.copy(
+      Right(titleDoc.copy(
         content = RootElement(titleDoc.content.content ++ landingPageContent.content),
         config = landingPageConfig.withFallback(titleDoc.config).withValue(LaikaKeys.versioned, false).build
-      )
+      ))
     }
     
-    val titleDocWithTemplate =
-      if (titleDocument.config.hasKey(LaikaKeys.template)) titleDocument
-      else titleDocument.copy(config = titleDocument.config.withValue(LaikaKeys.template, "landing.template.html").build)
+    val result = titleDocument.map { doc =>
+      val titleDocWithTemplate =
+        if (doc.config.hasKey(LaikaKeys.template)) doc
+        else doc.copy(config = doc.config.withValue(LaikaKeys.template, "landing.template.html").build)
+        
+      // TODO - add API for replaceDocument, removeDocument, appendDocument, prependDocument
+      tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(
+        titleDocument = Some(titleDocWithTemplate),
+        content = tree.root.tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
+      )))
+    }
     
-    // TODO - add API for replaceDocument, removeDocument, appendDocument, prependDocument
-    Sync[F].pure(tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(
-      titleDocument = Some(titleDocWithTemplate),
-      content = tree.root.tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
-    ))))
+    Sync[F].fromEither(result.leftMap(ConfigException.apply))
   }
 
 }

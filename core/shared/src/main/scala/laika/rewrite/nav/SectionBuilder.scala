@@ -21,8 +21,6 @@ import laika.ast._
 import laika.collection.Stack
 import laika.config.Config.ConfigResult
 import laika.config.LaikaKeys
-import laika.parse.GeneratedSource
-import laika.rewrite.nav
 
 import scala.collection.mutable.ListBuffer
 
@@ -34,16 +32,11 @@ import scala.collection.mutable.ListBuffer
 object SectionBuilder extends RewriteRulesBuilder {
 
   
-  class DefaultRule (cursor: DocumentCursor) {
+  private class DefaultRule (autonumberConfig: AutonumberConfig, extractTitle: Boolean, position: TreePosition) {
 
-    val (errorBlock, autonumberConfig) = cursor.config.getOpt[nav.AutonumberConfig].fold(
-      error => (Some(InvalidBlock(error.message, GeneratedSource)), AutonumberConfig.defaults), // TODO - error handling should happen at an earlier stage, before the rewrite phase
-      opt   => (None, opt.getOrElse(AutonumberConfig.defaults))
-    )
-    
     def addNumber (spans: Seq[Span], position: TreePosition): Seq[Span] = position.toSpan +: spans
     
-    class Builder (header: Header, id: String, val position: TreePosition) {
+    class Builder (header: Header, val position: TreePosition) {
     
       val titleWithNumber: Seq[Span] = 
         if (autonumberConfig.sections && position.depth <= autonumberConfig.maxDepth) addNumber(header.content, position)
@@ -66,11 +59,7 @@ object SectionBuilder extends RewriteRulesBuilder {
     
     def buildSections (document: RootElement): RootElement = {
 
-      val docPosition = if (autonumberConfig.documents) cursor.position else TreePosition.root
-      
-      val extractTitle = cursor.config
-        .get[Boolean](LaikaKeys.firstHeaderAsTitle)
-        .getOrElse(cursor.position != TreePosition.orphan)
+      val docPosition = if (autonumberConfig.documents) position else TreePosition.root
       
       val (titleSection, rest) = if (!extractTitle) (Nil, document.content) else {
         
@@ -89,7 +78,7 @@ object SectionBuilder extends RewriteRulesBuilder {
       val sectionStructure: Seq[Block] = {
         
         val stack = new Stack[Builder]
-        stack.push(new Builder(Header(0,Nil), "", docPosition)) 
+        stack.push(new Builder(Header(0,Nil), docPosition)) 
         
         def closeSections (toLevel: Int): Int = {
           var nextPos = 1
@@ -102,9 +91,9 @@ object SectionBuilder extends RewriteRulesBuilder {
         }
 
         rest.foreach { 
-          case h @ Header(level, _, Id(id)) => 
+          case h @ Header(level, _, _) => 
             val nextPos = closeSections(level)
-            stack.push(new Builder(h, id, stack.top.position.forChild(nextPos)))
+            stack.push(new Builder(h, stack.top.position.forChild(nextPos)))
           case block => 
             stack.top += block
         }
@@ -114,7 +103,7 @@ object SectionBuilder extends RewriteRulesBuilder {
         stack.pop.toSection.content
       }
       
-      RootElement(errorBlock.toSeq ++ titleSection ++ sectionStructure)
+      RootElement(titleSection ++ sectionStructure)
     }
 
     val rewrite: RewriteRules = RewriteRules.forBlocks { 
@@ -125,6 +114,9 @@ object SectionBuilder extends RewriteRulesBuilder {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right(new DefaultRule(cursor).rewrite)
+  def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = for {
+    autonumbering      <- cursor.config.getOpt[AutonumberConfig].map(_.getOrElse(AutonumberConfig.defaults))
+    firstHeaderAsTitle <- cursor.config.get(LaikaKeys.firstHeaderAsTitle, cursor.position != TreePosition.orphan)
+  } yield new DefaultRule(autonumbering, firstHeaderAsTitle, cursor.position).rewrite
   
 }
