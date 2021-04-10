@@ -97,20 +97,20 @@ object TreeResultBuilder {
     val resolvedConfig = result.hocon.foldLeft[Either[ConfigError, Config]](Right(mergedGeneratedConfig)) {
       case (acc, unresolved) => acc.flatMap(base => unresolved.config.resolve(Origin(TreeScope, unresolved.path), base, includes))
     }
+
+    def isTitleDoc (titleName: String)(doc: TreeContent): Boolean = doc.path.basename == titleName
     
-    resolvedConfig.flatMap { treeConfig =>
-      val titleName = titleDocName.getOrElse(TitleDocumentConfig.inputName(treeConfig))
-      def isTitleDoc (doc: TreeContent): Boolean = doc.path.basename == titleName
-      val resolvedContent: Either[ConfigError, Vector[TreeContent]] = result.content.toVector.traverse {
+    for {
+      treeConfig      <- resolvedConfig
+      titleName       <- titleDocName.fold(TitleDocumentConfig.inputName(treeConfig))(Right.apply)
+      resolvedContent <- result.content.toVector.traverse {
         case tree: TreeResult => resolveConfig(tree, treeConfig, includes, Some(titleName))
         case markup: MarkupResult => resolveConfig(markup.doc, treeConfig, includes)
         case doc: DocumentResult => resolveConfig(doc.doc, treeConfig, includes)
       }
-      
-      for {
-        content <- resolvedContent
-        title   = content.collectFirst { case d: Document if isTitleDoc(d) => d }
-      } yield DocumentTree(result.path, content.filterNot(isTitleDoc), title, result.templates, treeConfig)
+      title   = resolvedContent.collectFirst { case d: Document if isTitleDoc(titleName)(d) => d }
+    } yield {
+      DocumentTree(result.path, resolvedContent.filterNot(isTitleDoc(titleName)), title, result.templates, treeConfig)
     }
   }
 

@@ -16,7 +16,9 @@
 
 package laika.rewrite.nav
 
+import cats.instances.map
 import laika.ast.Path
+import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys}
 
 /** Configuration for a cover image for e-books (EPUB or PDF).
@@ -64,28 +66,28 @@ case class CoverImages (default: Option[Path], classified: Map[String, Path]) {
 
 object CoverImages {
   
-  def forPDF (config: Config): CoverImages = extract(config, LaikaKeys.root.child("pdf"), LaikaKeys.root)
+  def forPDF (config: Config): ConfigResult[CoverImages] = extract(config, LaikaKeys.root.child("pdf"), LaikaKeys.root)
   
-  def forEPUB (config: Config): CoverImages = extract(config, LaikaKeys.root.child("epub"), LaikaKeys.root)
+  def forEPUB (config: Config): ConfigResult[CoverImages] = extract(config, LaikaKeys.root.child("epub"), LaikaKeys.root)
   
-  private def extract (config: Config, mainKey: Key, fallbackKey: Key): CoverImages = {
+  private def extract (config: Config, mainKey: Key, fallbackKey: Key): ConfigResult[CoverImages] = {
     
-    def extract (key: Key): CoverImages = {
-      val classified = config
-        .get[Seq[CoverImage]](key.child(LaikaKeys.coverImages.local))
-        .getOrElse(Nil)
-      val default = config
-        .getOpt[Path](key.child(LaikaKeys.coverImage.local))
-        .toOption.flatten
-        .orElse(classified.find(_.classifier.isEmpty).map(_.path))
+    def extract (key: Key): ConfigResult[CoverImages] = for {
+      classified <- config.get[Seq[CoverImage]](key.child(LaikaKeys.coverImages.local), Nil)
+      default    <- config
+                      .getOpt[Path](key.child(LaikaKeys.coverImage.local))
+                      .map(_.orElse(classified.find(_.classifier.isEmpty).map(_.path)))
+    } yield {
       val classifiedMap = classified
         .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
         .toMap
-      
       CoverImages(default, classifiedMap)
     }
     
-    extract(mainKey).withFallback(extract(fallbackKey))
+    for {
+      mainConf <- extract(mainKey)
+      fallback <- extract(fallbackKey)
+    } yield mainConf.withFallback(fallback)
   }
   
 }

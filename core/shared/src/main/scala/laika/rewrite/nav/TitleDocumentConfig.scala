@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import laika.config.Config.ConfigResult
 import laika.config.{Config, LaikaKeys}
 
 /** Configuration for the names of title documents in the input and output trees.
@@ -24,17 +25,17 @@ import laika.config.{Config, LaikaKeys}
   */
 object TitleDocumentConfig {
 
-  private val defaultInputName: String = "README"
-  private val defaultOutputName: String = "index"
+  val defaultInputName: String = "README"
+  val defaultOutputName: String = "index"
 
   /** The name to denote a title document in an input tree as configured in the specified instance.
     */
-  def inputName (config: Config): String =
-    config.get[String](LaikaKeys.titleDocuments.inputName).toOption.getOrElse(defaultInputName)
+  def inputName (config: Config): ConfigResult[String] =
+    config.get[String](LaikaKeys.titleDocuments.inputName, defaultInputName)
 
   /** The name to assign to a title document before rendering as configured in the specified instance.
     */
-  def outputName (config: Config): String =
-    config.get[String](LaikaKeys.titleDocuments.outputName).toOption.getOrElse(defaultOutputName)
+  def outputName (config: Config): ConfigResult[String] =
+    config.get[String](LaikaKeys.titleDocuments.outputName, defaultOutputName)
 
 }

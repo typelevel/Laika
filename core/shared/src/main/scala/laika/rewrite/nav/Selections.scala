@@ -18,6 +18,7 @@ package laika.rewrite.nav
 
 import cats.data.{Chain, NonEmptyChain}
 import laika.ast.DocumentTreeRoot
+import laika.config.Config.ConfigResult
 import laika.config._
 
 /** Groups configuration for multiple @:select directives.
@@ -77,7 +78,7 @@ object Selections {
 
   implicit val encoder: ConfigEncoder[Selections] = ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
 
-  val empty = Selections(Nil)
+  val empty: Selections = Selections(Nil)
 
   /** Groups configuration for one or more @:select directives in an instance that can be passed to Laika configuration.
     * 
@@ -110,10 +111,10 @@ object Selections {
     * In contrast to the `createCombinations` method this one is mostly useful for features like generating
     * a download page for all e-book artifacts produced by the renderer as it also contains the label information.
     */
-  def createCombinationsConfig (config: Config): Seq[Seq[ChoiceConfig]] = {
+  def createCombinationsConfig (config: Config): ConfigResult[Seq[Seq[ChoiceConfig]]] = {
 
-    def createCombinations (value: Selections): Seq[Seq[ChoiceConfig]] =
-      value.selections
+    def createCombinations (value: Option[Selections]): Seq[Seq[ChoiceConfig]] =
+      value.getOrElse(Selections.empty).selections
         .filter(_.separateEbooks)
         .map(_.choices.toChain.toList.map(List(_)))
         .reduceLeftOption { (as, bs) =>
@@ -121,59 +122,56 @@ object Selections {
         }
         .getOrElse(Nil)
 
-    config.get[Selections].fold(
-      _ => Nil,
-      choiceGroups => createCombinations(choiceGroups)
-    )
+    config.getOpt[Selections].map(createCombinations)
   }
 
-  private[laika] def createCombinations (config: Config): NonEmptyChain[(Config, Classifiers)] = {
-    
-    val epubCoverImages = CoverImages.forEPUB(config)
-    val pdfCoverImages = CoverImages.forPDF(config)
-    
-    def createCombinations(value: Selections): NonEmptyChain[Selections] = {
-      val (separated, nonSeparated) = value.selections.partition(_.separateEbooks)
-      
-      val combinations = separated
-        .map { group =>
-          group.choices.map(choice => NonEmptyChain.one(group.select(choice)))
-        }
-        .reduceLeftOption { (as, bs) =>
-          for {a <- as; b <- bs} yield a ++ b
-        }
+  private[laika] def createCombinations (config: Config): ConfigResult[NonEmptyChain[(Config, Classifiers)]] = {
 
-      combinations.fold(NonEmptyChain.one(value))(_.map {
-        combined => Selections(combined.toChain.toList ++ nonSeparated)
-      })
-    }
+    val baseKey = "metadata.identifier"
     
-    def populateConfig (value: Selections, configBuilder: ConfigBuilder): ConfigBuilder = {
-      val classifier = value.getClassifiers.value.mkString("-")
-      val withEPUB = epubCoverImages.getImageFor(classifier).fold(configBuilder) { img =>
-        configBuilder.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
+    for {
+      selections      <- config.getOpt[Selections].map(_.getOrElse(Selections.empty))
+      epubCoverImages <- CoverImages.forEPUB(config)
+      pdfCoverImages  <- CoverImages.forPDF(config)
+      defaultId       <- config.getOpt[String](baseKey)
+      epubId          <- config.getOpt[String](s"epub.$baseKey").map(_.orElse(defaultId))
+      pdfId           <- config.getOpt[String](s"pdf.$baseKey").map(_.orElse(defaultId))
+    } yield {
+
+      def createCombinations (value: Selections): NonEmptyChain[Selections] = {
+        val (separated, nonSeparated) = value.selections.partition(_.separateEbooks)
+
+        val combinations = separated
+          .map { group =>
+            group.choices.map(choice => NonEmptyChain.one(group.select(choice)))
+          }
+          .reduceLeftOption { (as, bs) =>
+            for {a <- as; b <- bs} yield a ++ b
+          }
+
+        combinations.fold(NonEmptyChain.one(value))(_.map {
+          combined => Selections(combined.toChain.toList ++ nonSeparated)
+        })
       }
-      val withImages = pdfCoverImages.getImageFor(classifier).fold(withEPUB) { img =>
-        withEPUB.withValue(LaikaKeys.root.child("pdf").child(LaikaKeys.coverImage.local), img)
+
+      def populateConfig (value: Selections, configBuilder: ConfigBuilder): ConfigBuilder = {
+        val classifier = value.getClassifiers.value.mkString("-")
+        val withEPUB = epubCoverImages.getImageFor(classifier).fold(configBuilder) { img =>
+          configBuilder.withValue(LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local), img)
+        }
+        val withImages = pdfCoverImages.getImageFor(classifier).fold(withEPUB) { img =>
+          withEPUB.withValue(LaikaKeys.root.child("pdf").child(LaikaKeys.coverImage.local), img)
+        }
+        if (classifier.isEmpty) withImages else withImages
+          .withValue(s"epub.$baseKey", epubId.map(_ + classifier))
+          .withValue(s"pdf.$baseKey", pdfId.map(_ + classifier))
       }
-      if (classifier.isEmpty) withImages else {
-        val baseKey = "metadata.identifier"
-        val fallback = config.get[String](baseKey).toOption
-        val epubId = config.get[String](s"epub.$baseKey").toOption.orElse(fallback).map(_ + classifier)
-        val pdfId = config.get[String](s"pdf.$baseKey").toOption.orElse(fallback).map(_ + classifier)
-        withImages
-          .withValue(s"epub.$baseKey", epubId)
-          .withValue(s"pdf.$baseKey", pdfId)
-      }
-    }
-    
-    config.get[Selections].fold(
-      _ => NonEmptyChain.one((config, Classifiers(Nil))),
-      choiceGroups => createCombinations(choiceGroups).map { newConfig =>
+
+      createCombinations(selections).map { newConfig =>
         val populatedConfig = populateConfig(newConfig, config.withValue(newConfig)).build
         (populatedConfig, newConfig.getClassifiers)
       }
-    )
+    }
   }
 
   /** Creates all valid combinations of choices for the given configuration instance.
@@ -196,8 +194,8 @@ object Selections {
     * See the documentation for the `@:select` directive in the manual in this case for the full context
     * of this feature.
     */
-  def createCombinations (root: DocumentTreeRoot): NonEmptyChain[(DocumentTreeRoot, Classifiers)] = {
-    createCombinations(root.config).map { case (config, classifiers) => (root.withConfig(config), classifiers) }
+  def createCombinations (root: DocumentTreeRoot): ConfigResult[NonEmptyChain[(DocumentTreeRoot, Classifiers)]] = {
+    createCombinations(root.config).map(_.map { case (config, classifiers) => (root.withConfig(config), classifiers) })
   }
   
 }

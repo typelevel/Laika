@@ -184,11 +184,4 @@ class SectionNumberSpec extends AnyFlatSpec
     }
   }
 
-  it should "insert an invalid element for invalid configuration" in {
-    new SectionsWithConfigError with InvalidConfig {
-      result.assertEquals(expected)
-    }
-  }
-
-
 }

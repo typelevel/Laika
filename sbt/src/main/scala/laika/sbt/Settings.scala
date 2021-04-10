@@ -21,6 +21,7 @@ import cats.effect.unsafe.implicits.global
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
 import laika.bundle.{BundleOrigin, ExtensionBundle}
+import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
@@ -128,7 +129,7 @@ object Settings {
   }
   
   val artifactBaseName: Initialize[String] = setting {
-    parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName).getOrElse(name.value)
+    validated(parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName, name.value))
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.
@@ -140,5 +141,13 @@ object Settings {
       (laikaAST / target).value
     )
   }
+
+  /** Adapts a Laika configuration value to the synchronous/impure APIs of sbt.
+    * This method throws an exception in case the provided value is a `Left`.
+    */
+  def validated[T] (value: ConfigResult[T]): T = value.fold[T](
+    err => throw new RuntimeException(s"Error in project configuration: ${err.message}"),
+    identity
+  )
 
 }

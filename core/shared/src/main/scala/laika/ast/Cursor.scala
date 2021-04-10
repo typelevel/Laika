@@ -169,7 +169,9 @@ case class TreeCursor(target: DocumentTree,
     */
   def rewriteTarget (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = {
       
-    val sortedContent = NavigationOrder.applyTo(children, config, position)
+    val sortedContent = NavigationOrder
+      .applyTo(children, config, position)
+      .leftMap(err => NonEmptyChain.one(DocumentConfigErrors(path, err)))
 
     val rewrittenTitle = titleDocument
       .map { doc => doc
@@ -179,12 +181,12 @@ case class TreeCursor(target: DocumentTree,
       }
       .sequence
     
-    val rewrittenContent: Either[NonEmptyChain[DocumentConfigErrors], Seq[TreeContent]] = sortedContent.toList
+    val rewrittenContent: Either[NonEmptyChain[DocumentConfigErrors], Seq[TreeContent]] = sortedContent.flatMap(_.toList
       .map {
         case doc: DocumentCursor => doc.rewriteTarget(rules).leftMap(NonEmptyChain.one)
         case tree: TreeCursor    => tree.rewriteTarget(rules).leftMap(_.failures)
       }
-      .parSequence
+      .parSequence)
       
     (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
       target.copy(content = content, titleDocument = title, position = position)

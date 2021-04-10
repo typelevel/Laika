@@ -31,6 +31,7 @@ import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
+import Settings.validated
 
 import scala.annotation.tailrec
 
@@ -47,7 +48,7 @@ object Tasks {
     */
   val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
     val config = Settings.parserConfig.value.baseConfig
-    val targetDir = (laikaSite / target).value / SiteConfig.apiPath(config).relative.toString
+    val targetDir = (laikaSite / target).value / validated(SiteConfig.apiPath(config)).relative.toString
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
@@ -85,8 +86,8 @@ object Tasks {
     val userConfig = laikaConfig.value
     val parser = Settings.parser.value
     val baseConfig = Settings.parserConfig.value.baseConfig
-    val downloadPath = (laikaSite / target).value / SiteConfig.downloadPath(baseConfig).relative.toString
-    val apiPath = SiteConfig.apiPath(baseConfig)
+    val downloadPath = (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
+    val apiPath = validated(SiteConfig.apiPath(baseConfig))
     val artifactBaseName = Settings.artifactBaseName.value
 
     lazy val tree = {
@@ -102,7 +103,7 @@ object Tasks {
     
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
-      val apiPath = targetDir / SiteConfig.apiPath(baseConfig).relative.toString
+      val apiPath = targetDir / validated(SiteConfig.apiPath(baseConfig)).relative.toString
       val versions = tree.root.config.get[Versions].toOption.map { versions =>
         (versions.olderVersions ++ versions.newerVersions).map(v => new File(targetDir, v.pathSegment)).allPaths
       }.reduceLeftOption(_ +++ _).getOrElse(PathFinder.empty)
@@ -144,7 +145,7 @@ object Tasks {
         .withTheme(laikaTheme.value)
         .build 
         .use { renderer =>
-          val roots = Selections.createCombinations(tree.root)
+          val roots = validated(Selections.createCombinations(tree.root))
           roots.map { case (root, classifiers) =>
             val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
             val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
@@ -217,7 +218,7 @@ object Tasks {
     val zipFile = (Laika / target).value / artifactName
     streams.value.log.info(s"Packaging $zipFile ...")
 
-    sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile)
+    sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile, None)
 
     streams.value.log.info("Done packaging.")
     zipFile

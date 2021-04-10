@@ -18,6 +18,7 @@ package laika.rewrite.nav
 
 import laika.config.{Config, LaikaKeys}
 import laika.ast._
+import laika.config.Config.ConfigResult
 
 /** Responsible for applying the navigation order to the 
  *  contents of a document tree, either based on user-specified
@@ -28,7 +29,7 @@ import laika.ast._
  */
 object NavigationOrder {
   
-  def applyTo (content: Seq[Cursor], config: Config, parentPosition: TreePosition): Seq[Cursor] = {
+  def applyTo (content: Seq[Cursor], config: Config, parentPosition: TreePosition): ConfigResult[Seq[Cursor]] = {
 
     def reAssignPosition (cursor: Cursor, position: TreePosition, configF: Config => Config = identity): Cursor = cursor match {
       case doc: DocumentCursor => doc.copy(
@@ -48,18 +49,19 @@ object NavigationOrder {
         case (cursor, index) => reAssignPosition(cursor, parentPosition.forChild(index + 1))
       }
 
-    val sorted = config.get[Seq[String]](LaikaKeys.navigationOrder).toOption.fold {
-      content.sortBy {
-        case d: DocumentCursor => (0, d.path.name)
-        case t: TreeCursor     => (1, t.path.name)
-      }
-    } { list =>
-      content.sortBy { nav =>
-        list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
-      }
-    } 
-
-    reAssignPositions(sorted)
+    config
+      .getOpt[Seq[String]](LaikaKeys.navigationOrder)
+      .map(_.fold {
+        content.sortBy {
+          case d: DocumentCursor => (0, d.path.name)
+          case t: TreeCursor     => (1, t.path.name)
+        }
+      } { list =>
+        content.sortBy { nav =>
+          list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
+        }
+      })
+      .map(reAssignPositions)
   }
 
 }

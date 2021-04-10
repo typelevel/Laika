@@ -41,30 +41,32 @@ object HTMLHeadDirectives {
   private def renderLinks (cursor: DocumentCursor,
                            suffixFilter: String => Boolean,
                            includes: NonEmptyChain[Path],
-                           embedIn: (TemplateSpan, TemplateSpan)): TemplateSpan = {
+                           embedIn: (TemplateSpan, TemplateSpan)): Either[String, TemplateSpan] = {
 
-    val excluded = Seq(cursor.root.config.get[Path](LaikaKeys.site.apiPath).toOption.getOrElse(Root / "api"))
-    val format = cursor.root.targetFormat
-    
-    val preFiltered = cursor.root.target.staticDocuments.filter { doc =>
-      doc.path.suffix.exists(suffixFilter) &&
-        !excluded.exists(doc.path.isSubPath) &&
-        format.exists(doc.formats.contains)
-    }
-
-    val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
-      val (newIncludes, remaining) = candidates.partition(_.path.isSubPath(include))
-      (remaining, acc ++ newIncludes.map(_.path))
-    }._2
-
-    val allLinks: Seq[TemplateSpan] = included
-      .map { path =>
-        Seq(embedIn._1, TemplateElement(RawLink.internal(path)), embedIn._2)
+    cursor.root.config.get[Path](LaikaKeys.site.apiPath, Root / "api").leftMap(_.message).map { excluded =>
+      
+      val format = cursor.root.targetFormat
+      
+      val preFiltered = cursor.root.target.staticDocuments.filter { doc =>
+        doc.path.suffix.exists(suffixFilter) &&
+          !doc.path.isSubPath(excluded) &&
+          format.exists(doc.formats.contains)
       }
-      .reduceOption((s1, s2) => s1 ++: TemplateString("\n    ") +: s2)
-      .getOrElse(Seq())
-    
-    TemplateSpanSequence(allLinks)
+  
+      val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
+        val (newIncludes, remaining) = candidates.partition(_.path.isSubPath(include))
+        (remaining, acc ++ newIncludes.map(_.path))
+      }._2
+  
+      val allLinks: Seq[TemplateSpan] = included
+        .map { path =>
+          Seq(embedIn._1, TemplateElement(RawLink.internal(path)), embedIn._2)
+        }
+        .reduceOption((s1, s2) => s1 ++: TemplateString("\n    ") +: s2)
+        .getOrElse(Seq())
+      
+      TemplateSpanSequence(allLinks)
+    }
   }
   
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
@@ -76,7 +78,7 @@ object HTMLHeadDirectives {
     *
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
-  lazy val linkCSS: Templates.Directive = Templates.create("linkCSS") {
+  lazy val linkCSS: Templates.Directive = Templates.eval("linkCSS") {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val suffixFilter: String => Boolean = cursor.root.targetFormat match {
@@ -98,7 +100,7 @@ object HTMLHeadDirectives {
     *
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
-  lazy val linkJS: Templates.Directive = Templates.create("linkJS") {
+  lazy val linkJS: Templates.Directive = Templates.eval("linkJS") {
     import Templates.dsl._
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
       val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
