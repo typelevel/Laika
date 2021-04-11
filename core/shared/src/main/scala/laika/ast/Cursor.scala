@@ -22,11 +22,11 @@ import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder, ConfigValue, DocumentConfigErrors, Key, TreeConfigErrors}
+import laika.config.{Config, ConfigEncoder, ConfigValue, DocumentConfigErrors, Key, LaikaKeys, TreeConfigErrors}
 import laika.parse.SourceFragment
 import laika.rewrite.ReferenceResolver
-import laika.rewrite.link.{LinkValidator, TargetLookup, TargetValidation}
-import laika.rewrite.nav.{AutonumberConfig, NavigationOrder}
+import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup, TargetValidation}
+import laika.rewrite.nav.{AutonumberConfig, NavigationOrder, TargetFormats}
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -117,9 +117,31 @@ case class RootCursor private (target: DocumentTreeRoot, targetFormat: Option[St
 
 object RootCursor {
   
-  def apply (target: DocumentTreeRoot, targetFormat: Option[String] = None): Either[TreeConfigErrors, RootCursor] =
-    Right(new RootCursor(target, targetFormat))
-  
+  def apply (target: DocumentTreeRoot, targetFormat: Option[String] = None): Either[TreeConfigErrors, RootCursor] = {
+    
+    /* Configuration values used by rewrite rules are validated in the respective builders for those rules.
+       Here we only validate configuration used by the cursor implementation itself.
+       We fail early here, as the actual access of these values happens in a lazily created, recursive structure,
+       where it would not be beneficial to expose error handling in every step. */
+    
+    def validate (doc: Document): Option[DocumentConfigErrors] = List(
+      doc.config.getOpt[Boolean](LaikaKeys.versioned).toEitherNec,
+      doc.config.getOpt[Boolean](LaikaKeys.validateLinks).toEitherNec,
+      doc.config.getOpt[String](LaikaKeys.title).toEitherNec,
+      doc.config.getOpt[TargetFormats].toEitherNec,
+    ).parSequence.left.toOption.map(DocumentConfigErrors.apply(doc.path, _))
+
+    def validateRoot: Seq[DocumentConfigErrors] = List(
+      target.config.getOpt[String](LaikaKeys.siteBaseURL).toEitherNec,
+      target.config.getOpt[LinkConfig].toEitherNec,
+    ).parSequence.fold(errs => Seq(DocumentConfigErrors(Root, errs)), _ => Nil)
+    
+    NonEmptyChain
+      .fromSeq(target.allDocuments.flatMap(validate) ++ validateRoot)
+      .map(TreeConfigErrors.apply)
+      .toLeft(new RootCursor(target, targetFormat))
+  }
+
 }
 
 /** Cursor for an entire document tree, providing access to all
