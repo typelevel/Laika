@@ -125,7 +125,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case Paragraph(Seq(img: Image), _)    => fmt.child(SpanSequence(Seq(img), Styles("align-center", "default-space")))
         case e @ Paragraph(content,_)         => fmt.block(e, content)
         case e @ ParsedLiteralBlock(content,_)=> fmt.blockWithWS(e, content)
-        case e @ CodeBlock(lang,content,_)    => fmt.blockWithWS(e.withStyles(codeStyles(lang).toSeq), content)
+        case e @ CodeBlock(lang,content,_, _) => fmt.blockWithWS(e.withStyles(codeStyles(lang).toSeq), content)
         case e @ Header(level, content,_)     => fmt.block(e.mergeOptions(Style.level(level)), content, "keep-with-next"->"always")
         case e @ Title(content,_)             => fmt.block(e, content, "keep-with-next"->"always")  
 

@@ -67,7 +67,7 @@ object ParsedLiteralBlock extends SpanContainerCompanion {
   *  the integration of syntax highlighting systems. For unsupported languages
   *  the sequence will only consist of a single `Text` element.
   */
-case class CodeBlock (language: String, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {
+case class CodeBlock (language: String, content: Seq[Span], codeOptions: Seq[String] = Nil, options: Options = NoOpt) extends Block with SpanContainer {
   type Self = CodeBlock
   def withContent (newContent: Seq[Span]): CodeBlock = copy(content = newContent)
   def withOptions (options: Options): CodeBlock = copy(options = options)

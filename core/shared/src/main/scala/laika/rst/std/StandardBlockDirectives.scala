@@ -266,7 +266,7 @@ class StandardBlockDirectives {
     (argument() ~ content(Right(_)) ~ stdOpt).evalMap { case language ~ code ~ opt =>
       p.getSyntaxHighlighter(language).fold[Either[String, Seq[Span]]](Right(Seq(Text(code.input)))) { highlighter =>
         highlighter.parse(code).toEither
-      }.map { CodeBlock(language, _, opt) }
+      }.map { CodeBlock(language, _, Nil, opt) }
     } 
   }
   

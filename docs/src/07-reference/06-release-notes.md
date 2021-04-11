@@ -30,6 +30,7 @@ Release Notes
     * Include key information in `DecodingError`.
 * Error Reporting: When a parser error originates in a template the error formatter now includes the path info
   for the template instead of making the error appear as if it came from the markup document
+* AST: add `codeOptions` property to `CodeBlock` element for potential tool integrations
 
 
 0.17.1 (Mar 19, 2021)

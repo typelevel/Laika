@@ -130,7 +130,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         case Deleted(content,opt)           => fmt.element("del", opt, content)
         case Inserted(content,opt)          => fmt.element("ins", opt, content)
         case ParsedLiteralBlock(content,opt)=> fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
-        case cb@CodeBlock(lang,content,opt) => fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
+        case cb@CodeBlock(lang,content,_,opt)=>fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)))
         case InlineCode(lang,content,opt)   => fmt.withoutIndentation(_.element("code", opt + codeStyles(lang, hasHighlighting = false), content))
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)

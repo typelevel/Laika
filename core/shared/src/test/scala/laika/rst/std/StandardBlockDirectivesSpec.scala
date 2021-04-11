@@ -426,7 +426,7 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |
       | some banana
       | some more""".stripMargin
-    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more")), Id("foo") + Styles("bar")))
+    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more")), Nil, Id("foo") + Styles("bar")))
     parse(input) should be (result)
   }
   
