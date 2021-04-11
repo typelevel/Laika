@@ -19,7 +19,7 @@ package laika.ast
 import cats.data.NonEmptySet
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.Config.{ConfigResult, IncludeMap}
+import laika.config.Config.IncludeMap
 import laika.config._
 import laika.rewrite.nav.{AutonumberConfig, TargetFormats}
 import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
@@ -98,7 +98,8 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
    *  span and block resolvers in the template with the final resolved element.
    */
   def applyTo (document: Document): Either[ConfigError, Document] =
-    TemplateRewriter.applyTemplate(DocumentCursor(document, path.suffix.map(_.stripPrefix("template."))), this)
+    DocumentCursor(document, path.suffix.map(_.stripPrefix("template.")))
+      .flatMap(TemplateRewriter.applyTemplate(_, this))
 
 }
 
@@ -376,7 +377,7 @@ case class Document (path: Path,
    *  any element container passed to the rule only contains children which have already
    *  been processed.
    */
-  def rewrite (rules: RewriteRules): Document = DocumentCursor(this).rewriteTarget(rules)
+  def rewrite (rules: RewriteRules): Either[ConfigError, Document] = DocumentCursor(this).map(_.rewriteTarget(rules))
   
   protected val configScope: Origin.Scope = Origin.DocumentScope
 
@@ -427,7 +428,8 @@ case class DocumentTree (path: Path,
    *  The specified factory function will be invoked for each document contained in this
    *  tree and must return the rewrite rules for that particular document.
    */
-  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = TreeCursor(this).rewriteTarget(rules)
+  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = 
+    TreeCursor(this).flatMap(_.rewriteTarget(rules))
 
   protected val configScope: Origin.Scope = Origin.TreeScope
   
@@ -510,6 +512,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
     * The specified factory function will be invoked for each document contained in this tree
     * and must return the rewrite rules for that particular document.
     */
-  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = RootCursor(this).rewriteTarget(rules)
+  def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = 
+    RootCursor(this).flatMap(_.rewriteTarget(rules))
 
 }

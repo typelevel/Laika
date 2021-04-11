@@ -110,7 +110,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
 
       val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
-      config.rewriteRulesFor(doc).map(doc.rewrite) shouldBe Right(expected)
+      config.rewriteRulesFor(doc).flatMap(doc.rewrite) shouldBe Right(expected)
     }
 
     "apply a rewrite rule from an app config and a rule from a markup extension successively" in new BundleSetup {
@@ -120,7 +120,7 @@ class ThemeBundleSpec extends IOWordSpec with Matchers {
       val doc =      Document(Root, RootElement(Literal("foo")))
       val expected = Document(Root, RootElement(Literal("foo!?")))
 
-      config.rewriteRulesFor(doc).map(doc.rewrite) shouldBe Right(expected)
+      config.rewriteRulesFor(doc).flatMap(doc.rewrite) shouldBe Right(expected)
     }
 
   }

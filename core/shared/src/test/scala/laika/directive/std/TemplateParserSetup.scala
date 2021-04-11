@@ -40,11 +40,13 @@ trait TemplateParserSetup {
     
     def rewriteTemplate (tRoot: TemplateRoot, config: Config): Either[String, RootElement] = {
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
-      val cursor   = DocumentCursor(Document(Path.Root / "docs" / "doc1.md", RootElement.empty, config = config))
-      TemplateRewriter
-        .applyTemplate(cursor, template)
-        .map(_.content)
-        .left.map(_.message)
+      val doc = Document(Path.Root / "docs" / "doc1.md", RootElement.empty, config = config)
+      DocumentCursor(doc).flatMap { cursor =>
+        TemplateRewriter
+          .applyTemplate(cursor, template)
+          .map(_.content)
+      }
+      .left.map(_.message)
     }
     
     for {

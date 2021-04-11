@@ -143,11 +143,11 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     
-    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans.map { spans =>
+    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans.evalMap { spans =>
       val root = TemplateRoot(spans)
-      TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref","value").build)
-      )).rewriteBlock(root).asInstanceOf[TemplateRoot]
+      DocumentCursor(Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref", "value").build))
+        .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[TemplateRoot])
+        .left.map(_.message)
     }
     
   }

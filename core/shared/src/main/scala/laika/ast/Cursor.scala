@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigEncoder, ConfigErrors, ConfigValue, DocumentConfigErrors, Key, TreeConfigErrors}
+import laika.config.{Config, ConfigEncoder, ConfigValue, DocumentConfigErrors, Key, TreeConfigErrors}
 import laika.parse.SourceFragment
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.link.{LinkValidator, TargetLookup, TargetValidation}
@@ -70,7 +70,7 @@ sealed trait Cursor {
   * @param targetFormat the format the cursor is applied for, empty in case of the 1st rewrite step which 
   *                     is applied to all formats.
   */
-case class RootCursor(target: DocumentTreeRoot, targetFormat: Option[String] = None) {
+case class RootCursor private (target: DocumentTreeRoot, targetFormat: Option[String] = None) {
   
   type Target = DocumentTreeRoot
   
@@ -112,6 +112,13 @@ case class RootCursor(target: DocumentTreeRoot, targetFormat: Option[String] = N
     case None if path == Root => config
     case _                    => treeConfig(path.parent)
   }
+  
+}
+
+object RootCursor {
+  
+  def apply (target: DocumentTreeRoot, targetFormat: Option[String] = None): Either[TreeConfigErrors, RootCursor] =
+    Right(new RootCursor(target, targetFormat))
   
 }
 
@@ -201,8 +208,8 @@ object TreeCursor {
   def apply (root: RootCursor): TreeCursor =
     apply(root.target.tree, None, root, root.config, TreePosition.root)
 
-  def apply (root: DocumentTree, format: Option[String] = None): TreeCursor =
-    apply(RootCursor(DocumentTreeRoot(root), format))
+  def apply (root: DocumentTree, format: Option[String] = None): Either[TreeConfigErrors, TreeCursor] =
+    RootCursor(DocumentTreeRoot(root), format).map(apply)
 
 }
 
@@ -350,9 +357,11 @@ case class DocumentCursor (target: Document,
 
 object DocumentCursor {
 
-  /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree. */
-  def apply (document: Document, targetFormat: Option[String] = None): DocumentCursor =
-    apply(document, TreeCursor(DocumentTree(Root, Seq(document)), targetFormat), document.config, document.position)
+  /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree.
+    */
+  def apply (document: Document, targetFormat: Option[String] = None): Either[TreeConfigErrors, DocumentCursor] =
+    TreeCursor(DocumentTree(Root, Seq(document)), targetFormat)
+      .map(apply(document, _, document.config, document.position))
 
   /** Creates a cursor for a document and full context information:
     * its parent, configuration and position within the document tree.

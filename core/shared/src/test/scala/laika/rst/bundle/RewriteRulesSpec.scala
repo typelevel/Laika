@@ -36,7 +36,7 @@ class RewriteRulesSpec extends AnyFlatSpec
     OperationConfig.default
       .withBundlesFor(ReStructuredText)
       .rewriteRulesFor(doc)
-      .map(doc.rewrite)
+      .flatMap(doc.rewrite)
       .map(_.content)
   }
   

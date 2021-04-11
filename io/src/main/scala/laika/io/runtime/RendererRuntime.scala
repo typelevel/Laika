@@ -23,13 +23,13 @@ import cats.implicits._
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{Config, ConfigError, ConfigException, LaikaKeys, NullValue}
+import laika.config.{ConfigError, ConfigException}
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TargetLookup, TitleDocumentConfig, TranslatorConfig, TranslatorSpec}
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter, Versions}
+import laika.rewrite.nav._
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -65,23 +65,27 @@ object RendererRuntime {
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]], 
-                               rootTree: DocumentTreeRoot,
+    def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]],
+                               root: DocumentTreeRoot,
                                lookup: TargetLookup,
-                               config: TranslatorConfig): Seq[BinaryInput[F]] = {
+                               config: TranslatorConfig): F[Seq[BinaryInput[F]]] = {
 
-      val cursor = RootCursor(rootTree)
-      val renderUnversioned = config.versions.fold(true)(_.renderUnversioned)
+      /* This method needs to use the original root before the templates were applied as that step removes subtrees
+         where the target format does not match, which also removes the tree config which is needed in this impl. */
       
-      staticDocs.filter { doc =>
-        val treeConfig = cursor.treeConfig(doc.path.parent)
-        doc.formats.contains(context.finalFormat) &&
-          treeConfig
-            .get[TargetFormats]
-            .getOrElse(TargetFormats.All)
-            .contains(context.finalFormat) &&
-          (renderUnversioned || lookup.isVersioned(treeConfig))
-      }
+      Sync[F].fromEither(RootCursor(root).map { cursor =>
+        val renderUnversioned = config.versions.fold(true)(_.renderUnversioned)
+        
+        staticDocs.filter { doc =>
+          val treeConfig = cursor.treeConfig(doc.path.parent)
+          doc.formats.contains(context.finalFormat) &&
+            treeConfig
+              .get[TargetFormats]
+              .getOrElse(TargetFormats.All)
+              .contains(context.finalFormat) &&
+            (renderUnversioned || lookup.isVersioned(treeConfig))
+        }
+      }.leftMap(e => RendererErrors(Seq(ConfigException(e)))))
     }
     
     def createPathTranslator (config: TranslatorConfig, refPath: Path, lookup: Path => Option[TranslatorSpec]): PathTranslator =
@@ -145,7 +149,7 @@ object RendererRuntime {
         def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree = {
           val title = finalRoot.tree.selectSubtree(path.relative).flatMap(_.title)
           val titleDoc = content.collectFirst {
-            case doc: RenderedDocument if doc.path.basename == titleName => doc
+            case doc: RenderedDocument if titleName.contains(doc.path.basename) => doc
           }
           RenderedTree(path, title, content.filterNot(doc => titleDoc.exists(_.path == doc.path)), titleDoc)
         }
@@ -197,10 +201,12 @@ object RendererRuntime {
                        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
       tConfig   <- Sync[F].fromEither(TranslatorConfig.readFrom(finalRoot.config)
                                       .leftMap(e => RendererErrors(Seq(ConfigException(e)))))
+      cursor    <- Sync[F].fromEither(RootCursor(finalRoot, Some(context.finalFormat))
+                                      .leftMap(e => RendererErrors(Seq(ConfigException(e)))))
       styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      lookup    = new TargetLookup(RootCursor(finalRoot, Some(context.finalFormat)))
+      lookup    = new TargetLookup(cursor)
       vInfo     <- generateVersionInfo(lookup, tConfig)
-      static    =  filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig) ++ vInfo.toSeq
+      static    <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(_ ++ vInfo.toSeq)
       _         <- validatePaths(static)
       ops       =  renderOps(finalRoot, styles, lookup, tConfig, static)
       _         <- ops.mkDirOps.toVector.sequence

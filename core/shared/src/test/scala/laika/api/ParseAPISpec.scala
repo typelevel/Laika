@@ -93,11 +93,13 @@ class ParseAPISpec extends AnyFlatSpec
                   |
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    doc.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(doc))).content should be (RootElement(
-      p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
-      p("Text"),
-      p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input, defaultPath))),
-    ))
+    DocumentCursor(doc)
+      .flatMap(cursor => doc.rewrite(TemplateRewriter.rewriteRules(cursor)))
+      .map(_.content) should be (Right(RootElement(
+        p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
+        p("Text"),
+        p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input, defaultPath))),
+      )))
   }
   
 }

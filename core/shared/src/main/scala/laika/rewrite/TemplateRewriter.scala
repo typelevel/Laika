@@ -43,10 +43,11 @@ trait TemplateRewriter {
    */
   def applyTemplates (tree: DocumentTreeRoot, context: TemplateContext): Either[ConfigError, DocumentTreeRoot] = {
     
-    val cursor = RootCursor(tree, Some(context.finalFormat))
-    
     for {
-      newCover <- cursor.coverDocument.filter(shouldRender(context.finalFormat)).traverse(applyTemplate(_, context))
+      cursor   <- RootCursor(tree, Some(context.finalFormat))
+      newCover <- cursor.coverDocument
+                    .filter(shouldRender(context.finalFormat))
+                    .traverse(applyTemplate(_, context))
       newTree  <- applyTemplates(cursor.tree, context)
     } yield {
       cursor.target.copy(
