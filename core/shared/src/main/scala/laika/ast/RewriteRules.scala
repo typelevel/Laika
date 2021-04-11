@@ -244,7 +244,7 @@ object RewriteRules {
     */
   def chainFactories (rules: Seq[RewriteRulesBuilder]): RewriteRulesBuilder =
     cursor => rules.toList
-      .map(_(cursor).leftMap(err => NonEmptyChain(err)))
+      .map(_(cursor).toEitherNec)
       .parSequence
       .map(_.reduceOption(_ ++ _).getOrElse(RewriteRules.empty))
       .leftMap(ConfigErrors.apply)

@@ -97,7 +97,7 @@ case class RootCursor private (target: DocumentTreeRoot, targetFormat: Option[St
     */
   def rewriteTarget (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = {
     val result = for {
-      rewrittenCover <- coverDocument.map(_.rewriteTarget(rules).leftMap(NonEmptyChain.one)).sequence
+      rewrittenCover <- coverDocument.map(_.rewriteTarget(rules).toEitherNec).sequence
       rewrittenTree  <- tree.rewriteTarget(rules).leftMap(_.failures)
     } yield target.copy(coverDocument = rewrittenCover, tree = rewrittenTree)
     result.leftMap(TreeConfigErrors.apply)
@@ -206,13 +206,13 @@ case class TreeCursor(target: DocumentTree,
       .map { doc => doc
         .copy(config = AutonumberConfig.withoutSectionNumbering(doc.config))
         .rewriteTarget(rules)
-        .leftMap(NonEmptyChain.one)
+        .toEitherNec
       }
       .sequence
     
     val rewrittenContent: Either[NonEmptyChain[DocumentConfigErrors], Seq[TreeContent]] = sortedContent.flatMap(_.toList
       .map {
-        case doc: DocumentCursor => doc.rewriteTarget(rules).leftMap(NonEmptyChain.one)
+        case doc: DocumentCursor => doc.rewriteTarget(rules).toEitherNec
         case tree: TreeCursor    => tree.rewriteTarget(rules).leftMap(_.failures)
       }
       .parSequence)
