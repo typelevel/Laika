@@ -94,18 +94,18 @@ Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes f
 ```scala
 val doc: Document = ??? // obtained through the Parser API
 
-val newDoc = doc.rewrite {
+val newDoc = doc.rewrite(RewriteRules.forSpans {
   case Emphasized(content, opts) => Replace(Strong(content, opts))
-}
+})
 ```
 
 For a slightly more advanced example, let's assume you only want to replace `Emphasized` nodes inside headers. 
 To accomplish this you need to nest a rewrite operation inside another one:
 
 ```scala
-val newDoc = doc.rewrite {
-  case h: Header => Some(h.rewriteChildren {
+val newDoc = doc.rewrite(RewriteRules.forBlocks {
+  case h: Header => Replace(h.rewriteSpans {
     case Emphasized(content, opts) => Replace(Strong(content, opts))
   })
-}
+})
 ```
