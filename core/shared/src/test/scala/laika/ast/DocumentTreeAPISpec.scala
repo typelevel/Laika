@@ -16,7 +16,8 @@
 
 package laika.ast
 
-import laika.config.{Config, ConfigParser, Key, Origin, ValidationError}
+import cats.data.NonEmptyChain
+import laika.config.{ArrayValue, Config, ConfigParser, DocumentConfigErrors, InvalidType, Key, LongValue, Origin, TreeConfigErrors, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders}
@@ -25,7 +26,6 @@ import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.parse.GeneratedSource
 import laika.rewrite.TemplateRewriter
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers
 
 class DocumentTreeAPISpec extends AnyFlatSpec 
@@ -287,6 +287,18 @@ class DocumentTreeAPISpec extends AnyFlatSpec
       InvalidSpan(s"Message ${key.defaultTitle}", generatedSource(s"Message ${key.defaultTitle}"))
     }
     root.map(_.tree.invalidElements(MessageFilter.Warning)) shouldBe Right(expected)
+  }
+
+  it should "fail if cursor creation fails due to invalid configuration entries" in {
+    new TreeModel {
+      val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")), Some("laika.versioned: [1,2,3]"))
+      val expectedError = TreeConfigErrors(NonEmptyChain(
+        DocumentConfigErrors(Root / "sub" / "doc", NonEmptyChain(InvalidType("Boolean", ArrayValue(List(LongValue(1), LongValue(2), LongValue(3))))))
+      ))
+      tree.rewrite { cursor => Right(RewriteRules.forBlocks {
+        case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString))
+      })} shouldBe Left(expectedError)
+    }
   }
 
 }
