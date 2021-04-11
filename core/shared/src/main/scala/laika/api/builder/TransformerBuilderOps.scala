@@ -46,7 +46,7 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  any element container passed to the rule only contains children which have already
     *  been processed.
     */
-  def usingRules (newRules: RewriteRules): ThisType = creatingRule(_ => newRules)
+  def usingRules (newRules: RewriteRules): ThisType = buildingRule(_ => Right(newRules))
 
   /**  Specifies a single block rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
@@ -105,18 +105,22 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     */
   def usingTemplateRule (rule: RewriteRule[TemplateSpan]): ThisType = usingRules(RewriteRules.forTemplates(rule))
 
-  /**  Specifies a rewrite rule to be applied to the document tree model between the
-    *  parse and render operations. This is identical to calling `Document.rewrite`
-    *  directly, but if there is no need to otherwise access the document instance
+  /**  Specifies a rewrite rule to be applied to the document tree model between the parse and render operations. 
+    *  This is identical to calling `Document.rewrite` directly, 
+    *  but if there is no need to otherwise access the document instance
     *  and just chain parse and render operations this hook is more convenient.
     *
     *  The difference of this method to the `usingRules` method is that it expects a function
-    *  that takes a Document instance and returns the rewrite rules. This way the full document
-    *  can be queried before any rule is applied. This is necessary in cases where the rule
-    *  (which gets applied node-by-node) depends on information from other nodes. An example
-    *  from the built-in rewrite rules is the rule that resolves link references. To replace
-    *  all link reference elements with actual link elements, the rewrite rule needs to know
-    *  all LinkDefinitions the document tree contains.
+    *  that takes a `DocumentCursor` instance and returns the rewrite rules. 
+    *  This way the full document can be queried before any rule is applied. 
+    *  This is necessary in cases where the rule (which gets applied node-by-node) depends on information 
+    *  from other nodes. 
+    *  An example from the built-in rewrite rules is the rule that resolves link references. 
+    *  To replace all link reference elements with actual link elements, 
+    *  the rewrite rule needs to know all LinkDefinitions the document tree contains.
+    *  
+    *  The builder function returns an `Either[ConfigError, RewriteRules]` which allows for validation of
+    *  document configuration before creating the rule.
     *
     *  The rules themselves are partial functions of type `PartialFunction[T, RewriteRule[T]]` where `T` is
     *  either `Span`, `Block` or `TemplateSpan`, the 3 main categories of element types that support
@@ -132,6 +136,13 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  any element container passed to the rule only contains children which have already
     *  been processed.
     */
+  def buildingRule (newRules: RewriteRulesBuilder): ThisType = using(new ExtensionBundle {
+    val description: String = "Custom rewrite rules"
+    override val useInStrictMode: Boolean = true
+    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(newRules)
+  })
+
+  @deprecated("use buildingRule which includes error handling", "0.18.0")
   def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
     val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
