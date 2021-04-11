@@ -197,7 +197,10 @@ class ObjectConfig (private[laika] val root: ObjectValue,
         }
         case _ => field.value
       }
-      decoder(Traced(res, field.origin))
+      decoder(Traced(res, field.origin)).left.map {
+        case de @ DecodingError(_, child) => de.withKey(child.fold(key)(key.child))
+        case other => other
+      }
     }
   }
   

@@ -323,7 +323,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     val template =
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: not an integer: foo"
+    val msg = "One or more errors processing directive 'navigationTree': Error decoding 'entries': One or more errors decoding array elements: Error decoding 'depth': not an integer: foo"
     parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 
@@ -338,7 +338,7 @@ class NavigationDirectiveSpec extends AnyFlatSpec
     val template =
       s"""aaa $directive bbb $${cursor.currentDocument.content}""".stripMargin
 
-    val msg = "One or more errors processing directive 'navigationTree': One or more errors decoding array elements: Not found: 'title'"
+    val msg = "One or more errors processing directive 'navigationTree': Error decoding 'entries': One or more errors decoding array elements: Not found: 'title'"
     parseTemplateAndRewrite(template) shouldBe Right(error(msg, directive, template))
   }
 

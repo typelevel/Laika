@@ -107,7 +107,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       val res = decode[DocumentMetadata](input)
       res.isLeft shouldBe true
-      res.left.toOption.get.asInstanceOf[DecodingError].message should startWith("Invalid date format")
+      res.left.toOption.get.asInstanceOf[DecodingError].message should startWith("Error decoding 'laika.metadata.date': Invalid date format")
     }
 
   }
