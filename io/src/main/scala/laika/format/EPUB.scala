@@ -31,6 +31,7 @@ import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.parse.{Parsed, SourceCursor}
 import laika.render.epub.{ContainerWriter, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
+import laika.rewrite.nav.Scope.Documents
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
 import laika.theme.Theme
 
@@ -121,6 +122,32 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       )
     }
     
+  }
+
+  /** Configuration Enumeration that indicates whether an EPUB template contains scripting. */
+  sealed trait ScriptedTemplate extends Product
+
+  object ScriptedTemplate {
+    /** Indicates that the template is considered to include scripting in all scenarios. */
+    case object Always extends ScriptedTemplate
+    /** Indicates that the template is never considered to include scripting in any scenario. */
+    case object Never extends ScriptedTemplate
+    /** Indicates that the template's scripting support should be determined from the environment,
+      * e.g. the presence of JavaScript files for EPUB in the input tree. */
+    case object Auto extends ScriptedTemplate
+    
+    implicit val decoder: ConfigDecoder[ScriptedTemplate] = ConfigDecoder.string.flatMap {
+      case "always" => Right(Always)
+      case "never"  => Right(Never)
+      case "auto"   => Right(Auto)
+      case other    => Left(ValidationError(s"Invalid value: $other"))
+    }
+    
+    implicit val encoder: ConfigEncoder[ScriptedTemplate] = 
+      ConfigEncoder.string.contramap(_.productPrefix.toLowerCase())
+      
+    implicit val defaultKey: DefaultKey[ScriptedTemplate] = 
+      DefaultKey(LaikaKeys.root.child(Key("epub","scripted")))
   }
   
   private lazy val writer = new ContainerWriter
