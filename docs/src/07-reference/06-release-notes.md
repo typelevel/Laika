@@ -23,6 +23,11 @@ Release Notes
   processed by some external tool, making it available during link validation.
 * PDF Support: upgrade to Apache FOP 2.6 (2.4 and 2.5 were both skipped as they had an issue with dependencies 
   in their POMs)
+* Error Handling for Rewrite Rules and Cursor API
+    * Change signatures of methods for registering rules in a bundle, rewriting a document or creating a cursor 
+      to include error handling (rule builders can now return an `Either[ConfigError, RewriteRule]`).
+    * Use these new hooks in internal rewrite rules to validate configuration values used by the rules early.
+    * Include key information in `DecodingError`.
 * Error Reporting: When a parser error originates in a template the error formatter now includes the path info
   for the template instead of making the error appear as if it came from the markup document
 
