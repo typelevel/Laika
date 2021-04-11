@@ -44,7 +44,9 @@ class RewriteRulesSpec extends AnyWordSpec
     val config = if (withTitles) disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
                  else disableInternalLinkValidation
     val doc = Document(Path.Root / "doc", root, config = config)
-    OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite(_).content)
+    OperationConfig.default
+      .rewriteRulesFor(doc)
+      .flatMap(doc.rewrite(_).map(_.content))
   }
   
   val refPath: Path = Root / "doc"

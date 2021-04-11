@@ -31,7 +31,7 @@ class DocumentAPISpec extends AnyFlatSpec
   with ParagraphCompanionShortcuts {
 
 
-  val defaultParser = MarkupParser.of(Markdown).build
+  val defaultParser: MarkupParser = MarkupParser.of(Markdown).build
 
   "The Document API" should "allow to specify a title in a config section" in {
     val markup = """{% laika.title: Foo and Bar %}
@@ -95,8 +95,8 @@ class DocumentAPISpec extends AnyFlatSpec
     
     val doc = defaultParser.parseUnresolved(markup).toOption.get.document
 
-    val rewritten1 = OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite)
-    val rewritten2 = rewritten1.flatMap(doc => OperationConfig.default.rewriteRulesFor(doc).map(doc.rewrite))
+    val rewritten1 = OperationConfig.default.rewriteRulesFor(doc).flatMap(doc.rewrite)
+    val rewritten2 = rewritten1.flatMap(doc => OperationConfig.default.rewriteRulesFor(doc).flatMap(doc.rewrite))
     rewritten1.map(_.content) should be (rewritten2.map(_.content))
   }
 
@@ -117,7 +117,7 @@ class DocumentAPISpec extends AnyFlatSpec
     }
     val rewritten = OperationConfig.default
       .rewriteRulesFor(raw.copy(position = TreePosition.root))
-      .map(r => raw.rewrite(testRule ++ r))
+      .flatMap(r => raw.rewrite(testRule ++ r))
     rewritten.map(_.content) should be (Right(RootElement(
       Title(List(Text("Title")), Id("title") + Style.title),
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),

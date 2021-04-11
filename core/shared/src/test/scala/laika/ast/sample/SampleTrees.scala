@@ -18,7 +18,7 @@ package laika.ast.sample
 
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
+import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors}
 
 object SampleTrees {
 
@@ -188,7 +188,7 @@ class SampleTwoDocuments (protected val sampleRoot: SampleRoot) extends SampleRo
     tree = buildTree(0, 0, Config.empty),
     staticDocuments = sampleRoot.staticDocuments
   )
-  def buildCursor: RootCursor = RootCursor(build)
+  def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)
 }
 
 class SampleSixDocuments (protected val sampleRoot: SampleRoot) extends SampleRootOps { self =>
@@ -235,7 +235,7 @@ class SampleSixDocuments (protected val sampleRoot: SampleRoot) extends SampleRo
     )
   }
   
-  def buildCursor: RootCursor = RootCursor(build)
+  def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)
 }
 
 private[sample] case class SampleRoot (treeBuilders: IndexedSeq[SampleTree],

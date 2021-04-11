@@ -149,10 +149,10 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     lazy val defaultParser: Parser[RootElement] = RootParserProvider.forParsers(
       blockParsers = Seq(paragraphParser),
       markupExtensions = directiveSupport.markupExtensions
-    ).rootElement.map { root =>
-      TemplateRewriter.rewriteRules(DocumentCursor(
-        Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
-      )).rewriteBlock(root).asInstanceOf[RootElement]
+    ).rootElement.evalMap { root =>
+      DocumentCursor(Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build))
+        .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[RootElement])
+        .left.map(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))

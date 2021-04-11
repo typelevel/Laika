@@ -28,7 +28,7 @@ import laika.ast.sample.{DocumentTreeAssertions, ParagraphCompanionShortcuts, Sa
 import laika.ast.{StylePredicate, _}
 import laika.bundle._
 import laika.config.Origin.TreeScope
-import laika.config.{ConfigBuilder, Origin}
+import laika.config.{ConfigBuilder, ConfigException, Origin}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.api.TreeParser
 import laika.io.helper.{InputBuilder, TestThemeBuilder}
@@ -145,13 +145,14 @@ class TreeParserSpec extends IOWordSpec
     def parsedTemplates (bundle: ExtensionBundle): IO[Seq[TemplateRoot]] = {
       parserWithBundle(bundle)
         .use(_.fromInput(build(inputs)).parse)
-        .map { parsed =>
-          parsed.root.tree.templates.map { tpl =>
-            tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(DocumentCursor(Document(Root, RootElement.empty))))
-          }
+        .flatMap { parsed =>
+          IO.fromEither(DocumentCursor(Document(Root, RootElement.empty)).map(cursor => 
+            parsed.root.tree.templates.map { tpl =>
+              tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(cursor))
+            }
+          ).left.map(ConfigException.apply))
         }
     }
-      
   }
   
 

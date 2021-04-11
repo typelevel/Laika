@@ -16,13 +16,13 @@
 
 package laika.api
 
+import cats.syntax.all._
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewriteRules, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
-import laika.parse.SourceCursor
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocument, ParserError}
@@ -85,15 +85,16 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       )
     }
     
-    def rewriteDocument (resolvedDoc: Document, rules: RewriteRules): Either[ParserError, Document] = {
-      val phase1 = resolvedDoc.rewrite(rules)
-      val result = phase1.rewrite(TemplateRewriter.rewriteRules(DocumentCursor(phase1))) // TODO - should return Either
-      
-      InvalidDocument
-        .from(result, config.failOnMessages)
-        .map(ParserError(_))
-        .toLeft(result)
-    }
+    def rewriteDocument (resolvedDoc: Document, rules: RewriteRules): Either[ParserError, Document] = for {
+      phase1 <- resolvedDoc.rewrite(rules).leftMap(ParserError.apply(_, resolvedDoc.path))
+      phase2 <- DocumentCursor(phase1)
+                  .flatMap(cursor => phase1.rewrite(TemplateRewriter.rewriteRules(cursor)))
+                  .leftMap(ParserError.apply(_, resolvedDoc.path))
+      result <- InvalidDocument
+                  .from(phase2, config.failOnMessages)
+                  .map(ParserError(_))
+                  .toLeft(phase2)
+    } yield result
     
     for {
       unresolved     <- docParser(input)

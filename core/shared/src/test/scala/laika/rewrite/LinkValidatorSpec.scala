@@ -47,8 +47,8 @@ class LinkValidatorSpec extends AnyFunSuite with Matchers {
       .docContent(doc2 _)
       .suffix("md")
       .buildCursor // TODO - buildCursor should be available on doc6
-      .allDocuments
-      .find(_.path == Root / "tree-2" / "doc-6.md")
+      .toOption
+      .flatMap(_.allDocuments.find(_.path == Root / "tree-2" / "doc-6.md"))
       .get
   }
   

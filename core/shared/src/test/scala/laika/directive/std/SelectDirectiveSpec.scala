@@ -19,7 +19,6 @@ package laika.directive.std
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.sample.TestSourceBuilders
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
 import laika.format.Markdown
@@ -34,7 +33,7 @@ class SelectDirectiveSpec extends AnyFlatSpec
   with TestSourceBuilders {
 
 
-  val parser = MarkupParser
+  private val parser = MarkupParser
     .of(Markdown)
     .failOnMessages(MessageFilter.None)
     .withConfigValue(Selections(
@@ -150,8 +149,8 @@ class SelectDirectiveSpec extends AnyFlatSpec
     )
     val doc = Document(Root / "doc", RootElement(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
-    val cursor = DocumentCursor(doc, TreeCursor(RootCursor(tree)), tree.config, TreePosition(Nil))
-    val rewritten = TemplateRewriter.applyTemplate(cursor, TemplateDocument(Root, TemplateRoot.fallback))
+    val cursor = RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
+    val rewritten = cursor.flatMap(c => TemplateRewriter.applyTemplate(c, TemplateDocument(Root, TemplateRoot.fallback)))
     rewritten.map(_.content) shouldBe Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
   }
   

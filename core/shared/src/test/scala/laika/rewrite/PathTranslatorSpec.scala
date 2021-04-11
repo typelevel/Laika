@@ -48,6 +48,7 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
       .docContent(doc2 _)
       .suffix("md")
       .buildCursor
+      .getOrElse(fail("unable to create cursor"))
   }
 
   val translatorConfig = TranslatorConfig.readFrom(rootCursor.config).getOrElse(TranslatorConfig.empty)
