@@ -38,7 +38,10 @@ case class InvalidType(expected: String, actual: ConfigValue) extends ConfigErro
 }
 
 /** An error that occurred when decoding a configuration value to a target type. */
-case class DecodingError (message: String) extends ConfigError
+case class DecodingError (error: String, key: Option[Key] = None) extends ConfigError {
+  val message: String = key.fold("")(k => s"Error decoding '${k.toString}': ") + error
+  def withKey (key: Key): DecodingError = copy(key = Some(key))
+}
 
 /** A generic error for invalid values. */
 case class ValidationError(message: String) extends ConfigError

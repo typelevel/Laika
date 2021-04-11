@@ -34,6 +34,7 @@ case class Key(segments: Seq[String]) {
   
   def local: Key = if (segments.isEmpty) this else Key(segments.last)
   
+  @deprecated("key to path conversion is no longer necessary in any Laika API", "0.18.0")
   def toPath: Path = Path(segments.toList)
 
   override def toString: String = if (segments.isEmpty) "<RootKey>" else segments.mkString(".")

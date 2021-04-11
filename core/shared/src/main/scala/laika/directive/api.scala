@@ -99,6 +99,11 @@ trait BuilderContext[E <: Element] {
 
     val body: Option[BodyContent] = content.body
     
+    def message (error: ConfigError): String = error match {
+      case de: DecodingError => de.error // do not include key in message
+      case other => other.message
+    }
+    
     def attribute[T] (id: AttributeKey, decoder: ConfigDecoder[T], inherit: Boolean): Result[Option[T]] =
       content.attributes
         .getOpt[Traced[T]](id.key)(ConfigDecoder.tracedValue(decoder))
@@ -106,7 +111,7 @@ trait BuilderContext[E <: Element] {
           if (traced.origin.scope == DirectiveScope || inherit) Some(traced.value)
           else None
         })
-        .left.map(e => Seq(s"error converting ${id.desc}: ${e.message}"))
+        .left.map(e => Seq(s"error converting ${id.desc}: ${message(e)}"))
     
   }
 
