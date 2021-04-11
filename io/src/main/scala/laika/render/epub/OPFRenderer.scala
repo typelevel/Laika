@@ -18,7 +18,8 @@ package laika.render.epub
 
 import laika.ast._
 import laika.format.EPUB
-import laika.io.model.RenderedTreeRoot
+import laika.format.EPUB.ScriptedTemplate
+import laika.io.model.{RenderedDocument, RenderedTreeRoot}
 import laika.rewrite.link.SlugBuilder
 
 /** Renders the content of an EPUB Package document (OPF).
@@ -56,7 +57,7 @@ class OPFRenderer {
        |  <manifest>
        |    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
        |    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
-       |${docRefs.map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" />""" }.mkString("\n")}
+       |${docRefs.map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" ${ref.scriptedProperty}/>""" }.mkString("\n")}
        |  </manifest>
        |  <spine toc="ncx">
        |${docRefs.filter(_.isSpine).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
@@ -68,7 +69,7 @@ class OPFRenderer {
        |</package>
     """.stripMargin.replaceAll("[\n]+", "\n")
 
-  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isCover: Boolean = false, forceXhtml: Boolean = false) {
+  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isCover: Boolean = false, forceXhtml: Boolean = false, isScripted: Boolean = false) {
 
     val link = NavigationBuilder.fullPath(path, forceXhtml)
 
@@ -76,18 +77,29 @@ class OPFRenderer {
       val candidate = link.drop(8).replace("/", "_").replace(".", "_")
       SlugBuilder.default(candidate)
     }
+    
+    val scriptedProperty: String = if (isScripted) """properties="scripted"""" else ""
 
   }
 
   /** Renders the content of an EPUB Package document (OPF) generated from the specified document tree.
     */
   def render[F[_]] (result: RenderedTreeRoot[F], title: String, config: EPUB.BookConfig): String = {
+    
+    lazy val hasScriptDocuments: Boolean = 
+      result.staticDocuments.exists(_.path.suffix.exists(s => s == "epub.js" || s == "shared.js"))
+    
+    def isScripted (doc: RenderedDocument): Boolean = doc.config.get[ScriptedTemplate].getOrElse(ScriptedTemplate.Never) match {
+      case ScriptedTemplate.Never  => false
+      case ScriptedTemplate.Always => true
+      case ScriptedTemplate.Auto   => hasScriptDocuments
+    }
 
-    val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, isCover = true, forceXhtml = true))
-    val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
+    val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, isCover = true, forceXhtml = true, isScripted = isScripted(doc)))
+    val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true, isScripted = isScripted(doc)))
     
     val renderedDocs = result.allDocuments.drop(coverDoc.size + titleDoc.size).map { doc =>
-      DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true)
+      DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true, isScripted = isScripted(doc))
     }
 
     val staticDocs = result.staticDocuments.flatMap { in =>

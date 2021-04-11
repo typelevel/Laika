@@ -20,6 +20,7 @@ import cats.effect.IO
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.ast.Path.Root
 import laika.ast._
+import laika.format.EPUB.ScriptedTemplate
 import laika.io.model._
 import laika.io.helper.InputBuilder
 
@@ -30,8 +31,8 @@ trait InputTreeBuilder extends InputBuilder {
   def doc(path: Path, title: String): RenderedDocument =
     RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(title))), Nil, "zzz", Config.empty)
   
-  def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = 
-    RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(s"Title $num"))), sections, "zzz", Config.empty)
+  def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil, config: Config = Config.empty): RenderedDocument = 
+    RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(s"Title $num"))), sections, "zzz", config)
 
   def section(letter: Char) = SectionInfo(letter.toString, SpanSequence(s"Section $letter"), Nil)
 
@@ -138,6 +139,21 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
   val subtree = tree(Path.Root / "sub", 4, doc2)
 
   val input = rootTree(Path.Root, 1, doc1, subtree).copy[IO](staticDocuments = Seq(static1, static2, unknown))
+}
+
+trait TreeWithScriptedDocuments extends InputTreeBuilder {
+
+  val doc1 = doc(Path.Root / "foo", 2, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Always).build)
+  val doc2 = doc(Path.Root / "sub" / "bar", 3, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Auto).build)
+  val static1 = ByteInput("", Path.parse("/sub/code.shared.js"))
+  val static2 = ByteInput("", Path.parse("/sub/code.epub.js"))
+  val static3 = ByteInput("", Path.parse("/sub/styles.epub.css"))
+  val subtree = tree(Path.Root / "sub", 4, doc2)
+  
+  def hasScriptDocuments: Boolean
+
+  val input = rootTree(Path.Root, 1, doc1, subtree)
+    .copy[IO](staticDocuments = if (hasScriptDocuments) Seq(static1, static2, static3) else Seq(static3))
 }
 
 trait DocumentsWithSections extends InputTreeBuilder {

@@ -20,6 +20,7 @@ import java.time.Instant
 import java.util.{Date, Locale}
 
 import cats.effect.IO
+import cats.instances.uuid
 import laika.ast.Path.Root
 import laika.ast._
 import laika.format.EPUB
@@ -76,7 +77,7 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     renderer.render[IO](input, title, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
   }
 
-  it should "render a tree with a two documents" in new TwoDocuments {
+  it should "render a tree with two documents" in new TwoDocuments {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
@@ -144,6 +145,32 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_image-1_5x_jpg" href="content/sub/image-1.5x.jpg" media-type="image/jpeg" />
+        |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
+    val spineRefs =
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="sub_bar_epub_xhtml" />"""
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+  }
+
+  it should "render a tree with a nested tree and script documents" in new TreeWithScriptedDocuments {
+    def hasScriptDocuments = true
+    val manifestItems =
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+        |    <item id="sub_code_shared_js" href="content/sub/code.shared.js" media-type="application/javascript" />
+        |    <item id="sub_code_epub_js" href="content/sub/code.epub.js" media-type="application/javascript" />
+        |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
+    val spineRefs =
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="sub_bar_epub_xhtml" />"""
+    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+  }
+
+  it should "render a tree with a nested tree and no script documents" in new TreeWithScriptedDocuments {
+    def hasScriptDocuments = false
+    val manifestItems =
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
