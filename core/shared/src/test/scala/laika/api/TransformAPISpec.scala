@@ -75,9 +75,9 @@ class TransformAPISpec extends AnyFlatSpec
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replace("zzz", "2")
-    val transformCustom = builder creatingRule { cursor => RewriteRules.forSpans { 
+    val transformCustom = builder.buildingRule { cursor => Right(RewriteRules.forSpans { 
       case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
-    }}
+    })}
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
 
