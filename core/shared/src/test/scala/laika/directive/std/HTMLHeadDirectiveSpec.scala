@@ -74,6 +74,8 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
   
   private val cssStart = TemplateString("""<link rel="stylesheet" type="text/css" href="""")
   private val cssEnd = TemplateString("""" />""")
+  private val jsStart = TemplateString("""<script src="""")
+  private val jsEnd = TemplateString(""""></script>""")
   private val separator = TemplateString("\n    ")
   private def rawLink (url: String): TemplateElement = TemplateElement(RawLink.internal(url))
   
@@ -138,11 +140,11 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     parseAndRewrite(input, DefaultTemplatePath.forEPUB) should be (buildResult(generatedNodes))
   }
 
-  "The linkJS directive" should "pick all JavaScript documents when used without attributes" in {
-    val jsStart = TemplateString("""<script src="""")
-    val jsEnd = TemplateString(""""></script>""")
+  "The linkJS directive" should "pick all JavaScript documents apart from those for EPUB when used without attributes" in {
+    
     val staticDocs = Seq(
       StaticDocument(Root / "doc-1.js", TargetFormats.Selected("html")),
+      StaticDocument(Root / "doc-2.epub.js", TargetFormats.Selected("epub")),
       StaticDocument(Root / "doc-2.foo"),
       StaticDocument(Root / "doc-3.bar"),
       StaticDocument(Root / "tree-2" / "doc-4.js", TargetFormats.Selected("html")),
@@ -159,6 +161,28 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
       jsStart, rawLink("/tree-2/doc-4.js"), jsEnd
     )
     parseAndRewrite(input, static = staticDocs) should be (buildResult(generatedNodes))
+  }
+
+  it should "pick all JavaScript documents for EPUB when used without attributes" in {
+    val input =
+      """aaa
+        |
+        |@:linkJS
+        |
+        |bbb""".stripMargin
+
+    val staticDocs = Seq(
+      StaticDocument(Root / "doc-1.js", TargetFormats.Selected("html")),
+      StaticDocument(Root / "doc-2.epub.js"),
+      StaticDocument(Root / "doc-3.shared.js"),
+      StaticDocument(Root / "doc-3.bar"),
+      StaticDocument(Root / "tree-2" / "doc-4.js", TargetFormats.Selected("html")),
+    )
+    val generatedNodes = Seq(
+      jsStart, rawLink("/doc-2.epub.js"), jsEnd, separator,
+      jsStart, rawLink("/doc-3.shared.js"), jsEnd
+    )
+    parseAndRewrite(input, DefaultTemplatePath.forEPUB, staticDocs) should be (buildResult(generatedNodes))
   }
   
 }
