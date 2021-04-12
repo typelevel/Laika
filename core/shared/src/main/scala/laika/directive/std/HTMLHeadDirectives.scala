@@ -69,6 +69,23 @@ object HTMLHeadDirectives {
     }
   }
   
+  private def linkDirective (supportedSuffix: String, 
+                             templateStart: String, 
+                             templateEnd: String): Templates.DirectivePart[Either[String, TemplateSpan]] = {
+    import Templates.dsl._
+
+    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
+      val suffixFilter: String => Boolean = cursor.root.targetFormat match {
+        case Some("epub") | Some("epub.xhtml") | Some("html") => 
+          (suffix: String) => suffix.endsWith(supportedSuffix) && suffix != s"page.$supportedSuffix"
+        case _ => _ => false
+      }
+      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
+      val embedIn = (TemplateString(templateStart), TemplateString(templateEnd))
+      renderLinks(cursor, suffixFilter, includePaths, embedIn)
+    }
+  }
+  
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
     * relative to the currently processed document. 
     *
@@ -79,16 +96,7 @@ object HTMLHeadDirectives {
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
   lazy val linkCSS: Templates.Directive = Templates.eval("linkCSS") {
-    import Templates.dsl._
-    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
-      val suffixFilter: String => Boolean = cursor.root.targetFormat match {
-        case Some("epub") | Some("epub.xhtml") | Some("html") => (suffix: String) => suffix.endsWith("css") && suffix != "page.css"
-        case _ => _ => false
-      }
-      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      val embedIn = (TemplateString(s"""<link rel="stylesheet" type="text/css" href=""""), TemplateString("\" />"))
-      renderLinks(cursor, suffixFilter, includePaths, embedIn)
-    }
+    linkDirective("css", s"""<link rel="stylesheet" type="text/css" href="""", "\" />")
   }
 
   /** Template directive that inserts links to all JavaScript inputs found in the document tree, using a path
@@ -101,12 +109,7 @@ object HTMLHeadDirectives {
     * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
     */
   lazy val linkJS: Templates.Directive = Templates.eval("linkJS") {
-    import Templates.dsl._
-    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
-      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      val embedIn = (TemplateString(s"""<script src=""""), TemplateString("\"></script>"))
-      renderLinks(cursor, _ == "js", includePaths, embedIn)
-    }
+    linkDirective("js", s"""<script src="""", "\"></script>")
   }
   
 }
