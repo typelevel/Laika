@@ -38,10 +38,10 @@ object DocumentTypeMatcher {
   private val ConfigName = "directory.conf"
   
   def staticTargetFormats (path: Path): TargetFormats = path.suffix match {
-    case Some("shared.css")       => TargetFormats.Selected("html", "epub", "epub.xhtml")
-    case Some("epub.css")         => TargetFormats.Selected("epub", "epub.xhtml")
-    case Some("css") | Some("js") => TargetFormats.Selected("html")
-    case Some(fmt) if fmt.endsWith(".css") => TargetFormats.Selected("html")
+    case Some("shared.css") | Some("shared.js") => TargetFormats.Selected("html", "epub", "epub.xhtml")
+    case Some("epub.css")   | Some("epub.js")   => TargetFormats.Selected("epub", "epub.xhtml")
+    case Some("css")        | Some("js")        => TargetFormats.Selected("html")
+    case Some(fmt) if fmt.endsWith(".css") || fmt.endsWith(".js") => TargetFormats.Selected("html")
     case _ => TargetFormats.All 
   }
 
