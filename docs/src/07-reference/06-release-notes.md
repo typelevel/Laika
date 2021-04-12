@@ -22,7 +22,13 @@ Release Notes
 * Link Validation: new `addProvidedPath` method on `InputTreeBuilder` that adds a path representing a document which is 
   processed by some external tool, making it available during link validation.
 * PDF Support: upgrade to Apache FOP 2.6 (2.4 and 2.5 were both skipped as they had an issue with dependencies 
-  in their POMs)
+  in their POMs).
+* EPUB Renderer: add support for JavaScript execution in EPUB documents
+    * Scripting in EPUB requires a flag to be set for each scripted document in OPF metadata.
+    * Indicators can be given in the EPUB template with the new `laika.epub.scripted` key,
+      which has the values `always`, `never` and `auto`.
+      The `auto` value which is also used in Helium's default template sets the flag whenever there are any
+      documents in the input tree with the suffix `.epub.js` or `.shared.js`.
 * Error Handling for Rewrite Rules and Cursor API
     * Change signatures of methods for registering rules in a bundle, rewriting a document or creating a cursor 
       to include error handling (rule builders can now return an `Either[ConfigError, RewriteRule]`).
