@@ -197,10 +197,10 @@ private[helium] trait ColorOps {
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
-                   text: Color): Helium = withColors(currentColors.copy(
+                   text: Color): Helium = withColors(currentColors.copy(theme = ThemeColors(
     primary = primary, primaryDark = primaryDark, primaryMedium = primaryMedium, primaryLight = primaryLight,
     secondary = secondary, text = text
-  ))
+  )))
   def messageColors (info: Color,
                      infoLight: Color,
                      warning: Color,
