@@ -34,7 +34,7 @@ import laika.theme._
   * In the minimal example below we only specify some metadata for all formats as well as the navigation depth
   * for EPUB and PDF:
   *
-  * ```scala
+  * {{{
   * val theme = Helium.defaults
   * .all.metadata(
   * title = Some("Project Name"),
@@ -43,7 +43,7 @@ import laika.theme._
   * .epub.navigationDepth(4)
   * .pdf.navigationDepth(4)
   * .build
-  * ```
+  * }}}
   *
   * Laika also provides convenient constructors for some of the data types used frequently in its theme API.
   * You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` or `rgb(255, 0, 0)` and 

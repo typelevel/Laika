@@ -38,6 +38,7 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          themeFonts: ThemeFonts,
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
+                                         darkMode: Option[ColorSet],
                                          htmlIncludes: HTMLIncludes,
                                          landingPage: Option[LandingPage],
                                          layout: WebLayout,
@@ -58,6 +59,7 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          themeFonts: ThemeFonts,
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
+                                         darkMode: Option[ColorSet],
                                          htmlIncludes: HTMLIncludes,
                                          layout: EPUBLayout,
                                          coverImages: Seq[CoverImage]) extends CommonSettings {
@@ -185,8 +187,36 @@ private[helium] trait CommonConfigOps {
 
 }
 
-private[helium] trait SingleConfigOps extends CommonConfigOps {
+private[helium] trait ColorOps {
+
   protected def currentColors: ColorSet
+  protected def withColors (colors: ColorSet): Helium
+
+  def themeColors (primary: Color,
+                   primaryDark: Color,
+                   primaryMedium: Color,
+                   primaryLight: Color,
+                   secondary: Color,
+                   text: Color): Helium = withColors(currentColors.copy(
+    primary = primary, primaryDark = primaryDark, primaryMedium = primaryMedium, primaryLight = primaryLight,
+    secondary = secondary, text = text
+  ))
+  def messageColors (info: Color,
+                     infoLight: Color,
+                     warning: Color,
+                     warningLight: Color,
+                     error: Color,
+                     errorLight: Color): Helium = withColors(currentColors.copy(messages =
+    MessageColors(info, infoLight, warning, warningLight, error, errorLight)
+  ))
+  def syntaxHighlightingColors (base: ColorQuintet, wheel: ColorQuintet): Helium =
+    withColors(currentColors.copy(syntaxHighlighting =
+      SyntaxColors(base, wheel)
+    ))
+}
+
+private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
+  
   protected def withFontFamilies (fonts: ThemeFonts): Helium
   protected def withFontSizes (sizes: FontSizes): Helium
   protected def withColors (colors: ColorSet): Helium
@@ -203,27 +233,7 @@ private[helium] trait SingleConfigOps extends CommonConfigOps {
                  header4: Length,
                  small: Length): Helium =
     withFontSizes(FontSizes(body, code, title, header2, header3, header4, small))
-  def themeColors (primary: Color,
-                   primaryDark: Color,
-                   primaryMedium: Color,
-                   primaryLight: Color,
-                   secondary: Color,
-                   text: Color): Helium = withColors(currentColors.copy(
-    primary = primary, primaryDark = primaryDark, primaryMedium = primaryMedium, primaryLight = primaryLight, 
-    secondary = secondary, text = text
-  ))
-  def messageColors (info: Color,
-                     infoLight: Color,
-                     warning: Color,
-                     warningLight: Color,
-                     error: Color,
-                     errorLight: Color): Helium = withColors(currentColors.copy(messages =
-    MessageColors(info, infoLight, warning, warningLight, error, errorLight)
-  ))
-  def syntaxHighlightingColors (base: ColorQuintet, wheel: ColorQuintet): Helium =
-    withColors(currentColors.copy(syntaxHighlighting =
-      SyntaxColors(base, wheel)
-    ))
+
   def metadata (title: Option[String] = None,
                 description: Option[String] = None,
                 identifier: Option[String] = None,
@@ -308,6 +318,15 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   protected def withMetadata (metadata: DocumentMetadata): Helium = 
     copyWith(helium.siteSettings.copy(metadata = metadata.withDefaults(helium.siteSettings.metadata)))
 
+  /** Allows to add a second color set for dark mode.
+    * The implementation is based on the `prefers-color-scheme` media query and requires browsers supporting
+    * dark mode.
+    */
+  def darkMode: ColorOps = new ColorOps {
+    protected def currentColors: ColorSet = helium.siteSettings.darkMode.getOrElse(helium.siteSettings.colors)
+    protected def withColors (colors: ColorSet): Helium = copyWith(helium.siteSettings.copy(darkMode = Some(colors)))
+  }
+  
   /** Auto-links CSS documents from the specified paths.
     * By default all CSS documents found anywhere in the input tree will be linked in HTML files.
     * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
@@ -483,6 +502,15 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   protected def withMetadata (metadata: DocumentMetadata): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(metadata = metadata)))
 
+  /** Allows to add a second color set for dark mode.
+    * The implementation is based on the `prefers-color-scheme` media query and requires e-book readers supporting
+    * dark mode.
+    */
+  def darkMode: ColorOps = new ColorOps {
+    protected def currentColors: ColorSet = helium.epubSettings.darkMode.getOrElse(helium.epubSettings.colors)
+    protected def withColors (colors: ColorSet): Helium = copyWith(helium.epubSettings.copy(darkMode = Some(colors)))
+  }
+  
   /** The navigation depth of the main navigation structure provided to the EPUB reader.
     * The depth value counts all elements that form the hierarchy, directories, documents and sections within
     * documents.

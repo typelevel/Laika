@@ -102,6 +102,7 @@ private[helium] object HeliumDefaults {
       small = px(12)
     ),
     colors = colors(syntaxDarkScheme),
+    darkMode = None,
     htmlIncludes = HTMLIncludes(),
     landingPage = None,
     layout = WebLayout(
@@ -131,6 +132,7 @@ private[helium] object HeliumDefaults {
       small   = em(0.8)
     ),
     colors = colors(syntaxLightScheme),
+    darkMode = None,
     htmlIncludes = HTMLIncludes(),
     layout = EPUBLayout(
       defaultBlockSpacing = px(10),
