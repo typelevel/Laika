@@ -78,13 +78,17 @@ private[helium] object HeliumDefaults {
       Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
     )
   )
-  def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
+  private val themeColors = ThemeColors(
     primary = Color.hex("007c99"),
     secondary = Color.hex("931813"),
     primaryDark = Color.hex("095269"),
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("ebf6f7"),
-    text = Color.hex("5f5f5f"),
+    text = Color.hex("5f5f5f")
+  )
+  
+  def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
+    theme = themeColors,
     messages = defaultMessageColors,
     syntaxHighlighting = syntaxScheme
   )

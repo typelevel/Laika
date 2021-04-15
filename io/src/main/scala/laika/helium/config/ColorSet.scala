@@ -18,14 +18,16 @@ package laika.helium.config
 
 import laika.theme.config.Color
 
-private[helium] case class ColorSet (primary: Color,
-                                     primaryDark: Color,
-                                     primaryMedium: Color,
-                                     primaryLight: Color,
-                                     secondary: Color,
-                                     text: Color,
+private[helium] case class ColorSet (theme: ThemeColors,
                                      messages: MessageColors,
                                      syntaxHighlighting: SyntaxColors)
+
+private[helium] case class ThemeColors (primary: Color,
+                                        primaryDark: Color,
+                                        primaryMedium: Color,
+                                        primaryLight: Color,
+                                        secondary: Color,
+                                        text: Color)
 
 private[helium] case class MessageColors (info: Color,
                                           infoLight: Color,

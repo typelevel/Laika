@@ -108,7 +108,7 @@ private[laika] class FOStyles (helium: Helium) {
     |  font-family: ${themeFonts.headlines};
     |  font-size: ${fontSizes.title.displayValue};
     |  font-weight: bold;
-    |  color: ${colors.primary.displayValue};
+    |  color: ${colors.theme.primary.displayValue};
     |  space-before: 0mm;
     |  space-after: 6mm;
     |}
@@ -228,7 +228,7 @@ private[laika] class FOStyles (helium: Helium) {
     |}
     |
     |FootnoteLink, CitationLink, SpanLink {
-    |  color: ${colors.secondary.displayValue};
+    |  color: ${colors.theme.secondary.displayValue};
     |}
     |
     |SpanLink {
@@ -237,12 +237,12 @@ private[laika] class FOStyles (helium: Helium) {
     |
     |NavigationItem SpanLink {
     |  font-weight: bold;
-    |  color: ${colors.primary.displayValue};
+    |  color: ${colors.theme.primary.displayValue};
     |}
     |
     |Paragraph.level2.nav SpanLink {
     |  font-weight: bold;
-    |  color: ${colors.secondary.displayValue};
+    |  color: ${colors.theme.secondary.displayValue};
     |}
     |
     |Emphasized {
@@ -319,7 +319,7 @@ private[laika] class FOStyles (helium: Helium) {
     |Paragraph.nav.level1 {
     |  font-size: 22pt; /* TODO - align with header font sizes */
     |  font-weight: bold;
-    |  color: ${colors.secondary.displayValue};
+    |  color: ${colors.theme.secondary.displayValue};
     |  margin-left: 0mm;
     |  text-align-last: center;
     |  text-transform: uppercase;
@@ -328,7 +328,7 @@ private[laika] class FOStyles (helium: Helium) {
     |
     |Paragraph.nav.level2 {
     |  font-size: 17pt;
-    |  color: ${colors.secondary.displayValue};
+    |  color: ${colors.theme.secondary.displayValue};
     |  margin-left: 4mm;
     |  space-before: 7mm;
     |}

@@ -52,12 +52,12 @@ private[helium] object CSSVarGenerator {
   def generate (common: CommonSettings, additionalStyles: Seq[(String, String)]): String = {
     import common._
     (Seq(
-      "primary-color" -> colors.primary.displayValue,
-      "primary-light" -> colors.primaryLight.displayValue,
-      "primary-medium" -> colors.primaryMedium.displayValue,
-      "primary-dark" -> colors.primaryDark.displayValue,
-      "secondary-color" -> colors.secondary.displayValue,
-      "text-color" -> colors.text.displayValue,
+      "primary-color" -> colors.theme.primary.displayValue,
+      "primary-light" -> colors.theme.primaryLight.displayValue,
+      "primary-medium" -> colors.theme.primaryMedium.displayValue,
+      "primary-dark" -> colors.theme.primaryDark.displayValue,
+      "secondary-color" -> colors.theme.secondary.displayValue,
+      "text-color" -> colors.theme.text.displayValue,
       "messages-info" -> colors.messages.info.displayValue,
       "messages-info-light" -> colors.messages.infoLight.displayValue,
       "messages-warning" -> colors.messages.warning.displayValue,
