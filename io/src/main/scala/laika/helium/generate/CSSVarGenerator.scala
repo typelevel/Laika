@@ -18,11 +18,13 @@ package laika.helium.generate
 
 import laika.ast.RelativePath
 import laika.ast.Path.Root
-import laika.helium.config.{CommonSettings, EPUBSettings, SiteSettings}
+import laika.helium.config.{ColorSet, CommonSettings, DarkModeSupport, EPUBSettings, SiteSettings}
 import laika.theme.config.FontDefinition
 
 private[helium] object CSSVarGenerator {
 
+  private val darkModeMediaQuery = "@media (prefers-color-scheme: dark) {"
+  
   private def generateFontFace (fontDef: FontDefinition, path: RelativePath): String = 
     s"""@font-face {
         |  font-family: "${fontDef.family}";
@@ -48,53 +50,75 @@ private[helium] object CSSVarGenerator {
     }.mkString("", "\n\n", "\n\n")
     embeddedFonts + generate(settings, Nil)
   }
+  
+  private def toVars (pairs: Seq[(String, String)]): Seq[(String, String)] = pairs.map { 
+    case (name, value) => (s"--$name", value)
+  }
 
-  def generate (common: CommonSettings, additionalStyles: Seq[(String, String)]): String = {
-    import common._
-    (Seq(
-      "primary-color" -> colors.theme.primary.displayValue,
-      "primary-light" -> colors.theme.primaryLight.displayValue,
-      "primary-medium" -> colors.theme.primaryMedium.displayValue,
-      "primary-dark" -> colors.theme.primaryDark.displayValue,
-      "secondary-color" -> colors.theme.secondary.displayValue,
-      "text-color" -> colors.theme.text.displayValue,
-      "messages-info" -> colors.messages.info.displayValue,
-      "messages-info-light" -> colors.messages.infoLight.displayValue,
-      "messages-warning" -> colors.messages.warning.displayValue,
-      "messages-warning-light" -> colors.messages.warningLight.displayValue,
-      "messages-error" -> colors.messages.error.displayValue,
-      "messages-error-light" -> colors.messages.errorLight.displayValue,
-      "syntax-base1" -> colors.syntaxHighlighting.base.c1.displayValue,
-      "syntax-base2" -> colors.syntaxHighlighting.base.c2.displayValue,
-      "syntax-base3" -> colors.syntaxHighlighting.base.c3.displayValue,
-      "syntax-base4" -> colors.syntaxHighlighting.base.c4.displayValue,
-      "syntax-base5" -> colors.syntaxHighlighting.base.c5.displayValue,
-      "syntax-wheel1" -> colors.syntaxHighlighting.wheel.c1.displayValue,
-      "syntax-wheel2" -> colors.syntaxHighlighting.wheel.c2.displayValue,
-      "syntax-wheel3" -> colors.syntaxHighlighting.wheel.c3.displayValue,
-      "syntax-wheel4" -> colors.syntaxHighlighting.wheel.c4.displayValue,
-      "syntax-wheel5" -> colors.syntaxHighlighting.wheel.c5.displayValue,
-      "body-font" -> ("\"" + themeFonts.body + "\""),
-      "header-font" -> ("\"" + themeFonts.headlines + "\""),
-      "code-font" -> ("\"" + themeFonts.code + "\""),
-      "body-font-size" -> fontSizes.body.displayValue,
-      "code-font-size" -> fontSizes.code.displayValue,
-      "small-font-size" -> fontSizes.small.displayValue,
-      "title-font-size" -> fontSizes.title.displayValue,
-      "header2-font-size" -> fontSizes.header2.displayValue,
-      "header3-font-size" -> fontSizes.header3.displayValue,
-      "header4-font-size" -> fontSizes.header4.displayValue,
-      "block-spacing" -> common.layout.defaultBlockSpacing.displayValue,
-      "line-height" -> common.layout.defaultLineHeight.toString
-    ) ++ additionalStyles)
-      .map { case (name, value) => 
-        s"  --$name: $value;"
-      }
-      .mkString(
-        ":root {\n  ",
-        "\n",
-        "\n}\n\n"
+  private def renderStyles (styles: Seq[(String, String)], darkMode: Boolean = false): String = {
+    val renderedStyles = styles.map { case (name, value) =>
+      s"$name: $value;"
+    }
+    
+    if (darkMode) renderedStyles.mkString(s"$darkModeMediaQuery\n  :root {\n    ", "\n    ", "\n  }\n}\n\n")
+    else renderedStyles.mkString(":root {\n  ", "\n  ", "\n}\n\n")
+  }
+  
+  def colorSet (colors: ColorSet): Seq[(String, String)] = {
+    import colors._
+    Seq(
+      "primary-color" -> theme.primary.displayValue,
+      "primary-light" -> theme.primaryLight.displayValue,
+      "primary-medium" -> theme.primaryMedium.displayValue,
+      "primary-dark" -> theme.primaryDark.displayValue,
+      "secondary-color" -> theme.secondary.displayValue,
+      "text-color" -> theme.text.displayValue,
+      "messages-info" -> messages.info.displayValue,
+      "messages-info-light" -> messages.infoLight.displayValue,
+      "messages-warning" -> messages.warning.displayValue,
+      "messages-warning-light" -> messages.warningLight.displayValue,
+      "messages-error" -> messages.error.displayValue,
+      "messages-error-light" -> messages.errorLight.displayValue,
+      "syntax-base1" -> syntaxHighlighting.base.c1.displayValue,
+      "syntax-base2" -> syntaxHighlighting.base.c2.displayValue,
+      "syntax-base3" -> syntaxHighlighting.base.c3.displayValue,
+      "syntax-base4" -> syntaxHighlighting.base.c4.displayValue,
+      "syntax-base5" -> syntaxHighlighting.base.c5.displayValue,
+      "syntax-wheel1" -> syntaxHighlighting.wheel.c1.displayValue,
+      "syntax-wheel2" -> syntaxHighlighting.wheel.c2.displayValue,
+      "syntax-wheel3" -> syntaxHighlighting.wheel.c3.displayValue,
+      "syntax-wheel4" -> syntaxHighlighting.wheel.c4.displayValue,
+      "syntax-wheel5" -> syntaxHighlighting.wheel.c5.displayValue
     )
+  }
+
+  def generate (common: DarkModeSupport, additionalVars: Seq[(String, String)]): String = {
+    import common._
+    val vars = 
+      colorSet(common.colors) ++ 
+      Seq(
+        "body-font" -> ("\"" + themeFonts.body + "\""),
+        "header-font" -> ("\"" + themeFonts.headlines + "\""),
+        "code-font" -> ("\"" + themeFonts.code + "\""),
+        "body-font-size" -> fontSizes.body.displayValue,
+        "code-font-size" -> fontSizes.code.displayValue,
+        "small-font-size" -> fontSizes.small.displayValue,
+        "title-font-size" -> fontSizes.title.displayValue,
+        "header2-font-size" -> fontSizes.header2.displayValue,
+        "header3-font-size" -> fontSizes.header3.displayValue,
+        "header4-font-size" -> fontSizes.header4.displayValue,
+        "block-spacing" -> common.layout.defaultBlockSpacing.displayValue,
+        "line-height" -> common.layout.defaultLineHeight.toString
+      ) ++ 
+      additionalVars
+      
+    val (colorScheme, darkModeStyles) = common.darkMode match {
+      case Some(darkModeColors) => (Seq(("color-scheme", "light dark")), 
+                                    renderStyles(toVars(colorSet(darkModeColors)), darkMode = true))
+      case None                 => (Nil, "")
+    }
+    
+    renderStyles(toVars(vars) ++ colorScheme) + darkModeStyles
   }
   
 }
