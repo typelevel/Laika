@@ -212,7 +212,7 @@ the site and PDF output.
 Colors
 ------
 
-Helium let's you define two different color sets: The theme colors which are used for headlines, links, navigation
+Helium lets you define two different color sets: The theme colors which are used for headlines, links, navigation
 and backgrounds as well as the syntax coloring scheme to be used for all code blocks.
 
 ### Theme Colors
@@ -328,6 +328,31 @@ spans, the wheel colors are used for the more significant types of code spans.
 Amongst others these are substitution references, annotations (1st color), keywords, escape sequences (2nd),
 attribute names, declaration names (3rd), all types of literals (4th), type names, tag names (5th), 
 and several categories for other types of syntax, e.g. in text markup.
+
+
+### Dark Mode
+
+For EPUB and HTML output Laika also supports explicit configuration for dark mode.
+This requires e-book readers and browsers which support the CSS for dark mode 
+(the `color-scheme` attribute and the `prefers-color-scheme` media query).
+In supported software the color sets configured for Helium's dark mode become active
+whenever the user has switched on dark mode in the OS or in the reader software.
+
+The following example defines custom theme colors for dark mode in EPUB output:
+
+```scala
+Helium.defaults
+  .epub.darkMode.themeColors(
+    primary = hex("007c99"),
+    primaryDark = hex("931813"),
+    primaryLight = hex("095269"),
+    primaryMedium = Color.hex("a7d4de"),
+    primaryLight = Color.hex("ebf6f7"),
+    text = Color.hex("5f5f5f")
+  )
+```
+
+Similar configuration can be added for site output and syntax highlighting colors.
 
 
 Layout
