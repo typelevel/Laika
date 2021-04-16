@@ -224,6 +224,33 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header4-font-size: 1.1em;
                               |--block-spacing: 10px;
                               |--line-height: 1.5;""".stripMargin
+  
+  private val darkModeColors = """color-scheme: light dark;
+                                 |}
+                                 |@media (prefers-color-scheme: dark) {
+                                 |:root {
+                                 |--primary-color: rgb(11,11,11);
+                                 |--primary-light: rgb(12,12,12);
+                                 |--primary-medium: rgb(14,14,14);
+                                 |--primary-dark: rgb(10,10,10);
+                                 |--secondary-color: rgb(112,112,112);
+                                 |--text-color: rgb(110,110,110);
+                                 |--messages-info: #00aaaa;
+                                 |--messages-info-light: #00aaab;
+                                 |--messages-warning: #00aaac;
+                                 |--messages-warning-light: #00aaad;
+                                 |--messages-error: #00aaae;
+                                 |--messages-error-light: #00aaaf;
+                                 |--syntax-base1: #200011;
+                                 |--syntax-base2: #200022;
+                                 |--syntax-base3: #200033;
+                                 |--syntax-base4: #200044;
+                                 |--syntax-base5: #200055;
+                                 |--syntax-wheel1: #210011;
+                                 |--syntax-wheel2: #210022;
+                                 |--syntax-wheel3: #210033;
+                                 |--syntax-wheel4: #210044;
+                                 |--syntax-wheel5: #210055;""".stripMargin
 
   test("custom colors - via 'epub' selector") {
     import laika.theme.config.Color._
@@ -255,6 +282,34 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
         wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
+  }
+
+  test("custom colors in dark mode") {
+    import laika.theme.config.Color._
+    val helium = Helium.defaults
+      .epub.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
+        secondary = rgb(212,212,212), text = rgb(10,10,10))
+      .epub.messageColors(
+        info = hex("aaaaaa"), infoLight = hex("aaaaab"),
+        warning = hex("aaaaac"), warningLight = hex("aaaaad"),
+        error = hex("aaaaae"), errorLight = hex("aaaaaf")
+      )
+      .epub.syntaxHighlightingColors(
+        base = ColorQuintet(hex("000011"), hex("000022"), hex("000033"), hex("000044"), hex("000055")),
+        wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
+      )
+      .epub.darkMode.themeColors(primary = rgb(11,11,11), primaryDark = rgb(10,10,10), primaryLight = rgb(12,12,12), 
+        primaryMedium = rgb(14,14,14), secondary = rgb(112,112,112), text = rgb(110,110,110))
+      .epub.darkMode.messageColors(
+        info = hex("00aaaa"), infoLight = hex("00aaab"),
+        warning = hex("00aaac"), warningLight = hex("00aaad"),
+        error = hex("00aaae"), errorLight = hex("00aaaf")
+      )
+      .epub.darkMode.syntaxHighlightingColors(
+        base = ColorQuintet(hex("200011"), hex("200022"), hex("200033"), hex("200044"), hex("200055")),
+        wheel = ColorQuintet(hex("210011"), hex("210022"), hex("210033"), hex("210044"), hex("210055"))
+      )
+    transformAndExtract(singleDoc, helium, ":root {", "}\n}").assertEquals(customColors + "\n" + darkModeColors)
   }
 
   test("layout") {

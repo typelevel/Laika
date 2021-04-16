@@ -34,6 +34,10 @@ private[helium] trait CommonSettings {
   def layout: CommonLayout
 }
 
+private[helium] trait DarkModeSupport extends CommonSettings {
+  def darkMode: Option[ColorSet]
+}
+  
 private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          themeFonts: ThemeFonts,
                                          fontSizes: FontSizes,
@@ -44,7 +48,7 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          layout: WebLayout,
                                          metadata: DocumentMetadata,
                                          versions: Option[Versions] = None,
-                                         baseURL: Option[String] = None) extends CommonSettings
+                                         baseURL: Option[String] = None) extends DarkModeSupport
 
 private[helium] case class PDFSettings (bookConfig: BookConfig,
                                         themeFonts: ThemeFonts,
@@ -62,7 +66,7 @@ private[helium] case class EPUBSettings (bookConfig: BookConfig,
                                          darkMode: Option[ColorSet],
                                          htmlIncludes: HTMLIncludes,
                                          layout: EPUBLayout,
-                                         coverImages: Seq[CoverImage]) extends CommonSettings {
+                                         coverImages: Seq[CoverImage]) extends DarkModeSupport {
   val metadata: DocumentMetadata = bookConfig.metadata
 }
 

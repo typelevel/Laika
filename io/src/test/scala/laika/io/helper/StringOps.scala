@@ -25,10 +25,11 @@ trait StringOps {
 
   implicit class TestStringOps (val str: String) {
     
-    def extract (start: String, end: String): Option[String] = for {
-      rest <- str.split(Pattern.quote(start)).drop(1).headOption
-      res  <- rest.split(Pattern.quote(end)).headOption
-    } yield res
+    def extract (start: String, end: String): Option[String] = {
+      val rest = str.split(Pattern.quote(start)).drop(1)
+      if (rest.isEmpty) None
+      else rest.mkString(start).split(Pattern.quote(end)).headOption
+    }
 
     def extractTag (tag: String): Option[String] = extract(s"<$tag>", s"</$tag>")
     
