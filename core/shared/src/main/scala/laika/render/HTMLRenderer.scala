@@ -202,6 +202,11 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
       case _                           => ""
     }
 
+    def renderIcon (icon: Icon): String = icon match {
+      case icon: IconGlyph => 
+        fmt.rawElement("i", icon.options, icon.codePointAsEntity, fmt.optAttributes("title" -> icon.title): _*)
+    }
+
     def renderSimpleSpan (span: Span): String = span match {
       case CitationLink(ref,label,opt) => fmt.textElement("a", opt + Style.citation, s"[$label]", "href"->("#"+ref))
       case FootnoteLink(ref,label,opt) => fmt.textElement("a", opt + Style.footnote, s"[$label]", "href"->("#"+ref))
@@ -223,8 +228,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
           "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
         fmt.emptyElement("img", opt, allAttr:_*)
 
-      case icon: Icon                     => fmt.rawElement("i", icon.options, icon.codePointAsEntity, fmt.optAttributes("title" -> icon.title): _*)
-
+      case icon: Icon                     => renderIcon(icon)
       case LineBreak(_)                   => fmt.emptyElement("br")
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
 

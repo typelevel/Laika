@@ -166,18 +166,18 @@ private[laika] class FOStyles (helium: Helium) {
     |  padding-top: -2mm;
     |}
     |
-    |Icon {
+    |IconGlyph {
     |  font-family: IcoFont; 
     |  font-size: 16pt;
     |}
     |
-    |.callout.info Icon {
+    |.callout.info IconGlyph {
     |  color: ${colors.messages.info.displayValue};
     |}
-    |.callout.warning Icon {
+    |.callout.warning IconGlyph {
     |  color: ${colors.messages.warning.displayValue};
     |}
-    |.callout.error Icon {
+    |.callout.error IconGlyph {
     |  color: ${colors.messages.error.displayValue};
     |}
     |

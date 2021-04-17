@@ -202,6 +202,10 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case ext: ExternalTarget => ext.url
       case int: InternalTarget => fmt.buildId(int.relativeTo(fmt.path).absolutePath)
     }
+    
+    def renderIcon (icon: Icon): String = icon match {
+      case icon: IconGlyph => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
+    }
 
     def renderSimpleSpan (span: Span): String = span match {
       case e @ CitationLink(ref,label,_)  => fmt.withCitation(ref)(c => fmt.footnote(e,label,c.content,c.options))
@@ -214,7 +218,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
           case et: ExternalTarget => et.url
         }
         fmt.externalGraphic(e, uri, None, None) // ignore intrinsic size and rely on styles for sizing
-      case icon: Icon                     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
+      case icon: Icon                     => renderIcon(icon)
       case e: Leader                      => fmt.textElement("fo:leader", e, "", "leader-pattern"->"dots", "padding-left" -> "2mm", "padding-right" -> "2mm")
       case PageNumberCitation(target,_)     => s"""<fo:page-number-citation ref-id="${fmt.buildId(target.relativeTo(fmt.path).absolutePath)}" />"""
       case LineBreak(_)                   => "&#x2028;"

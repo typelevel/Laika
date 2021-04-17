@@ -22,7 +22,6 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.bundle.DocumentTypeMatcher
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
@@ -57,7 +56,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   def renderUnformatted (elem: Element): String = 
     Renderer.of(XSLFO).unformatted.build.render(elem, Root / "doc", pathTranslator, TestTheme.foStyles)
 
-  val imageTarget = InternalTarget(CurrentTree / "foo.jpg")
+  private val imageTarget = InternalTarget(CurrentTree / "foo.jpg")
   
 
   "The XSLFO renderer" should "render a paragraph with plain text" in {
@@ -726,7 +725,8 @@ class XSLFORendererSpec extends AnyFlatSpec
     val translator = {
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
       val tConfig = TranslatorConfig.readFrom(config).getOrElse(TranslatorConfig.empty)
-      val lookup: Path => Option[TranslatorSpec] = path => if (path == Root / "doc") Some(TranslatorSpec(false, false)) else None
+      val lookup: Path => Option[TranslatorSpec] = path => 
+        if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
       ConfigurablePathTranslator(tConfig, "fo", "pdf", Root / "doc", lookup)
     }
     defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles) should be (fo)
@@ -775,7 +775,7 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing an icon link" in {
-    val elem = p(Text("some "), SpanLink.external("/foo")(Icon('\uefa2', options = Styles("icofont-laika"))), Text(" span"))
+    val elem = p(Text("some "), SpanLink.external("/foo")(IconGlyph('\uefa2', options = Styles("icofont-laika"))), Text(" span"))
     val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold"><fo:inline font-family="IcoFont" font-size="16pt">&#xefa2;</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
