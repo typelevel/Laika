@@ -226,8 +226,16 @@ sealed trait Icon extends Span {
   */
 case class IconGlyph (codePoint: Char, title: Option[String] = None, options: Options = NoOpt) extends Icon {
   def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint)};"
-  type Self = Icon
+  type Self = IconGlyph
   def withOptions(newOptions: Options): IconGlyph = copy(options = newOptions)
+}
+
+/** An icon defined in a style sheet, usually defining a glyph from an icon font.
+  * This icon type is not supported for PDF output, when using font icons with PDF use `IconGlyph` instead.
+  */
+case class IconStyle (styleName: String, title: Option[String] = None, options: Options = NoOpt) extends Icon {
+  type Self = IconStyle
+  def withOptions(newOptions: Options): IconStyle = copy(options = newOptions)
 }
 
 object ParsedLink {
