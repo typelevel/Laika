@@ -238,6 +238,13 @@ case class IconStyle (styleName: String, title: Option[String] = None, options: 
   def withOptions(newOptions: Options): IconStyle = copy(options = newOptions)
 }
 
+/** An SVG icon that will render inline, supported for all output formats.
+  */
+case class InlineSVGIcon (content: String, title: Option[String] = None, options: Options = NoOpt) extends Icon {
+  type Self = InlineSVGIcon
+  def withOptions(newOptions: Options): InlineSVGIcon = copy(options = newOptions)
+}
+
 object ParsedLink {
   /** Creates a new span that acts as a link reference based on the specified
     * URL which will be parsed and interpreted as an internal or external target.

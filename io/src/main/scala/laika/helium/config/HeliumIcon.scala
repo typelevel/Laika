@@ -16,7 +16,8 @@
 
 package laika.helium.config
 
-import laika.ast.{IconGlyph, Icon, Styles}
+import laika.ast.{Icon, IconGlyph, InlineSVGIcon, Styles}
+import laika.helium.builder.SVGIcons
 
 /** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
   * 
@@ -29,23 +30,21 @@ import laika.ast.{IconGlyph, Icon, Styles}
   * @author Jens Halm
   */
 object HeliumIcon {
-  private val options = Styles("icofont-laika")
-  val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), options)
-  val home: Icon           = IconGlyph('\uef47', Some("Home"), options)
-  val link: Icon           = IconGlyph('\uef71', None, options)
-  val close: Icon          = IconGlyph('\ueedd', Some("Close"), options)
-  val check: Icon          = IconGlyph('\ueed7', None, options)
-  val chat: Icon           = IconGlyph('\ueed5', Some("Chat"), options)
-  val settings: Icon       = IconGlyph('\uefb0', Some("Settings"), options)
-  val edit: Icon           = IconGlyph('\uef10', Some("Edit"), options)
-  val demo: Icon           = IconGlyph('\ueeea', Some("Demo"), options)
-  val download: Icon       = IconGlyph('\uef08', Some("Download"), options)
-  val info: Icon           = IconGlyph('\uef4e', None, options)
-  val warning: Icon        = IconGlyph('\uf026', None, options)
-  val error: Icon          = IconGlyph('\ueedd', None, options)
-  val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), options)
-  
-  // the last two are not font icons, but temporary placeholders for SVG icons which are not fully supported yet
-  val api: Icon            = IconGlyph('0', title = Some("API"), options = Styles("api-link"))
-  val github: Icon         = IconGlyph('0', title = Some("Source Code"), options = Styles("source-link"))
+  private val iconFontStyle = Styles("icofont-laika")
+  val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), iconFontStyle)
+  val home: Icon           = IconGlyph('\uef47', Some("Home"), iconFontStyle)
+  val link: Icon           = IconGlyph('\uef71', None, iconFontStyle)
+  val close: Icon          = IconGlyph('\ueedd', Some("Close"), iconFontStyle)
+  val check: Icon          = IconGlyph('\ueed7', None, iconFontStyle)
+  val chat: Icon           = IconGlyph('\ueed5', Some("Chat"), iconFontStyle)
+  val settings: Icon       = IconGlyph('\uefb0', Some("Settings"), iconFontStyle)
+  val edit: Icon           = IconGlyph('\uef10', Some("Edit"), iconFontStyle)
+  val demo: Icon           = IconGlyph('\ueeea', Some("Demo"), iconFontStyle)
+  val download: Icon       = IconGlyph('\uef08', Some("Download"), iconFontStyle)
+  val info: Icon           = IconGlyph('\uef4e', None, iconFontStyle)
+  val warning: Icon        = IconGlyph('\uf026', None, iconFontStyle)
+  val error: Icon          = IconGlyph('\ueedd', None, iconFontStyle)
+  val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), iconFontStyle)
+  val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"))
+  val github: Icon         = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"))
 }
