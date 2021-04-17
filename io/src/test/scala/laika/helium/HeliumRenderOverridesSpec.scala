@@ -19,7 +19,7 @@ package laika.helium
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
-import laika.ast.Path
+import laika.ast.{IconGlyph, Icon, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.{AnchorPlacement, HeliumIcon}
@@ -56,6 +56,11 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
   
   def transformAndExtract(input: String, helium: Helium = Helium.defaults, configure: ConfigureTransformer = identity): IO[String] = {
     transformAndExtract(Seq(Root / "doc.md" -> input), helium, "<main class=\"content\">", "</main>", configure)
+  }
+  
+  def entity (icon: Icon): String = icon match {
+    case fig: IconGlyph => fig.codePointAsEntity
+    case _ => ""
   }
     
   test("selections as tabs") {
@@ -106,7 +111,7 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
       """.stripMargin
     val expected = 
       s"""<div class="callout warning">
-         |<i class="icofont-laika">${HeliumIcon.warning.codePointAsEntity}</i>
+         |<i class="icofont-laika">${entity(HeliumIcon.warning)}</i>
          |<p>You really should not do this.</p>
          |</div>""".stripMargin
     transformAndExtract(input).assertEquals(expected)
@@ -125,14 +130,14 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
   test("anchors for headers - left placement (default)") {
     val expected = 
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika">${HeliumIcon.link.codePointAsEntity}</i></a>Some Headline</h2>""".stripMargin
+         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika">${entity(HeliumIcon.link)}</i></a>Some Headline</h2>""".stripMargin
     transformAndExtract(headlineInput).assertEquals(expected)
   }
 
   test("anchors for headers - right placement") {
     val expected =
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika">${HeliumIcon.link.codePointAsEntity}</i></a></h2>""".stripMargin
+         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
     val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, 
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.Right)

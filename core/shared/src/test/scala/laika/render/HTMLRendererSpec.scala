@@ -606,7 +606,7 @@ class HTMLRendererSpec extends AnyFlatSpec
   it should "render a paragraph containing an icon link" in {
     val elem = p(
       Text("some "), 
-      SpanLink.external("/foo")(Icon('\uefa2', options = Styles("icofont-laika"))), 
+      SpanLink.external("/foo")(IconGlyph('\uefa2', options = Styles("icofont-laika"))), 
       Text(" span")
     )
     render (elem) should be ("""<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")

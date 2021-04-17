@@ -207,6 +207,14 @@ object Image {
     }
 }
 
+/** Base trait for all supported icon types.
+  */
+sealed trait Icon extends Span {
+  
+  /** Optional title for the icon, rendering as tooltip in some output formats. */
+  def title: Option[String]
+}
+
 /** Represents a font-based icon, identified by its code point.
   * Ideally theme authors provide constants for icons provided out of the box,
   * so that the user does not have to look up or memorize the hex code point.
@@ -216,10 +224,10 @@ object Image {
   * This approach would currently not work well with Laika's PDF support which is
   * not based on an interim HTML renderer.
   */
-case class Icon (codePoint: Char, title: Option[String] = None, options: Options = NoOpt) extends Span {
+case class IconGlyph (codePoint: Char, title: Option[String] = None, options: Options = NoOpt) extends Icon {
   def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint)};"
   type Self = Icon
-  def withOptions(newOptions: Options): Icon = copy(options = newOptions)
+  def withOptions(newOptions: Options): IconGlyph = copy(options = newOptions)
 }
 
 object ParsedLink {
