@@ -41,7 +41,9 @@ class HTMLRendererSpec extends AnyFlatSpec
     
   def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
   
-  val imageTarget = InternalTarget(Root / "foo.jpg")
+  private val imageTarget = InternalTarget(Root / "foo.jpg")
+  
+  def testPar (span: Span): Paragraph = p(Text("some "), span, Text(" span"))
 
 
   "The HTML renderer" should "render a paragraph with plain text" in {
@@ -485,121 +487,121 @@ class HTMLRendererSpec extends AnyFlatSpec
   }
   
   it should "render a paragraph containing emphasized text" in {
-    val elem = p(Text("some "), Emphasized("em"), Text(" text"))
-    render (elem) should be ("<p>some <em>em</em> text</p>") 
+    val elem = testPar(Emphasized("em"))
+    render (elem) should be ("<p>some <em>em</em> span</p>") 
   }
   
   it should "render a paragraph containing strong text" in {
-    val elem = p(Text("some "), Strong("strong"), Text(" text")) 
-    render (elem) should be ("<p>some <strong>strong</strong> text</p>") 
+    val elem = testPar(Strong("strong")) 
+    render (elem) should be ("<p>some <strong>strong</strong> span</p>") 
   }
 
   it should "render a paragraph containing a deleted span" in {
-    val elem = p(Text("some "), Deleted("deleted"), Text(" text"))
-    render (elem) should be ("<p>some <del>deleted</del> text</p>")
+    val elem = testPar(Deleted("deleted"))
+    render (elem) should be ("<p>some <del>deleted</del> span</p>")
   }
 
   it should "render a paragraph containing an inserted span" in {
-    val elem = p(Text("some "), Inserted("inserted"), Text(" text"))
-    render (elem) should be ("<p>some <ins>inserted</ins> text</p>")
+    val elem = testPar(Inserted("inserted"))
+    render (elem) should be ("<p>some <ins>inserted</ins> span</p>")
   }
   
   it should "render a paragraph containing a literal span" in {
-    val elem = p(Text("some "), Literal("code"), Text(" span"))
+    val elem = testPar(Literal("code"))
     render (elem) should be ("<p>some <code>code</code> span</p>") 
   }
   
   it should "render a paragraph containing a code span" in {
-    val elem = p(Text("some "), InlineCode("banana-script", List(Text("code"))), Text(" span"))
+    val elem = testPar(InlineCode("banana-script", List(Text("code"))))
     render (elem) should be ("<p>some <code class=\"banana-script\">code</code> span</p>") 
   }
   
   it should "render a paragraph containing a link without title" in {
-    val elem = p(Text("some "), SpanLink.external("/foo")("link"), Text(" span"))
+    val elem = testPar(SpanLink.external("/foo")("link"))
     render (elem) should be ("""<p>some <a href="/foo">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with title" in {
-    val elem = p(Text("some "), SpanLink.external("/foo")("link").copy(title = Some("title")), Text(" span"))
+    val elem = testPar(SpanLink.external("/foo")("link").copy(title = Some("title")))
     render (elem) should be ("""<p>some <a href="/foo" title="title">link</a> span</p>""") 
   }
   
   it should "render a paragraph containing a link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink.external("/foo")(Text("link"), Emphasized("text")), Text(" span"))
+    val elem = testPar(SpanLink.external("/foo")(Text("link"), Emphasized("text")))
     render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
-    val elem = p(Text("some "), SpanLink.internal("#foo")(Text("link"), Emphasized("text")), Text(" span"))
+    val elem = testPar(SpanLink.internal("#foo")(Text("link"), Emphasized("text")))
     render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with a fragment part" in {
-    val elem = p(Text("some "), SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")), Text(" span"))
+    val elem = testPar(SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")))
     render (elem) should be ("""<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link without a fragment part" in {
-    val elem = p(Text("some "), SpanLink.internal("/bar")(Text("link"), Emphasized("text")), Text(" span"))
+    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
   
   it should "render a paragraph containing a internal link with an input filename without suffix" in {
-    val elem = p(Text("some "), SpanLink.internal("/bar")(Text("link"), Emphasized("text")), Text(" span"))
+    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
     render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
   it should "render a paragraph containing an internal link while ignoring the restricted type parameter" in {
     val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), TargetFormats.Selected("html"))
-    val elem = p(Text("some "), SpanLink(target)("link"), Text(" span"))
+    val elem = testPar(SpanLink(target)("link"))
     render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
   }
   
   it should "render a paragraph containing a citation link" in {
-    val elem = p(Text("some "), CitationLink("ref","label"), Text(" span"))
+    val elem = testPar(CitationLink("ref","label"))
     render (elem) should be ("""<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing a footnote link" in {
-    val elem = p(Text("some "), FootnoteLink("id","label"), Text(" span"))
+    val elem = testPar(FootnoteLink("id","label"))
     render (elem) should be ("""<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
   }
 
   it should "render a raw internal link" in {
-    val elem = p(Text("some "), RawLink.internal("/doc#foo"), Text(" span"))
+    val elem = testPar(RawLink.internal("/doc#foo"))
     render (elem) should be ("""<p>some #foo span</p>""")
   }
 
   it should "render a raw external link" in {
-    val elem = p(Text("some "), RawLink.external("/foo"), Text(" span"))
+    val elem = testPar(RawLink.external("/foo"))
     render (elem) should be ("""<p>some /foo span</p>""")
   }
   
   it should "render a paragraph containing an image without title" in {
-    val elem = p(Text("some "), Image(imageTarget, alt = Some("img")), Text(" span"))
+    val elem = testPar(Image(imageTarget, alt = Some("img")))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
   }
   
   it should "render a paragraph containing an image with title" in {
-    val elem = p(Text("some "), Image(imageTarget, alt = Some("img"), title = Some("title")), Text(" span"))
+    val elem = testPar(Image(imageTarget, alt = Some("img"), title = Some("title")))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
 
   it should "render a paragraph containing an image with width and height in pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
-    val elem = p(Text("some "), image, Text(" span"))
+    val elem = testPar(image)
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
   }
 
   it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
-    val elem = p(Text("some "), image, Text(" span"))
+    val elem = testPar(image)
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
   }
 
   it should "render a paragraph containing an image with just width in a unit other than pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)))
-    val elem = p(Text("some "), image, Text(" span"))
+    val elem = testPar(image)
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
   }
 
@@ -620,19 +622,33 @@ class HTMLRendererSpec extends AnyFlatSpec
     )
     render (elem) should be ("""<p>some <a href="/foo"><i class="open icofont-laika"></i></a> span</p>""")
   }
+
+  it should "render a paragraph containing a link with an inline SVG icon" in {
+    val svg = """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                |  <g class="svg-shape">
+                |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
+                |  </g>
+                |</svg>""".stripMargin
+    val elem = p(
+      Text("some "),
+      SpanLink.external("/foo")(InlineSVGIcon(svg)),
+      Text(" span")
+    )
+    render (elem) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+  }
   
   it should "render a paragraph containing an unresolved link reference" in {
-    val elem = p(Text("some "), LinkIdReference("id", generatedSource("[link] [id]"))("link"), Text(" span"))
+    val elem = testPar(LinkIdReference("id", generatedSource("[link] [id]"))("link"))
     render (elem) should be ("""<p>some [link] [id] span</p>""")
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(Text("some "), ImageIdReference("img","id", source("![img] [id]", "![img] [id]")), Text(" span"))
+    val elem = testPar(ImageIdReference("img","id", source("![img] [id]", "![img] [id]")))
     render (elem) should be ("""<p>some ![img] [id] span</p>""") 
   }
   
   it should "render a paragraph containing an internal link target" in {
-    val elem = p(Text("some "), InternalLinkTarget(Id("target")), Text(" span"))
+    val elem = testPar(InternalLinkTarget(Id("target")))
     render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
   }
   
