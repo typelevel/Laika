@@ -204,8 +204,9 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
     
     def renderIcon (icon: Icon): String = icon match {
-      case icon: IconGlyph => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
-      case _               => ""
+      case icon: IconGlyph     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
+      case icon: InlineSVGIcon => fmt.rawElement("fo:instream-foreign-object", icon, icon.content)
+      case _                   => ""
     }
 
     def renderSimpleSpan (span: Span): String = span match {
