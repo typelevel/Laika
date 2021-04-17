@@ -205,6 +205,8 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
     def renderIcon (icon: Icon): String = icon match {
       case icon: IconGlyph => 
         fmt.rawElement("i", icon.options, icon.codePointAsEntity, fmt.optAttributes("title" -> icon.title): _*)
+      case icon: IconStyle =>
+        fmt.rawElement("i", Styles(icon.styleName) + icon.options, "", fmt.optAttributes("title" -> icon.title): _*)
     }
 
     def renderSimpleSpan (span: Span): String = span match {
