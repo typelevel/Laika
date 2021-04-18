@@ -16,12 +16,12 @@
 
 package laika.config
 
-import laika.ast.{DocumentMetadata, ExternalTarget, InternalTarget}
+import laika.ast.{DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
 import laika.rewrite.{Version, Versions}
-import laika.rewrite.link.{ApiLinks, LinkConfig, SourceLinks, TargetDefinition}
+import laika.rewrite.link.{ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
 import laika.time.PlatformDateFormat
 import org.scalatest.matchers.should.Matchers
@@ -46,7 +46,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         """{ 
           |laika.metadata {
           |  title = "Monkey Gone To Heaven"
-          |  description = "It's undescribable"
+          |  description = "It's indescribable"
           |  identifier = XX-33-FF-01
           |  authors = [ "Helen North", "Maria South" ]
           |  language = en
@@ -296,6 +296,19 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
     "round-trip encode and decode" in {
       val encoded = ConfigBuilder.empty.withValue(testKey, testInstance).build
       decode[Versions](encoded) shouldBe Right(testInstance)
+    }
+    
+  }
+  
+  "The codec for the icon registry" should {
+    
+    "encode a list of icons" in {
+      val open = IconStyle("open")
+      val close = IconGlyph('x')
+      val registry = IconRegistry("open" -> open, "close" -> close)
+      val encoded = ConfigBuilder.empty.withValue(registry).build
+      encoded.get[ConfigValue](LaikaKeys.icons.child("open")) shouldBe Right(ASTValue(open)) 
+      encoded.get[ConfigValue](LaikaKeys.icons.child("close")) shouldBe Right(ASTValue(close))
     }
     
   }
