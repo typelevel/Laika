@@ -180,6 +180,20 @@ object StandardDirectives extends DirectiveRegistry {
 
     (parsedBody, positionalAttributes.as[String].map(Styles(_:_*))).mapN(asSpan)
   }
+
+  /** Implementation of the `icon` directive for span elements in markup documents.
+    */
+  lazy val iconSpan: Spans.Directive  = Spans.create("icon") {
+    (Spans.dsl.attribute(0).as[String], Spans.dsl.source).mapN(IconReference(_, _))
+  }
+
+  /** Implementation of the `icon` directive for span elements in templates.
+    */
+  lazy val iconTemplate: Templates.Directive  = Templates.create("icon") {
+    (Templates.dsl.attribute(0).as[String], Templates.dsl.source).mapN { (ref, src) =>
+      TemplateElement(IconReference(ref, src))
+    }
+  }
   
   /** Implementation of the `fragment` directive for block elements in markup documents.
    */
@@ -245,6 +259,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val spanDirectives: Seq[Spans.Directive] = List(
     ImageDirectives.forSpans,
     spanStyle,
+    iconSpan,
     todoSpan
   )
   
@@ -259,6 +274,7 @@ object StandardDirectives extends DirectiveRegistry {
     IncludeDirectives.templateEmbed,
     HTMLHeadDirectives.linkCSS,
     HTMLHeadDirectives.linkJS,
+    iconTemplate,
     path,
     attr
   )

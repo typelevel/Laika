@@ -21,7 +21,9 @@ import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.config.ConfigBuilder
 import laika.parse.markup.DocumentParser.ParserError
+import laika.rewrite.link.IconRegistry
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -235,7 +237,29 @@ class StandardDirectiveSpec extends AnyFlatSpec
       )
     ))
   }
+  
+  "The icon directive" should "produce an icon" in {
+    val icon = IconStyle("open")
+    val config = ConfigBuilder.empty.withValue(IconRegistry("foo"->icon)).build
+    val input = """aa @:icon(foo) bb"""
+    parseTemplateWithConfig(input, config) shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("aa "),
+      TemplateElement(icon),
+      TemplateString(" bb")
+    )))
+  }
 
+  it should "fail when the specified icon does not exist" in {
+    val dirSrc = "@:icon(foo)"
+    val input = s"aa $dirSrc bb"
+    val msg = "Unresolved icon reference with key 'foo'"
+    parseAndRewriteTemplate(input) shouldBe Right(RootElement(TemplateRoot(
+      TemplateString("aa "),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
+      TemplateString(" bb")
+    )))
+  }
+    
   "The callout directive" should "parse a body with a single block" in {
     val input = """aa
                   |
