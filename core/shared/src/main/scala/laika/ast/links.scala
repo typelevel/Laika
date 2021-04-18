@@ -17,6 +17,7 @@
 package laika.ast
 
 import laika.ast
+import laika.config.{ASTValue, ConfigValue, LaikaKeys}
 import laika.parse.SourceFragment
 
 /** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then
@@ -274,6 +275,25 @@ object SVGSymbolIcon {
   def external (url: String): SVGSymbolIcon = apply(ExternalTarget(url))
 
 }
+
+/** A reference to an icon by key.
+  * 
+  * The icon must have been registered with the global configuration to be accessible by this node type.
+  * The indirection provided by this key allows to more easily swap entire icon sets without touching any code.
+  */
+case class IconReference (key: String, source: SourceFragment, options: Options = NoOpt) extends SpanResolver with Reference {
+  type Self = IconReference
+
+  def resolve (cursor: DocumentCursor): Span = {
+    cursor.config.getOpt[ConfigValue](LaikaKeys.icons.child(key)) match {
+      case Right(Some(ASTValue(icon: Icon))) => icon.mergeOptions(options)
+      case _                                 => InvalidSpan(unresolvedMessage, source)
+    }
+  }
+
+  def withOptions (options: ast.Options): IconReference = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved icon reference with key '$key'"
+} 
 
 object ParsedLink {
   /** Creates a new span that acts as a link reference based on the specified

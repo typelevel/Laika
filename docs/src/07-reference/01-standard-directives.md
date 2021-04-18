@@ -151,7 +151,7 @@ The body of the directive in our modified example:
 ```
 
 
-Applying Styles
+Styles & Themes
 ---------------
 
 Laika already produces a small set of class attributes in the rendered output, 
@@ -187,6 +187,56 @@ Span directive:
 ```laika-md
 Burrito - @:style(price) £3.50 @:@.
 ```
+
+
+### `@:icon`
+
+Can be used in templates or span elements in text markup.
+
+Allows to reference an icon by key that had been registered in global configuration:
+
+```laika-html
+<li>@icon(close)</li>
+```
+
+The available icon set can be registered as part of the transformer setup:
+
+@:select(config)
+
+@:choice(sbt)
+```scala
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
+```
+
+@:choice(library)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(GitHubFlavor)
+  .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
+  .build
+```
+@:@
+
+There are four available icon types:
+
+* `IconStyle`: renders a class attribute in HTML output, so that it can be selected in CSS.
+  This mechanism is used for different styles of icons: font icons that often come with pre-built CSS declarations or
+  image sprite or SVG sprite icons defined via CSS.
+  This icon type does not work for PDF output.
+  
+* `IconGlyph`: can be used for font icons only. Hard-codes the glyph in the AST, but has the advantage that it does
+  work for PDF output.
+  
+* `InlineSVGIcon`: renders an SVG icon inline. While less space-efficient than SVG symbol references, this is currently
+  the only kind of SVG icon that works in PDF, too.
+  
+* `SVGSymbolIcon`: renders a reference to an SVG icon defined elsewhere.
+  Can be a local reference to an SVG block in the current page or point to an external file.
+  This icon type does not work for PDF output.
+
 
 
 Markup Blocks
