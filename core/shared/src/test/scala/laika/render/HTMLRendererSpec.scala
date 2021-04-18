@@ -24,7 +24,7 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.nav.TargetFormats
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -33,7 +33,17 @@ class HTMLRendererSpec extends AnyFlatSpec
   with ParagraphCompanionShortcuts
   with TestSourceBuilders {
  
-  
+  private def pathTranslator (target: Path): PathTranslator = ConfigurablePathTranslator(
+    TranslatorConfig(None, "title", "index", None),
+    "html",
+    "html",
+    Root / "doc",
+    path => if (path.withoutFragment == target) Some(TranslatorSpec(isStatic = true, isVersioned = false)) else None
+  )
+
+  def render (elem: Element, staticTarget: Path): String = 
+    Renderer.of(HTML).build.render(elem, Root / "doc", pathTranslator(staticTarget), StyleDeclarationSet.empty)
+
   def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 
   
   def render (elem: Element, messageFilter: MessageFilter): String = 
@@ -635,6 +645,17 @@ class HTMLRendererSpec extends AnyFlatSpec
       Text(" span")
     )
     render (elem) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+  }
+
+  it should "render a paragraph containing a link with a SVG symbol icon" in {
+    val svgDoc = Root / "icons" / "all.svg"
+    val svg = """<svg class="svg-icon"><use class="svg-shape" href="icons/all.svg#open"/></svg>"""
+    val elem = p(
+      Text("some "),
+      SpanLink.external("/foo")(SVGSymbolIcon.internal(svgDoc.withFragment("open"))),
+      Text(" span")
+    )
+    render (elem, svgDoc) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
   }
   
   it should "render a paragraph containing an unresolved link reference" in {
