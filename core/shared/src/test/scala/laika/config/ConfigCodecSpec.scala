@@ -55,7 +55,7 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
         Some("Monkey Gone To Heaven"),
-        Some("It's undescribable"),
+        Some("It's indescribable"),
         Some("XX-33-FF-01"),
         Seq("Helen North", "Maria South"),
         Some("en"),

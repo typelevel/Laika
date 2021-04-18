@@ -88,7 +88,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<header id="top-bar">
                      |<div class="row">
                      |<a id="nav-icon">
-                     |<i class="icofont-laika">&#xefa2;</i>
+                     |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
                      |</a>
                      |</div>
                      |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
