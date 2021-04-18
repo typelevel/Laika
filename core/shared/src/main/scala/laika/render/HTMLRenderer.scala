@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast.{InternalTarget, _}
+import laika.ast._
 
 /** Default renderer implementation for the HTML output format.
   *
@@ -226,11 +226,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
-        val uri = target match {
-          case it: InternalTarget => it.relativeTo(fmt.path).relativePath.toString
-          case et: ExternalTarget => et.url
-        }
-        val allAttr = fmt.optAttributes("src" -> Some(uri), "alt" -> alt, "title" -> title,
+        val allAttr = fmt.optAttributes("src" -> Some(renderTarget(target)), "alt" -> alt, "title" -> title,
           "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
         fmt.emptyElement("img", opt, allAttr:_*)
 

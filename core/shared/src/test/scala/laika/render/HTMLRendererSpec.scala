@@ -24,6 +24,7 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
+import laika.rewrite.{Version, Versions}
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -32,17 +33,21 @@ class HTMLRendererSpec extends AnyFlatSpec
   with Matchers
   with ParagraphCompanionShortcuts
   with TestSourceBuilders {
+  
+  private val versions = Versions(Version("0.42", "0.42"), Nil)
+  
+  private val staticUnversionedSpec = TranslatorSpec(isStatic = true, isVersioned = false)
  
-  private def pathTranslator (target: Path): PathTranslator = ConfigurablePathTranslator(
-    TranslatorConfig(None, "title", "index", None),
+  private def pathTranslator (specs: Map[Path, TranslatorSpec], versions: Option[Versions] = None): PathTranslator = ConfigurablePathTranslator(
+    TranslatorConfig(versions, "title", "index", None),
     "html",
     "html",
     Root / "doc",
-    path => if (path.withoutFragment == target) Some(TranslatorSpec(isStatic = true, isVersioned = false)) else None
+    path => specs.get(path.withoutFragment)
   )
 
-  def render (elem: Element, staticTarget: Path): String = 
-    Renderer.of(HTML).build.render(elem, Root / "doc", pathTranslator(staticTarget), StyleDeclarationSet.empty)
+  def render (elem: Element, specs: Map[Path, TranslatorSpec], versions: Option[Versions] = None): String = 
+    Renderer.of(HTML).build.render(elem, Root / "doc", pathTranslator(specs, versions), StyleDeclarationSet.empty)
 
   def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 
   
@@ -51,7 +56,9 @@ class HTMLRendererSpec extends AnyFlatSpec
     
   def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
   
-  private val imageTarget = InternalTarget(Root / "foo.jpg")
+  private val imagePath = Root / "foo.jpg"
+  private val imageTarget = InternalTarget(imagePath)
+  private val imageTestSpecs = Map(imagePath -> staticUnversionedSpec)
   
   def testPar (span: Span): Paragraph = p(Text("some "), span, Text(" span"))
 
@@ -415,7 +422,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <p>bbb</p>
       |  </div>
       |</div>""".stripMargin
-    render(elem) should be (html)
+    render(elem, imageTestSpecs) should be (html)
   }
   
   it should "render a document with two paragraphs separated by a horizontal rule" in {
@@ -589,30 +596,36 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   it should "render a paragraph containing an image without title" in {
     val elem = testPar(Image(imageTarget, alt = Some("img")))
-    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
+    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
+  }
+
+  it should "render a paragraph containing a versioned image" in {
+    val elem = testPar(Image(imageTarget, alt = Some("img")))
+    val spec = TranslatorSpec(isStatic = true, isVersioned = true)
+    render(elem, Map(imagePath -> spec), Some(versions)) should be ("""<p>some <img src="0.42/foo.jpg" alt="img"> span</p>""")
   }
   
   it should "render a paragraph containing an image with title" in {
     val elem = testPar(Image(imageTarget, alt = Some("img"), title = Some("title")))
-    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
+    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
 
   it should "render a paragraph containing an image with width and height in pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
     val elem = testPar(image)
-    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
+    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
   }
 
   it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
     val elem = testPar(image)
-    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
+    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
   }
 
   it should "render a paragraph containing an image with just width in a unit other than pixels" in {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)))
     val elem = testPar(image)
-    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
+    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
   }
 
   it should "render a paragraph containing a link with an icon glyph" in {
@@ -621,7 +634,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(IconGlyph('\uefa2', options = Styles("icofont-laika"))), 
       Text(" span")
     )
-    render (elem) should be ("""<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")
+    render(elem) should be ("""<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")
   }
 
   it should "render a paragraph containing a link with an icon style" in {
@@ -630,7 +643,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(IconStyle("open", options = Styles("icofont-laika"))),
       Text(" span")
     )
-    render (elem) should be ("""<p>some <a href="/foo"><i class="open icofont-laika"></i></a> span</p>""")
+    render(elem) should be ("""<p>some <a href="/foo"><i class="open icofont-laika"></i></a> span</p>""")
   }
 
   it should "render a paragraph containing a link with an inline SVG icon" in {
@@ -644,7 +657,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(InlineSVGIcon(svg)),
       Text(" span")
     )
-    render (elem) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+    render(elem) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
   }
 
   it should "render a paragraph containing a link with a SVG symbol icon" in {
@@ -655,37 +668,37 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(SVGSymbolIcon.internal(svgDoc.withFragment("open"))),
       Text(" span")
     )
-    render (elem, svgDoc) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+    render(elem, Map(svgDoc -> staticUnversionedSpec)) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
   }
   
   it should "render a paragraph containing an unresolved link reference" in {
     val elem = testPar(LinkIdReference("id", generatedSource("[link] [id]"))("link"))
-    render (elem) should be ("""<p>some [link] [id] span</p>""")
+    render(elem) should be ("""<p>some [link] [id] span</p>""")
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
     val elem = testPar(ImageIdReference("img","id", source("![img] [id]", "![img] [id]")))
-    render (elem) should be ("""<p>some ![img] [id] span</p>""") 
+    render(elem) should be ("""<p>some ![img] [id] span</p>""") 
   }
   
   it should "render a paragraph containing an internal link target" in {
     val elem = testPar(InternalLinkTarget(Id("target")))
-    render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
+    render(elem) should be ("""<p>some <a id="target"></a> span</p>""") 
   }
   
   it should "render a template root containing string elements" in {
     val elem = TemplateRoot(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
-    render (elem) should be ("aabbcc")
+    render(elem) should be ("aabbcc")
   }
   
   it should "render a template span sequence containing string elements" in {
     val elem = TemplateSpanSequence(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
-    render (elem) should be ("aabbcc")
+    render(elem) should be ("aabbcc")
   }
   
   it should "render a template string without creating html entities" in {
     val elem = TemplateRoot(TemplateString("aa & bb"))
-    render (elem) should be ("aa & bb")
+    render(elem) should be ("aa & bb")
   }
   
   it should "render a template root containing a TemplateElement" in {
@@ -698,7 +711,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</div>cc""".stripMargin
-    render (elem) should be (html)
+    render(elem) should be (html)
   }
 
   it should "render a runtime message" in {
