@@ -24,7 +24,7 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.config.ConfigBuilder
 import laika.format.Markdown
-import laika.parse.Parser
+import laika.parse.{Parser, SourceFragment}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markup.DocumentParser.ParserError
 import laika.parse.markup.RootParserProvider
@@ -128,6 +128,19 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
         }
       }
     }
+
+    trait DirectiveProducingResolver {
+      case class DummyResolver (options: Options = NoOpt) extends SpanResolver {
+        type Self = DummyResolver
+        def resolve (cursor: DocumentCursor): Span = Text("foo")
+        val source: SourceFragment = generatedSource("@:dir")
+        val unresolvedMessage = "broken"
+        def withOptions (options: Options): Self = copy(options = options)
+      }
+      val directive = Spans.create("dir") {
+        Spans.dsl.empty(DummyResolver())
+      }
+    }
     
     trait LinkDirectiveSetup {
       val directive = Links.eval("rfc") { (linkId, _) =>
@@ -198,6 +211,11 @@ class SpanDirectiveAPISpec extends AnyFlatSpec
       val input = "aa @:dir bb"
       Parsing (input) should produce (ss(Text("aa foo bb")))
     }
+  }
+
+  it should "parse a directive producing a span resolver" in new SpanParser with DirectiveProducingResolver {
+    val input = "aa @:dir bb"
+    Parsing (input) should produce (ss(Text("aa foo bb")))
   }
 
   it should "parse a directive with one required default string attribute" in {
