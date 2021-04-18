@@ -130,7 +130,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika">&#xefa2;</i>
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
         |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
@@ -142,7 +142,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika">&#xefa2;</i>
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
         |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
@@ -173,7 +173,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika">&#xefa2;</i>
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
         |<div id="version-menu-container">
         |<a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">

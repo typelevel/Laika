@@ -18,6 +18,7 @@ package laika.helium.config
 
 import laika.ast.{Icon, IconGlyph, InlineSVGIcon, Styles}
 import laika.helium.builder.SVGIcons
+import laika.rewrite.link.IconRegistry
 
 /** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
   * 
@@ -30,7 +31,9 @@ import laika.helium.builder.SVGIcons
   * @author Jens Halm
   */
 object HeliumIcon {
+  
   private val iconFontStyle = Styles("icofont-laika")
+  
   val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), iconFontStyle)
   val home: Icon           = IconGlyph('\uef47', Some("Home"), iconFontStyle)
   val link: Icon           = IconGlyph('\uef71', None, iconFontStyle)
@@ -47,4 +50,23 @@ object HeliumIcon {
   val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), iconFontStyle)
   val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"))
   val github: Icon         = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"))
+  
+  val registry: IconRegistry = IconRegistry(
+    "navigationMenu" -> navigationMenu,
+    "home"           -> home,
+    "link"           -> link,
+    "close"          -> close,
+    "check"          -> check,
+    "chat"           -> chat,
+    "settings"       -> settings,
+    "edit"           -> edit,
+    "demo"           -> demo,
+    "download"       -> download,
+    "info"           -> info,
+    "warning"        -> warning,
+    "error"          -> error,
+    "twitter"        -> twitter,
+    "api"            -> api,
+    "github"         -> github,
+  )
 }

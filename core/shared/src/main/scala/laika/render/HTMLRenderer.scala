@@ -210,7 +210,7 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         case icon: SVGSymbolIcon => ("span", icon.options,
           s"""<svg class="svg-icon"><use class="svg-shape" href="${renderTarget(icon.target)}"/></svg>""")
       }
-      fmt.rawElement(tagName, options, content)
+      fmt.rawElement(tagName, options, content, fmt.optAttributes("title" -> icon.title): _*)
     }
 
     def renderSimpleSpan (span: Span): String = span match {

@@ -130,6 +130,7 @@ private[laika] object ConfigGenerator {
       .withValue("laika.epub.coverImages", helium.epubSettings.coverImages)
       .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .withValue("laika.epub.coverImage", helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
+      .withValue(HeliumIcon.registry)
       .build
   
 }
