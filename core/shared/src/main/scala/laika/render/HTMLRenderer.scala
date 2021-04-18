@@ -201,14 +201,16 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
       case WithFallback(fallback)      => fmt.child(fallback)
       case _                           => ""
     }
-
-    def renderIcon (icon: Icon): String = icon match {
-      case icon: IconGlyph => 
-        fmt.rawElement("i", icon.options, icon.codePointAsEntity, fmt.optAttributes("title" -> icon.title): _*)
-      case icon: IconStyle =>
-        fmt.rawElement("i", Styles(icon.styleName) + icon.options, "", fmt.optAttributes("title" -> icon.title): _*)
-      case icon: InlineSVGIcon =>
-        fmt.rawElement("span", icon.options, icon.content, fmt.optAttributes("title" -> icon.title): _*)
+    
+    def renderIcon (icon: Icon): String = {
+      val (tagName, options, content) = icon match {
+        case icon: IconGlyph     => ("i", icon.options, icon.codePointAsEntity)
+        case icon: IconStyle     => ("i", Styles(icon.styleName) + icon.options, "")
+        case icon: InlineSVGIcon => ("span", icon.options, icon.content)
+        case icon: SVGSymbolIcon => ("span", icon.options,
+          s"""<svg class="svg-icon"><use class="svg-shape" href="${renderTarget(icon.target)}"/></svg>""")
+      }
+      fmt.rawElement(tagName, options, content)
     }
 
     def renderSimpleSpan (span: Span): String = span match {

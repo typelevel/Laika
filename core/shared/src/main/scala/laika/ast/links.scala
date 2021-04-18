@@ -245,6 +245,36 @@ case class InlineSVGIcon (content: String, title: Option[String] = None, options
   def withOptions(newOptions: Options): InlineSVGIcon = copy(options = newOptions)
 }
 
+/** An icon referencing an SVG shape defined in an external file or embedded SVG element.
+  * This icon type is not supported for PDF output, when using SVG icons with PDF use `InlineSVGIcon` instead.
+  */
+case class SVGSymbolIcon (target: Target, title: Option[String] = None, options: Options = NoOpt) extends Icon {
+  type Self = SVGSymbolIcon
+  def withOptions(newOptions: Options): SVGSymbolIcon = copy(options = newOptions)
+  def withTitle(title: String): SVGSymbolIcon = copy(title = Some(title))
+}
+
+/** Companion for creating SVGSymbolIcon instances. */
+object SVGSymbolIcon {
+
+  /** Creates a new instance for the specified internal link.
+    * The string value represents a virtual path into the input tree of a transformation
+    * and may be absolute (starting with '/') or relative.
+    */
+  def internal (path: String): SVGSymbolIcon = internal(PathBase.parse(path))
+
+  /** Creates a new instance for the specified internal link.
+    * The path value represents a virtual path into the input tree of a transformation
+    * and may be absolute or relative.
+    */
+  def internal (path: PathBase): SVGSymbolIcon = apply(InternalTarget(path))
+
+  /** Creates a new instance for the specified external URL.
+    */
+  def external (url: String): SVGSymbolIcon = apply(ExternalTarget(url))
+
+}
+
 object ParsedLink {
   /** Creates a new span that acts as a link reference based on the specified
     * URL which will be parsed and interpreted as an internal or external target.
