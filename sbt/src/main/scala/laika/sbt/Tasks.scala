@@ -32,6 +32,7 @@ import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
 import Settings.validated
+import laika.config.Config
 
 import scala.annotation.tailrec
 
@@ -87,10 +88,10 @@ object Tasks {
     val parser = Settings.parser.value
     val baseConfig = Settings.parserConfig.value.baseConfig
     val downloadPath = (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
-    val apiPath = validated(SiteConfig.apiPath(baseConfig))
     val artifactBaseName = Settings.artifactBaseName.value
 
     lazy val tree = {
+      val apiPath = validated(SiteConfig.apiPath(baseConfig))
       val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
         (inputs, path) => inputs.addProvidedPath(apiPath / path)
       }
@@ -103,17 +104,9 @@ object Tasks {
     
     def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       
-      val apiPath = targetDir / validated(SiteConfig.apiPath(baseConfig)).relative.toString
-      val versions = tree.root.config.get[Versions].toOption.map { versions =>
-        (versions.olderVersions ++ versions.newerVersions).map(v => new File(targetDir, v.pathSegment)).allPaths
-      }.reduceLeftOption(_ +++ _).getOrElse(PathFinder.empty)
-      
-      val filesToDelete = (targetDir.allPaths --- targetDir --- versions ---
-        downloadPath.allPaths --- collectParents(downloadPath) --- apiPath.allPaths --- collectParents(apiPath)).get
-      sbt.IO.delete(filesToDelete)
+      if (targetDir.exists) cleanTarget(targetDir, baseConfig)
+      else targetDir.mkdirs()
 
-      if (!targetDir.exists) targetDir.mkdirs()
- 
       Renderer
         .of(format)
         .withConfig(Settings.parserConfig.value)
@@ -227,19 +220,26 @@ object Tasks {
   /** Cleans the target directory of the site task.
     */
   val clean: Initialize[Task[Unit]] = task {
-    sbt.IO.delete((laikaSite / target).value)
+    cleanTarget((laikaSite / target).value, Settings.parserConfig.value.baseConfig)
+  }
+  
+  private def cleanTarget (targetDir: File, config: Config): Unit = {
+    val downloadPath   = targetDir / validated(SiteConfig.downloadPath(config)).relative.toString
+    val apiPath        = targetDir / validated(SiteConfig.apiPath(config)).relative.toString
+    val versionedPaths = config.get[Versions].toOption.map { versions =>
+      (versions.olderVersions ++ versions.newerVersions).map(v => new File(targetDir, v.pathSegment)).allPaths
+    }.reduceLeftOption(_ +++ _).getOrElse(PathFinder.empty)
+    
+    val filesToDelete = targetDir.allPaths --- targetDir ---
+      versionedPaths ---
+      pathFinderWithParents(downloadPath) ---
+      pathFinderWithParents(apiPath)
+
+    sbt.IO.delete(filesToDelete.get)
   }
 
-  /** Collects all input files from the specified
-    * input tree. Ignores any virtual inputs in the input trees.
-    */
-  def collectInputFiles (inputs: InputTree[IO]): Set[File] = 
-    inputs.textInputs.flatMap(_.sourceFile).toSet ++ 
-      inputs.binaryInputs.flatMap(_.sourceFile)
+  private def pathFinderWithParents (dir: File): PathFinder = {
 
-  /** Collects all parent directories of the specified file or directory.
-    */
-  def collectParents (file: File): Set[File] = {
     @tailrec
     def collect (file: File, acc: Set[File]): Set[File] = {
       file.getParentFile match {
@@ -247,8 +247,16 @@ object Tasks {
         case p => collect(p, acc + p)
       }
     }
-    collect(file, Set())
+
+    dir.allPaths +++ collect(dir, Set())
   }
+  
+  /** Collects all input files from the specified input tree.
+    * Ignores any virtual inputs in the input trees.
+    */
+  def collectInputFiles (inputs: InputTree[IO]): Set[File] = 
+    inputs.textInputs.flatMap(_.sourceFile).toSet ++ 
+      inputs.binaryInputs.flatMap(_.sourceFile)
 
   /** Enumeration of output formats supported by the plugin.
     */
