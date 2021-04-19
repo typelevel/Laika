@@ -45,6 +45,9 @@ Release Notes
 * Error Reporting: When a parser error originates in a template the error formatter now includes the path info
   for the template instead of making the error appear as if it came from the markup document
 * AST: add `codeOptions` property to `CodeBlock` element for potential tool integrations
+* sbt plugin: The `Laika/clean` task now preserves some directories that will not be re-generated
+  (e.g. api documentation, download directory and older versions in versioned documentation).
+* Bugfix: the HTML renderer did not apply versions to image URLs in case of versioned documentation
 
 
 0.17.1 (Mar 19, 2021)
