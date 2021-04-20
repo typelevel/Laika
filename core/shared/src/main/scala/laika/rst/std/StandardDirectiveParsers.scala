@@ -102,7 +102,7 @@ object StandardDirectiveParsers {
         case (refName, src) => LinkIdReference(Nil, refName, src)
       }
     }
-    val uri = anyChars.withCursor.map { case (res, source) => ParsedLink.create(Nil, res, source) }
+    val uri = anyChars.withCursor.map { case (res, source) => ParsedTarget.forLink(Nil, res, source) }
     
     parseDirectivePart(phraseLinkRef | simpleLinkRef | uri, input)
   }
