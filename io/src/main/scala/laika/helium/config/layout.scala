@@ -17,7 +17,7 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{ExternalTarget, InternalTarget, Length, Options, Path, Styles, Target}
+import laika.ast.{ExternalTarget, Image, InternalTarget, Length, Options, Path, Styles, Target}
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -59,7 +59,7 @@ private[helium] object TopNavigationBar {
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)
 
-private[helium] case class LandingPage (logo: Option[Logo] = None,
+private[helium] case class LandingPage (logo: Option[Image] = None,
                                         title: Option[String] = None,
                                         subtitle: Option[String] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,

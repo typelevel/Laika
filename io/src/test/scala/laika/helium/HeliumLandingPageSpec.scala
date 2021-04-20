@@ -20,7 +20,7 @@ import java.util.Locale
 
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
-import laika.ast.Path
+import laika.ast.{Image, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
@@ -116,7 +116,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Logo.internal(imagePath, alt = Some("Project Logo"))),
+      logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
       title = Some("My Project"),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
@@ -173,7 +173,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
-      logo = Some(Logo.internal(imagePath, alt = Some("Project Logo"))),
+      logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
       subtitle = Some("Awesome Hyperbole Overkill"),
       latestReleases = Seq(
         ReleaseInfo("Latest Release", "2.3.5")

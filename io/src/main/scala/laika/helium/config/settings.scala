@@ -20,7 +20,7 @@ import java.time.Instant
 import java.util.Date
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, Length, Path}
+import laika.ast.{DocumentMetadata, Image, Length, Path}
 import laika.helium.Helium
 import laika.rewrite.Versions
 import laika.rewrite.nav.CoverImage
@@ -455,7 +455,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param projectLinks        a set of project links to render at the bottom of the right side of the header
     * @param teasers             a set of teasers containing of headline and description to render below the header
     */
-  def landingPage (logo: Option[Logo] = None,
+  def landingPage (logo: Option[Image] = None,
                    title: Option[String] = None,
                    subtitle: Option[String] = None,
                    latestReleases: Seq[ReleaseInfo] = Nil,
