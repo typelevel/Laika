@@ -137,7 +137,7 @@ object InlineParsers {
 
     ("[" ~> resource(recParsers)).withCursor.map { case (res, source) =>
       res.target match {
-        case TargetUrl(url, title) => ParsedLink.create(recParsers.recursiveSpans.parseAndRecover(res.text), url, source, title)
+        case TargetUrl(url, title) => ParsedTarget.forLink(recParsers.recursiveSpans.parseAndRecover(res.text), url, source, title)
         case TargetId(id)   => linkReference(res, id, source)
         case ImplicitTarget => linkReference(res, res.text.input, source)
       }
@@ -154,7 +154,7 @@ object InlineParsers {
 
     ("![" ~> resource(recParsers)).withCursor.map { case (res, source) =>
       res.target match {
-        case TargetUrl(url, title) => escape(res.text, source, text => Image.create(url, source, alt = Some(text), title = title))
+        case TargetUrl(url, title) => escape(res.text, source, text => ParsedTarget.forImage(url, source, alt = Some(text), title = title))
         case TargetId(id)   => escape(res.text, source, ImageIdReference(_, normalizeId(id), source))
         case ImplicitTarget => escape(res.text, source, ImageIdReference(_, normalizeId(res.text.input), source))
       }

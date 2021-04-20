@@ -200,12 +200,25 @@ case class Image (target: Target,
 }
 
 object Image {
+  
+  @deprecated("use ParsedTarget.forImage", "0.18.0")
   def create (url: String, source: SourceFragment, width: Option[Length] = None,
               height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
-    Target.parseInternal(url) match {
-      case Right(external) => Image(external, width, height, alt, title)
-      case Left(internal)  => ImagePathReference(internal.path, source, width, height, alt, title)
-    }
+    ParsedTarget.forImage(url, source, width, height, alt, title)
+
+  /** Creates a new instance for the specified internal image.
+    * The path value represents a virtual path into the input tree of a transformation
+    * and may be absolute or relative.
+    */
+  def internal (path: PathBase, width: Option[Length] = None, height: Option[Length] = None,
+                alt: Option[String] = None, title: Option[String] = None): Image =
+    apply(InternalTarget(path), width, height, alt, title)
+
+  /** Creates a new instance for the specified external image URL.
+    */
+  def external (url: String, width: Option[Length] = None, height: Option[Length] = None,
+                alt: Option[String] = None, title: Option[String] = None): Image =
+    apply(ExternalTarget(url), width, height, alt, title)
 }
 
 /** Base trait for all supported icon types.
@@ -295,15 +308,32 @@ case class IconReference (key: String, source: SourceFragment, options: Options 
   lazy val unresolvedMessage: String = s"Unresolved icon reference with key '$key'"
 } 
 
-object ParsedLink {
-  /** Creates a new span that acts as a link reference based on the specified
-    * URL which will be parsed and interpreted as an internal or external target.
+object ParsedTarget {
+
+  /** Creates a new link span based on the specified URL which will be parsed and interpreted as an 
+    * internal or external target.
     */
-  def create (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
+  def forLink (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
     Target.parseInternal(url) match {
       case Right(external) => SpanLink(linkText, external, title)
       case Left(internal)  => LinkPathReference(linkText, internal.path, source, title)
     }
+
+  /** Creates a image span based on the specified URL which will be parsed and interpreted as an 
+    * internal or external target.
+    */
+  def forImage (url: String, source: SourceFragment, width: Option[Length] = None,
+                height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
+    Target.parseInternal(url) match {
+      case Right(external) => Image(external, width, height, alt, title)
+      case Left(internal)  => ImagePathReference(internal.path, source, width, height, alt, title)
+    }
+}
+
+object ParsedLink {
+  @deprecated("use ParsedTarget.forLink", "0.18.0")
+  def create (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
+    ParsedTarget.forLink(linkText, url, source, title)
 }
 
 object LinkDefinition {
