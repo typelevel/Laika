@@ -446,32 +446,35 @@ There are several other navigation features which are supported independent of t
 like the option to centralize all definitions of external links.
 They are described in a dedicated [Navigation] chapter.
 
+
 ### Top Navigation Bar
 
-You can place a logo serving as home button into the middle of the top navigation bar,
-and a row of buttons or icons with links at the right corner.
+You can replace the home link in the middle of the bar and a row of buttons or icons with links at the right corner.
+The home link, unless overridden, points to `index.html` and uses the `HeliumIcon.home` icon.
+The navigation links on the right are empty by default.
 The left corner of the top bar is always reserved for the button to open or close the navigation.
 
 ```scala
 Helium.defaults.site
   .topNavigationBar(
-    logo = Some(Logo.internal(
-      path = Root / "image.png", 
-      alt = Some("Homepage"), 
-      title = Some("Home")
-    )),
-    links = Seq(
+    homeLink = IconLink.internal(Root / "README.md", HeliumIcon.hone),
+    navLinks = Seq(
       IconLink.internal(Root / "doc-2.md", HeliumIcon.download),
-      ButtonLink.external("http://somewhere.com/", "Text Link"),
+      TextLink.external("http://somewhere.com/", "Text Link"),
       ButtonLink.external("http://somewhere.com/", "Button Link")
-    ))
+    ),
+    highContrast = true
+  )
 ```
 
-The logo can be an external or internal link, in case of the latter, it is always a path from the perspective 
-of Laika's virtual root, not a file system path.
-For the links to the right navigation bar you can choose between an `IconLink` with optional text,
-a `ButtonLink` with an optional icon, or a plain text link.
-Internal targets are again within the virtual path and will be validated.
+All the properties shown above have default values, so you don't have to specify them all.
+The link to the homepage can be customized, by default it is pointing to `index.html` and using the Helium home icon.
+The links for the right navigation bar (`navLinks`, by default empty) can be an `IconLink` with optional text,
+a `ButtonLink` with an optional icon, or a plain `TextLink` or `ImageLink`.
+All links can be external or internal, in case of the latter, it is always a path from the perspective 
+of Laika's virtual root, not a file system path, and will be validated (dead links will cause the transformation to fail).
+Finally, the `highContrast` option indicates whether the background color should have a high contrast to the background
+of the page (darker in light mode and lighter in dark mode).
 
 With the default Helium settings the three link types from our code example render as shown below:
 

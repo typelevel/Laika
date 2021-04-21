@@ -39,7 +39,7 @@ private[helium] object CSSVarGenerator {
       "content-width" -> contentWidth.displayValue,
       "nav-width" -> navigationWidth.displayValue
     )
-    generate(settings, layoutStyles)
+    generate(settings, layoutStyles, settings.layout.topNavigationBar.highContrast)
   }
   
   def generate (settings: EPUBSettings): String = {
@@ -48,7 +48,7 @@ private[helium] object CSSVarGenerator {
         generateFontFace(font, res.path.relativeTo(Root / "helium" / "laika-helium.epub.css"))
       }
     }.mkString("", "\n\n", "\n\n")
-    embeddedFonts + generate(settings, Nil)
+    embeddedFonts + generate(settings, Nil, topBarHighContrast = false)
   }
   
   private def toVars (pairs: Seq[(String, String)]): Seq[(String, String)] = pairs.map { 
@@ -64,8 +64,9 @@ private[helium] object CSSVarGenerator {
     else renderedStyles.mkString(":root {\n  ", "\n  ", "\n}\n\n")
   }
   
-  def colorSet (colors: ColorSet): Seq[(String, String)] = {
+  def colorSet (colors: ColorSet, topBarHighContrast: Boolean): Seq[(String, String)] = {
     import colors._
+    def ref (name: String): String = s"var(--$name)"
     Seq(
       "primary-color" -> theme.primary.displayValue,
       "primary-light" -> theme.primaryLight.displayValue,
@@ -73,6 +74,11 @@ private[helium] object CSSVarGenerator {
       "primary-dark" -> theme.primaryDark.displayValue,
       "secondary-color" -> theme.secondary.displayValue,
       "text-color" -> theme.text.displayValue,
+      "bg-color" -> theme.background.displayValue,
+      "top-color" ->  (if (topBarHighContrast) ref("primaryLight") else ref("primary")),
+      "top-bg" ->     (if (topBarHighContrast) ref("primary") else ref("primaryLight")),
+      "top-hover" ->  (if (topBarHighContrast) ref("background") else ref("secondary")),
+      "top-border" -> (if (topBarHighContrast) ref("background") else ref("primaryMedium")),
       "messages-info" -> messages.info.displayValue,
       "messages-info-light" -> messages.infoLight.displayValue,
       "messages-warning" -> messages.warning.displayValue,
@@ -92,10 +98,10 @@ private[helium] object CSSVarGenerator {
     )
   }
 
-  def generate (common: DarkModeSupport, additionalVars: Seq[(String, String)]): String = {
+  def generate (common: DarkModeSupport, additionalVars: Seq[(String, String)], topBarHighContrast: Boolean): String = {
     import common._
     val vars = 
-      colorSet(common.colors) ++ 
+      colorSet(common.colors, topBarHighContrast) ++ 
       Seq(
         "body-font" -> ("\"" + themeFonts.body + "\""),
         "header-font" -> ("\"" + themeFonts.headlines + "\""),
@@ -114,7 +120,7 @@ private[helium] object CSSVarGenerator {
       
     val (colorScheme, darkModeStyles) = common.darkMode match {
       case Some(darkModeColors) => (Seq(("color-scheme", "light dark")), 
-                                    renderStyles(toVars(colorSet(darkModeColors)), darkMode = true))
+                                    renderStyles(toVars(colorSet(darkModeColors, topBarHighContrast)), darkMode = true))
       case None                 => (Nil, "")
     }
     

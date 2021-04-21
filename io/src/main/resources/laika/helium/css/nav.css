@@ -8,7 +8,7 @@
 header {
   display: flex;
   justify-content: space-between;
-  background-color: var(--primary-light);
+  background-color: var(--top-bg);
   margin: 0;
   position: fixed;
   top: 0;
@@ -18,15 +18,15 @@ header {
   width: 100%;
   align-items: center;
   padding: 0 45px 0 20px;
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--top-border);
 }
 header a {
-  color: var(--primary-color);
+  color: var(--top-color);
 }
 header a:hover {
   text-decoration: none;
   cursor: pointer;
-  color: var(--secondary-color)
+  color: var(--top-hover)
 }
 header img {
   height: 80%;
@@ -56,13 +56,13 @@ header .row a {
   display: inline-block;
   border-radius: 9px;
   padding: 0 7px;
-  background-color: var(--primary-color);
-  color: var(--primary-light);
+  background-color: var(--top-color);
+  color: var(--top-bg);
   font-size: 0.9em;
 }
 .button-link:hover {
-  background-color: var(--secondary-color);
-  color: var(--primary-light);
+  background-color: var(--top-hover);
+  color: var(--top-bg);
 }
 
 /* version dropdown ============================================== */

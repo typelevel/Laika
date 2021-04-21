@@ -116,13 +116,15 @@ private[helium] trait CommonConfigOps {
     *                     is readable when placed on a `primaryLight` background
     * @param secondary    this color is used for navigation headers and links
     * @param text         the color of the body text
+    * @param background   the background color of the pages
     */
   def themeColors (primary: Color,
                    primaryDark: Color,
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
-                   text: Color): Helium
+                   text: Color,
+                   background: Color): Helium
 
   /** Configures the colors of runtime messages embedded in the rendered result.
     * Warnings and errors will only be rendered if you change the configuration to visual debugging,
@@ -201,9 +203,10 @@ private[helium] trait ColorOps {
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
-                   text: Color): Helium = withColors(currentColors.copy(theme = ThemeColors(
+                   text: Color,
+                   background: Color): Helium = withColors(currentColors.copy(theme = ThemeColors(
     primary = primary, primaryDark = primaryDark, primaryMedium = primaryMedium, primaryLight = primaryLight,
-    secondary = secondary, text = text
+    secondary = secondary, text = text, background = background
   )))
   def messageColors (info: Color,
                      infoLight: Color,
@@ -272,9 +275,10 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
-                   text: Color): Helium = formats.foldLeft(helium) {
+                   text: Color,
+                   background: Color): Helium = formats.foldLeft(helium) {
     case (helium, format) =>
-      format(helium).themeColors(primary, primaryDark, primaryMedium, primaryLight, secondary, text)
+      format(helium).themeColors(primary, primaryDark, primaryMedium, primaryLight, secondary, text, background)
   }
   def messageColors (info: Color,
                      infoLight: Color,
@@ -385,9 +389,11 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param homeLink the link to the homepage, by default pointing to `index.html` and using the Helium home icon.
     * @param navLinks an optional set of links to be placed at the right side of the bar, supported link
     *                 types are `IconLink`, `ButtonLink`, `ImageLink` and a plain `TextLink`
+    * @param highContrast indicates whether the background color should have a high contrast to the background
+    *                     of the page (darker in light mode and lighter in dark mode).
     */
-  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, navLinks: Seq[ThemeLink] = Nil): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(homeLink, navLinks))
+  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, navLinks: Seq[ThemeLink] = Nil, highContrast: Boolean = false): Helium = {
+    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(homeLink, navLinks, highContrast))
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 

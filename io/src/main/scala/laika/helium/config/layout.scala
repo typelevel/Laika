@@ -50,7 +50,10 @@ private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 
-private[helium] case class TopNavigationBar (homeLink: ThemeLink, navLinks: Seq[ThemeLink], versionPrefix: String = "Version")
+private[helium] case class TopNavigationBar (homeLink: ThemeLink, 
+                                             navLinks: Seq[ThemeLink], 
+                                             highContrast: Boolean = false, 
+                                             versionPrefix: String = "Version")
 
 private[helium] object TopNavigationBar {
   val default: TopNavigationBar = TopNavigationBar(IconLink.internal(Root / "README", HeliumIcon.home), Nil)

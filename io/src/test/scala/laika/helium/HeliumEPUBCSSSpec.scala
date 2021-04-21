@@ -64,6 +64,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--primary-dark: #095269;
                      |--secondary-color: #931813;
                      |--text-color: #5f5f5f;
+                     |--bg-color: #ffffff;
+                     |--top-color: var(--primary);
+                     |--top-bg: var(--primaryLight);
+                     |--top-hover: var(--secondary);
+                     |--top-border: var(--primaryMedium);
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;
@@ -145,6 +150,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--primary-dark: #095269;
                               |--secondary-color: #931813;
                               |--text-color: #5f5f5f;
+                              |--bg-color: #ffffff;
+                              |--top-color: var(--primary);
+                              |--top-bg: var(--primaryLight);
+                              |--top-hover: var(--secondary);
+                              |--top-border: var(--primaryMedium);
                               |--messages-info: #007c99;
                               |--messages-info-light: #ebf6f7;
                               |--messages-warning: #b1a400;
@@ -196,6 +206,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--primary-dark: rgb(0,0,0);
                               |--secondary-color: rgb(212,212,212);
                               |--text-color: rgb(10,10,10);
+                              |--bg-color: rgb(11,11,11);
+                              |--top-color: var(--primary);
+                              |--top-bg: var(--primaryLight);
+                              |--top-hover: var(--secondary);
+                              |--top-border: var(--primaryMedium);
                               |--messages-info: #aaaaaa;
                               |--messages-info-light: #aaaaab;
                               |--messages-warning: #aaaaac;
@@ -235,6 +250,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                  |--primary-dark: rgb(10,10,10);
                                  |--secondary-color: rgb(112,112,112);
                                  |--text-color: rgb(110,110,110);
+                                 |--bg-color: rgb(111,111,111);
+                                 |--top-color: var(--primary);
+                                 |--top-bg: var(--primaryLight);
+                                 |--top-hover: var(--secondary);
+                                 |--top-border: var(--primaryMedium);
                                  |--messages-info: #00aaaa;
                                  |--messages-info-light: #00aaab;
                                  |--messages-warning: #00aaac;
@@ -256,7 +276,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     import laika.theme.config.Color._
     val helium = Helium.defaults
       .epub.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
-        secondary = rgb(212,212,212), text = rgb(10,10,10))
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
       .epub.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -272,7 +292,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     import laika.theme.config.Color._
     val helium = Helium.defaults
       .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
-        secondary = rgb(212,212,212), text = rgb(10,10,10))
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
       .all.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -288,7 +308,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     import laika.theme.config.Color._
     val helium = Helium.defaults
       .epub.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
-        secondary = rgb(212,212,212), text = rgb(10,10,10))
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
       .epub.messageColors(
         info = hex("aaaaaa"), infoLight = hex("aaaaab"),
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
@@ -299,7 +319,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
         wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
       .epub.darkMode.themeColors(primary = rgb(11,11,11), primaryDark = rgb(10,10,10), primaryLight = rgb(12,12,12), 
-        primaryMedium = rgb(14,14,14), secondary = rgb(112,112,112), text = rgb(110,110,110))
+        primaryMedium = rgb(14,14,14), secondary = rgb(112,112,112), text = rgb(110,110,110), background = rgb(111,111,111))
       .epub.darkMode.messageColors(
         info = hex("00aaaa"), infoLight = hex("00aaab"),
         warning = hex("00aaac"), warningLight = hex("00aaad"),
@@ -319,6 +339,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--primary-dark: #095269;
                      |--secondary-color: #931813;
                      |--text-color: #5f5f5f;
+                     |--bg-color: #ffffff;
+                     |--top-color: var(--primary);
+                     |--top-bg: var(--primaryLight);
+                     |--top-hover: var(--secondary);
+                     |--top-border: var(--primaryMedium);
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;
