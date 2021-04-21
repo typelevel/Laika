@@ -19,7 +19,7 @@ package laika.helium
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
-import laika.ast.{IconGlyph, Icon, Path}
+import laika.ast.{Icon, IconGlyph, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.{AnchorPlacement, HeliumIcon}
@@ -29,6 +29,7 @@ import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.render.HTMLFormatter
+import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import laika.theme._
 
@@ -38,6 +39,7 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
   
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
+      .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     configure(builder)  
       .parallel[IO]
       .withTheme(theme)

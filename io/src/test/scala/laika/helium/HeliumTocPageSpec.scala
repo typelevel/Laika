@@ -55,7 +55,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
   }
     
   test("no table of content page configured") {
-    transformAndExtract(twoDocs, Helium.defaults, "", "")
+    transformAndExtract(twoDocs, Helium.defaults.site.landingPage(), "", "")
       .assertFailsWithMessage("Missing document under test")
   }
   
@@ -80,7 +80,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
                      |</a>
                      |</div>
-                     |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+                     |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
                      |<span class="row"></span>
                      |</header>
                      |<nav id="sidebar">

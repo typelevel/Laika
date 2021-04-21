@@ -30,6 +30,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.io.IOFunSuite
 import laika.render.HTMLFormatter
+import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
 import laika.theme._
 
@@ -39,6 +40,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
   
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
+      .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     configure(builder)  
       .parallel[IO]
       .withTheme(theme)
@@ -91,7 +93,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
                      |</a>
                      |</div>
-                     |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+                     |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
                      |<span class="row"></span>
                      |</header>
                      |<nav id="sidebar">

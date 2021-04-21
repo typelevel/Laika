@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
-import laika.ast.Path
+import laika.ast.{Image, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
@@ -27,6 +27,7 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
+import laika.rewrite.link.LinkConfig
 import laika.rewrite.{Version, Versions}
 import laika.theme._
 
@@ -35,6 +36,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
+    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -133,7 +135,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
-        |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
@@ -145,13 +147,13 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
-        |<a href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
+        |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<span class="row"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage()
       .site.topNavigationBar(
-        logo = Some(Logo.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))), 
-        links = Seq(
+        homeLink = ImageLink.internal(Root / "README", Image.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))), 
+        navLinks = Seq(
           IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
           ButtonLink.external("http://somewhere.com/", "Somewhere")
         ))
@@ -185,7 +187,7 @@ class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtracto
         |</nav>
         |</div>
         |</div>
-        |<a href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }

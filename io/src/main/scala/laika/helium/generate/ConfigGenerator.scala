@@ -60,11 +60,9 @@ private[laika] object ConfigGenerator {
   }
 
   implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] { navBar =>
-    val logo = navBar.logo.getOrElse(HeliumIcon.home)
-    val homeLink = SpanLink.internal(Root / "README")(logo)
     ConfigEncoder.ObjectBuilder.empty
-      .withValue("home", homeLink)
-      .withValue("links", SpanSequence(navBar.links, HeliumStyles.row))
+      .withValue("home", navBar.homeLink)
+      .withValue("links", SpanSequence(navBar.navLinks, HeliumStyles.row))
       .withValue("versionPrefix", navBar.versionPrefix)
       .build
   }

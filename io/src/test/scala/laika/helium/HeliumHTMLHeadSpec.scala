@@ -28,6 +28,7 @@ import laika.io.api.{TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
+import laika.rewrite.link.LinkConfig
 import laika.rewrite.{Version, Versions}
 import laika.theme._
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
@@ -36,6 +37,7 @@ class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtract
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
+    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .parallel[IO]
     .build
 
