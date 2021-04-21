@@ -382,13 +382,12 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
 
   /** Configures the top navigation bar of the main content pages.
     * 
-    * @param logo  an optional logo to be placed in the middle of the bar and linking to the landing page,
-    *              if omitted a default home icon will be used instead.
-    * @param links an optional set of links to be placed at the right side of the bar, supported link
-    *              types are `IconLink`, `ButtonLink` and a plain `TextLink`
+    * @param homeLink the link to the homepage, by default pointing to `index.html` and using the Helium home icon.
+    * @param navLinks an optional set of links to be placed at the right side of the bar, supported link
+    *                 types are `IconLink`, `ButtonLink`, `ImageLink` and a plain `TextLink`
     */
-  def topNavigationBar (logo: Option[Logo] = None, links: Seq[ThemeLink] = Nil): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(logo, links))
+  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, navLinks: Seq[ThemeLink] = Nil): Helium = {
+    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(homeLink, navLinks))
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 

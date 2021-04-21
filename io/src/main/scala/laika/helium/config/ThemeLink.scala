@@ -58,7 +58,7 @@ object IconLink {
     new IconLink(InternalTarget(path), icon, text, options) {}
 }
 
-/** A link consisting of text and an optional icon rendered in a rounded rectangle.
+/** A link consisting of text and an optional icon, by default rendered in a rounded rectangle.
   */
 sealed abstract case class ButtonLink (target: Target, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
   type Self = ButtonLink
@@ -92,48 +92,20 @@ object TextLink {
     new TextLink(InternalTarget(path), text, options) {}
 }
 
-/** A logo type that can be used in various Helium configuration options.
-  * The only required property is the target, which is either an external URL or an internal, relative path.
+/** A simple image link.
   */
-sealed abstract case class Logo(target: Target,
-                                width: Option[Length] = None,
-                                height: Option[Length] = None,
-                                alt: Option[String] = None,
-                                title: Option[String] = None,
-                                options: Options = NoOpt) extends ThemeLink {
-  type Self = Logo
-  protected def createLink (target: Target): Link = Image(target, width, height, alt, title)
-  def withOptions(newOptions: Options): Logo =
-    new Logo(target, width, height, alt, title, newOptions) {}
+sealed abstract case class ImageLink (target: Target, image: Image, options: Options = NoOpt) extends ThemeLink {
+  type Self = ImageLink
+  protected def createLink (target: Target): Link = SpanLink(Seq(image), target, options = HeliumStyles.imageLink + options)
+  def withOptions(newOptions: Options): ImageLink =
+    new ImageLink(target, image, newOptions) {}
 }
 
-object Logo {
-  
-  /** Creates a logo with an external image URL.
-    * The width and height are interpreted as the intrinsic size of the image and do not necessarily represent
-    * the actual display size which should be set via CSS. 
-    * You can assign classes to the options property for this purpose.
-    * The `alt` and `title` properties will be rendered as the corresponding attributes in HTML and ignored for PDF.
-   */
-  def external (url: String,
-                width: Option[Length] = None,
-                height: Option[Length] = None,
-                alt: Option[String] = None,
-                title: Option[String] = None,
-                options: Options = NoOpt): Logo = 
-    new Logo(ExternalTarget(url), width, height, alt, title, options) {}
-  
-  /** Creates a logo for an image that is part of the input resources of the transformation.
-    * The width and height are interpreted as the intrinsic size of the image and do not necessarily represent
-    * the actual display size which should be set via CSS. 
-    * You can assign classes to the options property for this purpose.
-    * The `alt` and `title` properties will be rendered as the corresponding attributes in HTML and ignored for PDF.
-    */
-  def internal (path: Path,
-                width: Option[Length] = None,
-                height: Option[Length] = None,
-                alt: Option[String] = None,
-                title: Option[String] = None,
-                options: Options = NoOpt): Logo =
-    new Logo(InternalTarget(path), width, height, alt, title, options) {}
+object ImageLink {
+  /** Creates a simple image link to an external target. */
+  def external (url: String, image: Image, options: Options = NoOpt): ImageLink = 
+    new ImageLink(ExternalTarget(url), image, options) {}
+  /** Creates a simple image link to an internal target. */
+  def internal (path: Path, image: Image, options: Options = NoOpt): ImageLink =
+    new ImageLink(InternalTarget(path), image, options) {}
 }

@@ -17,7 +17,7 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{ExternalTarget, Image, InternalTarget, Length, Options, Path, Styles, Target}
+import laika.ast.{ExternalTarget, Image, InternalTarget, Length, Options, Path, SpanLink, Styles, Target}
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -50,10 +50,10 @@ private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
 
 private[helium] case class TableOfContent (title: String, depth: Int)
 
-private[helium] case class TopNavigationBar (logo: Option[Logo], links: Seq[ThemeLink], versionPrefix: String = "Version")
+private[helium] case class TopNavigationBar (homeLink: ThemeLink, navLinks: Seq[ThemeLink], versionPrefix: String = "Version")
 
 private[helium] object TopNavigationBar {
-  val default: TopNavigationBar = TopNavigationBar(None, Nil) // TODO - use home icon instead of image if empty
+  val default: TopNavigationBar = TopNavigationBar(IconLink.internal(Root / "README", HeliumIcon.home), Nil)
 }
 
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
@@ -138,6 +138,7 @@ private[helium] object HeliumStyles {
   val buttonLink: Options = Styles("button-link")
   val textLink: Options = Styles("text-link")
   val iconLink: Options = Styles("icon-link")
+  val imageLink: Options = Styles("image-link")
 }
 
 private[helium] case class ThemeFonts (body: String, headlines: String, code: String)

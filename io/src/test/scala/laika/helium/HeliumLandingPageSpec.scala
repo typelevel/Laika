@@ -29,6 +29,7 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
+import laika.rewrite.link.LinkConfig
 import laika.theme._
 
 class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
@@ -36,6 +37,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
+    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .parallel[IO]
     .withTheme(theme)
     .build
