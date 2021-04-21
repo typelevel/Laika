@@ -59,6 +59,11 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--primary-dark: #095269;
                      |--secondary-color: #931813;
                      |--text-color: #5f5f5f;
+                     |--bg-color: #ffffff;
+                     |--top-color: var(--primary);
+                     |--top-bg: var(--primaryLight);
+                     |--top-hover: var(--secondary);
+                     |--top-border: var(--primaryMedium);
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;
@@ -98,6 +103,11 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--primary-dark: #095269;
                               |--secondary-color: #931813;
                               |--text-color: #5f5f5f;
+                              |--bg-color: #ffffff;
+                              |--top-color: var(--primary);
+                              |--top-bg: var(--primaryLight);
+                              |--top-hover: var(--secondary);
+                              |--top-border: var(--primaryMedium);
                               |--messages-info: #007c99;
                               |--messages-info-light: #ebf6f7;
                               |--messages-warning: #b1a400;
@@ -151,6 +161,11 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--primary-dark: rgb(0,0,0);
                               |--secondary-color: rgb(212,212,212);
                               |--text-color: rgb(10,10,10);
+                              |--bg-color: rgb(11,11,11);
+                              |--top-color: var(--primary);
+                              |--top-bg: var(--primaryLight);
+                              |--top-hover: var(--secondary);
+                              |--top-border: var(--primaryMedium);
                               |--messages-info: #aaaaaa;
                               |--messages-info-light: #aaaaab;
                               |--messages-warning: #aaaaac;
@@ -186,7 +201,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     import laika.theme.config.Color._
     val helium = Helium.defaults
       .site.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
-        secondary = rgb(212,212,212), text = rgb(10,10,10))
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
       .site.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -202,7 +217,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     import laika.theme.config.Color._
     val helium = Helium.defaults
       .all.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
-        secondary = rgb(212,212,212), text = rgb(10,10,10))
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
       .all.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
@@ -220,6 +235,11 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                |--primary-dark: #095269;
                                |--secondary-color: #931813;
                                |--text-color: #5f5f5f;
+                               |--bg-color: #ffffff;
+                               |--top-color: var(--primary);
+                               |--top-bg: var(--primaryLight);
+                               |--top-hover: var(--secondary);
+                               |--top-border: var(--primaryMedium);
                                |--messages-info: #007c99;
                                |--messages-info-light: #ebf6f7;
                                |--messages-warning: #b1a400;

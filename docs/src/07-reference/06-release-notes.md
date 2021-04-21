@@ -21,10 +21,13 @@ Release Notes
     * Add support for dark mode to the Configuration API for EPUB and HTML output, 
       allowing to specify a complete second color set for theme colors and syntax highlighting that becomes
       active when the user switches to dark mode in the OS or reader software.
+    * Make the link of the home icon configurable.
+    * Add the page background color to the configurable theme colors.
+    * Add a "high-contrast" option for the top navigation bar (darker in light mode and lighter in dark mode).
 * Icon Support:
     * Add new AST nodes for different kinds of icon sets: font icons, CSS icons (e.g. image sprites), inline SVG icons
       and SVG symbols (references).
-    * Add new `@:icon` directive that allows to reference an icon by key in markup documents or templates.
+    * New `@:icon` directive that allows to reference an icon by key in markup documents or templates.
 * Versioning: new `renderUnversioned` flag, that can be set to false when rendering older versions 
   (e.g. from a maintenance branch) to ensure that unversioned files always come from the main branch (newest version).
 * Link Validation: new `addProvidedPath` method on `InputTreeBuilder` that adds a path representing a document which is 

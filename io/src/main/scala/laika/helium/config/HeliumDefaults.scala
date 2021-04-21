@@ -84,7 +84,8 @@ private[helium] object HeliumDefaults {
     primaryDark = Color.hex("095269"),
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("ebf6f7"),
-    text = Color.hex("5f5f5f")
+    text = Color.hex("5f5f5f"),
+    background = Color.hex("ffffff")
   )
   
   def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(

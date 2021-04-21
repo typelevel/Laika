@@ -27,7 +27,8 @@ private[helium] case class ThemeColors (primary: Color,
                                         primaryMedium: Color,
                                         primaryLight: Color,
                                         secondary: Color,
-                                        text: Color)
+                                        text: Color,
+                                        background: Color)
 
 private[helium] case class MessageColors (info: Color,
                                           infoLight: Color,

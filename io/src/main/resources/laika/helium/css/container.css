@@ -5,6 +5,7 @@
 body {
   font-family: var(--body-font);
   color: var(--text-color);
+  background-color: var(--bg-color);
   font-size: var(--body-font-size);
   line-height: var(--line-height);
   position: relative;

@@ -205,7 +205,8 @@ class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtra
       primaryMedium = Color.hex("000011"),
       primaryLight = Color.hex("000022"),
       secondary = Color.hex("330033"),
-      text = Color.hex("990099")
+      text = Color.hex("990099"),
+      background = Color.hex("eeeeee")
     )
     val expected = """<fo:block font-family="Lato" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">Text with a <fo:basic-link color="#330033" external-destination="http://foo.bar" font-weight="bold">link</fo:basic-link>.</fo:block>"""
     transformAndExtract(inputs, helium, "<fo:flow flow-name=\"xsl-region-body\">", "</fo:flow>")
