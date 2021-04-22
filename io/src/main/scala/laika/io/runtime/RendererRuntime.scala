@@ -120,20 +120,24 @@ object RendererRuntime {
     }
     
     def renderOps (finalRoot: DocumentTreeRoot, 
-                   styles: StyleDeclarationSet, 
                    lookup: TargetLookup,
                    translatorConfig: TranslatorConfig,
-                   staticDocs: Seq[BinaryInput[F]]): RenderOps = op.output match {
-      case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p)))
-      case DirectoryOutput(dir, codec) =>
-        val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forFile(p, file(dir, p), codec))
-        val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
-        val copyOps = copyDocuments(staticDocs, dir, pathTranslator)
-        val directories = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
-          .map(pathTranslator(_).parent)
-          .distinct
-          .map(p => OutputRuntime.createDirectory(file(dir, p)))
-        RenderOps(directories, renderOps ++ copyOps)
+                   staticDocs: Seq[BinaryInput[F]]): RenderOps = {
+      
+      val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
+      
+      op.output match {
+        case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p)))
+        case DirectoryOutput(dir, codec) =>
+          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forFile(p, file(dir, p), codec))
+          val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
+          val copyOps = copyDocuments(staticDocs, dir, pathTranslator)
+          val directories = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
+            .map(pathTranslator(_).parent)
+            .distinct
+            .map(p => OutputRuntime.createDirectory(file(dir, p)))
+          RenderOps(directories, renderOps ++ copyOps)
+      }
     }
     
     def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
@@ -160,13 +164,14 @@ object RendererRuntime {
         RenderedTreeRoot[F](resultRoot, template, finalRoot.config, finalRoot.styles(fileSuffix), coverDoc, staticDocs)
       }
 
-    def applyTemplate (root: DocumentTreeRoot): Either[ConfigError, DocumentTreeRoot] = {
+    def applyTemplate (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
 
       val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(context.templateSuffix).fold(
         root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
       )(_ => root.tree)
       
-      TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context)
+      mapError(TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context))
+        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
     
     def getThemeStyles(themeInputs: Seq[ParserResult]): StyleDeclarationSet = themeInputs.collect {
@@ -190,27 +195,24 @@ object RendererRuntime {
       }
     }
     
+    def mapError[A] (result: Either[ConfigError, A]): Either[RendererErrors, A] =
+      result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
+    
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
     val tree = ParsedTree(op.input, staticDocs)
     
     for {
-      mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
-      finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root)
-                       .leftMap(e => RendererErrors(Seq(ConfigException(e))))
-                       .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root)))
-      tConfig   <- Sync[F].fromEither(TranslatorConfig.readFrom(finalRoot.config)
-                                      .leftMap(e => RendererErrors(Seq(ConfigException(e)))))
-      cursor    <- Sync[F].fromEither(RootCursor(finalRoot, Some(context.finalFormat))
-                                      .leftMap(e => RendererErrors(Seq(ConfigException(e)))))
-      styles    = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      lookup    = new TargetLookup(cursor)
-      vInfo     <- generateVersionInfo(lookup, tConfig)
-      static    <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(_ ++ vInfo.toSeq)
-      _         <- validatePaths(static)
-      ops       =  renderOps(finalRoot, styles, lookup, tConfig, static)
-      _         <- ops.mkDirOps.toVector.sequence
-      res       <- processBatch(finalRoot, ops.renderOps, static)
+      mappedTree <- op.theme.treeProcessor(op.renderer.format).run(tree)
+      finalRoot  <- Sync[F].fromEither(applyTemplate(mappedTree.root))
+      tConfig    <- Sync[F].fromEither(mapError(TranslatorConfig.readFrom(finalRoot.config)))
+      lookup     <- Sync[F].fromEither(mapError(RootCursor(finalRoot, Some(context.finalFormat)))).map(new TargetLookup(_))
+      vInfo      <- generateVersionInfo(lookup, tConfig)
+      static     <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(_ ++ vInfo.toSeq)
+      _          <- validatePaths(static)
+      ops        =  renderOps(finalRoot, lookup, tConfig, static)
+      _          <- ops.mkDirOps.toVector.sequence
+      res        <- processBatch(finalRoot, ops.renderOps, static)
     } yield res
   }
 
