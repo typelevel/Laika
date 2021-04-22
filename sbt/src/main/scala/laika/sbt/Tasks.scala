@@ -191,10 +191,22 @@ object Tasks {
     * The server can be stopped with `ctrl-D`.
     */
   val preview: Initialize[Task[Unit]] = task {
-    val port = 4242
     
-    val (_, cancel) = ServerBuilder[IO]().build.allocated.unsafeRunSync()
+    // optional props
+    val encoding = laikaConfig.value.encoding
+    val projectName = name.value // as fallback for artifactBaseName
+    val apiDocs = generateAPI.value // for link validation
+    val port = 4242 // TODO - should be configurable
+    
+    val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
+      .withTheme(laikaTheme.value)
+      .withPort(port)
+      .build
+      .allocated
+      .unsafeRunSync()
+    
     streams.value.log.info(s"Preview server started on port $port. Press ctrl-D to exit.")
+    
     try {
       System.in.read
     }
