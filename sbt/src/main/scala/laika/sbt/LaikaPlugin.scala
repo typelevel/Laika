@@ -76,6 +76,8 @@ import sbt._
   *
   * - `laikaSite`: combines the html generator with optionally also rendering a PDF document from the same input and
   *   creating scaladoc documentation and copying both over to the target directory.
+  *   
+  * - `laikaPreview`: launches an HTTP server for the generated site and e-books, auto-refreshing when inputs change.
   *
   * - `laikaPackageSite`: packages the generated html site and (optionally) the included API documentation and
   *   PDF file into a zip archive.
@@ -128,6 +130,8 @@ object LaikaPlugin extends AutoPlugin {
     val laikaIncludePDF   = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
     
 
+    val laikaPreview      = taskKey[Unit]("Launches an HTTP server for the generated site and e-books")
+    
     val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
     
     val LaikaConfig = laika.sbt.LaikaConfig
@@ -169,6 +173,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaAST                := Tasks.generate.toTask(" ast").value,
     
     laikaPackageSite        := Tasks.packageSite.value,
+    laikaPreview            := Tasks.preview.value,
     Laika / clean           := Tasks.clean.value,
 
     laikaSite / mappings    := Def.sequential(Tasks.site, Tasks.mappings).value,

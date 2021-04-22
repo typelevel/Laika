@@ -74,9 +74,13 @@ val http4s     = Seq(
                    "org.http4s"           %% "http4s-dsl"          % "0.21.20",
                    "org.http4s"           %% "http4s-blaze-server" % "0.21.20"
                  )
+val http4sM    = Seq(
+                    "org.http4s"          %% "http4s-dsl"          % "1.0.0-M21",
+                    "org.http4s"          %% "http4s-blaze-server" % "1.0.0-M21"
+                 )
 
 lazy val root = project.in(file("."))
-  .aggregate(core.js, core.jvm, pdf, io, plugin)
+  .aggregate(core.js, core.jvm, pdf, io, preview, plugin)
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
@@ -135,9 +139,18 @@ lazy val pdf = project.in(file("pdf"))
     name := "laika-pdf",
     libraryDependencies ++= Seq(fop, scalatest)
   )
-  
-lazy val plugin = project.in(file("sbt"))
+
+lazy val preview = project.in(file("preview"))
   .dependsOn(core.jvm, io, pdf)
+  .settings(moduleSettings)
+  .settings(publishSettings)
+  .settings(
+    name := "laika-preview",
+    libraryDependencies ++= (http4sM :+ scalatest)
+  )
+
+lazy val plugin = project.in(file("sbt"))
+  .dependsOn(core.jvm, io, pdf, preview)
   .enablePlugins(SbtPlugin)
   .settings(basicSettings)
   .settings(publishSettings)

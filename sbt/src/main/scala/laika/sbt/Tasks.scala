@@ -33,6 +33,7 @@ import sbt._
 import sbt.util.CacheStore
 import Settings.validated
 import laika.config.Config
+import laika.preview.ServerBuilder
 
 import scala.annotation.tailrec
 
@@ -184,6 +185,23 @@ object Tasks {
 
     val outputFiles = results.reduce(_ ++ _)
     outputFiles.intersect(Settings.allTargets.value)
+  }
+
+  /** The preview task launches an HTTP server for the generated site and e-books, auto-refreshing when inputs change.
+    * The server can be stopped with `ctrl-D`.
+    */
+  val preview: Initialize[Task[Unit]] = task {
+    val port = 4242
+    
+    val (_, cancel) = ServerBuilder[IO]().build.allocated.unsafeRunSync()
+    streams.value.log.info(s"Preview server started on port $port. Press ctrl-D to exit.")
+    try {
+      System.in.read
+    }
+    finally {
+      streams.value.log.info(s"Shutting down preview server.")
+      cancel.unsafeRunSync()
+    }
   }
 
   /** The site task combines the html generator with optionally also
