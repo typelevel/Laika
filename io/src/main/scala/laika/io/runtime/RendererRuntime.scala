@@ -38,9 +38,6 @@ import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
   */
 object RendererRuntime {
 
-  private case class CopiedDocument (path: Path)
-  private type RenderResult = Either[CopiedDocument, RenderedDocument]
-  
   private[laika] case class RenderConfig ()
 
   /** Process the specified render operation for an entire input tree and a character output format.
@@ -60,7 +57,8 @@ object RendererRuntime {
     }
 
     val fileSuffix = op.renderer.format.fileSuffix
-    
+
+    type RenderResult = Either[BinaryInput[F], RenderedDocument]
     case class RenderOps (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
@@ -105,17 +103,21 @@ object RendererRuntime {
           val outputPath = pathTranslator.translate(document.path)
           val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
           OutputRuntime.write(renderResult, output(outputPath)).as {
-            Right(RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)): RenderResult
+            val result = RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)
+            Right(result): RenderResult
           }
         }
     }
     
-    def copyDocuments (docs: Seq[BinaryInput[F]], dir: File, pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.flatMap { doc =>
-      val outFile = file(dir, pathTranslator(doc.path))
-      if (doc.sourceFile.contains(outFile)) None
-      else {
-        val out = OutputRuntime.binaryFileResource(outFile)
-        Some(CopyRuntime.copy(doc.input, out).as(Left(CopiedDocument(doc.path)): RenderResult))
+    def copyDocuments (docs: Seq[BinaryInput[F]], dir: Option[File], pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.map { doc =>
+      val translatedDoc = doc.copy(path = pathTranslator(doc.path))
+      val result: RenderResult = Left(translatedDoc)
+      dir.map(file(_, translatedDoc.path)) match {
+        case Some(outFile) if !doc.sourceFile.contains(outFile) =>
+          val out = OutputRuntime.binaryFileResource(outFile)
+          CopyRuntime.copy(doc.input, out).as(result)
+        case _ =>
+          Sync[F].pure(result)
       }
     }
     
@@ -125,27 +127,30 @@ object RendererRuntime {
                    staticDocs: Seq[BinaryInput[F]]): RenderOps = {
       
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
+      val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
       
       op.output match {
-        case StringTreeOutput => RenderOps(Nil, renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p)))
+        case StringTreeOutput => 
+          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p))
+          val copyOps = copyDocuments(staticDocs, None, pathTranslator)
+          RenderOps(Nil, renderOps ++ copyOps)
         case DirectoryOutput(dir, codec) =>
           val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forFile(p, file(dir, p), codec))
-          val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
-          val copyOps = copyDocuments(staticDocs, dir, pathTranslator)
-          val directories = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
+          val copyOps = copyDocuments(staticDocs, Some(dir), pathTranslator)
+          val mkDirOps = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
             .map(pathTranslator(_).parent)
             .distinct
             .map(p => OutputRuntime.createDirectory(file(dir, p)))
-          RenderOps(directories, renderOps ++ copyOps)
+          RenderOps(mkDirOps, renderOps ++ copyOps)
       }
     }
     
-    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput[F]]): F[RenderedTreeRoot[F]] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]]): F[RenderedTreeRoot[F]] =
 
       Batch[F].execute(ops.toVector).map { results =>
 
         val titleName = TitleDocumentConfig.outputName(finalRoot.config)
-        val renderedDocs = results.collect { case Right(doc) => doc }
+        val (staticDocs, renderedDocs) = results.separate
         val coverDoc = renderedDocs.collectFirst {
           case doc if doc.path.parent == Root && doc.path.basename == "cover" => doc
         }
@@ -212,7 +217,7 @@ object RendererRuntime {
       _          <- validatePaths(static)
       ops        =  renderOps(finalRoot, lookup, tConfig, static)
       _          <- ops.mkDirOps.toVector.sequence
-      res        <- processBatch(finalRoot, ops.renderOps, static)
+      res        <- processBatch(finalRoot, ops.renderOps)
     } yield res
   }
 
