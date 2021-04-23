@@ -28,9 +28,11 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
 
   implicit def inputStreamResourceEncoder[G[_]: Sync, IS <: InputStream]: EntityEncoder[G, Resource[G, IS]] =
     entityBodyEncoder[G].contramap { (in: Resource[G, IS]) =>
-      readInputStream[G](in.allocated.map(_._1).widen[InputStream], 4096) // fs2 closes the stream
+      fs2.Stream.resource(in).flatMap { stream =>
+        readInputStream[G](Sync[G].pure(stream), 4096, closeAfterUse = false)
+      }
     }
-    
+
   def build: Resource[F, Server] = {
     
     def htmlRenderer (config: OperationConfig): Resource[F, TreeRenderer[F]] = Renderer
