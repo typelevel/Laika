@@ -583,7 +583,7 @@ class TreeRendererSpec extends IOWordSpec
 
       def docHTML(num: Int): String = s"<p>Text $num</p>"
       
-      val expectedStatic = staticDocs.drop(2).map(_.path)
+      val expectedStatic = staticDocs.drop(2).map(in => Root / "0.4" / in.path.relative)
       val expectedRendered = renderedRoot(List(
         renderedTree(Root / "0.4", List(
           renderedTree(Root / "0.4" / "tree-1", List(
