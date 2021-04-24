@@ -38,7 +38,7 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion) {
 }
 
 function loadVersions (localRootPrefix, currentPath, currentVersion) {
-  const url = localRootPrefix + "/laika/versionInfo.json";
+  const url = localRootPrefix + "laika/versionInfo.json";
   const req = new XMLHttpRequest();
   req.open("GET", url);
   req.responseType = "json";
