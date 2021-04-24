@@ -54,6 +54,9 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
 
   def build: Resource[F, Server] = {
     
+    def mediaTypeFor (suffix: String): Option[MediaType] =
+      MediaType.forExtension(suffix).orElse(MediaType.forExtension(suffix.split("\\.").last))
+    
     def htmlRenderer (config: OperationConfig): Resource[F, TreeRenderer[F]] = Renderer
       .of(HTML)
       .withConfig(config)
@@ -104,7 +107,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                 Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
               case Some(Left(input)) =>
                 println(s"serving path $laikaPath - static input")
-                val mediaType = laikaPath.suffix.flatMap(ext => MediaType.forExtension(ext).map(`Content-Type`(_)))
+                val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
                 Ok(input).map(_.withHeaders(Headers(mediaType)))
               case None => 
                 println(s"serving path $laikaPath - not found")
