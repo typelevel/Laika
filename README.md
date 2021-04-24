@@ -69,7 +69,7 @@ Further Information
 * Ask questions on [Stackoverflow], tagging with Laika and Scala.
  
 
-[Manual]: https://planet42.github.com/Laika/index.html
+[Manual]: https://planet42.github.io/Laika/index.html
 [Demo App]: http://planet42.org/
 [API]: https://planet42.github.com/Laika/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
