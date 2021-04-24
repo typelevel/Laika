@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012-2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package laika.preview
 
 import java.io.InputStream
@@ -21,6 +37,9 @@ import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
 
+/**
+  * @author Jens Halm
+  */
 class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]], 
                                   inputs: InputTreeBuilder[F],
                                   theme: ThemeProvider,
@@ -56,8 +75,6 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
         parser.fromInput(inputs).parse
       }
       
-      // TODO - if we do not copy the static documents, we must still apply the filter + path translation from RendererRuntime
-      
       val docMap = tree.flatMap { tree =>
         htmlRenderer
           .from(tree.root)
@@ -74,31 +91,34 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
             .toMap // TODO - map root
           }
       }
+
+      Resource.eval(Cache.create(docMap)).flatMap { cache =>
       
-      val routes = HttpRoutes.of[F] {
+        val routes = HttpRoutes.of[F] {
+          
+          case GET -> path => 
+            val laikaPath = laika.ast.Path.parse(path.toString)
+            cache.get.map(_.get(laikaPath.withoutFragment)).flatMap {
+              case Some(Right(content)) => 
+                println(s"serving path $laikaPath - transformed markup")
+                Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
+              case Some(Left(input)) =>
+                println(s"serving path $laikaPath - static input")
+                val mediaType = laikaPath.suffix.flatMap(ext => MediaType.forExtension(ext).map(`Content-Type`(_)))
+                Ok(input).map(_.withHeaders(Headers(mediaType)))
+              case None => 
+                println(s"serving path $laikaPath - not found")
+                NotFound()
+            }
+        }
+      
+        val httpApp = Router("/" -> routes).orNotFound
         
-        case GET -> path => 
-          val laikaPath = laika.ast.Path.parse(path.toString)
-          docMap.map(_.get(laikaPath)).flatMap {
-            case Some(Right(content)) => 
-              println(s"serving path $laikaPath - transformed markup")
-              Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
-            case Some(Left(input)) =>
-              println(s"serving path $laikaPath - static input")
-              val mediaType = laikaPath.suffix.flatMap(ext => MediaType.forExtension(ext).map(`Content-Type`(_)))
-              Ok(input).map(_.withHeaders(Headers(mediaType)))
-            case None => 
-              println(s"serving path $laikaPath - not found")
-              NotFound()
-          }
+        BlazeServerBuilder[F](ctx)
+          .bindHttp(port, "localhost")
+          .withHttpApp(httpApp)
+          .resource
       }
-    
-      val httpApp = Router("/" -> routes).orNotFound
-      
-      BlazeServerBuilder[F](ctx)
-        .bindHttp(port, "localhost")
-        .withHttpApp(httpApp)
-        .resource
     }
   }
 
