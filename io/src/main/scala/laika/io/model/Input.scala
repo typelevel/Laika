@@ -46,7 +46,7 @@ case class BinaryInput[F[_]: Sync] (path: Path,
 object BinaryInput {
   
   def fromString[F[_]: Sync] (path: Path, input: String, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = Resource.pure[F, InputStream](new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet)))
+    val resource = Resource.eval[F, InputStream](Sync[F].delay(new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet))))
     BinaryInput(path, resource, targetFormats)
   }
 
