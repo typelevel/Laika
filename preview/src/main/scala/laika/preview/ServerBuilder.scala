@@ -16,15 +16,15 @@
 
 package laika.preview
 
+import java.io.InputStream
+
 import cats.syntax.all._
 import cats.effect._
-import laika.api.Renderer
-import laika.api.builder.OperationConfig
-import laika.format.HTML
+import laika.ast
+import laika.ast.DocumentType
 import laika.helium.Helium
-import laika.io.implicits._
-import laika.io.api.{TreeParser, TreeRenderer}
-import laika.io.model.{InputTreeBuilder, StringTreeOutput}
+import laika.io.api.TreeParser
+import laika.io.model.InputTreeBuilder
 import laika.theme.ThemeProvider
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
@@ -32,6 +32,7 @@ import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 /**
@@ -43,71 +44,32 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   port: Int,
                                   pollInterval: FiniteDuration) extends Http4sDsl[F] {
 
-  def build: Resource[F, Server] = {
-    
-    def htmlRenderer (config: OperationConfig): Resource[F, TreeRenderer[F]] = Renderer
-      .of(HTML)
-      .withConfig(config)
-      .parallel[F]
-      .withTheme(theme)
-      .build
-    
-    (for {
-      ctx <- Resource.eval(Async[F].executionContext)
-      p   <- parser
-      r   <- htmlRenderer(p.config)
-    } yield (ctx, p, r)).flatMap { case (ctx, parser, htmlRenderer) =>
-
-      val tree = {
-//        val apiPath = validated(SiteConfig.apiPath(baseConfig))
-//        val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
-//          (inputs, path) => inputs.addProvidedPath(apiPath / path)
-//        }
-        parser.fromInput(inputs).parse
-      }
-      
-      val docMap = tree.flatMap { tree =>
-        htmlRenderer
-          .from(tree.root)
-          .copying(tree.staticDocuments)
-          .toOutput(StringTreeOutput)
-          .render
-          .map { root =>
-            (root.allDocuments.map { doc =>
-              (doc.path, Right(doc.content))
-            } ++
-            root.staticDocuments.map { doc =>
-              (doc.path, Left(doc.input))
-            })
-            .toMap // TODO - map root
-          }
-      }
-
-      Resource.eval(Cache.create(docMap)).flatMap { cache =>
-          
-        SourceChangeWatcher.create(
-          inputs.fileRoots.toList, 
-          cache.update, 
-          pollInterval, 
-          inputs.exclude, 
-          parser.config.docTypeMatcher
-        ).flatMap { _ =>
-
-          val httpApp = Router("/" -> new RouteBuilder[F](cache).build).orNotFound
-
-          BlazeServerBuilder[F](ctx)
-            .bindHttp(port, "localhost")
-            .withHttpApp(httpApp)
-            .resource
-        }
-      }
-    }
-  }
-
   private def copy (newTheme: ThemeProvider = theme,
                     newPort: Int = port,
-                    newPollInterval: FiniteDuration = pollInterval): ServerBuilder[F] = 
+                    newPollInterval: FiniteDuration = pollInterval): ServerBuilder[F] =
     new ServerBuilder[F](parser, inputs, newTheme, newPort, newPollInterval)
+  
+  private def createSourceChangeWatcher (cache: Cache[F, Map[ast.Path, Either[Resource[F, InputStream], String]]],
+                                         docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
+    SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, pollInterval, inputs.exclude, docTypeMatcher)
+    
+  private def createServer (cache: Cache[F, Map[ast.Path, Either[Resource[F, InputStream], String]]],
+                            ctx: ExecutionContext): Resource[F, Server] = {
+    val httpApp = Router("/" -> new RouteBuilder[F](cache).build).orNotFound
+
+    BlazeServerBuilder[F](ctx)
+      .bindHttp(port, "localhost")
+      .withHttpApp(httpApp)
+      .resource
+  }
+  
+  def build: Resource[F, Server] = for {
+    transf <- SiteTransformer.create(parser, inputs, theme)
+    ctx    <- Resource.eval(Async[F].executionContext)
+    cache  <- Resource.eval(Cache.create(transf.transform))
+    _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
+    server <- createServer(cache, ctx)
+  } yield server
 
   def withTheme (theme: ThemeProvider): ServerBuilder[F] = copy(newTheme = theme)
   def withPort (port: Int): ServerBuilder[F] = copy(newPort = port)
