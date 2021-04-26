@@ -16,7 +16,7 @@
 
 package laika.preview
 
-import java.io.InputStream
+import java.io.{File, InputStream}
 
 import cats.syntax.all._
 import cats.effect._
@@ -37,13 +37,16 @@ import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
 
+import scala.concurrent.duration._
+
 /**
   * @author Jens Halm
   */
-class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]], 
+class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   theme: ThemeProvider,
-                                  port: Int) extends Http4sDsl[F] {
+                                  port: Int,
+                                  pollInterval: FiniteDuration) extends Http4sDsl[F] {
 
   implicit def inputStreamResourceEncoder[G[_]: Sync, IS <: InputStream]: EntityEncoder[G, Resource[G, IS]] =
     entityBodyEncoder[G].contramap { (in: Resource[G, IS]) =>
@@ -96,47 +99,62 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
       }
 
       Resource.eval(Cache.create(docMap)).flatMap { cache =>
-      
-        val routes = HttpRoutes.of[F] {
           
-          case GET -> path => 
-            val laikaPath = laika.ast.Path.parse(path.toString)
-            cache.get.map(_.get(laikaPath.withoutFragment)).flatMap {
-              case Some(Right(content)) => 
-                println(s"serving path $laikaPath - transformed markup")
-                Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
-              case Some(Left(input)) =>
-                println(s"serving path $laikaPath - static input")
-                val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
-                Ok(input).map(_.withHeaders(Headers(mediaType)))
-              case None => 
-                println(s"serving path $laikaPath - not found")
-                NotFound()
-            }
+        SourceChangeWatcher.create(
+          inputs.fileRoots.toList, 
+          cache.update, 
+          pollInterval, 
+          inputs.exclude, 
+          parser.config.docTypeMatcher
+        ).flatMap { _ =>
+
+          val routes = HttpRoutes.of[F] {
+
+            case GET -> path =>
+              val laikaPath = laika.ast.Path.parse(path.toString)
+              cache.get.map(_.get(laikaPath.withoutFragment)).flatMap {
+                case Some(Right(content)) =>
+                  println(s"serving path $laikaPath - transformed markup")
+                  Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
+                case Some(Left(input)) =>
+                  println(s"serving path $laikaPath - static input")
+                  val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
+                  Ok(input).map(_.withHeaders(Headers(mediaType)))
+                case None =>
+                  println(s"serving path $laikaPath - not found")
+                  NotFound()
+              }
+          }
+
+          val httpApp = Router("/" -> routes).orNotFound
+
+          BlazeServerBuilder[F](ctx)
+            .bindHttp(port, "localhost")
+            .withHttpApp(httpApp)
+            .resource
         }
-      
-        val httpApp = Router("/" -> routes).orNotFound
-        
-        BlazeServerBuilder[F](ctx)
-          .bindHttp(port, "localhost")
-          .withHttpApp(httpApp)
-          .resource
       }
     }
   }
 
   private def copy (newTheme: ThemeProvider = theme,
-                    newPort: Int = port): ServerBuilder[F] = 
-    new ServerBuilder[F](parser, inputs, newTheme, newPort)
+                    newPort: Int = port,
+                    newPollInterval: FiniteDuration = pollInterval): ServerBuilder[F] = 
+    new ServerBuilder[F](parser, inputs, newTheme, newPort, newPollInterval)
 
   def withTheme (theme: ThemeProvider): ServerBuilder[F] = copy(newTheme = theme)
   def withPort (port: Int): ServerBuilder[F] = copy(newPort = port)
+  def withPollInterval (interval: FiniteDuration): ServerBuilder[F] = copy(newPollInterval = interval)
   
 }
 
 object ServerBuilder {
   
+  val defaultPort: Int = 4242
+  
+  val defaultPollInterval: FiniteDuration = 3.seconds
+
   def apply[F[_]: Async](parser: Resource[F, TreeParser[F]], inputs: InputTreeBuilder[F]): ServerBuilder[F] = 
-    new ServerBuilder[F](parser, inputs, Helium.defaults.build, 4242)
+    new ServerBuilder[F](parser, inputs, Helium.defaults.build, defaultPort, defaultPollInterval)
   
 }
