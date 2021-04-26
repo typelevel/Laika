@@ -16,7 +16,7 @@
 
 package laika.io.runtime
 
-import java.nio.file.{DirectoryStream, Files, Path => JPath}
+import java.nio.file.{Files, Path => JPath}
 
 import cats.effect.{Sync, Resource}
 import cats.implicits._
@@ -33,31 +33,34 @@ import scala.collection.{AbstractIterator, Iterator}
   */
 object DirectoryScanner {
 
+  /** Scans the specified directory passing all child paths to the given function.
+    */
+  def scanDirectory[F[_]: Sync, A] (directory: JPath)(f: Seq[JPath] => F[A]): F[A] =
+    Resource
+      .fromAutoCloseable(Sync[F].delay(Files.newDirectoryStream(directory)))
+      .use(str => f(JIteratorWrapper(str.iterator).toSeq))
+  
   /** Scans the specified directory and transforms it into a generic InputCollection.
     */
   def scanDirectories[F[_]: Sync] (input: DirectoryInput): F[InputTree[F]] = {
     val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
-    join(input.directories.map(d => scanDirectory(input.mountPoint, d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
+    join(input.directories.map(d => scanDirectory[F, InputTree[F]](d.toPath)(asInputCollection(input.mountPoint, input))))
+      .map(_.copy(sourcePaths = sourcePaths))
   }
-  
-  private def scanDirectory[F[_]: Sync] (vPath: Path, filePath: JPath, input: DirectoryInput): F[InputTree[F]] =
-    Resource
-      .fromAutoCloseable(Sync[F].delay(Files.newDirectoryStream(filePath)))
-      .use(asInputCollection(vPath, input)(_))
   
   private def join[F[_]: Sync] (collections: Seq[F[InputTree[F]]]): F[InputTree[F]] = collections
     .toVector
     .sequence
     .map(_.reduceLeftOption(_ ++ _).getOrElse(InputTree.empty))
 
-  private def asInputCollection[F[_]: Sync] (path: Path, input: DirectoryInput)(directoryStream: DirectoryStream[JPath]): F[InputTree[F]] = {
+  private def asInputCollection[F[_]: Sync] (path: Path, input: DirectoryInput)(entries: Seq[JPath]): F[InputTree[F]] = {
 
     def toCollection (filePath: JPath): F[InputTree[F]] = {
-      
+
       val childPath = path / filePath.getFileName.toString
-      
+
       if (input.fileFilter(filePath.toFile)) InputTree.empty[F].pure[F]
-      else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
+      else if (Files.isDirectory(filePath)) scanDirectory(filePath)(asInputCollection(childPath, input))
       else input.docTypeMatcher(childPath) match {
         case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil, Nil).pure[F]
         case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(childPath, filePath.toFile, formats)), Nil).pure[F]
@@ -65,13 +68,9 @@ object DirectoryScanner {
       }
     }
 
-    val collections = for {
-      path <- JIteratorWrapper(directoryStream.iterator).toSeq
-    } yield toCollection(path)
-
-    join(collections)
+    join(entries.map(toCollection))
   }
-
+  
   // copied from SDK source to avoid having either a dependency to scala-compat or a warning with 2.13
   // this is literally the one place in the Laika source where we need to deal with a Java collection
   case class JIteratorWrapper[A](underlying: java.util.Iterator[A]) extends AbstractIterator[A] with Iterator[A] {
