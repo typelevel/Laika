@@ -120,11 +120,11 @@ object InputTree {
     * The filter will only be used for scanning directories when calling `addDirectory` on the builder,
     * not for any of the other methods.
     */
-  def apply[F[_]: Sync] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty)
+  def apply[F[_]: Sync] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty, Vector.empty)
 
   /** Creates a new, empty InputTreeBuilder.
     */
-  def apply[F[_]: Sync]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty)
+  def apply[F[_]: Sync]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty, Vector.empty)
   
   /** An empty input tree.
     */
@@ -178,16 +178,22 @@ object InputTree {
   * }
   * }}}
   */
-class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean, 
-                             private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]])(implicit F: Sync[F]) {
+class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean, 
+                             private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]],
+                             private[laika] val fileRoots: Vector[File])(implicit F: Sync[F]) {
   
   import cats.implicits._
-  
+
   private def addStep (step: (Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
-    new InputTreeBuilder(exclude, steps = steps :+ step)
+    addStep(None)(step)
+    
+  private def addStep (newFileRoot: Option[File])
+                      (step: (Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+    new InputTreeBuilder(exclude, steps = steps :+ step, newFileRoot.fold(fileRoots)(fileRoots :+ _))
   
-  private def addStep (path: Path)(f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
-    addStep { (docTypeFunction, _) => 
+  private def addStep (path: Path, newFileRoot: Option[File] = None)
+                      (f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
+    addStep(newFileRoot) { (docTypeFunction, _) => 
       Kleisli { tree =>
         f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
       }
@@ -218,7 +224,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
 
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
-  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep { (docTypeFunction, fileFilter) =>
+  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
     Kleisli { input => 
       DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
     }
@@ -238,7 +244,7 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
   def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
-    addStep(mountPoint) {
+    addStep(mountPoint, Some(file)) {
       case DocumentType.Static(formats) => _ + BinaryInput.fromFile(mountPoint, file, formats)
       case docType: TextDocumentType    => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
     }
@@ -326,13 +332,13 @@ class InputTreeBuilder[F[_]](private[model] val exclude: File => Boolean,
     */
   def withFileFilter (filter: File => Boolean): InputTreeBuilder[F] = {
     val combinedFilter: File => Boolean = f => filter(f) || exclude(f)
-    new InputTreeBuilder(combinedFilter, steps)
+    new InputTreeBuilder(combinedFilter, steps, fileRoots)
   }
 
   /** Merges this input tree with the specified tree, recursively.
     */
   def merge (other: InputTreeBuilder[F]): InputTreeBuilder[F] = 
-    new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps)
+    new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps, fileRoots ++ other.fileRoots)
 
   /** Builds the tree based on the inputs added to this instance.
     * 
