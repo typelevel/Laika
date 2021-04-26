@@ -157,7 +157,8 @@ object SourceChangeWatcher {
                            pollInterval: FiniteDuration,
                            fileFilter: File => Boolean,
                            docTypeMatcher: Path => DocumentType): Resource[F, Unit] = {
-    Resource
+    if (inputs.isEmpty) Resource.unit
+    else Resource
       .make(Async[F].delay(FileSystems.getDefault.newWatchService))(service => Async[F].delay(service.close()))
       .evalMap(s => Async[F].ref(Map.empty[JPath, ObservedTarget]).map((s,_)))
       .flatMap { case (service, targetMap) =>
