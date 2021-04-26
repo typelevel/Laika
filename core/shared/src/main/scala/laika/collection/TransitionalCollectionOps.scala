@@ -16,6 +16,8 @@
 
 package laika.collection
 
+import scala.collection.{AbstractIterator, Iterator}
+
 /** Temporary extension methods for cross-building to Scala 2.12 and 2.13.
   *
   * @author Jens Halm
@@ -48,6 +50,14 @@ object TransitionalCollectionOps {
     private val cIter = cs.iterator
     def hasNext = aIter.hasNext && bIter.hasNext && cIter.hasNext
     def next() = (aIter.next(), bIter.next(), cIter.next())
+  }
+
+  /** Simple utility to avoid having either a dependency to scala-compat or a warning with 2.13.
+    * There are very few places within Laika where we need to deal with a Java collection.
+    */
+  case class JIteratorWrapper[A](underlying: java.util.Iterator[A]) extends AbstractIterator[A] with Iterator[A] {
+    def hasNext: Boolean = underlying.hasNext
+    def next(): A = underlying.next
   }
 
 }

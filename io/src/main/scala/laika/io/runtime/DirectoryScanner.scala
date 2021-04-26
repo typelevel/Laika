@@ -18,13 +18,12 @@ package laika.io.runtime
 
 import java.nio.file.{Files, Path => JPath}
 
-import cats.effect.{Sync, Resource}
+import cats.effect.{Resource, Sync}
 import cats.implicits._
 import laika.ast.DocumentType.Static
 import laika.ast.{Path, TextDocumentType}
+import laika.collection.TransitionalCollectionOps.JIteratorWrapper
 import laika.io.model._
-
-import scala.collection.{AbstractIterator, Iterator}
 
 /** Scans a directory in the file system and transforms it into a generic InputCollection
   * that can serve as input for parallel parsers or transformers.
@@ -69,13 +68,6 @@ object DirectoryScanner {
     }
 
     join(entries.map(toCollection))
-  }
-  
-  // copied from SDK source to avoid having either a dependency to scala-compat or a warning with 2.13
-  // this is literally the one place in the Laika source where we need to deal with a Java collection
-  case class JIteratorWrapper[A](underlying: java.util.Iterator[A]) extends AbstractIterator[A] with Iterator[A] {
-    def hasNext: Boolean = underlying.hasNext
-    def next(): A = underlying.next
   }
   
 }
