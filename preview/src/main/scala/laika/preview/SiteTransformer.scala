@@ -36,8 +36,7 @@ import laika.theme.ThemeProvider
 
 class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
                                     htmlRenderer: TreeRenderer[F],
-                                    epubRenderer: BinaryTreeRenderer[F],
-                                    pdfRenderer: BinaryTreeRenderer[F],
+                                    binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
                                     inputs: InputTreeBuilder[F],
                                     artifactBasename: String) {
 
@@ -66,10 +65,11 @@ class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
       downloadPath     <- SiteConfig.downloadPath(root.config)
       artifactBaseName <- root.config.get[String](LaikaKeys.artifactBaseName, artifactBasename)
     } yield {
-      val combinations = 
-        roots.map(r => (r._1, r._2, epubRenderer, ".epub")) ++
-        roots.map(r => (r._1, r._2, pdfRenderer, ".pdf"))
-      combinations.map { case (root, classifiers, renderer, suffix) =>
+      val combinations = for {
+        root <- roots.toList
+        renderer <- binaryRenderers
+      } yield (root, renderer)
+      combinations.map { case ((root, classifiers), (renderer, suffix)) =>
         val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName = artifactBaseName + classifier + suffix
         val path = downloadPath / docName
@@ -134,14 +134,14 @@ object SiteTransformer {
   def create[F[_]: Async](parser: Resource[F, TreeParser[F]],
                           inputs: InputTreeBuilder[F],
                           theme: ThemeProvider,
+                          renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
     def ignoreErrors (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(_.copy(failOnMessages = MessageFilter.None))
     for {
       p      <- parser
       html   <- htmlRenderer(p.config, theme)
-      epub   <- binaryRenderer(EPUB, p.config, theme)
-      pdf    <- binaryRenderer(PDF, p.config, theme)
-    } yield new SiteTransformer[F](ignoreErrors(p), html, epub, pdf, inputs, artifactBasename)
+      bin    <- renderFormats.map(f => binaryRenderer(f, p.config, theme).map((_, f.interimFormat.fileSuffix))).sequence
+    } yield new SiteTransformer[F](ignoreErrors(p), html, bin, inputs, artifactBasename)
     
   }
   

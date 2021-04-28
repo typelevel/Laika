@@ -20,9 +20,9 @@ import java.io.{File, InputStream}
 
 import cats.syntax.all._
 import cats.effect._
-import com.comcast.ip4s.Literals.port
 import laika.ast
 import laika.ast.DocumentType
+import laika.format.{EPUB, PDF}
 import laika.helium.Helium
 import laika.io.api.TreeParser
 import laika.io.model.InputTreeBuilder
@@ -68,8 +68,12 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
       .resource
   }
   
+  private def binaryRenderFormats =
+    List(EPUB).filter(_ => config.includeEPUB) ++
+    List(PDF).filter(_ => config.includePDF)
+  
   def build: Resource[F, Server] = for {
-    transf <- SiteTransformer.create(parser, inputs, theme, config.artifactBasename)
+    transf <- SiteTransformer.create(parser, inputs, theme, binaryRenderFormats, config.artifactBasename)
     ctx    <- Resource.eval(Async[F].executionContext)
     cache  <- Resource.eval(Cache.create(transf.transform))
     _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
