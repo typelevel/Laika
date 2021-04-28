@@ -42,18 +42,20 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   theme: ThemeProvider,
                                   port: Int,
-                                  pollInterval: FiniteDuration) extends Http4sDsl[F] {
+                                  pollInterval: FiniteDuration,
+                                  artifactBasename: String) extends Http4sDsl[F] {
 
   private def copy (newTheme: ThemeProvider = theme,
                     newPort: Int = port,
-                    newPollInterval: FiniteDuration = pollInterval): ServerBuilder[F] =
-    new ServerBuilder[F](parser, inputs, newTheme, newPort, newPollInterval)
+                    newPollInterval: FiniteDuration = pollInterval,
+                    newArtifactBasename: String = artifactBasename): ServerBuilder[F] =
+    new ServerBuilder[F](parser, inputs, newTheme, newPort, newPollInterval, newArtifactBasename)
   
-  private def createSourceChangeWatcher (cache: Cache[F, Map[ast.Path, Either[Resource[F, InputStream], String]]],
+  private def createSourceChangeWatcher (cache: Cache[F, SiteResults[F]],
                                          docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
     SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, pollInterval, inputs.exclude, docTypeMatcher)
     
-  private def createServer (cache: Cache[F, Map[ast.Path, Either[Resource[F, InputStream], String]]],
+  private def createServer (cache: Cache[F, SiteResults[F]],
                             ctx: ExecutionContext): Resource[F, Server] = {
     val httpApp = Router("/" -> new RouteBuilder[F](cache).build).orNotFound
 
@@ -64,7 +66,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   }
   
   def build: Resource[F, Server] = for {
-    transf <- SiteTransformer.create(parser, inputs, theme)
+    transf <- SiteTransformer.create(parser, inputs, theme, artifactBasename)
     ctx    <- Resource.eval(Async[F].executionContext)
     cache  <- Resource.eval(Cache.create(transf.transform))
     _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
@@ -74,6 +76,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   def withTheme (theme: ThemeProvider): ServerBuilder[F] = copy(newTheme = theme)
   def withPort (port: Int): ServerBuilder[F] = copy(newPort = port)
   def withPollInterval (interval: FiniteDuration): ServerBuilder[F] = copy(newPollInterval = interval)
+  def withArtifactBasename (name: String): ServerBuilder[F] = copy(newArtifactBasename = name)
   
 }
 
@@ -82,8 +85,12 @@ object ServerBuilder {
   val defaultPort: Int = 4242
   
   val defaultPollInterval: FiniteDuration = 3.seconds
+  
+  val defaultArtifactBasename: String = "docs"
 
   def apply[F[_]: Async](parser: Resource[F, TreeParser[F]], inputs: InputTreeBuilder[F]): ServerBuilder[F] = 
-    new ServerBuilder[F](parser, inputs, Helium.defaults.build, defaultPort, defaultPollInterval)
+    new ServerBuilder[F](parser, inputs, Helium.defaults.build, defaultPort, defaultPollInterval, defaultArtifactBasename)
   
 }
+
+private[laika] case class PreviewConfig ()
