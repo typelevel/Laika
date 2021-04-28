@@ -22,7 +22,7 @@ import cats.syntax.all._
 import cats.effect.{Async, Resource}
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
-import laika.ast.{DocumentTreeRoot, Path}
+import laika.ast.{DocumentTreeRoot, MessageFilter, Path}
 import laika.config.Config.ConfigResult
 import laika.config.{ConfigException, LaikaKeys}
 import laika.factory.{BinaryPostProcessorBuilder, TwoPhaseRenderFormat}
@@ -115,6 +115,7 @@ object SiteTransformer {
     Renderer
       .of(HTML)
       .withConfig(config)
+      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build
@@ -125,6 +126,7 @@ object SiteTransformer {
     Renderer
       .of(format)
       .withConfig(config)
+      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build
@@ -133,12 +135,13 @@ object SiteTransformer {
                           inputs: InputTreeBuilder[F],
                           theme: ThemeProvider,
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
+    def ignoreErrors (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(_.copy(failOnMessages = MessageFilter.None))
     for {
       p      <- parser
       html   <- htmlRenderer(p.config, theme)
       epub   <- binaryRenderer(EPUB, p.config, theme)
       pdf    <- binaryRenderer(PDF, p.config, theme)
-    } yield new SiteTransformer[F](p, html, epub, pdf, inputs, artifactBasename)
+    } yield new SiteTransformer[F](ignoreErrors(p), html, epub, pdf, inputs, artifactBasename)
     
   }
   
