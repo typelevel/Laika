@@ -45,6 +45,11 @@ class TreeParser[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], theme:
     .map(_.config)
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
+  
+  private[laika] def modifyConfig (f: OperationConfig => OperationConfig): TreeParser[F] = {
+    val modifiedParsers = parsers.map(p => new MarkupParser(p.format, f(p.config)))
+    new TreeParser(modifiedParsers, theme)
+  }
 
   def fromInput (input: InputTreeBuilder[F]): TreeParser.Op[F] = TreeParser.Op(parsers, theme, input)
 
