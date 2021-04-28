@@ -32,8 +32,9 @@ import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
 import Settings.validated
+import com.comcast.ip4s.Literals.port
 import laika.config.Config
-import laika.preview.ServerBuilder
+import laika.preview.{ServerBuilder, ServerConfig}
 
 import scala.annotation.tailrec
 
@@ -192,26 +193,36 @@ object Tasks {
     */
   val preview: Initialize[Task[Unit]] = task {
     
-    // optional props
-    val encoding = laikaConfig.value.encoding
-    val projectName = name.value // as fallback for artifactBaseName
-    val apiDocs = generateAPI.value // for link validation
-    val port = 4242 // TODO - should be configurable
+    // TODO - laikaPreviewConfig
+    val logger = streams.value.log
+    logger.info("Initializing server...")
+    
+    def applyIf (flag: Boolean, f: ServerConfig => ServerConfig): ServerConfig => ServerConfig =
+      if (flag) f else identity
+    
+    val configureEbooks = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
+      .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
+    
+    val config = ServerConfig.defaults
+      .withArtifactBasename(name.value)
+      .withApiFiles(generateAPI.value)
+      .withTargetDirectory((laikaSite / target).value)
     
     val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withTheme(laikaTheme.value)
-      .withPort(port)
+      .withLogger(s => IO(logger.info(s)))
+      .withConfig(configureEbooks(config))
       .build
       .allocated
       .unsafeRunSync()
-    
-    streams.value.log.info(s"Preview server started on port $port. Press ctrl-D to exit.")
+
+    logger.info(s"Preview server started on port $port. Press ctrl-D to exit.")
     
     try {
       System.in.read
     }
     finally {
-      streams.value.log.info(s"Shutting down preview server.")
+      logger.info(s"Shutting down preview server.")
       cancel.unsafeRunSync()
     }
   }

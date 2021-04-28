@@ -16,15 +16,17 @@
 
 package laika.preview
 
-import java.io.InputStream
+import java.io.{File, InputStream}
 
 import cats.syntax.all._
 import cats.effect._
+import com.comcast.ip4s.Literals.port
 import laika.ast
 import laika.ast.DocumentType
 import laika.helium.Helium
 import laika.io.api.TreeParser
 import laika.io.model.InputTreeBuilder
+import laika.preview.ServerBuilder.Logger
 import laika.theme.ThemeProvider
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
@@ -41,32 +43,33 @@ import scala.concurrent.duration._
 class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   theme: ThemeProvider,
-                                  port: Int,
-                                  pollInterval: FiniteDuration,
-                                  artifactBasename: String) extends Http4sDsl[F] {
+                                  logger: Option[Logger[F]], 
+                                  config: ServerConfig) extends Http4sDsl[F] {
 
   private def copy (newTheme: ThemeProvider = theme,
-                    newPort: Int = port,
-                    newPollInterval: FiniteDuration = pollInterval,
-                    newArtifactBasename: String = artifactBasename): ServerBuilder[F] =
-    new ServerBuilder[F](parser, inputs, newTheme, newPort, newPollInterval, newArtifactBasename)
+                    newLogger: Option[Logger[F]] = logger,
+                    newConfig: ServerConfig = config): ServerBuilder[F] =
+    new ServerBuilder[F](parser, inputs, newTheme, newLogger, newConfig)
   
   private def createSourceChangeWatcher (cache: Cache[F, SiteResults[F]],
                                          docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
-    SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, pollInterval, inputs.exclude, docTypeMatcher)
+    SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, config.pollInterval, inputs.exclude, docTypeMatcher)
     
   private def createServer (cache: Cache[F, SiteResults[F]],
                             ctx: ExecutionContext): Resource[F, Server] = {
-    val httpApp = Router("/" -> new RouteBuilder[F](cache).build).orNotFound
+    val routeLogger = 
+      if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
+      else (s: String) => Async[F].unit
+    val httpApp = Router("/" -> new RouteBuilder[F](cache, routeLogger).build).orNotFound
 
     BlazeServerBuilder[F](ctx)
-      .bindHttp(port, "localhost")
+      .bindHttp(config.port, "localhost")
       .withHttpApp(httpApp)
       .resource
   }
   
   def build: Resource[F, Server] = for {
-    transf <- SiteTransformer.create(parser, inputs, theme, artifactBasename)
+    transf <- SiteTransformer.create(parser, inputs, theme, config.artifactBasename)
     ctx    <- Resource.eval(Async[F].executionContext)
     cache  <- Resource.eval(Cache.create(transf.transform))
     _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
@@ -74,23 +77,58 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   } yield server
 
   def withTheme (theme: ThemeProvider): ServerBuilder[F] = copy(newTheme = theme)
-  def withPort (port: Int): ServerBuilder[F] = copy(newPort = port)
-  def withPollInterval (interval: FiniteDuration): ServerBuilder[F] = copy(newPollInterval = interval)
-  def withArtifactBasename (name: String): ServerBuilder[F] = copy(newArtifactBasename = name)
+  def withLogger (logger: Logger[F]): ServerBuilder[F] = copy(newLogger = Some(logger))
+  def withConfig (config: ServerConfig): ServerBuilder[F] = copy(newConfig = config)
   
 }
 
 object ServerBuilder {
   
-  val defaultPort: Int = 4242
+  type Logger[F[_]] = String => F[Unit]
   
-  val defaultPollInterval: FiniteDuration = 3.seconds
-  
-  val defaultArtifactBasename: String = "docs"
-
   def apply[F[_]: Async](parser: Resource[F, TreeParser[F]], inputs: InputTreeBuilder[F]): ServerBuilder[F] = 
-    new ServerBuilder[F](parser, inputs, Helium.defaults.build, defaultPort, defaultPollInterval, defaultArtifactBasename)
+    new ServerBuilder[F](parser, inputs, Helium.defaults.build, None, ServerConfig.defaults)
   
 }
 
-private[laika] case class PreviewConfig ()
+class ServerConfig private (val port: Int,
+                            val pollInterval: FiniteDuration,
+                            val artifactBasename: String,
+                            val includeEPUB: Boolean,
+                            val includePDF: Boolean,
+                            val isVerbose: Boolean,
+                            val targetDir: Option[File],
+                            val apiFiles: Seq[String]) {
+
+  private def copy (newPort: Int = port,
+                    newPollInterval: FiniteDuration = pollInterval,
+                    newArtifactBasename: String = artifactBasename,
+                    newIncludeEPUB: Boolean = includeEPUB,
+                    newIncludePDF: Boolean = includePDF,
+                    newVerbose: Boolean = isVerbose,
+                    newTargetDir: Option[File] = targetDir,
+                    newApiFiles: Seq[String] = apiFiles): ServerConfig =
+    new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newTargetDir, newApiFiles)
+    
+  def withPort (port: Int): ServerConfig = copy(newPort = port)
+  def withPollInterval (interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+  def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+  def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+  def withArtifactBasename (name: String): ServerConfig = copy(newArtifactBasename = name)
+  def withTargetDirectory (dir: File): ServerConfig = copy(newTargetDir = Some(dir))
+  def withApiFiles (apiFiles: Seq[String]): ServerConfig = copy(newApiFiles = apiFiles)
+  def verbose: ServerConfig = copy(newVerbose = true)
+  
+}
+
+object ServerConfig {
+
+  val defaultPort: Int = 4242
+
+  val defaultPollInterval: FiniteDuration = 3.seconds
+
+  val defaultArtifactBasename: String = "docs"
+  
+  val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None, Nil)
+  
+}
