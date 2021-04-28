@@ -29,15 +29,15 @@ class RouteBuilder[F[_]: Async](cache: Cache[F, SiteResults[F]], logger: Logger[
       val laikaPath = laika.ast.Path.parse(path.toString)
       cache.get.map(_.get(laikaPath.withoutFragment)).flatMap {
         case Some(RenderedResult(content)) =>
-          Async[F].delay(println(s"serving path $laikaPath - transformed markup")) *>
+          logger(s"serving path $laikaPath - transformed markup") *>
           Ok(content).map(_.withContentType(`Content-Type`(MediaType.text.html)))
         case Some(StaticResult(input)) =>
-          Async[F].delay(println(s"serving path $laikaPath - static input")) *> {
+          logger(s"serving path $laikaPath - static input") *> {
             val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
             Ok(input).map(_.withHeaders(Headers(mediaType)))
           }
         case None =>
-          Async[F].delay(println(s"serving path $laikaPath - not found")) *> NotFound()
+          logger(s"serving path $laikaPath - not found") *> NotFound()
       }
   }
   
