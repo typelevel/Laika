@@ -18,15 +18,15 @@ package laika.preview
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 
-import cats.syntax.all._
 import cats.effect.{Async, Resource}
+import cats.syntax.all._
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.{DocumentTreeRoot, MessageFilter, Path}
 import laika.config.Config.ConfigResult
 import laika.config.{ConfigException, LaikaKeys}
 import laika.factory.{BinaryPostProcessorBuilder, TwoPhaseRenderFormat}
-import laika.format.{EPUB, HTML, PDF}
+import laika.format.HTML
 import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.config.SiteConfig
 import laika.io.implicits._
@@ -38,14 +38,14 @@ class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
                                     htmlRenderer: TreeRenderer[F],
                                     binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
                                     inputs: InputTreeBuilder[F],
+                                    staticFiles: Map[Path, SiteResult[F]],
                                     artifactBasename: String) {
 
   private val parse = {
-    //        val apiPath = validated(SiteConfig.apiPath(baseConfig))
-    //        val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
-    //          (inputs, path) => inputs.addProvidedPath(apiPath / path)
-    //        }
-    parser.fromInput(inputs).parse
+    val allInputs = staticFiles.foldLeft(inputs) {
+      case (inputs, (path, _)) => inputs.addProvidedPath(path)
+    }
+    parser.fromInput(allInputs).parse
   }
   
   def renderBinary (renderer: BinaryTreeRenderer[F], root: DocumentTreeRoot): Resource[F, InputStream] = {
@@ -74,7 +74,7 @@ class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
         val docName = artifactBaseName + classifier + suffix
         val path = downloadPath / docName
         (path, StaticResult(renderBinary(renderer, root)))
-      }.toList.toMap
+      }.toMap
     }
   }
 
@@ -103,7 +103,7 @@ class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
     rendered <- transformHTML(tree)
     ebooks   <- Async[F].fromEither(transformBinaries(tree.root).leftMap(ConfigException.apply))
   } yield {
-    new SiteResults(rendered ++ ebooks)
+    new SiteResults(staticFiles ++ rendered ++ ebooks)
   }
   
 }
@@ -135,13 +135,22 @@ object SiteTransformer {
                           inputs: InputTreeBuilder[F],
                           theme: ThemeProvider,
                           renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
+                          staticFiles: Option[StaticFileScanner],
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
+    
     def ignoreErrors (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(_.copy(failOnMessages = MessageFilter.None))
+    
+    def collectFiles (config: OperationConfig): Resource[F, Map[Path, SiteResult[F]]] = staticFiles
+      .fold(Resource.pure[F, Map[Path, SiteResult[F]]](Map.empty))(st => 
+        Resource.eval(st.collectStaticFiles[F](config))
+      )
+    
     for {
       p      <- parser
       html   <- htmlRenderer(p.config, theme)
       bin    <- renderFormats.map(f => binaryRenderer(f, p.config, theme).map((_, f.interimFormat.fileSuffix))).sequence
-    } yield new SiteTransformer[F](ignoreErrors(p), html, bin, inputs, artifactBasename)
+      static <- collectFiles(p.config)
+    } yield new SiteTransformer[F](ignoreErrors(p), html, bin, inputs, static, artifactBasename)
     
   }
   

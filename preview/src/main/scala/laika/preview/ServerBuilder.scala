@@ -51,6 +51,9 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                     newConfig: ServerConfig = config): ServerBuilder[F] =
     new ServerBuilder[F](parser, inputs, newTheme, newLogger, newConfig)
   
+  private val staticFiles: Option[StaticFileScanner] =
+    config.targetDir.map(dir => new StaticFileScanner(dir, config.apiFiles.nonEmpty))
+  
   private def createSourceChangeWatcher (cache: Cache[F, SiteResults[F]],
                                          docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
     SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, config.pollInterval, inputs.exclude, docTypeMatcher)
@@ -73,7 +76,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     List(PDF).filter(_ => config.includePDF)
   
   def build: Resource[F, Server] = for {
-    transf <- SiteTransformer.create(parser, inputs, theme, binaryRenderFormats, config.artifactBasename)
+    transf <- SiteTransformer.create(parser, inputs, theme, binaryRenderFormats, staticFiles, config.artifactBasename)
     ctx    <- Resource.eval(Async[F].executionContext)
     cache  <- Resource.eval(Cache.create(transf.transform))
     _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
