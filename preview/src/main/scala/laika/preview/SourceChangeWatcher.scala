@@ -32,12 +32,12 @@ import laika.preview.SourceChangeWatcher.{ObservedDirectory, ObservedFiles, Obse
 
 import scala.annotation.tailrec
 
-class SourceChangeWatcher[F[_]: Async] (service: WatchService,
-                                        targetMap: Ref[F, Map[JPath, ObservedTarget]],
-                                        inputs: List[File],
-                                        update: F[Unit],
-                                        fileFilter: File => Boolean,
-                                        docTypeMatcher: Path => DocumentType) {
+private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
+                                                          targetMap: Ref[F, Map[JPath, ObservedTarget]],
+                                                          inputs: List[File],
+                                                          update: F[Unit],
+                                                          fileFilter: File => Boolean,
+                                                          docTypeMatcher: Path => DocumentType) {
   
   private def scanDirectory (dir: JPath): F[List[JPath]] = DirectoryScanner.scanDirectory[F, List[JPath]](dir) {
     _.toList
@@ -130,7 +130,7 @@ class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   
 }
 
-object SourceChangeWatcher {
+private [preview] object SourceChangeWatcher {
 
   sealed trait ObservedTarget {
     def parent: JPath

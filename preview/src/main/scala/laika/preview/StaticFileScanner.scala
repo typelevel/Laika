@@ -30,7 +30,7 @@ import laika.io.model.BinaryInput
 import laika.io.runtime.DirectoryScanner
 import laika.rewrite.{Version, Versions}
 
-class StaticFileScanner (target: File, includeAPI: Boolean) {
+private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
 
   def collectStaticFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
 

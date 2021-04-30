@@ -34,14 +34,14 @@ import laika.io.model.{InputTreeBuilder, ParsedTree, StringTreeOutput}
 import laika.rewrite.nav.Selections
 import laika.theme.ThemeProvider
 
-class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
-                                    htmlRenderer: TreeRenderer[F],
-                                    binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
-                                    inputs: InputTreeBuilder[F],
-                                    staticFiles: Map[Path, SiteResult[F]],
-                                    artifactBasename: String) {
+private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
+                                                      htmlRenderer: TreeRenderer[F],
+                                                      binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
+                                                      inputs: InputTreeBuilder[F],
+                                                      staticFiles: Map[Path, SiteResult[F]],
+                                                      artifactBasename: String) {
 
-  private val parse = {
+  val parse = {
     val allInputs = staticFiles.foldLeft(inputs) {
       case (inputs, (path, _)) => inputs.addProvidedPath(path)
     }
@@ -108,7 +108,7 @@ class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
   
 }
 
-object SiteTransformer {
+private [preview] object SiteTransformer {
 
   def htmlRenderer[F[_]: Async] (config: OperationConfig, 
                                  theme: ThemeProvider): Resource[F, TreeRenderer[F]] = 
