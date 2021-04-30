@@ -193,7 +193,6 @@ object Tasks {
     */
   val preview: Initialize[Task[Unit]] = task {
     
-    // TODO - laikaPreviewConfig
     val logger = streams.value.log
     logger.info("Initializing server...")
     
@@ -203,10 +202,15 @@ object Tasks {
     val configureEbooks = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
     
-    val config = ServerConfig.defaults
+    val previewConfig = laikaPreviewConfig.value
+    val defaultConfig = if (previewConfig.isVerbose) ServerConfig.defaults.verbose else ServerConfig.defaults
+    
+    val config = defaultConfig
       .withArtifactBasename(name.value)
       .withApiFiles(generateAPI.value)
       .withTargetDirectory((laikaSite / target).value)
+      .withPort(previewConfig.port)
+      .withPollInterval(previewConfig.pollInterval)
     
     val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withTheme(laikaTheme.value)
