@@ -132,7 +132,10 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaPreview      = taskKey[Unit]("Launches an HTTP server for the generated site and e-books")
     
+    val laikaPreviewConfig = taskKey[LaikaPreviewConfig]("Configuration options for the preview server")
+    
     val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
+    
     
     val LaikaConfig = laika.sbt.LaikaConfig
     
@@ -154,6 +157,7 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaExtensions         := Nil,
     laikaConfig             := LaikaConfig(),
+    laikaPreviewConfig      := LaikaPreviewConfig.defaults,
     laikaTheme              := Helium.defaults.build,
     laikaDescribe           := Settings.describe.value,
 
