@@ -11,7 +11,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityEncoder, Headers, HttpRoutes, MediaType}
 import org.http4s.headers.`Content-Type`
 
-class RouteBuilder[F[_]: Async](cache: Cache[F, SiteResults[F]], logger: Logger[F]) extends Http4sDsl[F] {
+private [preview] class RouteBuilder[F[_]: Async](cache: Cache[F, SiteResults[F]], logger: Logger[F]) extends Http4sDsl[F] {
 
   implicit def inputStreamResourceEncoder[G[_]: Sync, IS <: InputStream]: EntityEncoder[G, Resource[G, IS]] =
     entityBodyEncoder[G].contramap { (in: Resource[G, IS]) =>

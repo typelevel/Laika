@@ -16,7 +16,7 @@
 
 package laika.preview
 
-import java.io.{File, InputStream}
+import java.io.File
 
 import cats.syntax.all._
 import cats.effect._
@@ -28,8 +28,6 @@ import laika.io.api.TreeParser
 import laika.io.model.InputTreeBuilder
 import laika.preview.ServerBuilder.Logger
 import laika.theme.ThemeProvider
-import org.http4s._
-import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -37,14 +35,20 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-/**
+/** Configures and instantiates a resource for a preview server.
+  * 
+  * Any of the provided inputs which originate in the file system will be watched,
+  * and any change will trigger a new transformation.
+  * Other input types, such as those generated in memory, will require creating and launching
+  * a new server instance.
+  * 
   * @author Jens Halm
   */
 class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   theme: ThemeProvider,
                                   logger: Option[Logger[F]], 
-                                  config: ServerConfig) extends Http4sDsl[F] {
+                                  config: ServerConfig) {
 
   private def copy (newTheme: ThemeProvider = theme,
                     newLogger: Option[Logger[F]] = logger,
@@ -89,15 +93,33 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   
 }
 
+/** Companion for creating a builder for a preview server.
+  */
 object ServerBuilder {
   
   type Logger[F[_]] = String => F[Unit]
-  
+
+  /** Creates a new builder for a preview server based on the provided parser and inputs.
+    * Further aspects like theme, port, poll interval and other details can optionally be configured
+    * with the API of the returned instance.
+    */
   def apply[F[_]: Async](parser: Resource[F, TreeParser[F]], inputs: InputTreeBuilder[F]): ServerBuilder[F] = 
     new ServerBuilder[F](parser, inputs, Helium.defaults.build, None, ServerConfig.defaults)
   
 }
 
+/** Additional configuration options for a preview server.
+  * 
+  * @param port the port the server should run on (default 4242)
+  * @param pollInterval the interval at which input file resources are polled for changes (default 3 seconds)
+  * @param artifactBasename the base name for PDF and EPUB artifacts linked by the generated site (default "docs")
+  * @param includeEPUB indicates whether EPUB downloads should be included on a download page (default false)
+  * @param includePDF indicates whether PDF downloads should be included on a download page (default false)
+  * @param isVerbose whether each served page and each detected file change should be logged (default false)
+  * @param targetDir an optional target directory from which existing documents like API documentation or older versions 
+  *                  of the site can be served (default None)
+  * @param apiFiles list of paths for generated API documentation (relative to the transformers virtual root)
+  */
 class ServerConfig private (val port: Int,
                             val pollInterval: FiniteDuration,
                             val artifactBasename: String,
@@ -116,18 +138,45 @@ class ServerConfig private (val port: Int,
                     newTargetDir: Option[File] = targetDir,
                     newApiFiles: Seq[String] = apiFiles): ServerConfig =
     new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newTargetDir, newApiFiles)
-    
+
+  /** Specifies the port the server should run on (default 4242).
+    */
   def withPort (port: Int): ServerConfig = copy(newPort = port)
+
+  /** Specifies the interval at which input file resources are polled for changes (default 3 seconds).
+    */
   def withPollInterval (interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+
+  /** Indicates that EPUB downloads should be included on the download page.
+    */
   def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+
+  /** Indicates that PDF downloads should be included on the download page.
+    */
   def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+
+  /** Specifies the base name for PDF and EPUB artifacts linked by the generated site (default "docs").
+    * Additional classifiers might be added to the base name (apart from the file suffix), depending on configuration.
+    */
   def withArtifactBasename (name: String): ServerConfig = copy(newArtifactBasename = name)
+
+  /** Specifies a target directory from which existing documents like API documentation or older versions
+    * of the site can be served.
+    */
   def withTargetDirectory (dir: File): ServerConfig = copy(newTargetDir = Some(dir))
+
+  /** Specifies a list of paths containing generated API documentation (relative to the transformers virtual root).
+    */
   def withApiFiles (apiFiles: Seq[String]): ServerConfig = copy(newApiFiles = apiFiles)
+
+  /** Indicates that each served page and each detected file change should be logged to the console.
+    */
   def verbose: ServerConfig = copy(newVerbose = true)
   
 }
 
+/** Companion for preview server configuration instances.
+  */
 object ServerConfig {
 
   val defaultPort: Int = 4242
@@ -135,7 +184,8 @@ object ServerConfig {
   val defaultPollInterval: FiniteDuration = 3.seconds
 
   val defaultArtifactBasename: String = "docs"
-  
+
+  /** A ServerConfig instance populated with default values. */
   val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None, Nil)
   
 }
