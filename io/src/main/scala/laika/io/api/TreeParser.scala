@@ -33,7 +33,7 @@ import laika.parse.markup.DocumentParser.{ParserError, DocumentInput}
   *
   * @author Jens Halm
   */
-class TreeParser[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], theme: Theme[F]) extends InputOps[F] {
+class TreeParser[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser], val theme: Theme[F]) extends InputOps[F] {
 
   type Result = TreeParser.Op[F]
 

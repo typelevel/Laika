@@ -79,16 +79,20 @@ object BinaryTreeRenderer {
   
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Batch] (format: BinaryRenderFormat, config: OperationConfig, theme: ThemeProvider) {
+  class Builder[F[_]: Async: Batch] (format: BinaryRenderFormat, config: OperationConfig, theme: Resource[F, Theme[F]]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
+    def withTheme (theme: ThemeProvider): Builder[F] = new Builder(format, config, theme.build)
+
+    /** Applies the specified theme to this renderer, overriding any previously specified themes.
+      */
+    def withTheme (theme: Theme[F]): Builder[F] = new Builder(format, config, Resource.pure[F, Theme[F]](theme))
     
     /** Final builder step that creates a parallel renderer for binary output.
       */
     def build: Resource[F, BinaryTreeRenderer[F]] = for {
-      initializedTheme    <- theme.build
+      initializedTheme    <- theme
       initializedRenderer <- buildRenderer(format, config, initializedTheme)
     } yield new BinaryTreeRenderer[F](initializedRenderer, initializedTheme)
   }

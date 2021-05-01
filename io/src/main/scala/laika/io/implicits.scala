@@ -77,7 +77,7 @@ object implicits {
   implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends SyncIOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Sync: Batch]: TreeRenderer.Builder[F] =
-      new TreeRenderer.Builder[F](builder.build, Helium.defaults.build)
+      new TreeRenderer.Builder[F](builder.build, Helium.defaults.build.build)
   }
 
   implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends SyncIOBuilderOps[TreeTransformer.Builder] {
@@ -92,7 +92,7 @@ object implicits {
   implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]) extends AsyncIOBuilderOps[BinaryTreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeRenderer.Builder[F] = {
-      new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build)
+      new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build.build)
     }
   }
 

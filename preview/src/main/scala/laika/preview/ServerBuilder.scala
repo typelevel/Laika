@@ -23,11 +23,10 @@ import cats.effect._
 import laika.ast
 import laika.ast.DocumentType
 import laika.format.{EPUB, PDF}
-import laika.helium.Helium
 import laika.io.api.TreeParser
 import laika.io.model.InputTreeBuilder
 import laika.preview.ServerBuilder.Logger
-import laika.theme.ThemeProvider
+import org.http4s.HttpApp
 import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -46,14 +45,12 @@ import scala.concurrent.duration._
   */
 class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
-                                  theme: ThemeProvider,
                                   logger: Option[Logger[F]], 
                                   config: ServerConfig) {
 
-  private def copy (newTheme: ThemeProvider = theme,
-                    newLogger: Option[Logger[F]] = logger,
+  private def copy (newLogger: Option[Logger[F]] = logger,
                     newConfig: ServerConfig = config): ServerBuilder[F] =
-    new ServerBuilder[F](parser, inputs, newTheme, newLogger, newConfig)
+    new ServerBuilder[F](parser, inputs, newLogger, newConfig)
   
   private val staticFiles: Option[StaticFileScanner] =
     config.targetDir.map(dir => new StaticFileScanner(dir, config.apiFiles.nonEmpty))
@@ -62,32 +59,36 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                          docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
     SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, config.pollInterval, inputs.exclude, docTypeMatcher)
     
-  private def createServer (cache: Cache[F, SiteResults[F]],
-                            ctx: ExecutionContext): Resource[F, Server] = {
-    val routeLogger = 
+  private def createApp (cache: Cache[F, SiteResults[F]]): HttpApp[F] = {
+    val routeLogger =
       if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
       else (s: String) => Async[F].unit
-    val httpApp = Router("/" -> new RouteBuilder[F](cache, routeLogger).build).orNotFound
-
+    Router("/" -> new RouteBuilder[F](cache, routeLogger).build).orNotFound
+  }
+    
+  private def createServer (httpApp: HttpApp[F],
+                            ctx: ExecutionContext): Resource[F, Server] =
     BlazeServerBuilder[F](ctx)
       .bindHttp(config.port, "localhost")
       .withHttpApp(httpApp)
       .resource
-  }
   
   private def binaryRenderFormats =
     List(EPUB).filter(_ => config.includeEPUB) ++
     List(PDF).filter(_ => config.includePDF)
-  
-  def build: Resource[F, Server] = for {
-    transf <- SiteTransformer.create(parser, inputs, theme, binaryRenderFormats, staticFiles, config.artifactBasename)
-    ctx    <- Resource.eval(Async[F].executionContext)
+
+  private[preview] def buildRoutes: Resource[F, HttpApp[F]] = for {
+    transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, staticFiles, config.artifactBasename)
     cache  <- Resource.eval(Cache.create(transf.transform))
     _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
-    server <- createServer(cache, ctx)
+  } yield createApp(cache)
+  
+  def build: Resource[F, Server] = for {
+    routes <- buildRoutes
+    ctx    <- Resource.eval(Async[F].executionContext)
+    server <- createServer(routes, ctx)
   } yield server
 
-  def withTheme (theme: ThemeProvider): ServerBuilder[F] = copy(newTheme = theme)
   def withLogger (logger: Logger[F]): ServerBuilder[F] = copy(newLogger = Some(logger))
   def withConfig (config: ServerConfig): ServerBuilder[F] = copy(newConfig = config)
   
@@ -104,7 +105,7 @@ object ServerBuilder {
     * with the API of the returned instance.
     */
   def apply[F[_]: Async](parser: Resource[F, TreeParser[F]], inputs: InputTreeBuilder[F]): ServerBuilder[F] = 
-    new ServerBuilder[F](parser, inputs, Helium.defaults.build, None, ServerConfig.defaults)
+    new ServerBuilder[F](parser, inputs, None, ServerConfig.defaults)
   
 }
 
