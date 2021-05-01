@@ -47,12 +47,18 @@ trait IOSpec extends Matchers {
       self.map(_.assertEquals(tree)).unsafeRunSync()
 
   }
+
+  implicit class AssertingIO[A] (private val self: IO[Assertion]) {
+    def run: Assertion = self.unsafeRunSync()
+  }
   
   implicit class Asserting[A](private val self: IO[A]) {
 
     def assertEquals(a: A): Assertion = self.map(_ shouldBe a).unsafeRunSync()
 
     def asserting(f: A => Assertion): Assertion = self.map(f).unsafeRunSync()
+    
+    def assertingIO(f: A => IO[Assertion]): Assertion = self.flatMap(f).unsafeRunSync()
 
     def assertFailsWith (t: Throwable): Assertion = self.attempt.map(_ shouldBe Left(t)).unsafeRunSync()
     

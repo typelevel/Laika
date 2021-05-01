@@ -59,6 +59,8 @@ import laika.theme.Theme
  */
 case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessorBuilder] {
 
+  override val description: String = "EPUB"
+  
   /** A render format for XHTML output as used by EPUB output.
     *
     * This format is usually not used directly with Laika's `Render` or `Transform` APIs.
