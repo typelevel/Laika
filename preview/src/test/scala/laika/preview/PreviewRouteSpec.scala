@@ -26,7 +26,7 @@ import laika.io.implicits._
 import laika.theme.Theme
 import org.http4s.headers.`Content-Type`
 import org.http4s.implicits._
-import org.http4s.{MediaType, Method, Request, Response, Status}
+import org.http4s.{MediaType, Method, Request, Response, Status, Uri}
 import org.scalatest.Assertion
 
 class PreviewRouteSpec extends IOFunSuite with InputBuilder {
@@ -37,21 +37,7 @@ class PreviewRouteSpec extends IOFunSuite with InputBuilder {
   def nonEmptyBody (response: Response[IO]): IO[Assertion] =
     response.body.compile.last.map(_.nonEmpty shouldBe true)
 
-  def check[A](actual:         IO[Response[IO]],
-               expectedStatus: Status): IO[Assertion] =
-    check(actual, expectedStatus, None, _ => IO.pure(succeed))
-  
-  def check[A](actual:            IO[Response[IO]],
-               expectedStatus:    Status,
-               expectedMediaType: Option[MediaType],
-               bodyCheck:         Response[IO] => IO[Assertion]): IO[Assertion] = 
-    actual.flatMap { response =>
-      response.status shouldBe expectedStatus
-      expectedMediaType.foreach { mt =>
-        response.headers.get[`Content-Type`] shouldBe Some(`Content-Type`(mt))
-      }
-      bodyCheck(response)
-    }
+  def ignoreBody (response: Response[IO]): IO[Assertion] = IO.pure(succeed)
 
   val defaultParser = MarkupParser
     .of(Markdown)
@@ -59,77 +45,61 @@ class PreviewRouteSpec extends IOFunSuite with InputBuilder {
     .withTheme(Theme.empty)
     .build
   
+  val defaultServer = {
+    val inputs = build(Seq(
+      (Root / "doc.md") -> "foo",
+      (Root / "dir" / "README.md") -> "foo",
+      (Root / "dir" / "image.jpg") -> "img"
+    ))
+    ServerBuilder(defaultParser, inputs)
+  }
+
+  def check[A](actual:            IO[Response[IO]],
+               expectedStatus:    Status,
+               expectedMediaType: Option[MediaType] = None,
+               bodyCheck:         Response[IO] => IO[Assertion] = ignoreBody): IO[Assertion] =
+    actual.flatMap { response =>
+      response.status shouldBe expectedStatus
+      expectedMediaType.foreach { mt =>
+        response.headers.get[`Content-Type`] shouldBe Some(`Content-Type`(mt))
+      }
+      bodyCheck(response)
+    }
+  
+  def run (uri: Uri,
+           expectedStatus:    Status,
+           expectedMediaType: Option[MediaType] = None,
+           bodyCheck:         Response[IO] => IO[Assertion] = ignoreBody,
+           config:            ServerConfig = ServerConfig.defaults): Assertion = 
+    defaultServer
+      .withConfig(config)
+      .buildRoutes
+      .use { app =>
+        val res = app.run(Request[IO](Method.GET, uri))
+        check(res, expectedStatus, expectedMediaType, bodyCheck)
+      }
+      .run
+
+  
   test("serve a rendered document") {
-    
-    val inputs = build(Seq((Root / "doc.md") -> "foo"))
-    
-    ServerBuilder(defaultParser, inputs).buildRoutes.use { app =>
-      val req = Request[IO](method = Method.GET, uri = uri"/doc.html" )
-      val res = app.run(req)
-      check (res, Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
-    }.run
-    
+    run(uri"/doc.html", Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
   }
 
   test("serve a rendered index document") {
-
-    val inputs = build(Seq((Root / "dir" / "README.md") -> "foo"))
-
-    ServerBuilder(defaultParser, inputs).buildRoutes.use { app =>
-      val req = Request[IO](method = Method.GET, uri = uri"/dir" )
-      val res = app.run(req)
-      check (res, Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
-    }.run
-
+    run(uri"/dir", Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
   }
 
   test("serve a static document") {
-
-    val inputs = build(Seq(
-      (Root / "doc.md") -> "foo",
-      (Root / "dir" / "image.jpg") -> "img"
-    ))
-
-    ServerBuilder(defaultParser, inputs).buildRoutes.use { app =>
-      val req = Request[IO](method = Method.GET, uri = uri"/dir/image.jpg" )
-      val res = app.run(req)
-      check (res, Status.Ok, Some(MediaType.image.jpeg), stringBody("img"))
-    }.run
-
+    run(uri"/dir/image.jpg", Status.Ok, Some(MediaType.image.jpeg), stringBody("img"))
   }
 
   test("serve a generated EPUB document") {
-
-    val inputs = build(Seq(
-      (Root / "doc.md") -> "foo",
-      (Root / "dir" / "image.jpg") -> "img"
-    ))
-
-    ServerBuilder(defaultParser, inputs)
-      .withConfig(ServerConfig.defaults.withEPUBDownloads.verbose)
-      .buildRoutes
-      .use { app =>
-        val req = Request[IO](method = Method.GET, uri = uri"/downloads/docs.epub" )
-        val res = app.run(req)
-        check (res, Status.Ok, Some(MediaType.application.`epub+zip`), nonEmptyBody)
-      }
-      .run
+    val config = ServerConfig.defaults.withEPUBDownloads
+    run(uri"/downloads/docs.epub", Status.Ok, Some(MediaType.application.`epub+zip`), nonEmptyBody, config)
   }
 
   test("return 404 for unknown target path") {
-
-    val inputs = build(Seq(
-      (Root / "doc.md") -> "foo",
-      (Root / "dir" / "image.jpg") -> "img"
-    ))
-
-    ServerBuilder(defaultParser, inputs).buildRoutes.use { app =>
-      val req = Request[IO](method = Method.GET, uri = uri"/dir/styles.css" )
-      val res = app.run(req)
-      check (res, Status.NotFound)
-    }.run
-
+    run(uri"/dir/styles.css", Status.NotFound)
   }
-  // static file scanner
   
 }

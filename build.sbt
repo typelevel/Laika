@@ -141,7 +141,7 @@ lazy val pdf = project.in(file("pdf"))
   )
 
 lazy val preview = project.in(file("preview"))
-  .dependsOn(core.jvm, io, pdf)
+  .dependsOn(core.jvm, io % "compile->compile;test->test", pdf)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
