@@ -213,7 +213,6 @@ object Tasks {
       .withPollInterval(previewConfig.pollInterval)
     
     val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
-      .withTheme(laikaTheme.value)
       .withLogger(s => IO(logger.info(s)))
       .withConfig(configureEbooks(config))
       .build
