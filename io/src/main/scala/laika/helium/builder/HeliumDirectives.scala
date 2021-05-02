@@ -16,8 +16,10 @@
 
 package laika.helium.builder
 
+import cats.syntax.all._
 import laika.ast.Path.Root
-import laika.ast.{Path, TemplateString}
+import laika.ast.{Path, TemplateSpanSequence, TemplateString}
+import laika.config.LaikaKeys
 import laika.directive.Templates
 import laika.rewrite.Versions
 import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, TranslatorSpec}
@@ -25,9 +27,9 @@ import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, Translat
 /**
   * @author Jens Halm
   */
-private[helium] object InitVersionsDirective {
+private[helium] object HeliumDirectives {
 
-  val definition: Templates.Directive = Templates.create("heliumInitVersions") {
+  val initVersions: Templates.Directive = Templates.create("heliumInitVersions") {
     Templates.dsl.cursor.map { cursor =>
       val versions = cursor.config.get[Versions].toOption
       val html = versions.fold("") { versions =>
@@ -43,5 +45,22 @@ private[helium] object InitVersionsDirective {
       TemplateString(html)
     }
   }
+  
+  val initPreview: Templates.Directive = Templates.eval("heliumInitPreview") {
+    import Templates.dsl._
+    (positionalAttributes.as[String].widen, cursor).mapN { (targetIds, cursor) =>
+      val res = for {
+        enabled      <- cursor.config.get(LaikaKeys.preview.enabled, false)
+        pollInterval <- cursor.config.get(LaikaKeys.preview.pollInterval, 3000)
+      } yield {
+        val idArray = targetIds.mkString("[\"", "\",\"", "\"]")
+        if (enabled) TemplateString(s"""<script>initPreview($idArray, $pollInterval);</script>""")
+        else TemplateSpanSequence.empty
+      }
+      res.leftMap(_.message)
+    }
+  }
+  
+  val all: Seq[Templates.Directive] = Seq(initVersions, initPreview)
   
 }
