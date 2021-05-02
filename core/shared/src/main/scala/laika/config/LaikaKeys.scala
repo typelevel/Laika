@@ -69,5 +69,10 @@ object LaikaKeys {
     val downloadPath: Key = root.child(Key("site","apiPath"))
     val metadata: Key = root.child(Key("site", "metadata"))
   }
+  object preview {
+    private val base = root.child("preview")
+    val enabled: Key = base.child("enabled")
+    val pollInterval: Key = base.child("pollInterval")
+  }
   
 }

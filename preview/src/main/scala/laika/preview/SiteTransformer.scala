@@ -34,6 +34,8 @@ import laika.io.model.{InputTreeBuilder, ParsedTree, StringTreeOutput}
 import laika.rewrite.nav.Selections
 import laika.theme.Theme
 
+import scala.concurrent.duration.FiniteDuration
+
 private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
                                                       htmlRenderer: TreeRenderer[F],
                                                       binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
@@ -136,9 +138,15 @@ private [preview] object SiteTransformer {
                           inputs: InputTreeBuilder[F],
                           renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
                           staticFiles: Option[StaticFileScanner],
+                          pollInterval: FiniteDuration,
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
     
-    def ignoreErrors (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(_.copy(failOnMessages = MessageFilter.None))
+    def adjustConfig (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(oc => oc.copy(
+      failOnMessages = MessageFilter.None,
+      configBuilder = oc.configBuilder
+        .withValue(LaikaKeys.preview.enabled, true)
+        .withValue(LaikaKeys.preview.pollInterval, pollInterval.toMillis.toInt)
+    ))
     
     def collectFiles (config: OperationConfig): Resource[F, Map[Path, SiteResult[F]]] = staticFiles
       .fold(Resource.pure[F, Map[Path, SiteResult[F]]](Map.empty))(st => 
@@ -150,7 +158,7 @@ private [preview] object SiteTransformer {
       html   <- htmlRenderer(p.config, p.theme)
       bin    <- renderFormats.map(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))).sequence
       static <- collectFiles(p.config)
-    } yield new SiteTransformer[F](ignoreErrors(p), html, bin, inputs, static, artifactBasename)
+    } yield new SiteTransformer[F](adjustConfig(p), html, bin, inputs, static, artifactBasename)
     
   }
   
