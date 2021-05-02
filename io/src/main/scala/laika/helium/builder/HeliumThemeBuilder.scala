@@ -34,7 +34,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
     override val description: String = "Directives for theme 'Helium'"
     val spanDirectives: Seq[Spans.Directive] = Nil
     val blockDirectives: Seq[Blocks.Directive] = Nil
-    val templateDirectives: Seq[Templates.Directive] = Seq(InitVersionsDirective.definition)
+    val templateDirectives: Seq[Templates.Directive] = HeliumDirectives.all
     val linkDirectives: Seq[Links.Directive] = Nil
   }
   
