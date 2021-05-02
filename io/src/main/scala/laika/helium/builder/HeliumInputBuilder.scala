@@ -54,6 +54,7 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
       .addClasspathResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
+      .addClasspathResource("laika/helium/js/preview.js", heliumPath / "laika-preview.js")
       .addClasspathResource("laika/helium/css/landing.css", heliumPath / "landing.page.css")
       .addClasspathResource("laika/helium/fonts/icofont/icofont.min.css", heliumPath / "icofont.min.css")
       .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
