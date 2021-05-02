@@ -17,7 +17,7 @@
 package laika.preview
 
 import java.io.File
-import java.nio.file.{FileSystems, Files, WatchEvent, WatchService, Path => JPath}
+import java.nio.file.{FileSystems, Files, WatchEvent, WatchKey, WatchService, Path => JPath}
 import java.nio.file.StandardWatchEventKinds._
 
 import laika.ast.{DocumentType, Path}
@@ -33,7 +33,7 @@ import laika.preview.SourceChangeWatcher.{ObservedDirectory, ObservedFiles, Obse
 import scala.annotation.tailrec
 
 private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
-                                                          targetMap: Ref[F, Map[JPath, ObservedTarget]],
+                                                          targetMap: Ref[F, Map[WatchKey, ObservedTarget]],
                                                           inputs: List[File],
                                                           update: F[Unit],
                                                           fileFilter: File => Boolean,
@@ -51,12 +51,12 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   def registerRoot (file: JPath, children: List[JPath] = Nil): F[List[ObservedTarget]] = {
     
     def registerDirectory (dir: JPath, children: List[JPath] = Nil): F[ObservedTarget] = {
-      val target = 
-        if (children.isEmpty) ObservedDirectory(dir, fileFilter, docTypeMatcher)
-        else ObservedFiles(dir, children.toSet, docTypeMatcher)
       Async[F]
         .delay(dir.register(service, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY))
-        .as(target)
+        .map { key =>
+          if (children.isEmpty) ObservedDirectory(dir, key, fileFilter, docTypeMatcher)
+          else ObservedFiles(dir, key, children.toSet, docTypeMatcher)
+        }
     }
     
     if (children.isEmpty) scanDirectory(file).flatMap(_.map(registerDirectory(_)).sequence)
@@ -64,7 +64,7 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   }
   
   private def updateTargetMap (targets: List[List[ObservedTarget]]): F[Unit] = {
-    val initTargetMap = targets.flatten.map(t => (t.parent, t)).toMap
+    val initTargetMap = targets.flatten.map(t => (t.key, t)).toMap
     targetMap.update(_ ++ initTargetMap)
   }
   
@@ -87,45 +87,49 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   }
 
   @tailrec
-  private def collectEvents (acc: List[WatchEvent[_]]): List[WatchEvent[_]] = {
+  private def collectEvents (acc: List[(WatchEvent[_], WatchKey)]): List[(WatchEvent[_], WatchKey)] = {
     val key = service.poll()
     if (key == null) acc
     else {
       val events = JIteratorWrapper(key.pollEvents().iterator()).toList
       key.reset()
-      collectEvents(acc ++ events)
+      collectEvents(acc ++ events.map((_, key)))
     }
   }
   
   val poll: F[Unit] = {
     val events = Async[F].delay(collectEvents(Nil))
-    (events, targetMap.get).mapN { case (events, targets) =>
-      val (needsUpdate, newDirectories) = events.foldLeft((false, List.empty[JPath])) { case ((needsUpdate, newDirectories), event) =>
-        val targetKind = event.context() match {
-          case p: JPath if !fileFilter(p.toFile) => targets.get(p.getParent).flatMap { t =>
-            if (Files.isDirectory(p)) Some(Left(p))
-            else t.docTypeFor(p) match {
-              case DocumentType.Ignored  => None
-              case other                 => Some(Right(other)) 
+    (events, targetMap.get)
+      .mapN { case (events, targets) =>
+        val (needsUpdate, newDirectories) = events.foldLeft((false, List.empty[JPath])) { case ((needsUpdate, newDirectories), (event, key)) =>
+          val targetKind = event.context() match {
+            case p: JPath if !fileFilter(p.toFile) => targets.get(key).flatMap { t =>
+              if (Files.isDirectory(p)) Some(Left(p))
+              else t.docTypeFor(p) match {
+                case DocumentType.Ignored  => None
+                case other                 => Some(Right(other)) 
+              }
             }
+            case _ => None
           }
-          case _ => None
+          (event.kind, targetKind) match {
+            case (ENTRY_CREATE, Some(Left(path)))        => (true,        newDirectories :+ path)
+            case (ENTRY_MODIFY, Some(Right(_: Static)))  => (needsUpdate, newDirectories)
+            case (ENTRY_CREATE, Some(_))                 => (true,        newDirectories)
+            case (ENTRY_DELETE, Some(_))                 => (true,        newDirectories)
+            case (ENTRY_MODIFY, Some(_))                 => (true,        newDirectories)
+            case _                                       => (needsUpdate, newDirectories)
+          }
         }
-        (event.kind, targetKind) match {
-          case (ENTRY_CREATE, Some(Left(path)))       => (true,        newDirectories :+ path)
-          case (ENTRY_MODIFY, Some(Right(_: Static))) => (needsUpdate, newDirectories)
-          case (ENTRY_CREATE | ENTRY_DELETE, Some(_)) => (true,        newDirectories)
-          case _                                      => (needsUpdate, newDirectories)
-        }
+        val updateF = if (needsUpdate) update else Async[F].unit
+        val registrations = newDirectories
+          .map(registerRoot(_))
+          .sequence
+          .flatMap(updateTargetMap)
+        
+        updateF <* registrations
       }
-      val updateF = if (needsUpdate) update else Async[F].unit
-      val registrations = newDirectories
-        .map(registerRoot(_))
-        .sequence
-        .flatMap(updateTargetMap)
-      
-      updateF <* registrations
-    }
+      .flatten
   }
   
 }
@@ -134,16 +138,17 @@ private [preview] object SourceChangeWatcher {
 
   sealed trait ObservedTarget {
     def parent: JPath
+    def key: WatchKey
     def docTypeMatcher: Path => DocumentType
     def filter (child: JPath): Boolean
     def docTypeFor (child: JPath): DocumentType =
       if (filter(child)) docTypeMatcher(Path.parse(child.toString))
       else DocumentType.Ignored
   }
-  case class ObservedDirectory (parent: JPath, fileFilter: File => Boolean, docTypeMatcher: Path => DocumentType) extends ObservedTarget {
+  case class ObservedDirectory (parent: JPath, key: WatchKey, fileFilter: File => Boolean, docTypeMatcher: Path => DocumentType) extends ObservedTarget {
     def filter (child: JPath): Boolean = !fileFilter(child.toFile)
   }
-  case class ObservedFiles (parent: JPath, children: Set[JPath], docTypeMatcher: Path => DocumentType) extends ObservedTarget {
+  case class ObservedFiles (parent: JPath, key: WatchKey, children: Set[JPath], docTypeMatcher: Path => DocumentType) extends ObservedTarget {
     def filter (child: JPath): Boolean = children.contains(child)
   }
 
@@ -160,10 +165,11 @@ private [preview] object SourceChangeWatcher {
     if (inputs.isEmpty) Resource.unit
     else Resource
       .make(Async[F].delay(FileSystems.getDefault.newWatchService))(service => Async[F].delay(service.close()))
-      .evalMap(s => Async[F].ref(Map.empty[JPath, ObservedTarget]).map((s,_)))
+      .evalMap(s => Async[F].ref(Map.empty[WatchKey, ObservedTarget]).map((s,_)))
       .flatMap { case (service, targetMap) =>
         val watcher = new SourceChangeWatcher[F](service, targetMap, inputs, update, fileFilter, docTypeMatcher)
-        scheduledTaskResource(watcher.poll, pollInterval)
+        Resource.eval(watcher.init) *>
+          scheduledTaskResource(watcher.poll, pollInterval)
       }
   }
   
