@@ -86,7 +86,7 @@ the `laika-io` module expands on the core API to add this functionality:
 @:image(../img/io-api-0_18.png) {
   alt = Anatomy of the IO API
   intrinsicWidth = 602
-  intrinsicHeight = 433
+  intrinsicHeight = 408
 }
 
 The blue elements of the API are identical to the pure transformer.
@@ -619,3 +619,50 @@ These other settings are available independent from the theme in use:
 
 - [Inspecting Laika's Configuration]: Run the `describe` method on the IO-based transformers, parsers and renderers 
   to get a formatted summary of the active configuration, installed extension bundles and lists of input and output files.
+
+
+Using the Preview Server
+------------------------
+
+Laika contains a preview server that can be used to browse generated sites. 
+This includes auto-refreshing whenever changes to any input document are detected. 
+It is the basis of the `laikaPreview` task of the sbt plugin, 
+but can alternatively be launched via the library API:
+
+```scala
+val parser = MarkupParser
+  .of(Markdown)
+  .using(GitHubFlavor)
+  .parallel[IO]
+  .build
+
+val inputs = InputTree[IO]
+  .addDirectory("/path/to/your/inputs")
+
+ServerBuilder[IO](parser, inputs)
+  .build
+  .use(_ => IO.never)
+```
+
+The above example creates a server based on its default configuration.
+Open `localhost:4242` for the landing page of your site.
+You can override the defaults by passing a `ServerConfig` instance explicitly:
+
+```scala
+val config =
+  ServerConfig.defaults
+    .withPort(8080)
+    .withPollInterval(5.seconds)
+    .withEPUBDownloads
+    .withPDFDownloads
+    .verbose
+
+ServerBuilder[IO](parser, inputs)
+  .withConfig(config)
+  .build
+  .use(_ => IO.never)
+```
+
+By default, the port is 4242, the poll interval is 3 seconds, and EPUB or PDF downloads will not be included
+in the generated site.
+

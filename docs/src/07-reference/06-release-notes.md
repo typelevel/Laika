@@ -13,6 +13,11 @@ Release Notes
     * PDF support: remove the old callback hacks for integration with the blocking, synchronous `ResourceResolver` API
       of Apache FOP by using the new `Dispatcher` from CE3 instead.
 * Support for Scala 3.0
+* New Preview Server
+    * The new `laikaPreview` task of the sbt plugin can be used to browse generated sites.
+    * Includes auto-refreshing when input sources change.
+    * Can also be launched via the library API, using `laika.preview.ServerBuilder`.
+    * Introduces a new published module `laika-preview` that the sbt plugin depends on.
 * New Directives:
     * `@:path`: Validates and translates a path in a template to a path relative to the rendered document the template
       is applied to.
