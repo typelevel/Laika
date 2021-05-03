@@ -145,6 +145,22 @@ Finally if you only work with a single format there are also shortcut tasks for 
 `laikaHTML`, `laikaEPUB`, `laikaPDF` and `laikaAST`.
 
 
+Using the Preview Server
+------------------------
+
+Laika contains a preview server that can be used to browse generated sites.
+Simply run the `laikaPreview` task and navigate to `localhost:4242` in the browser.
+For overriding the default configuration for the preview server, see [laikaPreviewConfig setting] below.
+
+The page will auto-refresh whenever changes to any input document are detected.
+The default poll interval is 3 seconds.
+If you are using an IDE with auto-save you might need to tweak its preferences
+for seeing changes while editing the Markdown sources. 
+IntelliJ, for example, only auto-saves when you run or compile an application or when you switch to a
+different application in the OS. 
+You can either use `cmd-S` to manually force saving or change the preferences to auto-save in fixed time intervals. 
+
+
 Plugin Settings
 ---------------
 
@@ -333,6 +349,22 @@ Finally there are three boolean flags that only affect the laikaSite task.
 - `laikaIncludeEPUB` - default `false` - see [Including EPUB and PDF].
 
 - `laikaIncludePDF` - default `false` - see [Including EPUB and PDF].
+
+
+### laikaPreviewConfig setting
+
+You can override the defaults by for the `laikaPreview` task if necessary:
+
+```scala
+laikaPreviewConfig :=
+  LaikaPreviewConfig.defaults
+    .withPort(8080)
+    .withPollInterval(5.seconds)
+    .verbose
+```
+
+By default, the port is 4242, the poll interval is 3 seconds.
+With the `verbose` options the console will log all pages served.
 
 
 ### Inspecting Laika's Configuration
