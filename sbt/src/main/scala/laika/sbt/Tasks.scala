@@ -199,13 +199,13 @@ object Tasks {
     def applyIf (flag: Boolean, f: ServerConfig => ServerConfig): ServerConfig => ServerConfig =
       if (flag) f else identity
     
-    val configureEbooks = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
-      .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
-    
     val previewConfig = laikaPreviewConfig.value
-    val defaultConfig = if (previewConfig.isVerbose) ServerConfig.defaults.verbose else ServerConfig.defaults
     
-    val config = defaultConfig
+    val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
+      .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
+      .andThen(applyIf(previewConfig.isVerbose, _.verbose))
+    
+    val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
       .withApiFiles(generateAPI.value)
       .withTargetDirectory((laikaSite / target).value)
@@ -214,7 +214,7 @@ object Tasks {
     
     val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withLogger(s => IO(logger.info(s)))
-      .withConfig(configureEbooks(config))
+      .withConfig(applyFlags(config))
       .build
       .allocated
       .unsafeRunSync()

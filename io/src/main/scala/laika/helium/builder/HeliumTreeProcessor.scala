@@ -18,7 +18,7 @@ package laika.helium.builder
 
 import cats.data.Kleisli
 import cats.effect.Sync
-import cats.implicits.toBifunctorOps
+import cats.syntax.all._
 import laika.ast.Path.Root
 import laika.config.{ConfigException, LaikaKeys}
 import laika.factory.Format

@@ -70,10 +70,11 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   
   val init: F[Unit] = {
     
-    val groupedInputs = inputs.map { input =>
-      if (input.isDirectory) (input.toPath, None)
-      else (input.toPath.getParent, Some(input.toPath))
-    }
+    val groupedInputs = inputs
+      .map { input =>
+        if (input.isDirectory) (input.toPath, None)
+        else (input.toPath.getParent, Some(input.toPath))
+      }
       .groupBy(_._1)
       .mapValuesStrict(_.flatMap(_._2))
 
