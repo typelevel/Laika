@@ -8,7 +8,7 @@ val scala3_0 = "3.0.0-RC2"
 
 lazy val basicSettings = Seq(
   version               := "0.18.0-SNAPSHOT",
-  homepage              := Some(new URL("http://planet42.github.io/Laika/")),
+  homepage              := Some(new URL("https://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
   description           := "Text Markup Transformer for sbt and Scala applications",
