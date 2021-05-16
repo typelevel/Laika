@@ -287,6 +287,8 @@ Versioned Documentation
 Laika supports versioned documentation, where the current inputs are interpreted as belonging to one version only.
 The Helium theme contains a version switcher in the top navigation bar.
 
+### Configuration
+
 Each directory and each individual document can be marked as either versioned or unversioned.
 All versioned document will be rendered to a sub-directory of the root that contains only content for this
 specific version.
@@ -347,7 +349,34 @@ When overriding for an individual document, you can do this with the standard HO
 enclosed between `{%` and `%}`.
 
 
-**Re-Rendering Older Versions**
+### Index for Smart Version Switcher
+
+The Helium theme contains a version switcher that is aware of the directory structure of all versions.
+This means that when switching to a different version that contains the same document (based on its path and
+filename) it will navigate to that document instead of the entry page of the other version.
+
+The index for this flexible switching can be built up in two different ways, depending on your use case:
+
+1) **Older versions rendered by other toolkits**: In this case you need to run a transformation once where
+   the version configuration for Laika is complete (including all the older versions rendered by other tools)
+   and the target directory of the transformation contains the rendered documents of the other versions.
+   The transformer will scan the target directory and index all sub-directories on the top level where
+   the directory name corresponds to the configured `pathSegment` of a version.
+   This index will be written to `/laika/versionInfo.json` in the output directory.
+   It needs to be part of the deployment, and can also be used as input for subsequent transformation (see below),
+   so that the directory scanning is only necessary once.
+   
+   In the future the scan operation may be provided by a dedicated, separate task in the plugin and API. 
+   
+2) **Using an existing `versionInfo.json` document**: 
+   This more convenient option is available when either step 1 above has been performed once, 
+   or the site has been rendered with Laika and version configuration from the beginning.
+   Just place a valid, existing `versionInfo.json` document into the `laika` directory of any of your
+   input directories.
+   It will use this index during a transformation while amending any new documents found for the current version.
+
+
+### Re-Rendering Older Versions
 
 When switching to a maintenance branch to fix something in the documentation for an older version,
 you might want to ensure that the build step excludes unversioned documents as you most likely would want
