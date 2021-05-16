@@ -88,11 +88,11 @@ object Style {
 
   val title: Options = Styles("title")
   val section: Options = Styles("section")
-  val sectionNumber: Options = Styles("section-number") // TODO - is camel case right now
+  val sectionNumber: Options = Styles("section-number")
   val nav: Options = Styles("nav")
   val navHeader: Options = Styles("nav-header")
   val navList: Options = Styles("nav-list")
-  val active: Options = Styles("active") // TODO - rename? self-link?
+  val active: Options = Styles("active")
   val breadcrumb: Options = Styles("breadcrumb")
   val bookmark: Options = Styles("bookmark")
   def level(lev: Int): Options = Styles("level" + lev)

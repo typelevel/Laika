@@ -29,25 +29,22 @@ case class LinkSource (span: Span, path: Path)
 /** Represents a resolver for a target that has its final identifier generated
   * (if necessary) and can be used to resolve matching reference nodes.
   *
-  * TODO - more detail
-  *
   * @param selector the selector to use to identify reference nodes matching this target 
   * @param precedence the precedence in comparison to other resolvers with the same selector
   */
 abstract sealed class TargetResolver (val selector: Selector, val targetFormats: TargetFormats = TargetFormats.All, val precedence: Int = 0) {
 
-  /** Creates the final link element for the specified reference
-    *  pointing to this target. In case this target does not know
-    *  how to resolve the element it should return `None`.
+  /** Creates the final link element for the specified reference pointing to this target. 
+    * In case this target does not know how to resolve the element it should return `None`.
     *
-    *  @param linkSource the source of the link
+    * @param linkSource the source of the link
     */
   def resolveReference (linkSource: LinkSource): Option[Span]
 
   /** Creates the final target element (with its final, resolved identifiers).
     *
-    *  @param rewrittenOriginal the original target node in the raw document, potentially
-    *  already rewritten in case any of its children got rewritten
+    * @param rewrittenOriginal the original target node in the raw document, potentially
+    * already rewritten in case any of its children got rewritten
     */
   def replaceTarget (rewrittenOriginal: Element): Option[Element]
 

@@ -147,7 +147,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       }
     }
     
-    val linkConfig = document.config.get[LinkConfig].getOrElse(LinkConfig.empty) // TODO - 0.18 - error handling
+    val linkConfig = document.config.get[LinkConfig].getOrElse(LinkConfig.empty)
     val targetsFromConfig = linkConfig.targets.map { defn =>
       linkDefinitionResolver(LinkDefinitionSelector(defn.id), defn.target)
     }
