@@ -14,10 +14,24 @@ function restoreScrollPos(targets) {
   });
 }
 
+function initSSE (targets) {
+  const evtSource = new EventSource("/laika/events");
+  evtSource.onmessage = function(event) {
+    console.log("SSE " + event.data);
+    if (event.data === "refresh") refresh(targets);
+  };
+  evtSource.onopen = function() {
+    console.log("SSE opened");
+  };
+  evtSource.onerror = function(event) {
+    console.log("SSE error: " + JSON.stringify(event));
+  };
+}
+
 function initPreview (targetIds, pollInterval) {
   document.addEventListener('DOMContentLoaded', () => {
     let targets = targetIds.map(id => document.getElementById(id));
     restoreScrollPos(targets);
-    setTimeout(() => refresh(targets), pollInterval);
+    initSSE(targets);
   });
 }

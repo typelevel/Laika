@@ -20,6 +20,7 @@ import java.io.File
 
 import cats.syntax.all._
 import cats.effect._
+import fs2.concurrent.Topic
 import laika.ast
 import laika.ast.DocumentType
 import laika.format.{EPUB, PDF}
@@ -47,6 +48,8 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   logger: Option[Logger[F]], 
                                   config: ServerConfig) {
+  
+  private val RefreshEvent = "refresh"
 
   private def copy (newLogger: Option[Logger[F]] = logger,
                     newConfig: ServerConfig = config): ServerBuilder[F] =
@@ -56,14 +59,17 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     config.targetDir.map(dir => new StaticFileScanner(dir, config.apiFiles.nonEmpty))
   
   private def createSourceChangeWatcher (cache: Cache[F, SiteResults[F]],
-                                         docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] =
-    SourceChangeWatcher.create(inputs.fileRoots.toList, cache.update, config.pollInterval, inputs.exclude, docTypeMatcher)
-    
-  private def createApp (cache: Cache[F, SiteResults[F]]): HttpApp[F] = {
+                                         topic: Topic[F, String],
+                                         docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] = {
+    val update = cache.update >> topic.publish1(RefreshEvent).void
+    SourceChangeWatcher.create(inputs.fileRoots.toList, update, config.pollInterval, inputs.exclude, docTypeMatcher)
+  }
+
+  private def createApp (cache: Cache[F, SiteResults[F]], topic: Topic[F, String]): HttpApp[F] = {
     val routeLogger =
       if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
       else (s: String) => Async[F].unit
-    Router("/" -> new RouteBuilder[F](cache, routeLogger).build).orNotFound
+    Router("/" -> new RouteBuilder[F](cache, topic, routeLogger).build).orNotFound
   }
     
   private def createServer (httpApp: HttpApp[F],
@@ -80,8 +86,9 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   private[preview] def buildRoutes: Resource[F, HttpApp[F]] = for {
     transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, staticFiles, config.pollInterval, config.artifactBasename)
     cache  <- Resource.eval(Cache.create(transf.transform))
-    _      <- createSourceChangeWatcher(cache, transf.parser.config.docTypeMatcher)
-  } yield createApp(cache)
+    topic  <- Resource.eval(Topic[F, String])
+    _      <- createSourceChangeWatcher(cache, topic, transf.parser.config.docTypeMatcher)
+  } yield createApp(cache, topic)
   
   def build: Resource[F, Server] = for {
     routes <- buildRoutes
