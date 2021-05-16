@@ -68,14 +68,15 @@ object ScalaSyntax extends SyntaxHighlighter {
     NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float)
   
   /** Keywords for both Scala2 and Dotty/Scala3
+    * Keywords for Scala 3: https://dotty.epfl.ch/docs/internals/syntax.html#regular-keywords
     */
   val keywords: CodeSpanParser = 
     Keywords(BooleanLiteral)("true", "false") ++
     Keywords(LiteralValue)("null") ++
-    Keywords("abstract", "case", "catch", "class", "def", "else", "extends",
-      "finally", "final", "for", "if", "implicit", "import", "lazy", "match",
+    Keywords("abstract", "case", "catch", "class", "def", "do", "else", "enum", "export", "extends",
+      "finally", "final", "for", "given", "if", "implicit", "import", "lazy", "match",
       "new", "object", "override", "package", "private", "protected", "return", "sealed", "super",
-      "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
+      "then", "this", "throw", "trait", "try", "type", "yield", "val", "var", "while", "with")
   
   val identifier: IdParser = Identifier.alphaNum
     .withIdStartChars('_','$')
