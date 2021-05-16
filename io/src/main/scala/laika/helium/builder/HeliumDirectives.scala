@@ -51,10 +51,9 @@ private[helium] object HeliumDirectives {
     (positionalAttributes.as[String].widen, cursor).mapN { (targetIds, cursor) =>
       val res = for {
         enabled      <- cursor.config.get(LaikaKeys.preview.enabled, false)
-        pollInterval <- cursor.config.get(LaikaKeys.preview.pollInterval, 3000)
       } yield {
         val idArray = targetIds.mkString("[\"", "\",\"", "\"]")
-        if (enabled) TemplateString(s"""<script>initPreview($idArray, $pollInterval);</script>""")
+        if (enabled) TemplateString(s"""<script>initPreview($idArray);</script>""")
         else TemplateSpanSequence.empty
       }
       res.leftMap(_.message)

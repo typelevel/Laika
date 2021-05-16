@@ -72,7 +72,6 @@ object LaikaKeys {
   object preview {
     private val base = root.child("preview")
     val enabled: Key = base.child("enabled")
-    val pollInterval: Key = base.child("pollInterval")
   }
   
 }

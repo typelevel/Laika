@@ -119,7 +119,7 @@ object ServerBuilder {
 /** Additional configuration options for a preview server.
   * 
   * @param port the port the server should run on (default 4242)
-  * @param pollInterval the interval at which input file resources are polled for changes (default 3 seconds)
+  * @param pollInterval the interval at which input file resources are polled for changes (default 1 second)
   * @param artifactBasename the base name for PDF and EPUB artifacts linked by the generated site (default "docs")
   * @param includeEPUB indicates whether EPUB downloads should be included on a download page (default false)
   * @param includePDF indicates whether PDF downloads should be included on a download page (default false)
@@ -151,7 +151,7 @@ class ServerConfig private (val port: Int,
     */
   def withPort (port: Int): ServerConfig = copy(newPort = port)
 
-  /** Specifies the interval at which input file resources are polled for changes (default 3 seconds).
+  /** Specifies the interval at which input file resources are polled for changes (default 1 second).
     */
   def withPollInterval (interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
 
@@ -189,7 +189,7 @@ object ServerConfig {
 
   val defaultPort: Int = 4242
 
-  val defaultPollInterval: FiniteDuration = 3.seconds
+  val defaultPollInterval: FiniteDuration = 1.second
 
   val defaultArtifactBasename: String = "docs"
 

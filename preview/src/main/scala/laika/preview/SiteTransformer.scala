@@ -145,7 +145,6 @@ private [preview] object SiteTransformer {
       failOnMessages = MessageFilter.None,
       configBuilder = oc.configBuilder
         .withValue(LaikaKeys.preview.enabled, true)
-        .withValue(LaikaKeys.preview.pollInterval, pollInterval.toMillis.toInt)
     ))
     
     def collectFiles (config: OperationConfig): Resource[F, Map[Path, SiteResult[F]]] = staticFiles

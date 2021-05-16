@@ -28,7 +28,7 @@ function initSSE (targets) {
   };
 }
 
-function initPreview (targetIds, pollInterval) {
+function initPreview (targetIds) {
   document.addEventListener('DOMContentLoaded', () => {
     let targets = targetIds.map(id => document.getElementById(id));
     restoreScrollPos(targets);
