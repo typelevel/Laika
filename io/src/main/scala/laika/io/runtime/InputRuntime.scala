@@ -60,12 +60,12 @@ object InputRuntime {
     Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
 
   def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Reader] =
-    readerResource(Resource.fromAutoCloseable(Sync[F].delay(new FileInputStream(file))), codec)
-  
-  def textStreamResource[F[_]: Sync] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
-    readerResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.eval(inputStream), codec)
+    textStreamResource(Resource.fromAutoCloseable(Sync[F].delay(new FileInputStream(file))), codec)
 
-  private def readerResource[F[_]: Sync](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
+  def textStreamResource[F[_]: Sync] (inputStream: F[InputStream], codec: Codec, autoClose: Boolean): Resource[F, Reader] =
+    textStreamResource(if (autoClose) Resource.fromAutoCloseable(inputStream) else Resource.eval(inputStream), codec)
+
+  def textStreamResource[F[_]: Sync](resource: Resource[F, InputStream], codec: Codec): Resource[F, Reader] =
     resource.map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
   
 }

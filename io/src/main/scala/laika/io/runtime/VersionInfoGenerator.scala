@@ -16,10 +16,12 @@
 
 package laika.io.runtime
 
+import laika.ast.Path
+import laika.ast.Path.Root
 import laika.io.runtime.VersionedLinkTargets.VersionedDocument
 import laika.rewrite.Versions
 
-private[runtime] object VersionInfoGenerator {
+private[io] object VersionInfoGenerator {
   
   private val template = 
     """{
@@ -41,6 +43,8 @@ private[runtime] object VersionInfoGenerator {
     linkTargets.sortBy(_.path.toString).map { doc =>
       s"""    { "path": "${doc.path.toString}", "versions": ["${doc.versions.sorted.mkString("\",\"")}"] }"""
     }.mkString(",\n").trim
+    
+  val path: Path = Root / "laika" / "versionInfo.json"
 
   def generate (versions: Versions, linkTargets: Seq[VersionedDocument]): String = template
     .replace("$VERSIONS", generateVersions(versions))

@@ -183,22 +183,27 @@ object RendererRuntime {
       case StyleResult (doc, format, _) if format == op.renderer.format.fileSuffix => doc
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
     
-    def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig): F[Option[BinaryInput[F]]] = {
+    def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig, staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
       (config.versions, context.finalFormat) match {
         case (Some(versions), "html") =>
-          val existingVersions: F[Map[String, Seq[Path]]] = op.output match {
-            case dir: DirectoryOutput => VersionedLinkTargets.scanExistingVersions[F](versions, dir)
-            case _ => Sync[F].pure(Map.empty)
+          val outputDir = op.output match {
+            case dir: DirectoryOutput => Some(dir)
+            case _ => None
           }
-          existingVersions.map { existing =>
-            val pathTranslator = createPathTranslator(config.copy(versions = None), Root / "dummy", lookup)
-            val targets = VersionedLinkTargets.groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
-            Some(BinaryInput.fromString[F](Root / "laika" / "versionInfo.json", VersionInfoGenerator.generate(versions, targets), TargetFormats.Selected("html")))
-          }
+          VersionedLinkTargets
+            .gatherTargets[F](versions, outputDir, staticDocs)
+            .map { existing =>
+              val pathTranslator = createPathTranslator(config.copy(versions = None), Root / "dummy", lookup)
+              val targets = VersionedLinkTargets.groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
+              Some(BinaryInput.fromString[F](VersionInfoGenerator.path, VersionInfoGenerator.generate(versions, targets), TargetFormats.Selected("html")))
+            }
         case _ =>
           Sync[F].pure(None)
       }
     }
+    
+    def replaceVersionInfo (vInfo: Option[BinaryInput[F]])(staticDocs: Seq[BinaryInput[F]]): Seq[BinaryInput[F]] =
+      staticDocs.filterNot(_.path == VersionInfoGenerator.path) ++ vInfo.toSeq
     
     def mapError[A] (result: Either[ConfigError, A]): Either[RendererErrors, A] =
       result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
@@ -212,8 +217,8 @@ object RendererRuntime {
       finalRoot  <- Sync[F].fromEither(applyTemplate(mappedTree.root))
       tConfig    <- Sync[F].fromEither(mapError(TranslatorConfig.readFrom(finalRoot.config)))
       lookup     <- Sync[F].fromEither(mapError(RootCursor(finalRoot, Some(context.finalFormat)))).map(new TargetLookup(_))
-      vInfo      <- generateVersionInfo(lookup, tConfig)
-      static     <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(_ ++ vInfo.toSeq)
+      vInfo      <- generateVersionInfo(lookup, tConfig, mappedTree.staticDocuments)
+      static     <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(replaceVersionInfo(vInfo))
       _          <- validatePaths(static)
       ops        =  renderOps(finalRoot, lookup, tConfig, static)
       _          <- ops.mkDirOps.toVector.sequence

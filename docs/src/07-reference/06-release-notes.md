@@ -33,11 +33,14 @@ Release Notes
     * Add new AST nodes for different kinds of icon sets: font icons, CSS icons (e.g. image sprites), inline SVG icons
       and SVG symbols (references).
     * New `@:icon` directive that allows to reference an icon by key in markup documents or templates.
-* Versioning: new `renderUnversioned` flag, that can be set to false when rendering older versions 
-  (e.g. from a maintenance branch) to ensure that unversioned files always come from the main branch (newest version).
+* Versioning: 
+     * New `renderUnversioned` flag, that can be set to false when rendering older versions 
+       (e.g. from a maintenance branch) to ensure that unversioned files always come from the main branch (newest version).
+     * Use existing `/laika/versionInfo.json` documents in the input directory as an alternative to scanning the
+       target directory for indexing the content of older versions.
 * Link Validation: new `addProvidedPath` method on `InputTreeBuilder` that adds a path representing a document which is 
   processed by some external tool, making it available during link validation.
-* PDF Support: upgrade to Apache FOP 2.6 (2.4 and 2.5 were both skipped as they had an issue with dependencies 
+* PDF Support: upgrade to Apache FOP 2.6 (2.4 and 2.5 were both skipped as they had an issue with non-public dependencies 
   in their POMs).
 * EPUB Renderer: add support for JavaScript execution in EPUB documents
     * Scripting in EPUB requires a flag to be set for each scripted document in OPF metadata.
@@ -55,7 +58,9 @@ Release Notes
 * AST: add `codeOptions` property to `CodeBlock` element for potential tool integrations
 * sbt plugin: The `Laika/clean` task now preserves some directories that will not be re-generated
   (e.g. api documentation, download directory and older versions in versioned documentation).
-* Bugfix: the HTML renderer did not apply versions to image URLs in case of versioned documentation
+* Bugfixes
+    * The HTML renderer did not apply versions to image URLs in case of versioned documentation
+    * In-memory string input sources could not be read more than once
 
 
 0.17.1 (Mar 19, 2021)

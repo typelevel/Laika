@@ -17,7 +17,6 @@
 package laika.io
 
 import java.io.File
-
 import cats.syntax.all._
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.{IO, Resource, Sync}
@@ -32,8 +31,9 @@ import laika.helium.generate.FOStyles
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
+import laika.io.model.{BinaryInput, InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
+import laika.io.runtime.{InputRuntime, VersionInfoGenerator}
 import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
@@ -700,25 +700,86 @@ class TreeRendererSpec extends IOWordSpec
         res.assertEquals(expectedFileContents)  
       }
     }
+    
+    trait VersionInfoSetup {
+      val htmlRenderer = Renderer.of(HTML)
+        .parallel[IO]
+        .build
+
+      val versions = Versions(
+        Version("0.4.x", "0.4"),
+        Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")),
+        Seq(Version("0.5.x", "0.5"))
+      )
+
+      val versionedInput = SampleTrees.sixDocuments
+        .root.config(_.withValue(versions))
+        .tree1.config(SampleConfig.versioned(true))
+        .tree2.config(SampleConfig.versioned(true))
+        .build
+
+      val expectedVersionInfo =
+        """{
+          |  "versions": [
+          |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
+          |  ],
+          |  "linkTargets": [
+          |    { "path": "/doc-1.html", "versions": ["0.1","0.3"] },
+          |    { "path": "/doc-2.html", "versions": ["0.1","0.2","0.3"] },
+          |    { "path": "/tree-1/doc-3.html", "versions": ["0.1","0.2","0.3","0.4"] },
+          |    { "path": "/tree-1/doc-4.html", "versions": ["0.1","0.2","0.3","0.4"] },
+          |    { "path": "/tree-2/doc-5.html", "versions": ["0.1","0.2","0.3","0.4"] },
+          |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2","0.4"] }
+          |  ]
+          |}""".stripMargin
+    }
+
+    "render versioned documents with an existing versionInfo JSON file" in new VersionInfoSetup {
+      val existingVersionInfo =
+        """{
+          |  "versions": [
+          |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html" },
+          |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
+          |  ],
+          |  "linkTargets": [
+          |    { "path": "/doc-1.html", "versions": ["0.1","0.3"] },
+          |    { "path": "/doc-2.html", "versions": ["0.1","0.2","0.3"] },
+          |    { "path": "/tree-1/doc-3.html", "versions": ["0.1","0.2","0.3","0.4"] },
+          |    { "path": "/tree-1/doc-4.html", "versions": ["0.1","0.2","0.3"] },
+          |    { "path": "/tree-2/doc-5.html", "versions": ["0.1","0.2","0.3"] },
+          |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2"] }
+          |  ]
+          |}""".stripMargin
+      val versionInfoInput = BinaryInput.fromString[IO](VersionInfoGenerator.path, existingVersionInfo)
+      
+      htmlRenderer
+        .use(_
+          .from(versionedInput)
+          .copying(Seq(versionInfoInput))
+          .toOutput(StringTreeOutput)
+          .render
+        )
+        .flatMap(tree => IO.fromEither(tree
+          .staticDocuments
+          .find(_.path == VersionInfoGenerator.path)
+          .toRight(new RuntimeException("version info missing"))
+        ))
+        .flatMap { in => InputRuntime
+          .textStreamResource(in.input, Codec.UTF8)
+          .use(InputRuntime.readAll[IO](_, 8096))
+        }
+        .assertEquals(expectedVersionInfo)
+    }
 
     "render to a directory with existing versioned renderer output" in {
-      new FileSystemTest {
-
-        val htmlRenderer = Renderer.of(HTML)
-          .parallel[IO]
-          .build
-
-        val versions = Versions(
-          Version("0.4.x", "0.4"), 
-          Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")), 
-          Seq(Version("0.5.x", "0.5"))
-        )
-
-        val versionedInput = SampleTrees.sixDocuments
-          .root.config(_.withValue(versions))
-          .tree1.config(SampleConfig.versioned(true))
-          .tree2.config(SampleConfig.versioned(true))
-          .build
+      new FileSystemTest with VersionInfoSetup {
         
         def mkDirs (dir: File): IO[Unit] = IO {
           Seq("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").foreach { name =>
@@ -734,25 +795,6 @@ class TreeRendererSpec extends IOWordSpec
         }.sequence.void
 
         val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Text $num</p>").toList
-        
-        val expectedVersionInfo = 
-          """{
-            |  "versions": [
-            |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html" },
-            |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html" },
-            |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html" },
-            |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html" },
-            |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
-            |  ],
-            |  "linkTargets": [
-            |    { "path": "/doc-1.html", "versions": ["0.1","0.3"] },
-            |    { "path": "/doc-2.html", "versions": ["0.1","0.2","0.3"] },
-            |    { "path": "/tree-1/doc-3.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/tree-1/doc-4.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/tree-2/doc-5.html", "versions": ["0.1","0.2","0.3","0.4"] },
-            |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2","0.4"] }
-            |  ]
-            |}""".stripMargin
 
         def readVersionedFiles (base: String): IO[List[String]] = {
           List(
