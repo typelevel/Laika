@@ -138,7 +138,6 @@ private [preview] object SiteTransformer {
                           inputs: InputTreeBuilder[F],
                           renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
                           staticFiles: Option[StaticFileScanner],
-                          pollInterval: FiniteDuration,
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
     
     def adjustConfig (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(oc => oc.copy(
@@ -153,11 +152,11 @@ private [preview] object SiteTransformer {
       )
     
     for {
-      p      <- parser
+      p      <- parser.map(adjustConfig)
       html   <- htmlRenderer(p.config, p.theme)
       bin    <- renderFormats.map(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))).sequence
       static <- collectFiles(p.config)
-    } yield new SiteTransformer[F](adjustConfig(p), html, bin, inputs, static, artifactBasename)
+    } yield new SiteTransformer[F](p, html, bin, inputs, static, artifactBasename)
     
   }
   

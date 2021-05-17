@@ -95,7 +95,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     List(PDF).filter(_ => config.includePDF)
 
   private[preview] def buildRoutes: Resource[F, HttpApp[F]] = for {
-    transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, staticFiles, config.pollInterval, config.artifactBasename)
+    transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, staticFiles, config.artifactBasename)
     cache  <- Resource.eval(Cache.create(transf.transform))
     topic  <- Resource.eval(Topic[F, String])
     _      <- createSourceChangeWatcher(cache, topic, transf.parser.config.docTypeMatcher)
