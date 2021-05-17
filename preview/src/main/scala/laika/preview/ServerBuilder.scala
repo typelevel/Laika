@@ -16,10 +16,11 @@
 
 package laika.preview
 
-import java.io.File
 
-import cats.syntax.all._
+import java.io.{File, PrintWriter, StringWriter}
+import cats.data.{Kleisli, OptionT}
 import cats.effect._
+import cats.syntax.all._
 import fs2.concurrent.Topic
 import laika.ast
 import laika.ast.DocumentType
@@ -27,7 +28,8 @@ import laika.format.{EPUB, PDF}
 import laika.io.api.TreeParser
 import laika.io.model.InputTreeBuilder
 import laika.preview.ServerBuilder.Logger
-import org.http4s.HttpApp
+import org.http4s.dsl.Http4sDsl
+import org.http4s.{HttpApp, HttpRoutes, Request}
 import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -47,7 +49,7 @@ import scala.concurrent.duration._
 class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                                   inputs: InputTreeBuilder[F],
                                   logger: Option[Logger[F]], 
-                                  config: ServerConfig) {
+                                  config: ServerConfig) extends Http4sDsl[F] {
   
   private val RefreshEvent = "refresh"
 
@@ -66,10 +68,19 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   }
 
   private def createApp (cache: Cache[F, SiteResults[F]], topic: Topic[F, String]): HttpApp[F] = {
+    def renderStacktrace(service: HttpRoutes[F]): HttpRoutes[F] = Kleisli { (req: Request[F]) =>
+      service(req).recoverWith { case err =>
+        OptionT.liftF(Async[F].delay {
+          val sw = new StringWriter()
+          err.printStackTrace(new PrintWriter(sw))
+          sw.toString
+        }.flatMap(Ok(_)))
+      }
+    }
     val routeLogger =
       if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
       else (s: String) => Async[F].unit
-    Router("/" -> new RouteBuilder[F](cache, topic, routeLogger).build).orNotFound
+    Router("/" -> renderStacktrace(new RouteBuilder[F](cache, topic, routeLogger).build)).orNotFound
   }
     
   private def createServer (httpApp: HttpApp[F],
