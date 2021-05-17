@@ -55,6 +55,9 @@ private[helium] object HeliumRenderOverrides {
     case Some("info") => Some(HeliumIcon.info)
     case _ => None
   }
+  
+  def renderCallout (fmt:HTMLFormatter, opt: Options, content: Seq[Block]): String =
+    fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
 
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
@@ -65,9 +68,12 @@ private[helium] object HeliumRenderOverrides {
         case AnchorPlacement.Right => content ++ link("right").toSeq
       }
       fmt.newLine + fmt.element("h"+level.toString, opt, linkedContent)
-    case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
-      fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
-    case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
+
+    case (fmt, InvalidBlock(msg, _, fallback, opt)) =>
+      fmt.forMessage(msg)(renderCallout(fmt, opt + Styles("callout", msg.level.toString), Seq(Paragraph(msg), fallback)))
+    
+    case (fmt, b: BlockSequence) if b.hasStyle("callout") => renderCallout(fmt, b.options, b.content)
+    case (fmt, Selection(name, choices, opt))             => renderChoices(fmt, name, choices, opt)
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)

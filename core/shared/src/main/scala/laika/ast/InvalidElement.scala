@@ -68,8 +68,9 @@ case class RuntimeMessage (level: MessageLevel, content: String, options: Option
 
 /** Signals the severity of a runtime message.
   */
-sealed abstract class MessageLevel (private val level: Int) extends Ordered[MessageLevel] {
+sealed abstract class MessageLevel (private val level: Int) extends Ordered[MessageLevel] with Product {
   def compare(that: MessageLevel): Int = level compare that.level
+  override val toString: String = productPrefix.toLowerCase
 }
 
 /** Enumeration of available message levels.
