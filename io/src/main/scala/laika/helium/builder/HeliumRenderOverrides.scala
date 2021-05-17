@@ -69,6 +69,9 @@ private[helium] object HeliumRenderOverrides {
       }
       fmt.newLine + fmt.element("h"+level.toString, opt, linkedContent)
 
+    case (fmt, InvalidSpan(msg, _, fallback, opt)) =>
+      fmt.forMessage(msg)(fmt.element("span", opt + Styles("inline", msg.level.toString), Seq(msg, fallback)))
+      
     case (fmt, InvalidBlock(msg, _, fallback, opt)) =>
       fmt.forMessage(msg)(renderCallout(fmt, opt + Styles("callout", msg.level.toString), Seq(Paragraph(msg), fallback)))
     

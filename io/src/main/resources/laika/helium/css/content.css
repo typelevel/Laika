@@ -167,6 +167,28 @@ h6:hover > a.anchor-link {
   color: var(--messages-error);
 }
 
+/* inline runtime messages  ======================== */
+
+.inline {
+  border-radius: 5px;
+  padding: 0 5px 2px 5px
+}
+.inline code {
+  padding-left: 10px;
+}
+.inline.info {
+  background-color: var(--messages-info-light);
+  border: 1px solid var(--messages-info);
+}
+.inline.warning {
+  background-color: var(--messages-warning-light);
+  border: 1px solid var(--messages-warning);
+}
+.inline.error {
+  background-color: var(--messages-error-light);
+  border: 1px solid var(--messages-error);
+}
+
 /* tabs =========================================== */
 
 .tab-container {
