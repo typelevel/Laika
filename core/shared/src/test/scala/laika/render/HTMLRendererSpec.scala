@@ -673,12 +673,12 @@ class HTMLRendererSpec extends AnyFlatSpec
   
   it should "render a paragraph containing an unresolved link reference" in {
     val elem = testPar(LinkIdReference("id", generatedSource("[link] [id]"))("link"))
-    render(elem) should be ("""<p>some [link] [id] span</p>""")
+    render(elem) should be ("""<p>some <code>[link] [id]</code> span</p>""")
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
     val elem = testPar(ImageIdReference("img","id", source("![img] [id]", "![img] [id]")))
-    render(elem) should be ("""<p>some ![img] [id] span</p>""") 
+    render(elem) should be ("""<p>some <code>![img] [id]</code> span</p>""") 
   }
   
   it should "render a paragraph containing an internal link target" in {

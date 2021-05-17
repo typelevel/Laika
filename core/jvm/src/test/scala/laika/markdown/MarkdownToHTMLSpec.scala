@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast.{ExternalTarget, Header, Id, LinkPathReference, MessageFilter, NoOpt, QuotedBlock, RelativePath, Replace, SpanLink, Target, Title}
+import laika.ast.{ExternalTarget, Header, Id, InvalidSpan, LinkPathReference, Literal, MessageFilter, NoOpt, QuotedBlock, RelativePath, Replace, SpanLink, Target, Text, Title}
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
@@ -61,6 +61,7 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
         case LinkPathReference(content, relPath, _, title, opt) => Replace(SpanLink(content, renderPath(relPath), title, opt)) // We do not validate cross-links in these tests
       }
       .rendering {
+        case (fmt, i@InvalidSpan(_, _, Literal(fb, _), _)) => fmt.child(i.copy(fallback = Text(fb)))
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes
         case (fmt, h @ Header(_, _, Id(_))) => fmt.child(h.withOptions(NoOpt)) // Markdown classic does not generate header ids
         case (fmt, t @ Title(_, Id("unordered"))) => fmt.child(Header(2, t.content))

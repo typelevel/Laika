@@ -31,7 +31,7 @@ case class InvalidSpan (message: RuntimeMessage, source: SourceFragment, fallbac
 
 object InvalidSpan {
   def apply (message: String, source: SourceFragment): InvalidSpan = apply(RuntimeMessage(MessageLevel.Error, message), source)
-  def apply (message: RuntimeMessage, source: SourceFragment): InvalidSpan = apply(message, source, Text(source.input))
+  def apply (message: RuntimeMessage, source: SourceFragment): InvalidSpan = apply(message, source, Literal(source.input))
 }
 
 /** Groups a block that could not be successfully parsed with a runtime message.

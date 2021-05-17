@@ -123,7 +123,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'path': unresolved internal reference: ../theme/theme.css"
     parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
-      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
     )))
   }
@@ -152,7 +152,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val msg = "One or more errors processing directive 'attribute': value with key 'foo.bar' is a structured value (Array, Object, AST) which is not supported by this directive"
     parseTemplateWithConfig(input, "foo.bar = [1,2,3]") shouldBe Right(RootElement(TemplateRoot(
       TemplateString("<a "),
-      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString("/>")
     )))
   }
@@ -255,7 +255,7 @@ class StandardDirectiveSpec extends AnyFlatSpec
     val msg = "Unresolved icon reference with key 'foo'"
     parseAndRewriteTemplate(input) shouldBe Right(RootElement(TemplateRoot(
       TemplateString("aa "),
-      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Text(dirSrc))),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
     )))
   }

@@ -90,7 +90,8 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
     val actual = Transformer
       .from(ReStructuredText)
       .to(HTML)
-      .rendering { 
+      .rendering {
+        case (fmt, i@InvalidSpan(_, _, Literal(fb, _), _)) => fmt.child(i.copy(fallback = Text(fb)))
         case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", NoOpt, content) 
         case (fmt, sl@ SpanLink(content, target, title, opt)) => target match {
           case ExternalTarget(url) =>
