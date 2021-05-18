@@ -60,10 +60,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--secondary-color: #931813;
                      |--text-color: #5f5f5f;
                      |--bg-color: #ffffff;
-                     |--top-color: var(--primary);
-                     |--top-bg: var(--primaryLight);
-                     |--top-hover: var(--secondary);
-                     |--top-border: var(--primaryMedium);
+                     |--top-color: var(--primary-color);
+                     |--top-bg: var(--primary-light);
+                     |--top-hover: var(--secondary-color);
+                     |--top-border: var(--primary-medium);
                      |--messages-info: #007c99;
                      |--messages-info-light: #ebf6f7;
                      |--messages-warning: #b1a400;
@@ -104,10 +104,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--secondary-color: #931813;
                               |--text-color: #5f5f5f;
                               |--bg-color: #ffffff;
-                              |--top-color: var(--primary);
-                              |--top-bg: var(--primaryLight);
-                              |--top-hover: var(--secondary);
-                              |--top-border: var(--primaryMedium);
+                              |--top-color: var(--primary-color);
+                              |--top-bg: var(--primary-light);
+                              |--top-hover: var(--secondary-color);
+                              |--top-border: var(--primary-medium);
                               |--messages-info: #007c99;
                               |--messages-info-light: #ebf6f7;
                               |--messages-warning: #b1a400;
@@ -162,10 +162,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--secondary-color: rgb(212,212,212);
                               |--text-color: rgb(10,10,10);
                               |--bg-color: rgb(11,11,11);
-                              |--top-color: var(--primary);
-                              |--top-bg: var(--primaryLight);
-                              |--top-hover: var(--secondary);
-                              |--top-border: var(--primaryMedium);
+                              |--top-color: var(--primary-color);
+                              |--top-bg: var(--primary-light);
+                              |--top-hover: var(--secondary-color);
+                              |--top-border: var(--primary-medium);
                               |--messages-info: #aaaaaa;
                               |--messages-info-light: #aaaaab;
                               |--messages-warning: #aaaaac;
@@ -197,6 +197,38 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--content-width: 860px;
                               |--nav-width: 275px;""".stripMargin
 
+  private val darkModeColors = """color-scheme: light dark;
+                                 |}
+                                 |@media (prefers-color-scheme: dark) {
+                                 |:root {
+                                 |--primary-color: rgb(11,11,11);
+                                 |--primary-light: rgb(12,12,12);
+                                 |--primary-medium: rgb(14,14,14);
+                                 |--primary-dark: rgb(10,10,10);
+                                 |--secondary-color: rgb(112,112,112);
+                                 |--text-color: rgb(110,110,110);
+                                 |--bg-color: rgb(111,111,111);
+                                 |--top-color: var(--primary-color);
+                                 |--top-bg: var(--primary-light);
+                                 |--top-hover: var(--secondary-color);
+                                 |--top-border: var(--primary-medium);
+                                 |--messages-info: #00aaaa;
+                                 |--messages-info-light: #00aaab;
+                                 |--messages-warning: #00aaac;
+                                 |--messages-warning-light: #00aaad;
+                                 |--messages-error: #00aaae;
+                                 |--messages-error-light: #00aaaf;
+                                 |--syntax-base1: #200011;
+                                 |--syntax-base2: #200022;
+                                 |--syntax-base3: #200033;
+                                 |--syntax-base4: #200044;
+                                 |--syntax-base5: #200055;
+                                 |--syntax-wheel1: #210011;
+                                 |--syntax-wheel2: #210022;
+                                 |--syntax-wheel3: #210033;
+                                 |--syntax-wheel4: #210044;
+                                 |--syntax-wheel5: #210055;""".stripMargin
+  
   test("custom colors - via 'site' selector") {
     import laika.theme.config.Color._
     val helium = Helium.defaults
@@ -229,6 +261,34 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
   }
 
+  test("custom colors in dark mode") {
+    import laika.theme.config.Color._
+    val helium = Helium.defaults
+      .site.themeColors(primary = rgb(1,1,1), primaryDark = rgb(0,0,0), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
+        secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11))
+      .site.messageColors(
+        info = hex("aaaaaa"), infoLight = hex("aaaaab"),
+        warning = hex("aaaaac"), warningLight = hex("aaaaad"),
+        error = hex("aaaaae"), errorLight = hex("aaaaaf")
+    )
+      .site.syntaxHighlightingColors(
+        base = ColorQuintet(hex("000011"), hex("000022"), hex("000033"), hex("000044"), hex("000055")),
+        wheel = ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
+    )
+      .site.darkMode.themeColors(primary = rgb(11,11,11), primaryDark = rgb(10,10,10), primaryLight = rgb(12,12,12),
+        primaryMedium = rgb(14,14,14), secondary = rgb(112,112,112), text = rgb(110,110,110), background = rgb(111,111,111))
+      .site.darkMode.messageColors(
+        info = hex("00aaaa"), infoLight = hex("00aaab"),
+        warning = hex("00aaac"), warningLight = hex("00aaad"),
+        error = hex("00aaae"), errorLight = hex("00aaaf")
+    )
+      .site.darkMode.syntaxHighlightingColors(
+        base = ColorQuintet(hex("200011"), hex("200022"), hex("200033"), hex("200044"), hex("200055")),
+        wheel = ColorQuintet(hex("210011"), hex("210022"), hex("210033"), hex("210044"), hex("210055"))
+    )
+    transformAndExtract(singleDoc, helium, ":root {", "}\n}").assertEquals(customColors + "\n" + darkModeColors)
+  }
+
   private val customLayout = """--primary-color: #007c99;
                                |--primary-light: #ebf6f7;
                                |--primary-medium: #a7d4de;
@@ -236,10 +296,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                |--secondary-color: #931813;
                                |--text-color: #5f5f5f;
                                |--bg-color: #ffffff;
-                               |--top-color: var(--primary);
-                               |--top-bg: var(--primaryLight);
-                               |--top-hover: var(--secondary);
-                               |--top-border: var(--primaryMedium);
+                               |--top-color: var(--primary-color);
+                               |--top-bg: var(--primary-light);
+                               |--top-hover: var(--secondary-color);
+                               |--top-border: var(--primary-medium);
                                |--messages-info: #007c99;
                                |--messages-info-light: #ebf6f7;
                                |--messages-warning: #b1a400;
