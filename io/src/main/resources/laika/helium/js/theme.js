@@ -28,9 +28,17 @@ function initTabs () {
   });
 }
 
+function initNavToggle () {
+  const navIcon = document.getElementById("nav-icon");
+  const sidebar = document.getElementById("sidebar");
+  if (navIcon && sidebar) {
+    navIcon.onclick = () => {
+      sidebar.classList.toggle("nav-open");
+    };
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById("nav-icon").onclick = () => {
-    document.getElementById("sidebar").classList.toggle("nav-open");
-  };
+  initNavToggle();
   initTabs();
 });
