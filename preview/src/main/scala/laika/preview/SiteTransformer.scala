@@ -30,11 +30,9 @@ import laika.format.HTML
 import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.config.SiteConfig
 import laika.io.implicits._
-import laika.io.model.{InputTreeBuilder, ParsedTree, StringTreeOutput}
+import laika.io.model.{BinaryInput, InputTreeBuilder, ParsedTree, StringTreeOutput}
 import laika.rewrite.nav.Selections
 import laika.theme.Theme
-
-import scala.concurrent.duration.FiniteDuration
 
 private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
                                                       htmlRenderer: TreeRenderer[F],
@@ -49,11 +47,11 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
     }
     parser.fromInput(allInputs).parse
   }
-  
-  def renderBinary (renderer: BinaryTreeRenderer[F], root: DocumentTreeRoot): Resource[F, InputStream] = {
+
+  def renderBinary (renderer: BinaryTreeRenderer[F], root: DocumentTreeRoot, staticDocs: Seq[BinaryInput[F]]): Resource[F, InputStream] = {
     val renderResult = for {
-      out <- Async[F].delay(new ByteArrayOutputStream)
-      _   <- renderer.from(root).toStream(Async[F].pure(out)).render
+      out <- Async[F].delay(new ByteArrayOutputStream(1024 * 64))
+      _   <- renderer.from(root).copying(staticDocs).toStream(Async[F].pure(out)).render
     } yield out.toByteArray
     
     Resource
@@ -61,11 +59,11 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
       .flatMap(bytes => Resource.eval(Async[F].delay(new ByteArrayInputStream(bytes))))
   }
   
-  def transformBinaries (root: DocumentTreeRoot): ConfigResult[Map[Path, SiteResult[F]]] = {
+  def transformBinaries (tree: ParsedTree[F]): ConfigResult[Map[Path, SiteResult[F]]] = {
     for {
-      roots            <- Selections.createCombinations(root)
-      downloadPath     <- SiteConfig.downloadPath(root.config)
-      artifactBaseName <- root.config.get[String](LaikaKeys.artifactBaseName, artifactBasename)
+      roots            <- Selections.createCombinations(tree.root)
+      downloadPath     <- SiteConfig.downloadPath(tree.root.config)
+      artifactBaseName <- tree.root.config.get[String](LaikaKeys.artifactBaseName, artifactBasename)
     } yield {
       val combinations = for {
         root <- roots.toList
@@ -75,7 +73,7 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
         val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName = artifactBaseName + classifier + "." + suffix
         val path = downloadPath / docName
-        (path, StaticResult(renderBinary(renderer, root)))
+        (path, StaticResult(renderBinary(renderer, root, tree.staticDocuments)))
       }.toMap
     }
   }
@@ -103,7 +101,7 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
   val transform: F[SiteResults[F]] = for { 
     tree     <- parse
     rendered <- transformHTML(tree)
-    ebooks   <- Async[F].fromEither(transformBinaries(tree.root).leftMap(ConfigException.apply))
+    ebooks   <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
   } yield {
     new SiteResults(staticFiles ++ rendered ++ ebooks)
   }
