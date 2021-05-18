@@ -48,10 +48,10 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
     parser.fromInput(allInputs).parse
   }
 
-  def renderBinary (renderer: BinaryTreeRenderer[F], root: DocumentTreeRoot, staticDocs: Seq[BinaryInput[F]]): Resource[F, InputStream] = {
+  def renderBinary (renderer: BinaryTreeRenderer[F], tree: ParsedTree[F]): Resource[F, InputStream] = {
     val renderResult = for {
       out <- Async[F].delay(new ByteArrayOutputStream(1024 * 64))
-      _   <- renderer.from(root).copying(staticDocs).toStream(Async[F].pure(out)).render
+      _   <- renderer.from(tree).toStream(Async[F].pure(out)).render
     } yield out.toByteArray
     
     Resource
@@ -73,15 +73,14 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
         val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName = artifactBaseName + classifier + "." + suffix
         val path = downloadPath / docName
-        (path, StaticResult(renderBinary(renderer, root, tree.staticDocuments)))
+        (path, StaticResult(renderBinary(renderer, tree.copy(root = root))))
       }.toMap
     }
   }
 
   def transformHTML (tree: ParsedTree[F]): F[Map[Path, SiteResult[F]]] = {
     htmlRenderer
-      .from(tree.root)
-      .copying(tree.staticDocuments)
+      .from(tree)
       .toOutput(StringTreeOutput)
       .render
       .map { root =>

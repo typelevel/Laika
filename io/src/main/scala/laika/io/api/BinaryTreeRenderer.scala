@@ -23,7 +23,7 @@ import laika.ast.DocumentTreeRoot
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat}
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{BinaryInput, BinaryOutput}
+import laika.io.model.{BinaryInput, BinaryOutput, ParsedTree}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{Batch, RendererRuntime}
 import laika.theme.{Theme, ThemeProvider}
@@ -39,6 +39,11 @@ class BinaryTreeRenderer[F[_]: Async: Batch] (renderer: BinaryRenderer[F], theme
   def from (input: DocumentTreeRoot): BinaryTreeRenderer.OutputOps[F] =
     BinaryTreeRenderer.OutputOps(renderer, theme, input, Nil)
 
+  /** Builder step that specifies the root of the document tree to render
+    * and the static documents to copy to the target (if it is file-system based).
+    */
+  def from (input: ParsedTree[F]): BinaryTreeRenderer.OutputOps[F] =
+    BinaryTreeRenderer.OutputOps(renderer, theme, input.root, input.staticDocuments)
 }
 
 /** Builder API for constructing a rendering operation for a tree of binary output documents.

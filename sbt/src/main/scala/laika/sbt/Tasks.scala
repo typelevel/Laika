@@ -116,8 +116,7 @@ object Tasks {
         .withTheme(laikaTheme.value)
         .build
         .use(_
-          .from(tree.root)
-          .copying(tree.staticDocuments)
+          .from(tree)
           .toDirectory(targetDir)(userConfig.encoding)
           .render
         )

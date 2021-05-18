@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.api.BinaryTreeRenderer.Builder
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
 import laika.io.runtime.{Batch, RendererRuntime}
 import laika.theme.{Theme, ThemeProvider}
@@ -37,6 +37,12 @@ class TreeRenderer[F[_]: Sync: Batch] (renderer: Renderer, theme: Theme[F]) {
     */
   def from (input: DocumentTreeRoot): TreeRenderer.OutputOps[F] =
     TreeRenderer.OutputOps(renderer, theme, input, Nil)
+
+  /** Builder step that specifies the root of the document tree to render
+    * and the static documents to copy to the target (if it is file-system based).
+    */
+  def from (input: ParsedTree[F]): TreeRenderer.OutputOps[F] =
+    TreeRenderer.OutputOps(renderer, theme, input.root, input.staticDocuments)
 
 }
 
