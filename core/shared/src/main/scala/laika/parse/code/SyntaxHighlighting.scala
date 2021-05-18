@@ -16,6 +16,7 @@
 
 package laika.parse.code
 
+import cats.data.NonEmptyList
 import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter}
 import laika.parse.code.languages._
 
@@ -82,6 +83,18 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
     override def parsers: ParserBundle = ParserBundle(
       syntaxHighlighters = self.parsers.syntaxHighlighters ++ syntax
     )
+  }
+
+  /** Creates a new extension bundle that contains the built-in
+    * syntax highlighters as well as the specified highlighter, binding it to the given language string
+    * instead of those declared in the instance itself.
+    * Can be used to create an alias for an existing syntax, e.g. binding `dotty` to `scala` instead.
+    */
+  def withSyntaxBinding (binding: String, syntax: SyntaxHighlighter): ExtensionBundle = withSyntax {
+    new SyntaxHighlighter {
+      def language = NonEmptyList.of(binding)
+      def spanParsers = syntax.spanParsers
+    }
   }
   
 }
