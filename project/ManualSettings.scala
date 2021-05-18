@@ -15,8 +15,12 @@ import laika.theme.ThemeProvider
 object ManualSettings {
 
   private object versions {
-    val v017    = Version("0.17", "0.17", "/toc.html", Some("Stable"))
-    val v016    = Version("0.16", "0.16", "/toc.html", Some("EOL"))
+    private def version(version: String, stable: Boolean = false): Version = {
+      val label = if (stable) Some("Stable") else Some("EOL")
+      Version(version, version, "/table-of-content.html", label)
+    }
+    val v017    = version("0.17", stable = true)
+    val v016    = version("0.16")
     val older   = Version("Older Versions", "olderVersions")
     val current = v017
     //val latest  = Root
