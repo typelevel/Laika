@@ -37,13 +37,15 @@ object DottySyntax extends SyntaxHighlighter {
     * It should be sufficient to be right for the most basic cases.
     */
   val softKeywords: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword) {
-    "opaque"    <~ lookAhead(ws ~ "type") |
-    "open"      <~ lookAhead(ws ~ "class") |
-    "as"        <~ lookAhead(ws ~ identifier) |
-    "derives"   <~ lookAhead(ws ~ identifier) |
-    "extension" <~ lookAhead(ws ~ opt(identifier ~ ws) ~ "on") |
-    "inline"    <~ lookAhead(ws ~ ("def" | "val" | "if")) |
-    "using"     <~ lookAhead(ws ~ identifier)
+    "inline"      <~ lookAhead(ws ~ ("def" | "val" | "if")) |
+    "opaque"      <~ lookAhead(ws ~ "type") |
+    "open"        <~ lookAhead(ws ~ "class") |
+    "infix "      <~ lookAhead(ws ~ "def") |
+    "transparent" <~ lookAhead(ws ~ "inline") |
+    "as"          <~ lookAhead(ws ~ identifier) |
+    "derives"     <~ lookAhead(ws ~ identifier) |
+    "using"       <~ lookAhead(ws ~ identifier) ~ lookBehind(6, literal("(")) |
+    "extension"   <~ lookAhead(ws ~ ("(" | "["))
   }
 
   val spanParsers: Seq[CodeSpanParser] = Seq(
@@ -55,7 +57,7 @@ object DottySyntax extends SyntaxHighlighter {
     JavaSyntax.annotation,
     declaration,
     keywords,
-    Keywords("enum", "export", "given", "then"), // keywords added in Dotty/Scala3
+    Keywords("do", "enum", "export", "given", "then"), // keywords added in Dotty/Scala3
     softKeywords,
     identifier,
     numberLiteral
