@@ -30,7 +30,7 @@ import laika.format.HTML
 import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.config.SiteConfig
 import laika.io.implicits._
-import laika.io.model.{BinaryInput, InputTreeBuilder, ParsedTree, StringTreeOutput}
+import laika.io.model.{InputTreeBuilder, ParsedTree, StringTreeOutput}
 import laika.rewrite.nav.Selections
 import laika.theme.Theme
 
@@ -41,12 +41,7 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
                                                       staticFiles: Map[Path, SiteResult[F]],
                                                       artifactBasename: String) {
 
-  val parse = {
-    val allInputs = staticFiles.foldLeft(inputs) {
-      case (inputs, (path, _)) => inputs.addProvidedPath(path)
-    }
-    parser.fromInput(allInputs).parse
-  }
+  private val parse = parser.fromInput(inputs).parse
 
   def renderBinary (renderer: BinaryTreeRenderer[F], tree: ParsedTree[F]): Resource[F, InputStream] = {
     val renderResult = for {
@@ -143,17 +138,19 @@ private [preview] object SiteTransformer {
         .withValue(LaikaKeys.preview.enabled, true)
     ))
     
-    def collectFiles (config: OperationConfig): Resource[F, Map[Path, SiteResult[F]]] = staticFiles
-      .fold(Resource.pure[F, Map[Path, SiteResult[F]]](Map.empty))(st => 
-        Resource.eval(st.collectStaticFiles[F](config))
-      )
+    def collectFiles (optF: Option[F[Map[Path, SiteResult[F]]]]): Resource[F, Map[Path, SiteResult[F]]] = optF
+      .fold(Resource.pure[F, Map[Path, SiteResult[F]]](Map.empty))(Resource.eval)
     
     for {
-      p      <- parser.map(adjustConfig)
-      html   <- htmlRenderer(p.config, p.theme)
-      bin    <- renderFormats.map(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))).sequence
-      static <- collectFiles(p.config)
-    } yield new SiteTransformer[F](p, html, bin, inputs, static, artifactBasename)
+      p        <- parser.map(adjustConfig)
+      html     <- htmlRenderer(p.config, p.theme)
+      bin      <- renderFormats.map(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))).sequence
+      vFiles   <- collectFiles(staticFiles.map(_.collectVersionedFiles(p.config)))
+      apiFiles <- collectFiles(staticFiles.map(_.collectAPIFiles(p.config)))
+    } yield {
+      val allInputs = inputs.addProvidedPaths(apiFiles.keys.toSeq)
+      new SiteTransformer[F](p, html, bin, allInputs, vFiles ++ apiFiles, artifactBasename)
+    }
     
   }
   

@@ -32,21 +32,21 @@ import laika.rewrite.{Version, Versions}
 
 private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
 
-  def collectStaticFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
-
-    def collect (filePath: JPath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
-      DirectoryScanner.scanDirectory(filePath) { paths =>
-        paths.toList
-          .map { path =>
-            val vChild = vPath / path.getFileName.toString
-            def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(vPath, path.toFile).input))
-            if (Files.isDirectory(path)) collect(path, vChild)
-            else Async[F].pure(List(result))
-          }
-          .sequence
-          .map(_.flatten)
-      }
+  private def collect[F[_]: Async] (filePath: JPath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
+    DirectoryScanner.scanDirectory(filePath) { paths =>
+      paths.toList
+        .map { path =>
+          val vChild = vPath / path.getFileName.toString
+          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(vPath, path.toFile).input))
+          if (Files.isDirectory(path)) collect(path, vChild)
+          else Async[F].pure(List(result))
+        }
+        .sequence
+        .map(_.flatten)
     }
+  }
+  
+  def collectVersionedFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
 
     def otherVersions (versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
       versions
@@ -58,6 +58,14 @@ private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
         .map(_.flatten)
     }
     
+    for {
+      versions <- Async[F].fromEither(config.baseConfig.getOpt[Versions].leftMap(ConfigException.apply))
+      files    <- otherVersions(versions)
+    } yield files.toMap
+  }
+
+  def collectAPIFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
+
     def apiFiles (apiPath: Path, versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
       val vSegment = versions.fold[Path](Root)(v => Root / v.currentVersion.pathSegment)
       val fullApiPath = (vSegment / apiPath.relative)
@@ -68,9 +76,8 @@ private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
     for {
       apiPath  <- Async[F].fromEither(SiteConfig.apiPath(config.baseConfig).leftMap(ConfigException.apply))
       versions <- Async[F].fromEither(config.baseConfig.getOpt[Versions].leftMap(ConfigException.apply))
-      apiFiles <- apiFiles(apiPath, versions)
-      vFiles   <- otherVersions(versions)
-    } yield (apiFiles ++ vFiles).toMap
+      files    <- apiFiles(apiPath, versions)
+    } yield files.toMap
   }
   
 }
