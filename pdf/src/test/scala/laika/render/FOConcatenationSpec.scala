@@ -54,7 +54,7 @@ class FOConcatenationSpec extends AnyFlatSpec with Matchers with TestSourceBuild
       renderMessages = MessageFilter.Warning,
       failOnMessages = MessageFilter.None
     )
-    val fo = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> faulty input"""
+    val fo = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="9pt">faulty input</fo:inline>"""
     FOConcatenation(result, PDF.BookConfig(), config) shouldBe Right(fo)
   }
   
