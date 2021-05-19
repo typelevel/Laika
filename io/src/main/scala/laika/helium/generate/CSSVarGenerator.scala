@@ -36,8 +36,9 @@ private[helium] object CSSVarGenerator {
   def generate (settings: SiteSettings): String = {
     import settings.layout._
     val layoutStyles = Seq(
-      "content-width" -> contentWidth.displayValue,
-      "nav-width" -> navigationWidth.displayValue
+      "content-width"  -> contentWidth.displayValue,
+      "nav-width"      -> navigationWidth.displayValue,
+      "top-bar-height" -> topBarHeight.displayValue
     )
     generate(settings, layoutStyles, settings.layout.topNavigationBar.highContrast)
   }

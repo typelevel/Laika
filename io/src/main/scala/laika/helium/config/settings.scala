@@ -358,18 +358,21 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     *  
     * @param contentWidth        the maximum width of the main content column 
     * @param navigationWidth     the width of the left navigation sidebar
+    * @param topBarHeight        the height of the top navigation bar
     * @param defaultBlockSpacing the default space between block elements
     * @param defaultLineHeight   the default line height
     * @param anchorPlacement     the placement of anchors for copying the links of section headlines (left, right or none)
     */
   def layout (contentWidth: Length,
               navigationWidth: Length,
+              topBarHeight: Length,
               defaultBlockSpacing: Length,
               defaultLineHeight: Double,
               anchorPlacement: AnchorPlacement): Helium = {
     val layout = helium.siteSettings.layout.copy(
       contentWidth = contentWidth,
       navigationWidth = navigationWidth,
+      topBarHeight = topBarHeight,
       defaultBlockSpacing = defaultBlockSpacing,
       defaultLineHeight = defaultLineHeight,
       anchorPlacement = anchorPlacement

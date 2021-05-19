@@ -141,7 +141,7 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
       s"""<h1 id="title" class="title">Title</h1>
          |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
-    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, 
+    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.Right)
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }
@@ -151,7 +151,7 @@ class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with Result
       """<h1 id="title" class="title">Title</h1>
         |<h2 id="some-headline" class="section">Some Headline</h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
-    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth,
+    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.None)
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }

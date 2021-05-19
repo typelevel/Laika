@@ -27,6 +27,7 @@ private[helium] sealed trait CommonLayout {
 
 private[helium] case class WebLayout(contentWidth: Length,
                                      navigationWidth: Length,
+                                     topBarHeight: Length,
                                      defaultBlockSpacing: Length,
                                      defaultLineHeight: Double,
                                      anchorPlacement: AnchorPlacement,

@@ -93,7 +93,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--block-spacing: 10px;
                      |--line-height: 1.5;
                      |--content-width: 860px;
-                     |--nav-width: 275px;""".stripMargin
+                     |--nav-width: 275px;
+                     |--top-bar-height: 35px;""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
   
@@ -137,7 +138,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--block-spacing: 10px;
                               |--line-height: 1.5;
                               |--content-width: 860px;
-                              |--nav-width: 275px;""".stripMargin
+                              |--nav-width: 275px;
+                              |--top-bar-height: 35px;""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
     val helium = Helium.defaults
@@ -195,7 +197,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--block-spacing: 10px;
                               |--line-height: 1.5;
                               |--content-width: 860px;
-                              |--nav-width: 275px;""".stripMargin
+                              |--nav-width: 275px;
+                              |--top-bar-height: 35px;""".stripMargin
 
   private val darkModeColors = """color-scheme: light dark;
                                  |}
@@ -329,11 +332,12 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                |--block-spacing: 9px;
                                |--line-height: 1.2;
                                |--content-width: 1000px;
-                               |--nav-width: 300px;""".stripMargin
+                               |--nav-width: 300px;
+                               |--top-bar-height: 55px;""".stripMargin
   
   test("layout") {
     val helium = Helium.defaults
-      .site.layout(contentWidth = px(1000), navigationWidth = px(300), 
+      .site.layout(contentWidth = px(1000), navigationWidth = px(300), topBarHeight = px(55),
         defaultBlockSpacing = px(9), defaultLineHeight = 1.2, anchorPlacement = AnchorPlacement.None)
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customLayout)
   }

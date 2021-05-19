@@ -113,6 +113,7 @@ private[helium] object HeliumDefaults {
     layout = WebLayout(
       contentWidth = px(860),
       navigationWidth = px(275),
+      topBarHeight = px(35),
       defaultBlockSpacing = px(10),
       defaultLineHeight = 1.5,
       anchorPlacement = AnchorPlacement.Left
