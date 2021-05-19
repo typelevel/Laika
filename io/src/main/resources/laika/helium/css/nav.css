@@ -153,7 +153,7 @@ header .row a {
 @media (min-width: 1020px) {
   #sidebar {
     margin-left: 0;
-    box-shadow: -2px 0 8px #c3d6d8;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -254,7 +254,7 @@ ul.nav-list {
 .nav-list .active a:hover,
 #page-nav .header a,
 #page-nav .header a:hover {
-  color: #ffffff;
+  color: var(--bg-color);
   background-color: var(--primary-color);
   text-decoration: none;
 }
