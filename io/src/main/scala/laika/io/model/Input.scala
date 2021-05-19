@@ -325,6 +325,13 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
     case _                            => _ + StaticDocument(path)
   }
 
+  /** Adds the specified paths to the input tree that represent documents getting processed by some external tool.
+    * Such a path will be used in link validation, but no further processing for this document will be performed. 
+    */
+  def addProvidedPaths (paths: Seq[Path]): InputTreeBuilder[F] = paths.foldLeft(this) {
+    case (builder, path) => builder.addProvidedPath(path)
+  }
+
   /** Adds the specified file filter to this input tree.
     * 
     * The filter will only be used for scanning directories when calling `addDirectory` on this builder,
