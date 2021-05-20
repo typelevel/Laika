@@ -50,8 +50,7 @@ object Tasks {
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
     */
   val generateAPI: Initialize[Task[Seq[String]]] = taskDyn {
-    val config = Settings.parserConfig.value.baseConfig
-    val targetDir = (laikaSite / target).value / validated(SiteConfig.apiPath(config)).relative.toString
+    val targetDir = Settings.apiTargetDirectory.value
     if (laikaIncludeAPI.value) task {
 
       val cacheDir = streams.value.cacheDirectory / "laika" / "api"
@@ -199,6 +198,7 @@ object Tasks {
       if (flag) f else identity
     
     val previewConfig = laikaPreviewConfig.value
+    val _ = generateAPI.value
     
     val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
@@ -206,8 +206,7 @@ object Tasks {
     
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
-      .withApiFiles(generateAPI.value)
-      .withTargetDirectory((laikaSite / target).value)
+      .withAPIDirectory(Settings.apiTargetDirectory.value)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
     

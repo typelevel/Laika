@@ -26,6 +26,7 @@ import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.api.TreeParser
+import laika.io.config.SiteConfig
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.sbt.LaikaPlugin.autoImport._
@@ -130,6 +131,10 @@ object Settings {
   
   val artifactBaseName: Initialize[String] = setting {
     validated(parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName, name.value))
+  }
+  
+  val apiTargetDirectory: Initialize[File] = setting {
+    (laikaSite / target).value / validated(SiteConfig.apiPath(Settings.parserConfig.value.baseConfig)).relative.toString
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.

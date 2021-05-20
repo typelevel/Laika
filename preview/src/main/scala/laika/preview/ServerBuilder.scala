@@ -57,9 +57,6 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
                     newConfig: ServerConfig = config): ServerBuilder[F] =
     new ServerBuilder[F](parser, inputs, newLogger, newConfig)
   
-  private val staticFiles: Option[StaticFileScanner] =
-    config.targetDir.map(dir => new StaticFileScanner(dir, config.apiFiles.nonEmpty))
-  
   private def createSourceChangeWatcher (cache: Cache[F, SiteResults[F]],
                                          topic: Topic[F, String],
                                          docTypeMatcher: ast.Path => DocumentType): Resource[F, Unit] = {
@@ -95,7 +92,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     List(PDF).filter(_ => config.includePDF)
 
   private[preview] def buildRoutes: Resource[F, HttpApp[F]] = for {
-    transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, staticFiles, config.artifactBasename)
+    transf <- SiteTransformer.create(parser, inputs, binaryRenderFormats, config.apiDir, config.artifactBasename)
     cache  <- Resource.eval(Cache.create(transf.transform))
     topic  <- Resource.eval(Topic[F, String])
     _      <- createSourceChangeWatcher(cache, topic, transf.parser.config.docTypeMatcher)
@@ -135,9 +132,7 @@ object ServerBuilder {
   * @param includeEPUB indicates whether EPUB downloads should be included on a download page (default false)
   * @param includePDF indicates whether PDF downloads should be included on a download page (default false)
   * @param isVerbose whether each served page and each detected file change should be logged (default false)
-  * @param targetDir an optional target directory from which existing documents like API documentation or older versions 
-  *                  of the site can be served (default None)
-  * @param apiFiles list of paths for generated API documentation (relative to the transformers virtual root)
+  * @param apiDir an optional API directory from which API documentation should be served (default None)
   */
 class ServerConfig private (val port: Int,
                             val pollInterval: FiniteDuration,
@@ -145,8 +140,7 @@ class ServerConfig private (val port: Int,
                             val includeEPUB: Boolean,
                             val includePDF: Boolean,
                             val isVerbose: Boolean,
-                            val targetDir: Option[File],
-                            val apiFiles: Seq[String]) {
+                            val apiDir: Option[File]) {
 
   private def copy (newPort: Int = port,
                     newPollInterval: FiniteDuration = pollInterval,
@@ -154,9 +148,8 @@ class ServerConfig private (val port: Int,
                     newIncludeEPUB: Boolean = includeEPUB,
                     newIncludePDF: Boolean = includePDF,
                     newVerbose: Boolean = isVerbose,
-                    newTargetDir: Option[File] = targetDir,
-                    newApiFiles: Seq[String] = apiFiles): ServerConfig =
-    new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newTargetDir, newApiFiles)
+                    newAPIDir: Option[File] = apiDir): ServerConfig =
+    new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
 
   /** Specifies the port the server should run on (default 4242).
     */
@@ -179,14 +172,10 @@ class ServerConfig private (val port: Int,
     */
   def withArtifactBasename (name: String): ServerConfig = copy(newArtifactBasename = name)
 
-  /** Specifies a target directory from which existing documents like API documentation or older versions
-    * of the site can be served.
+  /** Specifies a directory from which API documentation of the site can be served.
+    * This step is only necessary if you want to test links to API documentation with the preview server.
     */
-  def withTargetDirectory (dir: File): ServerConfig = copy(newTargetDir = Some(dir))
-
-  /** Specifies a list of paths containing generated API documentation (relative to the transformers virtual root).
-    */
-  def withApiFiles (apiFiles: Seq[String]): ServerConfig = copy(newApiFiles = apiFiles)
+  def withAPIDirectory (dir: File): ServerConfig = copy(newAPIDir = Some(dir))
 
   /** Indicates that each served page and each detected file change should be logged to the console.
     */
@@ -205,6 +194,6 @@ object ServerConfig {
   val defaultArtifactBasename: String = "docs"
 
   /** A ServerConfig instance populated with default values. */
-  val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None, Nil)
+  val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None)
   
 }

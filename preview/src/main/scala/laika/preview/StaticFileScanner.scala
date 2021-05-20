@@ -28,9 +28,9 @@ import laika.config.ConfigException
 import laika.io.config.SiteConfig
 import laika.io.model.BinaryInput
 import laika.io.runtime.DirectoryScanner
-import laika.rewrite.{Version, Versions}
+import laika.rewrite.Versions
 
-private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
+private[preview] object StaticFileScanner {
 
   private def collect[F[_]: Async] (filePath: JPath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
     DirectoryScanner.scanDirectory(filePath) { paths =>
@@ -70,13 +70,12 @@ private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
     } yield files.toMap
   }
 
-  def collectAPIFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
+  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: File): F[Map[Path, SiteResult[F]]] = {
 
     def apiFiles (apiPath: Path, versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
       val vSegment = versions.fold[Path](Root)(v => Root / v.currentVersion.pathSegment)
-      val fullApiPath = (vSegment / apiPath.relative)
-      if (!includeAPI) Async[F].pure(Nil)
-      else collect(new File(target, fullApiPath.relative.toString).toPath, fullApiPath)
+      val fullApiPath = vSegment / apiPath.relative
+      collect(new File(apiDir, fullApiPath.relative.toString).toPath, fullApiPath)
     }
 
     for {
