@@ -152,6 +152,11 @@ Laika contains a preview server that can be used to browse generated sites.
 Simply run the `laikaPreview` task and navigate to `localhost:4242` in the browser.
 For overriding the default configuration for the preview server, see [laikaPreviewConfig setting] below.
 
+If you are using versioned documentation you can tell the server where the other, existing versions are located,
+so that it can serve those documents, too.
+If you don't need to test the version switcher drop-down, you can omit this step.
+For details about the configuration for the version scanner, see [Index for Smart Version Switcher].
+
 The page will auto-refresh whenever changes to any input document are detected.
 The default poll interval is 3 seconds.
 If you are using an IDE with auto-save you might need to tweak its preferences
@@ -342,7 +347,7 @@ For the complete API see @:api(laika.io.model.InputTreeBuilder).
 
 ### Settings for the laikaSite task
 
-Finally there are three boolean flags that only affect the laikaSite task.
+Finally, there are three boolean flags that only affect the laikaSite task.
 
 - `laikaIncludeAPI` - default `false` - see [Including Scaladoc].
 

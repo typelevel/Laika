@@ -49,13 +49,19 @@ private [preview] class StaticFileScanner (target: File, includeAPI: Boolean) {
   def collectVersionedFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
 
     def otherVersions (versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
-      versions
-        .fold(List.empty[Version])(v => (v.olderVersions ++ v.newerVersions).toList)
-        .map { v =>
-          collect(new File(target, v.pathSegment).toPath, Root / v.pathSegment)
-        }
-        .sequence
-        .map(_.flatten)
+      (versions, versions.flatMap(_.scannerConfig)) match {
+        case (Some(v), Some(scanner)) =>
+          val versionRoot = new File(scanner.rootDirectory)
+          (v.olderVersions ++ v.newerVersions)
+            .toList
+            .map { v =>
+              collect(new File(versionRoot, v.pathSegment).toPath, Root / v.pathSegment)
+            }
+            .sequence
+            .map(_.flatten)
+        case _ => List.empty[(Path, SiteResult[F])].pure[F]
+    }
+      
     }
     
     for {

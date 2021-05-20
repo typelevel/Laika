@@ -355,18 +355,36 @@ The Helium theme contains a version switcher that is aware of the directory stru
 This means that when switching to a different version that contains the same document (based on its path and
 filename) it will navigate to that document instead of the entry page of the other version.
 
+This configuration step is entirely optional. If omitted, it will just mean that the version switcher
+drop-down will always navigate to the start page of the target version.
+
 The index for this flexible switching can be built up in two different ways, depending on your use case:
 
 1) **Older versions rendered by other toolkits**: In this case you need to run a transformation once where
-   the version configuration for Laika is complete (including all the older versions rendered by other tools)
-   and the target directory of the transformation contains the rendered documents of the other versions.
-   The transformer will scan the target directory and index all sub-directories on the top level where
-   the directory name corresponds to the configured `pathSegment` of a version.
-   This index will be written to `/laika/versionInfo.json` in the output directory.
-   It needs to be part of the deployment, and can also be used as input for subsequent transformation (see below),
-   so that the directory scanning is only necessary once.
+   the version configuration for Laika is complete, including all the older versions rendered by other tools
+   and the configuration for the version scanner itself:
    
-   In the future the scan operation may be provided by a dedicated, separate task in the plugin and API. 
+   ```scala
+   val versions = Versions(
+     currentVersion = Version("0.42.x", "0.42"),
+     olderVersions  = Seq(Version("0.41.x", "0.41", label = Some("EOL"))),
+     scannerConfig  = Some(VersionScannerConfig(
+       rootDirectory = "/path/to/old/site-output",
+       exclude       = Seq(Root / "api")
+     ))
+   )
+   Helium.defaults.site.versions(versions)
+   ```
+
+   The transformer will scan the `rootDirectory` and index all sub-directories on the top level where
+   the directory name corresponds to the configured `pathSegment` of a version.
+   The `exclude` property is a path within each version that will not be scanned
+   (API documentation, for example, would bloat the generated JSON file even though the version switcher
+   does not need those paths).
+   
+   This index will be written to `/laika/versionInfo.json` in the output directory.
+   It needs to be part of the deployment, and can also be used as input for subsequent transformations (see below),
+   so that the directory scanning is only necessary once.
    
 2) **Using an existing `versionInfo.json` document**: 
    This more convenient option is available when either step 1 above has been performed once, 
