@@ -25,14 +25,15 @@ import laika.ast.Path.Root
 import laika.ast.{DocumentType, Path, SegmentedPath}
 import laika.config.Config.ConfigResult
 import laika.config.{ConfigDecoder, ConfigException, ConfigParser}
-import laika.io.model.{BinaryInput, DirectoryInput, DirectoryOutput}
+import laika.io.model.{BinaryInput, DirectoryInput}
 import laika.rewrite.{VersionScannerConfig, Versions}
 
+import java.io.File
 import scala.io.Codec
 
 private[runtime] object VersionedLinkTargets {
 
-  private def scanTargetDirectory[F[_]: Sync] (versions: Versions, output: DirectoryOutput, config: VersionScannerConfig): F[Map[String, Seq[Path]]] = {
+  private def scanTargetDirectory[F[_]: Sync] (versions: Versions, config: VersionScannerConfig): F[Map[String, Seq[Path]]] = {
     val existingVersions = (versions.newerVersions ++ versions.olderVersions).map(_.pathSegment).toSet
     val excluded = config.exclude.flatMap { exclude =>
       existingVersions.toSeq.map(v => Root / v / exclude.relative)
@@ -48,7 +49,7 @@ private[runtime] object VersionedLinkTargets {
       case p @ SegmentedPath(segments, _, _) if included(p, segments) => Static()
       case _ => Ignored
     }
-    val input = DirectoryInput(Seq(output.directory), output.codec, docTypeMather)
+    val input = DirectoryInput(Seq(new File(config.rootDirectory)), Codec.UTF8, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
       tree.binaryInputs
         .collect { case BinaryInput(path: SegmentedPath, _, _, _) if path.depth > 1 =>
@@ -85,11 +86,11 @@ private[runtime] object VersionedLinkTargets {
       }
   }
   
-  def gatherTargets[F[_]: Sync] (versions: Versions, output: Option[DirectoryOutput], staticDocs: Seq[BinaryInput[F]]): F[Map[String, Seq[Path]]] =
-    (staticDocs.find(_.path == VersionInfoGenerator.path), output, versions.scannerConfig) match {
-      case (Some(info), _, _) => loadVersionInfo(info)
-      case (_, Some(dir), Some(config))  => scanTargetDirectory(versions, dir, config)
-      case _               => Sync[F].pure(Map.empty)
+  def gatherTargets[F[_]: Sync] (versions: Versions, staticDocs: Seq[BinaryInput[F]]): F[Map[String, Seq[Path]]] =
+    (staticDocs.find(_.path == VersionInfoGenerator.path), versions.scannerConfig) match {
+      case (Some(info), _)   => loadVersionInfo(info)
+      case (_, Some(config)) => scanTargetDirectory(versions, config)
+      case _                 => Sync[F].pure(Map.empty)
     }
 
   def groupLinkTargets (versions: Versions,

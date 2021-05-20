@@ -186,12 +186,8 @@ object RendererRuntime {
     def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig, staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
       (config.versions, context.finalFormat) match {
         case (Some(versions), "html") =>
-          val outputDir = op.output match {
-            case dir: DirectoryOutput => Some(dir)
-            case _ => None
-          }
           VersionedLinkTargets
-            .gatherTargets[F](versions, outputDir, staticDocs)
+            .gatherTargets[F](versions, staticDocs)
             .map { existing =>
               val pathTranslator = createPathTranslator(config.copy(versions = None), Root / "dummy", lookup)
               val targets = VersionedLinkTargets.groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)

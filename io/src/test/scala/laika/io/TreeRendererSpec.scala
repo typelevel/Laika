@@ -67,7 +67,7 @@ class TreeRendererSpec extends IOWordSpec
       Title(text).withOptions(Id(id) + Style.title)
     }
     
-    def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None) =
+    def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None): BinaryInput[IO] =
       ByteInput("Static" + num, path / s"static$num.txt", formats.fold[TargetFormats](TargetFormats.All)(TargetFormats.Selected(_)))
 
     def renderedDoc(num: Int): String =
@@ -706,15 +706,15 @@ class TreeRendererSpec extends IOWordSpec
         .parallel[IO]
         .build
 
-      val versions = Versions(
+      def versions (scannerRoot: Option[String] = None): Versions = Versions(
         Version("0.4.x", "0.4"),
         Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")),
         Seq(Version("0.5.x", "0.5")),
-        scannerConfig = Some(VersionScannerConfig("/path"))
+        scannerConfig = scannerRoot.map(VersionScannerConfig.apply(_))
       )
 
-      val versionedInput = SampleTrees.sixDocuments
-        .root.config(_.withValue(versions))
+      def versionedInput (scannerRoot: Option[String] = None): DocumentTreeRoot = SampleTrees.sixDocuments
+        .root.config(_.withValue(versions(scannerRoot)))
         .tree1.config(SampleConfig.versioned(true))
         .tree2.config(SampleConfig.versioned(true))
         .build
@@ -762,7 +762,7 @@ class TreeRendererSpec extends IOWordSpec
       
       htmlRenderer
         .use(_
-          .from(versionedInput)
+          .from(versionedInput())
           .copying(Seq(versionInfoInput))
           .toOutput(StringTreeOutput)
           .render
@@ -788,12 +788,15 @@ class TreeRendererSpec extends IOWordSpec
           }
         }
 
-        val paths = versionedInput.tree.allDocuments.map(_.path.withSuffix("html").toString)
-        val versionedPaths = paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
-        def writeExistingVersionedFiles (dir: File): IO[Unit] = versionedPaths.toList.map { path =>
-          val file = new File(dir, path)
-          writeFile(file, "<html></html>")
-        }.sequence.void
+        def writeExistingVersionedFiles (root: DocumentTreeRoot, dir: File): IO[Unit] = {
+          val paths = root.tree.allDocuments.map(_.path.withSuffix("html").toString)
+          val versionedPaths = paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
+          
+          versionedPaths.toList.map { path =>
+            val file = new File(dir, path)
+            writeFile(file, "<html></html>")
+          }.sequence.void
+        }
 
         val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Text $num</p>").toList
 
@@ -811,12 +814,13 @@ class TreeRendererSpec extends IOWordSpec
         def readVersionInfo (base: String): IO[String] = readFile(base+"/laika/versionInfo.json")
         
         val res = for {
-          f   <- newTempDirectory
-          _   <- mkDirs(f)
-          _   <- writeExistingVersionedFiles(f)
-          _   <- htmlRenderer.use(_.from(versionedInput).toDirectory(f).render)
-          res <- readVersionedFiles(f.getPath)
-          vi  <- readVersionInfo(f.getPath)
+          f    <- newTempDirectory
+          root =  versionedInput(Some(f.getAbsolutePath))
+          _    <- mkDirs(f)
+          _    <- writeExistingVersionedFiles(root, f)
+          _    <- htmlRenderer.use(_.from(root).toDirectory(f).render)
+          res  <- readVersionedFiles(f.getPath)
+          vi   <- readVersionInfo(f.getPath)
         } yield (res, vi)
 
         res.assertEquals((expectedFileContents, expectedVersionInfo))
