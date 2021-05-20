@@ -20,7 +20,7 @@ import laika.ast.{DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, Intern
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.config.Config.ConfigResult
-import laika.rewrite.{Version, Versions}
+import laika.rewrite.{Version, VersionScannerConfig, Versions}
 import laika.rewrite.link.{ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
 import laika.time.PlatformDateFormat
@@ -271,7 +271,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       Seq(
         Version("0.43.x", "0.43", label = Some("dev"))
       ),
-      renderUnversioned = false
+      renderUnversioned = false,
+      scannerConfig = Some(VersionScannerConfig("/path/to/versions", Seq(Root / "api")))
     )
     
     "decode an instance with all fields populated" in {
@@ -286,7 +287,8 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
           |    newerVersions = [
           |      { displayValue = "0.43.x", pathSegment = "0.43", fallbackLink = "index.html", label = "dev" }
           |    ]
-          |    renderUnversioned = false
+          |    renderUnversioned = false,
+          |    scannerConfig = { rootDirectory = "/path/to/versions", exclude = [/api] }
           |  }
           |}
          """.stripMargin

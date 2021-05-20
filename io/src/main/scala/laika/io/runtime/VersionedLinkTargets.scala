@@ -24,18 +24,17 @@ import laika.ast.DocumentType.{Ignored, Static}
 import laika.ast.Path.Root
 import laika.ast.{DocumentType, Path, SegmentedPath}
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigDecoder, ConfigException, ConfigParser}
+import laika.config.{ConfigDecoder, ConfigException, ConfigParser}
 import laika.io.model.{BinaryInput, DirectoryInput, DirectoryOutput}
-import laika.rewrite.{Version, Versions}
+import laika.rewrite.{VersionScannerConfig, Versions}
 
-import java.io.File
 import scala.io.Codec
 
 private[runtime] object VersionedLinkTargets {
 
-  private def scanTargetDirectory[F[_]: Sync] (versions: Versions, output: DirectoryOutput): F[Map[String, Seq[Path]]] = {
+  private def scanTargetDirectory[F[_]: Sync] (versions: Versions, output: DirectoryOutput, config: VersionScannerConfig): F[Map[String, Seq[Path]]] = {
     val existingVersions = (versions.newerVersions ++ versions.olderVersions).map(_.pathSegment).toSet
-    val excluded = versions.excludeFromScanning.flatMap { exclude =>
+    val excluded = config.exclude.flatMap { exclude =>
       existingVersions.toSeq.map(v => Root / v / exclude.relative)
     }.toSet
 
@@ -87,9 +86,9 @@ private[runtime] object VersionedLinkTargets {
   }
   
   def gatherTargets[F[_]: Sync] (versions: Versions, output: Option[DirectoryOutput], staticDocs: Seq[BinaryInput[F]]): F[Map[String, Seq[Path]]] =
-    (staticDocs.find(_.path == VersionInfoGenerator.path), output) match {
-      case (Some(info), _) => loadVersionInfo(info)
-      case (_, Some(dir))  => scanTargetDirectory(versions, dir)
+    (staticDocs.find(_.path == VersionInfoGenerator.path), output, versions.scannerConfig) match {
+      case (Some(info), _, _) => loadVersionInfo(info)
+      case (_, Some(dir), Some(config))  => scanTargetDirectory(versions, dir, config)
       case _               => Sync[F].pure(Map.empty)
     }
 

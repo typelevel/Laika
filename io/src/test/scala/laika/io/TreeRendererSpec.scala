@@ -39,7 +39,7 @@ import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
-import laika.rewrite.{DefaultTemplatePath, Version, Versions}
+import laika.rewrite.{DefaultTemplatePath, Version, VersionScannerConfig, Versions}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.TargetFormats
 
@@ -709,7 +709,8 @@ class TreeRendererSpec extends IOWordSpec
       val versions = Versions(
         Version("0.4.x", "0.4"),
         Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")),
-        Seq(Version("0.5.x", "0.5"))
+        Seq(Version("0.5.x", "0.5")),
+        scannerConfig = Some(VersionScannerConfig("/path"))
       )
 
       val versionedInput = SampleTrees.sixDocuments
