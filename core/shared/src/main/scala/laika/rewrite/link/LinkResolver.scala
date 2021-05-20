@@ -20,6 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Config.ConfigResult
+import laika.directive.Blocks
 
 import scala.annotation.tailrec
 
@@ -122,6 +123,8 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
       case c: Citation           => replaceBlock(c, TargetIdSelector(slugBuilder(c.label)))
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
+
+      case d: Blocks.DirectiveInstance if d.directive.exists(_.name == "fragment") => Replace(d.resolve(cursor))
       
       case _: Hidden => Remove
 

@@ -20,7 +20,7 @@ import cats.data.Kleisli
 import cats.syntax.all._
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{/, Document, RootElement}
+import laika.ast.{/, Document, Element, RootElement}
 import laika.config.{ConfigException, LaikaKeys}
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
@@ -30,21 +30,23 @@ private[helium] object LandingPageGenerator {
 
   def generate[F[_]: Sync] (landingPage: LandingPage): TreeProcessor[F] = Kleisli { tree =>
     
-    val (landingPageContent, landingPageConfig) = tree.root.tree.content.collectFirst {
-      case d: Document if d.path.withoutSuffix.name == "landing-page" => (d.content, d.config)
-    }.getOrElse((RootElement.empty, tree.root.config))
+    val (landingPageContent, fragments, landingPageConfig) = tree.root.tree.content.collectFirst {
+      case d: Document if d.path.withoutSuffix.name == "landing-page" => (d.content, d.fragments, d.config)
+    }.getOrElse((RootElement.empty, Map.empty[String, Element], tree.root.config))
     
     val titleDocument = tree.root.titleDocument.fold(
       TitleDocumentConfig.inputName(tree.root.config).map { inputName =>
         Document(
           path = Root / inputName,
           content = landingPageContent, 
+          fragments = fragments,
           config = landingPageConfig.withValue(LaikaKeys.versioned, false).build
         )
       }
     ) { titleDoc =>
       Right(titleDoc.copy(
         content = RootElement(titleDoc.content.content ++ landingPageContent.content),
+        fragments = titleDoc.fragments ++ fragments,
         config = landingPageConfig.withFallback(titleDoc.config).withValue(LaikaKeys.versioned, false).build
       ))
     }

@@ -55,6 +55,21 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
+  
+  private val teaserHTML = """<div class="teasers">
+                             |<div class="teaser">
+                             |<h2>Teaser 1</h2>
+                             |<p>Description 1</p>
+                             |</div>
+                             |<div class="teaser">
+                             |<h2>Teaser 2</h2>
+                             |<p>Description 2</p>
+                             |</div>
+                             |<div class="teaser">
+                             |<h2>Teaser 3</h2>
+                             |<p>Description 3</p>
+                             |</div>
+                             |</div>""".stripMargin
     
   test("no landing page configured") {
     transformAndExtract(inputs, Helium.defaults, "", "")
@@ -62,7 +77,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
   }
   
   test("full landing page configured") {
-    val expected = """<head>
+    val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -101,20 +116,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
-                     |<div class="teasers">
-                     |<div class="teaser">
-                     |<h2>Teaser 1</h2>
-                     |<p>Description 1</p>
-                     |</div>
-                     |<div class="teaser">
-                     |<h2>Teaser 2</h2>
-                     |<p>Description 2</p>
-                     |</div>
-                     |<div class="teaser">
-                     |<h2>Teaser 3</h2>
-                     |<p>Description 3</p>
-                     |</div>
-                     |</div>
+                     |$teaserHTML
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage(
@@ -143,8 +145,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
     transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
-  test("partial landing page configured with custom content") {
-    val expected = """<head>
+  test("partial landing page configured with custom content and fragment") {
+    val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -171,6 +173,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
                      |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>
+                     |<p class="header">Some <em>Header</em></p>
+                     |$teaserHTML
                      |<p>Some <em>markup</em> here.</p>
                      |</body>""".stripMargin
     val imagePath = Root / "home.png"
@@ -183,9 +187,20 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
       projectLinks = Seq(
         IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
         ButtonLink.external("http://somewhere.com/", "Somewhere")
+      ),
+      teasers = Seq(
+        Teaser("Teaser 1", "Description 1"),
+        Teaser("Teaser 2", "Description 2"),
+        Teaser("Teaser 3", "Description 3")
       )
     )
-    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", "Some *markup* here.")
+    val content =
+      """@:fragment(header)
+        |Some *Header*
+        |@:@
+        |
+        |Some *markup* here.""".stripMargin
+    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", content)
     transformAndExtract(inputsWithExtraDoc, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
   }
 
