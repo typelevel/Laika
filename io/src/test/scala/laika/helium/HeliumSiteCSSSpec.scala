@@ -51,80 +51,60 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
       res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.css", start, end)
     } yield res
   }
+
+  private val defaultColors = """--primary-color: #007c99;
+                                |--primary-light: #ebf6f7;
+                                |--primary-medium: #a7d4de;
+                                |--primary-dark: #095269;
+                                |--secondary-color: #931813;
+                                |--text-color: #5f5f5f;
+                                |--bg-color: #ffffff;
+                                |--top-color: var(--primary-color);
+                                |--top-bg: var(--primary-light);
+                                |--top-hover: var(--secondary-color);
+                                |--top-border: var(--primary-medium);
+                                |--messages-info: #007c99;
+                                |--messages-info-light: #ebf6f7;
+                                |--messages-warning: #b1a400;
+                                |--messages-warning-light: #fcfacd;
+                                |--messages-error: #d83030;
+                                |--messages-error-light: #ffe9e3;
+                                |--syntax-base1: #2a3236;
+                                |--syntax-base2: #8c878e;
+                                |--syntax-base3: #b2adb4;
+                                |--syntax-base4: #bddcee;
+                                |--syntax-base5: #e8e8e8;
+                                |--syntax-wheel1: #e28e93;
+                                |--syntax-wheel2: #ef9725;
+                                |--syntax-wheel3: #ffc66d;
+                                |--syntax-wheel4: #7fb971;
+                                |--syntax-wheel5: #4dbed4;""".stripMargin
+  
+  private val defaultFonts = """--body-font: "Lato";
+                               |--header-font: "Lato";
+                               |--code-font: "Fira Code";
+                               |--body-font-size: 15px;
+                               |--code-font-size: 14px;
+                               |--small-font-size: 12px;
+                               |--title-font-size: 34px;
+                               |--header2-font-size: 28px;
+                               |--header3-font-size: 20px;
+                               |--header4-font-size: 15px;""".stripMargin
+  
+  private val defaultLayout = s"""--block-spacing: 10px;
+                                 |--line-height: 1.5;
+                                 |--content-width: 860px;
+                                 |--nav-width: 275px;
+                                 |--top-bar-height: 35px;""".stripMargin
     
   test("defaults") {
-    val expected = """--primary-color: #007c99;
-                     |--primary-light: #ebf6f7;
-                     |--primary-medium: #a7d4de;
-                     |--primary-dark: #095269;
-                     |--secondary-color: #931813;
-                     |--text-color: #5f5f5f;
-                     |--bg-color: #ffffff;
-                     |--top-color: var(--primary-color);
-                     |--top-bg: var(--primary-light);
-                     |--top-hover: var(--secondary-color);
-                     |--top-border: var(--primary-medium);
-                     |--messages-info: #007c99;
-                     |--messages-info-light: #ebf6f7;
-                     |--messages-warning: #b1a400;
-                     |--messages-warning-light: #fcfacd;
-                     |--messages-error: #d83030;
-                     |--messages-error-light: #ffe9e3;
-                     |--syntax-base1: #2a3236;
-                     |--syntax-base2: #8c878e;
-                     |--syntax-base3: #b2adb4;
-                     |--syntax-base4: #bddcee;
-                     |--syntax-base5: #e8e8e8;
-                     |--syntax-wheel1: #e28e93;
-                     |--syntax-wheel2: #ef9725;
-                     |--syntax-wheel3: #ffc66d;
-                     |--syntax-wheel4: #7fb971;
-                     |--syntax-wheel5: #4dbed4;
-                     |--body-font: "Lato";
-                     |--header-font: "Lato";
-                     |--code-font: "Fira Code";
-                     |--body-font-size: 15px;
-                     |--code-font-size: 14px;
-                     |--small-font-size: 12px;
-                     |--title-font-size: 34px;
-                     |--header2-font-size: 28px;
-                     |--header3-font-size: 20px;
-                     |--header4-font-size: 15px;
-                     |--block-spacing: 10px;
-                     |--line-height: 1.5;
-                     |--content-width: 860px;
-                     |--nav-width: 275px;
-                     |--top-bar-height: 35px;""".stripMargin
+    val expected = s"""$defaultColors
+                      |$defaultFonts
+                      |$defaultLayout""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
   
-  private val customFonts = """--primary-color: #007c99;
-                              |--primary-light: #ebf6f7;
-                              |--primary-medium: #a7d4de;
-                              |--primary-dark: #095269;
-                              |--secondary-color: #931813;
-                              |--text-color: #5f5f5f;
-                              |--bg-color: #ffffff;
-                              |--top-color: var(--primary-color);
-                              |--top-bg: var(--primary-light);
-                              |--top-hover: var(--secondary-color);
-                              |--top-border: var(--primary-medium);
-                              |--messages-info: #007c99;
-                              |--messages-info-light: #ebf6f7;
-                              |--messages-warning: #b1a400;
-                              |--messages-warning-light: #fcfacd;
-                              |--messages-error: #d83030;
-                              |--messages-error-light: #ffe9e3;
-                              |--syntax-base1: #2a3236;
-                              |--syntax-base2: #8c878e;
-                              |--syntax-base3: #b2adb4;
-                              |--syntax-base4: #bddcee;
-                              |--syntax-base5: #e8e8e8;
-                              |--syntax-wheel1: #e28e93;
-                              |--syntax-wheel2: #ef9725;
-                              |--syntax-wheel3: #ffc66d;
-                              |--syntax-wheel4: #7fb971;
-                              |--syntax-wheel5: #4dbed4;
+  private val customFonts = s"""$defaultColors
                               |--body-font: "Custom-Body";
                               |--header-font: "Custom-Header";
                               |--code-font: "Custom-Code";
@@ -135,11 +115,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header2-font-size: 27px;
                               |--header3-font-size: 19px;
                               |--header4-font-size: 14px;
-                              |--block-spacing: 10px;
-                              |--line-height: 1.5;
-                              |--content-width: 860px;
-                              |--nav-width: 275px;
-                              |--top-bar-height: 35px;""".stripMargin
+                              |$defaultLayout""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
     val helium = Helium.defaults
@@ -157,7 +133,7 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customFonts)
   }
 
-  private val customColors = """--primary-color: rgb(1,1,1);
+  private val customColors = s"""--primary-color: rgb(1,1,1);
                               |--primary-light: rgb(2,2,2);
                               |--primary-medium: rgb(4,4,4);
                               |--primary-dark: rgb(0,0,0);
@@ -184,21 +160,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--syntax-wheel3: #110033;
                               |--syntax-wheel4: #110044;
                               |--syntax-wheel5: #110055;
-                              |--body-font: "Lato";
-                              |--header-font: "Lato";
-                              |--code-font: "Fira Code";
-                              |--body-font-size: 15px;
-                              |--code-font-size: 14px;
-                              |--small-font-size: 12px;
-                              |--title-font-size: 34px;
-                              |--header2-font-size: 28px;
-                              |--header3-font-size: 20px;
-                              |--header4-font-size: 15px;
-                              |--block-spacing: 10px;
-                              |--line-height: 1.5;
-                              |--content-width: 860px;
-                              |--nav-width: 275px;
-                              |--top-bar-height: 35px;""".stripMargin
+                              |$defaultFonts
+                              |$defaultLayout""".stripMargin
 
   private val darkModeColors = """color-scheme: light dark;
                                  |}
@@ -291,44 +254,14 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     )
     transformAndExtract(singleDoc, helium, ":root {", "}\n}").assertEquals(customColors + "\n" + darkModeColors)
   }
+  
+  test("dark mode disabled") {
+    val helium = Helium.defaults.site.darkMode.disabled
+    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(defaultColors + "\n" + defaultFonts  + "\n" + defaultLayout)
+  }
 
-  private val customLayout = """--primary-color: #007c99;
-                               |--primary-light: #ebf6f7;
-                               |--primary-medium: #a7d4de;
-                               |--primary-dark: #095269;
-                               |--secondary-color: #931813;
-                               |--text-color: #5f5f5f;
-                               |--bg-color: #ffffff;
-                               |--top-color: var(--primary-color);
-                               |--top-bg: var(--primary-light);
-                               |--top-hover: var(--secondary-color);
-                               |--top-border: var(--primary-medium);
-                               |--messages-info: #007c99;
-                               |--messages-info-light: #ebf6f7;
-                               |--messages-warning: #b1a400;
-                               |--messages-warning-light: #fcfacd;
-                               |--messages-error: #d83030;
-                               |--messages-error-light: #ffe9e3;
-                               |--syntax-base1: #2a3236;
-                               |--syntax-base2: #8c878e;
-                               |--syntax-base3: #b2adb4;
-                               |--syntax-base4: #bddcee;
-                               |--syntax-base5: #e8e8e8;
-                               |--syntax-wheel1: #e28e93;
-                               |--syntax-wheel2: #ef9725;
-                               |--syntax-wheel3: #ffc66d;
-                               |--syntax-wheel4: #7fb971;
-                               |--syntax-wheel5: #4dbed4;
-                               |--body-font: "Lato";
-                               |--header-font: "Lato";
-                               |--code-font: "Fira Code";
-                               |--body-font-size: 15px;
-                               |--code-font-size: 14px;
-                               |--small-font-size: 12px;
-                               |--title-font-size: 34px;
-                               |--header2-font-size: 28px;
-                               |--header3-font-size: 20px;
-                               |--header4-font-size: 15px;
+  private val customLayout = s"""$defaultColors
+                               |$defaultFonts
                                |--block-spacing: 9px;
                                |--line-height: 1.2;
                                |--content-width: 1000px;

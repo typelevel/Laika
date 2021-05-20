@@ -222,6 +222,12 @@ private[helium] trait ColorOps {
     ))
 }
 
+private[helium] trait DarkModeOps extends ColorOps {
+  
+  def disabled: Helium
+  
+}
+
 private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
   
   protected def withFontFamilies (fonts: ThemeFonts): Helium
@@ -330,7 +336,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * The implementation is based on the `prefers-color-scheme` media query and requires browsers supporting
     * dark mode.
     */
-  def darkMode: ColorOps = new ColorOps {
+  def darkMode: DarkModeOps = new DarkModeOps {
+    def disabled: Helium = copyWith(helium.siteSettings.copy(darkMode = None))
     protected def currentColors: ColorSet = helium.siteSettings.darkMode.getOrElse(helium.siteSettings.colors)
     protected def withColors (colors: ColorSet): Helium = copyWith(helium.siteSettings.copy(darkMode = Some(colors)))
   }
@@ -518,7 +525,8 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
     * The implementation is based on the `prefers-color-scheme` media query and requires e-book readers supporting
     * dark mode.
     */
-  def darkMode: ColorOps = new ColorOps {
+  def darkMode: DarkModeOps = new DarkModeOps {
+    def disabled: Helium = copyWith(helium.siteSettings.copy(darkMode = None))
     protected def currentColors: ColorSet = helium.epubSettings.darkMode.getOrElse(helium.epubSettings.colors)
     protected def withColors (colors: ColorSet): Helium = copyWith(helium.epubSettings.copy(darkMode = Some(colors)))
   }
