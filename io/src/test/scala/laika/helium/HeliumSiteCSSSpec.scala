@@ -97,11 +97,14 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                  |--content-width: 860px;
                                  |--nav-width: 275px;
                                  |--top-bar-height: 35px;""".stripMargin
+  
+  private val colorScheme = "color-scheme: light dark;"
     
   test("defaults") {
     val expected = s"""$defaultColors
                       |$defaultFonts
-                      |$defaultLayout""".stripMargin
+                      |$defaultLayout
+                      |$colorScheme""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
   
@@ -116,7 +119,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header2-font-size: 27px;
                               |--header3-font-size: 19px;
                               |--header4-font-size: 14px;
-                              |$defaultLayout""".stripMargin
+                              |$defaultLayout
+                              |$colorScheme""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
     val helium = Helium.defaults
@@ -163,10 +167,10 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--syntax-wheel4: #110044;
                               |--syntax-wheel5: #110055;
                               |$defaultFonts
-                              |$defaultLayout""".stripMargin
+                              |$defaultLayout
+                              |$colorScheme""".stripMargin
 
-  private val darkModeColors = """color-scheme: light dark;
-                                 |}
+  private val darkModeColors = """}
                                  |@media (prefers-color-scheme: dark) {
                                  |:root {
                                  |--primary-color: rgb(11,11,11);
@@ -269,7 +273,8 @@ class HeliumSiteCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                                |--line-height: 1.2;
                                |--content-width: 1000px;
                                |--nav-width: 300px;
-                               |--top-bar-height: 55px;""".stripMargin
+                               |--top-bar-height: 55px;
+                               |$colorScheme""".stripMargin
   
   test("layout") {
     val helium = Helium.defaults

@@ -57,9 +57,11 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
       res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css")
     } yield res
   }
+
+  private val colorScheme = "color-scheme: light dark;"
     
   test("defaults") {
-    val expected = """--primary-color: #007c99;
+    val expected = s"""--primary-color: #007c99;
                      |--primary-light: #ebf6f7;
                      |--primary-medium: #a7d4de;
                      |--secondary-color: #931813;
@@ -98,7 +100,8 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--header3-font-size: 1.3em;
                      |--header4-font-size: 1.1em;
                      |--block-spacing: 10px;
-                     |--line-height: 1.5;""".stripMargin
+                     |--line-height: 1.5;
+                     |$colorScheme""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
   }
 
@@ -146,7 +149,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
       .assertEquals(expected)
   }
   
-  private val customFonts = """--primary-color: #007c99;
+  private val customFonts = s"""--primary-color: #007c99;
                               |--primary-light: #ebf6f7;
                               |--primary-medium: #a7d4de;
                               |--secondary-color: #931813;
@@ -185,7 +188,8 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header3-font-size: 19px;
                               |--header4-font-size: 14px;
                               |--block-spacing: 10px;
-                              |--line-height: 1.5;""".stripMargin
+                              |--line-height: 1.5;
+                              |$colorScheme""".stripMargin
 
   test("custom font families and font sizes - via 'epub' selector") {
     val helium = Helium.defaults
@@ -203,7 +207,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customFonts)
   }
 
-  private val customColors = """--primary-color: rgb(1,1,1);
+  private val customColors = s"""--primary-color: rgb(1,1,1);
                               |--primary-light: rgb(2,2,2);
                               |--primary-medium: rgb(4,4,4);
                               |--secondary-color: rgb(212,212,212);
@@ -242,10 +246,10 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                               |--header3-font-size: 1.3em;
                               |--header4-font-size: 1.1em;
                               |--block-spacing: 10px;
-                              |--line-height: 1.5;""".stripMargin
+                              |--line-height: 1.5;
+                              |$colorScheme""".stripMargin
   
-  private val darkModeColors = """color-scheme: light dark;
-                                 |}
+  private val darkModeColors = """}
                                  |@media (prefers-color-scheme: dark) {
                                  |:root {
                                  |--primary-color: rgb(11,11,11);
@@ -338,7 +342,7 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
   }
 
   test("layout") {
-    val expected = """--primary-color: #007c99;
+    val expected = s"""--primary-color: #007c99;
                      |--primary-light: #ebf6f7;
                      |--primary-medium: #a7d4de;
                      |--secondary-color: #931813;
@@ -377,7 +381,8 @@ class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtracto
                      |--header3-font-size: 1.3em;
                      |--header4-font-size: 1.1em;
                      |--block-spacing: 9px;
-                     |--line-height: 1.2;""".stripMargin
+                     |--line-height: 1.2;
+                     |$colorScheme""".stripMargin
     val helium = Helium.defaults
       .epub.layout(defaultBlockSpacing = px(9), defaultLineHeight = 1.2, keepTogetherDecoratedLines = 15)
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(expected)

@@ -62,6 +62,14 @@ private[helium] object HeliumDefaults {
     error = Color.hex("d83030"),
     errorLight = Color.hex("ffe9e3"),
   )
+  private val darkModeMessageColors = MessageColors(
+    info = Color.hex("ebf6f7"),
+    infoLight = Color.hex("007c99"),
+    warning = Color.hex("fcfacd"),
+    warningLight = Color.hex("b1a400"),
+    error = Color.hex("ffe9e3"),
+    errorLight = Color.hex("d83030"),
+  )
   private val syntaxDarkScheme = SyntaxColors(
     base = ColorQuintet(
       Color.hex("2a3236"), Color.hex("8c878e"), Color.hex("b2adb4"), Color.hex("bddcee"), Color.hex("e8e8e8")
@@ -87,11 +95,26 @@ private[helium] object HeliumDefaults {
     background = Color.hex("ffffff"),
     bgGradient = (Color.hex("095269"), Color.hex("007c99"))
   )
+  private val darkModeThemeColors = ThemeColors(
+    primary = Color.hex("a7d4de"),
+    secondary = Color.hex("e4afad"), // d08a81 / c16868 / d4c478
+    primaryMedium = Color.hex("a7d4de"),
+    primaryLight = Color.hex("125d75"),
+    text = Color.hex("eeeeee"),
+    background = Color.hex("064458"),
+    bgGradient = (Color.hex("064458"), Color.hex("197286")) // 007c99
+  )
   
   def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
     theme = themeColors,
     messages = defaultMessageColors,
     syntaxHighlighting = syntaxScheme
+  )
+
+  val darkModeColors: ColorSet = ColorSet(
+    theme = darkModeThemeColors,
+    messages = darkModeMessageColors,
+    syntaxHighlighting = syntaxDarkScheme
   )
   
   private val defaultSiteSettings = SiteSettings(
@@ -107,7 +130,7 @@ private[helium] object HeliumDefaults {
       small = px(12)
     ),
     colors = colors(syntaxDarkScheme),
-    darkMode = None,
+    darkMode = Some(darkModeColors),
     htmlIncludes = HTMLIncludes(),
     landingPage = None,
     layout = WebLayout(
@@ -138,7 +161,7 @@ private[helium] object HeliumDefaults {
       small   = em(0.8)
     ),
     colors = colors(syntaxLightScheme),
-    darkMode = None,
+    darkMode = Some(darkModeColors),
     htmlIncludes = HTMLIncludes(),
     layout = EPUBLayout(
       defaultBlockSpacing = px(10),
