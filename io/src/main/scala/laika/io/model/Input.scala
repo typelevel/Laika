@@ -347,6 +347,13 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
   def merge (other: InputTreeBuilder[F]): InputTreeBuilder[F] = 
     new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps, fileRoots ++ other.fileRoots)
 
+  /** Merges this input tree with the specified tree, recursively.
+    */
+  def merge (other: InputTree[F]): InputTreeBuilder[F] = addStep { (_,_) => Kleisli { tree =>
+    (tree ++ other).pure[F]
+  }}
+    
+
   /** Builds the tree based on the inputs added to this instance.
     * 
     * The method is effectful as it might involve scanning directories to determine the tree structure.

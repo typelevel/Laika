@@ -30,9 +30,9 @@ import laika.format.HTML
 import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.config.SiteConfig
 import laika.io.implicits._
-import laika.io.model.{InputTreeBuilder, ParsedTree, StringTreeOutput}
+import laika.io.model.{BinaryInput, InputTree, InputTreeBuilder, ParsedTree, StringTreeOutput}
 import laika.preview.SiteTransformer.ResultMap
-import laika.rewrite.nav.Selections
+import laika.rewrite.nav.{Selections, TargetFormats}
 import laika.theme.Theme
 
 private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
@@ -140,6 +140,13 @@ private [preview] object SiteTransformer {
       configBuilder = oc.configBuilder
         .withValue(LaikaKeys.preview.enabled, true)
     ))
+    
+    def asInputTree (map: ResultMap[F]): InputTree[F] = {
+      val inputs = map.collect {
+        case (path, static: StaticResult[F]) => BinaryInput(path, static.content, TargetFormats.Selected("html")) 
+      }
+      new InputTree[F](binaryInputs = inputs.toSeq)
+    }
 
     def collectAPIFiles (config: OperationConfig): Resource[F, ResultMap[F]] =
       apiDir.fold(Resource.pure[F, ResultMap[F]](Map.empty)) { dir =>
@@ -153,8 +160,8 @@ private [preview] object SiteTransformer {
       vFiles   <- Resource.eval(StaticFileScanner.collectVersionedFiles(p.config))
       apiFiles <- collectAPIFiles(p.config)
     } yield {
-      val allInputs = inputs.addProvidedPaths(apiFiles.keys.toSeq)
-      new SiteTransformer[F](p, html, bin, allInputs, vFiles ++ apiFiles, artifactBasename)
+      val allInputs = inputs.merge(asInputTree(apiFiles))
+      new SiteTransformer[F](p, html, bin, allInputs, vFiles, artifactBasename)
     }
     
   }

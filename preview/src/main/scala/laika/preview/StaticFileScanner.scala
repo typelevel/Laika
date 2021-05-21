@@ -70,19 +70,10 @@ private[preview] object StaticFileScanner {
     } yield files.toMap
   }
 
-  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: File): F[Map[Path, SiteResult[F]]] = {
-
-    def apiFiles (apiPath: Path, versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
-      val vSegment = versions.fold[Path](Root)(v => Root / v.currentVersion.pathSegment)
-      val fullApiPath = vSegment / apiPath.relative
-      collect(new File(apiDir, fullApiPath.relative.toString).toPath, fullApiPath)
-    }
-
+  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: File): F[Map[Path, SiteResult[F]]] =
     for {
       apiPath  <- Async[F].fromEither(SiteConfig.apiPath(config.baseConfig).leftMap(ConfigException.apply))
-      versions <- Async[F].fromEither(config.baseConfig.getOpt[Versions].leftMap(ConfigException.apply))
-      files    <- apiFiles(apiPath, versions)
+      files    <- collect(apiDir.toPath, apiPath)
     } yield files.toMap
-  }
   
 }
