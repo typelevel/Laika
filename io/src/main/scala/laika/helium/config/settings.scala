@@ -107,8 +107,6 @@ private[helium] trait CommonConfigOps {
   /** Configures the four main colors used by the theme.
     * 
     * @param primary      this color is used for headlines, navigation highlights and other decorative elements
-    * @param primaryDark  is supposed to be a darker shade of the primary color and is currently only used for the 
-    *                     background gradient of the landing page
     * @param primaryMedium is supposed to be a shade between primary and primaryLight and is used for borders
     *                      and text on the landing page (on dark background)
     * @param primaryLight is supposed to be a lighter shade of the primary color and is used for the background
@@ -117,14 +115,15 @@ private[helium] trait CommonConfigOps {
     * @param secondary    this color is used for navigation headers and links
     * @param text         the color of the body text
     * @param background   the background color of the pages
+    * @param bgGradient   specifies two colors to be used as background gradient, currently only used on the landing page
     */
   def themeColors (primary: Color,
-                   primaryDark: Color,
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
                    text: Color,
-                   background: Color): Helium
+                   background: Color,
+                   bgGradient: (Color, Color)): Helium
 
   /** Configures the colors of runtime messages embedded in the rendered result.
     * Warnings and errors will only be rendered if you change the configuration to visual debugging,
@@ -199,14 +198,14 @@ private[helium] trait ColorOps {
   protected def withColors (colors: ColorSet): Helium
 
   def themeColors (primary: Color,
-                   primaryDark: Color,
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
                    text: Color,
-                   background: Color): Helium = withColors(currentColors.copy(theme = ThemeColors(
-    primary = primary, primaryDark = primaryDark, primaryMedium = primaryMedium, primaryLight = primaryLight,
-    secondary = secondary, text = text, background = background
+                   background: Color,
+                   bgGradient: (Color, Color)): Helium = withColors(currentColors.copy(theme = ThemeColors(
+    primary = primary, primaryMedium = primaryMedium, primaryLight = primaryLight,
+    secondary = secondary, text = text, background = background, bgGradient = bgGradient
   )))
   def messageColors (info: Color,
                      infoLight: Color,
@@ -277,14 +276,14 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
     case (helium, format) => format(helium).fontSizes(body, code, title, header2, header3, header4, small)
   }
   def themeColors (primary: Color,
-                   primaryDark: Color,
                    primaryMedium: Color,
                    primaryLight: Color,
                    secondary: Color,
                    text: Color,
-                   background: Color): Helium = formats.foldLeft(helium) {
+                   background: Color,
+                   bgGradient: (Color, Color)): Helium = formats.foldLeft(helium) {
     case (helium, format) =>
-      format(helium).themeColors(primary, primaryDark, primaryMedium, primaryLight, secondary, text, background)
+      format(helium).themeColors(primary, primaryMedium, primaryLight, secondary, text, background, bgGradient)
   }
   def messageColors (info: Color,
                      infoLight: Color,

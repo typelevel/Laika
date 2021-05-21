@@ -23,12 +23,12 @@ private[helium] case class ColorSet (theme: ThemeColors,
                                      syntaxHighlighting: SyntaxColors)
 
 private[helium] case class ThemeColors (primary: Color,
-                                        primaryDark: Color,
                                         primaryMedium: Color,
                                         primaryLight: Color,
                                         secondary: Color,
                                         text: Color,
-                                        background: Color)
+                                        background: Color,
+                                        bgGradient: (Color, Color))
 
 private[helium] case class MessageColors (info: Color,
                                           infoLight: Color,

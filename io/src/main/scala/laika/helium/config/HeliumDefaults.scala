@@ -81,11 +81,11 @@ private[helium] object HeliumDefaults {
   private val themeColors = ThemeColors(
     primary = Color.hex("007c99"),
     secondary = Color.hex("931813"),
-    primaryDark = Color.hex("095269"),
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("ebf6f7"),
     text = Color.hex("5f5f5f"),
-    background = Color.hex("ffffff")
+    background = Color.hex("ffffff"),
+    bgGradient = (Color.hex("095269"), Color.hex("007c99"))
   )
   
   def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
