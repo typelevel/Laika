@@ -205,8 +205,15 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     
     def renderIcon (icon: Icon): String = icon match {
       case icon: IconGlyph     => fmt.rawElement("fo:inline", icon, icon.codePointAsEntity)
-      case icon: InlineSVGIcon => fmt.rawElement("fo:instream-foreign-object", icon, icon.content)
-      case _                   => ""
+      case icon: InlineSVGIcon =>
+        val styles = fmt.styles.collectStyles(SpanSequence.empty.withStyle("svg-shape"), fmt.parents).get("color")
+        val svg = styles.fold(icon.content) { color =>
+          val parts = icon.content.split(">", 2) // inlining styles as FOP itself does not support CSS for SVG
+          if (parts.length == 2) parts.head + s">\n  <style>.svg-shape { fill: $color; }</style>" + parts.last
+          else icon.content
+        }
+        fmt.rawElement("fo:instream-foreign-object", icon, svg)
+      case _ => ""
     }
 
     def renderSimpleSpan (span: Span): String = span match {

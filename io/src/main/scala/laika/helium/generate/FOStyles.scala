@@ -171,13 +171,22 @@ private[laika] class FOStyles (helium: Helium) {
     |  font-size: 16pt;
     |}
     |
-    |.callout.info IconGlyph {
+    |InlineSVGIcon {
+    |  content-height: 1.5em;
+    |  content-width: 1.5em;
+    |}
+    |
+    |.svg-shape {
+    |  color: ${colors.theme.primary.displayValue};
+    |}
+    |
+    |.callout.info IconGlyph, .callout.info .svg-shape {
     |  color: ${colors.messages.info.displayValue};
     |}
-    |.callout.warning IconGlyph {
+    |.callout.warning IconGlyph, .callout.warning .svg-shape {
     |  color: ${colors.messages.warning.displayValue};
     |}
-    |.callout.error IconGlyph {
+    |.callout.error IconGlyph, .callout.error .svg-shape {
     |  color: ${colors.messages.error.displayValue};
     |}
     |

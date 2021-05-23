@@ -37,7 +37,7 @@ object FOUserAgentFactory {
    *  @param resourceResolver a custom resource resolver for the new user agent
    */
   def createFOUserAgent(fopFactory: FopFactory, resourceResolver: ResourceResolver): FOUserAgent = {
-    val resolver = ResourceResolverFactory.createInternalResourceResolver(new URI(""), resourceResolver)
+    val resolver = ResourceResolverFactory.createInternalResourceResolver(new URI("file:///"), resourceResolver)
     new FOUserAgent(fopFactory, resolver)
   }
   
