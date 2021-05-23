@@ -40,6 +40,16 @@ private[helium] object MergedCSSGenerator {
   }
 
   def mergeEPUBCSS[F[_]: Sync](varBlock: String): F[String] = {
+    
+    val importantVars = 
+      (1 to 5).map("syntax-wheel" + _) ++ 
+      (1 to 5).map("syntax-base" + _) ++ 
+      Seq("primary-color", "secondary-color")
+      
+    def addImportantAnnotation (css: String): String =
+      importantVars.map(v => s"var(--$v);").foldLeft(css) { (str, substr) =>
+        str.replace(substr, substr.dropRight(1) + " !important;")
+      }
 
     val inputTree = InputTree[F]
       .addClasspathResource("laika/helium/css/content.epub.css", Root / "css" / "content.css")
@@ -51,7 +61,7 @@ private[helium] object MergedCSSGenerator {
     for {
       inputs <- inputTree
       merged <- MergedStringInputs.merge(inputs.binaryInputs)
-    } yield varBlock + merged
+    } yield varBlock + addImportantAnnotation(merged)
   }
   
 }

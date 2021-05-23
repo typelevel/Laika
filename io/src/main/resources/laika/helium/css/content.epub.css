@@ -6,24 +6,6 @@ body {
   line-height: var(--line-height);
 }
 
-/* table of content additions ========================================= */
-
-
-
-/* remove ============================================================= */
-
-p {
-  /*margin: 0 0 var(--block-spacing);*/
-  /*border: 1px solid red;*/
-}
-section {
-  /*padding-top: 30px;*/
-}
-
-section > .lead {
-  /*color: #5a5a5a;*/
-}
-
 /* lists ========================================= */
 
 section > ul li {
@@ -51,7 +33,7 @@ li ul {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--header-font);
-  color: var(--secondary-color);
+  color: var(--secondary-color) !important;
   margin: var(--block-spacing) 0;
   line-height: 20px; /* TODO */
   /*break-after: avoid;*/
@@ -102,12 +84,12 @@ p.title {
 /* links ========================================= */
 
 a {
-  color: var(--secondary-color);
+  color: var(--secondary-color) !important;
   font-weight: bold;
   text-decoration: none;
 }
 a:hover {
-  color: var(--secondary-color);
+  color: var(--secondary-color) !important;
   text-decoration: underline;
 }
 
@@ -156,27 +138,27 @@ img.default-image-span {
 }
 
 .callout.warning {
-  background-color: var(--messages-warning-light);
+  background-color: var(--messages-warning-light) !important;
   border-left: 7px solid var(--messages-warning);
 }
 .callout.warning .icofont-laika {
-  color: var(--messages-warning);
+  color: var(--messages-warning) !important;
 }
 
 .callout.info {
-  background-color: var(--messages-info-light);
+  background-color: var(--messages-info-light) !important;
   border-left: 7px solid var(--messages-info);
 }
 .callout.info .icofont-laika {
-  color: var(--messages-info);
+  color: var(--messages-info) !important;
 }
 
 .callout.error {
-  background-color: var(--messages-error-light);
+  background-color: var(--messages-error-light) !important;
   border-left: 7px solid var(--messages-error);
 }
 .callout.error .icofont-laika {
-  color: var(--messages-error);
+  color: var(--messages-error) !important;
 }
 
 /* tables ========================================= */
