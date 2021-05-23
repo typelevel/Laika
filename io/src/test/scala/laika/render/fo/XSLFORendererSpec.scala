@@ -24,6 +24,7 @@ import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
+import laika.io.helper.RenderResult.fo
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
 import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
@@ -781,13 +782,18 @@ class XSLFORendererSpec extends AnyFlatSpec
   }
 
   it should "render a paragraph containing a link with an inline SVG icon" in {
-    val svg = """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-                |  <g class="svg-shape">
-                |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
-                |  </g>
-                |</svg>""".stripMargin
+    val openTag = """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">"""
+    val svgRest = s"""  <g class="svg-shape">
+                     |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
+                     |  </g>
+                     |</svg>""".stripMargin
+    val svg = s"""$openTag
+                 |$svgRest""".stripMargin
+    val expected = s"""$openTag
+                      |  <style>.svg-shape { fill: #007c99; }</style>
+                      |$svgRest""".stripMargin
     val elem = p(Text("some "), SpanLink.external("/foo")(InlineSVGIcon(svg)), Text(" span"))
-    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold"><fo:instream-foreign-object>$svg</fo:instream-foreign-object></fo:basic-link> span</fo:block>"""
+    val fo = s"""<fo:block $defaultParagraphStyles>some <fo:basic-link color="#931813" external-destination="/foo" font-weight="bold"><fo:instream-foreign-object content-height="1.5em" content-width="1.5em">$expected</fo:instream-foreign-object></fo:basic-link> span</fo:block>"""
     render (elem) should be (fo)
   }
 
