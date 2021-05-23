@@ -217,7 +217,7 @@ li.tab.active a {
   cursor: default;
 }
 li.tab.active {
-  background-color: white;
+  background-color: var(--bg-color);
   border-bottom-color: transparent;
 }
 .tab-content {

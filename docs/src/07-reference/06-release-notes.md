@@ -61,6 +61,7 @@ Release Notes
 * Bugfixes
     * The HTML renderer did not apply versions to image URLs in case of versioned documentation
     * In-memory string input sources could not be read more than once
+    * The content of the `@:fragment` directive was ignored in many rendering scenarios
 
 
 0.17.1 (Mar 19, 2021)

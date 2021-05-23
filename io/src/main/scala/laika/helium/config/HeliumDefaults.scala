@@ -97,7 +97,7 @@ private[helium] object HeliumDefaults {
   )
   private val darkModeThemeColors = ThemeColors(
     primary = Color.hex("a7d4de"),
-    secondary = Color.hex("e4afad"), // d08a81 / c16868 / d4c478
+    secondary = Color.hex("f1c47b"), // d08a81 / c16868 / d4c478 / e4afad
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("125d75"),
     text = Color.hex("eeeeee"),
