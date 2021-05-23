@@ -16,29 +16,29 @@
 
 package laika.webtool
 
-import cats.effect.{Blocker, ExitCode, IO, IOApp, Resource}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
 import org.http4s.implicits._
 import org.http4s.server.Server
-import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 
 /**
   * @author Jens Halm
   */
 object Main extends IOApp {
 
-  private def service(blocker: Blocker) = 
-    (new StaticRoutes(blocker).all <+> TransformerRoutes.all <+> StatusRoutes.all).orNotFound
+  private def service = 
+    (StaticRoutes.all <+> TransformerRoutes.all <+> StatusRoutes.all).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] =
     app.use(_ => IO.never).as(ExitCode.Success)
 
-  val app: Resource[IO, Server[IO]] =
+  val app: Resource[IO, Server] =
     for {
-      blocker <- Blocker[IO]
-      server <- BlazeServerBuilder[IO]
+      ctx    <- Resource.eval(IO.executionContext)
+      server <- BlazeServerBuilder[IO](ctx)
         .bindHttp(8080, "0.0.0.0")
-        .withHttpApp(service(blocker))
+        .withHttpApp(service)
         .resource
     } yield server
 }

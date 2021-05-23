@@ -71,12 +71,8 @@ val catsEffect = "org.typelevel"          %% "cats-effect" % "3.0.1"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.6"
 val http4s     = Seq(
-                   "org.http4s"           %% "http4s-dsl"          % "0.21.20",
-                   "org.http4s"           %% "http4s-blaze-server" % "0.21.20"
-                 )
-val http4sM    = Seq(
-                    "org.http4s"          %% "http4s-dsl"          % "1.0.0-M21",
-                    "org.http4s"          %% "http4s-blaze-server" % "1.0.0-M21"
+                   "org.http4s"           %% "http4s-dsl"          % "0.23.0-M1",
+                   "org.http4s"           %% "http4s-blaze-server" % "0.23.0-M1"
                  )
 
 lazy val root = project.in(file("."))
@@ -146,7 +142,7 @@ lazy val preview = project.in(file("preview"))
   .settings(publishSettings)
   .settings(
     name := "laika-preview",
-    libraryDependencies ++= (http4sM :+ scalatest)
+    libraryDependencies ++= (http4s :+ scalatest)
   )
 
 lazy val plugin = project.in(file("sbt"))

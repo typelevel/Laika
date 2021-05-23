@@ -32,7 +32,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpApp, HttpRoutes, Request}
 import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
-import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

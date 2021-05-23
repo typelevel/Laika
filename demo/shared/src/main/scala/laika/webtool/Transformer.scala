@@ -45,7 +45,7 @@ object Transformer {
       case (fmt, Paragraph(content,opt)) => 
         fmt.indentedElement("p", opt, content)
         
-      case (fmt, cb@CodeBlock(lang,content,opt)) => 
+      case (fmt, cb@CodeBlock(lang,content,_,opt)) => 
         val codeStyles = if (cb.hasSyntaxHighlighting) Style.noHighlight else Styles(lang)
         "<pre>" + fmt.indentedElement("code", codeStyles, content) + "</pre>"
     }.build

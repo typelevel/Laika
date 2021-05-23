@@ -16,25 +16,25 @@
 
 package laika.webtool
 
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
 import org.http4s.{HttpRoutes, Request, Response, StaticFile}
 import org.http4s.dsl.io._
 
 /**
   * @author Jens Halm
   */
-class StaticRoutes(blocker: Blocker)(implicit cs: ContextShift[IO]) {
+object StaticRoutes {
 
-  def static(file: String, blocker: Blocker, request: Request[IO]): IO[Response[IO]] =
-    StaticFile.fromResource("/public/" + file, blocker, Some(request)).getOrElseF(NotFound())
+  def static(file: String, request: Request[IO]): IO[Response[IO]] =
+    StaticFile.fromResource("/public/" + file, Some(request)).getOrElseF(NotFound())
 
   val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
 
-    case req @ GET -> Root => static("index.html", blocker, req)
+    case req @ GET -> Root => static("index.html", req)
       
-    case req @ GET -> Root / "bundle.js" => static("bundle.js", blocker, req)
+    case req @ GET -> Root / "bundle.js" => static("bundle.js", req)
       
-    case req @ GET -> Root / "assets" / file => static(s"assets/$file", blocker, req)
+    case req @ GET -> Root / "assets" / file => static(s"assets/$file", req)
     
   }
   
