@@ -22,7 +22,6 @@ import laika.format._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-
 class TransformAPISpec extends AnyFlatSpec 
                        with Matchers {
 
@@ -44,6 +43,10 @@ class TransformAPISpec extends AnyFlatSpec
   
   "The Transform API" should "transform from string to string" in {
     builder.build.transform(input).toOption.get should be (output)
+  }
+
+  it should "transform an empty string" in {
+    builder.build.transform("") should be (Right("RootElement - Blocks: 0"))
   }
   
   it should "allow to override the default renderer for specific element types" in {
