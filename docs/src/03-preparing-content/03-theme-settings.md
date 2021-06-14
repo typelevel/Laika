@@ -222,12 +222,13 @@ The following example overrides Laika's theme colors for all output formats:
 ```scala
 Helium.defaults
   .all.themeColors(
-    primary = hex("007c99"),
-    primaryDark = hex("931813"),
-    primaryLight = hex("095269"),
+    primary = Color.hex("007c99"),
+    secondary = Color.hex("931813"),
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("ebf6f7"),
-    text = Color.hex("5f5f5f")
+    text = Color.hex("5f5f5f"),
+    background = Color.hex("ffffff"),
+    bgGradient = (Color.hex("095269"), Color.hex("007c99"))
   )
 ```
 
@@ -237,7 +238,6 @@ The default theme colors, which are used for the documentation you are reading r
 
 007c99 primary
 931813 secondary
-095269 primaryDark
 a7d4de primaryMedium
 ebf6f7 primaryLight
 
@@ -247,10 +247,12 @@ ebf6f7 primaryLight
 
 * `primary` is used for highlights and the text of navigation panes and inline code spans.
 * `secondary` is used for links and headlines.
-* `primaryDark` is usually a darker shade of the primary color, currently only used for the gradient on the landing page.
 * `primaryMedium` is usually a shade slightly darker than `primaryLight`, used for borders and text on dark background.
 * `primaryLight` is usually a lighter shade of the primary color, used as background color.
 * `text` is solely used as the color of the body text.
+* `background` is used as the background color of the main content column (side bars and top navigation bars have different
+   backgrounds).
+* `bgGradient` is a pair of colors currently only used for the gradient on the landing page.
 
 In terms of getting the right contrast, the color combinations must support the following:
 
@@ -343,16 +345,37 @@ The following example defines custom theme colors for dark mode in EPUB output:
 ```scala
 Helium.defaults
   .epub.darkMode.themeColors(
-    primary = hex("007c99"),
-    primaryDark = hex("931813"),
-    primaryLight = hex("095269"),
+    primary = Color.hex("a7d4de"),
+    secondary = Color.hex("f1c47b"),
     primaryMedium = Color.hex("a7d4de"),
-    primaryLight = Color.hex("ebf6f7"),
-    text = Color.hex("5f5f5f")
+    primaryLight = Color.hex("125d75"),
+    text = Color.hex("eeeeee"),
+    background = Color.hex("064458"),
+    bgGradient = (Color.hex("064458"), Color.hex("197286"))
   )
 ```
 
 Similar configuration can be added for site output and syntax highlighting colors.
+
+The default theme colors for dark mode, which are used for the documentation you are reading right now, in case you have
+set dark mode as your preference, are as follows:
+
+@:colors
+
+a7d4de primary
+f1c47b secondary
+a7d4de primaryMedium
+125d75 primaryLight
+
+@:@
+
+The meaning of "light" and "medium" are inverted here, to avoid confusion with names for the light mode scheme.
+For an overview how these colors are used, see [Theme Colors] above.
+
+Please note that while Laika also technically supports dark mode configuration for EPUB output, 
+the support in reader software is currently so poor that it's usually not worth it.
+Syntax highlighting colors, for example, are ignored in dark mode in most readers, 
+making dark mode for EPUB quite an unattractive choice for technical documentation.
 
 
 Layout
