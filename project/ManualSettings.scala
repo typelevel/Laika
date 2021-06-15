@@ -35,13 +35,19 @@ object ManualSettings {
   
   private object paths {
     val images        = Root / "img"
-    val coverImageSbt = CoverImage(images / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
-    val coverImageLib = CoverImage(images / s"e-book-cover-library-${versions.current.displayValue}.png", "library")
+    object epub {
+      val coverSbt = CoverImage(images / "epub" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
+      val coverLib = CoverImage(images / "epub" / s"e-book-cover-lib-${versions.current.displayValue}.png", "library")
+    }
+    object pdf {
+      val coverSbt = CoverImage(images / "pdf" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
+      val coverLib = CoverImage(images / "pdf" / s"e-book-cover-lib-${versions.current.displayValue}.png", "library")
+    }
     val latestVersion = Root / versions.current.pathSegment
     val api           = Root / "api" / "laika" / "api" / "index.html"
     val downloads     = Root / "downloads.gen"
-    val logo          = images / "laika-dog-big@1.5x.png"
-    val favicon       = images / "laika-favicon.png"
+    val logo          = images / "site" / "laika-dog-big@1.5x.png"
+    val favicon       = images / "site" / "laika-favicon.png"
     val docsURL       = "http://planet42.github.io/Laika/"
     val srcURL        = "https://github.com/planet42/Laika"
     val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs"
@@ -60,7 +66,7 @@ object ManualSettings {
       Teaser("Purely Functional", "Fully referentially transparent, no exceptions or runtime reflection and integration with cats-effect for polymorphic effect handling."),
       Teaser("Rich Feature Set", "Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated syntax highlighting, versioned documentation, and much more."),
       Teaser("Lightweight Theme", "The default Helium theme includes only a minimal amount of handcrafted CSS and JS, no Bootstrap, no frameworks."),
-      Teaser("Highly Extensible", "Process the document AST, adjust rendering for individual AST nodes or extend text markup languages with custom directives."),
+      Teaser("Highly Extensible", "Process the document AST, adjust rendering for individual AST nodes or extend text markup languages with custom directives.")
     )
   }
   
@@ -119,11 +125,11 @@ object ManualSettings {
         TextLink.internal(Root / "02-running-laika" / "02-library-api.md", "Library API"),
         TextLink.internal(Root / "table-of-content", "Table of Content"),
         TextLink.internal(paths.downloads, "Download (PDF & EPUB)"),
-        TextLink.internal(Root / "api" / "laika" / "api" / "index.html", "API (Scaladoc)"),
+        TextLink.internal(Root / "api" / "laika" / "api" / "index.html", "API (Scaladoc)")
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
-        TextLink.external(paths.demoURL, "Demo Application"),
+        TextLink.external(paths.demoURL, "Demo Application")
       ),
       teasers = text.teasers
     )
@@ -133,8 +139,8 @@ object ManualSettings {
       title = Some(s"Laika ${versions.current.displayValue}")
     )
     .epub.navigationDepth(2)
-    .epub.coverImages(paths.coverImageSbt, paths.coverImageLib)
-    .pdf.coverImages(paths.coverImageSbt, paths.coverImageLib)
+    .epub.coverImages(paths.epub.coverSbt, paths.epub.coverLib)
+    .pdf.coverImages(paths.pdf.coverSbt, paths.pdf.coverLib)
     .build
   
 }

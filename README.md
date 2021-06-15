@@ -1,5 +1,5 @@
 
-![Laika](docs/src/img/laika-dog@1.5x.png)
+![Laika](docs/src/img/site/laika-dog@1.5x.png)
 
 Toolkit for transforming lightweight text markup and template based site and e-book generation.
 
