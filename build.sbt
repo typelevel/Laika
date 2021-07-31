@@ -1,10 +1,7 @@
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import sbt.Keys.{artifactPath, crossScalaVersions}
-
-val scala2_12 = "2.12.13"
-val scala2_13 = "2.13.6"
-val scala3_0  = "3.0.0"
+import Dependencies._
 
 lazy val basicSettings = Seq(
   version               := "0.18.0-SNAPSHOT",
@@ -14,7 +11,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := scala2_12,
+  scalaVersion          := versions.scala2_12,
   scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -33,12 +30,12 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq(scala2_12, scala2_13, scala3_0)
+  crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
 )
 
 lazy val publishSettings = Seq(
   publishMavenStyle       := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact  := false,
   pomIncludeRepository    := { _ => false },
   publishTo := {
     if (version.value.trim.endsWith("SNAPSHOT")) None
@@ -64,15 +61,15 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % "3.2.9" % "test"
-val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"  % "test"
+val scalatest  = "org.scalatest"          %% "scalatest"   % versions.scalatest % "test"
+val jTidy      = "net.sf.jtidy"           %  "jtidy"       % versions.jTidy     % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % "3.1.1"
+val catsEffect = "org.typelevel"          %% "cats-effect" % versions.catsEffect
 
-val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.6"
+val fop        = "org.apache.xmlgraphics" %  "fop"         % versions.fop
 val http4s     = Seq(
-                   "org.http4s"           %% "http4s-dsl"          % "0.23.0-M1",
-                   "org.http4s"           %% "http4s-blaze-server" % "0.23.0-M1"
+                   "org.http4s"           %% "http4s-dsl"          % versions.http4s,
+                   "org.http4s"           %% "http4s-blaze-server" % versions.http4s
                  )
 
 lazy val root = project.in(file("."))
@@ -82,7 +79,7 @@ lazy val root = project.in(file("."))
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     crossScalaVersions := Nil,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js)
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js),
   )
 
 lazy val docs = project.in(file("docs"))
@@ -106,16 +103,16 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.2.9" % "test",
-      "org.typelevel" %%% "cats-core" % "2.6.1"
+      "org.scalatest" %%% "scalatest" % versions.scalatest % "test",
+      "org.typelevel" %%% "cats-core" % versions.catsCore
     )
   )
   .jvmSettings(
     libraryDependencies += jTidy, 
-    crossScalaVersions := Seq(scala2_12, scala2_13, scala3_0)
+    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
   )
   .jsSettings(
-    crossScalaVersions := Seq(scala2_12, scala2_13)
+    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13)
   )
 
 lazy val io = project.in(file("io"))
@@ -153,7 +150,7 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
-    crossScalaVersions := Seq(scala2_12),
+    crossScalaVersions := Seq(versions.scala2_12),
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scriptedBufferLog := false
   )
@@ -171,16 +168,16 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
   )
   .jvmSettings(
     libraryDependencies ++= http4s,
-    javaOptions in Universal ++= Seq(
+    Universal / javaOptions ++= Seq(
       "-J-Xms512M",
       "-J-Xmx896M"
     ),
-    buildOptions in docker := BuildOptions (
+    docker / buildOptions := BuildOptions (
       cache = false,
       removeIntermediateContainers = BuildOptions.Remove.Always,
       pullBaseImage = BuildOptions.Pull.Always
     ),
-    dockerfile in docker := {
+    docker / dockerfile := {
       val appDir: File = stage.value
       val targetDir = "/app"
 
@@ -192,7 +189,7 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
         copy(appDir, targetDir)
       }
     },
-    imageNames in docker := Seq(ImageName(
+    docker / imageNames := Seq(ImageName(
       namespace = None,
       repository = name.value,
       tag = Some(version.value)
@@ -200,9 +197,9 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
   )
   .jsSettings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    artifactPath in (Compile, fastOptJS) :=
-      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer.mjs", 
-    artifactPath in (Compile, fullOptJS) :=
+    Compile / fastOptJS / artifactPath :=
+      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer.mjs",
+    Compile / fullOptJS / artifactPath :=
       (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer-opt.mjs"
   )
 

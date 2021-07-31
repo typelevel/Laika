@@ -49,7 +49,7 @@ private [preview] class RouteBuilder[F[_]: Async](cache: Cache[F, SiteResults[F]
 
     case GET -> Root / "laika" / "events" =>
       val keepAlive = fs2.Stream.fixedRate(10.seconds).as("keepAlive")
-      Ok(sseTopic.subscribe(10).merge(keepAlive).map(ServerSentEvent(_)))
+      Ok(sseTopic.subscribe(10).merge(keepAlive).map(msg => ServerSentEvent(Some(msg))))
         
     case GET -> path =>
       val laikaPath = laika.ast.Path.parse(path.toString)
