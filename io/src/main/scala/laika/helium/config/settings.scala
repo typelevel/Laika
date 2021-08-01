@@ -478,7 +478,12 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
                    projectLinks: Seq[ThemeLink] = Nil,
                    teasers: Seq[Teaser] = Nil): Helium = {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
-    copyWith(helium.siteSettings.copy(landingPage = Some(page)))
+    val oldTopBar = helium.siteSettings.layout.topNavigationBar
+    val newLayout = 
+      if (oldTopBar != TopNavigationBar.default) helium.siteSettings.layout
+      else helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar.withHomeLink(Root / "README"))
+      
+    copyWith(helium.siteSettings.copy(landingPage = Some(page), layout = newLayout))
   }
 
   /** Adds a version dropdown to the top navigation bar.
