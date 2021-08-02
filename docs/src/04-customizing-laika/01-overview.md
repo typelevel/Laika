@@ -1,6 +1,6 @@
 
-Overview
-========
+Customizing Laika - Overview
+============================
 
 Laika's Documentation comes with separate sections for "Customizing" and "Extending" Laika.
 While the line between the two is naturally quite blurry, 

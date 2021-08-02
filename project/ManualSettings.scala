@@ -5,7 +5,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.LaikaKeys
 import laika.helium.Helium
-import laika.helium.config.{AnchorPlacement, Favicon, HeliumIcon, IconLink, Logo, ReleaseInfo, Teaser, TextLink}
+import laika.helium.config.{AnchorPlacement, Favicon, HeliumIcon, IconLink, ReleaseInfo, Teaser, TextLink}
 import laika.rewrite.link.{ApiLinks, LinkConfig}
 import laika.rewrite.{Version, Versions}
 import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
@@ -19,20 +19,20 @@ object ManualSettings {
       val label = if (stable) Some("Stable") else Some("EOL")
       Version(version, version, "/table-of-content.html", label)
     }
-    val v017    = version("0.17", stable = true)
+    val v018    = version("0.18", stable = true)
+    val v017    = version("0.17")
     val v016    = version("0.16")
     val older   = Version("Older Versions", "olderVersions")
-    val current = v017
+    val current = v018
     //val latest  = Root
-    private val all = Seq(v017, v016, older)
+    private val all = Seq(v018, v017, v016, older)
     val config = Versions(
       currentVersion = current,
       olderVersions = all.dropWhile(_ != current).drop(1),
-      newerVersions = all.takeWhile(_ != current),
-      excludeFromScanning = Seq(Root / "api")
+      newerVersions = all.takeWhile(_ != current)
     )
   }
-  
+
   private object paths {
     val images        = Root / "img"
     object epub {
@@ -69,7 +69,7 @@ object ManualSettings {
       Teaser("Highly Extensible", "Process the document AST, adjust rendering for individual AST nodes or extend text markup languages with custom directives.")
     )
   }
-  
+
   val config: LaikaConfig = LaikaConfig.defaults
     .withConfigValue(LinkConfig(
       apiLinks = Seq(ApiLinks("../api/")), // TODO - will not work on top level pages, but fine for now - change to absolute path
@@ -83,7 +83,7 @@ object ManualSettings {
     ))
     .withConfigValue(LaikaKeys.artifactBaseName, s"laika-${versions.current.displayValue}")
     .withConfigValue(LaikaKeys.versioned, true)
-  
+
   val helium: ThemeProvider = Helium.defaults
     .all.metadata(
       title = Some("Laika"),
@@ -93,7 +93,7 @@ object ManualSettings {
     )
     .all.tableOfContent("Table of Content", depth = 4)
     .site.topNavigationBar(
-      links = Seq(
+      navLinks = Seq(
         IconLink.external(paths.srcURL, HeliumIcon.github, options = Styles("svg-link")),
         IconLink.internal(paths.api, HeliumIcon.api, options = Styles("svg-link")),
         IconLink.internal(paths.downloads, HeliumIcon.download),
@@ -103,6 +103,7 @@ object ManualSettings {
     .site.layout(
       contentWidth = px(860),
       navigationWidth = px(275),
+      topBarHeight = px(35),
       defaultBlockSpacing = px(10),
       defaultLineHeight = 1.5,
       anchorPlacement = AnchorPlacement.Right
@@ -113,11 +114,11 @@ object ManualSettings {
     .site.versions(versions.config)
     .site.baseURL(paths.docsURL)
     .site.landingPage(
-      logo           = Some(Logo.internal(paths.logo,
+      logo           = Some(Image.internal(paths.logo,
                          width = Some(px(327)), height = Some(px(393)), alt = Some("Laika Logo")
                        )),
       subtitle       = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.17.1")),
+      latestReleases = Seq(ReleaseInfo("Latest Release", "0.18.0")),
       license        = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),
@@ -142,5 +143,5 @@ object ManualSettings {
     .epub.coverImages(paths.epub.coverSbt, paths.epub.coverLib)
     .pdf.coverImages(paths.pdf.coverSbt, paths.pdf.coverLib)
     .build
-  
+
 }

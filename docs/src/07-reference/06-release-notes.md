@@ -2,7 +2,7 @@
 Release Notes
 =============
 
-0.18.0 (not released yet)
+0.18.0 (Aug 2, 2021)
 -------------------------
 
 * Migrate to cats-effect 3
@@ -60,6 +60,7 @@ Release Notes
   (e.g. api documentation, download directory and older versions in versioned documentation).
 * Bugfixes
     * The HTML renderer did not apply versions to image URLs in case of versioned documentation
+    * 0.17.1 introduced a regression where transforming empty strings caused an endless loop
     * In-memory string input sources could not be read more than once
     * The content of the `@:fragment` directive was ignored in many rendering scenarios
 

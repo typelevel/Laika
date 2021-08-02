@@ -19,21 +19,21 @@ If you want to stick to pure transformations from string to string and don't nee
 any of the binary output formats like EPUB or PDF, you are fine with just using the `laika-core` module:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.17.1" 
+libraryDependencies += "org.planet42" %% "laika-core" % "0.18.0" 
 ```
 
 This module is also 100% supported for Scala.js, so you can alternatively use the triple `%%%` syntax
 if you want to cross-build for Scala.js and the JVM:
 
 ```scala
-libraryDependencies += "org.planet42" %%% "laika-core" % "0.17.1" 
+libraryDependencies += "org.planet42" %%% "laika-core" % "0.18.0" 
 ```
 
 If you want to add support for file and stream IO and/or output in the EPUB format, 
 you need to depend on the `laika-io` module instead:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.17.1" 
+libraryDependencies += "org.planet42" %% "laika-io" % "0.18.0" 
 ```
 
 This depends on `laika-core` in turn, so you always only need to add one module as a dependency and will get
@@ -43,7 +43,7 @@ are in JVM land here.
 Finally PDF support comes with its own module as it adds a whole range of additional dependencies:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.17.1" 
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.18.0" 
 ```
 
 Again, this builds on top of the other modules, so adding just this one dependency is sufficient.

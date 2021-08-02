@@ -715,15 +715,8 @@ Helium.defaults
 Like everything in Laika, the paths are virtual and not file system paths, so they must point to somewhere
 within the configured inputs. @:todo(maybe better to include just one section at the top about virtual paths).
 
-@:callout(info)
-
-The use of JavaScript in EPUB templates is not yet supported, but planned for version 0.17.
-
-The reason is that EPUB requires that HTML pages containing scripts are marked as such in the metadata files 
-that list the content of the EPUB, which means that Laika would first need to introduce configuration support 
-for authors to specify which templates contain scripts. 
-
-@:@
+The use of JavaScript in EPUB templates might need additional configuration, in particular with customized templates.
+See [JavaScript for EPUB] for details.
 
 
 Custom Templates

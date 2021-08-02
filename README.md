@@ -10,14 +10,15 @@ Toolkit for transforming lightweight text markup and template based site and e-b
 Latest Release
 --------------
 
-The latest release is version **0.17.1**.  
+The latest release is version **0.18.0**.  
 
-The library is published to Maven Central for Scala 2.13, 2.12 and Scala.js 1.x and the sbt plugin for sbt 1.x.
+The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.
+The sbt plugin is published for sbt 1.x.
 
-Support for Scala 3 and cats-effect 3 is available on master, but has not been released yet.
-
-The last release supporting Scala 2.11 had been 0.10.0, 
-the last release for Scala 2.10 and sbt 0.13 was 0.7.0.
+In case you still need support for older versions of Scala, sbt or cats-effect, please use:
+* 0.17.1 for cats-effect 2.x
+* 0.10.0 for Scala 2.11
+* 0.7.0 for Scala 2.10 and sbt 0.13.x
 
 Open Source under the Apache 2.0 License.
 
