@@ -480,8 +480,10 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
     val oldTopBar = helium.siteSettings.layout.topNavigationBar
     val newLayout = 
-      if (oldTopBar != TopNavigationBar.default) helium.siteSettings.layout
-      else helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar.withHomeLink(Root / "README"))
+      if (oldTopBar.homeLink != TopNavigationBar.default.homeLink) helium.siteSettings.layout
+      else helium.siteSettings.layout.copy(
+        topNavigationBar = oldTopBar.copy(homeLink = IconLink.internal(Root / "README", HeliumIcon.home))
+      )
       
     copyWith(helium.siteSettings.copy(landingPage = Some(page), layout = newLayout))
   }
