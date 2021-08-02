@@ -63,6 +63,7 @@ object Tasks {
       apiMappings.map(_._2)
     }
     else task {
+      streams.value.log.info("Delete API dir")
       sbt.IO.delete(targetDir)
       Nil
     }
@@ -202,11 +203,11 @@ object Tasks {
     
     val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
+      .andThen(applyIf(laikaIncludeAPI.value, _.withAPIDirectory(Settings.apiTargetDirectory.value)))
       .andThen(applyIf(previewConfig.isVerbose, _.verbose))
     
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
-      .withAPIDirectory(Settings.apiTargetDirectory.value)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
     
