@@ -41,7 +41,7 @@ Features
   
 * **Rich Feature Set**
 
-  Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated syntax highlighting, 
+  Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated preview server and syntax highlighting, 
   link validation, auto-generated navigation, versioned documentation, and much more.
   
 * **Lightweight Theme**

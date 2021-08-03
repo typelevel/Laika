@@ -64,7 +64,7 @@ object ManualSettings {
       Teaser("No External Tools", "Easy setup without any external tools or languages and only minimal library dependencies."),
       Teaser("Flexible Runtime", "Laika can be used as an sbt plugin, as a Scala library for the JVM or in the browser via Scala.js."),
       Teaser("Purely Functional", "Fully referentially transparent, no exceptions or runtime reflection and integration with cats-effect for polymorphic effect handling."),
-      Teaser("Rich Feature Set", "Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated syntax highlighting, versioned documentation, and much more."),
+      Teaser("Rich Feature Set", "Markdown and reStructuredText as input, HTML, EPUB and PDF as output, integrated preview server and syntax highlighting, versioned documentation, and much more."),
       Teaser("Lightweight Theme", "The default Helium theme includes only a minimal amount of handcrafted CSS and JS, no Bootstrap, no frameworks."),
       Teaser("Highly Extensible", "Process the document AST, adjust rendering for individual AST nodes or extend text markup languages with custom directives.")
     )

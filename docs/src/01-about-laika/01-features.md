@@ -27,9 +27,9 @@ Laika can be used as:
 
 * A plugin for sbt version 1.x.
 
-* A library on the JVM with Scala 2.12 or 2.13.
+* A library on the JVM with Scala 3, 2.13 or 2.12.
 
-* A library in Scala.js 1.0 applications with all its features except File/Stream IO, EPUB and PDF output
+* A library in Scala.js 1.5+ applications with all its features except File/Stream IO, EPUB and PDF output
 
 For getting started see the documentation of the [sbt Plugin] or [Library API].
 
@@ -70,6 +70,8 @@ Content Organization
   
 * Produce [Versioned Documentation] based on simple configuration steps and an integrated version switcher
   dropdown in the default Helium theme.
+  
+* Use the integrated [Preview Server](../02-running-laika/01-sbt-plugin.md#using-the-preview-server) with live updates to preview your site while editing.
 
 
 Library API
@@ -77,10 +79,8 @@ Library API
   
 * Use a purely functional API, with full referential transparency, no exceptions and no runtime reflection.
 
-* Abstracts all effectful computations behind a polymorphic effect type based on `cats-effect` typeclasses, 
+* Abstracts all effectful computations behind a polymorphic effect type based on `cats-effect` 3.x typeclasses, 
   so that any compatible library can be used with Laika (`cats.IO`, `Monix`, `Zio`).
- 
-* Full control over ExecutionContexts for blocking IO and CPU-bound processing.
 
 
 Customizations
