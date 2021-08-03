@@ -1,8 +1,9 @@
 import cats.data.NonEmptySet
-import laika.ast.{Block, BlockContainer, BlockSequence, Paragraph, RawContent, Styles}
+import laika.ast.Path.Root
+import laika.ast.{Block, BlockContainer, BlockSequence, Image, Paragraph, RawContent, ResolvedInternalTarget, Styles}
 import laika.bundle.RenderOverrides
 import laika.directive.{Blocks, DirectiveRegistry}
-import laika.format.XSLFO
+import laika.format.{HTML, XSLFO}
 
 object ManualBundle extends DirectiveRegistry {
 
@@ -38,7 +39,18 @@ object ManualBundle extends DirectiveRegistry {
   val templateDirectives = Nil
   val linkDirectives = Nil
 
-  override def renderOverrides: Seq[RenderOverrides] = Seq(XSLFO.Overrides {
-    case (_, bc: BlockContainer) if bc.hasStyle("color-block") => FoColorBoxes.render(bc)
-  })
+  override def renderOverrides: Seq[RenderOverrides] = Seq(
+    XSLFO.Overrides {
+      case (_, bc: BlockContainer) if bc.hasStyle("color-block") => FoColorBoxes.render(bc)
+    },
+    HTML.Overrides {
+      // use low-res cover images as thumbnails for PDF downloads
+      case (fmt, Image(ResolvedInternalTarget(abs, rel, formats), _, _, alt, _, _)) if abs.isSubPath(Root / "img" / "pdf") =>
+        fmt.child(Image(ResolvedInternalTarget(
+          abs.parent.parent / "cover" / abs.name, 
+          rel.parent.parent / "cover" / rel.name, 
+          formats
+        ), None, None, alt))
+    }
+  )
 }

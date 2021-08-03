@@ -36,8 +36,8 @@ object ManualSettings {
   private object paths {
     val images        = Root / "img"
     object epub {
-      val coverSbt = CoverImage(images / "epub" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
-      val coverLib = CoverImage(images / "epub" / s"e-book-cover-lib-${versions.current.displayValue}.png", "library")
+      val coverSbt = CoverImage(images / "cover" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
+      val coverLib = CoverImage(images / "cover" / s"e-book-cover-lib-${versions.current.displayValue}.png", "library")
     }
     object pdf {
       val coverSbt = CoverImage(images / "pdf" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
