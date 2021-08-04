@@ -17,20 +17,18 @@
 package laika.directive
 
 import cats.implicits._
-import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
+import laika.config.ConfigBuilder
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.helper.MigrationFlatSpec
 import laika.rewrite.TemplateRewriter
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.Assertion
 
-class TemplateDirectiveAPISpec extends AnyFlatSpec
-                          with Matchers
-                          with TestSourceBuilders {
+class TemplateDirectiveAPISpec extends MigrationFlatSpec
+                                  with TestSourceBuilders {
 
   def result (span: TemplateSpan): TemplateRoot = TemplateRoot(
     TemplateString("aa "),
@@ -136,8 +134,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     
   }
   
-  trait TemplateParser extends ParseResultHelpers
-                          with DefaultParserHelpers[TemplateRoot] {
+  trait TemplateParser {
     
     def directive: Templates.Directive
 
@@ -149,7 +146,13 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
         .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[TemplateRoot])
         .left.map(_.message)
     }
-    
+
+    def run (input: String, result: TemplateSpan): Assertion =
+      assertEquals(defaultParser.parse(input).toEither, Right(TemplateRoot(
+        TemplateString("aa "),
+        result,
+        TemplateString(" bb")
+      )))
   }
   
   trait InvalidTemplateParser extends TemplateParser {
@@ -162,13 +165,13 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
 
   "The directive parser" should "parse an empty directive" in {
     new Empty with TemplateParser {
-      Parsing ("aa @:dir bb") should produce (result(TemplateString("foo")))
+      run("aa @:dir bb", TemplateString("foo"))
     }
   }
   
   it should "parse a directive with one required default string attribute" in {
     new RequiredPositionalAttribute with TemplateParser {
-      Parsing ("aa @:dir(foo) bb") should produce (result(TemplateString("foo")))
+      run("aa @:dir(foo) bb", TemplateString("foo"))
     }
   }
 
@@ -176,13 +179,13 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new RequiredPositionalAttribute with InvalidTemplateParser {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir",msg))))
+      run(input, TemplateElement(invalid("@:dir",msg)))
     }
   }
   
   it should "parse a directive with an optional default int attribute" in {
     new OptionalPositionalAttribute with TemplateParser {
-      Parsing ("aa @:dir(5) bb") should produce (result(TemplateString("5")))
+      run("aa @:dir(5) bb", TemplateString("5"))
     }
   }
   
@@ -190,25 +193,25 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new OptionalPositionalAttribute with InvalidTemplateParser {
       val input = "aa @:dir(foo) bb"
       val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir(foo)",msg))))
+      run(input, TemplateElement(invalid("@:dir(foo)",msg)))
     }
   }
   
   it should "parse a directive with a missing optional default int attribute" in {
     new OptionalPositionalAttribute with TemplateParser {
-      Parsing ("aa @:dir bb") should produce (result(TemplateString("<>")))
+      run("aa @:dir bb", TemplateString("<>"))
     }
   }
   
   it should "parse a directive with one required named string attribute" in {
     new RequiredNamedAttribute with TemplateParser {
-      Parsing ("aa @:dir { name=foo } bb") should produce (result(TemplateString("foo")))
+      run("aa @:dir { name=foo } bb", TemplateString("foo"))
     }
   }
   
   it should "parse a directive with a named string attribute value in quotes" in {
     new RequiredNamedAttribute with TemplateParser {
-      Parsing ("""aa @:dir { name="foo bar" } bb""") should produce (result(TemplateString("foo bar")))
+      run("""aa @:dir { name="foo bar" } bb""", TemplateString("foo bar"))
     }
   }
   
@@ -216,13 +219,13 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new RequiredNamedAttribute with InvalidTemplateParser {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir",msg))))
+      run(input, TemplateElement(invalid("@:dir",msg)))
     }
   }
   
   it should "parse a directive with an optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      Parsing ("aa @:dir { name=5 } bb") should produce (result(TemplateString("5")))
+      run("aa @:dir { name=5 } bb", TemplateString("5"))
     }
   }
   
@@ -230,34 +233,34 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new OptionalNamedAttribute with InvalidTemplateParser {
       val input = "aa @:dir { name=foo } bb"
       val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir { name=foo }",msg))))
+      run(input, TemplateElement(invalid("@:dir { name=foo }",msg)))
     }
   }
   
   it should "parse a directive with a missing optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
-      Parsing ("aa @:dir bb") should produce (result(TemplateString("<>")))
+      run("aa @:dir bb", TemplateString("<>"))
     }
   }
 
   it should "parse a directive with the allAttributes combinator" in {
     new AllAttributes with TemplateParser {
-      Parsing ("aa @:dir { foo=Planet, bar=42 } bb") should produce (result(TemplateString("Planet 42")))
+      run("aa @:dir { foo=Planet, bar=42 } bb", TemplateString("Planet 42"))
     }
   }
   
   it should "parse a directive with a body" in {
     new RequiredBody with TemplateParser {
       val body = TemplateSpanSequence(TemplateString(" some "), TemplateString("value"), TemplateString(" text "))
-      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (result(body))
+      run("aa @:dir some ${ref} text @:@ bb", body)
     }
   }
   
   it should "support a directive with a nested pair of braces" in {
     new RequiredBody with TemplateParser {
       val body = TemplateSpanSequence(" some {ref} text ")
-      Parsing ("aa @:dir some {ref} text @:@ bb") should produce (result(body))
+      run("aa @:dir some {ref} text @:@ bb", body)
     }
   }
   
@@ -265,7 +268,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new RequiredBody with InvalidTemplateParser {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required body is missing"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir",msg))))
+      run(input, TemplateElement(invalid("@:dir",msg)))
     }
   }
 
@@ -273,7 +276,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new SeparatedBody with TemplateParser {
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:@ bb"""
       val body = TemplateSpanSequence(" aaa ", "foo", " bbb ", "baz", " ccc ")
-      Parsing (input) should produce (result(body))
+      run(input, body)
     }
   }
 
@@ -282,7 +285,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
       val src = input.slice(3, 36)
-      Parsing (input) should produce (result(TemplateElement(invalid(src,msg))))
+      run(input, TemplateElement(invalid(src,msg)))
     }
   }
 
@@ -291,7 +294,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
       val input = """aa @:dir aaa @:bar(baz) ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
       val src = input.slice(3, 31)
-      Parsing (input) should produce (result(TemplateElement(invalid(src,msg))))
+      run(input, TemplateElement(invalid(src,msg)))
     }
   }
 
@@ -300,34 +303,34 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:bar(baz) ddd @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
       val src = input.drop(3).dropRight(3)
-      Parsing (input) should produce (result(TemplateElement(invalid(src,msg))))
+      run(input, TemplateElement(invalid(src,msg)))
     }
   }
 
   it should "detect an orphaned separator directive" in new SeparatedBody with InvalidTemplateParser {
     val input = "aa @:foo bb"
     val msg = "Orphaned separator directive with name 'foo'"
-    Parsing (input) should produce (result(TemplateElement(invalid("@:foo",msg))))
+    run(input, TemplateElement(invalid("@:foo",msg)))
   }
   
   it should "parse a full directive spec with all elements present" in {
     new FullDirectiveSpec with TemplateParser {
       val body = TemplateSpanSequence("foo:str:11", " 1 ", "value", " 2 ")
-      Parsing ("aa @:dir(foo, 4) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb") should produce (result(body))
+      run("aa @:dir(foo, 4) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb", body)
     }
   }
 
   it should "parse a full directive spec with all elements present with attributes spanning three lines" in {
     new FullDirectiveSpec with TemplateParser {
       val body = TemplateSpanSequence("foo:str:11", " 1 ", "value", " 2 ")
-      Parsing ("aa @:dir(foo,4) { \nstrAttr=str\nintAttr=7\n } 1 ${ref} 2 @:@ bb") should produce (result(body))
+      run("aa @:dir(foo,4) { \nstrAttr=str\nintAttr=7\n } 1 ${ref} 2 @:@ bb", body)
     }
   }
   
   it should "parse a full directive spec with all optional elements missing" in {
     new FullDirectiveSpec with TemplateParser {
       val body = TemplateSpanSequence("foo:..:4", " 1 ", "value", " 2 ")
-      Parsing ("aa @:dir(foo,4) 1 ${ref} 2 @:@ bb") should produce (result(body))
+      run("aa @:dir(foo,4) 1 ${ref} 2 @:@ bb", body)
     }
   }
   
@@ -335,20 +338,20 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new FullDirectiveSpec with InvalidTemplateParser {
       val input = "aa @:dir { strAttr=str } bb"
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:dir { strAttr=str }",msg))))
+      run(input, TemplateElement(invalid("@:dir { strAttr=str }",msg)))
     }
   }
   
   it should "parse a directive with a custom body parser" in {
     new DirectiveWithCustomBodyParser with TemplateParser {
       val body = TemplateSpanSequence("me ", "value", " text ")
-      Parsing ("aa @:dir some ${ref} text @:@ bb") should produce (result(body))
+      run("aa @:dir some ${ref} text @:@ bb", body)
     }
   }
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
-      Parsing ("aa @:dir text @:@ bb") should produce (result(TemplateString(" text /")))
+      run("aa @:dir text @:@ bb", TemplateString(" text /"))
     }
   }
   
@@ -356,7 +359,7 @@ class TemplateDirectiveAPISpec extends AnyFlatSpec
     new OptionalNamedAttribute with InvalidTemplateParser {
       val input = "aa @:foo {name=foo} bb"
       val msg = "One or more errors processing directive 'foo': No template directive registered with name: foo"
-      Parsing (input) should produce (result(TemplateElement(invalid("@:foo {name=foo}",msg))))
+      run(input, TemplateElement(invalid("@:foo {name=foo}",msg)))
     }
   }
   
