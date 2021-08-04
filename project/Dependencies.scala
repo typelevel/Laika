@@ -11,6 +11,7 @@ object Dependencies {
     val catsEffect = "3.2.1"
     val http4s     = "0.23.0"
     
+    val munit      = "0.7.27"
     val scalatest  = "3.2.9"
     val jTidy      = "r938"
     val fop        = "2.6"

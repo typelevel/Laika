@@ -62,6 +62,7 @@ lazy val noPublishSettings = Seq(
 )
 
 val scalatest  = "org.scalatest"          %% "scalatest"   % versions.scalatest % "test"
+val munit      = "org.scalameta"          %% "munit"       % versions.munit     % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % versions.jTidy     % "test"
 
 val catsEffect = "org.typelevel"          %% "cats-effect" % versions.catsEffect
@@ -103,6 +104,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit"     % versions.munit     % "test",
       "org.scalatest" %%% "scalatest" % versions.scalatest % "test",
       "org.typelevel" %%% "cats-core" % versions.catsCore
     )
@@ -112,6 +114,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
   )
   .jsSettings(
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13)
   )
 
