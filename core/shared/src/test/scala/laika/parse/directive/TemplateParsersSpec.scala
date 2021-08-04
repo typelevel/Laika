@@ -20,40 +20,34 @@ import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.config.Key
 import laika.parse.Parser
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import laika.parse.helper.MigrationFlatSpec
 
-class TemplateParsersSpec extends AnyFlatSpec 
-  with Matchers 
-  with ParseResultHelpers
-  with DefaultParserHelpers[List[Span]] 
-  with TestSourceBuilders {
+class TemplateParsersSpec extends MigrationFlatSpec
+                             with TestSourceBuilders {
 
 
-  val templateParsers = new TemplateParsers(Map())
+  val defaultParser: Parser[List[Span]] = new TemplateParsers(Map()).templateSpans
 
-  val defaultParser: Parser[List[Span]] = templateParsers.templateSpans
-  
+  def parse (input: String): Either[String, List[Span]] = defaultParser.parse(input).toEither
+
+  def result (spans: Span*): Either[String, List[Span]] = Right(spans.toList)
 
   
   "The template parser" should "parse content without any markup as plain text" in {
-    
-    Parsing ("some text") should produce (spans(TemplateString("some text")))
-    
+    assertEquals(parse("some text"), result(TemplateString("some text")))
   }
   
   
   "The context reference parser" should "parse a reference as the only template content" in {
     val input = "${document.content}"
-    Parsing (input) should produce (spans(TemplateContextReference(Key("document","content"), required = true, generatedSource(input))))
+    assertEquals(parse(input), result(TemplateContextReference(Key("document","content"), required = true, generatedSource(input))))
     
   }
   
   it should "parse a reference at the beginning of a template" in {
     val ref = "${document.content}"
     val input = s"$ref some text"
-    Parsing (input) should produce (spans(
+    assertEquals(parse(input), result(
       TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
       TemplateString(" some text")
     ))
@@ -62,7 +56,7 @@ class TemplateParsersSpec extends AnyFlatSpec
   it should "parse a reference at the end of a template" in {
     val ref = "${document.content}"
     val input = s"some text $ref"
-    Parsing (input) should produce (spans(
+    assertEquals(parse(input), result(
       TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = true, source(ref, input))
     ))
@@ -72,7 +66,7 @@ class TemplateParsersSpec extends AnyFlatSpec
   it should "parse a reference in the middle of a template" in {
     val ref = "${document.content}"
     val input = s"some text $ref some more"
-    Parsing (input) should produce (spans(
+    assertEquals(parse(input), result(
       TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
       TemplateString(" some more")
@@ -82,7 +76,7 @@ class TemplateParsersSpec extends AnyFlatSpec
   it should "parse an optional reference" in {
     val ref = "${?document.content}"
     val input = s"some text $ref some more"
-    Parsing (input) should produce (spans(
+    assertEquals(parse(input), result(
       TemplateString("some text "), 
       TemplateContextReference(Key("document","content"), required = false, source(ref, input)), 
       TemplateString(" some more")
@@ -97,7 +91,7 @@ class TemplateParsersSpec extends AnyFlatSpec
 
     val ref = "${document = content}"
     val input = s"some text $ref some more"
-    Parsing (input) should produce (spans(TemplateString("some text "), 
+    assertEquals(parse(input), result(TemplateString("some text "), 
       TemplateElement(InvalidSpan(errorMsg, source(ref, input))), 
       TemplateString(" some more")
     ))
