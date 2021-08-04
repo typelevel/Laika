@@ -19,12 +19,10 @@ package laika.api
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class RenderAPISpec extends AnyFlatSpec 
-                    with Matchers
-                    with ParagraphCompanionShortcuts { self =>
+class RenderAPISpec extends FunSuite
+                    with ParagraphCompanionShortcuts {
 
   
   val rootElem = RootElement(p("aaö"), p("bbb"))
@@ -35,15 +33,14 @@ class RenderAPISpec extends AnyFlatSpec
       |. Paragraph - Spans: 1
       |. . Text - 'bbb'""".stripMargin
 
-  "The Render API" should "render a document to a string" in {
-    Renderer.of(AST).build.render(rootElem) should be (expected)
+  test("document to string") {
+    assertEquals(Renderer.of(AST).build.render(rootElem), expected)
   }
 
-  it should "allow to override the default renderer for specific element types" in {
+  test("override default renderer for specific element types") {
     val renderer = Renderer.of(AST).rendering { case (_, Text(content,_)) => s"String - '$content'" }.build
     val modifiedResult = expected.replace("Text", "String")
-    (renderer render rootElem) should be (modifiedResult)
+    assertEquals(renderer.render(rootElem), modifiedResult)
   }
 
 }
-  
