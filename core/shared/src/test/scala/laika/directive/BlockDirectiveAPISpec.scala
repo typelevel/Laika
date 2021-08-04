@@ -17,25 +17,23 @@
 package laika.directive
 
 import cats.implicits._
-import laika.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
+import laika.config.ConfigBuilder
 import laika.directive.std.StandardDirectives
-import laika.parse.{BlockSource, Parser, SourceFragment}
-import laika.parse.combinator.Parsers
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.markup.RootParserProvider
 import laika.parse.builders._
+import laika.parse.combinator.Parsers
+import laika.parse.helper.MigrationFlatSpec
 import laika.parse.implicits._
+import laika.parse.markup.RootParserProvider
+import laika.parse.{BlockSource, Parser, SourceFragment}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.Assertion
 
 
-class BlockDirectiveAPISpec extends AnyFlatSpec
-                            with Matchers
+class BlockDirectiveAPISpec extends MigrationFlatSpec
                             with ParagraphCompanionShortcuts
                             with TestSourceBuilders {
 
@@ -146,8 +144,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
     
   }
   
-  trait BlockParser extends ParseResultHelpers
-                          with DefaultParserHelpers[RootElement] {
+  trait BlockParser {
 
     def directive: Blocks.Directive
     
@@ -170,6 +167,8 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))
 
+    def run (resultBlocks: Block*): Assertion =
+      assertEquals(defaultParser.parse(input).toEither, Right(RootElement(resultBlocks)))
   }
 
 
@@ -182,7 +181,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
+      run(p("aa"), p("foo"), p("bb"))
     }
   }
   
@@ -192,7 +191,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       |@:dir
       |
       |bb""".stripMargin
-    Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
+    run(p("aa"), p("foo"), p("bb"))
   }
   
   it should "parse a directive with one required default string attribute" in {
@@ -202,7 +201,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir(foo)
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
+      run(p("aa"), p("foo"), p("bb"))
     }
   }
 
@@ -214,7 +213,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir",msg), p("bb")))
+      run(p("aa"), invalid("@:dir",msg), p("bb"))
     }
   }
 
@@ -225,7 +224,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir(5)
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
+      run(p("aa"), p("5"), p("bb"))
     }
   }
 
@@ -237,7 +236,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir(foo)",msg), p("bb")))
+      run(p("aa"), invalid("@:dir(foo)",msg), p("bb"))
     }
   }
 
@@ -248,7 +247,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
+      run(p("aa"), p("<>"), p("bb"))
     }
   }
 
@@ -259,7 +258,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir { name=foo }
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
+      run(p("aa"), p("foo"), p("bb"))
     }
   }
 
@@ -270,7 +269,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir { name="foo bar" }
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo bar"), p("bb")))
+      run(p("aa"), p("foo bar"), p("bb"))
     }
   }
 
@@ -282,7 +281,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir",msg), p("bb")))
+      run(p("aa"), invalid("@:dir",msg), p("bb"))
     }
   }
 
@@ -293,7 +292,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir { name=5 }
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
+      run(p("aa"), p("5"), p("bb"))
     }
   }
 
@@ -305,7 +304,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir { name=foo }",msg), p("bb")))
+      run(p("aa"), invalid("@:dir { name=foo }",msg), p("bb"))
     }
   }
 
@@ -316,8 +315,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
-      Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
+      run(p("aa"), p("<>"), p("bb"))
     }
   }
 
@@ -328,7 +326,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:dir { foo=Planet, bar=42 }
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("Planet 42"), p("bb")))
+      run(p("aa"), p("Planet 42"), p("bb"))
     }
   }
 
@@ -343,7 +341,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |}
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("Planet 42"), p("bb")))
+      run(p("aa"), p("Planet 42"), p("bb"))
     }
   }
 
@@ -359,7 +357,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(p(Text("some\nvalue\ntext")))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -377,7 +375,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(p(Text("some\nvalue\ntext")))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -395,7 +393,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(p(Text("some\nvalue\ntext")))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -408,8 +406,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
                     |@:@
                     |
                     |bb""".stripMargin
-      val msg = "One or more errors processing directive 'dir': required body is missing"
-      Parsing (input) should produce (root(p("aa"), BlockSequence.empty, p("bb")))
+      run(p("aa"), BlockSequence.empty, p("bb"))
     }
   }
 
@@ -421,7 +418,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required body is missing"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir",msg), p("bb")))
+      run(p("aa"), invalid("@:dir",msg), p("bb"))
     }
   }
 
@@ -441,7 +438,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(p("aaa"),p("foo"),p("bbb"),p("baz"),p("ccc"))
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -461,7 +458,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       |bb""".stripMargin
     val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
     val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
-    Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+    run(p("aa"), invalid(src,msg), p("bb"))
   }
 
   it should "detect a directive with a separator not meeting the min count requirements" in {
@@ -478,7 +475,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
       val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
-      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+      run(p("aa"), invalid(src,msg), p("bb"))
     }
   }
 
@@ -503,7 +500,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
       val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
-      Parsing (input) should produce (root(p("aa"), invalid(src,msg), p("bb")))
+      run(p("aa"), invalid(src,msg), p("bb"))
     }
   }
   
@@ -514,7 +511,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
       |
       |bb""".stripMargin
     val msg = "Orphaned separator directive with name 'foo'"
-    Parsing (input) should produce (root(p("aa"), invalid("@:foo",msg), p("bb")))
+    run(p("aa"), invalid("@:foo",msg), p("bb"))
   }
 
   it should "parse a full directive spec with all elements present" in {
@@ -532,7 +529,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         p("foo:str:11"),
         p(Text("1 value 2"))
       )
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -554,7 +551,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         p("foo:str:11"),
         p(Text("1 value 2"))
       )
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -573,7 +570,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         p("foo:..:4"),
         p(Text("1 value 2"))
       )
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -592,7 +589,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         p("foo:..:4"),
         p(Text("1 value 2"))
       )
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -604,7 +601,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
-      Parsing (input) should produce (root(p("aa"), invalid("@:dir { strAttr=str }",msg), p("bb")))
+      run(p("aa"), invalid("@:dir { strAttr=str }",msg), p("bb"))
     }
   }
 
@@ -618,7 +615,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence("e value text")
-      Parsing (input) should produce (root(p("aa"), body, p("bb")))
+      run(p("aa"), body, p("bb"))
     }
   }
 
@@ -631,7 +628,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |@:@
         |
         |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("text/"), p("bb")))
+      run(p("aa"), p("text/"), p("bb"))
     }
   }
   
@@ -643,7 +640,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive 'foo': No block directive registered with name: foo"
-      Parsing (input) should produce (root(p("aa"), invalid("@:foo { name=foo }",msg), p("bb")))
+      run(p("aa"), invalid("@:foo { name=foo }",msg), p("bb"))
     }
   }
 
@@ -658,7 +655,7 @@ class BlockDirectiveAPISpec extends AnyFlatSpec
                     |@:@
                     |
                     |bb""".stripMargin
-      Parsing (input) should produce (root(p("aa"), p("foo").withStyle("bar"), p("bb")))
+      run(p("aa"), p("foo").withStyle("bar"), p("bb"))
     }
   }
   
