@@ -16,30 +16,30 @@
 
 package laika.parse.hocon
 
-import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
+import laika.parse.helper.MigrationSpec
 import laika.parse.hocon.HoconParsers._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers with ResultBuilders {
+class HoconJsonSpec extends MigrationSpec with ResultBuilders {
 
   def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+
+  def result (fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(ObjectBuilderValue(fields))
   
   "The object parser" should {
 
     "parse an empty object in" in {
-      Parsing ("{ }") using objectValue should produce (ObjectBuilderValue(Nil): ConfigBuilderValue)
+      assertEquals(objectValue.parse("{ }").toEither, result())
     }
 
     "parse an object with one property in" in {
-      Parsing ("""{ "a": "foo" }""") using objectValue should produce (ObjectBuilderValue(Seq(BuilderField("a", stringValue("foo")))): ConfigBuilderValue)
+      assertEquals(objectValue.parse("""{ "a": "foo" }""").toEither, result(BuilderField("a", stringValue("foo"))))
     }
 
     "parse an object with two properties in" in {
-      Parsing ("""{ "a": "foo", "b": "bar" }""") using objectValue should produce (ObjectBuilderValue(Seq(f("a","foo"),f("b","bar"))): ConfigBuilderValue)
+      assertEquals(objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither, result(f("a","foo"),f("b","bar")))
     }
 
     "parse an object with all property types" in {
@@ -52,7 +52,7 @@ class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers wi
           |  "arr": [ 1, 2, "bar" ],
           |  "obj": { "inner": "xx", "num": 9.5 }
           |}""".stripMargin
-      Parsing (input) using objectValue should produce (ObjectBuilderValue(Seq(
+      assertEquals(objectValue.parse(input).toEither, result(
         BuilderField("str", stringValue("foo")),
         BuilderField("int", longValue(27)),
         BuilderField("null", nullValue),
@@ -64,7 +64,7 @@ class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers wi
           BuilderField("inner", stringValue("xx")),
           BuilderField("num", doubleValue(9.5))
         )))
-      )): ConfigBuilderValue)
+      ))
     }
 
   }
@@ -72,23 +72,23 @@ class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers wi
   "The string parser" should {
 
     "parse an empty string" in {
-      Parsing ("\"\"") using quotedString should produce (ValidStringValue(""): StringBuilderValue)
+      assertEquals(quotedString.parse("\"\"").toEither, Right(ValidStringValue("")))
     }
 
     "parse an string containing only whitespace" in {
-      Parsing ("\"  \"") using quotedString should produce (ValidStringValue("  "): StringBuilderValue)
+      assertEquals(quotedString.parse("\"  \"").toEither, Right(ValidStringValue("  ")))
     }
     
     "parse a plain string" in {
-      Parsing ("\"fooz\"") using quotedString should produce (ValidStringValue("fooz"): StringBuilderValue)
+      assertEquals(quotedString.parse("\"fooz\"").toEither, Right(ValidStringValue("fooz")))
     }
 
     "parse a new line character" in {
-      Parsing ("\"foo\\nbar\"") using quotedString should produce (ValidStringValue("foo\nbar"): StringBuilderValue)
+      assertEquals(quotedString.parse("\"foo\\nbar\"").toEither, Right(ValidStringValue("foo\nbar")))
     }
 
     "parse a unicode character reference" in {
-      Parsing ("\"foo \\u007B bar\"") using quotedString should produce (ValidStringValue("foo { bar"): StringBuilderValue)
+      assertEquals(quotedString.parse("\"foo \\u007B bar\"").toEither, Right(ValidStringValue("foo { bar")))
     }
     
   }
@@ -96,23 +96,23 @@ class HoconJsonSpec extends AnyWordSpec with Matchers with ParseResultHelpers wi
   "The number parser" should {
     
     "parse a long" in {
-      Parsing ("123") using numberValue should produce (longValue(123): ConfigBuilderValue)
+      assertEquals(numberValue.parse("123").toEither, Right(longValue(123)))
     }
 
     "parse a signed long" in {
-      Parsing ("-123") using numberValue should produce (longValue(-123): ConfigBuilderValue)
+      assertEquals(numberValue.parse("-123").toEither, Right(longValue(-123)))
     }
 
     "parse a double" in {
-      Parsing ("123.5") using numberValue should produce (doubleValue(123.5): ConfigBuilderValue)
+      assertEquals(numberValue.parse("123.5").toEither, Right(doubleValue(123.5)))
     }
 
     "parse a double with an exponent" in {
-      Parsing ("123.5E10") using numberValue should produce (doubleValue(1.235E12): ConfigBuilderValue)
+      assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235E12)))
     }
 
     "parse a double with a negative exponent" in {
-      Parsing ("123.5E-2") using numberValue should produce (doubleValue(1.235): ConfigBuilderValue)
+      assertEquals(numberValue.parse("123.5E-2").toEither, Right(doubleValue(1.235)))
     }
   }
   
