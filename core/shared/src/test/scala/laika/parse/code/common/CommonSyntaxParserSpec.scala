@@ -20,22 +20,18 @@ import cats.data.NonEmptyList
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.text.CharGroup
 import laika.parse.builders._
+import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.helper.{MigrationSpec, ParseResultHelpers}
 import laika.parse.implicits._
+import laika.parse.text.CharGroup
 import org.scalatest.Assertion
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class CommonSyntaxParserSpec extends AnyWordSpec 
-                             with Matchers
-                             with ParseResultHelpers
-                             with DefaultParserHelpers[Seq[CodeSpan]] {
+class CommonSyntaxParserSpec extends MigrationSpec
+                             with ParseResultHelpers {
 
   
   val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)
@@ -76,15 +72,18 @@ class CommonSyntaxParserSpec extends AnyWordSpec
   }.rootParser
   
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()
-  
+
+  def run (input: String, spans: CodeSpan*): Assertion =
+    assertEquals(defaultParser.parse(input).toEither, Right(spans.toList))
+    
   
   "The identifier parser" should {
 
-    def test(id: String, category: CodeCategory): Assertion = Parsing(s"+- $id *^") should produce (Seq(
+    def test(id: String, category: CodeCategory): Assertion = run(s"+- $id *^", 
       CodeSpan("+- "),
       CodeSpan(id, category),
       CodeSpan(" *^")
-    ))
+    )
     
     "parse an identifier starting with a lower-case letter" in {
       test("id", CodeCategory.Identifier)
@@ -115,13 +114,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
   
   "The numeric literal parser" should {
     
-    def test(numberLiteral: String): Assertion = Parsing(s"one1 $numberLiteral three3") should produce (Seq(
+    def test(numberLiteral: String): Assertion = run(s"one1 $numberLiteral three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(numberLiteral, CodeCategory.NumberLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
-    ))
+    )
 
     "parse a binary literal" in {
       test("0b10011011")
@@ -212,35 +211,35 @@ class CommonSyntaxParserSpec extends AnyWordSpec
     }
     
     "not recognize a number immediately followed by a letter" in {
-      Parsing(s"one1 123bb three3") should produce (Seq(
+      run(s"one1 123bb three3",
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" 123bb "),
         CodeSpan("three3", CodeCategory.Identifier)
-      ))
+      )
     }
 
     "recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)" in {
-      createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3") should produce (Seq(
+      assertEquals(createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3").toEither, Right(Seq( 
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("123", CodeCategory.NumberLiteral),
         CodeSpan("bb", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("three3", CodeCategory.Identifier)
-      ))
+      )))
     }
     
   }
   
   "The string literal parser" should {
 
-    def test(literal: String): Assertion = Parsing(s"one1 $literal three3") should produce (Seq(
+    def test(literal: String): Assertion = run(s"one1 $literal three3", 
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(literal, CodeCategory.StringLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
-    ))
+    )
 
     "parse a single-line literal" in {
       test("'foo'")
@@ -254,7 +253,7 @@ class CommonSyntaxParserSpec extends AnyWordSpec
 
   "The embedded parsers for the string literal parser" should {
 
-    def test(category: CodeCategory, text: String): Assertion = Parsing(s"one1 'aa $text bb' three3") should produce (Seq(
+    def test(category: CodeCategory, text: String): Assertion = run(s"one1 'aa $text bb' three3", 
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("'aa ", CodeCategory.StringLiteral),
@@ -262,7 +261,7 @@ class CommonSyntaxParserSpec extends AnyWordSpec
       CodeSpan(" bb'", CodeCategory.StringLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
-    ))
+    )
     
     def testEscape(escape: String): Assertion = test(CodeCategory.EscapeSequence, escape)
     def testSubstitution(subst: String): Assertion = test(CodeCategory.Substitution, subst)
@@ -299,13 +298,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
 
   "The char literal parser" should {
 
-    def test(literal: String): Assertion = Parsing(s"one1 $literal three3") should produce (Seq(
+    def test(literal: String): Assertion = run(s"one1 $literal three3", 
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(literal, CodeCategory.CharLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
-    ))
+    )
 
     "parse a literal" in {
       test("'c'")
@@ -315,7 +314,7 @@ class CommonSyntaxParserSpec extends AnyWordSpec
 
   "The embedded parsers for the char literal parser" should {
 
-    def test (text: String): Assertion = Parsing(s"one1 '$text' three3") should produce(Seq(
+    def test (text: String): Assertion = run(s"one1 '$text' three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("'", CodeCategory.CharLiteral),
@@ -323,7 +322,7 @@ class CommonSyntaxParserSpec extends AnyWordSpec
       CodeSpan("'", CodeCategory.CharLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
-    ))
+    )
 
     "parse a single character escape" in {
       test("\\t")
@@ -346,17 +345,17 @@ class CommonSyntaxParserSpec extends AnyWordSpec
   "The regex literal parser" should {
 
     "parse a regex literal" in {
-      Parsing(s"one1 /[a-z]*/ three3") should produce (Seq(
+      run(s"one1 /[a-z]*/ three3", 
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("/[a-z]*/", CodeCategory.RegexLiteral),
         CodeSpan(" "),
         CodeSpan("three3", CodeCategory.Identifier)
-      ))
+      )
     }
 
     "parse a regex literal with an escape sequence" in {
-      Parsing(s"one1 /[\\\\]*/ three3") should produce (Seq(
+      run(s"one1 /[\\\\]*/ three3", 
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("/[", CodeCategory.RegexLiteral),
@@ -364,17 +363,17 @@ class CommonSyntaxParserSpec extends AnyWordSpec
         CodeSpan("]*/", CodeCategory.RegexLiteral),
         CodeSpan(" "),
         CodeSpan("three3", CodeCategory.Identifier)
-      ))
+      )
     }
 
     "parse a regex literal with flags" in {
-      Parsing(s"one1 /[a-z]*/gi three3") should produce (Seq(
+      run(s"one1 /[a-z]*/gi three3", 
         CodeSpan("one1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("/[a-z]*/gi", CodeCategory.RegexLiteral),
         CodeSpan(" "),
         CodeSpan("three3", CodeCategory.Identifier)
-      ))
+      )
     }
 
   }
@@ -388,14 +387,14 @@ class CommonSyntaxParserSpec extends AnyWordSpec
           |line2 // comment
           |line3""".stripMargin
       
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("line1", CodeCategory.Identifier),
         CodeSpan("\n"),
         CodeSpan("line2", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("// comment\n", CodeCategory.Comment),
         CodeSpan("line3", CodeCategory.Identifier),
-      ))
+      )
     }
 
     "parse a multi-line comment" in {
@@ -405,13 +404,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
           |mar
           |maz */ line3""".stripMargin
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("line1", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("/* moo\nmar\nmaz */", CodeCategory.Comment),
         CodeSpan(" "),
         CodeSpan("line3", CodeCategory.Identifier),
-      ))
+      )
     }
     
   }
@@ -421,19 +420,19 @@ class CommonSyntaxParserSpec extends AnyWordSpec
     "parse keywords" in {
       val input = "one foo three"
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("one", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("foo", CodeCategory.Keyword),
         CodeSpan(" "),
         CodeSpan("three", CodeCategory.Identifier),
-      ))
+      )
     }
     
     "ignore keywords when they are followed by more letters or digits" in {
       val input = "one foo1 bar2 four"
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("one", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("foo1", CodeCategory.Identifier),
@@ -441,19 +440,19 @@ class CommonSyntaxParserSpec extends AnyWordSpec
         CodeSpan("bar2", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("four", CodeCategory.Identifier),
-      ))
+      )
     }
 
     "ignore keywords when they are preceded by letters or digits" in {
       val input = "one 1foo bbar four"
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("one", CodeCategory.Identifier),
         CodeSpan(" 1foo "),
         CodeSpan("bbar", CodeCategory.Identifier),
         CodeSpan(" "),
         CodeSpan("four", CodeCategory.Identifier),
-      ))
+      )
     }
     
   }
@@ -466,13 +465,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
           |===
           |line3""".stripMargin
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("line1", CodeCategory.Identifier),
         CodeSpan("\n"),
         CodeSpan("===", CodeCategory.Markup.Fence),
         CodeSpan("\n"),
         CodeSpan("line3", CodeCategory.Identifier),
-      ))
+      )
     }
 
     "recognize input at the start of the input" in {
@@ -481,13 +480,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
           |line2
           |line3""".stripMargin
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("===", CodeCategory.Markup.Fence),
         CodeSpan("\n"),
         CodeSpan("line2", CodeCategory.Identifier),
         CodeSpan("\n"),
         CodeSpan("line3", CodeCategory.Identifier),
-      ))
+      )
     }
 
     "not recognize input in the middle of a line" in {
@@ -496,13 +495,13 @@ class CommonSyntaxParserSpec extends AnyWordSpec
           |line2 ===
           |line3""".stripMargin
 
-      Parsing(input) should produce (Seq(
+      run(input, 
         CodeSpan("line1", CodeCategory.Identifier),
         CodeSpan("\n"),
         CodeSpan("line2", CodeCategory.Identifier),
         CodeSpan(" ===\n"),
         CodeSpan("line3", CodeCategory.Identifier),
-      ))
+      )
     }
     
   }

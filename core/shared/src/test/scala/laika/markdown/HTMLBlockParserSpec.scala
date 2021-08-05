@@ -18,19 +18,15 @@ package laika.markdown
 
 import laika.api.builder.OperationConfig
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.ast.{RootElement, Text}
+import laika.ast.{Block, RootElement, Text}
 import laika.format.Markdown
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement}
 import laika.parse.Parser
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.RootParser
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.Assertion
  
-class HTMLBlockParserSpec extends AnyFlatSpec 
-                          with Matchers 
-                          with ParseResultHelpers
-                          with DefaultParserHelpers[RootElement] 
+class HTMLBlockParserSpec extends MigrationFlatSpec
                           with ParagraphCompanionShortcuts 
                           with HTMLModelBuilder {
 
@@ -39,6 +35,9 @@ class HTMLBlockParserSpec extends AnyFlatSpec
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
+  def run (input: String, blocks: Block*): Assertion =
+    assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
+  
   
   "The HTML block parser" should "parse a block level HTML element with a nested element and text content" in {
     val input = """aaa
@@ -50,7 +49,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
       |bbb""".stripMargin
     val inner = element("span", Text("foo"))
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
+    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
   
   it should "ignore Markdown markup inside a block level HTML element" in {
@@ -63,7 +62,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
       |bbb""".stripMargin
     val inner = element("span", Text("*foo*"))
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
+    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
 
   it should "recognize a script tag inside a block level HTML element" in {
@@ -79,7 +78,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
                   |bbb""".stripMargin
     val inner = HTMLScriptElement(Nil, "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
+    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
 
   it should "recognize a script tag with attributes inside a block level HTML element" in {
@@ -98,7 +97,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
       HTMLAttribute("defer", List(),None)
     ), "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
+    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
   
   it should "ignore elements which are not listed as block-level elements" in {
@@ -111,7 +110,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
       |bbb""".stripMargin
     val inner = element("span", Text("foo"))
     val outer = element("span", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), p(outer), p("bbb")))
+    run(input, p("aaa"), p(outer), p("bbb"))
   }
   
   it should "ignore elements which are not at the very start of a block" in {
@@ -124,7 +123,7 @@ class HTMLBlockParserSpec extends AnyFlatSpec
       |bbb""".stripMargin
     val inner = element("span", Text("foo"))
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    Parsing (input) should produce (root(p("aaa"), p(Text("xx"), outer), p("bbb")))
+    run(input, p("aaa"), p(Text("xx"), outer), p("bbb"))
   }
   
   
