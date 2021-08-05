@@ -22,21 +22,15 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BundleProvider}
 import laika.format.ReStructuredText
 import laika.parse.Parser
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.RootParser
 import laika.parse.text.TextParsers
 import laika.rst.ast.{DoctestBlock, OverlineAndUnderline, Underline}
 import laika.rst.ext.Directives.DirectivePart
 import laika.rst.ext.TextRoles.RoleDirectivePart
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.Assertion
     
-class BlockParsersSpec extends AnyFlatSpec 
-  with Matchers 
-  with ParseResultHelpers
-  with DefaultParserHelpers[RootElement] 
-  with ParagraphCompanionShortcuts
-  with TestSourceBuilders {
+class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts with TestSourceBuilders {
 
 
   val interruptions = BundleProvider.forMarkupParser(
@@ -62,10 +56,14 @@ class BlockParsersSpec extends AnyFlatSpec
     DecoratedHeader(deco, List(Text(content)), source(fragment, input))
 
 
+  def run (input: String, blocks: Block*): Assertion =
+    assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
+  
+
   "The doctest parser" should "parse a doctest block" in {
     val input = """>>> print 'this is a doctest block'
       |this is a doctest block""".stripMargin
-    Parsing (input) should produce (root (DoctestBlock(input.drop(4))))
+    run(input, DoctestBlock(input.drop(4)))
   }
   
   
@@ -75,21 +73,21 @@ class BlockParsersSpec extends AnyFlatSpec
       |::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("Literal Block"))  
   }
   
   it should "parse an indented literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("Literal Block"))  
   }
   
   it should "parse an indented literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("Literal Block"))  
   }
   
   it should "parse a quoted literal block in expanded form" in {
@@ -98,21 +96,21 @@ class BlockParsersSpec extends AnyFlatSpec
       |::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("> Literal Block"))  
   }
   
   it should "parse a quoted literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("> Literal Block"))  
   }
   
   it should "parse a quoted literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    run(input, p("Paragraph:"), LiteralBlock("> Literal Block"))  
   }
   
   it should "parse an indented literal block with blank lines" in {
@@ -121,7 +119,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |    Line 1
       |
       |  Line 2""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2")))  
+    run(input, p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2"))  
   }
   
   it should "parse a quoted literal block with blank lines" in {
@@ -130,7 +128,7 @@ class BlockParsersSpec extends AnyFlatSpec
       |>   Line 1
       |>
       |>  Line 2""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock(">   Line 1\n>\n>  Line 2")))  
+    run(input, p("Paragraph:"), LiteralBlock(">   Line 1\n>\n>  Line 2"))  
   }
   
   
@@ -138,14 +136,14 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """ Paragraph 1
       |
       | Paragraph 2""".stripMargin
-    Parsing (input) should produce (root (QuotedBlock(p("Paragraph 1"), p("Paragraph 2"))))  
+    run(input, QuotedBlock(p("Paragraph 1"), p("Paragraph 2")))  
   }
   
   it should "parse block quote with an attribution" in {
     val input = """ Paragraph 1
       |
       | -- attribution""".stripMargin
-    Parsing (input) should produce (root(QuotedBlock(List(p("Paragraph 1")), List(Text("attribution")))))
+    run(input, QuotedBlock(List(p("Paragraph 1")), List(Text("attribution"))))
   }
   
   
@@ -153,14 +151,14 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """Paragraph
       |
       |=======""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph"), Rule()))
+    run(input, p("Paragraph"), Rule())
   }
   
   it should "ignore lines shorter than 4 characters" in {
     val input = """Paragraph
       |
       |===""".stripMargin
-    Parsing (input) should produce (root (p("Paragraph"), p("===")))
+    run(input, p("Paragraph"), p("==="))
   }
   
   def ilt (id: String = "header") = InternalLinkTarget(Id(id))
@@ -169,13 +167,13 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ulol('='),"Header", input)))
+    run(input, dh(ulol('='),"Header", input))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (root (dh(ul('='),"Header", input)))
+    run(input, dh(ul('='),"Header", input))
   }
   
   it should "parse headers with varying levels" in {
@@ -196,25 +194,25 @@ class BlockParsersSpec extends AnyFlatSpec
       |$h3
       |
       |$h4""".stripMargin
-    Parsing (input) should produce (root(
+    run(input,
       dh(ulol('='),"Header 1", h1, input), 
       dh(ul('='),"Header 2", h2, input), 
       dh(ul('-'),"Header 3", h3, input), 
       dh(ul('='),"Header 2b", h4, input)
-    ))
+    )
   }
   
   it should "ignore headers where the underline is shorter than the text" in {
     val input = """Header
       |=====""".stripMargin
-    Parsing (input) should produce (root (p("Header\n=====")))
+    run(input, p("Header\n====="))
   }
   
   it should "ignore headers where the underline does not have the same length as the overline" in {
     val input = """=======
       |Header
       |========""".stripMargin
-    Parsing (input) should produce (root (p("=======\nHeader\n========")))
+    run(input, p("=======\nHeader\n========"))
   }
   
   
@@ -222,7 +220,7 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = """.. _target:
       |
       |Text""".stripMargin
-    Parsing (input) should produce (root (Paragraph(List(Text("Text")), Id("target"))))
+    run(input, Paragraph(List(Text("Text")), Id("target")))
   }
   
   it should "not apply an internal link target to the following regular block when that already has an id" in {
@@ -231,9 +229,9 @@ class BlockParsersSpec extends AnyFlatSpec
     val input = s""".. _target:
       |
       |$header""".stripMargin
-    Parsing (input) should produce (root(
+    run(input,
       DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),Text("Header")), source(header, input))
-    ))  
+    )
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {
@@ -241,23 +239,29 @@ class BlockParsersSpec extends AnyFlatSpec
       |.. _target2:
       |
       |Text""".stripMargin
-    Parsing (input) should produce (root (LinkAlias("target1", "target2"), 
-                                         Paragraph(List(Text("Text")), Id("target2"))))
+    run(input, 
+      LinkAlias("target1", "target2"),
+      Paragraph(List(Text("Text")), Id("target2"))
+    )
   }
   
   it should "treat an internal link target followed by an external link target as an external link target" in {
     val input = """.. _target1:
       |.. _target2: http://www.foo.com""".stripMargin
-    Parsing (input) should produce (root (LinkDefinition("target1",ExternalTarget("http://www.foo.com")), 
-                                          LinkDefinition("target2",ExternalTarget("http://www.foo.com"))))
+    run(input, 
+      LinkDefinition("target1",ExternalTarget("http://www.foo.com")),
+      LinkDefinition("target2",ExternalTarget("http://www.foo.com"))
+    )
   }
 
   it should "treat an internal reference followed by an internal link target as two internal link targets" in {
     val input = """.. _target1:
                   |.. _target2: ../foo/bar.md#xy""".stripMargin
     val path = RelativePath.parse("../foo/bar.md#xy")
-    Parsing (input) should produce (root (LinkDefinition("target1", InternalTarget(path)),
-      LinkDefinition("target2", InternalTarget(path))))
+    run(input, 
+      LinkDefinition("target1", InternalTarget(path)),
+      LinkDefinition("target2", InternalTarget(path))
+    )
   }
   
   "The paragraph parser" should "support a parser extension that can interrupt paragraphs" in {
@@ -265,7 +269,7 @@ class BlockParsersSpec extends AnyFlatSpec
                   |£££
                   |line 2
                   |line 3""".stripMargin
-    Parsing (input) should produce (root(BlockSequence(p("line 1"), PageBreak()), p("line 2\nline 3")))
+    run(input, BlockSequence(p("line 1"), PageBreak()), p("line 2\nline 3"))
   }
   
 }

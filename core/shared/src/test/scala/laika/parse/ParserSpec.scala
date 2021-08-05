@@ -19,7 +19,7 @@ package laika.parse
 import laika.ast.~
 import laika.parse.combinator.Parsers
 import laika.parse.combinator.Parsers._
-import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
+import laika.parse.helper.ParseResultHelpers
 import laika.parse.text.TextParsers
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
@@ -28,7 +28,7 @@ import org.scalatest.wordspec.AnyWordSpec
 /**
   * @author Jens Halm
   */
-class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers with StringParserHelpers {
+class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
 
 
   private val parser1 = TextParsers.someOf('a','b')
