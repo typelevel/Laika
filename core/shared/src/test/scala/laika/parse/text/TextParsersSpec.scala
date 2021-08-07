@@ -16,35 +16,41 @@
 
 package laika.parse.text
 
-import laika.parse.SourceCursor
 import laika.parse.builders._
-import laika.parse.helper.ParseResultHelpers
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import laika.parse.helper.MigrationSpec
+import laika.parse.{Parser, SourceCursor}
+import org.scalatest.Assertion
    
-class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
+class TextParsersSpec extends MigrationSpec {
 
+
+  def run[A] (parser: Parser[A], input: String, expected: A): Assertion =
+    assertEquals(parser.parse(input).toEither, Right(expected))
+
+  def expectFailure[A] (parser: Parser[A], input: String): Assertion =
+    assert(parser.parse(input).toEither.isLeft)
+  
 
   "The prevNot validators" should {
     
     "succeed if the previous character is not one of those specified" in {
-      (oneChar ~> prevNot('x')).parse("abc") should produce(())
+      run(oneChar ~> prevNot('x'), "abc", ())
     }
 
     "fail if the previous character is one of those specified" in {
-      (oneChar ~> prevNot('a')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> prevNot('a'), "abc")
     }
     
     "succeed at the start of the input" in {
-      prevNot('x').parse("abc") should produce(())
+      run(prevNot('x'), "abc", ())
     }
 
     "succeed if the predicate is not satisfied" in {
-      (oneChar ~> prevNot(_ == 'b')).parse("abc") should produce(())
+      run(oneChar ~> prevNot(_ == 'b'), "abc", ())
     }
 
     "fail if the the predicate is satisfied" in {
-      (oneChar ~> prevNot(_ == 'a')).parse("abc").toEither.isLeft shouldBe true
+      (oneChar ~> prevNot(_ == 'a'), "abc")
     }
 
   }
@@ -52,23 +58,23 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The nextNot validators" should {
 
     "succeed if the next character is not one of those specified" in {
-      (oneChar ~> nextNot('x')).parse("abc") should produce(())
+      run(oneChar ~> nextNot('x'), "abc", ())
     }
 
     "fail if the next character is one of those specified" in {
-      (oneChar ~> nextNot('b')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> nextNot('b'), "abc")
     }
 
     "succeed at the end of the input" in {
-      (oneChar ~> nextNot('x')).parse("a") should produce(())
+      run(oneChar ~> nextNot('x'), "a", ())
     }
 
     "succeed if the predicate is not satisfied" in {
-      (oneChar ~> nextNot(_ == 'a')).parse("abc") should produce(())
+      run(oneChar ~> nextNot(_ == 'a'), "abc", ())
     }
 
     "fail if the the predicate is satisfied" in {
-      (oneChar ~> nextNot(_ == 'b')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> nextNot(_ == 'b'), "abc")
     }
 
   }
@@ -76,23 +82,23 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The prevIn and prevIs validators" should {
 
     "succeed if the previous character is one of those specified" in {
-      (oneChar ~> prevIn('a','c')).parse("abc") should produce(())
+      run(oneChar ~> prevIn('a','c'), "abc", ())
     }
 
     "fail if the previous character is not one of those specified" in {
-      (oneChar ~> prevIn('x','y')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> prevIn('x','y'), "abc")
     }
 
     "fail at the start of the input" in {
-      prevIn('x').parse("abc").toEither.isLeft shouldBe true
+      expectFailure(prevIn('x'), "abc")
     }
 
     "succeed if the predicate is satisfied" in {
-      (oneChar ~> prevIs(_ == 'a')).parse("abc") should produce(())
+      run(oneChar ~> prevIs(_ == 'a'), "abc", ())
     }
 
     "fail if the the predicate is not satisfied" in {
-      (oneChar ~> prevIs(_ == 'b')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> prevIs(_ == 'b'), "abc")
     }
 
   }
@@ -100,23 +106,23 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The nextIn and nextIs validators" should {
 
     "succeed if the next character is one of those specified" in {
-      (oneChar ~> nextIn('b')).parse("abc") should produce(())
+      run(oneChar ~> nextIn('b'), "abc", ())
     }
 
     "fail if the next character is not one of those specified" in {
-      (oneChar ~> nextIn('x')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> nextIn('x'), "abc")
     }
 
     "fail at the end of the input" in {
-      (oneChar ~> nextIn('x')).parse("a").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> nextIn('x'), "a")
     }
 
     "succeed if the predicate is satisfied" in {
-      (oneChar ~> nextIs(_ == 'b')).parse("abc") should produce(())
+      run(oneChar ~> nextIs(_ == 'b'), "abc", ())
     }
 
     "fail if the the predicate is not satisfied" in {
-      (oneChar ~> nextIs(_ == 'a')).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(oneChar ~> nextIs(_ == 'a'), "abc")
     }
 
   }
@@ -124,11 +130,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The literal parser" should {
 
     "succeed with a matching string literal" in {
-      literal("abc").parse("abcd") should produce ("abc")
+      run(literal("abc"), "abcd", "abc")
     }
 
     "fail when the string literal does not match" in {
-      literal("bcd").parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(literal("bcd"), "abcd")
     }
 
   }
@@ -136,19 +142,19 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The eol parser" should {
 
     "succeed for \\n" in {
-      eol.parse("\naaa") should produce (())
+      run(eol, "\naaa", ())
     }
 
     "succeed for \\r\\n" in {
-      eol.parse("\r\naaa") should produce (())
+      run(eol, "\r\naaa", ())
     }
 
     "succeed at the end of the input" in {
-      eol.parse("") should produce (())
+      run(eol, "", ())
     }
 
     "fail when not at the end of a line" in {
-      eol.parse("abc").toEither.isLeft shouldBe true
+      expectFailure(eol, "abc")
     }
 
   }
@@ -156,11 +162,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The eof parser" should {
 
     "succeed at the end of the input" in {
-      eof.parse("") should produce ("")
+      run(eof, "", "")
     }
 
     "fail when not at the end of the input" in {
-      eof.parse("\n").toEither.isLeft shouldBe true
+      expectFailure(eof, "\n")
     }
 
   }
@@ -168,11 +174,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The atStart parser" should {
 
     "succeed at the start of the input" in {
-      atStart.parse("abc") should produce (())
+      run(atStart, "abc", ())
     }
 
     "fail when not at the start of the input" in {
-      atStart.parse(SourceCursor("abc").consume(1)).toEither.isLeft shouldBe true
+      assert(atStart.parse(SourceCursor("abc").consume(1)).toEither.isLeft)
     }
 
   }
@@ -180,11 +186,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The ws parser" should {
 
     "succeed with all whitespace characters" in {
-      ws.parse(" \t abcd") should produce (" \t ")
+      run(ws, " \t abcd", " \t ")
     }
 
     "succeed with an empty string in case of non-whitespace characters" in {
-      ws.parse("abcd") should produce ("")
+      run(ws, "abcd", "")
     }
 
   }
@@ -192,15 +198,15 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The wsEol parser" should {
 
     "succeed with whitespace characters followed by newline" in {
-      wsEol.parse(" \n abcd") should produce (())
+      run(wsEol, " \n abcd", ())
     }
 
     "succeed with just a newline character since whitespace is optional" in {
-      wsEol.parse("\n abcd") should produce (())
+      run(wsEol, "\n abcd", ())
     }
 
     "fail with non-whitespace chacracters" in {
-      wsEol.parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(wsEol, "abcd")
     }
 
   }
@@ -208,15 +214,15 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The blankLine parser" should {
 
     "succeed with whitespace characters followed by newline" in {
-      blankLine.parse(" \n abcd") should produce ("")
+      run(blankLine, " \n abcd", "")
     }
 
     "succeed with just a newline character since whitespace is optional" in {
-      blankLine.parse("\n abcd") should produce ("")
+      run(blankLine, "\n abcd", "")
     }
 
     "fail with non-whitespace chacracters" in {
-      blankLine.parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(blankLine, "abcd")
     }
 
   }
@@ -224,15 +230,15 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The blankLines parser" should {
 
     "succeed with one blank line" in {
-      blankLines.parse(" \n abcd") should produce (List(""))
+      run(blankLines, " \n abcd", List(""))
     }
 
     "succeed with three blank lines" in {
-      blankLines.parse(" \n\n \n abcd") should produce (List("","",""))
+      run(blankLines, " \n\n \n abcd", List("","",""))
     }
 
     "fail with non-whitespace chacracters" in {
-      blankLines.parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(blankLines, "abcd")
     }
 
   }
@@ -240,11 +246,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The restOfLine parser" should {
 
     "succeed with all characters of the current line" in {
-      restOfLine.parse(" aa\nabcd") should produce (" aa")
+      run(restOfLine, " aa\nabcd", " aa")
     }
 
     "succeed with an empty result" in {
-      restOfLine.parse("\nabcd") should produce ("")
+      run(restOfLine, "\nabcd", "")
     }
 
   }
@@ -252,11 +258,11 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The textLine parser" should {
 
     "succeed with all characters of the current line" in {
-      textLine.parse(" aa\nabcd") should produce (" aa")
+      run(textLine, " aa\nabcd", " aa")
     }
 
     "fail on an empty line" in {
-      textLine.parse("\nabcd").toEither.isLeft shouldBe true
+      expectFailure(textLine, "\nabcd")
     }
 
   }
@@ -264,42 +270,42 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The anyChars parser" should {
 
     "always succeed consuming the entire input" in {
-      anyChars.parse("abcde $&") should produce ("abcde $&")
+      run(anyChars, "abcde $&", "abcde $&")
     }
 
     "only consume the specified maximum number of characters" in {
-      anyChars.max(3).parse("abcde $&") should produce ("abc")
+      run(anyChars.max(3), "abcde $&", "abc")
     }
   }
 
   "The anyOf parser" should {
 
     "succeed with an empty result when no characters match" in {
-      anyOf('x').parse("ababccab") should produce ("")
+      run(anyOf('x'), "ababccab", "")
     }
 
     "succeed for the matching character when 1 character is specified" in {
-      anyOf('x').parse("xxabc") should produce ("xx")
+      run(anyOf('x'), "xxabc", "xx")
     }
 
     "succeed for all matching characters when 3 characters are specified" in {
-      anyOf('x','y','z').parse("xxyzxabc") should produce ("xxyzx")
+      run(anyOf('x','y','z'), "xxyzxabc", "xxyzx")
     }
 
     "succeed in case the end of the input is reached" in {
-      anyOf('x','y','z').parse("xxyzx") should produce ("xxyzx")
+      run(anyOf('x','y','z'), "xxyzx", "xxyzx")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      anyOf('x').min(3).parse("xxabc").toEither.isLeft shouldBe true
+      expectFailure(anyOf('x').min(3), "xxabc")
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      anyOf('x').min(3).parse("xxxxabc") should produce ("xxxx")
+      run(anyOf('x').min(3), "xxxxabc", "xxxx")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      anyOf('x').max(3).parse("xxxxxx") should produce ("xxx")
+      run(anyOf('x').max(3), "xxxxxx", "xxx")
     }
 
   }
@@ -307,31 +313,31 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The someOf parser" should {
 
     "succeed for the matching character when 1 character is specified" in {
-      someOf('x').parse("xxabc") should produce ("xx")
+      run(someOf('x'), "xxabc", "xx")
     }
 
     "succeed for all matching characters when 3 characters are specified" in {
-      someOf('x','y','z').parse("xxyzxabc") should produce ("xxyzx")
+      run(someOf('x','y','z'), "xxyzxabc", "xxyzx")
     }
 
     "succeed in case the end of the input is reached" in {
-      someOf('x','y','z').parse("xxyzx") should produce ("xxyzx")
+      run(someOf('x','y','z'), "xxyzx", "xxyzx")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      someOf('x').min(3).parse("xxabc").toEither.isLeft shouldBe true
+      expectFailure(someOf('x').min(3), "xxabc")
     }
 
     "fail when it does not consume any characters as min(1) is implicit in someOf parsers" in {
-      someOf('x').parse("abcde").toEither.isLeft shouldBe true
+      expectFailure(someOf('x'), "abcde")
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      someOf('x').min(3).parse("xxxxabc") should produce ("xxxx")
+      run(someOf('x').min(3), "xxxxabc", "xxxx")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      someOf('x').max(3).parse("xxxxxx") should produce ("xxx")
+      run(someOf('x').max(3), "xxxxxx", "xxx")
     }
 
   }
@@ -339,19 +345,19 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The oneOf parser" should {
 
     "succeed for the matching character when 1 character is specified" in {
-      TextParsers.oneOf('x').parse("xxabc") should produce ("x")
+      run(TextParsers.oneOf('x'), "xxabc", "x")
     }
 
     "succeed for any of the specified 3 characters" in {
-      TextParsers.oneOf('x','y','z').parse("yzxabc") should produce ("y")
+      run(TextParsers.oneOf('x','y','z'), "yzxabc", "y")
     }
 
     "fail in case the end of the input is reached" in {
-      TextParsers.oneOf('x','y','z').parse("").toEither.isLeft shouldBe true
+      expectFailure(TextParsers.oneOf('x','y','z'), "")
     }
 
     "fail when the first character does not match" in {
-      TextParsers.oneOf('x').parse("yxxabc").toEither.isLeft shouldBe true
+      expectFailure(TextParsers.oneOf('x'), "yxxabc")
     }
 
   }
@@ -359,27 +365,27 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The anyNot parser" should {
 
     "succeed for all non-matching characters when 1 character is specified" in {
-      anyNot('x').parse("abcxxabc") should produce ("abc")
+      run(anyNot('x'), "abcxxabc", "abc")
     }
 
     "succeed for all non-matching characters when 3 characters are specified" in {
-      anyNot('x','y','z').parse("abczyxabc") should produce ("abc")
+      run(anyNot('x','y','z'), "abczyxabc", "abc")
     }
 
     "succeed in case the end of the input is reached" in {
-      anyNot('x','y','z').parse("abcabc") should produce ("abcabc")
+      run(anyNot('x','y','z'), "abcabc", "abcabc")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      anyNot('x').min(3).parse("abxx").toEither.isLeft shouldBe true
+      expectFailure(anyNot('x').min(3), "abxx")
     }
     
     "succeed when it does consume the specified minimum number of characters" in {
-      anyNot('x').min(3).parse("abcdxxxx") should produce ("abcd")
+      run(anyNot('x').min(3), "abcdxxxx", "abcd")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      anyNot('x').max(3).parse("abcdxxxx") should produce ("abc")
+      run(anyNot('x').max(3), "abcdxxxx", "abc")
     }
 
   }
@@ -387,31 +393,31 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The someNot parser" should {
 
     "succeed for all non-matching characters when 1 character is specified" in {
-      someNot('x').parse("abcxxabc") should produce ("abc")
+      run(someNot('x'), "abcxxabc", "abc")
     }
 
     "succeed for all non-matching characters when 3 characters are specified" in {
-      someNot('x','y','z').parse("abczyxabc") should produce ("abc")
+      run(someNot('x','y','z'), "abczyxabc", "abc")
     }
 
     "succeed in case the end of the input is reached" in {
-      someNot('x','y','z').parse("abcabc") should produce ("abcabc")
+      run(someNot('x','y','z'), "abcabc", "abcabc")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      someNot('x').min(3).parse("abxx").toEither.isLeft shouldBe true
+      expectFailure(someNot('x').min(3), "abxx")
     }
 
     "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
-      someNot('a','b').parse("abcde").toEither.isLeft shouldBe true
+      expectFailure(someNot('a','b'), "abcde")
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      someNot('x').min(3).parse("abcdxxxx") should produce ("abcd")
+      run(someNot('x').min(3), "abcdxxxx", "abcd")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      someNot('x').max(3).parse("abcdxxxx") should produce ("abc")
+      run(someNot('x').max(3), "abcdxxxx", "abc")
     }
 
   }
@@ -419,19 +425,19 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The oneNot parser" should {
 
     "succeed for a non-matching character when 1 character is specified" in {
-      TextParsers.oneNot('a').parse("xxabc") should produce ("x")
+      run(TextParsers.oneNot('a'), "xxabc", "x")
     }
 
     "succeed for any of the specified 3 characters" in {
-      TextParsers.oneNot('a','b','c').parse("yzxabc") should produce ("y")
+      run(TextParsers.oneNot('a','b','c'), "yzxabc", "y")
     }
 
     "fail in case the end of the input is reached" in {
-      TextParsers.oneNot('x','y','z').parse("").toEither.isLeft shouldBe true
+      expectFailure(TextParsers.oneNot('x','y','z'), "")
     }
 
     "fail when the first character does not match" in {
-      TextParsers.oneNot('x','y').parse("yxxabc").toEither.isLeft shouldBe true
+      expectFailure(TextParsers.oneNot('x','y'), "yxxabc")
     }
 
   }
@@ -439,15 +445,15 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The anyOf parser with the range builder" should {
 
     "succeed for any character within the specified range when 1 range is specified" in {
-      anyOf(range('a', 'd')).parse("abcde $&") should produce ("abcd")
+      run(anyOf(range('a', 'd')), "abcde $&", "abcd")
     }
 
     "succeed for any character within the specified ranges when 2 ranges are specified" in {
-      anyOf(range('a', 'd') ++ range('x', 'z')).parse("abcdxyzff") should produce ("abcdxyz")
+      run(anyOf(range('a', 'd') ++ range('x', 'z')), "abcdxyzff", "abcdxyz")
     }
 
     "succeed in case the end of the input is reached" in {
-      anyOf(range('a', 'd')).parse("abcabd") should produce ("abcabd")
+      run(anyOf(range('a', 'd')), "abcabd", "abcabd")
     }
 
   }
@@ -455,27 +461,27 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The anyWhile parser" should {
 
     "succeed with an empty result when no characters match" in {
-      anyWhile(_ < 'd').parse("xyzzyw") should produce ("")
+      run(anyWhile(_ < 'd'), "xyzzyw", "")
     }
     
     "succeed as long as the specified condition is met" in {
-      anyWhile(_ < 'd').parse("abcde $&") should produce ("abc")
+      run(anyWhile(_ < 'd'), "abcde $&", "abc")
     }
 
     "succeed in case the end of the input is reached" in {
-      anyWhile(_ < 'd').parse("abcabc") should produce ("abcabc")
+      run(anyWhile(_ < 'd'), "abcabc", "abcabc")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      anyWhile(_ < 'd').min(3).parse("abxx").toEither.isLeft shouldBe true
+      expectFailure(anyWhile(_ < 'd').min(3), "abxx")
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      anyWhile(_ < 'd').min(3).parse("abcdxxxx") should produce ("abc")
+      run(anyWhile(_ < 'd').min(3), "abcdxxxx", "abc")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      anyWhile(_ < 'd').max(2).parse("abcdxxxx") should produce ("ab")
+      run(anyWhile(_ < 'd').max(2), "abcdxxxx", "ab")
     }
 
   }
@@ -483,27 +489,27 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The someWhile parser" should {
 
     "succeed as long as the specified condition is met" in {
-      someWhile(_ < 'd').parse("abcde $&") should produce ("abc")
+      run(someWhile(_ < 'd'), "abcde $&", "abc")
     }
 
     "succeed in case the end of the input is reached" in {
-      someWhile(_ < 'd').parse("abcabc") should produce ("abcabc")
+      run(someWhile(_ < 'd'), "abcabc", "abcabc")
     }
 
     "fail when it does not consume the specified minimum number of characters" in {
-      someWhile(_ < 'd').min(3).parse("abxx").toEither.isLeft shouldBe true
+      expectFailure(someWhile(_ < 'd').min(3), "abxx")
     }
 
     "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
-      someWhile(_ < 'd').parse("xxyyzz").toEither.isLeft shouldBe true
+      expectFailure(someWhile(_ < 'd'), "xxyyzz")
     }
 
     "succeed when it does consume the specified minimum number of characters" in {
-      someWhile(_ < 'd').min(3).parse("abcdxxxx") should produce ("abc")
+      run(someWhile(_ < 'd').min(3), "abcdxxxx", "abc")
     }
 
     "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      someWhile(_ < 'd').max(2).parse("abcdxxxx") should produce ("ab")
+      run(someWhile(_ < 'd').max(2), "abcdxxxx", "ab")
     }
 
   }
@@ -511,15 +517,15 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
   "The oneIf parser" should {
 
     "succeed as long as the specified condition is met" in {
-      oneIf(_ < 'd').parse("abcde $&") should produce ("a")
+      run(oneIf(_ < 'd'), "abcde $&", "a")
     }
 
     "fail in case the end of the input is reached" in {
-      oneIf(_ < 'd').parse("").toEither.isLeft shouldBe true
+      expectFailure(oneIf(_ < 'd'), "")
     }
 
     "fail in case the specified predicate is not met" in {
-      oneIf(_ < 'd').parse("zxxxyyyz").toEither.isLeft shouldBe true
+      expectFailure(oneIf(_ < 'd'), "zxxxyyyz")
     }
 
   }
@@ -529,23 +535,23 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
     val az = delimitedBy(CharGroup.lowerAlpha)
 
     "stop as soon as one of the specified delimiter characters is seen" in {
-      az.parse("123abc") should produce ("123")
+      run(az, "123abc", "123")
     }
 
     "succeed even when the result is empty" in {
-      az.parse("abc") should produce ("")
+      run(az, "abc", "")
     }
 
     "fail when the result is empty but nonEmpty is specified" in {
-      az.nonEmpty.parse("abc").toEither.isLeft shouldBe true
+      expectFailure(az.nonEmpty, "abc")
     }
 
     "fail when a stop char is seen before the end delimiter" in {
-      az.failOn('3','4').parse("1234abcd").toEither.isLeft shouldBe true
+      expectFailure(az.failOn('3','4'), "1234abcd")
     }
 
     "fail in case the end of the input is reached before seeing a delimiter character" in {
-      az.parse("1234567").toEither.isLeft shouldBe true
+      expectFailure(az, "1234567")
     }
 
   }
@@ -557,31 +563,31 @@ class TextParsersSpec extends AnyWordSpec with Matchers with ParseResultHelpers 
     val lit = delimitedBy(">>>")
 
     "stop as soon as the specified string delimiter is seen" in {
-      lit.parse("123>>>") should produce ("123")
+      run(lit, "123>>>", "123")
     }
 
     "succeed even when the result is empty" in {
-      lit.parse(">>>") should produce ("")
+      run(lit, ">>>", "")
     }
 
     "fail when the result is empty but nonEmpty is specified" in {
-      lit.nonEmpty.parse(">>>").toEither.isLeft shouldBe true
+      expectFailure(lit.nonEmpty, ">>>")
     }
 
     "fail when a stop char is seen before the end delimiter" in {
-      lit.failOn('3','4').parse("1234>>>").toEither.isLeft shouldBe true
+      expectFailure(lit.failOn('3','4'), "1234>>>")
     }
 
     "fail in case the end of the input is reached before seeing the delimiter string" in {
-      lit.parse("1234567").toEither.isLeft shouldBe true
+      expectFailure(lit, "1234567")
     }
 
     "succeed when the specified post condition is met" in {
-      delimitedBy(">>>" <~ ws.min(1)).parse("123>>> ") should produce ("123")
+      run(delimitedBy(">>>" <~ ws.min(1)), "123>>> ", "123")
     }
 
     "fail when the specified post condition is not met" in {
-      delimitedBy(">>>" <~ ws.min(1)).parse("123>>>A").toEither.isLeft shouldBe true
+      expectFailure(delimitedBy(">>>" <~ ws.min(1)), "123>>>A")
     }
 
   }

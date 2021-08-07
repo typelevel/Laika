@@ -22,7 +22,7 @@ import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.helper.{MigrationSpec, ParseResultHelpers}
+import laika.parse.helper.MigrationSpec
 import laika.parse.implicits._
 import laika.parse.text.CharGroup
 import org.scalatest.Assertion
@@ -30,8 +30,7 @@ import org.scalatest.Assertion
 /**
   * @author Jens Halm
   */
-class CommonSyntaxParserSpec extends MigrationSpec
-                             with ParseResultHelpers {
+class CommonSyntaxParserSpec extends MigrationSpec {
 
   
   val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)

@@ -19,78 +19,89 @@ package laika.parse
 import laika.ast.~
 import laika.parse.combinator.Parsers
 import laika.parse.combinator.Parsers._
-import laika.parse.helper.ParseResultHelpers
+import laika.parse.helper.MigrationSpec
 import laika.parse.text.TextParsers
 import org.scalatest.Assertion
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 
 /**
   * @author Jens Halm
   */
-class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
+class ParserSpec extends MigrationSpec {
 
 
   private val parser1 = TextParsers.someOf('a','b')
   private val parser2 = TextParsers.someOf('b','c')
 
+  def run[A] (parser: Parser[A], input: String, expected: A): Assertion =
+    assertEquals(parser.parse(input).toEither, Right(expected))
+
+  def run[A] (parser: Parser[A], input: SourceCursor, expected: A): Assertion =
+    assertEquals(parser.parse(input).toEither, Right(expected))
+
+  def expectFailure[A] (parser: Parser[A], input: String): Assertion =
+    assert(parser.parse(input).toEither.isLeft)
+
+  def expectFailure[A] (parser: Parser[A], input: SourceCursor): Assertion =
+    assert(parser.parse(input).toEither.isLeft)
+  
+  
 
   "A Parser" should {
 
     "provide the result of the parsing operation" in {
-      parser1.parse("abc") should produce ("ab")
+      run(parser1, "abc", "ab")
     }
 
     "map the result" in {
-      parser1.map(_.length).parse("abccbb") should produce (2)
+      run(parser1.map(_.length), "abccbb", 2)
     }
 
     "flatMap with a different parser" in {
-      parser1.flatMap(res => parser2.max(res.length)).parse("abccbb") should produce ("cc")
+      run(parser1.flatMap(res => parser2.max(res.length)), "abccbb", "cc")
     }
 
     "fail the flatMap when the first parser fails" in {
-      parser1.min(3).flatMap(res => parser2.max(res.length)).parse("abccbb").toEither.isLeft shouldBe true
+      expectFailure(parser1.min(3).flatMap(res => parser2.max(res.length)), "abccbb")
     }
 
     "fail the flatMap when the second parser fails" in {
-      parser1.flatMap(_ => parser2.min(5)).parse("abccbb").toEither.isLeft shouldBe true
+      expectFailure(parser1.flatMap(_ => parser2.min(5)), "abccbb")
     }
 
     "provide a fixed result" in {
-      parser1.as(7).parse("abccbb") should produce (7)
+      run(parser1.as(7), "abccbb", 7)
     }
 
     "apply a partial function to the result" in {
-      parser1.collect { case "ab" => 9 }.parse("abc") should produce (9)
+      run(parser1.collect { case "ab" => 9 }, "abc", 9)
     }
 
     "fail if the specified partial function is not defined for the result" in {
-      parser1.collect { case "xx" => 9 }.parse("abc").toEither.isLeft shouldBe true
+      expectFailure(parser1.collect { case "xx" => 9 }, "abc")
     }
 
     "succeed if the specified Either function produces a Right" in {
-      parser1.evalMap { res => Right(res.length) }.parse("abc") should produce (2)
+      run(parser1.evalMap { res => Right(res.length) }, "abc", 2)
     }
 
     "fail if the specified Either function produces a Left" in {
-      parser1.evalMap { res => Left("wrong") }.parse("abc").toEither.isLeft shouldBe true
+      expectFailure(parser1.evalMap { res => Left("wrong") }, "abc")
     }
     
     "handle errors from a failed parser" in {
-      parser1.handleErrorWith(_ => parser2).parse("ccbb") should produce("ccbb")
+      run(parser1.handleErrorWith(_ => parser2), "ccbb", "ccbb")
     }
 
     "handle errors from a failed parser with information from the error" in {
-      parser1.handleErrorWith(e => success(e.next.remaining.toString)).parse("ccbb") should produce("4")
+      run(parser1.handleErrorWith(e => success(e.next.remaining.toString)), "ccbb", "4")
     }
 
     "recover from a failed parser" in {
-      parser1.recoverWith { case _ => parser2 }.parse("ccbb") should produce("ccbb")
+      run(parser1.recoverWith { case _ => parser2 }, "ccbb", "ccbb")
     }
 
     "recover from a failed parser with information from the error" in {
-      parser1.recoverWith { case e => success(e.next.remaining.toString) }.parse("ccbb") should produce("4")
+      run(parser1.recoverWith { case e => success(e.next.remaining.toString) }, "ccbb", "4")
     }
   }
 
@@ -100,15 +111,15 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
     val alternatives = parser1 | parser2
 
     "provide the result of the first parser if it succeeds" in {
-      alternatives.parse("bbcc") should produce ("bb")
+      run(alternatives, "bbcc", "bb")
     }
 
     "provide the result of the second parser if the first fails, but the second succeeds" in {
-      alternatives.parse("ccbb") should produce ("ccbb")
+      run(alternatives, "ccbb", "ccbb")
     }
 
     "fail if both parsers fail" in {
-      alternatives.parse("xxxx").toEither.isLeft shouldBe true
+      expectFailure(alternatives, "xxxx")
     }
 
   }
@@ -145,23 +156,23 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The concatenation of two parsers" should {
 
     "provide the combined result" in {
-      (parser1 ~ parser2).parse("aabbcc") should produce (new ~("aabb", "cc"))
+      run((parser1 ~ parser2), "aabbcc", new ~("aabb", "cc"))
     }
 
     "fail if the first parser fails" in {
-      (parser1 ~ parser2).parse("ccbbaa").toEither.isLeft shouldBe true
+      expectFailure((parser1 ~ parser2), "ccbbaa")
     }
 
     "fail if the second parser fails" in {
-      (parser1 ~ parser2).parse("aaffgg").toEither.isLeft shouldBe true
+      expectFailure((parser1 ~ parser2), "aaffgg")
     }
 
     "provide the first result" in {
-      (parser1 <~ parser2).parse("aabbcc") should produce ("aabb")
+      run((parser1 <~ parser2), "aabbcc", "aabb")
     }
 
     "provide the second result" in {
-      (parser1 ~> parser2).parse("aabbcc") should produce ("cc")
+      run((parser1 ~> parser2), "aabbcc", "cc")
     }
 
   }
@@ -169,11 +180,11 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The optional parser" should {
 
     "produce a Some when the underlying parser succeeds" in {
-      opt(parser1).parse("abc") should produce (Option("ab"))
+      run(opt(parser1), "abc", Option("ab"))
     }
 
     "produce a None when the underlying parser fails" in {
-      opt(parser1).parse("xxx") should produce (Option.empty[String])
+      run(opt(parser1), "xxx", Option.empty[String])
     }
 
   }
@@ -181,11 +192,11 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The not parser" should {
 
     "fail when the underlying parser succeeds" in {
-      Parsers.not(parser1).parse("abc").toEither.isLeft shouldBe true
+      expectFailure(Parsers.not(parser1), "abc")
     }
 
     "succeed when the underlying parser fails" in {
-      Parsers.not(parser1).parse("xxx") should produce (())
+      run(Parsers.not(parser1), "xxx", ())
     }
 
   }
@@ -193,7 +204,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The success parser" should {
 
     "always succeed" in {
-      success(9).parse("foo") should produce (9)
+      run(success(9), "foo", 9)
     }
 
   }
@@ -201,7 +212,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The failure parser" should {
 
     "always fail" in {
-      failure("expected failure").parse("foo").toEither.isLeft shouldBe true
+      expectFailure(failure("expected failure"), "foo")
     }
 
   }
@@ -209,11 +220,11 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The repetition parser for an arbitrary number of results" should {
 
     "produce an empty result when the first invocation fails" in {
-      parser1.rep.parse("xxx") should produce (List.empty[String])
+      run(parser1.rep, "xxx", List.empty[String])
     }
 
     "provide all matching substrings" in {
-      parser1.max(1).rep.parse("abacc") should produce (List("a","b","a"))
+      run(parser1.max(1).rep, "abacc", List("a","b","a"))
     }
 
   }
@@ -221,15 +232,15 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The repetition parser for a minimum number of results" should {
 
     "fail if the required minimum number of successful invocations is not reached" in {
-      parser1.rep.min(4).parse("abaxx").toEither.isLeft shouldBe true
+      expectFailure(parser1.rep.min(4), "abaxx")
     }
 
     "succeed if at least one invocation succeeds" in {
-      parser1.max(1).rep.min(1).parse("abc") should produce (List("a","b"))
+      run(parser1.max(1).rep.min(1), "abc", List("a","b"))
     }
 
     "succeed if the specified number of successful invocations is reached" in {
-      parser1.max(1).rep.min(2).parse("aba") should produce (List("a","b","a"))
+      run(parser1.max(1).rep.min(2), "aba", List("a","b","a"))
     }
 
   }
@@ -237,11 +248,11 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The repetition parser for an maximum number of results" should {
 
     "produce an empty result when the first invocation fails" in {
-      parser1.rep.max(2).parse("xxx") should produce (List.empty[String])
+      run(parser1.rep.max(2), "xxx", List.empty[String])
     }
 
     "provide only the maximum number of result allowed" in {
-      parser1.max(1).rep.max(2).parse("abacc") should produce (List("a","b"))
+      run(parser1.max(1).rep.max(2), "abacc", List("a","b"))
     }
 
   }
@@ -249,19 +260,19 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The repetition parser with a separator" should {
 
     "produce an empty result when the first invocation fails" in {
-      parser1.take(2).rep("-").parse("xxx") should produce (List.empty[String])
+      run(parser1.take(2).rep("-"), "xxx", List.empty[String])
     }
 
     "provide all matching substrings" in {
-      parser1.take(2).rep("-").parse("ab-ba-c") should produce (List("ab","ba"))
+      run(parser1.take(2).rep("-"), "ab-ba-c", List("ab","ba"))
     }
 
     "succeed if the specified number of successful invocations is reached" in {
-      parser1.take(2).rep("-").min(3).parse("ab-ba-bb-cc") should produce (List("ab","ba","bb"))
+      run(parser1.take(2).rep("-").min(3), "ab-ba-bb-cc", List("ab","ba","bb"))
     }
 
     "fail if the required minimum number of successful invocations is not reached" in {
-      parser1.take(2).rep("-").min(3).parse("ab-cc-bb-cc").toEither.isLeft shouldBe true
+      expectFailure(parser1.take(2).rep("-").min(3), "ab-cc-bb-cc")
     }
   }
 
@@ -272,15 +283,15 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
     val parser = literal("1").repWith { (res:String) => literal((res.toInt + 1).toString) }
 
     "parse a sequence based on a dynamically changing parser" in {
-      parser.parse("12345999") should produce (List("1","2","3","4","5"))
+      run(parser, "12345999", List("1","2","3","4","5"))
     }
 
     "succeed when only the first parsing step succeeds" in {
-      parser.parse("1999") should produce (List("1"))
+      run(parser, "1999", List("1"))
     }
 
     "succeed with an empty result when the first parsing step fails" in {
-      parser.parse("999") should produce (List[String]())
+      run(parser, "999", List[String]())
     }
 
   }
@@ -290,19 +301,19 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
     import TextParsers._
 
     "succeed when the underlying parser succeeds at the current offset" in {
-      lookAhead("a").parse("abcd") should produce("a")
+      run(lookAhead("a"), "abcd", "a")
     }
 
     "succeed when the underlying parser succeeds at the specified offset" in {
-      lookAhead(2, "c").parse("abcd") should produce("c")
+      run(lookAhead(2, "c"), "abcd", "c")
     }
 
     "fail when the underlying parser fails at the current offset" in {
-      lookAhead("c").parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(lookAhead("c"), "abcd")
     }
 
     "fail when the underlying parser fails at the specified offset" in {
-      lookAhead(2, "a").parse("abcd").toEither.isLeft shouldBe true
+      expectFailure(lookAhead(2, "a"), "abcd")
     }
 
 
@@ -316,15 +327,15 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
     import TextParsers._
 
     "succeed when the specified parser succeeds at the given negative offset" in {
-      lookBehind(2, literal("a")).parse(input) should produce("a")
+      run(lookBehind(2, literal("a")), input, "a")
     }
 
     "fail when the specified parser fails at the given negative offset" in {
-      lookBehind(2, literal("b")).parse(input).toEither.isLeft shouldBe true
+      expectFailure(lookBehind(2, literal("b")), input)
     }
 
     "fail when the specified negative offset is too big" in {
-      lookBehind(7, literal("a")).parse(input).toEither.isLeft shouldBe true
+      expectFailure(lookBehind(7, literal("a")), input)
     }
 
   }
@@ -332,11 +343,11 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
   "The consumeAll parser" should {
 
     "succeed when all input has been consumed" in {
-      consumeAll(parser1).parse("ababa") should produce("ababa")
+      run(consumeAll(parser1), "ababa", "ababa")
     }
 
     "fail when not all input has been consumed" in {
-      consumeAll(parser1).parse("ababaxx").toEither.isLeft shouldBe true
+      expectFailure(consumeAll(parser1), "ababaxx")
     }
 
   }
@@ -347,7 +358,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
     
     "produce the consumed string as a result" in {
       val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
-      p.source.parse("aabbcc") should produce ("aabb")
+      run(p.source, "aabbcc", "aabb")
     }
     
   }
@@ -358,7 +369,7 @@ class ParserSpec extends AnyWordSpec with Matchers with ParseResultHelpers {
 
     "produce the length of the consumed string as a result" in {
       val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
-      p.count.parse("aabbcc") should produce (4)
+      run(p.count, "aabbcc", 4)
     }
 
   }
