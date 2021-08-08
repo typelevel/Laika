@@ -17,39 +17,38 @@
 package laika.ast
 
 import laika.ast.sample.ParagraphCompanionShortcuts
+import munit.FunSuite
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
  
-class ElementTraversalSpec extends AnyFlatSpec 
-                           with Matchers
-                           with ParagraphCompanionShortcuts {
+class ElementTraversalSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   
-  "The select method" should "select all elements that satisfy the predicate" in {
+  test("select all elements that satisfy the predicate") {
     val rootElem = RootElement(p("a"), p("b"), p("c"), QuotedBlock("d"))
-    rootElem select { case Paragraph(_,_) => true; case _ => false } should be (List(p("a"), p("b"), p("c"), p("d")))
+    assertEquals(rootElem.select { case Paragraph(_,_) => true; case _ => false }, List(p("a"), p("b"), p("c"), p("d")))
   }
   
-  it should "select the elements in depth-first order" in {
+  test("select the elements in depth-first order") {
     val rootElem = RootElement(QuotedBlock(QuotedBlock("a")), QuotedBlock("b"))
-    rootElem select { case QuotedBlock(_,_,_) => true; case _ => false } should be (List(
+    assertEquals(rootElem.select { case QuotedBlock(_,_,_) => true; case _ => false }, List(
       QuotedBlock("a"), QuotedBlock(QuotedBlock("a")), QuotedBlock("b")
     ))
   }
   
-  it should "select elements which are not part of the content collection of a container" in {
+  test("select elements which are not part of the content collection of a container") {
     val rootElem = RootElement(Section(Header(1,"Title"), Nil))
-    rootElem select { case Header(_,_,_) => true; case _ => false } should be (List(Header(1,"Title")))
+    assertEquals(rootElem.select { case Header(_,_,_) => true; case _ => false }, List(Header(1,"Title")))
   }
   
-  it should "return an empty list if no element satisfies the predicate" in {
+  test("return an empty list if no element satisfies the predicate") {
     val rootElem = RootElement(p("a"), p("b"), p("c"), QuotedBlock("d"))
-    rootElem select { case Header(_,_,_) => true; case _ => false } should be (Nil)
+    assertEquals(rootElem.select { case Header(_,_,_) => true; case _ => false }, Nil)
   }
   
-  it should "collect values based on a partial function applied to all elements" in {
+  test("collect values based on a partial function applied to all elements") {
     val rootElem = RootElement(p("a"), p("b"), p("c"), QuotedBlock("d"))
-    rootElem collect { case Text(text,_) => text } should be (List("a", "b", "c", "d"))
+    assertEquals(rootElem.collect { case Text(text,_) => text }, List("a", "b", "c", "d"))
   }
    
   

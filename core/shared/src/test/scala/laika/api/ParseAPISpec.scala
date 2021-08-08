@@ -22,13 +22,10 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.TemplateRewriter
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 
-
-class ParseAPISpec extends AnyFlatSpec 
-                   with Matchers
+class ParseAPISpec extends FunSuite
                    with ParagraphCompanionShortcuts
                    with TestSourceBuilders {
   
@@ -36,38 +33,42 @@ class ParseAPISpec extends AnyFlatSpec
   val parser: MarkupParser = MarkupParser.of(Markdown).build
 
   
-  "The Parse API" should "allow parsing Markdown from a string" in {
+  test("Markdown from a string") {
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    parser.parse(input).toOption.get.content should be (RootElement(p(input)))
+    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(input))))
   }
   
-  it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
+  test("Markdown with all link references resolved through the default rewrite rules") {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    parser.parse(input).toOption.get.content should be (RootElement(p(SpanLink.external("http://foo/")("link"))))
+    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(
+      SpanLink.external("http://foo/")("link")
+    ))))
   }
-  
-  it should "allow to set a config value programmatically" in {
+
+  test("set a config value programmatically") {
     val input = "aa ${prop} bb"
-    MarkupParser.of(Markdown).withConfigValue("prop", "foo").build.parse(input).map(_.content) should be (Right(RootElement(p(
+    val parser = MarkupParser.of(Markdown).withConfigValue("prop", "foo").build
+    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(
       Text("aa foo bb")
     ))))
   }
   
-  it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
+  test("parse Markdown into a raw document, without applying the default rewrite rules") {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document.content should be (RootElement(
+    val parser = MarkupParser.of(Markdown).build
+    assertEquals(parser.parseUnresolved(input).map(_.document.content), Right(RootElement(
       p(LinkIdReference(List(Text("link")), "id", source("[link][id]", input, defaultPath))), 
       LinkDefinition("id", ExternalTarget("http://foo/"), None)
-    ))
+    )))
   }
   
-  it should "collect errors from runtime messages" in {
+  test("collect errors from runtime messages") {
     val input = """[invalid1]
                   |
                   |Text
@@ -83,23 +84,24 @@ class ParseAPISpec extends AnyFlatSpec
                 |
                 |  [invalid2]
                 |  ^""".stripMargin
-    MarkupParser.of(Markdown).build.parse(input) shouldBe Left(ParserError(msg, Root / "doc"))
+    assertEquals(MarkupParser.of(Markdown).build.parse(input), Left(ParserError(msg, Root / "doc")))
   }
   
-  it should "replace unresolved nodes with invalid elements" in {
+  test("replace unresolved nodes with invalid elements") {
     val input = """[invalid1]
                   |
                   |Text
                   |
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    DocumentCursor(doc)
+    val res = DocumentCursor(doc)
       .flatMap(cursor => doc.rewrite(TemplateRewriter.rewriteRules(cursor)))
-      .map(_.content) should be (Right(RootElement(
-        p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
-        p("Text"),
-        p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input, defaultPath))),
-      )))
+      .map(_.content)
+    assertEquals(res, Right(RootElement(
+      p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
+      p("Text"),
+      p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input, defaultPath))),
+    )))
   }
   
 }
