@@ -19,105 +19,112 @@ package laika.config
 import laika.ast.{DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.config.Config.ConfigResult
 import laika.rewrite.{Version, VersionScannerConfig, Versions}
 import laika.rewrite.link.{ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
 import laika.time.PlatformDateFormat
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class ConfigCodecSpec extends AnyWordSpec with Matchers {
+class ConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
 
-  def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
-    ConfigParser.parse(input).resolve().flatMap(_.get[T])
-
-  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
-
-  "The codec for DocumentMetadata" should {
-
-    "decode an instance with all fields populated" in {
-      val input =
-        """{ 
-          |laika.metadata {
-          |  title = "Monkey Gone To Heaven"
-          |  description = "It's indescribable"
-          |  identifier = XX-33-FF-01
-          |  authors = [ "Helen North", "Maria South" ]
-          |  language = en
-          |  date = "2002-10-10T12:00:00"
-          |}}
-        """.stripMargin
-      decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
-        Some("Monkey Gone To Heaven"),
-        Some("It's indescribable"),
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-      ))
+  def failDecode[T: ConfigDecoder: DefaultKey] (input: String, messageStart: String): Unit = {
+    val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
+    res match {
+      case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
+      case Left(err: DecodingError) => fail(s"message '${err.message}' did not start with '$messageStart''")
+      case Left(err) => fail(s"Expected DecodingError, but got $err")
+      case _ => fail("decoding did not fail as expected")
     }
-
-    "decode an instance with a single author" in {
-      val input =
-        """{ 
-          |laika.metadata {
-          |  identifier = XX-33-FF-01
-          |  author = "Dorothea West"
-          |  language = en
-          |  date = "2002-10-10T12:00:00"
-          |}}
-        """.stripMargin
-      decode[DocumentMetadata](input) shouldBe Right(DocumentMetadata(
-        None, None,
-        Some("XX-33-FF-01"),
-        Seq("Dorothea West"),
-        Some("en"),
-        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-      ))
-    }
-
-    "round-trip encode and decode" in {
-      val input = DocumentMetadata(
-        Some("Monkey Gone To Heaven"),
-        Some("Rhubarb, Rhubarb, Rhubarb"),
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-      )
-      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-      decode[DocumentMetadata](encoded) shouldBe Right(input)
-    }
-
-    "fail with an invalid date" in {
-      val input =
-        """{ 
-          |laika.metadata {
-          |  identifier = XX-33-FF-01
-          |  author = "Dorothea West"
-          |  language = en
-          |  date = "2000-XX-01T00:00:00Z"
-          |}}
-        """.stripMargin
-      val res = decode[DocumentMetadata](input)
-      res.isLeft shouldBe true
-      res.left.toOption.get.asInstanceOf[DecodingError].message should startWith("Error decoding 'laika.metadata.date': Invalid date format")
-    }
-
   }
 
-  "The codec for LinkConfig" should {
+  def decode[T: ConfigDecoder: DefaultKey] (input: String, expected: T, modifyResult: T => T = identity[T](_)): Unit =
+    assertEquals(ConfigParser.parse(input).resolve().flatMap(_.get[T]), Right(modifyResult(expected)))
 
-    def sort (config: ConfigResult[LinkConfig]): ConfigResult[LinkConfig] = config.map { c =>
-      c.copy(targets = c.targets.sortBy(_.id))
-    }
+  def roundTrip[T: ConfigDecoder: ConfigEncoder] (value: T, modifyResult: T => T = identity[T](_)): Unit = {
+    val result = ConfigBuilder.empty
+      .withValue(testKey, value)
+      .build
+      .get[T](testKey)
+      .map(modifyResult)
+    assertEquals(result, Right(value))
+  }
 
+  test("DocumentMetadata - decode an instance with all fields populated") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  title = "Monkey Gone To Heaven"
+        |  description = "It's indescribable"
+        |  identifier = XX-33-FF-01
+        |  authors = [ "Helen North", "Maria South" ]
+        |  language = en
+        |  date = "2002-10-10T12:00:00"
+        |}}
+      """.stripMargin
+    decode[DocumentMetadata](input, DocumentMetadata(
+      Some("Monkey Gone To Heaven"),
+      Some("It's indescribable"),
+      Some("XX-33-FF-01"),
+      Seq("Helen North", "Maria South"),
+      Some("en"),
+      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+    ))
+  }
+
+  test("DocumentMetadata - decode an instance with a single author") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  date = "2002-10-10T12:00:00"
+        |}}
+      """.stripMargin
+    decode[DocumentMetadata](input, DocumentMetadata(
+      None, None,
+      Some("XX-33-FF-01"),
+      Seq("Dorothea West"),
+      Some("en"),
+      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+    ))
+  }
+
+  test("DocumentMetadata - round-trip encode and decode") {
+    val input = DocumentMetadata(
+      Some("Monkey Gone To Heaven"),
+      Some("Rhubarb, Rhubarb, Rhubarb"),
+      Some("XX-33-FF-01"),
+      Seq("Helen North", "Maria South"),
+      Some("en"),
+      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+    )
+    roundTrip(input)
+  }
+
+  test("DocumentMetadata - fail with an invalid date") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  date = "2000-XX-01T00:00:00Z"
+        |}}
+      """.stripMargin
+    failDecode[DocumentMetadata](input, "Error decoding 'laika.metadata.date': Invalid date format")
+  }
+
+
+  object links {
+    
+    def sort (config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
+  
     val fullyPopulatedInstance = LinkConfig(
       Seq(
         TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
@@ -134,62 +141,65 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         SourceLinks("https://bar.source/", "java", "foo.bar")
       )
     )
+  }
 
-    "decode an instance with all fields populated" in {
-      val input =
-        """{
-          |  laika.links {
-          |    targets {
-          |      foo = foo
-          |      bar = bar
-          |      ext = "http://ext.com"
-          |    }
-          |    excludeFromValidation = [
-          |      /foo
-          |      /bar/baz
-          |    ]
-          |    api = [
-          |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
-          |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
-          |    ]
-          |    source = [
-          |      { baseUri = "https://foo.source/", suffix = scala, packagePrefix = foo },
-          |      { baseUri = "https://bar.source/", suffix = java, packagePrefix = foo.bar }
-          |    ]
-          |  }
-          |}
-        """.stripMargin
-      sort(decode[LinkConfig](input)) shouldBe Right(fullyPopulatedInstance)
-    }
+  test("LinkConfig - decode an instance with all fields populated") {
+    val input =
+      """{
+        |  laika.links {
+        |    targets {
+        |      foo = foo
+        |      bar = bar
+        |      ext = "http://ext.com"
+        |    }
+        |    excludeFromValidation = [
+        |      /foo
+        |      /bar/baz
+        |    ]
+        |    api = [
+        |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
+        |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
+        |    ]
+        |    source = [
+        |      { baseUri = "https://foo.source/", suffix = scala, packagePrefix = foo },
+        |      { baseUri = "https://bar.source/", suffix = java, packagePrefix = foo.bar }
+        |    ]
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkConfig](input, links.fullyPopulatedInstance, links.sort)
+  }
 
-    "decode an instance with some fields populated" in {
-      val input =
-        """{
-          |  laika.links {
-          |    targets {
-          |      foo = foo
-          |    }
-          |    api = [
-          |      { baseUri = "https://bar.api/" }
-          |    ]
-          |  }
-          |}
-        """.stripMargin
-      sort(decode[LinkConfig](input)) shouldBe Right(LinkConfig(
+  test("LinkConfig - decode an instance with some fields populated") {
+    val input =
+      """{
+        |  laika.links {
+        |    targets {
+        |      foo = foo
+        |    }
+        |    api = [
+        |      { baseUri = "https://bar.api/" }
+        |    ]
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkConfig](
+      input,
+      LinkConfig(
         targets = Seq(TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))),
         apiLinks = Seq(ApiLinks("https://bar.api/"))
-      ))
-    }
-
-    "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue(testKey, fullyPopulatedInstance).build
-      sort(decode[LinkConfig](encoded)) shouldBe Right(fullyPopulatedInstance)
-    }
-
+      ),
+      links.sort
+    )
   }
-  
-  "The codec for ChoiceGroupsConfig" should {
 
+  test("LinkConfig - round-trip encode and decode") {
+    roundTrip(links.fullyPopulatedInstance, links.sort)
+  }
+
+
+  object selections {
+    
     val sample = Selections(
       SelectionConfig("foo",
         ChoiceConfig("foo-a", "foo-label-a", selected = true),
@@ -200,68 +210,64 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
         ChoiceConfig("bar-b", "bar-label-b")
       )
     )
-    
-    "decode an instance with all fields populated" in {
-      val input =
-        """{
-          |  laika.selections = [
-          |    { 
-          |      name = "foo"
-          |      choices = [
-          |        { name = "foo-a", label = "foo-label-a", selected = true }
-          |        { name = "foo-b", label = "foo-label-b" }
-          |      ]
-          |      separateEbooks = true
-          |    }
-          |    { 
-          |      name = "bar"
-          |      choices = [
-          |        { name = "bar-a", label = "bar-label-a" }
-          |        { name = "bar-b", label = "bar-label-b" }
-          |      ]
-          |    }
-          |  ]
-          |}
-        """.stripMargin
-      decode[Selections](input) shouldBe Right(sample)
-    }
-
-    "round-trip encode and decode" in {
-      val result = ConfigBuilder.empty.withValue(sample).build.get[Selections]
-      result shouldBe Right(sample)
-    }
-    
+  }
+  
+  test("ChoiceGroupsConfig - decode an instance with all fields populated") {
+    val input =
+      """{
+        |  laika.selections = [
+        |    { 
+        |      name = "foo"
+        |      choices = [
+        |        { name = "foo-a", label = "foo-label-a", selected = true }
+        |        { name = "foo-b", label = "foo-label-b" }
+        |      ]
+        |      separateEbooks = true
+        |    }
+        |    { 
+        |      name = "bar"
+        |      choices = [
+        |        { name = "bar-a", label = "bar-label-a" }
+        |        { name = "bar-b", label = "bar-label-b" }
+        |      ]
+        |    }
+        |  ]
+        |}
+      """.stripMargin
+    decode[Selections](input, selections.sample)
   }
 
-  "The codec for AutonumberConfig" should {
-
+  test("ChoiceGroupsConfig - round-trip encode and decode") {
+    roundTrip(selections.sample)
+  }
+  
+  
+  object autonumbering {
     val fullyPopulatedInstance = AutonumberConfig(
       documents = true,
       sections = true,
       maxDepth = 5
     )
-
-    "decode an instance with all fields populated" in {
-      val input =
-        """{
-          |  laika.autonumbering {
-          |    scope = all
-          |    depth = 5
-          |  }
-          |}
-        """.stripMargin
-      decode[AutonumberConfig](input) shouldBe Right(fullyPopulatedInstance)
-    }
-
-    "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue(testKey, fullyPopulatedInstance).build
-      decode[AutonumberConfig](encoded) shouldBe Right(fullyPopulatedInstance)
-    }
-
   }
+
+  test("AutonumberConfig - decode an instance with all fields populated") {
+    val input =
+      """{
+        |  laika.autonumbering {
+        |    scope = all
+        |    depth = 5
+        |  }
+        |}
+      """.stripMargin
+    decode[AutonumberConfig](input, autonumbering.fullyPopulatedInstance)
+  }
+
+  test("AutonumberConfig - round-trip encode and decode") {
+    roundTrip(autonumbering.fullyPopulatedInstance)
+  }
+
   
-  "The codec for Versions config" should {
-    
+  object versions {
     val testInstance = Versions(
       Version("0.42.x", "0.42"),
       Seq(
@@ -274,45 +280,41 @@ class ConfigCodecSpec extends AnyWordSpec with Matchers {
       renderUnversioned = false,
       scannerConfig = Some(VersionScannerConfig("/path/to/versions", Seq(Root / "api")))
     )
-    
-    "decode an instance with all fields populated" in {
-      val input =
-         """{
-          |  laika.versions {
-          |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }
-          |    olderVersions = [
-          |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html" }
-          |      { displayValue = "0.40.x", pathSegment = "0.40", fallbackLink = "toc.html" }
-          |    ]
-          |    newerVersions = [
-          |      { displayValue = "0.43.x", pathSegment = "0.43", fallbackLink = "index.html", label = "dev" }
-          |    ]
-          |    renderUnversioned = false,
-          |    scannerConfig = { rootDirectory = "/path/to/versions", exclude = [/api] }
-          |  }
-          |}
-         """.stripMargin
-      decode[Versions](input) shouldBe Right(testInstance)
-    }
-
-    "round-trip encode and decode" in {
-      val encoded = ConfigBuilder.empty.withValue(testKey, testInstance).build
-      decode[Versions](encoded) shouldBe Right(testInstance)
-    }
-    
   }
   
-  "The codec for the icon registry" should {
-    
-    "encode a list of icons" in {
-      val open = IconStyle("open")
-      val close = IconGlyph('x')
-      val registry = IconRegistry("open" -> open, "close" -> close)
-      val encoded = ConfigBuilder.empty.withValue(registry).build
-      encoded.get[ConfigValue](LaikaKeys.icons.child("open")) shouldBe Right(ASTValue(open)) 
-      encoded.get[ConfigValue](LaikaKeys.icons.child("close")) shouldBe Right(ASTValue(close))
-    }
-    
+  test("Versions - decode an instance with all fields populated") {
+    val input =
+       """{
+        |  laika.versions {
+        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }
+        |    olderVersions = [
+        |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html" }
+        |      { displayValue = "0.40.x", pathSegment = "0.40", fallbackLink = "toc.html" }
+        |    ]
+        |    newerVersions = [
+        |      { displayValue = "0.43.x", pathSegment = "0.43", fallbackLink = "index.html", label = "dev" }
+        |    ]
+        |    renderUnversioned = false,
+        |    scannerConfig = { rootDirectory = "/path/to/versions", exclude = [/api] }
+        |  }
+        |}
+       """.stripMargin
+    decode[Versions](input, versions.testInstance)
   }
+
+  test("Versions - round-trip encode and decode") {
+    roundTrip(versions.testInstance)
+  }
+  
+  
+  test("IconRegistry - encode a list of icons") {
+    val open = IconStyle("open")
+    val close = IconGlyph('x')
+    val registry = IconRegistry("open" -> open, "close" -> close)
+    val encoded = ConfigBuilder.empty.withValue(registry).build
+    assertEquals(encoded.get[ConfigValue](LaikaKeys.icons.child("open")), Right(ASTValue(open)))
+    assertEquals(encoded.get[ConfigValue](LaikaKeys.icons.child("close")), Right(ASTValue(close)))
+  }
+    
 
 }

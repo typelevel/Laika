@@ -19,69 +19,68 @@ package laika.api
 import laika.ast._
 import laika.config.LaikaKeys
 import laika.format._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class TransformAPISpec extends AnyFlatSpec 
-                       with Matchers {
+class TransformAPISpec extends FunSuite {
 
-   
-  val input = """# Title äöü
+
+  private val input = """# Title äöü
     |
     |text zzz *foo*""".stripMargin 
   
-  val output = """RootElement - Blocks: 2
+  private val output = """RootElement - Blocks: 2
     |. Title(Id(title-äöü) + Styles(title)) - Spans: 1
     |. . Text - 'Title äöü'
     |. Paragraph - Spans: 2
     |. . Text - 'text zzz '
     |. . Emphasized - Spans: 1
     |. . . Text - 'foo'""".stripMargin
-    
-  val builder = Transformer.from(Markdown).to(AST).withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
+
+  private val builder = 
+    Transformer.from(Markdown).to(AST).withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
   
   
-  "The Transform API" should "transform from string to string" in {
-    builder.build.transform(input).toOption.get should be (output)
+  test("string to string") {
+    assertEquals(builder.build.transform(input), Right(output))
   }
 
-  it should "transform an empty string" in {
-    builder.build.transform("") should be (Right("RootElement - Blocks: 0"))
+  test("empty string") {
+    assertEquals(builder.build.transform(""), Right("RootElement - Blocks: 0"))
   }
   
-  it should "allow to override the default renderer for specific element types" in {
+  test("render override for a specific element type") {
     val modifiedOutput = output.replace(". Text", ". String")
-    val transformCustom = builder rendering { case (_, Text(content,_)) => s"String - '$content'" }
-    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+    val transformCustom = builder.rendering { case (_, Text(content,_)) => s"String - '$content'" }
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
   
-  it should "allow to specify a custom rewrite rule" in {
+  test("custom rewrite rule") {
     val modifiedOutput = output.replace("zzz", "yyy")
-    val transformCustom = builder usingSpanRule { case Text("text zzz ",_) => Replace(Text("text yyy ")) }
-    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+    val transformCustom = builder.usingSpanRule { case Text("text zzz ",_) => Replace(Text("text yyy ")) }
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
   
-  it should "allow to specify multiple rewrite rules" in {
+  test("multiple rewrite rules") {
     val modifiedOutput = output.replace("zzz", "new").replace("foo", "bar")
-    val transformCustom = builder usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } usingSpanRule
+    val transformCustom = builder.usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } usingSpanRule
                                                 { case Text("text zzz ",_)    => Replace(Text("text new ")) }
-    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
-  it should "correctly process a Replace followed by a Retain" in {
+  test("process a Replace followed by a Retain") {
     val modifiedOutput = output.replace("foo", "bar")
     val transformCustom = builder
       .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) }
       .usingSpanRule { case Text(_,_) => Retain }
-    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
   
-  it should "allow to specify a custom rewrite rule that depends on the document" in {
+  test("custom rewrite rule that depends on the document") {
     val modifiedOutput = output.replace("zzz", "2")
     val transformCustom = builder.buildingRule { cursor => Right(RewriteRules.forSpans { 
       case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
     })}
-    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
 }

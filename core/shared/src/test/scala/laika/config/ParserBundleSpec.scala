@@ -24,438 +24,455 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle._
 import laika.factory.MarkupFormat
 import laika.parse._
+import laika.parse.builders._
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
+import laika.parse.implicits._
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.parse.text.TextParsers
-import laika.parse.builders._
-import laika.parse.implicits._
 import laika.rewrite.ReferenceResolver.CursorKeys
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-
-/**
-  * @author Jens Halm
-  */
-class ParserBundleSpec extends AnyWordSpec with Matchers {
+import munit.FunSuite
 
 
-  trait SetupBase { self =>
+trait ParserSetup {
+  
+  val defaultDocConfig: Config = {
+    val base = ConfigBuilder.withOrigin(Origin(Origin.DocumentScope, Root / "doc")).build
+    ConfigBuilder.withFallback(base).build
+  }
+  
+  val defaultTextBlockParser: Parser[LineSource] = TextParsers.textLine.rep.min(1).mkLines.line
+  
+  def createParser (bundles: Seq[ExtensionBundle] = Nil,
+                    blocks: Seq[BlockParserBuilder] = Nil,
+                    spans: Seq[SpanParserBuilder] = Nil): MarkupFormat = {
 
-    def parserBundles: Seq[ExtensionBundle]
-
-    def blockParsers: Seq[BlockParserBuilder] = Nil
-    def spanParsers: Seq[SpanParserBuilder] = Nil
-
-    object Parser extends MarkupFormat {
+    new MarkupFormat {
       val fileSuffixes = Set("foo")
-      val blockParsers = self.blockParsers
-      val spanParsers = self.spanParsers
-      lazy val extensions = parserBundles
-    }
-
-    val docConfig = {
-      val base = ConfigBuilder.withOrigin(Origin(Origin.DocumentScope, Root / "doc")).build
-      ConfigBuilder.withFallback(base).build // TODO - why is this nested twice?
-    }
-  }
-
-  trait BundleSetup extends SetupBase with TestSourceBuilders {
-
-    def appBundles: Seq[ExtensionBundle]
-
-    def config: OperationConfig = {
-      val base = OperationConfig.default.withBundlesFor(Parser)
-      appBundles.foldLeft(base){ (acc, bundle) => acc.withBundles(Seq(bundle)) }
-    }
-
-  }
-
-  trait ParserSetup extends SetupBase {
-
-    final val parserBundles = Nil
-
-    val textBlockParser: Parser[LineSource] = TextParsers.textLine.rep.min(1).mkLines.line
-
-  }
-
-  trait BlockParserSetup extends ParserSetup {
-
-    val input =
-      """
-        |>aaa
-        |aaa
-        |
-        |+bbb
-        |bbb
-      """.stripMargin
-
-    case class DecoratedBlock (deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {
-      type Self = DecoratedBlock
-      def withContent (newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
-      def withOptions (options: Options): DecoratedBlock = copy(options = options)
+      val blockParsers = blocks
+      val spanParsers = spans
+      lazy val extensions = bundles
     }
     
-    def blockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
+  }
+}
 
-    def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
-      BlockParser.withSpans { spanParsers =>
-        builders.oneOf(deco) ~> spanParsers.recursiveSpans(textBlockParser).map(DecoratedBlock(overrideDeco, _))
-      }
+trait BundleSetup extends TestSourceBuilders with ParserSetup {
 
-    def doc (blocks: (Char, String)*): Document =
-      Document(Root / "doc", RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
-        config = docConfig)
-
+  def createConfig (format: MarkupFormat, appBundles: ExtensionBundle*): OperationConfig = {
+    val base = OperationConfig.default.withBundlesFor(format)
+    appBundles.foldLeft(base){ (acc, bundle) => acc.withBundles(Seq(bundle)) }
   }
 
-  "The configuration for block parsers" should {
+  val defaultConfig: OperationConfig = createConfig(createParser())
+}
 
-    "merge the block parsers from a host language with the block parsers from an app extension" in new BlockParserSetup {
-      override def blockParsers: Seq[BlockParserBuilder] = Seq(blockFor('>'))
+class BlockParserConfigSpec extends FunSuite with ParserSetup {
 
-      val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
+  private val input =
+    """
+      |>aaa
+      |aaa
+      |
+      |+bbb
+      |bbb
+    """.stripMargin
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
-    }
-
-    "merge the block parsers from two app extensions" in new BlockParserSetup {
-      override def blockParsers: Seq[BlockParserBuilder] = Nil
-
-      val bundle1 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
-      val bundle2 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('>')))
-
-      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
-    }
-
-    "let a block parser from an app extension override a block parser from the host language" in new BlockParserSetup {
-      override def blockParsers: Seq[BlockParserBuilder] = Seq(blockFor('>'), blockFor('+'))
-
-      val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+', '!')))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb")
-    }
-
-    "let a block parser from the host language override a low-precedence parser from an app extension" in new BlockParserSetup {
-      override def blockParsers: Seq[BlockParserBuilder] = Seq(blockFor('>'), blockFor('+'))
-
-      val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(
-        BlockParser.standalone(literal("+").map(_ => Rule())).withLowPrecedence
-      ))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
-    }
-
+  case class DecoratedBlock (deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {
+    type Self = DecoratedBlock
+    def withContent (newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
+    def withOptions (options: Options): DecoratedBlock = copy(options = options)
   }
 
-  trait SpanParserSetup extends ParserSetup {
+  def blockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
-    import TextParsers._
-
-    val input = ">aaa +bbb"
-
-    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
-      spanParsers.recursiveSpans(textBlockParser).map(Paragraph(_))
-    })
-
-    case class DecoratedSpan (deco: Char, text: String) extends Span {
-      val options: Options = NoOpt
-      type Self = DecoratedSpan
-      def withOptions (options: Options): DecoratedSpan = this
+  def blockFor (deco: Char, overrideDeco: Char): BlockParserBuilder =
+    BlockParser.withSpans { spanParsers =>
+      builders.oneOf(deco) ~> spanParsers.recursiveSpans(defaultTextBlockParser).map(DecoratedBlock(overrideDeco, _))
     }
 
-    def spanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
+  def doc (blocks: (Char, String)*): Document =
+    Document(Root / "doc", RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
+      config = defaultDocConfig)
+  
+  test("merge parsers from a host language with parsers from an app extension") {
+    val format = createParser(blocks = Seq(blockFor('>')))
 
-    def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
-      SpanParser.standalone {
-        (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
-      }
+    val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
 
-    def doc (spans: (Char, String)*): Document =
-      Document(Root / "doc", RootElement(Paragraph(
-        spans.map { case (deco, text) => DecoratedSpan(deco, text) }
-      )), config = docConfig)
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+    )
   }
 
-  "The configuration for span parsers" should {
+  test("merge parsers from two app extensions") {
+    val format = createParser()
 
-    "merge the span parsers from a host language with the span parsers from an app extension" in new SpanParserSetup {
-      override def spanParsers: Seq[SpanParserBuilder] = Seq(spanFor('>'))
+    val bundle1 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
+    val bundle2 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('>')))
 
-      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
-    }
-
-    "merge the span parsers from two app extensions" in new SpanParserSetup {
-      override def spanParsers: Seq[SpanParserBuilder] = Nil
-
-      val bundle1 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
-      val bundle2 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('>')))
-
-      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
-    }
-
-    "let a span parser from an app extension override a span parser from the host language" in new SpanParserSetup {
-      override def spanParsers: Seq[SpanParserBuilder] = Seq(spanFor('>'), spanFor('+'))
-
-      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+', '!')))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '!' -> "bbb")
-    }
-
-    "let a span parser from the host language override a low-precedence parser from an app extension" in new SpanParserSetup {
-      override def spanParsers: Seq[SpanParserBuilder] = Seq(spanFor('>'), spanFor('+'))
-
-      val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(
-        SpanParser.standalone(literal("+").map(Text(_))).withLowPrecedence
-      ))
-
-      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
-    }
-
+    assertEquals(
+      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+    )
   }
 
-  trait ParserHookSetup extends SetupBase {
+  test("let a parser from an app extension override a parser from the host language") {
+    val format = createParser(blocks = Seq(blockFor('>'), blockFor('+')))
 
-    override def blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.standalone {
+    val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+', '!')))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input),
+      Right(doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb"))
+    )
+  }
+
+  test("let a parser from the host language override a low-precedence parser from an app extension") {
+    val format = createParser(blocks = Seq(blockFor('>'), blockFor('+')))
+
+    val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(
+      BlockParser.standalone(literal("+").map(_ => Rule())).withLowPrecedence
+    ))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+    )
+  }
+
+}
+
+class SpanParserConfigSpec extends FunSuite with ParserSetup {
+
+  import TextParsers._
+
+  val input = ">aaa +bbb"
+
+  val blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
+    spanParsers.recursiveSpans(defaultTextBlockParser).map(Paragraph(_))
+  })
+
+  case class DecoratedSpan (deco: Char, text: String) extends Span {
+    val options: Options = NoOpt
+    type Self = DecoratedSpan
+    def withOptions (options: Options): DecoratedSpan = this
+  }
+
+  def spanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)
+
+  def spanFor (deco: Char, overrideDeco: Char): SpanParserBuilder =
+    SpanParser.standalone {
+      (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
+    }
+
+  def doc (spans: (Char, String)*): Document =
+    Document(Root / "doc", RootElement(Paragraph(
+      spans.map { case (deco, text) => DecoratedSpan(deco, text) }
+    )), config = defaultDocConfig)
+    
+  def parser(spans: SpanParserBuilder*): MarkupFormat = createParser(
+    spans = spans,
+    blocks = blockParsers
+  )
+
+  test("merge parsers from a host language with parsers from an app extension") {
+    val format = parser(spanFor('>'))
+
+    val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input), 
+      Right(doc('>' -> "aaa", '+' -> "bbb"))
+    )
+  }
+
+  test("merge parsers from two app extensions") {
+    val format = parser()
+
+    val bundle1 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
+    val bundle2 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('>')))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input), 
+      Right(doc('>' -> "aaa", '+' -> "bbb"))
+    )
+  }
+
+  test("let a parser from an app extension override a parser from the host language") {
+    val format = parser(spanFor('>'), spanFor('+'))
+
+    val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+', '!')))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input), 
+      Right(doc('>' -> "aaa", '!' -> "bbb"))
+    )
+  }
+
+  test("let a parser from the host language override a low-precedence parser from an app extension") {
+    val format = parser(spanFor('>'), spanFor('+'))
+
+    val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(
+      SpanParser.standalone(literal("+").map(Text(_))).withLowPrecedence
+    ))
+
+    assertEquals(
+      MarkupParser.of(format).using(bundle).build.parse(input), 
+      Right(doc('>' -> "aaa", '+' -> "bbb"))
+    )
+  }
+
+}
+
+class ParserHookSpec extends FunSuite with ParserSetup {
+
+  def parserBuilder(bundles: ExtensionBundle*): laika.api.builder.ParserBuilder = MarkupParser.of(createParser(
+    blocks = Seq(BlockParser.standalone {
       TextParsers.textLine.map(Paragraph(_))
-    })
+    }),
+    bundles = bundles
+  ))
 
-    def preProcess (append: String): DocumentInput => DocumentInput = { input =>
-      val raw = input.source.input
-      input.copy(source = SourceCursor(raw + append, input.path))
-    }
+  def preProcess (append: String): DocumentInput => DocumentInput = { input =>
+    val raw = input.source.input
+    input.copy(source = SourceCursor(raw + append, input.path))
+  }
 
-    def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(
-       document =
-         unresolved.document.copy(content = unresolved.document.content.copy(content = unresolved.document.content.content map {
-          case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
-        })))
-      }
-
-    def processBlocks (append: String): Seq[Block] => Seq[Block] = { blocks =>
-      blocks map {
+  def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(
+     document =
+       unresolved.document.copy(content = unresolved.document.content.copy(content = unresolved.document.content.content map {
         case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
-      }
+      })))
     }
 
-    def doc (text: String): Document = Document(Root / "doc", RootElement(text), config = docConfig)
-
+  def processBlocks (append: String): Seq[Block] => Seq[Block] = { blocks =>
+    blocks map {
+      case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
+    }
   }
 
-  "The configuration for the preProcessInput hook" should {
+  def doc (text: String): Document = Document(Root / "doc", RootElement(text), config = defaultDocConfig)
 
-    "apply the hook from a parser extension before the hook in an app extension" in new ParserHookSetup {
-      val parserBundles = Seq(BundleProvider.forParserHooks(preProcessInput = preProcess("!")))
-      val appBundle = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
+  test("preProcessInput - apply the hook from a parser extension before the hook in an app extension") {
+    val parserBundle = BundleProvider.forParserHooks(preProcessInput = preProcess("!"))
+    val appBundle = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
-    "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
-      val parserBundles = Nil
-      val appBundle1 = BundleProvider.forParserHooks(preProcessInput = preProcess("!"))
-      val appBundle2 = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
-
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
-
-    "provide the identity function when no hook is defined" in new ParserHookSetup {
-      val parserBundles = Nil
-
-      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
-    }
-
+    assertEquals(
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo"), 
+      Right(doc("foo!?"))
+    )
   }
 
-  "The configuration for the postProcessBlocks hook" should {
+  test("preProcessInput - apply the hook from an app extension before the hook in a subsequently installed app extension") {
+    val appBundle1 = BundleProvider.forParserHooks(preProcessInput = preProcess("!"))
+    val appBundle2 = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
-    "apply the hook from a parser extension before the hook in an app extension" in new ParserHookSetup {
-      val parserBundles = Seq(BundleProvider.forParserHooks(postProcessDocument = processDoc("!")))
-      val appBundle = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
-
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
-
-    "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
-      val parserBundles = Nil
-      val appBundle1 = BundleProvider.forParserHooks(postProcessDocument = processDoc("!"))
-      val appBundle2 = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
-
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
-
-    "provide the identity function when no hook is defined" in new ParserHookSetup {
-      val parserBundles = Nil
-
-      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
-    }
-
+    assertEquals(
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"), 
+      Right(doc("foo!?"))
+    )
   }
 
-  "The configuration for the postProcessDocument hook" should {
-
-    "apply the hook from a parser extension before the hook in an app extension" in new ParserHookSetup {
-      val parserBundles = Seq(BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!")))
-      val appBundle = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
-
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
-
-    "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
-      val parserBundles = Nil
-      val appBundle1 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!"))
-      val appBundle2 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
-
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
-    }
-
-    "provide the identity function when no hook is defined" in new ParserHookSetup {
-      val parserBundles = Nil
-
-      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
-    }
-
+  test("preProcessInput - provide the identity function when no hook is defined") {
+    assertEquals(
+      parserBuilder().build.parse("foo"),
+      Right(doc("foo"))
+    )
   }
 
-  "The configuration for the config provider" should {
 
-    object BetweenBraces extends ConfigProvider {
-      def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
-      def configDocument (input: String): ConfigParser = ConfigParser.empty
-    }
-    object BetweenAngles extends ConfigProvider {
-      def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
-      def configDocument (input: String): ConfigParser = ConfigParser.empty
-    }
+  test("postProcessBlocks hook- apply the hook from a parser extension before the hook in an app extension") {
+    val parserBundle = BundleProvider.forParserHooks(postProcessDocument = processDoc("!"))
+    val appBundle = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
-    def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig
-      .configProvider
-      .configHeader
-      .parse(input) match {
-        case Success(builderRoot, _) =>
-          builderRoot.resolve(Origin.root, Config.empty, Map.empty)
-        case f: Failure => Left(ConfigParserError(f))
-      }
-    
-    val expectedConfig = ConfigBuilder.empty.withValue("foo",7).build
-
-    "should let configuration providers from app bundles override providers from parsers" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forConfigProvider(BetweenBraces))
-      val appBundles = Seq(BundleProvider.forConfigProvider(BetweenAngles))
-
-      parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
-      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(expectedConfig)
-    }
-
-    "let an app config override a config provider in a previously installed app config" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Seq(
-        BundleProvider.forConfigProvider(BetweenBraces),
-        BundleProvider.forConfigProvider(BetweenAngles),
-      )
-
-      parseWith(config, "{{\nfoo: 7\n}}").toOption shouldBe None
-      parseWith(config, "<<\nfoo: 7\n>>").toOption shouldBe Some(expectedConfig)
-    }
-
-    "use the default fallback parser in case no provider is installed" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Nil
-
-      parseWith(config, "{%\nfoo: 7\n%}").toOption shouldBe Some(expectedConfig)
-    }
-
-    "fail when it does not recognize the header separator" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Nil
-      val input = "[[\nfoo: 7\n]]"
-
-      parseWith(config, input) match {
-        case Left(ConfigParserError(f)) => f.toString shouldBe """[1.1] failure: `{%' expected but `[[` found
-                                                                 |
-                                                                 |[[
-                                                                 |^""".stripMargin
-        case other => fail(s"Unexpected result: $other")
-      }
-    }
-
+    assertEquals(
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo"),
+      Right(doc("foo!?"))
+    )
   }
 
-  "The configuration for the template parser" should {
+  test("postProcessBlocks - apply the hook from an app extension before the hook in a subsequently installed app extension") {
+    val appBundle1 = BundleProvider.forParserHooks(postProcessDocument = processDoc("!"))
+    val appBundle2 = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
-    "let an app config override a parser in the extension config" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo"))))
-      val appBundles = Seq(BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar"))))
-
-      val templateParser = config.templateParser
-      templateParser should not be empty
-      templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
-    }
-
-    "let an app config override a parser in a previously installed app config" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Seq(
-        BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo"))),
-        BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar")))
-      )
-
-      val templateParser = config.templateParser
-      templateParser should not be empty
-      templateParser.get.parse("anything").toOption shouldBe Some(TemplateRoot("bar"))
-    }
-
-    "use the default parser when there is no parser installed" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Nil
-
-      val input = "${cursor.currentDocument.content}"
-      val contextRef = TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource(input))
-      val templateParser = config.templateParser
-      templateParser should not be empty
-      templateParser.get.parse(input).toOption shouldBe Some(TemplateRoot(contextRef))
-    }
-
-    "return None in strict mode when there is no parser installed" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Nil
-
-      config.forStrictMode.templateParser shouldBe empty
-    }
-
+    assertEquals(
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"),
+      Right(doc("foo!?"))
+    )
   }
 
-  "The configuration for the style sheet parser" should {
+  test("postProcessBlocks - provide the identity function when no hook is defined") {
+    assertEquals(
+      parserBuilder().build.parse("foo"),
+      Right(doc("foo"))
+    )
+  }
 
-    def style (value: String): Set[StyleDeclaration] = Set(
-      StyleDeclaration(StylePredicate.Id("id"), "foo" -> value)
+
+  test("postProcessDocument - apply the hook from a parser extension before the hook in an app extension") {
+    val parserBundle = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!"))
+    val appBundle = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
+
+    assertEquals(
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo"),
+      Right(doc("foo!?"))
+    )
+  }
+
+  test("postProcessDocument - apply the hook from an app extension before the hook in a subsequently installed app extension") {
+    val appBundle1 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!"))
+    val appBundle2 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
+
+    assertEquals(
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"),
+      Right(doc("foo!?"))
+    )
+  }
+
+  test("postProcessDocument - provide the identity function when no hook is defined") {
+    assertEquals(
+      parserBuilder().build.parse("foo"),
+      Right(doc("foo"))
+    )
+  }
+
+}
+
+class ConfigProviderSpec extends FunSuite with BundleSetup {
+
+  object BetweenBraces extends ConfigProvider {
+    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
+    def configDocument (input: String): ConfigParser = ConfigParser.empty
+  }
+  object BetweenAngles extends ConfigProvider {
+    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
+    def configDocument (input: String): ConfigParser = ConfigParser.empty
+  }
+
+  def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig
+    .configProvider
+    .configHeader
+    .parse(input) match {
+      case Success(builderRoot, _) =>
+        builderRoot.resolve(Origin.root, Config.empty, Map.empty)
+      case f: Failure => Left(ConfigParserError(f))
+    }
+  
+  private val expectedConfig = ConfigBuilder.empty.withValue("foo",7).build
+
+  test("should let configuration providers from app bundles override providers from parsers") {
+    val format = createParser(bundles = Seq(BundleProvider.forConfigProvider(BetweenBraces)))
+    val config = createConfig(format, BundleProvider.forConfigProvider(BetweenAngles))
+
+    assertEquals(parseWith(config, "{{\nfoo: 7\n}}").toOption, None)
+    assertEquals(parseWith(config, "<<\nfoo: 7\n>>"), Right(expectedConfig))
+  }
+
+  test("let an app config override a config provider in a previously installed app config") {
+    val format = createParser()
+    val config = createConfig(
+      format,
+      BundleProvider.forConfigProvider(BetweenBraces),
+      BundleProvider.forConfigProvider(BetweenAngles),
     )
 
-    "let an app config override a parser in the extension config" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forStyleSheetParser(Parsers.success(style("red"))))
-      val appBundles = Seq(BundleProvider.forStyleSheetParser(Parsers.success(style("blue"))))
-      config.styleSheetParser.parse("anything").toOption shouldBe Some(style("blue"))
-    }
-
-    "let an app config override a parser in a previously installed app config" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Seq(
-        BundleProvider.forStyleSheetParser(Parsers.success(style("red"))),
-        BundleProvider.forStyleSheetParser(Parsers.success(style("blue")))
-      )
-      config.styleSheetParser.parse("anything").toOption shouldBe Some(style("blue"))
-    }
-
-    "use the default fallback parser in case all other parsers fail" in new BundleSetup {
-      val parserBundles = Nil
-      val appBundles = Nil
-      config.styleSheetParser shouldBe CSSParsers.styleDeclarationSet
-      config.styleSheetParser.parse("#id { foo: blue; }").toOption shouldBe Some(style("blue"))
-    }
-
+    assertEquals(parseWith(config, "{{\nfoo: 7\n}}").toOption, None)
+    assertEquals(parseWith(config, "<<\nfoo: 7\n>>"), Right(expectedConfig))
   }
 
+  test("use the default fallback parser in case no provider is installed") {
+    assertEquals(
+      parseWith(createConfig(createParser()), "{%\nfoo: 7\n%}"),
+      Right(expectedConfig)
+    )
+  }
+
+  test("fail when it does not recognize the header separator") {
+    val input = "[[\nfoo: 7\n]]"
+
+    parseWith(createConfig(createParser()), input) match {
+      case Left(ConfigParserError(f)) => assertEquals(f.toString, """[1.1] failure: `{%' expected but `[[` found
+                                                                     |
+                                                                     |[[
+                                                                     |^""".stripMargin)
+      case other => fail(s"Unexpected result: $other")
+    }
+  }
+
+}
+
+class TemplateParserConfigSpec extends FunSuite with BundleSetup {
+
+  val missingParserMsg = "no template parser specified"
+  
+  test("let an app config override a parser in the extension config") {
+    val format = createParser(bundles = Seq(BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo")))))
+    val config = createConfig(format,BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar"))))
+    val templateParser = config.templateParser.toRight(missingParserMsg)
+    assertEquals(
+      templateParser.flatMap(_.parse("anything").toEither), 
+      Right(TemplateRoot("bar"))
+    )
+  }
+
+  test("let an app config override a parser in a previously installed app config") {
+    val format = createParser()
+    val config = createConfig(format,
+      BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("foo"))),
+      BundleProvider.forTemplateParser(Parsers.success(TemplateRoot("bar")))
+    )
+    val templateParser = config.templateParser.toRight(missingParserMsg)
+    assertEquals(
+      templateParser.flatMap(_.parse("anything").toEither),
+      Right(TemplateRoot("bar"))
+    )
+  }
+
+  test("use the default parser when there is no parser installed") {
+    val input = "${cursor.currentDocument.content}"
+    val contextRef = TemplateContextReference(CursorKeys.documentContent, required = true, generatedSource(input))
+    val templateParser = defaultConfig.templateParser.toRight(missingParserMsg)
+    assertEquals(
+      templateParser.flatMap(_.parse(input).toEither),
+      Right(TemplateRoot(contextRef))
+    )
+  }
+
+  test("return None in strict mode when there is no parser installed") {
+    val config = createConfig(createParser())
+    assert(config.forStrictMode.templateParser.isEmpty)
+  }
+
+}
+
+class StyleSheetParserConfigSpec extends FunSuite with BundleSetup {
+
+  def style (value: String): Set[StyleDeclaration] = Set(
+    StyleDeclaration(StylePredicate.Id("id"), "foo" -> value)
+  )
+
+  test("let an app config override a parser in the extension config") {
+    val format = createParser(bundles = Seq(BundleProvider.forStyleSheetParser(Parsers.success(style("red")))))
+    val config = createConfig(format,BundleProvider.forStyleSheetParser(Parsers.success(style("blue"))))
+    assertEquals(config.styleSheetParser.parse("anything").toEither, Right(style("blue")))
+  }
+
+  test("let an app config override a parser in a previously installed app config") {
+    val format = createParser()
+    val config = createConfig(format,
+      BundleProvider.forStyleSheetParser(Parsers.success(style("red"))),
+      BundleProvider.forStyleSheetParser(Parsers.success(style("blue")))
+    )
+    assertEquals(config.styleSheetParser.parse("anything").toEither, Right(style("blue")))
+  }
+
+  test("use the default fallback parser in case all other parsers fail") {
+    assertEquals(defaultConfig.styleSheetParser, CSSParsers.styleDeclarationSet)
+    assertEquals(defaultConfig.styleSheetParser.parse("#id { foo: blue; }").toEither, Right(style("blue")))
+  }
 
 }

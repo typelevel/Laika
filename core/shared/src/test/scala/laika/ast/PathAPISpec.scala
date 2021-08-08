@@ -18,11 +18,11 @@ package laika.ast
 
 import laika.ast.Path._
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
+import munit.{FunSuite, Location}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class PathAPISpec extends AnyWordSpec 
-                  with Matchers {
+class PathAPISpec extends FunSuite {
 
   
   private val abs_a = Root / "a"
@@ -38,589 +38,485 @@ class PathAPISpec extends AnyWordSpec
   private val up_c = up_b / "c"
   
   
-  "The String decoder for paths" should {
+  def decoder (testName: String)(body: Any): Unit = test(s"decoder - $testName")(body)
+  def parent (testName: String)(body: Any): Unit = test(s"parent - $testName")(body)
+  def depth (testName: String)(body: Any): Unit = test(s"depth - $testName")(body)
+  def basename (testName: String, actual: PathBase, expected: String): Unit = 
+    test(s"basename - $testName") {
+      assertEquals(actual.basename, expected)
+    }
+  def withBasename (testName: String, pathUnderTest: PathBase)(
+    expectedToString: String,
+    expectedName: String,
+    expectedBasename: String
+  ): Unit = {
+    test(s"withBasename - $testName") {
+      assertEquals(pathUnderTest.toString, expectedToString)
+      assertEquals(pathUnderTest.name, expectedName)
+      assertEquals(pathUnderTest.basename, expectedBasename)
+    }
+  }
+  def suffix (testName: String, actual: PathBase, expected: Option[String]): Unit =
+    test(s"suffix - $testName") {
+      assertEquals(actual.suffix, expected)
+    }
+  def withSuffix (testName: String, pathUnderTest: PathBase)(
+    expectedToString: String,
+    expectedName: String,
+    expectedSuffix: String
+  ): Unit = {
+    test(s"withBasename - $testName") {
+      assertEquals(pathUnderTest.toString, expectedToString)
+      assertEquals(pathUnderTest.name, expectedName)
+      assertEquals(pathUnderTest.suffix, Some(expectedSuffix))
+    }
+  }
+  def fragment (testName: String, actual: PathBase, expected: Option[String]): Unit =
+    test(s"fragment - $testName") {
+      assertEquals(actual.fragment, expected)
+    }
+  def withFragment (testName: String, pathUnderTest: PathBase)(
+    expectedToString: String,
+    expectedName: String,
+    expectedFragment: String
+  ): Unit = {
+    test(s"withFragment - $testName") {
+      assertEquals(pathUnderTest.toString, expectedToString)
+      assertEquals(pathUnderTest.name, expectedName)
+      assertEquals(pathUnderTest.fragment, Some(expectedFragment))
+    }
+  }
+  def concatAbs (testName: String, actual: Path, expected: Path): Unit =
+    test(s"path concatenation for absolute paths - $testName") { assertEquals(actual, expected) }
 
-    "decode an absolute path with three segments" in {
-      PathBase.parse("/foo/bar/baz") shouldBe (Root / "foo" / "bar" / "baz")
-    }
+  def concatRel (testName: String, actual: RelativePath, expected: RelativePath): Unit =
+    test(s"path concatenation for relative paths - $testName") { assertEquals(actual, expected) }
 
-    "decode an absolute path with one segment" in {
-      PathBase.parse("/foo") shouldBe (Root / "foo")
-    }
+  def relativeTo (testName: String, actual: PathBase, expected: PathBase)(implicit loc: Location): Unit =
+    test(s"relativeTo - $testName") { assertEquals(actual, expected) }
 
-    "ignore trailing slashes for absolute paths" in {
-      PathBase.parse("/foo/") shouldBe (Root / "foo")
-    }
-    
-    "decode the root path from a single slash" in {
-      PathBase.parse("/") shouldBe Root
-    }
+  def isSubPath (testName: String, actual: Boolean, expected: Boolean)(implicit loc: Location): Unit =
+    test(s"isSubPath - $testName") { assertEquals(actual, expected) }
+  
+  
+  decoder("absolute path with three segments") {
+    assertEquals(PathBase.parse("/foo/bar/baz"), Root / "foo" / "bar" / "baz")
+  }
 
-    "decode a relative path with three segments" in {
-      PathBase.parse("foo/bar/baz") shouldBe (CurrentTree / "foo" / "bar" / "baz")
-    }
+  decoder("absolute path with one segment") {
+    assertEquals(PathBase.parse("/foo"), Root / "foo")
+  }
 
-    "decode a relative path with one segment" in {
-      PathBase.parse("foo/") shouldBe (CurrentTree / "foo")
-    }
-
-    "ignore trailing slashes for relative paths" in {
-      PathBase.parse("foo/") shouldBe (CurrentTree / "foo")
-    }
-
-    "decode the current document from the empty string" in {
-      PathBase.parse("") shouldBe CurrentDocument()
-    }
-
-    "decode the current document from a hash" in {
-      PathBase.parse("#") shouldBe CurrentDocument()
-    }
-
-    "decode the current relative path from a dot" in {
-      PathBase.parse(".") shouldBe CurrentTree
-    }
-
-    "decode a fragment of the current document" in {
-      PathBase.parse("#ref") shouldBe CurrentDocument("ref")
-    }
-
-    "decode a relative path to a parent with three segments" in {
-      PathBase.parse("../foo/bar/baz") shouldBe (Parent(1) / "foo" / "bar" / "baz")
-    }
-    
-    "decode a relative path to a parent with one segment" in {
-      PathBase.parse("../foo/") shouldBe (Parent(1) / "foo")
-    }
-
-    "decode a relative path to a parent three levels up" in {
-      PathBase.parse("../../../foo/") shouldBe (Parent(3) / "foo")
-    }
-
-    "decode a relative path to a parent two levels up without any path segments" in {
-      PathBase.parse("../../") shouldBe Parent(2)
-    }
-
-    "decode a relative path to a parent one level up without any path segments" in {
-      PathBase.parse("../") shouldBe Parent(1)
-    }
-
-    "decode a relative path to a parent two levels up without trailing slash" in {
-      PathBase.parse("../..") shouldBe Parent(2)
-    }
-
-    "decode a relative path to a parent one level up without trailing slash" in {
-      PathBase.parse("..") shouldBe Parent(1)
-    }
-    
-    "ignore leading slashes when RelativePath.parse is invoked directly" in {
-      RelativePath.parse("/foo/") shouldBe (CurrentTree / "foo")
-    }
-
-    "assume leading slashes when Path.parse is invoked directly" in {
-      Path.parse("foo/") shouldBe (Root / "foo")
-    }
-
+  decoder("ignore trailing slashes for absolute paths") {
+    assertEquals(PathBase.parse("/foo/"), Root / "foo")
   }
   
-  "The parent property" should {
-    
-    "return Root for Root" in {
-      Root.parent shouldBe Root
-    }
+  decoder("root path from a single slash") {
+    assertEquals(PathBase.parse("/"), Root)
+  }
 
-    "return Root for a path with a single segment" in {
-      abs_a.parent shouldBe Root
-    }
+  decoder("relative path with three segments") {
+    assertEquals(PathBase.parse("foo/bar/baz"), CurrentTree / "foo" / "bar" / "baz")
+  }
 
-    "return a path with 2 segments for an absolute path with 3 segments" in {
-      abs_c.parent shouldBe abs_b
-    }
+  decoder("relative path with one segment") {
+    assertEquals(PathBase.parse("foo/"), CurrentTree / "foo")
+  }
 
-    "return Parent(1) for Current" in {
-      CurrentTree.parent shouldBe Parent(1)
-    }
+  decoder("ignore trailing slashes for relative paths") {
+    assertEquals(PathBase.parse("foo/"), CurrentTree / "foo")
+  }
 
-    "return CurrentTree for CurrentDocument" in {
-      CurrentDocument("ref").parent shouldBe CurrentTree
-    }
+  decoder("current document from the empty string") {
+    assertEquals(PathBase.parse(""), CurrentDocument())
+  }
 
-    "return CurrentTree for a path with a single segment" in {
-      rel_a.parent shouldBe CurrentTree
-    }
+  decoder("current document from a hash") {
+    assertEquals(PathBase.parse("#"), CurrentDocument())
+  }
 
-    "return a path with 2 segments for a relative path with 3 segments" in {
-      rel_c.parent shouldBe rel_b
-    }
+  decoder("current relative path from a dot") {
+    assertEquals(PathBase.parse("."), CurrentTree)
+  }
 
-    "return Parent(2) for Parent(1)" in {
-      Parent(1).parent shouldBe Parent(2)
-    }
+  decoder("fragment of the current document") {
+    assertEquals(PathBase.parse("#ref"), CurrentDocument("ref"))
+  }
 
-    "return Parent(1) for a path with a single segment" in {
-      up_a.parent shouldBe Parent(1)
-    }
-
-    "return a path with 2 segments for a parent path with 3 segments" in {
-      up_c.parent shouldBe up_b
-    }
-    
+  decoder("relative path to parent with three segments") {
+    assertEquals(PathBase.parse("../foo/bar/baz"), Parent(1) / "foo" / "bar" / "baz")
   }
   
-  "The depth property" should {
-    
-    "be 0 for Root" in {
-      Root.depth shouldBe 0
-    }
-
-    "be 1 for a path with one segment" in {
-      abs_a.depth shouldBe 1
-    }
-
-    "be 3 for a path with three segments" in {
-      abs_c.depth shouldBe 3
-    }
-    
+  decoder("relative path to parent with one segment") {
+    assertEquals(PathBase.parse("../foo/"), Parent(1) / "foo")
   }
 
-  "The basename property" should {
-
-    "be / for Root" in {
-      Root.basename shouldBe "/"
-    }
-
-    "be . for CurrentTree" in {
-      CurrentTree.basename shouldBe "."
-    }
-
-    "be empty for CurrentDocument" in {
-      CurrentDocument("ref").basename shouldBe ""
-    }
-
-    "be ../ for Parent(1)" in {
-      Parent(1).basename shouldBe "../"
-    }
-
-    "be defined for an absolute path without suffix" in {
-      abs_a.basename shouldBe "a"
-    }
-
-    "be defined for a relative path without suffix" in {
-      rel_a.basename shouldBe "a"
-    }
-
-    "be defined for an absolute path with suffix" in {
-      (abs_c / "foo.jpg").basename shouldBe "foo"
-    }
-
-    "be defined for an absolute path with suffix and fragment" in {
-      (abs_c / "foo.jpg#baz").basename shouldBe "foo"
-    }
-
-    "be defined for a relative path with suffix" in {
-      (rel_c / "foo.jpg").basename shouldBe "foo"
-    }
-
-    "be defined for a relative path with suffix and fragment" in {
-      (rel_c / "foo.jpg#baz").basename shouldBe "foo"
-    }
-
-    "be updated after calling withBasename on an absolute path without suffix" in {
-      val result = abs_c.withBasename("d")
-      result.toString shouldBe "/a/b/d"
-      result.name shouldBe "d"
-      result.basename shouldBe "d"
-    }
-
-    "be updated after calling withBasename on a relative path without suffix" in {
-      val result = rel_c.withBasename("d")
-      result.toString shouldBe "a/b/d"
-      result.name shouldBe "d"
-      result.basename shouldBe "d"
-    }
-
-    "be updated after calling withBasename on an absolute path with suffix" in {
-      val result = (abs_c / "foo.jpg").withBasename("bar")
-      result.toString shouldBe "/a/b/c/bar.jpg"
-      result.name shouldBe "bar.jpg"
-      result.basename shouldBe "bar"
-    }
-
-    "be updated after calling withBasename on an absolute path with suffix and with fragment" in {
-      val result = (abs_c / "foo.jpg#baz").withBasename("bar")
-      result.toString shouldBe "/a/b/c/bar.jpg#baz"
-      result.name shouldBe "bar.jpg"
-      result.basename shouldBe "bar"
-    }
-
-    "be updated after calling withBasename on a relative path with suffix" in {
-      val result = (rel_c / "foo.jpg").withBasename("bar")
-      result.toString shouldBe "a/b/c/bar.jpg"
-      result.name shouldBe "bar.jpg"
-      result.basename shouldBe "bar"
-    }
-
-    "be updated after calling withBasename on a relative path with suffix with fragment" in {
-      val result = (rel_c / "foo.jpg#baz").withBasename("bar")
-      result.toString shouldBe "a/b/c/bar.jpg#baz"
-      result.name shouldBe "bar.jpg"
-      result.basename shouldBe "bar"
-    }
-    
+  decoder("relative path to parent three levels up") {
+    assertEquals(PathBase.parse("../../../foo/"), Parent(3) / "foo")
   }
 
-  "The suffix property" should {
-
-    "be empty for Root" in {
-      Root.suffix shouldBe None
-    }
-
-    "be empty for CurrentTree" in {
-      CurrentTree.suffix shouldBe None
-    }
-
-    "be empty for CurrentDocument" in {
-      CurrentDocument("ref").suffix shouldBe None
-    }
-
-    "be empty for Parent(1)" in {
-      Parent(1).suffix shouldBe None
-    }
-
-    "be empty for an absolute path without suffix" in {
-      abs_a.suffix shouldBe None
-    }
-
-    "be empty for a relative path without suffix" in {
-      rel_a.suffix shouldBe None
-    }
-
-    "be defined for an absolute path with suffix" in {
-      (abs_c / "foo.jpg").suffix shouldBe Some("jpg")
-    }
-
-    "use the longest suffix in case of multiple dots" in {
-      (abs_c / "foo.tar.gz").suffix shouldBe Some("tar.gz")
-    }
-
-    "be defined for an absolute path with suffix and fragment" in {
-      (abs_c / "foo.jpg#baz").suffix shouldBe Some("jpg")
-    }
-
-    "be defined for a relative path with suffix" in {
-      (rel_c / "foo.jpg").suffix shouldBe Some("jpg")
-    }
-
-    "be defined for a relative path with suffix and fragment" in {
-      (rel_c / "foo.jpg#baz").suffix shouldBe Some("jpg")
-    }
-    
-    "be defined after calling withSuffix on an absolute path without suffix" in {
-      val result = abs_c.withSuffix("foo")
-      result.toString shouldBe "/a/b/c.foo"
-      result.name shouldBe "c.foo"
-      result.suffix shouldBe Some("foo")
-    }
-
-    "be defined after calling withSuffix on an absolute path without suffix with fragment" in {
-      val result = (abs_c / "foo#baz").withSuffix("bar")
-      result.toString shouldBe "/a/b/c/foo.bar#baz"
-      result.name shouldBe "foo.bar"
-      result.suffix shouldBe Some("bar")
-    }
-
-    "be defined after calling withSuffix on a relative path without suffix" in {
-      val result = rel_c.withSuffix("foo")
-      result.toString shouldBe "a/b/c.foo"
-      result.name shouldBe "c.foo"
-      result.suffix shouldBe Some("foo")
-    }
-
-    "be defined after calling withSuffix on a relative path without suffix with fragment" in {
-      val result = (rel_c / "foo#baz").withSuffix("bar")
-      result.toString shouldBe "a/b/c/foo.bar#baz"
-      result.name shouldBe "foo.bar"
-      result.suffix shouldBe Some("bar")
-    }
-
-    "be updated after calling withSuffix on an absolute path with suffix" in {
-      val result = (abs_c / "foo.jpg").withSuffix("baz")
-      result.toString shouldBe "/a/b/c/foo.baz"
-      result.name shouldBe "foo.baz"
-      result.suffix shouldBe Some("baz")
-    }
-
-    "be updated after calling withSuffix on an absolute path with suffix and with fragment" in {
-      val result = (abs_c / "foo.jpg#baz").withSuffix("bar")
-      result.toString shouldBe "/a/b/c/foo.bar#baz"
-      result.name shouldBe "foo.bar"
-      result.suffix shouldBe Some("bar")
-    }
-
-    "be updated after calling withSuffix on a relative path with suffix" in {
-      val result = (rel_c / "foo.jpg").withSuffix("baz")
-      result.toString shouldBe "a/b/c/foo.baz"
-      result.name shouldBe "foo.baz"
-      result.suffix shouldBe Some("baz")
-    }
-
-    "be updated after calling withSuffix on a relative path with suffix with fragment" in {
-      val result = (rel_c / "foo.jpg#baz").withSuffix("bar")
-      result.toString shouldBe "a/b/c/foo.bar#baz"
-      result.name shouldBe "foo.bar"
-      result.suffix shouldBe Some("bar")
-    }
-
+  decoder("relative path to parent two levels up without any path segments") {
+    assertEquals(PathBase.parse("../../"), Parent(2))
   }
 
-  "The fragment property" should {
+  decoder("relative path to parent one level up without any path segments") {
+    assertEquals(PathBase.parse("../"), Parent(1))
+  }
 
-    "be empty for Root" in {
-      Root.fragment shouldBe None
-    }
+  decoder("relative path to parent two levels up without trailing slash") {
+    assertEquals(PathBase.parse("../.."), Parent(2))
+  }
 
-    "be empty for CurrentTree" in {
-      CurrentTree.fragment shouldBe None
-    }
-
-    "be empty for Parent(1)" in {
-      Parent(1).fragment shouldBe None
-    }
-
-    "be empty for an absolute path without fragment" in {
-      abs_a.fragment shouldBe None
-    }
-
-    "be empty for a relative path without fragment" in {
-      rel_a.fragment shouldBe None
-    }
-
-    "be empty for the current document without a fragment" in {
-      CurrentDocument().fragment shouldBe None
-    }
-
-    "be defined for the current document with a fragment" in {
-      CurrentDocument("baz").fragment shouldBe Some("baz")
-    }
-
-    "be defined for an absolute path with fragment" in {
-      (abs_c / "foo#baz").fragment shouldBe Some("baz")
-    }
-
-    "be defined for an absolute path with suffix and fragment" in {
-      (abs_c / "foo.jpg#baz").fragment shouldBe Some("baz")
-    }
-
-    "be defined for a relative path with fragment" in {
-      (rel_c / "foo#baz").fragment shouldBe Some("baz")
-    }
-
-    "be defined for a relative path with suffix and fragment" in {
-      (rel_c / "foo.jpg#baz").fragment shouldBe Some("baz")
-    }
-
-    "be defined after calling withFragment on an absolute path without fragment" in {
-      val result = abs_c.withFragment("baz")
-      result.toString shouldBe "/a/b/c#baz"
-      result.name shouldBe "c"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be defined after calling withFragment on an absolute path without fragment with suffix" in {
-      val result = (abs_c / "foo.jpg").withFragment("baz")
-      result.toString shouldBe "/a/b/c/foo.jpg#baz"
-      result.name shouldBe "foo.jpg"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be defined after calling withFragment on a relative path without fragment" in {
-      val result = rel_c.withFragment("baz")
-      result.toString shouldBe "a/b/c#baz"
-      result.name shouldBe "c"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be defined after calling withFragment on a relative path without fragment with suffix" in {
-      val result = (rel_c / "foo.jpg").withFragment("baz")
-      result.toString shouldBe "a/b/c/foo.jpg#baz"
-      result.name shouldBe "foo.jpg"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be updated after calling withFragment on an absolute path with fragment" in {
-      val result = (abs_c / "foo#bar").withFragment("baz")
-      result.toString shouldBe "/a/b/c/foo#baz"
-      result.name shouldBe "foo"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be updated after calling withFragment on an absolute path with fragment and with suffix" in {
-      val result = (abs_c / "foo.jpg#bar").withFragment("baz")
-      result.toString shouldBe "/a/b/c/foo.jpg#baz"
-      result.name shouldBe "foo.jpg"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be updated after calling withFragment on a relative path with fragment" in {
-      val result = (rel_c / "foo#bar").withFragment("baz")
-      result.toString shouldBe "a/b/c/foo#baz"
-      result.name shouldBe "foo"
-      result.fragment shouldBe Some("baz")
-    }
-
-    "be updated after calling withSuffix on a relative path with fragment with suffix" in {
-      val result = (rel_c / "foo.jpg#baz").withFragment("baz")
-      result.toString shouldBe "a/b/c/foo.jpg#baz"
-      result.name shouldBe "foo.jpg"
-      result.fragment shouldBe Some("baz")
-    }
-
+  decoder("relative path to parent one level up without trailing slash") {
+    assertEquals(PathBase.parse(".."), Parent(1))
   }
   
-  "The path concatenation for absolute paths" should {
-
-    "return the same instance when invoked with CurrentTree" in {
-      abs_c / CurrentTree shouldBe abs_c
-    }
-
-    "return the parent when invoked with Parent(1)" in {
-      abs_c / Parent(1) shouldBe abs_b
-    }
-
-    "return Root when invoked with Parent(3)" in {
-      abs_c / Parent(3) shouldBe Root
-    }
-    
-    "combine two paths with segments" in {
-      Root / "foo" / "bar" / (CurrentTree / "baz") shouldBe (Root / "foo" / "bar" / "baz")
-    }
-
-    "concatenate a path pointing to a parent one level up" in {
-      Root / "foo" / "bar" / (Parent(1) / "baz") should be(Root / "foo" / "baz")
-    }
-
-    "concatenate a path pointing to a parent two levels up" in {
-      Root / "foo" / "bar" / (Parent(2) / "baz") should be(Root / "baz")
-    }
-
-    "not lose the suffix when invoked with CurrentTree" in {
-      (abs_b / "c.foo") / CurrentDocument(None) shouldBe abs_b / "c.foo"
-    }
-
+  decoder("ignore leading slashes when RelativePath.parse is invoked directly") {
+    assertEquals(RelativePath.parse("/foo/"), CurrentTree / "foo")
   }
 
-  "The path concatenation for relative paths" should {
-
-    "return the same instance when invoked with Current" in {
-      rel_c / CurrentTree shouldBe rel_c
-    }
-
-    "return the parent when invoked with Parent(1)" in {
-      rel_c / Parent(1) shouldBe rel_b
-    }
-
-    "return CurrentTree when invoked with Parent(3)" in {
-      rel_c / Parent(3) shouldBe CurrentTree
-    }
-
-    "return Parent(1) when invoked with Parent(4)" in {
-      rel_c / Parent(4) shouldBe Parent(1)
-    }
-
-    "combine two paths with segments" in {
-      CurrentTree / "foo" / "bar" / (CurrentTree / "baz") shouldBe (CurrentTree / "foo" / "bar" / "baz")
-    }
-
-    "concatenate a path pointing to a parent one level up" in {
-      CurrentTree / "foo" / "bar" / (Parent(1) / "baz") shouldBe (CurrentTree / "foo" / "baz")
-    }
-
-    "concatenate a path pointing to a parent two levels up" in {
-      CurrentTree / "foo" / "bar" / (Parent(2) / "baz") shouldBe (CurrentTree / "baz")
-    }
-    
-    "append to CurrentTree" in {
-      CurrentTree / (Parent(1) / "baz") shouldBe (Parent(1) / "baz")
-    }
-
-    "append to Parent(1)" in {
-      Parent(1) / (Parent(1) / "baz") shouldBe (Parent(2) / "baz")
-    }
-
-    "concatenate a path pointing to a parent one level up to another path pointing one level up" in {
-      Parent(1) / "foo" / "bar" / (Parent(1) / "baz") shouldBe (Parent(1) / "foo" / "baz")
-    }
-
-    "concatenate a path pointing to a parent two levels up to another path pointing one level up" in {
-      Parent(1) / "foo" / "bar" / (Parent(2) / "baz") shouldBe (Parent(1) / "baz")
-    }
-
+  decoder("assume leading slashes when Path.parse is invoked directly") {
+    assertEquals(Path.parse("foo/"), Root / "foo")
   }
 
-  "The relativeTo method" should {
     
-    "create a relative path pointing to the same document" in {
-      (Root / "a").relativeTo(Root / "a") shouldBe CurrentDocument()
-    }
-
-    "create a relative path pointing to a parent directory" in {
-      (Root / "a").relativeTo(Root / "a" / "b") shouldBe Parent(1)
-    }
-
-    "create a relative path pointing to a document in the parent directory" in {
-      (Root / "c").relativeTo(Root / "a" / "b") shouldBe (Parent(1) / "c")
-    }
-
-    "create a relative path pointing to a document in the same directory" in {
-      (Root / "a" / "b").relativeTo(Root / "a" / "c") shouldBe (CurrentTree / "b")
-    }
-
-    "create a path relative path to Root" in {
-      (Root / "a" / "b").relativeTo(Root) shouldBe (CurrentTree / "a" / "b")
-    }
-
-    "create a relative path pointing upwards to Root" in {
-      Root.relativeTo(Root / "a" / "c") shouldBe Parent(2)
-    }
-
-    "create a relative path pointing to a fragment in the same document" in {
-      (Root / "a" / "b#ref").relativeTo(Root / "a" / "b") shouldBe CurrentDocument("ref")
-    }
-
-    "preserve suffix and fragment" in {
-      (Root / "a" / "b.html#ref").relative shouldBe (CurrentTree / "a" / "b.html#ref")
-    }
+  parent("Root for Root") {
+    assertEquals(Root.parent, Root)
   }
+
+  parent("Root for a path with a single segment") {
+    assertEquals(abs_a.parent, Root)
+  }
+
+  parent("a path with 2 segments for an absolute path with 3 segments") {
+    assertEquals(abs_c.parent, abs_b)
+  }
+
+  parent("Parent(1) for Current") {
+    assertEquals(CurrentTree.parent, Parent(1))
+  }
+
+  parent("CurrentTree for CurrentDocument") {
+    assertEquals(CurrentDocument("ref").parent, CurrentTree)
+  }
+
+  parent("CurrentTree for a path with a single segment") {
+    assertEquals(rel_a.parent, CurrentTree)
+  }
+
+  parent("a path with 2 segments for a relative path with 3 segments") {
+    assertEquals(rel_c.parent, rel_b)
+  }
+
+  parent("Parent(2) for Parent(1)") {
+    assertEquals(Parent(1).parent, Parent(2))
+  }
+
+  parent("Parent(1) for a path with a single segment") {
+    assertEquals(up_a.parent, Parent(1))
+  }
+
+  parent("a path with 2 segments for a parent path with 3 segments") {
+    assertEquals(up_c.parent, up_b)
+  }
+
+
+  depth("0 for Root") {
+    assertEquals(Root.depth, 0)
+  }
+
+  depth("1 for a path with one segment") {
+    assertEquals(abs_a.depth, 1)
+  }
+
+  depth("3 for a path with three segments") {
+    assertEquals(abs_c.depth, 3)
+  }
+
+    
+  basename("/ for Root", Root, "/")
+
+  basename(". for CurrentTree", CurrentTree, ".")
+
+  basename("empty for CurrentDocument", CurrentDocument("ref"), "")
+
+  basename("../ for Parent(1)", Parent(1), "../")
+
+  basename("for an absolute path without suffix", abs_a, "a")
+
+  basename("for a relative path without suffix", rel_a, "a")
+
+  basename("for an absolute path with suffix", abs_c / "foo.jpg", "foo")
+
+  basename("for an absolute path with suffix and fragment", abs_c / "foo.jpg#baz", "foo")
+
+  basename("for a relative path with suffix", rel_c / "foo.jpg", "foo")
+
+  basename("for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", "foo")
+
   
-  "The isSubPath method" should {
-    
-    "be true for two identical paths" in {
-      abs_c.isSubPath(abs_c) shouldBe true
-    }
+  withBasename("called on an absolute path without suffix", abs_c.withBasename("d"))(
+    expectedToString = "/a/b/d",
+    expectedName = "d",
+    expectedBasename = "d"
+  )
 
-    "be true for two identical paths with suffix" in {
-      abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("foo")) shouldBe true
-    }
+  withBasename("called on a relative path without suffix", rel_c.withBasename("d"))(
+    expectedToString = "a/b/d",
+    expectedName = "d",
+    expectedBasename = "d"
+  )
 
-    "be false for two identical paths with different suffix" in {
-      abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("bar")) shouldBe false
-    }
+  withBasename("called on an absolute path with suffix", (abs_c / "foo.jpg").withBasename("bar"))(
+    expectedToString = "/a/b/c/bar.jpg",
+    expectedName = "bar.jpg",
+    expectedBasename = "bar"
+  )
 
-    "be false for two identical paths when one is without suffix" in {
-      abs_c.withSuffix("foo").isSubPath(abs_c) shouldBe false
-    }
 
-    "be true for a child path" in {
-      abs_c.isSubPath(abs_a) shouldBe true
-    }
+  withBasename("called on an absolute path with suffix and with fragment", (abs_c / "foo.jpg#baz").withBasename("bar"))(
+    expectedToString = "/a/b/c/bar.jpg#baz",
+    expectedName = "bar.jpg",
+    expectedBasename = "bar"
+  )
 
-    "be false for a parent path with a suffix" in {
-      abs_c.isSubPath(abs_a.withSuffix("foo")) shouldBe false
-    }
 
-    "be false for a parent path" in {
-      abs_a.isSubPath(abs_c) shouldBe false
-    }
-    
-  }
+  withBasename("called on a relative path with suffix", (rel_c / "foo.jpg").withBasename("bar"))(
+    expectedToString = "a/b/c/bar.jpg",
+    expectedName = "bar.jpg",
+    expectedBasename = "bar"
+  )
+
+
+  withBasename("called on a relative path with suffix with fragment", (rel_c / "foo.jpg#baz").withBasename("bar"))(
+    expectedToString = "a/b/c/bar.jpg#baz",
+    expectedName = "bar.jpg",
+    expectedBasename = "bar"
+  )
+
+
+  suffix("empty for Root", Root, None)
+
+  suffix("empty for CurrentTree", CurrentTree, None)
+
+  suffix("empty for CurrentDocument", CurrentDocument("ref"), None)
+
+  suffix("empty for Parent(1)", Parent(1), None)
+
+  suffix("empty for an absolute path without suffix", abs_a, None)
+
+  suffix("empty for a relative path without suffix", rel_a, None)
+
+  suffix("defined for an absolute path with suffix", abs_c / "foo.jpg", Some("jpg"))
+
+  suffix("use longest suffix in case of multiple dots", abs_c / "foo.tar.gz", Some("tar.gz"))
+
+  suffix("defined for an absolute path with suffix and fragment", abs_c / "foo.jpg#baz", Some("jpg"))
+
+  suffix("defined for a relative path with suffix", rel_c / "foo.jpg", Some("jpg"))
+
+  suffix("defined for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", Some("jpg")) 
+  
+  
+  withSuffix("called on an absolute path without suffix", abs_c.withSuffix("foo"))(
+    expectedToString = "/a/b/c.foo",
+    expectedName = "c.foo",
+    expectedSuffix = "foo"
+  )
+
+  withSuffix("called on an absolute path without suffix with fragment", (abs_c / "foo#baz").withSuffix("bar"))(
+    expectedToString = "/a/b/c/foo.bar#baz",
+    expectedName = "foo.bar",
+    expectedSuffix = "bar"
+  )
+
+  withSuffix("called on a relative path without suffix", rel_c.withSuffix("foo"))(
+    expectedToString = "a/b/c.foo",
+    expectedName = "c.foo",
+    expectedSuffix = "foo"
+  )
+
+  withSuffix("called on a relative path without suffix with fragment", (rel_c / "foo#baz").withSuffix("bar"))(
+    expectedToString = "a/b/c/foo.bar#baz",
+    expectedName = "foo.bar",
+    expectedSuffix = "bar"
+  )
+
+  withSuffix("called on an absolute path with suffix", (abs_c / "foo.jpg").withSuffix("baz"))(
+    expectedToString = "/a/b/c/foo.baz",
+    expectedName = "foo.baz",
+    expectedSuffix = "baz"
+  )
+
+  withSuffix("called on an absolute path with suffix and with fragment", (abs_c / "foo.jpg#baz").withSuffix("bar"))(
+    expectedToString = "/a/b/c/foo.bar#baz",
+    expectedName = "foo.bar",
+    expectedSuffix = "bar"
+  )
+
+  withSuffix("called on a relative path with suffix", (rel_c / "foo.jpg").withSuffix("baz"))(
+    expectedToString = "a/b/c/foo.baz",
+    expectedName = "foo.baz",
+    expectedSuffix = "baz"
+  )
+
+  withSuffix("called on a relative path with suffix with fragment", (rel_c / "foo.jpg#baz").withSuffix("bar"))(
+    expectedToString = "a/b/c/foo.bar#baz",
+    expectedName = "foo.bar",
+    expectedSuffix = "bar"
+  )
+
+
+  fragment("empty for Root", Root, None)
+
+  fragment("empty for CurrentTree", CurrentTree, None)
+
+  fragment("empty for Parent(1)", Parent(1), None)
+
+  fragment("empty for an absolute path without fragment", abs_a, None)
+
+  fragment("empty for a relative path without fragment", rel_a, None)
+
+  fragment("empty for the current document without a fragment", CurrentDocument(), None)
+
+  fragment("defined for the current document with a fragment", CurrentDocument("baz"), Some("baz"))
+
+  fragment("defined for an absolute path with fragment", abs_c / "foo#baz", Some("baz"))
+
+  fragment("defined for an absolute path with suffix and fragment", abs_c / "foo.jpg#baz", Some("baz"))
+
+  fragment("defined for a relative path with fragment", rel_c / "foo#baz", Some("baz"))
+
+  fragment("defined for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", Some("baz"))
+
+  
+  withFragment("called on an absolute path without fragment", abs_c.withFragment("baz"))(
+    expectedToString = "/a/b/c#baz",
+    expectedName = "c",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on an absolute path without fragment with suffix", (abs_c / "foo.jpg").withFragment("baz"))(
+    expectedToString = "/a/b/c/foo.jpg#baz",
+    expectedName = "foo.jpg",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on a relative path without fragment", rel_c.withFragment("baz"))(
+    expectedToString = "a/b/c#baz",
+    expectedName = "c",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on a relative path without fragment with suffix", (rel_c / "foo.jpg").withFragment("baz"))(
+    expectedToString = "a/b/c/foo.jpg#baz",
+    expectedName = "foo.jpg",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on an absolute path with fragment", (abs_c / "foo#bar").withFragment("baz"))(
+    expectedToString = "/a/b/c/foo#baz",
+    expectedName = "foo",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on an absolute path with fragment and with suffix", (abs_c / "foo.jpg#bar").withFragment("baz"))(
+    expectedToString = "/a/b/c/foo.jpg#baz",
+    expectedName = "foo.jpg",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on a relative path with fragment", (rel_c / "foo#bar").withFragment("baz"))(
+    expectedToString = "a/b/c/foo#baz",
+    expectedName = "foo",
+    expectedFragment = "baz"
+  )
+
+  withFragment("called on a relative path with fragment with suffix", (rel_c / "foo.jpg#baz").withFragment("baz"))(
+    expectedToString = "a/b/c/foo.jpg#baz",
+    expectedName = "foo.jpg",
+    expectedFragment = "baz"
+  )
+
+
+  concatAbs("return the same instance when invoked with CurrentTree", abs_c / CurrentTree, abs_c)
+
+  concatAbs("return the immediate parent when invoked with Parent(1)", abs_c / Parent(1), abs_b)
+
+  concatAbs("return Root when pointing to the top-most parent", abs_c / Parent(3), Root)
+
+  concatAbs("two paths with segments", Root / "foo" / "bar" / (CurrentTree / "baz"), Root / "foo" / "bar" / "baz")
+
+  concatAbs("path pointing to a parent one level up", Root / "foo" / "bar" / (Parent(1) / "baz"), Root / "foo" / "baz")
+
+  concatAbs("path pointing to a parent two levels up", Root / "foo" / "bar" / (Parent(2) / "baz"), Root / "baz")
+
+  concatAbs("keep the suffix when invoked with CurrentTree", (abs_b / "c.foo") / CurrentDocument(None), abs_b / "c.foo")
+  
+  
+  concatRel("return the same instance when invoked with Current", rel_c / CurrentTree, rel_c)
+
+  concatRel("return the immediate parent when invoked with Parent(1)", rel_c / Parent(1), rel_b)
+
+  concatRel("return CurrentTree when pointing to the top-most parent", rel_c / Parent(3), CurrentTree)
+
+  concatRel("return Parent(1) when pointing past the top-most parent", rel_c / Parent(4), Parent(1))
+
+  concatRel("two paths with segments", 
+    CurrentTree / "foo" / "bar" / (CurrentTree / "baz"), 
+    CurrentTree / "foo" / "bar" / "baz")
+
+  concatRel("path pointing to a parent one level up", 
+    CurrentTree / "foo" / "bar" / (Parent(1) / "baz"), 
+    CurrentTree / "foo" / "baz")
+
+  concatRel("path pointing to a parent two levels up", 
+    CurrentTree / "foo" / "bar" / (Parent(2) / "baz"), 
+    CurrentTree / "baz")
+
+  concatRel("append to CurrentTree", CurrentTree / (Parent(1) / "baz"), Parent(1) / "baz")
+
+  concatRel("append to Parent(1)", Parent(1) / (Parent(1) / "baz"), Parent(2) / "baz")
+
+  concatRel("path pointing to a parent one level up to another path pointing one level up", 
+    Parent(1) / "foo" / "bar" / (Parent(1) / "baz"), 
+    Parent(1) / "foo" / "baz")
+
+  concatRel("path pointing to a parent two levels up to another path pointing one level up", 
+    Parent(1) / "foo" / "bar" / (Parent(2) / "baz"), 
+    Parent(1) / "baz")
+  
+  
+  relativeTo("pointing to the same document", (Root / "a").relativeTo(Root / "a"), CurrentDocument())
+
+  relativeTo("pointing to a parent tree", (Root / "a").relativeTo(Root / "a" / "b"), Parent(1))
+
+  relativeTo("pointing to a document in the parent tree", (Root / "c").relativeTo(Root / "a" / "b"), Parent(1) / "c")
+
+  relativeTo("pointing to a document in the same tree", (Root / "a" / "b").relativeTo(Root / "a" / "c"), CurrentTree / "b")
+
+  relativeTo("path relative to Root", (Root / "a" / "b").relativeTo(Root), CurrentTree / "a" / "b")
+
+  relativeTo("relative path pointing upwards to Root", Root.relativeTo(Root / "a" / "c"), Parent(2))
+
+  relativeTo("relative path pointing to a fragment in the same document", (Root / "a" / "b#ref").relativeTo(Root / "a" / "b"), CurrentDocument("ref"))
+
+  relativeTo("preserve suffix and fragment", (Root / "a" / "b.html#ref").relative, CurrentTree / "a" / "b.html#ref")
+
+
+  isSubPath("true for two identical paths", abs_c.isSubPath(abs_c), true)
+
+  isSubPath("true for two identical paths with suffix", abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("foo")), true)
+
+  isSubPath("false for two identical paths with different suffix", abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("bar")), false)
+
+  isSubPath("false for two identical paths when one is without suffix", abs_c.withSuffix("foo").isSubPath(abs_c), false)
+
+  isSubPath("true for a child path", abs_c.isSubPath(abs_a), true)
+
+  isSubPath("false for a parent path with a suffix", abs_c.isSubPath(abs_a.withSuffix("foo")), false)
+
+  isSubPath("false for a parent path", abs_a.isSubPath(abs_c), false)
+
   
 }
