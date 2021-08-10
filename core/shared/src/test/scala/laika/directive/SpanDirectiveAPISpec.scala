@@ -24,17 +24,15 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.config.ConfigBuilder
 import laika.format.Markdown
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.DocumentParser.ParserError
 import laika.parse.markup.RootParserProvider
 import laika.parse.{Parser, SourceFragment}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.Assertion
+import munit.FunSuite
 
 import scala.util.Try
 
-class SpanDirectiveAPISpec extends MigrationFlatSpec
-                           with TestSourceBuilders {
+class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
   
   object DirectiveSetup {
@@ -189,7 +187,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
 
     def ss (spans: Span*): Span = SpanSequence(spans)
 
-    def run (resultSpans: Span*): Assertion =
+    def run (resultSpans: Span*): Unit =
       assertEquals(defaultParser.parse(input).toEither, Right(SpanSequence(resultSpans)))
   }
   
@@ -206,26 +204,28 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
 
   import DirectiveSetup._
   
-  "The span directive parser" should "parse an empty directive" in {
+  test("empty directive") {
     new SpanParser with Empty {
       val input = "aa @:dir bb"
       run(Text("aa foo bb"))
     }
   }
 
-  it should "parse a directive producing a span resolver" in new SpanParser with DirectiveProducingResolver {
-    val input = "aa @:dir bb"
-    run(Text("aa foo bb"))
+  test("directive producing a span resolver") {
+    new SpanParser with DirectiveProducingResolver {
+      val input = "aa @:dir bb"
+      run(Text("aa foo bb"))
+    }
   }
 
-  it should "parse a directive with one required default string attribute" in {
+  test("directive with one required default string attribute") {
     new SpanParser with RequiredPositionalAttribute {
       val input = "aa @:dir(foo) bb"
       run(Text("aa foo bb"))
     }
   }
 
-  it should "detect a directive with a missing required positional attribute" in {
+  test("invalid - directive with a missing required positional attribute") {
     new SpanParser with RequiredPositionalAttribute {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
@@ -233,14 +233,14 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with an optional default int attribute" in {
+  test("directive with an optional default int attribute") {
     new SpanParser with OptionalPositionalAttribute {
       val input = "aa @:dir(5) bb"
       run(Text("aa 5 bb"))
     }
   }
   
-  it should "detect a directive with an optional invalid default int attribute" in {
+  test("invalid - directive with an optional invalid default int attribute") {
     new SpanParser with OptionalPositionalAttribute {
       val input = "aa @:dir(foo) bb"
       val msg = "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
@@ -248,28 +248,28 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a missing optional default int attribute" in {
+  test("directive with a missing optional default int attribute") {
     new SpanParser with OptionalPositionalAttribute {
       val input = "aa @:dir bb"
         run(Text("aa <> bb"))
     }
   }
   
-  it should "parse a directive with one required named string attribute" in {
+  test("directive with one required named string attribute") {
     new SpanParser with RequiredNamedAttribute {
       val input = "aa @:dir { name=foo } bb"
       run(Text("aa foo bb"))
     }
   }
   
-  it should "parse a directive with a named string attribute value in quotes" in {
+  test("directive with a named string attribute value in quotes") {
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name="foo bar" } bb"""
       run(Text("aa foo bar bb"))
     }
   }
   
-  it should "detect a directive with a missing required named attribute" in {
+  test("invalid - directive with a missing required named attribute") {
     new SpanParser with RequiredNamedAttribute {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required attribute 'name' is missing"
@@ -277,7 +277,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an invalid HOCON string attribute (missing closing quote)" in {
+  test("invalid - directive with an invalid HOCON string attribute (missing closing quote)") {
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name="foo bar } bb"""
       val msg = s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing '"'
@@ -288,7 +288,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an invalid HOCON string attribute (invalid character in unquoted string)" in {
+  test("invalid - directive with an invalid HOCON string attribute (invalid character in in unquoted string)") {
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name = foo ? bar } bb"""
       val msg = s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
@@ -299,14 +299,14 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a directive with an optional named int attribute" in {
+  test("directive with an optional named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir { name=5 } bb"
       run(Text("aa 5 bb"))
     }
   }
   
-  it should "detect a directive with an optional invalid named int attribute" in {
+  test("invalid - directive with an optional invalid named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir { name=foo } bb"
       val msg = "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
@@ -314,7 +314,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a directive with a missing optional named int attribute" in {
+  test("directive with a missing optional named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
@@ -322,14 +322,14 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with the allAttributes combinator" in {
+  test("directive with the allAttributes combinator") {
     new SpanParser with AllAttributes {
       val input = "aa @:dir { foo=Planet, bar=42 } bb"
         run(Text("aa Planet 42 bb"))
     }
   }
   
-  it should "parse a directive with a body" in {
+  test("directive with a body") {
     new SpanParser with RequiredBody {
       val input = "aa @:dir some ${ref} text @:@ bb"
       val body = ss(Text(" some value text "))
@@ -337,7 +337,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "support a directive with a nested pair of braces" in {
+  test("support a directive with a nested pair of braces") {
     new SpanParser with RequiredBody {
       val input = "aa @:dir some {ref} text @:@ bb"
       val body = ss(Text(" some {ref} text "))
@@ -345,7 +345,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "detect a directive with a missing body" in {
+  test("invalid - directive with a missing body") {
     new SpanParser with RequiredBody {
       val input = "aa @:dir bb"
       val msg = "One or more errors processing directive 'dir': required body is missing"
@@ -353,7 +353,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a separated body" in {
+  test("directive with a separated body") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:@ bb"""
       val body = SpanSequence(Text(" aaa foo bbb baz ccc "))
@@ -361,7 +361,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an invalid separator" in {
+  test("invalid - directive with an invalid separator") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
@@ -370,7 +370,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a separator not meeting the min count requirements" in {
+  test("invalid - directive with a separator not meeting the min count requirements") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:bar(baz) ccc @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
@@ -379,7 +379,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a separator exceeding the max count constraint" in {
+  test("invalid - directive with a separator exceeding the max count constraint") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:bar(baz) ddd @:@ bb"""
       val msg = "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
@@ -388,13 +388,15 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect an orphaned separator directive" in new SpanParser with SeparatedBody {
-    val input = "aa @:foo bb"
-    val msg = "Orphaned separator directive with name 'foo'"
-    run(Text("aa "), invalid("@:foo",msg), Text(" bb"))
+  test("detect an orphaned separator directive") {
+    new SpanParser with SeparatedBody {
+      val input = "aa @:foo bb"
+      val msg = "Orphaned separator directive with name 'foo'"
+      run(Text("aa "), invalid("@:foo", msg), Text(" bb"))
+    }
   }
   
-  it should "parse a full directive spec with all elements present" in {
+  test("full directive spec with all elements present") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo, 4) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb"
       val body = ss(
@@ -404,7 +406,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a full directive spec with all elements present with attributes spanning two lines" in {
+  test("full directive spec with all elements present with attributes spanning two lines") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo,4) {\n strAttr=str\nintAttr=7 \n} 1 ${ref} 2 @:@ bb"
       val body = ss(
@@ -414,7 +416,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a full directive spec with all optional elements missing" in {
+  test("full directive spec with all optional elements missing") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo,4) 1 ${ref} 2 @:@ bb"
       val body = ss(
@@ -424,7 +426,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "detect a full directive spec with positional attributes and the body missing" in {
+  test("invalid - full directive spec with positional attributes and the body missing") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir { strAttr=str } bb"
       val msg = "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
@@ -432,7 +434,7 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a directive with a custom body parser" in {
+  test("directive with a custom body parser") {
     new DirectiveWithCustomBodyParser with SpanParser {
       val input = "aa @:dir some ${ref} text @:@ bb"
       val body = ss(Text("me value text "))
@@ -440,14 +442,14 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a directive with a body and cursor access" in {
+  test("directive with a body and cursor access") {
     new DirectiveWithContextAccess with SpanParser {
       val input = "aa @:dir text @:@ bb"
       run(Text("aa  text / bb"))
     }
   }
   
-  it should "detect a directive with an unknown name" in {
+  test("invalid - directive with an unknown name") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:foo { name=foo } bb"
       val msg = "One or more errors processing directive 'foo': No span directive registered with name: foo"
@@ -455,49 +457,59 @@ class SpanDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a link directive" in new LinkParser with LinkDirectiveSetup {
-    val input = "aa @:rfc(222) bb"
-    run(
-      Text("aa "),
-      SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222"),
-      Text(" bb")
-    )
+  test("link directive") {
+    new LinkParser with LinkDirectiveSetup {
+      val input = "aa @:rfc(222) bb"
+      run(
+        Text("aa "),
+        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222"),
+        Text(" bb")
+      )
+    }
   }
 
-  it should "parse a link directive inside a native link expression" in new LinkParser with LinkDirectiveSetup {
-    val input = "aa [RFC-222][@:rfc(222)] bb"
-    parseAsMarkdown(input) shouldBe Right(Paragraph(
-      Text("aa "),
-      SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222"),
-      Text(" bb")
-    ))
+  test("link directive inside a native link expression") {
+    new LinkParser with LinkDirectiveSetup {
+      val input = "aa [RFC-222][@:rfc(222)] bb"
+      assertEquals(parseAsMarkdown(input), Right(Paragraph(
+        Text("aa "),
+        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222"),
+        Text(" bb")
+      )))
+    }
   }
 
-  it should "detect an unknown link directive" in new LinkParser with LinkDirectiveSetup {
-    val input = "aa [RFC-222][@:rfx(222)] bb"
-    parseAsMarkdown(input) shouldBe Right(Paragraph(
-      Text("aa "),
-      invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx", defaultPath),
-      Text(" bb")
-    ))
+  test("unknown link directive") {
+    new LinkParser with LinkDirectiveSetup {
+      val input = "aa [RFC-222][@:rfx(222)] bb"
+      assertEquals(parseAsMarkdown(input), Right(Paragraph(
+        Text("aa "),
+        invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx", defaultPath),
+        Text(" bb")
+      )))
+    }
   }
 
-  it should "detect an invalid link directive" in new LinkParser with LinkDirectiveSetup {
-    val input = "aa [RFC-222][@:rfc(foo)] bb"
-    parseAsMarkdown(input) shouldBe Right(Paragraph(
-      Text("aa "),
-      invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo", defaultPath),
-      Text(" bb")
-    ))
+  test("invalid link directive") {
+    new LinkParser with LinkDirectiveSetup {
+      val input = "aa [RFC-222][@:rfc(foo)] bb"
+      assertEquals(parseAsMarkdown(input), Right(Paragraph(
+        Text("aa "),
+        invalid("[RFC-222][@:rfc(foo)]", "Invalid link directive: Not a valid RFC id: foo", defaultPath),
+        Text(" bb")
+      )))
+    }
   }
 
-  it should "detect an invalid link directive syntax" in new LinkParser with LinkDirectiveSetup {
-    val input = "aa [RFC-222][@:rfc foo] bb"
-    parseAsMarkdown(input) shouldBe Right(Paragraph(
-      Text("aa "),
-      invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found", defaultPath),
-      Text(" bb")
-    ))
+  test("invalid link directive syntax") {
+    new LinkParser with LinkDirectiveSetup {
+      val input = "aa [RFC-222][@:rfc foo] bb"
+      assertEquals(parseAsMarkdown(input), Right(Paragraph(
+        Text("aa "),
+        invalid("[RFC-222][@:rfc foo]", "Invalid link directive: `(' expected but `f` found", defaultPath),
+        Text(" bb")
+      )))
+    }
   }
   
 }

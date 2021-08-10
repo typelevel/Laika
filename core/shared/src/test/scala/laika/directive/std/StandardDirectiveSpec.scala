@@ -18,30 +18,40 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import cats.implicits._
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.config.ConfigBuilder
-import laika.parse.markup.DocumentParser.ParserError
+import laika.config.{Config, ConfigBuilder}
 import laika.rewrite.link.IconRegistry
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 
-class StandardDirectiveSpec extends AnyFlatSpec
-  with Matchers
+class StandardDirectiveSpec extends FunSuite
   with ParagraphCompanionShortcuts
   with TemplateParserSetup 
   with MarkupParserSetup
   with TestSourceBuilders {
 
-  def parseWithFragments (input: String, path: Path = Root / "doc"): Either[ParserError, (Map[String,Element], RootElement)] = {
-    parse(input, path).map { doc =>
-      (doc.fragments, doc.content)
-    }
+  
+  def run (input: String, expectedContent: Block*): Unit = {
+    assertEquals(parse(input).map(_.content.content), Right(expectedContent))
   }
 
-  "The fragment directive" should "parse a fragment with a single paragraph" in {
+  def runFragment (input: String, expectedFragment: Block): Unit = {
+    val res = parse(input)
+    assertEquals(res.map(_.content.content), Right(Seq(p("aa"), p("bb"))))
+    assertEquals(res.map(_.fragments), Right(Map("foo" -> expectedFragment)))
+  }
+  
+  def runTemplate (input: String, config: String, expectedContent: TemplateSpan*): Unit = {
+    assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
+  }
+
+  def runTemplate (input: String, config: Config, expectedContent: TemplateSpan*): Unit = {
+    assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
+  }
+
+  
+  test("fragment directive with single paragraph") {
     val input = """aa
                   |
                   |@:fragment(foo)
@@ -51,12 +61,12 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    val expectedFragments = Map("foo" -> Paragraph(List(Text("Fragment Text")), Styles("foo")))
-    val expectedRoot      = RootElement(p("aa"), p("bb"))
-    parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
+    
+    val expectedFragment = Paragraph(List(Text("Fragment Text")), Styles("foo"))
+    runFragment(input, expectedFragment)
   }
 
-  it should "parse a fragment with a two paragraphs" in {
+  test("fragment directive with two paragraphs") {
     val input = """aa
                   |
                   |@:fragment(foo)
@@ -68,97 +78,103 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    val expectedFragments = Map("foo" -> BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo")))
-    val expectedRoot      = RootElement(p("aa"), p("bb"))
-    parseWithFragments(input) shouldBe Right((expectedFragments, expectedRoot))
+    val expectedFragment = BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo"))
+    runFragment(input, expectedFragment)
   }
 
 
-  "The pageBreak directive" should "parse an empty directive" in {
+  test("pageBreak directive") {
     val input = """aa
                   |
                   |@:pageBreak
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(p("aa"),PageBreak(),p("bb")))
+    run(input, p("aa"), PageBreak(), p("bb"))
   }
 
 
-  "The todo directive" should "parse a block directive" in {
+  test("todo directive as block") {
     val input = """aa
                   |
                   |@:todo(FIXME LATER)
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(p("aa"),BlockSequence(Nil),p("bb")))
+    run(input, p("aa"), BlockSequence(Nil), p("bb"))
   }
 
-  it should "parse a span directive" in {
+  test("todo directive as span") {
     val input = """aa @:todo(FIXME LATER) bb"""
-    parse(input).map(_.content) shouldBe Right(RootElement(p(Text("aa "),SpanSequence(Nil),Text(" bb"))))
+    run(input, p(Text("aa "), SpanSequence(Nil), Text(" bb")))
   }
 
 
-  "The path directive" should "translate a relative path" in {
+  test("path directive - translate a relative path") {
     val input = """aa @:path(theme.css) bb"""
-    parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "laika.links.excludeFromValidation = [\"/\"]",
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
-    )))
+    )
   }
 
-  it should "translate an absolute path" in {
+  test("path directive - translate an absolute path") {
     val input = """aa @:path(/theme/theme.css) bb"""
-    parseTemplateWithConfig(input, "laika.links.excludeFromValidation = [\"/\"]") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "laika.links.excludeFromValidation = [\"/\"]",
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
-    )))
+    )
   }
 
-  it should "fail with an invalid target" in {
+  test("path directive - fail with an invalid target") {
     val dirSrc = "@:path(/theme/theme.css)"
     val input = s"""aa $dirSrc bb"""
     val msg = "One or more errors processing directive 'path': unresolved internal reference: ../theme/theme.css"
-    parseTemplateWithConfig(input, "") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "",
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
-    )))
+    )
   }
   
-  "The attribute directive" should "produce a string value for a valid config value" in {
+  
+  test("attribute directive - produce a string value for a valid config value") {
     val input = """<a @:attribute(src, foo.bar)/>"""
-    parseTemplateWithConfig(input, "foo.bar = ../image.jpg") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "foo.bar = ../image.jpg",
       TemplateString("<a "),
       TemplateString("""src="../image.jpg""""),
       TemplateString("/>")
-    )))
+    )
   }
 
-  it should "produce an empty string for a missing config value" in {
+  test("attribute directive - produce an empty string for a missing config value") {
     val input = """<a @:attribute(src, foo.baz)/>"""
-    parseTemplateWithConfig(input, "foo.bar = ../image.jpg") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "foo.bar = ../image.jpg",
       TemplateString("<a "),
       TemplateString(""),
       TemplateString("/>")
-    )))
+    )
   }
 
-  it should "fail with an invalid config value" in {
+  test("attribute directive - fail with an invalid config value") {
     val dirSrc = "@:attribute(src, foo.bar)"
     val input = s"""<a $dirSrc/>"""
     val msg = "One or more errors processing directive 'attribute': value with key 'foo.bar' is a structured value (Array, Object, AST) which is not supported by this directive"
-    parseTemplateWithConfig(input, "foo.bar = [1,2,3]") shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, 
+      "foo.bar = [1,2,3]",
       TemplateString("<a "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString("/>")
-    )))
+    )
   }
 
 
-  "The style directive" should "parse a body with a single block" in {
+  test("style directive - body with a single block") {
     val input = """aa
                   |
                   |@:style(foo)
@@ -169,14 +185,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"), 
       Paragraph(List(Text("11\n22")), Styles("foo")), 
       p("bb")
-    ))
+    )
   }
 
-  it should "support assigning multiple styles" in {
+  test("style directive - multiple styles") {
     val input = """aa
                   |
                   |@:style(foo,bar,baz)
@@ -187,14 +203,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"), 
       Paragraph(List(Text("11\n22")), Styles("foo", "bar", "baz")), 
       p("bb")
-    ))
+    )
   }
 
-  it should "parse a body with two blocks" in {
+  test("style directive - body with two blocks") {
     val input = """aa
                   |
                   |@:style(foo)
@@ -207,25 +223,25 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"), 
       BlockSequence(List(p("11\n22"),p("33")), Styles("foo")),
       p("bb")
-    ))
+    )
   }
 
-  it should "parse a single nested span" in {
+  test("style directive - single nested span") {
     val input = """aa @:style(foo) 11 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(RootElement(p(
+    run(input, p(
       Text("aa "), 
       Text(" 11 ", Styles("foo")), 
       Text(" bb")
-    )))
+    ))
   }
 
-  it should "parse two nested spans" in {
+  test("style directive - two nested spans") {
     val input = """aa @:style(foo) 11 *22* 33 @:@ bb"""
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p(
         Text("aa "),
         SpanSequence(
@@ -235,32 +251,33 @@ class StandardDirectiveSpec extends AnyFlatSpec
         ).withStyles("foo"),
         Text(" bb")
       )
-    ))
+    )
   }
   
-  "The icon directive" should "produce an icon" in {
+  
+  test("icon directive - success") {
     val icon = IconStyle("open")
     val config = ConfigBuilder.empty.withValue(IconRegistry("foo"->icon)).build
     val input = """aa @:icon(foo) bb"""
-    parseTemplateWithConfig(input, config) shouldBe Right(RootElement(TemplateRoot(
+    runTemplate(input, config,
       TemplateString("aa "),
       TemplateElement(icon),
       TemplateString(" bb")
-    )))
+    )
   }
 
-  it should "fail when the specified icon does not exist" in {
+  test("icon directive - fail when the specified icon does not exist") {
     val dirSrc = "@:icon(foo)"
     val input = s"aa $dirSrc bb"
     val msg = "Unresolved icon reference with key 'foo'"
-    parseAndRewriteTemplate(input) shouldBe Right(RootElement(TemplateRoot(
+    assertEquals(parseAndRewriteTemplate(input), Right(RootElement(TemplateRoot(
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
-    )))
+    ))))
   }
     
-  "The callout directive" should "parse a body with a single block" in {
+  test("callout directive - body with a single block") {
     val input = """aa
                   |
                   |@:callout(info)
@@ -271,14 +288,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"),
       BlockSequence("11\n22").withStyles("callout", "info"),
       p("bb")
-    ))
+    )
   }
 
-  it should "parse a body with two blocks" in {
+  test("callout directive - body with two blocks") {
     val input = """aa
                   |
                   |@:callout(info)
@@ -291,14 +308,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"),
       BlockSequence(List(p("11\n22"),p("33")), Styles("callout", "info")),
       p("bb")
-    ))
+    )
   }
 
-  "The format directive" should "parse a body with a single paragraph" in {
+  test("format directive - body with a single paragraph") {
     val input = """aa
                   |
                   |@:format(foo)
@@ -309,14 +326,14 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"),
       TargetFormat(NonEmptySet.one("foo"), p("11\n22")), 
       p("bb")
-    ))
+    )
   }
 
-  it should "parse a body with two paragraphs" in {
+  test("format directive - body with two paragraphs") {
     val input = """aa
                   |
                   |@:format(foo)
@@ -329,17 +346,17 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"),
       TargetFormat(NonEmptySet.one("foo"), BlockSequence(
         p("11\n22"),
         p("33")
       )), 
       p("bb")
-    ))
+    )
   }
 
-  it should "parse a directive with multiple formats" in {
+  test("format directive - multiple formats") {
     val input = """aa
                   |
                   |@:format(foo, bar, baz)
@@ -350,11 +367,11 @@ class StandardDirectiveSpec extends AnyFlatSpec
                   |@:@
                   |
                   |bb""".stripMargin
-    parse(input).map(_.content) shouldBe Right(RootElement(
+    run(input,
       p("aa"),
       TargetFormat(NonEmptySet.of("foo", "bar", "baz"), p("11\n22")),
       p("bb")
-    ))
+    )
   }
   
 }

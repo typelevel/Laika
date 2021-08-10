@@ -24,12 +24,9 @@ import laika.config.ConfigBuilder
 import laika.format.Markdown
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class SelectDirectiveSpec extends AnyFlatSpec
-  with Matchers
-  with ParagraphCompanionShortcuts
+class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
   with TestSourceBuilders {
 
 
@@ -46,8 +43,15 @@ class SelectDirectiveSpec extends AnyFlatSpec
 
   def parse (input: String): RootElement = parser.parse(input).toOption.get.content
   
+  def run (input: String, expected: Block): Unit = {
+    assertEquals(
+      parser.parse(input).map(_.content.content),
+      Right(Seq(p("aa"), expected, p("bb")))
+    )
+  }
+  
 
-  "The select directive" should "parse a body with a two alternatives" in {
+  test("body with two alternatives") {
     val input = """aa
                   |
                   |@:select(config)
@@ -67,10 +71,10 @@ class SelectDirectiveSpec extends AnyFlatSpec
       Choice("a","label-a", List(p("11\n22"))),
       Choice("b","label-b", List(p("33\n44")))
     ))
-    parse(input) should be (RootElement(p("aa"), group, p("bb")))
+    run(input, group)
   }
 
-  it should "parse a body with a two alternatives and a common body" in {
+  test("body with a two alternatives and a common body") {
     val input = """aa
                   |
                   |@:select(config)
@@ -92,10 +96,10 @@ class SelectDirectiveSpec extends AnyFlatSpec
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
     ))
-    parse(input) should be (RootElement(p("aa"), group, p("bb")))
+    run(input, group)
   }
 
-  it should "fail with less than two alternatives in the body" in {
+  test("fail with less than two alternatives in the body") {
     val directive =
       """@:select(config)
         |
@@ -111,10 +115,10 @@ class SelectDirectiveSpec extends AnyFlatSpec
                   |bb""".stripMargin
     val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid = InvalidBlock(message, source(directive, input, defaultPath))
-    parse(input) should be (RootElement(p("aa"), invalid, p("bb")))
+    run(input, invalid)
   }
 
-  it should "fail when a label is missing in the configuration" in {
+  test("fail when a label is missing in the configuration") {
     val directive =
       """@:select(config)
         |
@@ -135,11 +139,10 @@ class SelectDirectiveSpec extends AnyFlatSpec
          |bb""".stripMargin
     val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
     val invalid = InvalidBlock(message, source(directive, input, defaultPath))
-    parse(input) should be (RootElement(p("aa"),
-      invalid, p("bb")))
+    run(input, invalid)
   }
 
-  it should "unwrap a selected choice in the template rewrite rules" in {
+  test("unwrap a selected choice in the template rewrite rules") {
     val group = Selection("config", Seq(
       Choice("a","label-a", List(p("common"), p("11\n22"))),
       Choice("b","label-b", List(p("common"), p("33\n44")))
@@ -151,7 +154,10 @@ class SelectDirectiveSpec extends AnyFlatSpec
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
     val cursor = RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
     val rewritten = cursor.flatMap(c => TemplateRewriter.applyTemplate(c, TemplateDocument(Root, TemplateRoot.fallback)))
-    rewritten.map(_.content) shouldBe Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
+    assertEquals(
+      rewritten.map(_.content),
+      Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
+    )
   }
   
 }

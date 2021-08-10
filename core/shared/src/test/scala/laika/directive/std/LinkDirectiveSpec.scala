@@ -21,24 +21,47 @@ import laika.ast.Path.Root
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.ast._
 import laika.format.Markdown
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import laika.parse.markup.DocumentParser.ParserError
+import munit.FunSuite
 
-class LinkDirectiveSpec extends AnyFlatSpec
-  with Matchers
-  with ParagraphCompanionShortcuts
-  with TestSourceBuilders {
+class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
 
-  lazy val markupParser = MarkupParser.of(Markdown).failOnMessages(MessageFilter.None).build
+  private lazy val markupParser = MarkupParser.of(Markdown).failOnMessages(MessageFilter.None).build
 
-  def parse (input: String, path: Path = Root / "doc"): Document = markupParser.parse(input, path).toOption.get
+  def parse (input: String, path: Path = Root / "doc"): Either[ParserError, Document] = markupParser.parse(input, path)
   
 
-  trait ApiDirectiveSetup {
-    def input (typeName: String): String = blockInput(s"aa @:api($typeName) bb")
+  object Api {
+    
+    def runType (typeName: String, expected: SpanLink): Unit = run(typeName, expected)
+    def runType (typeName: String, invalid: InvalidSpan, withoutConfig: Boolean = false): Unit = 
+      run(typeName, invalid, withoutConfig)
+    
+    private def run (typeName: String, expected: Span, withoutConfig: Boolean = false): Unit = assertEquals(
+      parse(if (withoutConfig) lineInput(directiveInput(typeName)) else input(typeName)).map(_.content),
+      Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
+    )
+    
+    def runTypeBlock (block: String, expected: Span*): Unit = {
+      val input = s"""aa
+                    |
+                    |$block
+                    |
+                    |bb""".stripMargin
+      assertEquals(
+        parse(configInput(input)).map(_.content),
+        Right(RootElement(p("aa"), p(expected:_*), p("bb")))
+      )
+    }
+    
+    def directiveInput (typeName: String): String = s"@:api($typeName)"
+    
+    def lineInput (directive: String): String = s"aa $directive bb"
 
-    def blockInput (block: String): String =
+    def input (typeName: String): String = configInput(lineInput(directiveInput(typeName)))
+
+    def configInput (block: String): String =
       s"""{%
          |  laika.links.api = [
          |    { baseUri = "https://default.api/" },
@@ -52,120 +75,63 @@ class LinkDirectiveSpec extends AnyFlatSpec
       """.stripMargin
   }
 
-  "The api directive" should "create a span link based on the default base URI" in new ApiDirectiveSetup {
-    parse(input("def.bar.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://default.api/def/bar/Baz.html")("Baz"),
-      Text(" bb")
-    )))
+  test("api directive - span link based on the default base URI") {
+    Api.runType("def.bar.Baz", SpanLink.external("https://default.api/def/bar/Baz.html")("Baz"))
   }
 
-  it should "strip the $ postfix from the link text" in new ApiDirectiveSetup {
-    parse(input("def.bar.Baz$")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://default.api/def/bar/Baz$.html")("Baz"),
-      Text(" bb")
-    )))
+  test("api directive - strip the $ postfix from the link text") {
+    Api.runType("def.bar.Baz$", SpanLink.external("https://default.api/def/bar/Baz$.html")("Baz"))
   }
 
-  it should "create a span link based on the longest prefix match" in new ApiDirectiveSetup {
-    parse(input("foo.bar.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"),
-      Text(" bb")
-    )))
+  test("api directive - span link based on the longest prefix match") {
+    Api.runType("foo.bar.Baz", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"))
   }
 
-  it should "create a span link based on the shorter prefix match" in new ApiDirectiveSetup {
-    parse(input("foo.baz.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz"),
-      Text(" bb")
-    )))
+  test("api directive - span link based on the shorter prefix match") {
+    Api.runType("foo.baz.Baz", SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz"))
   }
 
-  it should "create a span link to a method" in new ApiDirectiveSetup {
-    parse(input("foo.baz.Baz#canEqual(that:Any\\):Boolean")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual"),
-      Text(" bb")
-    )))
+  test("api directive - span link to a method") {
+    Api.runType(
+      "foo.baz.Baz#canEqual(that:Any\\):Boolean", 
+      SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual")
+    )
   }
 
-  it should "create a span link for a package" in new ApiDirectiveSetup {
-    parse(input("foo.bar.package")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar"),
-      Text(" bb")
-    )))
+  test("api directive - span link for a package") {
+    Api.runType("foo.bar.package", SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar"))
   }
 
-  it should "fail for an internal link to a missing target" in new ApiDirectiveSetup {
-    val directive = "@:api(internal.foo.Foo)"
-    val input = blockInput(s"aa $directive bb")
-    val path = Path.parse("/local/path/internal/foo/Foo.html")
+  test("api directive - fail for an internal link to a missing target") {
+    val typeName = "internal.foo.Foo"
     val msg = "One or more errors processing directive 'api': unresolved internal reference: local/path/internal/foo/Foo.html"
-    parse(input).content should be (RootElement(p(
-      Text("aa "),
-      InvalidSpan(msg, source(directive, input, defaultPath)),
-      Text(" bb")
-    )))
+    val expected = InvalidSpan(msg, source(Api.directiveInput(typeName), Api.input(typeName), defaultPath))
+    Api.runType(typeName, expected)
   }
 
-  it should "fail when there is no matching base URI defined" in new ApiDirectiveSetup {
-    val directive = "@:api(foo.bar.Baz)"
-    val input = s"aa $directive bb"
-    val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
-    parse(input).content should be (RootElement(p(
-      Text("aa "),
-      InvalidSpan(msg, source(directive, input, defaultPath)),
-      Text(" bb")
-    )))
+  test("api directive - fail when there is no matching base URI defined") {
+    val typeName = "foo.bar.Baz"
+    val directive = Api.directiveInput(typeName)
+    val msg = s"One or more errors processing directive 'api': No base URI defined for '$typeName' and no default URI available."
+    val expected = InvalidSpan(msg, source(directive, Api.lineInput(directive), defaultPath))
+    Api.runType(typeName, expected, withoutConfig = true)
   }
 
-  it should "parse an api directive as the only element of a block" ignore new ApiDirectiveSetup {
+  test("api directive - as the only element of a block".ignore) {
     // TODO - this fails right now, might need auto-promotion of span directives without body to block directives
-    val input = """aa
-                  |
-                  |@:api(foo.bar.Baz)
-                  |
-                  |bb""".stripMargin
-    parse(blockInput(input)).content should be (RootElement(
-      p("aa"),
-      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz")),
-      p("bb")
-    ))
+    Api.runTypeBlock("@:api(foo.bar.Baz)", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"))
   }
 
-  it should "parse an api directive as the first element of a block" in new ApiDirectiveSetup {
-    val input = """aa
-                  |
-                  |@:api(foo.bar.Baz) bb
-                  |
-                  |cc""".stripMargin
-    parse(blockInput(input)).content should be (RootElement(
-      p("aa"),
-      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
-      p("cc")
-    ))
+  test("api directive - as the first element of a block") {
+    Api.runTypeBlock("@:api(foo.bar.Baz) bb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb"))
   }
 
-  it should "parse an api directive as the first line of a block" ignore new ApiDirectiveSetup {
-    val input = """aa
-                  |
-                  |@:api(foo.bar.Baz)
-                  |bb
-                  |
-                  |cc""".stripMargin
-    parse(blockInput(input)).content should be (RootElement(
-      p("aa"),
-      p(SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb")),
-      p("cc")
-    ))
+  test("api directive - as the first line of a block".ignore) {
+    Api.runTypeBlock("@:api(foo.bar.Baz)\nbb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb"))
   }
 
-  trait SourceDirectiveSetup {
-    def input (typeName: String) =
+  object Source {
+    def configInput (line: String): String =
       s"""{%
          |  laika.links.source = [
          |    { baseUri = "https://default.source/", suffix = scala },
@@ -174,43 +140,43 @@ class LinkDirectiveSpec extends AnyFlatSpec
          |  ]
          |%}
          |
-        |aa @:source($typeName) bb
+         |$line
       """.stripMargin
+
+    def directiveInput (typeName: String): String = s"@:source($typeName)"
+
+    def lineInput (directive: String): String = s"aa $directive bb"
+
+    def input (typeName: String): String = configInput(lineInput(directiveInput(typeName)))
+    
+    def runType (typeName: String, expected: SpanLink): Unit = run(typeName, expected)
+    def runType (typeName: String, expected: InvalidSpan, withoutConfig: Boolean = false): Unit =
+      run(typeName, expected, withoutConfig)
+
+    private def run (typeName: String, expected: Span, withoutConfig: Boolean = false): Unit = assertEquals(
+      parse(if (withoutConfig) lineInput(directiveInput(typeName)) else input(typeName)).map(_.content),
+      Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
+    )
   }
 
-  "The source directive" should "create a span link based on the default base URI" in new SourceDirectiveSetup {
-    parse(input("def.bar.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz"),
-      Text(" bb")
-    )))
+  test("source directive - span link based on the default base URI") {
+    Source.runType("def.bar.Baz", SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz"))
   }
 
-  it should "create a span link based on the longest prefix match" in new SourceDirectiveSetup {
-    parse(input("foo.bar.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz"),
-      Text(" bb")
-    )))
+  test("source directive - span link based on the longest prefix match") {
+    Source.runType("foo.bar.Baz", SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz"))
   }
 
-  it should "create a span link based on the shorter prefix match" in new SourceDirectiveSetup {
-    parse(input("foo.baz.Baz")).content should be (RootElement(p(
-      Text("aa "),
-      SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz"),
-      Text(" bb")
-    )))
+  test("source directive - span link based on the shorter prefix match") {
+    Source.runType("foo.baz.Baz", SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz"))
   }
 
-  it should "fail when there is no matching base URI defined" in new SourceDirectiveSetup {
-    val directive = "@:api(foo.bar.Baz)"
-    val input = s"aa $directive bb"
-    val msg = "One or more errors processing directive 'api': No base URI defined for 'foo.bar.Baz' and no default URI available."
-    parse(input).content should be (RootElement(p(
-      Text("aa "),
-      InvalidSpan(msg, source(directive, input, defaultPath)),
-      Text(" bb")
-    )))
+  test("source directive - fail when there is no matching base URI defined") {
+    val typeName = "foo.bar.Baz"
+    val directive = Source.directiveInput(typeName)
+    val msg = s"One or more errors processing directive 'source': No base URI defined for '$typeName' and no default URI available."
+    val expected = InvalidSpan(msg, source(directive, Source.lineInput(directive), defaultPath))
+    Source.runType(typeName, expected, withoutConfig = true)
   }
   
   
