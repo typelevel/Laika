@@ -19,14 +19,10 @@ package laika.directive.std
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, RootElement, SpanSequence, Styles, Text}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, Options, RootElement, SpanSequence, Styles, Text}
+import munit.FunSuite
 
-class ImageDirectiveSpec extends AnyFlatSpec
-  with Matchers
-  with ParagraphCompanionShortcuts
-  with MarkupParserSetup {
+class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with MarkupParserSetup {
 
 
   val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
@@ -42,67 +38,79 @@ class ImageDirectiveSpec extends AnyFlatSpec
        |
     |bbb""".stripMargin
 
+  def runBlocks (input: String, expected: Image, options: Options = defaultBlockStyle): Unit = 
+    assertEquals(
+      parse(blocks(input)).map(_.content), 
+      Right(RootElement(
+        p("aaa"),
+        BlockSequence(Seq(SpanSequence(expected)), options),
+        p("bbb")
+      ))
+    )
+    
+  def runSpans (input: String, expected: Image): Unit =
+    assertEquals(
+      parse(input).map(_.content),
+      Right(RootElement(p(Text("aaa "), expected, Text(" bbb"))))
+    )
   
-  "The image block directive" should "succeed without any HOCON attributes" in {
-    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), defaultBlockStyle), p("bbb"))
-    parse(blocks("@:image(picture.jpg)")).map(_.content) shouldBe Right(result)
+  
+  test("block directive - without any HOCON attributes") {
+    runBlocks("@:image(picture.jpg)", Image(resolvedImageTarget))
   }
 
-  it should "support the alt and title attributes" in {
+  test("block directive - alt and title attributes") {
     val input = """@:image(picture.jpg) {
                   |  alt = alt
                   |  title = desc
                   |}""".stripMargin
-    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))), defaultBlockStyle), p("bbb"))
-    parse(blocks(input)).map(_.content) shouldBe Right(result)
+    runBlocks(input, Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc")))
   }
 
-  it should "support the intrinsicWidth and intrinsicHeight attributes" in {
+  test("block directive - intrinsicWidth and intrinsicHeight attributes") {
     val input = """@:image(picture.jpg) {
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |}""".stripMargin
-    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240))))), defaultBlockStyle), p("bbb"))
-    parse(blocks(input)).map(_.content) shouldBe Right(result)
+    val result = Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)))
+    runBlocks(input, result)
   }
 
-  it should "support the style attribute" in {
+  test("block directive -  style attribute") {
     val input = """@:image(picture.jpg) {
                   |  style = small-image
                   |}""".stripMargin
-    val result = RootElement(p("aaa"), BlockSequence(Seq(SpanSequence(Image(resolvedImageTarget))), Styles("small-image")), p("bbb"))
-    parse(blocks(input)).map(_.content) shouldBe Right(result)
+    runBlocks(input, Image(resolvedImageTarget), Styles("small-image"))
   }
 
-  "The image span directive" should "succeed without any HOCON attributes" in {
-    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, options = defaultSpanStyle), Text(" bbb")))
-    parse("aaa @:image(picture.jpg) bbb").map(_.content) shouldBe Right(result)
+  test("span directive - without any HOCON attributes") {
+    runSpans("aaa @:image(picture.jpg) bbb", Image(resolvedImageTarget, options = defaultSpanStyle))
   }
 
-  it should "support the alt and title attributes" in {
+  test("span directive - alt and title attributes") {
     val input = """aaa @:image(picture.jpg) {
                   |  alt = alt
                   |  title = desc
                   |} bbb""".stripMargin
-    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle), Text(" bbb")))
-    parse(input).map(_.content) shouldBe Right(result)
+    val result = Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle)
+    runSpans(input, result)
   }
 
-  it should "support the intrinsicWidth and intrinsicHeight attributes" in {
+  test("span directive - intrinsicWidth and intrinsicHeight attributes") {
     val input = """aaa @:image(picture.jpg) {
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |} bbb""".stripMargin
-    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle), Text(" bbb")))
-    parse(input).map(_.content) shouldBe Right(result)
+    val result = Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle)
+    runSpans(input, result)
   }
 
-  it should "support the style attribute" in {
+  test("span directive - style attribute") {
     val input = """aaa @:image(picture.jpg) {
                   |  style = small-image
                   |} bbb""".stripMargin
-    val result = RootElement(p(Text("aaa "), Image(resolvedImageTarget, options = Styles("small-image")), Text(" bbb")))
-    parse(input).map(_.content) shouldBe Right(result)
+    val result = Image(resolvedImageTarget, options = Styles("small-image"))
+    runSpans(input, result)
   }
 
 }

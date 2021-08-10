@@ -25,15 +25,14 @@ import laika.config.ConfigBuilder
 import laika.directive.std.StandardDirectives
 import laika.parse.builders._
 import laika.parse.combinator.Parsers
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.implicits._
 import laika.parse.markup.RootParserProvider
 import laika.parse.{BlockSource, Parser, SourceFragment}
 import laika.rewrite.TemplateRewriter
-import org.scalatest.Assertion
+import munit.FunSuite
 
 
-class BlockDirectiveAPISpec extends MigrationFlatSpec
+class BlockDirectiveAPISpec extends FunSuite
                             with ParagraphCompanionShortcuts
                             with TestSourceBuilders {
 
@@ -167,14 +166,14 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))
 
-    def run (resultBlocks: Block*): Assertion =
+    def run (resultBlocks: Block*): Unit =
       assertEquals(defaultParser.parse(input).toEither, Right(RootElement(resultBlocks)))
   }
 
 
   import DirectiveSetup._
 
-  "The directive parser" should "parse an empty directive" in {
+  test("empty directive") {
     new BlockParser with Empty {
       val input = """aa
         |
@@ -185,16 +184,18 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "parse a directive producing a block resolver" in new BlockParser with DirectiveProducingResolver {
-    val input = """aa
-      |
-      |@:dir
-      |
-      |bb""".stripMargin
-    run(p("aa"), p("foo"), p("bb"))
+  test("directive producing a block resolver") {
+    new BlockParser with DirectiveProducingResolver {
+      val input = """aa
+        |
+        |@:dir
+        |
+        |bb""".stripMargin
+      run(p("aa"), p("foo"), p("bb"))
+    }
   }
   
-  it should "parse a directive with one required default string attribute" in {
+  test("directive with one required default string attribute") {
     new BlockParser with RequiredPositionalAttribute {
       val input = """aa
         |
@@ -205,7 +206,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a missing positional default attribute" in {
+  test("invalid - directive with a missing positional default attribute") {
     new BlockParser with RequiredPositionalAttribute {
       val input = """aa
         |
@@ -217,7 +218,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with an optional default int attribute" in {
+  test("directive with an optional default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
@@ -228,7 +229,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an optional invalid default int attribute" in {
+  test("invalid - directive with an optional invalid default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
@@ -240,7 +241,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a missing optional default int attribute" in {
+  test("directive with a missing optional default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
       val input = """aa
         |
@@ -251,7 +252,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with one required named string attribute" in {
+  test("directive with one required named string attribute") {
     new BlockParser with RequiredNamedAttribute {
       val input = """aa
         |
@@ -262,7 +263,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a named string attribute value in quotes" in {
+  test("directive with a named string attribute value in quotes") {
     new BlockParser with RequiredNamedAttribute {
       val input = """aa
         |
@@ -273,7 +274,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a missing required named attribute" in {
+  test("invalid - directive with a missing required named attribute") {
     new BlockParser with RequiredNamedAttribute {
       val input = """aa
         |
@@ -285,7 +286,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with an optional named int attribute" in {
+  test("directive with an optional named int attribute") {
     new BlockParser with OptionalNamedAttribute {
       val input = """aa
         |
@@ -296,7 +297,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an optional invalid named int attribute" in {
+  test("invalid - directive with an optional invalid named int attribute") {
     new BlockParser with OptionalNamedAttribute {
       val input = """aa
         |
@@ -308,7 +309,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a missing optional named int attribute" in {
+  test("directive with a missing optional named int attribute") {
     new BlockParser with OptionalNamedAttribute {
       val input = """aa
         |
@@ -319,7 +320,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with the allAttributes combinator" in {
+  test("directive with the allAttributes combinator") {
     new BlockParser with AllAttributes {
       val input = """aa
         |
@@ -330,7 +331,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with the allAttributes combinator and an additional nested config object" in {
+  test("directive with the allAttributes combinator and an additional nested config object") {
     new BlockParser with AllAttributes {
       val input = """aa
         |
@@ -345,7 +346,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a body" in {
+  test("directive with a body") {
     new BlockParser with Body {
       val input = """aa
         |
@@ -361,7 +362,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a body and trim empty lines at the start and end" in {
+  test("directive with a body and trim empty lines at the start and end") {
     new BlockParser with Body {
       val input = """aa
         |
@@ -379,7 +380,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a body and a custom fence" in {
+  test("directive with a body and a custom fence") {
     new BlockParser with Body {
       val input = """aa
         |
@@ -397,7 +398,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with an empty body" in {
+  test("directive with an empty body") {
     new BlockParser with Body {
       val input = """aa
                     |
@@ -410,7 +411,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a missing body" in {
+  test("invalid - directive with a missing body") {
     new BlockParser with Body {
       val input = """aa
         |
@@ -422,7 +423,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a separated body" in {
+  test("directive with a separated body") {
     new BlockParser with SeparatedBody {
       val input = """aa
         |
@@ -442,26 +443,29 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with an invalid separator" in new BlockParser with SeparatedBody {
-    val input = """aa
-      |
-      |@:dir
-      |aaa
-      |
-      |@:foo
-      |bbb
-      |
-      |@:bar
-      |ccc
-      |@:@
-      |
-      |bb""".stripMargin
-    val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
-    val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
-    run(p("aa"), invalid(src,msg), p("bb"))
+  test("invalid - directive with an invalid separator") {
+    new BlockParser with SeparatedBody {
+      val input =
+        """aa
+          |
+          |@:dir
+          |aaa
+          |
+          |@:foo
+          |bbb
+          |
+          |@:bar
+          |ccc
+          |@:@
+          |
+          |bb""".stripMargin
+      val msg = "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
+      val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
+      run(p("aa"), invalid(src, msg), p("bb"))
+    }
   }
 
-  it should "detect a directive with a separator not meeting the min count requirements" in {
+  test("invalid - directive with a separator not meeting the min count requirements") {
     new BlockParser with SeparatedBody {
       val input = """aa
         |
@@ -479,7 +483,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a directive with a separator exceeding the max count constraint" in {
+  test("invalid - directive with a separator exceeding the max count constraint") {
     new BlockParser with SeparatedBody {
       val input = """aa
         |
@@ -504,17 +508,20 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "detect an orphaned separator directive" in new BlockParser with SeparatedBody {
-    val input = """aa
-      |
-      |@:foo
-      |
-      |bb""".stripMargin
-    val msg = "Orphaned separator directive with name 'foo'"
-    run(p("aa"), invalid("@:foo",msg), p("bb"))
+  test("detect an orphaned separator directive") {
+    new BlockParser with SeparatedBody {
+      val input =
+        """aa
+          |
+          |@:foo
+          |
+          |bb""".stripMargin
+      val msg = "Orphaned separator directive with name 'foo'"
+      run(p("aa"), invalid("@:foo", msg), p("bb"))
+    }
   }
 
-  it should "parse a full directive spec with all elements present" in {
+  test("full directive spec with all elements present") {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
@@ -533,7 +540,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a full directive spec with all elements present and attributes on multiple lines" in {
+  test("full directive spec with all elements present and attributes on multiple lines") {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
@@ -555,7 +562,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a full directive spec with all optional elements missing" in {
+  test("full directive spec with all optional elements missing") {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
@@ -574,7 +581,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a full directive spec with a custom fence" in {
+  test("full directive spec with a custom fence") {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
@@ -593,7 +600,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "detect a full directive spec with positional attributes and the body missing" in {
+  test("invalid - full directive spec with positional attributes and the body missing") {
     new FullDirectiveSpec with BlockParser {
       val input = """aa
         |
@@ -605,7 +612,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a custom body parser" in {
+  test("directive with a custom body parser") {
     new BlockParser with DirectiveWithCustomBodyParser {
       val input = """aa
         |
@@ -619,7 +626,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "parse a directive with a required default body and cursor access" in {
+  test("directive with a required default body and cursor access") {
     new BlockParser with DirectiveWithContextAccess {
       val input = """aa
         |
@@ -632,7 +639,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
   
-  it should "detect a directive with an unknown name" in {
+  test("invalid - directive with an unknown name") {
     new BlockParser with OptionalNamedAttribute {
       val input = """aa
         |
@@ -644,7 +651,7 @@ class BlockDirectiveAPISpec extends MigrationFlatSpec
     }
   }
 
-  it should "merge options from two nested directives" in {
+  test("merge options from two nested directives") {
     new BlockParser with RequiredPositionalAttribute {
       val input = """aa
                     |

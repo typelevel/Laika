@@ -20,25 +20,25 @@ import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees}
-import laika.ast.{Block, Document, DocumentTree, DocumentTreeRoot, Header, InternalLinkTarget, Path, RootElement, Style, Styles, TemplateDocument, TemplateSpan, Text}
-import laika.config.{Config, ConfigBuilder, LaikaKeys, Origin}
+import laika.ast._
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import munit.Assertions
+import Path.Root
 
-trait RewriteSetup extends TemplateParserSetup with MarkupParserSetup {
+object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {
 
-  import Path.Root
 
-  def hasTitleDocs: Boolean = false
-
-  def includeTargetFormatConfig: Boolean = false
-
-  def targetFormats: SampleSixDocuments => SampleSixDocuments =
+  private def targetFormats(includeTargetFormatConfig: Boolean): SampleSixDocuments => SampleSixDocuments =
     if (!includeTargetFormatConfig) identity else _
       .doc2.config(SampleConfig.targetFormats())
       .doc3.config(SampleConfig.targetFormats("html", "txt"))
       .doc4.config(SampleConfig.targetFormats("epub", "pdf"))
 
-  def buildTree (template: Option[(String, Seq[TemplateSpan])] = None, docUnderTest: Option[Seq[Block]] = None): DocumentTree = {
+  def buildTree (template: Option[(String, Seq[TemplateSpan])] = None, 
+                 docUnderTest: Option[Seq[Block]] = None, 
+                 hasTitleDocs: Boolean = false,
+                 includeTargetFormatConfig: Boolean = false): DocumentTree = {
+    
     def templateF = template.fold[SampleSixDocuments => SampleSixDocuments](identity) { 
       case (name, spans) => _.root.template(name, spans) 
     }
@@ -51,7 +51,7 @@ trait RewriteSetup extends TemplateParserSetup with MarkupParserSetup {
       .tree2.config(SampleConfig.title("Tree 2")) // TODO - generalize
       .apply(titleDocs)
       .apply(templateF)
-      .apply(targetFormats)
+      .apply(targetFormats(includeTargetFormatConfig))
       .build
       .tree
   }
@@ -73,17 +73,23 @@ trait RewriteSetup extends TemplateParserSetup with MarkupParserSetup {
         }
   }
 
-  def parseTemplateAndRewrite (template: String): Either[String, RootElement] = {
+  def parseTemplateAndRewrite (template: String, 
+                               hasTitleDocs: Boolean = false, 
+                               includeTargetFormatConfig: Boolean = false): Either[String, RootElement] = {
     parseTemplate(template).flatMap { tRoot =>
-      rewriteTree(buildTree(Some((DefaultTemplatePath.forHTML.name, tRoot.content))))
+      rewriteTree(buildTree(Some((DefaultTemplatePath.forHTML.name, tRoot.content)), 
+        hasTitleDocs = hasTitleDocs, includeTargetFormatConfig = includeTargetFormatConfig))
     }
   }
 
-  def parseDocumentAndRewrite (markup: String): Either[String, RootElement] = {
+  def parseDocumentAndRewrite (markup: String, 
+                               hasTitleDocs: Boolean = false, 
+                               includeTargetFormatConfig: Boolean = false): Either[String, RootElement] = {
     parseUnresolved(markup, Root / "sub2" / "doc6")
       .left.map(_.message)
       .flatMap { markupDoc => 
-        rewriteTree(buildTree(None, Some(markupDoc.content.content)))
+        rewriteTree(buildTree(None, Some(markupDoc.content.content), 
+          hasTitleDocs = hasTitleDocs, includeTargetFormatConfig = includeTargetFormatConfig))
       }
   }
 

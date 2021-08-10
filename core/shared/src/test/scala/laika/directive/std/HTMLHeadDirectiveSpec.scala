@@ -23,12 +23,10 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
+import RewriteSetup._
 
-class HTMLHeadDirectiveSpec extends AnyFlatSpec
-  with Matchers
-  with RewriteSetup {
+class HTMLHeadDirectiveSpec extends FunSuite {
 
 
   val staticDocs = Seq(
@@ -72,6 +70,10 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
     )))
   }
   
+  def run (input: String, expectedResult: Seq[TemplateSpan]): Unit = {
+    assertEquals(parseAndRewrite(input), buildResult(expectedResult))
+  }
+  
   private val cssStart = TemplateString("""<link rel="stylesheet" type="text/css" href="""")
   private val cssEnd = TemplateString("""" />""")
   private val jsStart = TemplateString("""<script src="""")
@@ -79,7 +81,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
   private val separator = TemplateString("\n    ")
   private def rawLink (url: String): TemplateElement = TemplateElement(RawLink.internal(url))
   
-  "The linkCSS directive" should "pick all CSS documents apart from those for EPUB when used without attributes" in {
+  test("linkCSS - pick all CSS documents apart from those for EPUB when used without attributes") {
     val input =
       """aaa
         |
@@ -87,15 +89,14 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    val generatedNodes = Seq(
+    run(input, Seq(
       cssStart, rawLink("/doc-1.css"), cssEnd, separator,
       cssStart, rawLink("/doc-3.shared.css"), cssEnd, separator,
       cssStart, rawLink("/tree-2/doc-4.css"), cssEnd
-    )
-    parseAndRewrite(input) should be (buildResult(generatedNodes))
+    ))
   }
 
-  it should "pick matching CSS documents apart from those for EPUB when used with an paths filter" in {
+  test("linkCSS - pick matching CSS documents apart from those for EPUB when used with an paths filter") {
     val input =
       """aaa
         |
@@ -103,13 +104,12 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    val generatedNodes = Seq(
+    run(input, Seq(
       cssStart, rawLink("/tree-2/doc-4.css"), cssEnd
-    )
-    parseAndRewrite(input) should be (buildResult(generatedNodes))
+    ))
   }
 
-  it should "pick matching CSS documents apart from those for EPUB and respect the order of the specified filters" in {
+  test("linkCSS - pick matching CSS documents apart from those for EPUB and respect the order of the specified filters") {
     val input =
       """aaa
         |
@@ -117,15 +117,14 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
         |
         |bbb""".stripMargin
 
-    val generatedNodes = Seq(
+    run(input, Seq(
       cssStart, rawLink("/tree-2/doc-4.css"), cssEnd, separator,
       cssStart, rawLink("/doc-1.css"), cssEnd, separator,
       cssStart, rawLink("/doc-3.shared.css"), cssEnd
-    )
-    parseAndRewrite(input) should be (buildResult(generatedNodes))
+    ))
   }
 
-  it should "pick all CSS documents for EPUB when used without attributes" in {
+  test("linkCSS - pick all CSS documents for EPUB when used without attributes") {
     val input =
       """aaa
         |
@@ -137,10 +136,10 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
       cssStart, rawLink("/doc-2.epub.css"), cssEnd, separator,
       cssStart, rawLink("/doc-3.shared.css"), cssEnd
     )
-    parseAndRewrite(input, DefaultTemplatePath.forEPUB) should be (buildResult(generatedNodes))
+    assertEquals(parseAndRewrite(input, DefaultTemplatePath.forEPUB), buildResult(generatedNodes))
   }
 
-  "The linkJS directive" should "pick all JavaScript documents apart from those for EPUB when used without attributes" in {
+  test("linkJS - pick all JavaScript documents apart from those for EPUB when used without attributes") {
     
     val staticDocs = Seq(
       StaticDocument(Root / "doc-1.js", TargetFormats.Selected("html")),
@@ -160,10 +159,10 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
       jsStart, rawLink("/doc-1.js"), jsEnd, separator,
       jsStart, rawLink("/tree-2/doc-4.js"), jsEnd
     )
-    parseAndRewrite(input, static = staticDocs) should be (buildResult(generatedNodes))
+    assertEquals(parseAndRewrite(input, static = staticDocs), buildResult(generatedNodes))
   }
 
-  it should "pick all JavaScript documents for EPUB when used without attributes" in {
+  test("linkJS - pick all JavaScript documents for EPUB when used without attributes") {
     val input =
       """aaa
         |
@@ -182,7 +181,7 @@ class HTMLHeadDirectiveSpec extends AnyFlatSpec
       jsStart, rawLink("/doc-2.epub.js"), jsEnd, separator,
       jsStart, rawLink("/doc-3.shared.js"), jsEnd
     )
-    parseAndRewrite(input, DefaultTemplatePath.forEPUB, staticDocs) should be (buildResult(generatedNodes))
+    assertEquals(parseAndRewrite(input, DefaultTemplatePath.forEPUB, staticDocs), buildResult(generatedNodes))
   }
   
 }
