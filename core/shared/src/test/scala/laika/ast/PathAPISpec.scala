@@ -19,8 +19,6 @@ package laika.ast
 import laika.ast.Path._
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 import munit.{FunSuite, Location}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 
 class PathAPISpec extends FunSuite {
 

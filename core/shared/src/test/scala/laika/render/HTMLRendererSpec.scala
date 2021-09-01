@@ -26,36 +26,40 @@ import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
 import laika.rewrite.{Version, Versions}
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class HTMLRendererSpec extends AnyFlatSpec 
-  with Matchers
-  with ParagraphCompanionShortcuts
-  with TestSourceBuilders {
+class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
   
   private val versions = Versions(Version("0.42", "0.42"), Nil)
   
-  private val staticUnversionedSpec = TranslatorSpec(isStatic = true, isVersioned = false)
- 
-  private def pathTranslator (specs: Map[Path, TranslatorSpec], versions: Option[Versions] = None): PathTranslator = ConfigurablePathTranslator(
-    TranslatorConfig(versions, "title", "index", None),
+  private val defaultRenderer = Renderer.of(HTML).build
+  
+  private def pathTranslator (specs: Map[Path, TranslatorSpec], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
+    TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
     "html",
     "html",
     Root / "doc",
     path => specs.get(path.withoutFragment)
   )
 
-  def render (elem: Element, specs: Map[Path, TranslatorSpec], versions: Option[Versions] = None): String = 
-    Renderer.of(HTML).build.render(elem, Root / "doc", pathTranslator(specs, versions), StyleDeclarationSet.empty)
+  def run (elem: Element, expected: String): Unit = assertEquals(defaultRenderer.render(elem), expected)
+  
+  def runWithFilter (elem: Element, filter: MessageFilter, expected: String): Unit = {
+    val renderer = Renderer.of(HTML).renderMessages(filter).build
+    assertEquals(renderer.render(elem), expected)
+  }
 
-  def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 
-  
-  def render (elem: Element, messageFilter: MessageFilter): String = 
-    Renderer.of(HTML).renderMessages(messageFilter).build.render(elem)
+  def runWithStaticDocs (elem: Element, specs: Map[Path, TranslatorSpec], expected: String, versioned: Boolean = false): Unit = {
+    val res = defaultRenderer.render(elem, Root / "doc", pathTranslator(specs, versioned), StyleDeclarationSet.empty)
+    assertEquals(res, expected)
+  }
     
-  def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
+  def runUnformatted (elem: Element, expected: String): Unit = {
+    val res = Renderer.of(HTML).unformatted.build.render(elem)
+    assertEquals(res, expected)
+  }
   
+  private val staticUnversionedSpec = TranslatorSpec(isStatic = true, isVersioned = false)
   private val imagePath = Root / "foo.jpg"
   private val imageTarget = InternalTarget(imagePath)
   private val imageTestSpecs = Map(imagePath -> staticUnversionedSpec)
@@ -63,133 +67,133 @@ class HTMLRendererSpec extends AnyFlatSpec
   def testPar (span: Span): Paragraph = p(Text("some "), span, Text(" span"))
 
 
-  "The HTML renderer" should "render a paragraph with plain text" in {
+  test("paragraph with plain text") {
     val elem = p("some text")
-    render (elem) should be ("<p>some text</p>") 
+    run(elem, "<p>some text</p>") 
   }
   
-  it should "render a document with two paragraphs with plain text" in {
+  test("render a document with two paragraphs with plain text") {
     val elem = RootElement( p("aaa"), p("bbb"))
     val html = """<p>aaa</p>
       |<p>bbb</p>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a blockquote with two paragraphs with plain text" in {
+  test("render a blockquote with two paragraphs with plain text") {
     val elem = QuotedBlock( p("aaa"), p("bbb"))
     val html = """<blockquote>
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</blockquote>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a block sequence with a style" in {
+  test("render a block sequence with a style") {
     val elem = RootElement(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
     val html = """<div class="foo">
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</div>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a block sequence without a style" in {
+  test("render a block sequence without a style") {
     val elem = RootElement(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a block sequence with a single element" in {
+  test("render a block sequence with a single element") {
     val elem = RootElement(p("aaa"), BlockSequence("bbb"), p("ccc"))
     val html = """<p>aaa</p>
       |<p>bbb</p>
       |<p>ccc</p>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a blockquote with simple flow content" in {
+  test("render a blockquote with simple flow content") {
     val elem = QuotedBlock("aaa")
     val html = "<blockquote>aaa</blockquote>"
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a blockquote with an attribution" in {
+  test("render a blockquote with an attribution") {
     val elem = QuotedBlock(List(p("aaa")), List(Text("bbb")))
     val html = """<blockquote>
       |  <p>aaa</p>
       |  <p class="attribution">bbb</p>
       |</blockquote>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a bullet list with simple flow content" in {
+  test("render a bullet list with simple flow content") {
     val elem = RootElement(BulletList("aaa","bbb"))
     val html = """<ul>
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ul>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with simple flow content" in {
+  test("render an enumerated list with simple flow content") {
     val elem = EnumList("aaa", "bbb")
     val html = """<ol class="arabic">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with lower roman enumeration style" in {
+  test("render an enumerated list with lower roman enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
     val html = """<ol class="lowerroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with upper roman enumeration style" in {
+  test("render an enumerated list with upper roman enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
     val html = """<ol class="upperroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with lower alpha enumeration style" in {
+  test("render an enumerated list with lower alpha enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
     val html = """<ol class="loweralpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with upper alpha enumeration style" in {
+  test("render an enumerated list with upper alpha enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
     val html = """<ol class="upperalpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with the start value if it is not 1" in {
+  test("render an enumerated list with the start value if it is not 1") {
     val elem = EnumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
     val html = """<ol class="arabic" start="7">
       |  <li>aaa</li>
       |  <li>bbb</li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
   
-  it should "render a bullet list with forced paragraphs as list items" in {
+  test("render a bullet list with forced paragraphs as list items") {
     val elem = BulletList(fp("aaa"), fp("bbb"))
     val html = """<ul>
       |  <li>
@@ -199,10 +203,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <p>bbb</p>
       |  </li>
       |</ul>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an enumerated list with forced paragraphs as list items" in {
+  test("render an enumerated list with forced paragraphs as list items") {
     val elem = EnumList(fp("aaa"), fp("bbb"))
     val html = """<ol class="arabic">
       |  <li>
@@ -212,10 +216,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <p>bbb</p>
       |  </li>
       |</ol>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a definition list with paragraphs" in {
+  test("render a definition list with paragraphs") {
     val elem = DefinitionList(
       DefinitionListItem("term 1", p("1"), p("1")),
       DefinitionListItem("term 2", p("2"), p("2"))
@@ -232,10 +236,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <p>2</p>
       |  </dd>
       |</dl>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a definition list with simple flow content" in {
+  test("render a definition list with simple flow content") {
     val elem = DefinitionList(
       DefinitionListItem("term 1", p("1")),
       DefinitionListItem("term 2", p("2"))
@@ -246,10 +250,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <dt>term 2</dt>
       |  <dd>2</dd>
       |</dl>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a navigation list" in {
+  test("render a navigation list") {
     val refPath = Root / "doc-99"
     val elem = NavigationList(Seq(
       NavigationItem(
@@ -286,10 +290,10 @@ class HTMLRendererSpec extends AnyFlatSpec
         |  <li class="level2 active"><a href="doc-4.html">Link-4</a></li>
         |  <li class="level1"><a href="doc-5.html">Link-5</a></li>
         |</ul>""".stripMargin
-    render (elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a footnote" in {
+  test("render a footnote") {
     val elem = Footnote("label", List(p("a"),p("b")), Id("id"))
     val html = """<table id="id" class="footnote">
       |  <colgroup>
@@ -306,10 +310,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a citation" in {
+  test("render a citation") {
     val elem = Citation("ref", List(p("a"),p("b")), Id("ref"))
     val html = """<table id="ref" class="citation">
       |  <colgroup>
@@ -326,10 +330,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a table without header cells" in {
+  test("render a table without header cells") {
     val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d")))
     val html = """<table>
       |  <tbody>
@@ -343,10 +347,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a table with header cells" in {
+  test("render a table with header cells") {
     val elem = Table(TableHead(List(Row(BodyCell("a"), BodyCell("b")))),
                      TableBody(List(Row(BodyCell("c"), BodyCell("d")))))
     val html = """<table>
@@ -363,10 +367,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a table with a caption" in {
+  test("render a table with a caption") {
     val caption = Caption(List(Text("caption")))
     val elem = Table(Row(BodyCell("a"),BodyCell("b")),Row(BodyCell("c"),BodyCell("d"))).copy(caption = caption)
     val html = """<table>
@@ -382,25 +386,25 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a cell using colspan and rowspan attributes" in {
+  test("render a cell using colspan and rowspan attributes") {
     val elem = Cell(BodyCell, List(p("a")), 3, 2)
     val html = """<td colspan="3" rowspan="2">a</td>"""
-    render(elem) should be (html)
+    run(elem, html)
   } 
   
-  it should "render a cell with two paragraphs" in {
+  test("render a cell with two paragraphs") {
     val elem = BodyCell(p("a"),p("b"))
     val html = """<td>
       |  <p>a</p>
       |  <p>b</p>
       |</td>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   } 
   
-  it should "render a titled block" in {
+  test("render a titled block") {
     val elem = TitledBlock(List(Text("some "), Emphasized("em"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div>
       |  <p class="title">some <em>em</em> text</p>
@@ -408,10 +412,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <hr>
       |  <p>bbb</p>
       |</div>""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a figure" in {
+  test("render a figure") {
     val elem = Figure(Image(InternalTarget(Root / "image.jpg"), alt = Some("alt")), List(Text("some "), Emphasized("caption"), Text(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
@@ -422,20 +426,20 @@ class HTMLRendererSpec extends AnyFlatSpec
       |    <p>bbb</p>
       |  </div>
       |</div>""".stripMargin
-    render(elem, imageTestSpecs) should be (html)
+    runWithStaticDocs(elem, imageTestSpecs, html)
   }
   
-  it should "render a document with two paragraphs separated by a horizontal rule" in {
+  test("render a document with two paragraphs separated by a horizontal rule") {
     val elem = RootElement( p("aaa"), Rule(), p("bbb"))
     val html = """<p>aaa</p>
       |<hr>
       |<p>bbb</p>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   } 
   
-  it should "render a document with two nested sections" in {
+  test("render a document with two nested sections") {
     val nested = Section(Header(2, Text("Title 2")), List(p("Line 1"), p("Line 2")))
-    val rootElem = RootElement(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
+    val elem = RootElement(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html = """
       |<h1>Title 1</h1>
       |<p>Line 1</p>
@@ -444,10 +448,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |<h2>Title 2</h2>
       |<p>Line 1</p>
       |<p>Line 2</p>""".stripMargin
-    render (rootElem) should be (html) 
+    run(elem, html)
   }
   
-  it should "render a selection" in {
+  test("render a selection") {
     val group = Selection("config", Seq(
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
@@ -463,10 +467,10 @@ class HTMLRendererSpec extends AnyFlatSpec
                  |<p>33
                  |44</p>
                  |<p>bbb</p>""".stripMargin
-    render (elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a choice group" ignore {
+  test("render a choice group".ignore) {
     val group = Selection("config", Seq(
       Choice("name-a","label-a", List(p("common"), p("11\n22"))),
       Choice("name-b","label-b", List(p("common"), p("33\n44")))
@@ -490,163 +494,169 @@ class HTMLRendererSpec extends AnyFlatSpec
                  |  </div>
                  |</div>
                  |<p>bbb</p>""".stripMargin
-    render (elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render a title containing emphasized text" in {
+  test("render a title containing emphasized text") {
     val elem = Title(Text("some "), Emphasized("em"), Text(" text"))
-    render (elem) should be ("<h1>some <em>em</em> text</h1>") 
+    run(elem, "<h1>some <em>em</em> text</h1>") 
   }
   
-  it should "render a title containing a section number" in {
+  test("render a title containing a section number") {
     val elem = Title(SectionNumber(Seq(1,2,3)), Text(" Title"))
-    render (elem) should be ("""<h1><span class="section-number">1.2.3 </span> Title</h1>""") 
+    run(elem, """<h1><span class="section-number">1.2.3 </span> Title</h1>""") 
   }
   
-  it should "render a paragraph containing emphasized text" in {
+  test("render a paragraph containing emphasized text") {
     val elem = testPar(Emphasized("em"))
-    render (elem) should be ("<p>some <em>em</em> span</p>") 
+    run(elem, "<p>some <em>em</em> span</p>") 
   }
   
-  it should "render a paragraph containing strong text" in {
+  test("render a paragraph containing strong text") {
     val elem = testPar(Strong("strong")) 
-    render (elem) should be ("<p>some <strong>strong</strong> span</p>") 
+    run(elem, "<p>some <strong>strong</strong> span</p>") 
   }
 
-  it should "render a paragraph containing a deleted span" in {
+  test("render a paragraph containing a deleted span") {
     val elem = testPar(Deleted("deleted"))
-    render (elem) should be ("<p>some <del>deleted</del> span</p>")
+    run(elem, "<p>some <del>deleted</del> span</p>")
   }
 
-  it should "render a paragraph containing an inserted span" in {
+  test("render a paragraph containing an inserted span") {
     val elem = testPar(Inserted("inserted"))
-    render (elem) should be ("<p>some <ins>inserted</ins> span</p>")
+    run(elem, "<p>some <ins>inserted</ins> span</p>")
   }
   
-  it should "render a paragraph containing a literal span" in {
+  test("render a paragraph containing a literal span") {
     val elem = testPar(Literal("code"))
-    render (elem) should be ("<p>some <code>code</code> span</p>") 
+    run(elem, "<p>some <code>code</code> span</p>") 
   }
   
-  it should "render a paragraph containing a code span" in {
+  test("render a paragraph containing a code span") {
     val elem = testPar(InlineCode("banana-script", List(Text("code"))))
-    render (elem) should be ("<p>some <code class=\"banana-script\">code</code> span</p>") 
+    run(elem, "<p>some <code class=\"banana-script\">code</code> span</p>") 
   }
   
-  it should "render a paragraph containing a link without title" in {
+  test("render a paragraph containing a link without title") {
     val elem = testPar(SpanLink.external("/foo")("link"))
-    render (elem) should be ("""<p>some <a href="/foo">link</a> span</p>""") 
+    run(elem, """<p>some <a href="/foo">link</a> span</p>""") 
   }
   
-  it should "render a paragraph containing a link with title" in {
+  test("render a paragraph containing a link with title") {
     val elem = testPar(SpanLink.external("/foo")("link").copy(title = Some("title")))
-    render (elem) should be ("""<p>some <a href="/foo" title="title">link</a> span</p>""") 
+    run(elem, """<p>some <a href="/foo" title="title">link</a> span</p>""") 
   }
   
-  it should "render a paragraph containing a link with emphasized text" in {
+  test("render a paragraph containing a link with emphasized text") {
     val elem = testPar(SpanLink.external("/foo")(Text("link"), Emphasized("text")))
-    render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
+    run(elem, """<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing an internal link with emphasized text" in {
+  test("render a paragraph containing an internal link with emphasized text") {
     val elem = testPar(SpanLink.internal("#foo")(Text("link"), Emphasized("text")))
-    render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
+    run(elem, """<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing a internal link with a fragment part" in {
+  test("render a paragraph containing a internal link with a fragment part") {
     val elem = testPar(SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")))
-    render (elem) should be ("""<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
+    run(elem, """<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing a internal link without a fragment part" in {
+  test("render a paragraph containing a internal link without a fragment part") {
     val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
-    render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
+    run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing a internal link with an input filename without suffix" in {
+  test("render a paragraph containing a internal link with an input filename without suffix") {
     val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
-    render (elem) should be ("""<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
+    run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""") 
   }
 
-  it should "render a paragraph containing an internal link while ignoring the restricted type parameter" in {
+  test("render a paragraph containing an internal link while ignoring the restricted type parameter") {
     val target = ResolvedInternalTarget(Path.parse("/doc#foo"), RelativePath.parse("#foo"), TargetFormats.Selected("html"))
     val elem = testPar(SpanLink(target)("link"))
-    render (elem) should be ("""<p>some <a href="#foo">link</a> span</p>""")
+    run(elem, """<p>some <a href="#foo">link</a> span</p>""")
   }
   
-  it should "render a paragraph containing a citation link" in {
+  test("render a paragraph containing a citation link") {
     val elem = testPar(CitationLink("ref","label"))
-    render (elem) should be ("""<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
+    run(elem, """<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
   }
   
-  it should "render a paragraph containing a footnote link" in {
+  test("render a paragraph containing a footnote link") {
     val elem = testPar(FootnoteLink("id","label"))
-    render (elem) should be ("""<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
+    run(elem, """<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
   }
 
-  it should "render a raw internal link" in {
+  test("render a raw internal link") {
     val elem = testPar(RawLink.internal("/doc#foo"))
-    render (elem) should be ("""<p>some #foo span</p>""")
+    run(elem, """<p>some #foo span</p>""")
   }
 
-  it should "render a raw external link" in {
+  test("render a raw external link") {
     val elem = testPar(RawLink.external("/foo"))
-    render (elem) should be ("""<p>some /foo span</p>""")
+    run(elem, """<p>some /foo span</p>""")
   }
   
-  it should "render a paragraph containing an image without title" in {
+  test("render a paragraph containing an image without title") {
     val elem = testPar(Image(imageTarget, alt = Some("img")))
-    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img"> span</p>""") 
+    val expected = """<p>some <img src="foo.jpg" alt="img"> span</p>"""
+    runWithStaticDocs(elem, imageTestSpecs, expected) 
   }
 
-  it should "render a paragraph containing a versioned image" in {
+  test("render a paragraph containing a versioned image") {
     val elem = testPar(Image(imageTarget, alt = Some("img")))
     val spec = TranslatorSpec(isStatic = true, isVersioned = true)
-    render(elem, Map(imagePath -> spec), Some(versions)) should be ("""<p>some <img src="0.42/foo.jpg" alt="img"> span</p>""")
+    val expected = """<p>some <img src="0.42/foo.jpg" alt="img"> span</p>"""
+    runWithStaticDocs(elem, Map(imagePath -> spec), expected, versioned = true)
   }
   
-  it should "render a paragraph containing an image with title" in {
+  test("render a paragraph containing an image with title") {
     val elem = testPar(Image(imageTarget, alt = Some("img"), title = Some("title")))
-    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
+    val expected = """<p>some <img src="foo.jpg" alt="img" title="title"> span</p>"""
+    runWithStaticDocs(elem, imageTestSpecs, expected)
   }
 
-  it should "render a paragraph containing an image with width and height in pixels" in {
+  test("render a paragraph containing an image with width and height in pixels") {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.px(200)), height = Some(LengthUnit.px(120)))
     val elem = testPar(image)
-    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
+    val expected = """<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>"""
+    runWithStaticDocs(elem, imageTestSpecs, expected)
   }
 
-  it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
+  test("render a paragraph containing an image with width and height in a unit other than pixels") {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)), height = Some(LengthUnit.in(6.8)))
     val elem = testPar(image)
-    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
+    val expected = """<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>"""
+    runWithStaticDocs(elem, imageTestSpecs, expected)
   }
 
-  it should "render a paragraph containing an image with just width in a unit other than pixels" in {
+  test("render a paragraph containing an image with just width in a unit other than pixels") {
     val image = Image(imageTarget, alt = Some("img"), width = Some(LengthUnit.in(12.4)))
     val elem = testPar(image)
-    render(elem, imageTestSpecs) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
+    val expected = """<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>"""
+    runWithStaticDocs(elem, imageTestSpecs, expected)
   }
 
-  it should "render a paragraph containing a link with an icon glyph" in {
+  test("render a paragraph containing a link with an icon glyph") {
     val elem = p(
       Text("some "), 
       SpanLink.external("/foo")(IconGlyph('\uefa2', options = Styles("icofont-laika"))), 
       Text(" span")
     )
-    render(elem) should be ("""<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")
+    run(elem, """<p>some <a href="/foo"><i class="icofont-laika">&#xefa2;</i></a> span</p>""")
   }
 
-  it should "render a paragraph containing a link with an icon style" in {
+  test("render a paragraph containing a link with an icon style") {
     val elem = p(
       Text("some "),
       SpanLink.external("/foo")(IconStyle("open", options = Styles("icofont-laika"))),
       Text(" span")
     )
-    render(elem) should be ("""<p>some <a href="/foo"><i class="open icofont-laika"></i></a> span</p>""")
+    run(elem, """<p>some <a href="/foo"><i class="open icofont-laika"></i></a> span</p>""")
   }
 
-  it should "render a paragraph containing a link with an inline SVG icon" in {
+  test("render a paragraph containing a link with an inline SVG icon") {
     val svg = """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
                 |  <g class="svg-shape">
                 |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
@@ -657,10 +667,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(InlineSVGIcon(svg)),
       Text(" span")
     )
-    render(elem) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+    run(elem, s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
   }
 
-  it should "render a paragraph containing a link with a SVG symbol icon" in {
+  test("render a paragraph containing a link with a SVG symbol icon") {
     val svgDoc = Root / "icons" / "all.svg"
     val svg = """<svg class="svg-icon"><use class="svg-shape" href="icons/all.svg#open"/></svg>"""
     val elem = p(
@@ -668,40 +678,41 @@ class HTMLRendererSpec extends AnyFlatSpec
       SpanLink.external("/foo")(SVGSymbolIcon.internal(svgDoc.withFragment("open"))),
       Text(" span")
     )
-    render(elem, Map(svgDoc -> staticUnversionedSpec)) should be (s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>""")
+    val expected = s"""<p>some <a href="/foo"><span>$svg</span></a> span</p>"""
+    runWithStaticDocs(elem, Map(svgDoc -> staticUnversionedSpec), expected)
   }
   
-  it should "render a paragraph containing an unresolved link reference" in {
+  test("render a paragraph containing an unresolved link reference") {
     val elem = testPar(LinkIdReference("id", generatedSource("[link] [id]"))("link"))
-    render(elem) should be ("""<p>some <code>[link] [id]</code> span</p>""")
+    run(elem, """<p>some <code>[link] [id]</code> span</p>""")
   }
   
-  it should "render a paragraph containing an unresolved image reference" in {
+  test("render a paragraph containing an unresolved image reference") {
     val elem = testPar(ImageIdReference("img","id", source("![img] [id]", "![img] [id]")))
-    render(elem) should be ("""<p>some <code>![img] [id]</code> span</p>""") 
+    run(elem, """<p>some <code>![img] [id]</code> span</p>""") 
   }
   
-  it should "render a paragraph containing an internal link target" in {
+  test("render a paragraph containing an internal link target") {
     val elem = testPar(InternalLinkTarget(Id("target")))
-    render(elem) should be ("""<p>some <a id="target"></a> span</p>""") 
+    run(elem, """<p>some <a id="target"></a> span</p>""") 
   }
   
-  it should "render a template root containing string elements" in {
+  test("render a template root containing string elements") {
     val elem = TemplateRoot(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
-    render(elem) should be ("aabbcc")
+    run(elem, "aabbcc")
   }
   
-  it should "render a template span sequence containing string elements" in {
+  test("render a template span sequence containing string elements") {
     val elem = TemplateSpanSequence(TemplateString("aa"),TemplateString("bb"),TemplateString("cc"))
-    render(elem) should be ("aabbcc")
+    run(elem, "aabbcc")
   }
   
-  it should "render a template string without creating html entities" in {
+  test("render a template string without creating html entities") {
     val elem = TemplateRoot(TemplateString("aa & bb"))
-    render(elem) should be ("aa & bb")
+    run(elem, "aa & bb")
   }
   
-  it should "render a template root containing a TemplateElement" in {
+  test("render a template root containing a TemplateElement") {
     val elem = TemplateRoot(
       TemplateString("aa"),
       TemplateElement(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),
@@ -711,63 +722,63 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</div>cc""".stripMargin
-    render(elem) should be (html)
+    run(elem, html)
   }
 
-  it should "render a runtime message" in {
+  test("render a runtime message") {
     val html = """<span class="runtime-message warning">some message</span>"""
-    render(RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning) should be (html)
+    runWithFilter(RuntimeMessage(MessageLevel.Warning, "some message"), MessageFilter.Warning, html)
   }
   
-  it should "render a comment" in {
-    render(Comment("foo")) should be ("<!-- foo -->")
+  test("render a comment") {
+    run(Comment("foo"), "<!-- foo -->")
   }
   
-  it should "render an invalid block without the runtime message in default mode" in {
+  test("render an invalid block without the runtime message in default mode") {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = "<p>fallback</p>"
-    render(elem) should be (html)
+    run(elem, html)
   }
   
-  it should "render an invalid block without the runtime message if the configured message level is higher" in {
+  test("render an invalid block without the runtime message if the configured message level is higher") {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = "<p>fallback</p>"
-    render(elem, MessageFilter.Error) should be (html)
+    runWithFilter(elem, MessageFilter.Error, html)
   }
   
-  it should "render an invalid block with the runtime message if the configured message level is lower or equal" in {
+  test("render an invalid block with the runtime message if the configured message level is lower or equal") {
     val elem = InvalidBlock(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, p("fallback"))
     val html = """<p><span class="runtime-message warning">some message</span></p><p>fallback</p>"""
-    render(elem, MessageFilter.Info) should be (html)
+    runWithFilter(elem, MessageFilter.Info, html)
   }
   
-  it should "render an invalid span without the runtime message in default mode" in {
+  test("render an invalid span without the runtime message in default mode") {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
-    render(elem) should be ("fallback")
+    run(elem, "fallback")
   }
   
-  it should "render an invalid span without the runtime message if the configured message level is higher" in {
+  test("render an invalid span without the runtime message if the configured message level is higher") {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
-    render(elem, MessageFilter.Error) should be ("fallback")
+    runWithFilter(elem, MessageFilter.Error, "fallback")
   }
   
-  it should "render an invalid span with the runtime message if the configured message level is lower or equal" in {
+  test("render an invalid span with the runtime message if the configured message level is lower or equal") {
     val elem = InvalidSpan(RuntimeMessage(MessageLevel.Warning, "some message"), GeneratedSource, Text("fallback"))
     val html = """<span class="runtime-message warning">some message</span> fallback"""
-    render(elem, MessageFilter.Info) should be (html)
+    runWithFilter(elem, MessageFilter.Info, html)
   }
   
-  it should "render a literal block" in {
+  test("render a literal block") {
     val code = """line 1
       |
       |    <line 2
       |
       |line 3""".stripMargin
     val elem = LiteralBlock(code)
-    render(elem) should be ("<pre><code>" + code.replace("<", "&lt;") + "</code></pre>") 
+    run(elem, "<pre><code>" + code.replace("<", "&lt;") + "</code></pre>") 
   }
   
-  it should "render a parsed literal block" in {
+  test("render a parsed literal block") {
     val code = """line 1
       |
       |    #<line 2
@@ -775,20 +786,20 @@ class HTMLRendererSpec extends AnyFlatSpec
       |line 3""".stripMargin.split("#")
     val elem = ParsedLiteralBlock(List(Text(code(0)), Emphasized("em"), Text(code(1))))
     val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replace("<", "&lt;") + "</code></pre>"
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a code block" in {
+  test("render a code block") {
     val code = """line 1
       |
       |    <line 2
       |
       |line 3""".stripMargin
     val elem = CodeBlock("banana-script", List(Text(code)))
-    render(elem) should be ("<pre><code class=\"banana-script\">" + code.replace("<", "&lt;") + "</code></pre>") 
+    run(elem, "<pre><code class=\"banana-script\">" + code.replace("<", "&lt;") + "</code></pre>") 
   }
 
-  it should "render a code block with syntax highlighting" in {
+  test("render a code block with syntax highlighting") {
     val code = List(
       CodeSpan("{{", CodeCategory.Keyword),
       CodeSpan("foo"), 
@@ -796,10 +807,10 @@ class HTMLRendererSpec extends AnyFlatSpec
     )
     val elem = CodeBlock("banana-script", code)
     val renderedCode = """<span class="keyword">{{</span><span>foo</span><span class="tag-punctuation identifier">}}</span>"""
-    render(elem) should be (s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
+    run(elem, s"""<pre><code class="nohighlight">$renderedCode</code></pre>""")
   }
   
-  it should "render a literal block inside a blockquote without indentation" in {
+  test("render a literal block inside a blockquote without indentation") {
     val code = """line 1
       |
       |    line 2
@@ -809,10 +820,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code>%s</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(LiteralBlock(code))
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a parsed literal block inside a blockquote without indentation" in {
+  test("render a parsed literal block inside a blockquote without indentation") {
     val code = """line 1
       |
       |    line 2
@@ -822,10 +833,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code>:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(ParsedLiteralBlock(List(Text(":"),Emphasized(code),Text(":"))))
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a code block inside a blockquote without indentation" in {
+  test("render a code block inside a blockquote without indentation") {
     val code = """line 1
       |
       |    line 2
@@ -835,31 +846,31 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <pre><code class="nohighlight">:<em>%s</em>:</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = QuotedBlock(CodeBlock("banana-script", List(Text(":"),Emphasized(code),Text(":"))))
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render a table cell unformatted" in {
+  test("render a table cell unformatted") {
     val elem = BodyCell(p("a"),p("b"))
     val html = """<td>
       |<p>a</p>
       |<p>b</p>
       |</td>""".stripMargin
-    renderUnformatted(elem) should be (html)
+    runUnformatted(elem, html)
   } 
   
-  it should "render raw content unchanged if the html format is specified" in {
+  test("render raw content unchanged if the html format is specified") {
     val raw = "<span>foo</span>"
     val elem = RawContent(NonEmptySet.of("html", "spooky"), raw)
-    render(elem) should be (raw) 
+    run(elem, raw) 
   }
   
-  it should "ignore raw content if the html format is not specified" in {
+  test("ignore raw content if the html format is not specified") {
     val raw = "<span>foo</span>"
     val elem = RawContent(NonEmptySet.of("dodgy", "spooky"), raw)
-    render(elem) should be ("") 
+    run(elem, "") 
   }
   
-  it should "render an embedded root with correct indentation" in {
+  test("render an embedded root with correct indentation") {
     val elem = RootElement(TemplateRoot(
       TemplateString("<div>\n  "),
       EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
@@ -869,10 +880,10 @@ class HTMLRendererSpec extends AnyFlatSpec
       |  <p>aaa</p>
       |  <p>bbb</p>
       |</div>""".stripMargin
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an embedded root without indentation" in {
+  test("render an embedded root without indentation") {
     val elem = RootElement(TemplateRoot(
       TemplateString("<div>\n"),
       EmbeddedRoot(p("aaa"),p("bbb")),
@@ -882,7 +893,7 @@ class HTMLRendererSpec extends AnyFlatSpec
       |<p>aaa</p>
       |<p>bbb</p>
       |</div>""".stripMargin
-    render(elem) should be (html) 
+    run(elem, html) 
   }
   
   

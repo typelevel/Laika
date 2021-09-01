@@ -22,12 +22,9 @@ import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
 import laika.config.Config.ConfigResult
 import laika.config.ConfigParser
 import laika.parse.GeneratedSource
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class SectionNumberSpec extends AnyFlatSpec
-                        with Matchers
-                        with DocumentTreeAssertions {
+class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
 
 
   trait TreeModel {
@@ -153,31 +150,31 @@ class SectionNumberSpec extends AnyFlatSpec
   }
 
 
-  "The section numbering" should "number documents, sections and titles" in {
+  test("number documents, sections and titles") {
     new TreeModel with NumberAllConfig {
       result.assertEquals(expected)
     }
   }
 
-  it should "number documents and titles" in {
+  test("number documents and titles") {
     new TreeModel with NumberDocumentsConfig {
       result.assertEquals(expected)
     }
   }
 
-  it should "number sections only" in {
+  test("number sections only") {
     new TreeModel with NumberSectionsConfig {
       result.assertEquals(expected)
     }
   }
 
-  it should "number nothing" in {
+  test("number nothing") {
     new TreeModel with NumberNothingConfig {
       result.assertEquals(expected)
     }
   }
 
-  it should "number documents and sections two levels deep" in {
+  test("number documents and sections two levels deep") {
     new TreeModel with NumberTwoLevels {
       override val depth = Some(2)
       result.assertEquals(expected)
