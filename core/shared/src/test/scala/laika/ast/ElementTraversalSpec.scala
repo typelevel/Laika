@@ -18,8 +18,6 @@ package laika.ast
 
 import laika.ast.sample.ParagraphCompanionShortcuts
 import munit.FunSuite
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
  
 class ElementTraversalSpec extends FunSuite with ParagraphCompanionShortcuts {
 

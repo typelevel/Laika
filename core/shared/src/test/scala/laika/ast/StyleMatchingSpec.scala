@@ -20,8 +20,6 @@ import laika.ast.Path.Root
 import laika.ast.StylePredicate._
 import laika.ast.sample.StyleBuilders
 import munit.FunSuite
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 
 class StyleMatchingSpec extends FunSuite with StyleBuilders {
 

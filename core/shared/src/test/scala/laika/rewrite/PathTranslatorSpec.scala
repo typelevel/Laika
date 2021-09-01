@@ -22,11 +22,10 @@ import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
 import laika.config.LaikaKeys
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TranslatorConfig}
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 
-class PathTranslatorSpec extends AnyFunSuite with Matchers {
+class PathTranslatorSpec extends FunSuite {
 
   private val rootCursor = {
 
@@ -61,49 +60,49 @@ class PathTranslatorSpec extends AnyFunSuite with Matchers {
   test("between two unversioned documents") {
     val input    = ResolvedInternalTarget(Root / "doc-2.md", CurrentTree / "doc-2.md")
     val expected = ResolvedInternalTarget(Root / "doc-2.html", CurrentTree / "doc-2.html")
-    unversionedRef.translate(input) shouldBe expected
+    assertEquals(unversionedRef.translate(input), expected)
   }
 
   test("between two versioned documents") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"))
     val expected = ResolvedInternalTarget(Root / "0.42" / "tree-2" / "doc-5.html", RelativePath.parse("../tree-2/doc-5.html"))
-    versionedRef.translate(input) shouldBe expected
+    assertEquals(versionedRef.translate(input), expected)
   }
 
   test("versioned to unversioned document") {
     val input    = ResolvedInternalTarget(Root / "doc-2.md", RelativePath.parse("../doc-2.md"))
     val expected = ResolvedInternalTarget(Root / "doc-2.html", RelativePath.parse("../../doc-2.html"))
-    versionedRef.translate(input) shouldBe expected
+    assertEquals(versionedRef.translate(input), expected)
   }
 
   test("unversioned to versioned document") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("tree-2/doc-5.md"))
     val expected = ResolvedInternalTarget(Root / "0.42" / "tree-2" / "doc-5.html", RelativePath.parse("0.42/tree-2/doc-5.html"))
-    unversionedRef.translate(input) shouldBe expected
+    assertEquals(unversionedRef.translate(input), expected)
   }
 
   test("static unversioned document") {
     val input    = ResolvedInternalTarget(Root / "static-1" / "doc-7.txt", RelativePath.parse("../static-1/doc-7.txt"))
     val expected = ResolvedInternalTarget(Root / "static-1" / "doc-7.txt", RelativePath.parse("../../static-1/doc-7.txt"))
-    versionedRef.translate(input) shouldBe expected
+    assertEquals(versionedRef.translate(input), expected)
   }
 
   test("static versioned document") {
     val input    = ResolvedInternalTarget(Root / "static-2" / "doc-8.txt", RelativePath.parse("../static-2/doc-8.txt"))
     val expected = ResolvedInternalTarget(Root / "0.42" / "static-2" / "doc-8.txt", RelativePath.parse("../static-2/doc-8.txt"))
-    versionedRef.translate(input) shouldBe expected
+    assertEquals(versionedRef.translate(input), expected)
   }
   
   test("ignore versions when output format is not HTML") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"))
     val expected = ResolvedInternalTarget(Root / "tree-2" / "doc-5.epub.xhtml", RelativePath.parse("../tree-2/doc-5.epub.xhtml"))
-    epubRef.translate(input) shouldBe expected
+    assertEquals(epubRef.translate(input), expected)
   }
 
   test("apply versions when substituting an internal target with an external one") {
     val input    = ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"), TargetFormats.Selected("html"))
     val expected = ExternalTarget("http://external.com/0.42/tree-2/doc-5.html")
-    epubRef.translate(input) shouldBe expected
+    assertEquals(epubRef.translate(input), expected)
   }
   
 }

@@ -16,42 +16,37 @@
 
 package laika.time
 
+import munit.FunSuite
+
 import java.time.{Instant, LocalDateTime, ZoneId}
 import java.util.Date
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+class PlatformDateFormatSpec extends FunSuite {
 
-class PlatformDateFormatSpec extends AnyWordSpec with Matchers {
 
-  
   private def getDate(dateString: String): Date = Date.from(Instant.parse(dateString))
   
   
-  "The parser of the DateFormat" should {
-    
-    "parse a date without time" in {
-      PlatformDateFormat.parse("2011-10-10") shouldBe Right(getDate("2011-10-10T00:00:00Z"))
-    }
-
-    "parse a local date time" in {
-      val expected = Date.from(LocalDateTime.parse("2011-10-10T14:48:00").atZone(ZoneId.systemDefault).toInstant)
-      PlatformDateFormat.parse("2011-10-10T14:48:00") shouldBe Right(expected)
-    }
-
-    "parse a UTC date time" in {
-      PlatformDateFormat.parse("2011-10-10T14:48:00Z") shouldBe Right(getDate("2011-10-10T14:48:00Z"))
-    }
-
-    "parse a date time with an offset" in {
-      PlatformDateFormat.parse("2011-10-10T14:48:00+0100") shouldBe Right(getDate("2011-10-10T13:48:00Z"))
-    }
-
-    "fail in case of invalid date format" in {
-      PlatformDateFormat.parse("2011-10-10XX14:48:00+0100").isLeft shouldBe true
-    }
-
+  test("parse a date without time") {
+    assertEquals(PlatformDateFormat.parse("2011-10-10"), Right(getDate("2011-10-10T00:00:00Z")))
   }
-  
+
+  test("parse a local date time") {
+    val expected = Date.from(LocalDateTime.parse("2011-10-10T14:48:00").atZone(ZoneId.systemDefault).toInstant)
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00"), Right(expected))
+  }
+
+  test("parse a UTC date time") {
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00Z"), Right(getDate("2011-10-10T14:48:00Z")))
+  }
+
+  test("parse a date time with an offset") {
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0100"), Right(getDate("2011-10-10T13:48:00Z")))
+  }
+
+  test("fail in case of invalid date format") {
+    assertEquals(PlatformDateFormat.parse("2011-10-10XX14:48:00+0100").isLeft, true)
+  }
+
   
 }
