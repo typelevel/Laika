@@ -17,577 +17,547 @@
 package laika.parse.hocon
 
 import laika.config.{ConfigParser, ConfigParserErrors}
-import org.scalatest.Assertion
-
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class HoconErrorSpec extends AnyWordSpec with Matchers {
+class HoconErrorSpec extends FunSuite {
   
-  def parseAndValidate(input: String, expectedMessage: String): Assertion = {
+  def run (input: String, expectedMessage: String): Unit = {
 
     ConfigParser.parse(input).resolve() match {
       case Right(result) => fail(s"Unexpected parser success: $result")
       case Left(ConfigParserErrors(errors)) =>
-        errors.size shouldBe 1
-        errors.head.toString shouldBe expectedMessage
+        assertEquals(errors.size, 1)
+        assertEquals(errors.head.toString, expectedMessage)
       case Left(other) => fail(s"Unexpected parser error: $other")
     }
 
   }
 
-  "Missing closing quotes" should {
 
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a = "foo bar
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.13] failure: Expected closing '"'
-          |
-          |a = "foo bar
-          |            ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing quotes in a top level property") {
+    val input =
+      """
+        |a = "foo bar
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.13] failure: Expected closing '"'
+        |
+        |a = "foo bar
+        |            ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in an array property" in {
-      val input =
-        """
-          |a = [
-          | 3
-          | 4
-          | "some text
-          |] 
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[5.12] failure: Expected closing '"'
-          |
-          | "some text
-          |           ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing quotes in an array property") {
+    val input =
+      """
+        |a = [
+        | 3
+        | 4
+        | "some text
+        |] 
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[5.12] failure: Expected closing '"'
+        |
+        | "some text
+        |           ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a nested object property" in {
-      val input =
-        """
-          |a {
-          | aa = "some text
-          | bb = 7
-          |} 
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[3.17] failure: Expected closing '"'
-          |
-          | aa = "some text
-          |                ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing quotes in a nested object property") {
+    val input =
+      """
+        |a {
+        | aa = "some text
+        | bb = 7
+        |} 
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[3.17] failure: Expected closing '"'
+        |
+        | aa = "some text
+        |                ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a substitution reference" in {
-      val input =
-        """
-          |a = ${"foo.bar}
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.16] failure: Invalid key: Expected closing '"'
-          |
-          |a = ${"foo.bar}
-          |               ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing quotes in a substitution reference") {
+    val input =
+      """
+        |a = ${"foo.bar}
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.16] failure: Invalid key: Expected closing '"'
+        |
+        |a = ${"foo.bar}
+        |               ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a property key" in {
-      val input =
-        """
-          |"a = 7
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.7] failure: Invalid key: Expected closing '"'
-          |
-          |"a = 7
-          |      ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing quotes in a property key") {
+    val input =
+      """
+        |"a = 7
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.7] failure: Invalid key: Expected closing '"'
+        |
+        |"a = 7
+        |      ^""".stripMargin
+    run(input, expectedMessage)
+  }
     
+  
+  test("invalid characters for unquoted strings in a top level property value") {
+    val input =
+      """
+        |a = foo ? bar
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.9] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+        |
+        |a = foo ? bar
+        |        ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("invalid characters for unquoted strings in an array property") {
+    val input =
+      """
+        |a = [
+        | 3
+        | 4
+        | some ? text
+        |] 
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[5.7] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+        |
+        | some ? text
+        |      ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("invalid characters for unquoted strings in a nested object property value") {
+    val input =
+      """
+        |a {
+        | aa = some ? text
+        | bb = 7
+        |} 
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[3.12] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+        |
+        | aa = some ? text
+        |           ^""".stripMargin
+    run(input, expectedMessage)
   }
   
-  "Invalid characters for unquoted strings" should {
-
-    "be detected in a top level property value" in {
-      val input =
-        """
-          |a = foo ? bar
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.9] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
-          |
-          |a = foo ? bar
-          |        ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in an array property" in {
-      val input =
-        """
-          |a = [
-          | 3
-          | 4
-          | some ? text
-          |] 
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[5.7] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
-          |
-          | some ? text
-          |      ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a nested object property value" in {
-      val input =
-        """
-          |a {
-          | aa = some ? text
-          | bb = 7
-          |} 
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[3.12] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
-          |
-          | aa = some ? text
-          |           ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-    
-    "be detected in a substitution reference" in {
-      val input =
-        """
-          |a = ${foo = bar}
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
-          |
-          |a = ${foo = bar}
-          |          ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a property key" in {
-      val input =
-        """
-          |a } c = 7
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.3] failure: Invalid key: Illegal character in unquoted string, expected delimiters are one of '+=', ':', '=', '{'
-          |
-          |a } c = 7
-          |  ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected as a consequence of a missing separator between fields" in {
-      val input =
-        """
-          |a {
-          |  b { x = 5 y = 6 }
-          |    
-          |  c = 9
-          |}
-          |  
-          |d = 7  
-          |""".stripMargin
-      val expectedMessage =
-        """[3.15] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
-          |
-          |  b { x = 5 y = 6 }
-          |              ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-    
+  test("invalid characters for unquoted strings in a substitution reference") {
+    val input =
+      """
+        |a = ${foo = bar}
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+        |
+        |a = ${foo = bar}
+        |          ^""".stripMargin
+    run(input, expectedMessage)
   }
-  
-  "Invalid escape sequences" should {
 
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a = "foo \x bar"
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[2.11] failure: Invalid escape sequence: \x
-          |
-          |a = "foo \x bar"
-          |          ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
+  test("invalid characters for unquoted strings in a property key") {
+    val input =
+      """
+        |a } c = 7
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.3] failure: Invalid key: Illegal character in unquoted string, expected delimiters are one of '+=', ':', '=', '{'
+        |
+        |a } c = 7
+        |  ^""".stripMargin
+    run(input, expectedMessage)
   }
+
+  test("invalid characters for unquoted strings as a consequence of a missing separator between fields") {
+    val input =
+      """
+        |a {
+        |  b { x = 5 y = 6 }
+        |    
+        |  c = 9
+        |}
+        |  
+        |d = 7  
+        |""".stripMargin
+    val expectedMessage =
+      """[3.15] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+        |
+        |  b { x = 5 y = 6 }
+        |              ^""".stripMargin
+    run(input, expectedMessage)
+  }
+    
+
+  test("invalid escape sequences in a top level property") {
+    val input =
+      """
+        |a = "foo \x bar"
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[2.11] failure: Invalid escape sequence: \x
+        |
+        |a = "foo \x bar"
+        |          ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
    
-  "Missing closing brackets for arrays" should {
-
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a = [3, 4, 5
-          |
-          |b = 9
-          |""".stripMargin
-      val expectedMessage =
-        """[4.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
-          |
-          |b = 9
-          |  ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a top level property in a multiline array" in {
-      val input =
-        """
-          |a = [
-          | 3
-          | 4
-          | 5
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[7.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
-          |
-          |b = 9
-          |  ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a nested object property" in {
-      val input =
-        """
-          |a {
-          |  b = [
-          |    3
-          |    4
-          |    5
-          |
-          |  c = 9
-          |}
-          |  
-          |d = 7  
-        """.stripMargin
-      val expectedMessage =
-        """[8.5] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
-          |
-          |  c = 9
-          |    ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
+  test("missing closing brackets for arrays in a top level property") {
+    val input =
+      """
+        |a = [3, 4, 5
+        |
+        |b = 9
+        |""".stripMargin
+    val expectedMessage =
+      """[4.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+        |
+        |b = 9
+        |  ^""".stripMargin
+    run(input, expectedMessage)
   }
 
-  "Missing closing braces for objects" should {
-
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a {
-          |  x = 5
-          |
-          |b = 9
-          |""".stripMargin
-      val expectedMessage =
-        """[6.1] failure: Expected closing '}'
-          |
-          |
-          |^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a multiline array" in {
-      val input =
-        """
-          |a = [
-          | { x = 3
-          | { x = 4 }
-          | { x = 5 }
-          |]
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[4.2] failure: Expected closing '}'
-          |
-          | { x = 4 }
-          | ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a nested object property" in {
-      val input =
-        """
-          |a {
-          |  b { x = 5
-          |    
-          |  c = 9
-          |}
-          |  
-          |d = 7  
-          |""".stripMargin
-      val expectedMessage =
-        """[9.1] failure: Expected closing '}'
-          |
-          |
-          |^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
+  test("missing closing brackets for arrays in a top level property in a multiline array") {
+    val input =
+      """
+        |a = [
+        | 3
+        | 4
+        | 5
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[7.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+        |
+        |b = 9
+        |  ^""".stripMargin
+    run(input, expectedMessage)
   }
 
-  "Missing '=' or ':' between key and value" should {
-
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a 5
-          |
-          |b = 9
-          |""".stripMargin
-      val expectedMessage =
-        """[2.4] failure: Expected separator after key ('=', '+=', ':' or '{')
-          |
-          |a 5
-          |   ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a multiline array" in {
-      val input =
-        """
-          |a = [
-          | { x 3 }
-          | { y = 4 }
-          | { z = 5 }
-          |]
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[3.8] failure: Expected separator after key ('=', '+=', ':' or '{')
-          |
-          | { x 3 }
-          |       ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a nested object property" in {
-      val input =
-        """
-          |a {
-          |  b { x 5 }
-          |    
-          |  c = 9
-          |}
-          |  
-          |d = 7  
-          |""".stripMargin
-      val expectedMessage =
-        """[3.11] failure: Expected separator after key ('=', '+=', ':' or '{')
-          |
-          |  b { x 5 }
-          |          ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
+  test("missing closing brackets for arrays in a nested object property") {
+    val input =
+      """
+        |a {
+        |  b = [
+        |    3
+        |    4
+        |    5
+        |
+        |  c = 9
+        |}
+        |  
+        |d = 7  
+      """.stripMargin
+    val expectedMessage =
+      """[8.5] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+        |
+        |  c = 9
+        |    ^""".stripMargin
+    run(input, expectedMessage)
   }
 
-  "Missing closing braces for substitution references" should {
+  
+  test("missing closing brackets for objects in a top level property") {
+    val input =
+      """
+        |a {
+        |  x = 5
+        |
+        |b = 9
+        |""".stripMargin
+    val expectedMessage =
+      """[6.1] failure: Expected closing '}'
+        |
+        |
+        |^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a top level property" in {
-      val input =
-        """
-          |a = ${foo.bar
-          |
-          |b = 9
-          |""".stripMargin
-      val expectedMessage =
-        """[2.14] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
-          |
-          |a = ${foo.bar
-          |             ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing brackets for objects in a multiline array") {
+    val input =
+      """
+        |a = [
+        | { x = 3
+        | { x = 4 }
+        | { x = 5 }
+        |]
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[4.2] failure: Expected closing '}'
+        |
+        | { x = 4 }
+        | ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a multiline array" in {
-      val input =
-        """
-          |a = [
-          | ${foo.bar
-          | 4
-          | 5
-          |]
-          |
-          |b = 9
-        """.stripMargin
-      val expectedMessage =
-        """[3.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
-          |
-          | ${foo.bar
-          |          ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("missing closing brackets for objects in a nested object property") {
+    val input =
+      """
+        |a {
+        |  b { x = 5
+        |    
+        |  c = 9
+        |}
+        |  
+        |d = 7  
+        |""".stripMargin
+    val expectedMessage =
+      """[9.1] failure: Expected closing '}'
+        |
+        |
+        |^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected in a nested object property" in {
-      val input =
-        """
-          |a {
-          |  b = ${foo.bar
-          |    
-          |  c = 9
-          |}
-          |  
-          |d = 7  
-          |""".stripMargin
-      val expectedMessage =
-        """[3.16] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
-          |
-          |  b = ${foo.bar
-          |               ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  
+  test("missing '=' or ':' between key and value in a top level property") {
+    val input =
+      """
+        |a 5
+        |
+        |b = 9
+        |""".stripMargin
+    val expectedMessage =
+      """[2.4] failure: Expected separator after key ('=', '+=', ':' or '{')
+        |
+        |a 5
+        |   ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
+  test("missing '=' or ':' between key and value in a multiline array") {
+    val input =
+      """
+        |a = [
+        | { x 3 }
+        | { y = 4 }
+        | { z = 5 }
+        |]
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[3.8] failure: Expected separator after key ('=', '+=', ':' or '{')
+        |
+        | { x 3 }
+        |       ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("missing '=' or ':' between key and value in a nested object property") {
+    val input =
+      """
+        |a {
+        |  b { x 5 }
+        |    
+        |  c = 9
+        |}
+        |  
+        |d = 7  
+        |""".stripMargin
+    val expectedMessage =
+      """[3.11] failure: Expected separator after key ('=', '+=', ':' or '{')
+        |
+        |  b { x 5 }
+        |          ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+
+  test("missing closing braces for substitution references in a top level property") {
+    val input =
+      """
+        |a = ${foo.bar
+        |
+        |b = 9
+        |""".stripMargin
+    val expectedMessage =
+      """[2.14] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+        |
+        |a = ${foo.bar
+        |             ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("missing closing braces for substitution references in a multiline array") {
+    val input =
+      """
+        |a = [
+        | ${foo.bar
+        | 4
+        | 5
+        |]
+        |
+        |b = 9
+      """.stripMargin
+    val expectedMessage =
+      """[3.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+        |
+        | ${foo.bar
+        |          ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("missing closing braces for substitution references in a nested object property") {
+    val input =
+      """
+        |a {
+        |  b = ${foo.bar
+        |    
+        |  c = 9
+        |}
+        |  
+        |d = 7  
+        |""".stripMargin
+    val expectedMessage =
+      """[3.16] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+        |
+        |  b = ${foo.bar
+        |               ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  
+  test("missing closing triple quotes in a top level object") {
+    val input =
+      """
+        |a = +++foo bar
+        |       baz baz
+        |       
+        |b = 9""".stripMargin.replace("+", "\"")
+    val expectedMessage =
+      """[5.6] failure: Expected closing triple quote
+        |
+        |b = 9
+        |     ^""".stripMargin
+    run(input, expectedMessage)
+  }
+
+  test("missing closing triple quotes in a nested object") {
+    val input =
+      """
+        |a = {
+        |  aa = +++foo bar
+        |          baz baz
+        |}
+        |       
+        |b = 9""".stripMargin.replace("+", "\"")
+    val expectedMessage =
+      """[7.6] failure: Expected closing triple quote
+        |
+        |b = 9
+        |     ^""".stripMargin
+    run(input, expectedMessage)
   }
   
-  "Missing closing triple quotes" should {
-    
-    "be detected in a top level object" in {
-      val input =
-        """
-          |a = +++foo bar
-          |       baz baz
-          |       
-          |b = 9""".stripMargin.replace("+", "\"")
-      val expectedMessage =
-        """[5.6] failure: Expected closing triple quote
-          |
-          |b = 9
-          |     ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected in a nested object" in {
-      val input =
-        """
-          |a = {
-          |  aa = +++foo bar
-          |          baz baz
-          |}
-          |       
-          |b = 9""".stripMargin.replace("+", "\"")
-      val expectedMessage =
-        """[7.6] failure: Expected closing triple quote
-          |
-          |b = 9
-          |     ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-    
-  }
   
-  "Invalid include syntax" should {
+  test("invalid include syntax - missing closing quotes") {
+    val input =
+      """
+        |include "foo.conf
+        |       
+        |b = 9""".stripMargin
+    val expectedMessage =
+      """[2.18] failure: Expected closing '"'
+        |
+        |include "foo.conf
+        |                 ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected with missing closing quotes" in {
-      val input =
-        """
-          |include "foo.conf
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[2.18] failure: Expected closing '"'
-          |
-          |include "foo.conf
-          |                 ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("invalid include syntax - missing closing quotes (file syntax)") {
+    val input =
+      """
+        |include file("foo.conf)
+        |       
+        |b = 9""".stripMargin
+    val expectedMessage =
+      """[2.24] failure: Expected closing '"'
+        |
+        |include file("foo.conf)
+        |                       ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected with missing closing quotes (file syntax)" in {
-      val input =
-        """
-          |include file("foo.conf)
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[2.24] failure: Expected closing '"'
-          |
-          |include file("foo.conf)
-          |                       ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("invalid include syntax - missing closing parenthesis (file syntax)") {
+    val input =
+      """
+        |include file("foo.conf"
+        |       
+        |b = 9""".stripMargin
+    val expectedMessage =
+      """[2.24] failure: Expected closing ')'
+        |
+        |include file("foo.conf"
+        |                       ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected with missing closing parenthesis (file syntax)" in {
-      val input =
-        """
-          |include file("foo.conf"
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[2.24] failure: Expected closing ')'
-          |
-          |include file("foo.conf"
-          |                       ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
+  test("invalid include syntax - missing closing parenthesis (required/file syntax)") {
+    val input =
+      """
+        |include required(file("foo.conf")
+        |       
+        |b = 9""".stripMargin
+    val expectedMessage =
+      """[2.34] failure: Expected closing ')'
+        |
+        |include required(file("foo.conf")
+        |                                 ^""".stripMargin
+    run(input, expectedMessage)
+  }
 
-    "be detected with missing closing parenthesis (required/file syntax)" in {
-      val input =
-        """
-          |include required(file("foo.conf")
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[2.34] failure: Expected closing ')'
-          |
-          |include required(file("foo.conf")
-          |                                 ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-
-    "be detected with missing quotes" in {
-      val input =
-        """
-          |include file(foo.conf)
-          |       
-          |b = 9""".stripMargin
-      val expectedMessage =
-        """[2.14] failure: Expected quoted string
-          |
-          |include file(foo.conf)
-          |             ^""".stripMargin
-      parseAndValidate(input, expectedMessage)
-    }
-    
+  test("invalid include syntax - missing quotes") {
+    val input =
+      """
+        |include file(foo.conf)
+        |       
+        |b = 9""".stripMargin
+    val expectedMessage =
+      """[2.14] failure: Expected quoted string
+        |
+        |include file(foo.conf)
+        |             ^""".stripMargin
+    run(input, expectedMessage)
   }
 
   

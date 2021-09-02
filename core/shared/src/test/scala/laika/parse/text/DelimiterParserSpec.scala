@@ -19,97 +19,92 @@ package laika.parse.text
 import cats.data.NonEmptySet
 import laika.parse.Parser
 import laika.parse.builders._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class DelimiterParserSpec extends AnyWordSpec with Matchers {
+class DelimiterParserSpec extends FunSuite {
 
   val skip: Parser[Unit] = oneChar.void
   
   val abc: NonEmptySet[Char] = NonEmptySet.of('a', 'b', 'c')
   
-  "The delimiter parser" should {
-    
-    "parse a character delimiter" in {
-      delimiter('*').parse("*").toEither shouldBe Right("*") 
-    }
+  test("parse a character delimiter") {
+    assertEquals(delimiter('*').parse("*").toEither, Right("*")) 
+  }
 
-    "parse a string literal delimiter" in {
-      delimiter("**").parse("**").toEither shouldBe Right("**")
-    }
+  test("parse a string literal delimiter") {
+    assertEquals(delimiter("**").parse("**").toEither, Right("**"))
+  }
 
-    "fail if a string literal delimiter is not matched" in {
-      delimiter("**").parse("*").toEither.isLeft shouldBe true
-    }
+  test("fail if a string literal delimiter is not matched") {
+    assert(delimiter("**").parse("*").toEither.isLeft)
+  }
 
-    "parse a character group delimiter" in {
-      delimiter(someOf(abc).take(2)).parse("cb").toEither shouldBe Right("cb")
-    }
+  test("parse a character group delimiter") {
+    assertEquals(delimiter(someOf(abc).take(2)).parse("cb").toEither, Right("cb"))
+  }
 
-    "fail if a character group delimiter is not matched" in {
-      delimiter(someOf(abc).take(2)).parse("cd").toEither.isLeft shouldBe true
-    }
+  test("fail if a character group delimiter is not matched") {
+    assert(delimiter(someOf(abc).take(2)).parse("cd").toEither.isLeft)
+  }
 
-    "parse a delimiter with a character post-condition" in {
-      delimiter("**").nextNot('.').parse("**:").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a character post-condition") {
+    assertEquals(delimiter("**").nextNot('.').parse("**:").toEither, Right("**"))
+  }
 
-    "fail when a character post-condition is not satisfied" in {
-      delimiter("**").nextNot('.').parse("**.").toEither.isLeft shouldBe true
-    }
+  test("fail when a character post-condition is not satisfied") {
+    assert(delimiter("**").nextNot('.').parse("**.").toEither.isLeft)
+  }
 
-    "parse a delimiter with a character set post-condition" in {
-      delimiter("**").nextNot(abc).parse("**:").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a character set post-condition") {
+    assertEquals(delimiter("**").nextNot(abc).parse("**:").toEither, Right("**"))
+  }
 
-    "fail when a character set post-condition is not satisfied" in {
-      delimiter("**").nextNot(abc).parse("**a").toEither.isLeft shouldBe true
-    }
+  test("fail when a character set post-condition is not satisfied") {
+    assert(delimiter("**").nextNot(abc).parse("**a").toEither.isLeft)
+  }
 
-    "parse a delimiter with a post-condition function" in {
-      delimiter("**").nextNot(_ > 'a').parse("**:").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a post-condition function") {
+    assertEquals(delimiter("**").nextNot(_ > 'a').parse("**:").toEither, Right("**"))
+  }
 
-    "fail when a post-condition function is not satisfied" in {
-      delimiter("**").nextNot(_ > 'a').parse("**z").toEither.isLeft shouldBe true
-    }
+  test("fail when a post-condition function is not satisfied") {
+    assert(delimiter("**").nextNot(_ > 'a').parse("**z").toEither.isLeft)
+  }
 
-    "parse a delimiter with a character pre-condition" in {
-      (skip ~> delimiter("**").prevNot('.')).parse(":**").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a character pre-condition") {
+    assertEquals((skip ~> delimiter("**").prevNot('.')).parse(":**").toEither, Right("**"))
+  }
 
-    "fail when a character pre-condition is not satisfied" in {
-      (skip ~> delimiter("**").prevNot('.')).parse(".**").toEither.isLeft shouldBe true
-    }
+  test("fail when a character pre-condition is not satisfied") {
+    assert((skip ~> delimiter("**").prevNot('.')).parse(".**").toEither.isLeft)
+  }
 
-    "parse a delimiter with a character set pre-condition" in {
-      (skip ~> delimiter("**").prevNot(abc)).parse(":**").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a character set pre-condition") {
+    assertEquals((skip ~> delimiter("**").prevNot(abc)).parse(":**").toEither, Right("**"))
+  }
 
-    "fail when a character set pre-condition is not satisfied" in {
-      (skip ~> delimiter("**").prevNot(abc)).parse("a**").toEither.isLeft shouldBe true
-    }
+  test("fail when a character set pre-condition is not satisfied") {
+    assert((skip ~> delimiter("**").prevNot(abc)).parse("a**").toEither.isLeft)
+  }
 
-    "parse a delimiter with a pre-condition function" in {
-      (skip ~> delimiter("**").prevNot(_ > 'a')).parse(":**").toEither shouldBe Right("**")
-    }
+  test("parse a delimiter with a pre-condition function") {
+    assertEquals((skip ~> delimiter("**").prevNot(_ > 'a')).parse(":**").toEither, Right("**"))
+  }
 
-    "fail when a pre-condition function is not satisfied" in {
-      (skip ~> delimiter("**").prevNot(_ > 'a')).parse("z**").toEither.isLeft shouldBe true
-    }
-    
-    "allow composing of two delimiters" in {
-      val inner = delimiter("*").nextNot('a')
-      val outer = delimiter(inner).nextNot('b')
-      
-      outer.parse("*a").toEither.isLeft shouldBe true
-      outer.parse("*b").toEither.isLeft shouldBe true
-      outer.parse("*c").toEither shouldBe Right("*")
-    }
-    
+  test("fail when a pre-condition function is not satisfied") {
+    assert((skip ~> delimiter("**").prevNot(_ > 'a')).parse("z**").toEither.isLeft)
   }
   
+  test("compose two delimiters") {
+    val inner = delimiter("*").nextNot('a')
+    val outer = delimiter(inner).nextNot('b')
+    
+    assert(outer.parse("*a").toEither.isLeft)
+    assert(outer.parse("*b").toEither.isLeft)
+    assertEquals(outer.parse("*c").toEither, Right("*"))
+  }
+    
 }

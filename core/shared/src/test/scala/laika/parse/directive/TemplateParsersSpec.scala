@@ -20,10 +20,9 @@ import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.config.Key
 import laika.parse.Parser
-import laika.parse.helper.MigrationFlatSpec
+import munit.FunSuite
 
-class TemplateParsersSpec extends MigrationFlatSpec
-                             with TestSourceBuilders {
+class TemplateParsersSpec extends FunSuite with TestSourceBuilders {
 
 
   val defaultParser: Parser[List[Span]] = new TemplateParsers(Map()).templateSpans
@@ -33,18 +32,18 @@ class TemplateParsersSpec extends MigrationFlatSpec
   def result (spans: Span*): Either[String, List[Span]] = Right(spans.toList)
 
   
-  "The template parser" should "parse content without any markup as plain text" in {
+  test("content without any markup") {
     assertEquals(parse("some text"), result(TemplateString("some text")))
   }
   
   
-  "The context reference parser" should "parse a reference as the only template content" in {
+  test("context reference as the only template content") {
     val input = "${document.content}"
     assertEquals(parse(input), result(TemplateContextReference(Key("document","content"), required = true, generatedSource(input))))
     
   }
   
-  it should "parse a reference at the beginning of a template" in {
+  test("context reference at the beginning of a template") {
     val ref = "${document.content}"
     val input = s"$ref some text"
     assertEquals(parse(input), result(
@@ -53,7 +52,7 @@ class TemplateParsersSpec extends MigrationFlatSpec
     ))
   }
   
-  it should "parse a reference at the end of a template" in {
+  test("context reference at the end of a template") {
     val ref = "${document.content}"
     val input = s"some text $ref"
     assertEquals(parse(input), result(
@@ -63,7 +62,7 @@ class TemplateParsersSpec extends MigrationFlatSpec
     
   }
   
-  it should "parse a reference in the middle of a template" in {
+  test("context reference in the middle of a template") {
     val ref = "${document.content}"
     val input = s"some text $ref some more"
     assertEquals(parse(input), result(
@@ -73,7 +72,7 @@ class TemplateParsersSpec extends MigrationFlatSpec
     ))
   }
 
-  it should "parse an optional reference" in {
+  test("optional context reference") {
     val ref = "${?document.content}"
     val input = s"some text $ref some more"
     assertEquals(parse(input), result(
@@ -83,7 +82,7 @@ class TemplateParsersSpec extends MigrationFlatSpec
     ))
   }
 
-  it should "detect an invalid reference" in {
+  test("invalid context reference") {
     val errorMsg = """Invalid HOCON reference: '${document = content}': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
                     |
                     |some text ${document = content} some more

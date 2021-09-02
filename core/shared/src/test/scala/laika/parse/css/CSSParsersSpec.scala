@@ -21,89 +21,80 @@ import laika.ast._
 import laika.ast.sample.StyleBuilders
 import laika.parse.Parser
 import laika.parse.css.CSSParsers._
-import laika.parse.helper.MigrationFlatSpec
+import munit.FunSuite
 
-class CSSParsersSpec extends MigrationFlatSpec
-                        with StyleBuilders {
+class CSSParsersSpec extends FunSuite with StyleBuilders {
 
   
   val defaultParser: Parser[Set[StyleDeclaration]] = styleDeclarationSet
   
-  def parse (input: String): Either[String, Set[StyleDeclaration]] = defaultParser.parse(input).toEither
-
-  def result (decls: StyleDeclaration*): Either[String, Set[StyleDeclaration]] = Right(decls.toSet)
+  def run (input: String, expected: StyleDeclaration*): Unit =
+    assertEquals(defaultParser.parse(input).toEither, Right(expected.toSet))
   
-  
-  "The CSS parser" should "parse a style with a type selector" in {
+  test("parse a style with a type selector") {
     
     val css = """Type {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(ElementType("Type"))))
+    run(css, styleDecl(ElementType("Type")))
   }
   
-  it should "parse a style with a class selector" in {
+  test("parse a style with a class selector") {
     
     val css = """.class {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(StyleName("class"))))
+    run(css, styleDecl(StyleName("class")))
   }
   
-  it should "parse a style with an id selector" in {
+  test("parse a style with an id selector") {
     
     val css = """#id {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(StylePredicate.Id("id"))))
+    run(css, styleDecl(StylePredicate.Id("id")))
   }
   
-  it should "parse a style with a type and class selector" in {
+  test("parse a style with a type and class selector") {
     
     val css = """Type.class {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(ElementType("Type"), StyleName("class"))))
+    run(css, styleDecl(ElementType("Type"), StyleName("class")))
   }
   
-  it should "parse a style with a type and id selector" in {
+  test("parse a style with a type and id selector") {
     
     val css = """Type#id {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(ElementType("Type"), StylePredicate.Id("id"))))
+    run(css, styleDecl(ElementType("Type"), StylePredicate.Id("id")))
   }
   
-  it should "parse a style with a child selector" in {
+  test("parse a style with a child selector") {
     
     val css = """Type .class {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(
-      parse(css), 
-      result(styleDecl(selector(selector(StyleName("class")), selector(ElementType("Type")), immediate = false)))
-    )
+    run(css, styleDecl(selector(selector(StyleName("class")), selector(ElementType("Type")), immediate = false)))
   }
   
-  it should "parse a style with an immediate child selector" in {
+  test("parse a style with an immediate child selector") {
     
     val css = """Type > .class {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(
-      parse(css), 
-      result(styleDecl(selector(selector(StyleName("class")), selector(ElementType("Type")), immediate = true)))
-    )
+    run(css, styleDecl(selector(selector(StyleName("class")), selector(ElementType("Type")), immediate = true)))
   }
   
-  it should "parse a style with multiple child selectors" in {
+  test("parse a style with multiple child selectors") {
     
     val css = """Type .class > #id {
       | foo: bar;
@@ -113,22 +104,19 @@ class CSSParsersSpec extends MigrationFlatSpec
     val middle = selector(selector(StyleName("class")), top, immediate = false)
     val finalSelector = selector(selector(StylePredicate.Id("id")), middle, immediate = true)
     
-    assertEquals(parse(css), result(styleDecl(finalSelector)))
+    run(css, styleDecl(finalSelector))
   }
   
-  it should "parse a style with multiple selectors" in {
+  test("parse a style with multiple selectors") {
     
     val css = """Type, .class {
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(
-      parse(css), 
-      result(styleDecl(StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
-    )
+    run(css, styleDecl(StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
   }
   
-  it should "parse multiple style declarations" in {
+  test("parse multiple style declarations") {
     
     val css = """Type {
       |  foo: bar;
@@ -138,13 +126,10 @@ class CSSParsersSpec extends MigrationFlatSpec
       |  bar: foo;
       |}""".stripMargin
     
-    assertEquals(
-      parse(css), 
-      result(styleDecl(Map("bar"->"foo"), StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
-    )
+    run(css, styleDecl(Map("bar"->"foo"), StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
   }
   
-  it should "parse multiple style declarations with comments" in {
+  test("parse multiple style declarations with comments") {
     
     val css = """/* comment 1 */
       |Type {
@@ -159,13 +144,10 @@ class CSSParsersSpec extends MigrationFlatSpec
       |
       |/* comment 3 */""".stripMargin
     
-    assertEquals(
-      parse(css),
-      result(styleDecl(Map("bar"->"foo"), StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
-    )
+    run(css, styleDecl(Map("bar"->"foo"), StyleName("class")).increaseOrderBy(1), styleDecl(ElementType("Type")))
   }
   
-  it should "parse a style with multiple comments" in {
+  test("parse a style with multiple comments") {
     
     val css = """Type {
       | /* comment 1 */
@@ -176,7 +158,7 @@ class CSSParsersSpec extends MigrationFlatSpec
       | foo: bar;
       |}""".stripMargin
     
-    assertEquals(parse(css), result(styleDecl(Map("foo"->"bar", "bar"->"foo"), ElementType("Type"))))
+    run(css, styleDecl(Map("foo"->"bar", "bar"->"foo"), ElementType("Type")))
   }
   
   

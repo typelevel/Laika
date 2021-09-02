@@ -17,178 +17,169 @@
 package laika.parse
 
 import laika.ast.Path.Root
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
-/**
-  * @author Jens Halm
-  */
-class SourceCursorSpec extends AnyWordSpec with Matchers {
+class RootCursorSpec extends FunSuite {
 
+  private val cursor = SourceCursor("abc\ndef")
 
-  "The RootCursor" should {
-    
-    val cursor = SourceCursor("abc\ndef")
-
-    "not be at the end of input after creation" in {
-      cursor.atEnd shouldBe false
-    }
-
-    "be at the end of input after consuming all characters" in {
-      cursor.consume(7).atEnd shouldBe true
-    }
-
-    "should indicate the full input length as remaining after creation" in {
-      cursor.remaining shouldBe 7
-    }
-
-    "should indicate zero remaining after consuming all characters" in {
-      cursor.consume(7).remaining shouldBe 0
-    }
-
-    "should return the first character after creation" in {
-      cursor.char shouldBe 'a'
-    }
-
-    "should return the last character after consuming all but one characters" in {
-      cursor.consume(6).char shouldBe 'f'
-    }
-
-    "should return a character relative to the current offset" in {
-      cursor.consume(1).charAt(1) shouldBe 'c'
-    }
-
-    "should capture the input from the beginning" in {
-      cursor.capture(3) shouldBe "abc"
-    }
-
-    "should capture the input from the current position" in {
-      cursor.consume(4).capture(3) shouldBe "def"
-    }
-
-    "should capture all remaining characters when trying to capture more characters than are available" in {
-      cursor.consume(5).capture(7) shouldBe "ef" 
-    }
-
-    "should provide the input reversed" in {
-      cursor.consume(3).reverse.capture(3) shouldBe "cba"
-    }
-
-    "indicate the position is on the first line" in {
-      cursor.position.line shouldBe 1
-    }
-
-    "indicate the position is on the second line" in {
-      cursor.consume(4).position.line shouldBe 2
-    }
-
-    "provide the content of the first line" in {
-      cursor.position.lineContent shouldBe "abc"
-    }
-
-    "provide the content of the second line" in {
-      cursor.consume(4).position.lineContent shouldBe "def"
-    }
-
-    "provide the content of the second line with a positional caret" in {
-      cursor.consume(5).position.lineContentWithCaret shouldBe "def\n ^"
-    }
-
-    "indicate the correct column" in {
-      cursor.consume(5).position.column shouldBe 2
-    }
-    
-    "keep the path information" in {
-      SourceCursor("foo", Root / "bar").path shouldBe Some(Root / "bar")
-    }
-
+  test("not be at the end of input after creation") {
+    assertEquals(cursor.atEnd, false)
   }
 
-  "The BlockCursor" should {
-    
-    import cats.data.NonEmptyChain
+  test("be at the end of input after consuming all characters") {
+    assertEquals(cursor.consume(7).atEnd, true)
+  }
 
+  test("indicate the full input length as remaining after creation") {
+    assertEquals(cursor.remaining, 7)
+  }
+
+  test("indicate zero remaining after consuming all characters") {
+    assertEquals(cursor.consume(7).remaining, 0)
+  }
+
+  test("return the first character after creation") {
+    assertEquals(cursor.char, 'a')
+  }
+
+  test("return the last character after consuming all but one characters") {
+    assertEquals(cursor.consume(6).char, 'f')
+  }
+
+  test("return a character relative to the current offset") {
+    assertEquals(cursor.consume(1).charAt(1), 'c')
+  }
+
+  test("capture the input from the beginning") {
+    assertEquals(cursor.capture(3), "abc")
+  }
+
+  test("capture the input from the current position") {
+    assertEquals(cursor.consume(4).capture(3), "def")
+  }
+
+  test("capture all remaining characters when trying to capture more characters than are available") {
+    assertEquals(cursor.consume(5).capture(7), "ef")
+  }
+
+  test("provide the input reversed") {
+    assertEquals(cursor.consume(3).reverse.capture(3), "cba")
+  }
+
+  test("indicate the position is on the first line") {
+    assertEquals(cursor.position.line, 1)
+  }
+
+  test("indicate the position is on the second line") {
+    assertEquals(cursor.consume(4).position.line, 2)
+  }
+
+  test("provide the content of the first line") {
+    assertEquals(cursor.position.lineContent, "abc")
+  }
+
+  test("provide the content of the second line") {
+    assertEquals(cursor.consume(4).position.lineContent, "def")
+  }
+
+  test("provide the content of the second line with a positional caret") {
+    assertEquals(cursor.consume(5).position.lineContentWithCaret, "def\n ^")
+  }
+
+  test("indicate the correct column") {
+    assertEquals(cursor.consume(5).position.column, 2)
+  }
+
+  test("keep the path information") {
+    assertEquals(SourceCursor("foo", Root / "bar").path, Some(Root / "bar"))
+  }
+  
+}
+
+class BlockCursorSpec extends FunSuite {
+
+  import cats.data.NonEmptyChain
+
+  private val cursor = {
     val root = new RootSource(new InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
     val lines = NonEmptyChain(
       LineSource("abc", root),
       LineSource("def", root.consume(4))
     )
-    val cursor = BlockSource(lines)
-
-    "not be at the end of input after creation" in {
-      cursor.atEnd shouldBe false
-    }
-
-    "be at the end of input after consuming all characters" in {
-      cursor.consume(7).atEnd shouldBe true
-    }
-
-    "should indicate the full input length as remaining after creation" in {
-      cursor.remaining shouldBe 7
-    }
-
-    "should indicate zero remaining after consuming all characters" in {
-      cursor.consume(7).remaining shouldBe 0
-    }
-
-    "should return the first character after creation" in {
-      cursor.char shouldBe 'a'
-    }
-
-    "should return the last character after consuming all but one characters" in {
-      cursor.consume(6).char shouldBe 'f'
-    }
-
-    "should return a character relative to the current offset" in {
-      cursor.consume(1).charAt(1) shouldBe 'c'
-    }
-
-    "should capture the input from the beginning" in {
-      cursor.capture(3) shouldBe "abc"
-    }
-
-    "should capture the input from the current position" in {
-      cursor.consume(4).capture(3) shouldBe "def"
-    }
-
-    "should capture all remaining characters when trying to capture more characters than are available" in {
-      cursor.consume(5).capture(7) shouldBe "ef"
-    }
-
-    "should provide the input reversed" in {
-      cursor.consume(3).reverse.capture(3) shouldBe "cba"
-    }
-
-    "indicate the position is on the first line (second in root source)" in {
-      cursor.position.line shouldBe 2
-    }
-
-    "indicate the position is on the second line (third in root source)" in {
-      cursor.consume(4).position.line shouldBe 3
-    }
-
-    "provide the content of the first line" in {
-      cursor.position.lineContent shouldBe "abc"
-    }
-
-    "provide the content of the second line" in {
-      cursor.consume(4).position.lineContent shouldBe "def"
-    }
-
-    "provide the content of the second line with a positional caret" in {
-      cursor.consume(5).position.lineContentWithCaret shouldBe "def\n ^"
-    }
-
-    "indicate the correct column" in {
-      cursor.consume(5).position.column shouldBe 2
-    }
-
-    "keep the path information" in {
-      cursor.path shouldBe Some(Root / "doc")
-    }
-
+    BlockSource(lines)
   }
 
+  test("not be at the end of input after creation") {
+    assertEquals(cursor.atEnd, false)
+  }
 
+  test("be at the end of input after consuming all characters") {
+    assertEquals(cursor.consume(7).atEnd, true)
+  }
+
+  test("indicate the full input length as remaining after creation") {
+    assertEquals(cursor.remaining, 7)
+  }
+
+  test("indicate zero remaining after consuming all characters") {
+    assertEquals(cursor.consume(7).remaining, 0)
+  }
+
+  test("return the first character after creation") {
+    assertEquals(cursor.char, 'a')
+  }
+
+  test("return the last character after consuming all but one characters") {
+    assertEquals(cursor.consume(6).char, 'f')
+  }
+
+  test("return a character relative to the current offset") {
+    assertEquals(cursor.consume(1).charAt(1), 'c')
+  }
+
+  test("capture the input from the beginning") {
+    assertEquals(cursor.capture(3), "abc")
+  }
+
+  test("capture the input from the current position") {
+    assertEquals(cursor.consume(4).capture(3), "def")
+  }
+
+  test("capture all remaining characters when trying to capture more characters than are available") {
+    assertEquals(cursor.consume(5).capture(7), "ef")
+  }
+
+  test("provide the input reversed") {
+    assertEquals(cursor.consume(3).reverse.capture(3), "cba")
+  }
+
+  test("indicate the position is on the first line (second in root source)") {
+    assertEquals(cursor.position.line, 2)
+  }
+
+  test("indicate the position is on the second line (third in root source)") {
+    assertEquals(cursor.consume(4).position.line, 3)
+  }
+
+  test("provide the content of the first line") {
+    assertEquals(cursor.position.lineContent, "abc")
+  }
+
+  test("provide the content of the second line") {
+    assertEquals(cursor.consume(4).position.lineContent, "def")
+  }
+
+  test("provide the content of the second line with a positional caret") {
+    assertEquals(cursor.consume(5).position.lineContentWithCaret, "def\n ^")
+  }
+
+  test("indicate the correct column") {
+    assertEquals(cursor.consume(5).position.column, 2)
+  }
+
+  test("keep the path information") {
+    assertEquals(cursor.path, Some(Root / "doc"))
+  }
 
 }
