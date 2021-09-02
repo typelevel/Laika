@@ -17,711 +17,699 @@
 package laika.parse.hocon
 
 import laika.config.Config.IncludeMap
-import laika.config.{ArrayValue, Config, ConfigBuilder, ConfigError, ConfigResolverError, EmptyConfig, Field, Key, LongValue, ObjectValue, Origin, StringValue, ValidationError}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import laika.config._
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class ConfigResolverSpec extends AnyWordSpec with Matchers with ResultBuilders {
+class ConfigResolverSpec extends FunSuite with ResultBuilders {
 
-  def parseAndResolve(input: String): ObjectValue = {
-    val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, Map.empty).toOption.get
+  def parseAndResolve(input: String, fallback: Config = EmptyConfig, includes: IncludeMap = Map.empty): Either[ConfigError, ObjectValue] = for {
+    builder <- ConfigParser.parse(input).unresolved
+    result  <- ConfigResolver.resolve(builder, Origin.root, fallback, includes)
+  } yield result
+
+  def run (input: String, expectedFields: Field*): Unit =
+    assertEquals(parseAndResolve(input), Right(ObjectValue(expectedFields)))
+
+  def runWithFallback (input: String, fallback: Config, expectedFields: Field*): Unit =
+    assertEquals(parseAndResolve(input, fallback), Right(ObjectValue(expectedFields)))
+
+  def runWithIncludes (input: String, includes: IncludeMap, expectedFields: Field*): Unit =
+    assertEquals(parseAndResolve(input, includes = includes), Right(ObjectValue(expectedFields)))
+
+  def runFailure (input: String, expectedMessage: String, includes: IncludeMap = Map.empty, adjustMsg: String => String = identity): Unit = {
+    val res = parseAndResolve(input, includes = includes).left.map(e => ConfigResolverError(adjustMsg(e.message)))
+    assertEquals(res, Left(ConfigResolverError(adjustMsg(expectedMessage))))
   }
 
-  def parseAndResolve(input: String, includes: IncludeMap): ObjectValue = {
-    val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes).toOption.get
+
+  test("resolve a simple object") {
+    val input =
+      """
+        |a = 5
+        |b = 7
+      """.stripMargin
+    run(input,
+      Field("a", LongValue(5)),
+      Field("b", LongValue(7))
+    )
   }
 
-  def parseAndResolve(input: String, fallback: Config): ObjectValue = {
-    val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, fallback, Map.empty).toOption.get
-  }
-
-  def parseAndResolveForFailure(input: String, includes: IncludeMap = Map.empty): Either[ConfigError, ObjectValue] = {
-    val builder = HoconParsers.rootObject.parse(input).toOption.get
-    ConfigResolver.resolve(builder, Origin.root, EmptyConfig, includes)
-  }
-   
-  "The config resolver" should {
-
-    "resolve a simple object" in {
-      val input =
-        """
-          |a = 5
-          |b = 7
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", LongValue(5)),
-        Field("b", LongValue(7))
-      ))
-    }
-
-    "resolve an object with expanded paths" in {
-      val input =
-        """
-          |a.b = 5
-          |a.c = 7
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", LongValue(5)),
-          Field("c", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve an object with expanded paths 2 levels deep" in {
-      val input =
-        """
-          |a.b.c = 5
-          |a.b.d = 7
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", ObjectValue(Seq(
-            Field("c", LongValue(5)),
-            Field("d", LongValue(7))
-          )))
-        )))
-      ))
-    }
-
-    "merge two object definitions with the same path" in {
-      val input =
-        """
-          |a = { c = 5 }
-          |a = { d = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("c", LongValue(5)),
-          Field("d", LongValue(7)),
-        )))
-      ))
-    }
-
-    "don't merge an object if there is a simple overriding value between them" in {
-      val input =
-        """
-          |a = { c = 5 }
-          |a = 7
-          |a = { d = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("d", LongValue(7)),
-        )))
-      ))
-    }
-
-    "resolve a nested object" in {
-      val input =
-        """
-          |a {
-          |  b = 5
-          |  c = 7
-          |}  
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", LongValue(5)),
-          Field("c", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve an array of simple values" in {
-      val input =
-        """
-          |a = [1,2,3]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
-      ))
-    }
-
-    "resolve an array of objects" in {
-      val input =
-        """
-          |a = [
-          |  { name = foo }
-          |  { name = bar }
-          |  { name = baz }
-          |]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(
-          ObjectValue(Seq(Field("name", StringValue("foo")))),
-          ObjectValue(Seq(Field("name", StringValue("bar")))),
-          ObjectValue(Seq(Field("name", StringValue("baz")))),
-        )))
-      ))
-    }
-
-    "resolve an object with an overridden field" in {
-      val input =
-        """
-          |a = 5
-          |a = 7
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", LongValue(7))
-      ))
-    }
-
-    "resolve a concatenated array" in {
-      val input =
-        """
-          |a = [1,2] [3,4]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
-      ))
-    }
-
-    "resolve a merged object" in {
-      val input =
-        """
-          |a = { b = 5 } { c = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", LongValue(5)),
-          Field("c", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve a concatenated string" in {
-      val input =
-        """
-          |a = nothing is null
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", StringValue("nothing is null"))
-      ))
-    }
-
-  }
-
-  "The reference resolver" should {
-    
-    "resolve a backward looking reference to a simple value" in {
-      val input =
-        """
-          |a = 5
-          |b = ${a}
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", LongValue(5)),
-        Field("b", LongValue(5))
-      ))
-    }
-
-    "resolve a forward looking reference to a simple value" in {
-      val input =
-        """
-          |a = ${b}
-          |b = 5
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", LongValue(5)),
-        Field("b", LongValue(5))
-      ))
-    }
-
-    "resolve a reference to a value declared in the fallback config" in {
-      val input =
-        """
-          |b = ${a}
-        """.stripMargin
-      val fallback = ConfigBuilder.empty.withValue("a", 5).build
-      parseAndResolve(input, fallback) shouldBe ObjectValue(Seq(
-        Field("b", LongValue(5))
-      ))
-    }
-
-    "ignore an optional, missing reference" in {
-      val input =
-        """
-          |a = ${?x}
-          |b = 5
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("b", LongValue(5))
-      ))
-    }
-
-    "ignore an optional, missing self reference" in {
-      val input =
-        """
-          |a = ${?a} [5,7]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(5),LongValue(7))))
-      ))
-    }
-
-    "fail with a missing required reference" in {
-      val input =
-        """
-          |a = ${x}
-          |b = 5
-        """.stripMargin
-      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
-    }
-
-    "fail with a circular reference" in {
-      def adjustMsg(res: Either[ConfigError, ObjectValue]): Either[ConfigError, ObjectValue] =
-        res.left.map(e => ConfigResolverError(e.message.replaceAll("'.'", "'x'")))
-      val input =
-        """
-          |a = ${c}
-          |b = ${a}
-          |c = ${b}
-        """.stripMargin
-      adjustMsg(parseAndResolveForFailure(input)) shouldBe adjustMsg(Left(ConfigResolverError("One or more errors resolving configuration: 'c': Circular Reference involving path 'c'")))
-    }
-
-    "fail with a circular reference to a parent node" in {
-      val input =
-        """
-          |a = { x = 5, y = ${a} }
-        """.stripMargin
-      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Circular Reference involving path 'a'"))
-    }
-
-    "resolve a backward looking reference to a simple value with a common path segment" in {
-      val input =
-        """
-          |o = { a = 5, b = ${o.a} }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(Field("o",
-        ObjectValue(Seq(
-          Field("a", LongValue(5)),
-          Field("b", LongValue(5))
-        ))
-      )))
-    }
-
-    "resolve a forward looking reference to a simple value with a common path segment" in {
-      val input =
-        """
-          |o = { a = ${o.b}, b = 5 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(Field("o",
-        ObjectValue(Seq(
-          Field("a", LongValue(5)),
-          Field("b", LongValue(5))
-        ))
-      ))) 
-    }
-
-    "resolve a backward looking reference to another object" in {
-      val input =
-        """
-          |a = { a1 = 5, a2 = { foo = bar } }
-          |b = { b1 = 9, b2 = ${a.a2} }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("a1", LongValue(5)),
-          Field("a2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("b1", LongValue(9)),
-          Field("b2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
-        )))
-      ))
-    }
-
-    "resolve a forward looking reference to another object" in {
-      val input =
-        """
-          |a = { a1 = 5, a2 = ${b.b2} }
-          |b = { b1 = 9, b2 = { foo = bar } }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("a1", LongValue(5)),
-          Field("a2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("b1", LongValue(9)),
-          Field("b2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
-        )))
-      ))
-    }
-
-    "resolve a backward looking reference in a concatenated string" in {
-      val input =
-        """
-          |a = yes
-          |b = ${a} or no
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", StringValue("yes")),
-        Field("b", StringValue("yes or no"))
-      ))
-    }
-
-    "resolve a forward looking reference in a concatenated string" in {
-      val input =
-        """
-          |a = ${b} or no
-          |b = yes
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", StringValue("yes or no")),
-        Field("b", StringValue("yes"))
-      ))
-    }
-
-    "ignore a missing, optional reference in a concatenated string" in {
-      val input =
-        """
-          |a = ${?x} or no
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", StringValue(" or no"))
-      ))
-    }
-
-    "resolve a backward looking reference in a concatenated array" in {
-      val input =
-        """
-          |a = [1,2]
-          |b = ${a} [3,4]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2)))),
-        Field("b", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
-      ))
-    }
-
-    "resolve a forward looking reference in a concatenated array" in {
-      val input =
-        """
-          |a = ${b} [3,4]
-          |b = [1,2]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4)))),
-        Field("b", ArrayValue(Seq(LongValue(1), LongValue(2))))
-      ))
-    }
-
-    "ignore a missing, optional reference in a concatenated array" in {
-      val input =
-        """
-          |a = [1,2] ${?x} [3,4]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
-      ))
-    }
-
-    "fail with a missing required reference in a concatenated array" in {
-      val input =
-        """
-          |a = [1,2] ${x} [3,4]
-        """.stripMargin
-      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: 'a': Missing required reference: 'x'"))
-    }
-
-    "fail when the combination of types is invalid in concatenated field" in {
-      val input =
-        """
-          |a = { x = 9 }
-          |b = [1,2] ${a} [3,4]
-        """.stripMargin
-      val msg = "One or more errors resolving configuration: 'b': Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"
-      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError(msg))
-    }
-
-    "resolve a self reference in a concatenated array" in {
-      val input =
-        """
-          |a = [1,2]
-          |a = ${a} [3,4]
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
-      ))
-    }
-
-    "resolve a self reference via += in a concatenated array" in {
-      val input =
-        """
-          |a = [1,2]
-          |a += 3
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
-      ))
-    }
-
-    "resolve a self reference via += as the first occurrence in the input" in {
-      val input =
-        """
-          |a += 1
-          |a += 2
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ArrayValue(Seq(LongValue(1), LongValue(2))))
-      ))
-    }
-
-    "resolve a backward looking reference in a concatenated object" in {
-      val input =
-        """
-          |a = { a = 5 }
-          |b = ${a} { b = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("a", LongValue(5))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("a", LongValue(5)),
-          Field("b", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve a forward looking reference in a concatenated object" in {
-      val input =
-        """
-          |a = ${b} { b = 7 }
-          |b = { a = 5 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("a", LongValue(5)),
-          Field("b", LongValue(7))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("a", LongValue(5)),
-        )))
-      ))
-    }
-
-    "ignore an optional, missing reference in a concatenated object" in {
-      val input =
-        """
-          |a = ${?x} { a = 5, b = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("a", LongValue(5)),
-          Field("b", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve a backward looking reference in a merged object" in {
-      val input =
-        """
-          |a = { c = 5 }
-          |b = { d = 7 }
-          |b = ${a}
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("c", LongValue(5))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("c", LongValue(5)),
-          Field("d", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve a forward looking reference in a merged object" in {
-      val input =
-        """
-          |a = { c = 5 }
-          |a = ${b}
-          |b = { d = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("c", LongValue(5)),
-          Field("d", LongValue(7))
-        ))),
-        Field("b", ObjectValue(Seq(
-          Field("d", LongValue(7)),
-        )))
-      ))
-    }
-
-    "ignore a missing, optional reference in a merged object" in {
-      val input =
-        """
-          |b = { c = 5, d = 7 }
-          |b = ${?x}
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("b", ObjectValue(Seq(
-          Field("c", LongValue(5)),
-          Field("d", LongValue(7))
-        )))
-      ))
-    }
-
-    "resolve a self reference in a merged object" in {
-      val input =
-        """
-          |a = { b = 5 }
-          |a = ${a} { c = 7 }
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", LongValue(5)),
-          Field("c", LongValue(7))
-        )))
-      ))
-    }
-
-    "ignore a missing reference when it is later overridden" in {
-      val input =
-        """
-          |a = ${non-existing}
-          |a = 5
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", LongValue(5))
-      ))
-    }
-
-    "resolve a self reference in a nested object" in {
-      val input =
-        """
-          |a { 
-          |  b = { c = 5 }
-          |  b = ${a.b} { d = 7 }
-          |}
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", ObjectValue(Seq(
-            Field("c", LongValue(5)),
-            Field("d", LongValue(7))
-          )))
-        )))
-      ))
-    }
-    
-  }
-  
-  "The inclusion resolver" should {
-    
-    val includes: IncludeMap = Map(
-      IncludeFile(ValidStringValue("foo.conf")) -> Right(ObjectBuilderValue(Seq(
-        BuilderField(Right(Key("c")), ResolvedBuilderValue(LongValue(5)))
+  test("resolve an object with expanded paths") {
+    val input =
+      """
+        |a.b = 5
+        |a.c = 7
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", LongValue(5)),
+        Field("c", LongValue(7))
       )))
     )
+  }
+
+  test("resolve an object with expanded paths 2 levels deep") {
+    val input =
+      """
+        |a.b.c = 5
+        |a.b.d = 7
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7))
+        )))
+      )))
+    )
+  }
+
+  test("merge two object definitions with the same path") {
+    val input =
+      """
+        |a = { c = 5 }
+        |a = { d = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("c", LongValue(5)),
+        Field("d", LongValue(7)),
+      )))
+    )
+  }
+
+  test("don't merge an object if there is a simple overriding value between them") {
+    val input =
+      """
+        |a = { c = 5 }
+        |a = 7
+        |a = { d = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("d", LongValue(7)),
+      )))
+    )
+  }
+
+  test("resolve a nested object") {
+    val input =
+      """
+        |a {
+        |  b = 5
+        |  c = 7
+        |}  
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", LongValue(5)),
+        Field("c", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve an array of simple values") {
+    val input =
+      """
+        |a = [1,2,3]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
+    )
+  }
+
+  test("resolve an array of objects") {
+    val input =
+      """
+        |a = [
+        |  { name = foo }
+        |  { name = bar }
+        |  { name = baz }
+        |]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(
+        ObjectValue(Seq(Field("name", StringValue("foo")))),
+        ObjectValue(Seq(Field("name", StringValue("bar")))),
+        ObjectValue(Seq(Field("name", StringValue("baz")))),
+      )))
+    )
+  }
+
+  test("resolve an object with an overridden field") {
+    val input =
+      """
+        |a = 5
+        |a = 7
+      """.stripMargin
+    run(input,
+      Field("a", LongValue(7))
+    )
+  }
+
+  test("resolve a concatenated array") {
+    val input =
+      """
+        |a = [1,2] [3,4]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+    )
+  }
+
+  test("resolve a merged object") {
+    val input =
+      """
+        |a = { b = 5 } { c = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", LongValue(5)),
+        Field("c", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve a concatenated string") {
+    val input =
+      """
+        |a = nothing is null
+      """.stripMargin
+    run(input,
+      Field("a", StringValue("nothing is null"))
+    )
+  }
+
+
+  test("resolve a backward looking reference to a simple value") {
+    val input =
+      """
+        |a = 5
+        |b = ${a}
+      """.stripMargin
+    run(input,
+      Field("a", LongValue(5)),
+      Field("b", LongValue(5))
+    )
+  }
+
+  test("resolve a forward looking reference to a simple value") {
+    val input =
+      """
+        |a = ${b}
+        |b = 5
+      """.stripMargin
+    run(input,
+      Field("a", LongValue(5)),
+      Field("b", LongValue(5))
+    )
+  }
+
+  test("resolve a reference to a value declared in the fallback config") {
+    val input =
+      """
+        |b = ${a}
+      """.stripMargin
+    val fallback = ConfigBuilder.empty.withValue("a", 5).build
+    runWithFallback(input, fallback,
+      Field("b", LongValue(5))
+    )
+  }
+
+  test("ignore an optional, missing reference") {
+    val input =
+      """
+        |a = ${?x}
+        |b = 5
+      """.stripMargin
+    run(input,
+      Field("b", LongValue(5))
+    )
+  }
+
+  test("ignore an optional, missing self reference") {
+    val input =
+      """
+        |a = ${?a} [5,7]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(5),LongValue(7))))
+    )
+  }
+
+  test("fail with a missing required reference") {
+    val input =
+      """
+        |a = ${x}
+        |b = 5
+      """.stripMargin
+    runFailure(input, "One or more errors resolving configuration: 'a': Missing required reference: 'x'")
+  }
+
+  test("fail with a circular reference") {
+    def adjustMsg(msg: String): String = msg.replaceAll("'.'", "'x'")
+    val input =
+      """
+        |a = ${c}
+        |b = ${a}
+        |c = ${b}
+      """.stripMargin
+    val msg = "One or more errors resolving configuration: 'c': Circular Reference involving path 'c'"
+    runFailure(input, msg, adjustMsg = adjustMsg)
+  }
+
+  test("fail with a circular reference to a parent node") {
+    val input =
+      """
+        |a = { x = 5, y = ${a} }
+      """.stripMargin
+    runFailure(input, "One or more errors resolving configuration: 'a': Circular Reference involving path 'a'")
+  }
+
+  test("resolve a backward looking reference to a simple value with a common path segment") {
+    val input =
+      """
+        |o = { a = 5, b = ${o.a} }
+      """.stripMargin
+    run(input,Field("o",
+      ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(5))
+      ))
+    ))
+  }
+
+  test("resolve a forward looking reference to a simple value with a common path segment") {
+    val input =
+      """
+        |o = { a = ${o.b}, b = 5 }
+      """.stripMargin
+    run(input,Field("o",
+      ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(5))
+      ))
+    ))
+  }
+
+  test("resolve a backward looking reference to another object") {
+    val input =
+      """
+        |a = { a1 = 5, a2 = { foo = bar } }
+        |b = { b1 = 9, b2 = ${a.a2} }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("a1", LongValue(5)),
+        Field("a2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("b1", LongValue(9)),
+        Field("b2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
+      )))
+    )
+  }
+
+  test("resolve a forward looking reference to another object") {
+    val input =
+      """
+        |a = { a1 = 5, a2 = ${b.b2} }
+        |b = { b1 = 9, b2 = { foo = bar } }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("a1", LongValue(5)),
+        Field("a2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("b1", LongValue(9)),
+        Field("b2", ObjectValue(Seq(Field("foo", StringValue("bar")))))
+      )))
+    )
+  }
+
+  test("resolve a backward looking reference in a concatenated string") {
+    val input =
+      """
+        |a = yes
+        |b = ${a} or no
+      """.stripMargin
+    run(input,
+      Field("a", StringValue("yes")),
+      Field("b", StringValue("yes or no"))
+    )
+  }
+
+  test("resolve a forward looking reference in a concatenated string") {
+    val input =
+      """
+        |a = ${b} or no
+        |b = yes
+      """.stripMargin
+    run(input,
+      Field("a", StringValue("yes or no")),
+      Field("b", StringValue("yes"))
+    )
+  }
+
+  test("ignore a missing, optional reference in a concatenated string") {
+    val input =
+      """
+        |a = ${?x} or no
+      """.stripMargin
+    run(input,
+      Field("a", StringValue(" or no"))
+    )
+  }
+
+  test("resolve a backward looking reference in a concatenated array") {
+    val input =
+      """
+        |a = [1,2]
+        |b = ${a} [3,4]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2)))),
+      Field("b", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+    )
+  }
+
+  test("resolve a forward looking reference in a concatenated array") {
+    val input =
+      """
+        |a = ${b} [3,4]
+        |b = [1,2]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4)))),
+      Field("b", ArrayValue(Seq(LongValue(1), LongValue(2))))
+    )
+  }
+
+  test("ignore a missing, optional reference in a concatenated array") {
+    val input =
+      """
+        |a = [1,2] ${?x} [3,4]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+    )
+  }
+
+  test("fail with a missing required reference in a concatenated array") {
+    val input =
+      """
+        |a = [1,2] ${x} [3,4]
+      """.stripMargin
+    runFailure(input, "One or more errors resolving configuration: 'a': Missing required reference: 'x'")
+  }
+
+  test("fail when the combination of types is invalid in concatenated field") {
+    val input =
+      """
+        |a = { x = 9 }
+        |b = [1,2] ${a} [3,4]
+      """.stripMargin
+    val msg = "One or more errors resolving configuration: 'b': Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"
+    runFailure(input, msg)
+  }
+
+  test("resolve a self reference in a concatenated array") {
+    val input =
+      """
+        |a = [1,2]
+        |a = ${a} [3,4]
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3), LongValue(4))))
+    )
+  }
+
+  test("resolve a self reference via += in a concatenated array") {
+    val input =
+      """
+        |a = [1,2]
+        |a += 3
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2), LongValue(3))))
+    )
+  }
+
+  test("resolve a self reference via += as the first occurrence in the input") {
+    val input =
+      """
+        |a += 1
+        |a += 2
+      """.stripMargin
+    run(input,
+      Field("a", ArrayValue(Seq(LongValue(1), LongValue(2))))
+    )
+  }
+
+  test("resolve a backward looking reference in a concatenated object") {
+    val input =
+      """
+        |a = { a = 5 }
+        |b = ${a} { b = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("a", LongValue(5))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve a forward looking reference in a concatenated object") {
+    val input =
+      """
+        |a = ${b} { b = 7 }
+        |b = { a = 5 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(7))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("a", LongValue(5)),
+      )))
+    )
+  }
+
+  test("ignore an optional, missing reference in a concatenated object") {
+    val input =
+      """
+        |a = ${?x} { a = 5, b = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("a", LongValue(5)),
+        Field("b", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve a backward looking reference in a merged object") {
+    val input =
+      """
+        |a = { c = 5 }
+        |b = { d = 7 }
+        |b = ${a}
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("c", LongValue(5))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("c", LongValue(5)),
+        Field("d", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve a forward looking reference in a merged object") {
+    val input =
+      """
+        |a = { c = 5 }
+        |a = ${b}
+        |b = { d = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("c", LongValue(5)),
+        Field("d", LongValue(7))
+      ))),
+      Field("b", ObjectValue(Seq(
+        Field("d", LongValue(7)),
+      )))
+    )
+  }
+
+  test("ignore a missing, optional reference in a merged object") {
+    val input =
+      """
+        |b = { c = 5, d = 7 }
+        |b = ${?x}
+      """.stripMargin
+    run(input,
+      Field("b", ObjectValue(Seq(
+        Field("c", LongValue(5)),
+        Field("d", LongValue(7))
+      )))
+    )
+  }
+
+  test("resolve a self reference in a merged object") {
+    val input =
+      """
+        |a = { b = 5 }
+        |a = ${a} { c = 7 }
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", LongValue(5)),
+        Field("c", LongValue(7))
+      )))
+    )
+  }
+
+  test("ignore a missing reference when it is later overridden") {
+    val input =
+      """
+        |a = ${non-existing}
+        |a = 5
+      """.stripMargin
+    run(input,
+      Field("a", LongValue(5))
+    )
+  }
+
+  test("resolve a self reference in a nested object") {
+    val input =
+      """
+        |a { 
+        |  b = { c = 5 }
+        |  b = ${a.b} { d = 7 }
+        |}
+      """.stripMargin
+    run(input,
+      Field("a", ObjectValue(Seq(
+        Field("b", ObjectValue(Seq(
+          Field("c", LongValue(5)),
+          Field("d", LongValue(7))
+        )))
+      )))
+    )
+  }
     
-    "resolve an include on the top level" in {
-      val input =
-        """
-         |b = 7
-         |include file("foo.conf")
-         |
-        """.stripMargin
-      parseAndResolve(input, includes) shouldBe ObjectValue(Seq(
+  
+  val includes: IncludeMap = Map(
+    IncludeFile(ValidStringValue("foo.conf")) -> Right(ObjectBuilderValue(Seq(
+      BuilderField(Right(Key("c")), ResolvedBuilderValue(LongValue(5)))
+    )))
+  )
+  
+  test("include on the top level") {
+    val input =
+      """
+       |b = 7
+       |include file("foo.conf")
+       |
+      """.stripMargin
+    runWithIncludes(input, includes,
+      Field("b", LongValue(7)),
+      Field("c", LongValue(5))
+    )
+  }
+
+  test("resolve a nested include") {
+    val input =
+      """
+        |a { 
+        |  b = 7
+        |  include file("foo.conf")
+        |}
+      """.stripMargin
+    runWithIncludes(input, includes,
+      Field("a", ObjectValue(Seq(
         Field("b", LongValue(7)),
         Field("c", LongValue(5))
-      ))
-    }
+      )))
+    )
+  }
 
-    "resolve a nested include" in {
-      val input =
-        """
-          |a { 
-          |  b = 7
-          |  include file("foo.conf")
-          |}
-        """.stripMargin
-      parseAndResolve(input, includes) shouldBe ObjectValue(Seq(
-        Field("a", ObjectValue(Seq(
-          Field("b", LongValue(7)),
-          Field("c", LongValue(5))
-        )))
-      ))
-    }
+  test("ignore a missing optional resource") {
+    val input =
+      """
+        |b = 7
+        |include file("foo.conf")
+        |
+      """.stripMargin
+    run(input,
+      Field("b", LongValue(7))
+    )
+  }
 
-    "ignore a missing optional resource" in {
-      val input =
-        """
-          |b = 7
-          |include file("foo.conf")
-          |
-        """.stripMargin
-      parseAndResolve(input) shouldBe ObjectValue(Seq(
-        Field("b", LongValue(7))
-      ))
-    }
+  test("fail with a missing required resource") {
+    val input =
+      """
+        |b = 7
+        |include required(file("foo.conf"))
+        |
+      """.stripMargin
+    runFailure(input, "One or more errors resolving configuration: '<RootKey>': Missing required include 'foo.conf'")
+  }
 
-    "fail with a missing required resource" in {
-      val input =
-        """
-          |b = 7
-          |include required(file("foo.conf"))
-          |
-        """.stripMargin
-      parseAndResolveForFailure(input) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: '<RootKey>': Missing required include 'foo.conf'"))
+  test("fail when an include failed to load") {
+    val includes: IncludeMap = Map(
+      IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationError("This include is faulty"))
+    )
+    val input = {
+      """
+        |b = 7
+        |include file("foo.conf")
+        |
+      """.stripMargin
     }
-
-    "fail when an include failed to load" in {
-      val includes: IncludeMap = Map(
-        IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationError("This include is faulty"))
-      )
-      val input =
-        """
-          |b = 7
-          |include file("foo.conf")
-          |
-        """.stripMargin
-      parseAndResolveForFailure(input, includes) shouldBe Left(ConfigResolverError("One or more errors resolving configuration: '<RootKey>': Error including 'foo.conf': This include is faulty"))
-    }
-    
+    val msg = "One or more errors resolving configuration: '<RootKey>': Error including 'foo.conf': This include is faulty"
+    runFailure(input, msg, includes)
   }
   
-  "The path expansion" should {
-    
-    "expand a single path" in {
-      val in = ObjectBuilderValue(Seq(BuilderField(Key("foo","bar","baz"), longValue(7))))
-      val expected = ObjectBuilderValue(
-        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
-          Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
-            Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
-          )))
-        )))
-      )
-      ConfigResolver.expandPaths(in) shouldBe expected
-    }
 
-    "expand a nested path" in {
-      val in = ObjectBuilderValue(
-        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
-          Seq(BuilderField(Key("bar","baz"), longValue(7)))
+  test("expand a single path") {
+    val in = ObjectBuilderValue(Seq(BuilderField(Key("foo","bar","baz"), longValue(7))))
+    val expected = ObjectBuilderValue(
+      Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+        Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
+          Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
         )))
-      )
-      val expected = ObjectBuilderValue(
-        Seq(BuilderField(Key("foo"), ObjectBuilderValue(
-          Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
-            Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
-          )))
-        )))
-      )
-      ConfigResolver.expandPaths(in) shouldBe expected
-    }
-     
+      )))
+    )
+    assertEquals(ConfigResolver.expandPaths(in), expected)
   }
-   
+
+  test("expand a nested path") {
+    val in = ObjectBuilderValue(
+      Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+        Seq(BuilderField(Key("bar","baz"), longValue(7)))
+      )))
+    )
+    val expected = ObjectBuilderValue(
+      Seq(BuilderField(Key("foo"), ObjectBuilderValue(
+        Seq(BuilderField(Key("foo","bar"), ObjectBuilderValue(
+          Seq(BuilderField(Key("foo","bar","baz"), longValue(7)))
+        )))
+      )))
+    )
+    assertEquals(ConfigResolver.expandPaths(in), expected)
+  }
+     
 }

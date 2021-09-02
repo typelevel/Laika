@@ -18,21 +18,16 @@ package laika.parse.hocon
 
 import laika.config.ConfigParser
 import laika.file.FileIO
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class HoconParserIntegrationSpec extends AnyWordSpec with Matchers with ResultBuilders {
+class HoconParserIntegrationSpec extends FunSuite with ResultBuilders {
 
-  "The root parser" should {
-
-    "successfully parse the full Akka default configuration" in {
-      val input = FileIO.readFile(FileIO.classPathResourcePath("/akka.conf"))
-      ConfigParser.parse(input).resolve().isRight shouldBe true
-    }
-
+  test("successfully parse the full Akka default configuration") {
+    val input = FileIO.readFile(FileIO.classPathResourcePath("/akka.conf"))
+    assert(ConfigParser.parse(input).resolve().isRight)
   }
 
 }

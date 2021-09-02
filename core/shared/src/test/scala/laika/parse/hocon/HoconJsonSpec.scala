@@ -16,104 +16,97 @@
 
 package laika.parse.hocon
 
-import laika.parse.helper.MigrationSpec
 import laika.parse.hocon.HoconParsers._
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class HoconJsonSpec extends MigrationSpec with ResultBuilders {
+class HoconJsonSpec extends FunSuite with ResultBuilders {
 
   def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
 
   def result (fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(ObjectBuilderValue(fields))
   
-  "The object parser" should {
 
-    "parse an empty object in" in {
-      assertEquals(objectValue.parse("{ }").toEither, result())
-    }
-
-    "parse an object with one property in" in {
-      assertEquals(objectValue.parse("""{ "a": "foo" }""").toEither, result(BuilderField("a", stringValue("foo"))))
-    }
-
-    "parse an object with two properties in" in {
-      assertEquals(objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither, result(f("a","foo"),f("b","bar")))
-    }
-
-    "parse an object with all property types" in {
-      val input =
-        """{
-          |  "str": "foo",
-          |  "int": 27,
-          |  "null": null,
-          |  "bool": true,
-          |  "arr": [ 1, 2, "bar" ],
-          |  "obj": { "inner": "xx", "num": 9.5 }
-          |}""".stripMargin
-      assertEquals(objectValue.parse(input).toEither, result(
-        BuilderField("str", stringValue("foo")),
-        BuilderField("int", longValue(27)),
-        BuilderField("null", nullValue),
-        BuilderField("bool", trueValue),
-        BuilderField("arr", ArrayBuilderValue(Seq(
-          longValue(1), longValue(2), stringValue("bar")
-        ))),
-        BuilderField("obj", ObjectBuilderValue(Seq(
-          BuilderField("inner", stringValue("xx")),
-          BuilderField("num", doubleValue(9.5))
-        )))
-      ))
-    }
-
+  test("empty object in") {
+    assertEquals(objectValue.parse("{ }").toEither, result())
   }
 
-  "The string parser" should {
+  test("object with one property in") {
+    assertEquals(objectValue.parse("""{ "a": "foo" }""").toEither, result(BuilderField("a", stringValue("foo"))))
+  }
 
-    "parse an empty string" in {
-      assertEquals(quotedString.parse("\"\"").toEither, Right(ValidStringValue("")))
-    }
+  test("object with two properties in") {
+    assertEquals(objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither, result(f("a","foo"),f("b","bar")))
+  }
 
-    "parse an string containing only whitespace" in {
-      assertEquals(quotedString.parse("\"  \"").toEither, Right(ValidStringValue("  ")))
-    }
-    
-    "parse a plain string" in {
-      assertEquals(quotedString.parse("\"fooz\"").toEither, Right(ValidStringValue("fooz")))
-    }
+  test("object with all property types") {
+    val input =
+      """{
+        |  "str": "foo",
+        |  "int": 27,
+        |  "null": null,
+        |  "bool": true,
+        |  "arr": [ 1, 2, "bar" ],
+        |  "obj": { "inner": "xx", "num": 9.5 }
+        |}""".stripMargin
+    assertEquals(objectValue.parse(input).toEither, result(
+      BuilderField("str", stringValue("foo")),
+      BuilderField("int", longValue(27)),
+      BuilderField("null", nullValue),
+      BuilderField("bool", trueValue),
+      BuilderField("arr", ArrayBuilderValue(Seq(
+        longValue(1), longValue(2), stringValue("bar")
+      ))),
+      BuilderField("obj", ObjectBuilderValue(Seq(
+        BuilderField("inner", stringValue("xx")),
+        BuilderField("num", doubleValue(9.5))
+      )))
+    ))
+  }
 
-    "parse a new line character" in {
-      assertEquals(quotedString.parse("\"foo\\nbar\"").toEither, Right(ValidStringValue("foo\nbar")))
-    }
 
-    "parse a unicode character reference" in {
-      assertEquals(quotedString.parse("\"foo \\u007B bar\"").toEither, Right(ValidStringValue("foo { bar")))
-    }
-    
+  test("empty string") {
+    assertEquals(quotedString.parse("\"\"").toEither, Right(ValidStringValue("")))
+  }
+
+  test("string containing only whitespace") {
+    assertEquals(quotedString.parse("\"  \"").toEither, Right(ValidStringValue("  ")))
   }
   
-  "The number parser" should {
-    
-    "parse a long" in {
-      assertEquals(numberValue.parse("123").toEither, Right(longValue(123)))
-    }
-
-    "parse a signed long" in {
-      assertEquals(numberValue.parse("-123").toEither, Right(longValue(-123)))
-    }
-
-    "parse a double" in {
-      assertEquals(numberValue.parse("123.5").toEither, Right(doubleValue(123.5)))
-    }
-
-    "parse a double with an exponent" in {
-      assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235E12)))
-    }
-
-    "parse a double with a negative exponent" in {
-      assertEquals(numberValue.parse("123.5E-2").toEither, Right(doubleValue(1.235)))
-    }
+  test("plain string") {
+    assertEquals(quotedString.parse("\"fooz\"").toEither, Right(ValidStringValue("fooz")))
   }
+
+  test("new line character") {
+    assertEquals(quotedString.parse("\"foo\\nbar\"").toEither, Right(ValidStringValue("foo\nbar")))
+  }
+
+  test("unicode character reference") {
+    assertEquals(quotedString.parse("\"foo \\u007B bar\"").toEither, Right(ValidStringValue("foo { bar")))
+  }
+    
+  
+  test("long") {
+    assertEquals(numberValue.parse("123").toEither, Right(longValue(123)))
+  }
+
+  test("signed long") {
+    assertEquals(numberValue.parse("-123").toEither, Right(longValue(-123)))
+  }
+
+  test("double") {
+    assertEquals(numberValue.parse("123.5").toEither, Right(doubleValue(123.5)))
+  }
+
+  test("double with an exponent") {
+    assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235E12)))
+  }
+
+  test("double with a negative exponent") {
+    assertEquals(numberValue.parse("123.5E-2").toEither, Right(doubleValue(1.235)))
+  }
+  
   
 }

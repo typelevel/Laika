@@ -16,33 +16,31 @@
 
 package laika.parse.text
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class WhitespacePreprocessorSpec extends AnyFlatSpec
-                                 with Matchers {
-
+class WhitespacePreprocessorSpec extends FunSuite {
   
-  "The whitespace preprocessor" should "replace form feeds and vertical tabs with single spaces" in {
+  private val processor = new WhitespacePreprocessor
+  
+  test("replace form feeds and vertical tabs with single spaces") {
     val vt = '\u000b'
     val ff = '\f'
     val input = "text\n"+vt+"text\n"+ff+" \ntext"
-    (new WhitespacePreprocessor)(input) should be ("text\n text\n  \ntext")
+    assertEquals(processor(input), "text\n text\n  \ntext")
   }
   
-  it should "remove carriage return characters" in {
-    (new WhitespacePreprocessor)("text\n\r text\n\r  \n\rtext") should be ("text\n text\n  \ntext")
+  test("remove carriage return characters") {
+    assertEquals(processor("text\n\r text\n\r  \n\rtext"), "text\n text\n  \ntext")
   }
   
-  it should "replace tabs with the corresponding number of whitespace characters depending on the column in occurs in" in {
+  test("replace tabs with the corresponding number of whitespace characters depending on the column in occurs in") {
     val input = "\t#\n \t#\n  \t#\n   \t#\n    \t#"
-    (new WhitespacePreprocessor)(input) should be ("    #\n    #\n    #\n    #\n        #")
+    assertEquals(processor(input), "    #\n    #\n    #\n    #\n        #")
   }
   
-  it should "allow the overriding of the tabStops value" in {
+  test("allow the overriding of the tabStops value") {
     val input = "\t#\n \t#\n  \t#\n   \t#\n    \t#"
-    (new WhitespacePreprocessor{override val tabStops = 2})(input) should be ("  #\n  #\n    #\n    #\n      #")
+    assertEquals((new WhitespacePreprocessor{override val tabStops = 2})(input), "  #\n  #\n    #\n    #\n      #")
   }
-  
 
 }

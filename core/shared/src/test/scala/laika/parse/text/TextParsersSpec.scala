@@ -16,581 +16,495 @@
 
 package laika.parse.text
 
+import laika.parse.Parser
 import laika.parse.builders._
-import laika.parse.helper.MigrationSpec
-import laika.parse.{Parser, SourceCursor}
-import org.scalatest.Assertion
+import munit.FunSuite
    
-class TextParsersSpec extends MigrationSpec {
+class TextParsersSpec extends FunSuite {
 
 
-  def run[A] (parser: Parser[A], input: String, expected: A): Assertion =
+  def run[A] (parser: Parser[A], input: String, expected: A): Unit =
     assertEquals(parser.parse(input).toEither, Right(expected))
 
-  def expectFailure[A] (parser: Parser[A], input: String): Assertion =
+  def expectFailure[A] (parser: Parser[A], input: String): Unit =
     assert(parser.parse(input).toEither.isLeft)
-  
 
-  "The prevNot validators" should {
-    
-    "succeed if the previous character is not one of those specified" in {
-      run(oneChar ~> prevNot('x'), "abc", ())
-    }
 
-    "fail if the previous character is one of those specified" in {
-      expectFailure(oneChar ~> prevNot('a'), "abc")
-    }
-    
-    "succeed at the start of the input" in {
-      run(prevNot('x'), "abc", ())
-    }
-
-    "succeed if the predicate is not satisfied" in {
-      run(oneChar ~> prevNot(_ == 'b'), "abc", ())
-    }
-
-    "fail if the the predicate is satisfied" in {
-      (oneChar ~> prevNot(_ == 'a'), "abc")
-    }
-
+  test("prevNot - succeed if the previous character is not one of those specified") {
+    run(oneChar ~> prevNot('x'), "abc", ())
   }
 
-  "The nextNot validators" should {
-
-    "succeed if the next character is not one of those specified" in {
-      run(oneChar ~> nextNot('x'), "abc", ())
-    }
-
-    "fail if the next character is one of those specified" in {
-      expectFailure(oneChar ~> nextNot('b'), "abc")
-    }
-
-    "succeed at the end of the input" in {
-      run(oneChar ~> nextNot('x'), "a", ())
-    }
-
-    "succeed if the predicate is not satisfied" in {
-      run(oneChar ~> nextNot(_ == 'a'), "abc", ())
-    }
-
-    "fail if the the predicate is satisfied" in {
-      expectFailure(oneChar ~> nextNot(_ == 'b'), "abc")
-    }
-
+  test("prevNot - fail if the previous character is one of those specified") {
+    expectFailure(oneChar ~> prevNot('a'), "abc")
   }
 
-  "The prevIn and prevIs validators" should {
-
-    "succeed if the previous character is one of those specified" in {
-      run(oneChar ~> prevIn('a','c'), "abc", ())
-    }
-
-    "fail if the previous character is not one of those specified" in {
-      expectFailure(oneChar ~> prevIn('x','y'), "abc")
-    }
-
-    "fail at the start of the input" in {
-      expectFailure(prevIn('x'), "abc")
-    }
-
-    "succeed if the predicate is satisfied" in {
-      run(oneChar ~> prevIs(_ == 'a'), "abc", ())
-    }
-
-    "fail if the the predicate is not satisfied" in {
-      expectFailure(oneChar ~> prevIs(_ == 'b'), "abc")
-    }
-
+  test("prevNot - succeed at the start of the input") {
+    run(prevNot('x'), "abc", ())
   }
 
-  "The nextIn and nextIs validators" should {
-
-    "succeed if the next character is one of those specified" in {
-      run(oneChar ~> nextIn('b'), "abc", ())
-    }
-
-    "fail if the next character is not one of those specified" in {
-      expectFailure(oneChar ~> nextIn('x'), "abc")
-    }
-
-    "fail at the end of the input" in {
-      expectFailure(oneChar ~> nextIn('x'), "a")
-    }
-
-    "succeed if the predicate is satisfied" in {
-      run(oneChar ~> nextIs(_ == 'b'), "abc", ())
-    }
-
-    "fail if the the predicate is not satisfied" in {
-      expectFailure(oneChar ~> nextIs(_ == 'a'), "abc")
-    }
-
+  test("prevNot - succeed if the predicate is not satisfied") {
+    run(oneChar ~> prevNot(_ == 'b'), "abc", ())
   }
 
-  "The literal parser" should {
-
-    "succeed with a matching string literal" in {
-      run(literal("abc"), "abcd", "abc")
-    }
-
-    "fail when the string literal does not match" in {
-      expectFailure(literal("bcd"), "abcd")
-    }
-
+  test("prevNot - fail if the the predicate is satisfied") {
+    (oneChar ~> prevNot(_ == 'a'), "abc")
   }
 
-  "The eol parser" should {
 
-    "succeed for \\n" in {
-      run(eol, "\naaa", ())
-    }
-
-    "succeed for \\r\\n" in {
-      run(eol, "\r\naaa", ())
-    }
-
-    "succeed at the end of the input" in {
-      run(eol, "", ())
-    }
-
-    "fail when not at the end of a line" in {
-      expectFailure(eol, "abc")
-    }
-
+  test("nextNot - succeed if the next character is not one of those specified") {
+    run(oneChar ~> nextNot('x'), "abc", ())
   }
 
-  "The eof parser" should {
-
-    "succeed at the end of the input" in {
-      run(eof, "", "")
-    }
-
-    "fail when not at the end of the input" in {
-      expectFailure(eof, "\n")
-    }
-
+  test("nextNot - fail if the next character is one of those specified") {
+    expectFailure(oneChar ~> nextNot('b'), "abc")
   }
 
-  "The atStart parser" should {
-
-    "succeed at the start of the input" in {
-      run(atStart, "abc", ())
-    }
-
-    "fail when not at the start of the input" in {
-      assert(atStart.parse(SourceCursor("abc").consume(1)).toEither.isLeft)
-    }
-
+  test("nextNot - succeed at the end of the input") {
+    run(oneChar ~> nextNot('x'), "a", ())
   }
 
-  "The ws parser" should {
-
-    "succeed with all whitespace characters" in {
-      run(ws, " \t abcd", " \t ")
-    }
-
-    "succeed with an empty string in case of non-whitespace characters" in {
-      run(ws, "abcd", "")
-    }
-
+  test("nextNot - succeed if the predicate is not satisfied") {
+    run(oneChar ~> nextNot(_ == 'a'), "abc", ())
   }
 
-  "The wsEol parser" should {
-
-    "succeed with whitespace characters followed by newline" in {
-      run(wsEol, " \n abcd", ())
-    }
-
-    "succeed with just a newline character since whitespace is optional" in {
-      run(wsEol, "\n abcd", ())
-    }
-
-    "fail with non-whitespace chacracters" in {
-      expectFailure(wsEol, "abcd")
-    }
-
+  test("nextNot - fail if the the predicate is satisfied") {
+    expectFailure(oneChar ~> nextNot(_ == 'b'), "abc")
   }
 
-  "The blankLine parser" should {
 
-    "succeed with whitespace characters followed by newline" in {
-      run(blankLine, " \n abcd", "")
-    }
-
-    "succeed with just a newline character since whitespace is optional" in {
-      run(blankLine, "\n abcd", "")
-    }
-
-    "fail with non-whitespace chacracters" in {
-      expectFailure(blankLine, "abcd")
-    }
-
+  test("prevIn - succeed if the previous character is one of those specified") {
+    run(oneChar ~> prevIn('a', 'c'), "abc", ())
   }
 
-  "The blankLines parser" should {
-
-    "succeed with one blank line" in {
-      run(blankLines, " \n abcd", List(""))
-    }
-
-    "succeed with three blank lines" in {
-      run(blankLines, " \n\n \n abcd", List("","",""))
-    }
-
-    "fail with non-whitespace chacracters" in {
-      expectFailure(blankLines, "abcd")
-    }
-
+  test("prevIn - fail if the previous character is not one of those specified") {
+    expectFailure(oneChar ~> prevIn('x', 'y'), "abc")
   }
 
-  "The restOfLine parser" should {
-
-    "succeed with all characters of the current line" in {
-      run(restOfLine, " aa\nabcd", " aa")
-    }
-
-    "succeed with an empty result" in {
-      run(restOfLine, "\nabcd", "")
-    }
-
+  test("prevIn - fail at the start of the input") {
+    expectFailure(prevIn('x'), "abc")
   }
 
-  "The textLine parser" should {
-
-    "succeed with all characters of the current line" in {
-      run(textLine, " aa\nabcd", " aa")
-    }
-
-    "fail on an empty line" in {
-      expectFailure(textLine, "\nabcd")
-    }
-
+  test("prevIn - succeed if the predicate is satisfied") {
+    run(oneChar ~> prevIs(_ == 'a'), "abc", ())
   }
 
-  "The anyChars parser" should {
-
-    "always succeed consuming the entire input" in {
-      run(anyChars, "abcde $&", "abcde $&")
-    }
-
-    "only consume the specified maximum number of characters" in {
-      run(anyChars.max(3), "abcde $&", "abc")
-    }
+  test("prevIn - fail if the the predicate is not satisfied") {
+    expectFailure(oneChar ~> prevIs(_ == 'b'), "abc")
   }
 
-  "The anyOf parser" should {
 
-    "succeed with an empty result when no characters match" in {
-      run(anyOf('x'), "ababccab", "")
-    }
-
-    "succeed for the matching character when 1 character is specified" in {
-      run(anyOf('x'), "xxabc", "xx")
-    }
-
-    "succeed for all matching characters when 3 characters are specified" in {
-      run(anyOf('x','y','z'), "xxyzxabc", "xxyzx")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(anyOf('x','y','z'), "xxyzx", "xxyzx")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(anyOf('x').min(3), "xxabc")
-    }
-
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(anyOf('x').min(3), "xxxxabc", "xxxx")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(anyOf('x').max(3), "xxxxxx", "xxx")
-    }
-
+  test("nextIn - succeed if the next character is one of those specified") {
+    run(oneChar ~> nextIn('b'), "abc", ())
   }
 
-  "The someOf parser" should {
-
-    "succeed for the matching character when 1 character is specified" in {
-      run(someOf('x'), "xxabc", "xx")
-    }
-
-    "succeed for all matching characters when 3 characters are specified" in {
-      run(someOf('x','y','z'), "xxyzxabc", "xxyzx")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(someOf('x','y','z'), "xxyzx", "xxyzx")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(someOf('x').min(3), "xxabc")
-    }
-
-    "fail when it does not consume any characters as min(1) is implicit in someOf parsers" in {
-      expectFailure(someOf('x'), "abcde")
-    }
-
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(someOf('x').min(3), "xxxxabc", "xxxx")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(someOf('x').max(3), "xxxxxx", "xxx")
-    }
-
+  test("nextIn - fail if the next character is not one of those specified") {
+    expectFailure(oneChar ~> nextIn('x'), "abc")
   }
 
-  "The oneOf parser" should {
-
-    "succeed for the matching character when 1 character is specified" in {
-      run(TextParsers.oneOf('x'), "xxabc", "x")
-    }
-
-    "succeed for any of the specified 3 characters" in {
-      run(TextParsers.oneOf('x','y','z'), "yzxabc", "y")
-    }
-
-    "fail in case the end of the input is reached" in {
-      expectFailure(TextParsers.oneOf('x','y','z'), "")
-    }
-
-    "fail when the first character does not match" in {
-      expectFailure(TextParsers.oneOf('x'), "yxxabc")
-    }
-
-  }
-  
-  "The anyNot parser" should {
-
-    "succeed for all non-matching characters when 1 character is specified" in {
-      run(anyNot('x'), "abcxxabc", "abc")
-    }
-
-    "succeed for all non-matching characters when 3 characters are specified" in {
-      run(anyNot('x','y','z'), "abczyxabc", "abc")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(anyNot('x','y','z'), "abcabc", "abcabc")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(anyNot('x').min(3), "abxx")
-    }
-    
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(anyNot('x').min(3), "abcdxxxx", "abcd")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(anyNot('x').max(3), "abcdxxxx", "abc")
-    }
-
+  test("nextIn - fail at the end of the input") {
+    expectFailure(oneChar ~> nextIn('x'), "a")
   }
 
-  "The someNot parser" should {
-
-    "succeed for all non-matching characters when 1 character is specified" in {
-      run(someNot('x'), "abcxxabc", "abc")
-    }
-
-    "succeed for all non-matching characters when 3 characters are specified" in {
-      run(someNot('x','y','z'), "abczyxabc", "abc")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(someNot('x','y','z'), "abcabc", "abcabc")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(someNot('x').min(3), "abxx")
-    }
-
-    "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
-      expectFailure(someNot('a','b'), "abcde")
-    }
-
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(someNot('x').min(3), "abcdxxxx", "abcd")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(someNot('x').max(3), "abcdxxxx", "abc")
-    }
-
+  test("nextIs - succeed if the predicate is satisfied") {
+    run(oneChar ~> nextIs(_ == 'b'), "abc", ())
   }
 
-  "The oneNot parser" should {
-
-    "succeed for a non-matching character when 1 character is specified" in {
-      run(TextParsers.oneNot('a'), "xxabc", "x")
-    }
-
-    "succeed for any of the specified 3 characters" in {
-      run(TextParsers.oneNot('a','b','c'), "yzxabc", "y")
-    }
-
-    "fail in case the end of the input is reached" in {
-      expectFailure(TextParsers.oneNot('x','y','z'), "")
-    }
-
-    "fail when the first character does not match" in {
-      expectFailure(TextParsers.oneNot('x','y'), "yxxabc")
-    }
-
-  }
-  
-  "The anyOf parser with the range builder" should {
-
-    "succeed for any character within the specified range when 1 range is specified" in {
-      run(anyOf(range('a', 'd')), "abcde $&", "abcd")
-    }
-
-    "succeed for any character within the specified ranges when 2 ranges are specified" in {
-      run(anyOf(range('a', 'd') ++ range('x', 'z')), "abcdxyzff", "abcdxyz")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(anyOf(range('a', 'd')), "abcabd", "abcabd")
-    }
-
-  }
-  
-  "The anyWhile parser" should {
-
-    "succeed with an empty result when no characters match" in {
-      run(anyWhile(_ < 'd'), "xyzzyw", "")
-    }
-    
-    "succeed as long as the specified condition is met" in {
-      run(anyWhile(_ < 'd'), "abcde $&", "abc")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(anyWhile(_ < 'd'), "abcabc", "abcabc")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(anyWhile(_ < 'd').min(3), "abxx")
-    }
-
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(anyWhile(_ < 'd').min(3), "abcdxxxx", "abc")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(anyWhile(_ < 'd').max(2), "abcdxxxx", "ab")
-    }
-
+  test("nextIs - fail if the the predicate is not satisfied") {
+    expectFailure(oneChar ~> nextIs(_ == 'a'), "abc")
   }
 
-  "The someWhile parser" should {
 
-    "succeed as long as the specified condition is met" in {
-      run(someWhile(_ < 'd'), "abcde $&", "abc")
-    }
-
-    "succeed in case the end of the input is reached" in {
-      run(someWhile(_ < 'd'), "abcabc", "abcabc")
-    }
-
-    "fail when it does not consume the specified minimum number of characters" in {
-      expectFailure(someWhile(_ < 'd').min(3), "abxx")
-    }
-
-    "fail when it does not consume any characters as min(1) is implicit in someNot parsers" in {
-      expectFailure(someWhile(_ < 'd'), "xxyyzz")
-    }
-
-    "succeed when it does consume the specified minimum number of characters" in {
-      run(someWhile(_ < 'd').min(3), "abcdxxxx", "abc")
-    }
-
-    "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-      run(someWhile(_ < 'd').max(2), "abcdxxxx", "ab")
-    }
-
+  test("literal - succeed with a matching string literal") {
+    run(literal("abc"), "abcd", "abc")
   }
 
-  "The oneIf parser" should {
-
-    "succeed as long as the specified condition is met" in {
-      run(oneIf(_ < 'd'), "abcde $&", "a")
-    }
-
-    "fail in case the end of the input is reached" in {
-      expectFailure(oneIf(_ < 'd'), "")
-    }
-
-    "fail in case the specified predicate is not met" in {
-      expectFailure(oneIf(_ < 'd'), "zxxxyyyz")
-    }
-
+  test("literal - fail when the string literal does not match") {
+    expectFailure(literal("bcd"), "abcd")
   }
 
-  "The DelimitedBy parser for character delimiters" should {
 
-    val az = delimitedBy(CharGroup.lowerAlpha)
-
-    "stop as soon as one of the specified delimiter characters is seen" in {
-      run(az, "123abc", "123")
-    }
-
-    "succeed even when the result is empty" in {
-      run(az, "abc", "")
-    }
-
-    "fail when the result is empty but nonEmpty is specified" in {
-      expectFailure(az.nonEmpty, "abc")
-    }
-
-    "fail when a stop char is seen before the end delimiter" in {
-      expectFailure(az.failOn('3','4'), "1234abcd")
-    }
-
-    "fail in case the end of the input is reached before seeing a delimiter character" in {
-      expectFailure(az, "1234567")
-    }
-
+  test("eol - succeed for \\n") {
+    run(eol, "\naaa", ())
   }
 
-  "The DelimitedBy parser for string literal delimiters" should {
-    
+  test("eol - succeed for \\r\\n") {
+    run(eol, "\r\naaa", ())
+  }
+
+  test("eol - succeed at the end of the input") {
+    run(eol, "", ())
+  }
+
+  test("eol - fail when not at the end of a line") {
+    expectFailure(eol, "abc")
+  }
+
+
+  test("eof - succeed at the end of the input") {
+    run(eof, "", "")
+  }
+
+  test("eof - fail when not at the end of the input") {
+    expectFailure(eof, "\n")
+  }
+
+
+  test("atStart - succeed at the start of the input") {
+    run(atStart, "abc", ())
+  }
+
+  test("atStart - fail when not at the start of the input") {
+  }
+
+  test("ws - succeed with all whitespace characters") {
+    run(ws, " \t abcd", " \t ")
+  }
+
+  test("ws - succeed with an empty string in case of non-whitespace characters") {
+    run(ws, "abcd", "")
+  }
+
+  test("wsEol - succeed with whitespace characters followed by newline") {
+    run(wsEol, " \n abcd", ())
+  }
+
+  test("wsEol - succeed with just a newline character since whitespace is optional") {
+    run(wsEol, "\n abcd", ())
+  }
+
+  test("wsEol - fail with non-whitespace chacracters") {
+    expectFailure(wsEol, "abcd")
+  }
+
+
+  test("blankLine - succeed with whitespace characters followed by newline") {
+    run(blankLine, " \n abcd", "")
+  }
+
+  test("blankLine - succeed with just a newline character since whitespace is optional") {
+    run(blankLine, "\n abcd", "")
+  }
+
+  test("blankLine - fail with non-whitespace chacracters") {
+    expectFailure(blankLine, "abcd")
+  }
+
+
+  test("blankLines - succeed with one blank line") {
+    run(blankLines, " \n abcd", List(""))
+  }
+
+  test("blankLines - succeed with three blank lines") {
+    run(blankLines, " \n\n \n abcd", List("", "", ""))
+  }
+
+  test("blankLines - fail with non-whitespace chacracters") {
+    expectFailure(blankLines, "abcd")
+  }
+
+
+  test("restOfLine - succeed with all characters of the current line") {
+    run(restOfLine, " aa\nabcd", " aa")
+  }
+
+  test("restOfLine - succeed with an empty result") {
+    run(restOfLine, "\nabcd", "")
+  }
+
+
+  test("textLine - succeed with all characters of the current line") {
+    run(textLine, " aa\nabcd", " aa")
+  }
+
+  test("textLine - fail on an empty line") {
+    expectFailure(textLine, "\nabcd")
+  }
+
+
+  test("anyChars - always succeed consuming the entire input") {
+    run(anyChars, "abcde $&", "abcde $&")
+  }
+
+  test("anyChars - only consume the specified maximum number of characters") {
+    run(anyChars.max(3), "abcde $&", "abc")
+  }
+
+
+  test("anyOf - succeed with an empty result when no characters match") {
+    run(anyOf('x'), "ababccab", "")
+  }
+
+  test("anyOf - succeed for the matching character when 1 character is specified") {
+    run(anyOf('x'), "xxabc", "xx")
+  }
+
+  test("anyOf - succeed for all matching characters when 3 characters are specified") {
+    run(anyOf('x', 'y', 'z'), "xxyzxabc", "xxyzx")
+  }
+
+  test("anyOf - succeed in case the end of the input is reached") {
+    run(anyOf('x', 'y', 'z'), "xxyzx", "xxyzx")
+  }
+
+  test("anyOf - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(anyOf('x').min(3), "xxabc")
+  }
+
+  test("anyOf - succeed when it does consume the specified minimum number of characters") {
+    run(anyOf('x').min(3), "xxxxabc", "xxxx")
+  }
+
+  test("anyOf - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(anyOf('x').max(3), "xxxxxx", "xxx")
+  }
+
+
+  test("someOf - succeed for the matching character when 1 character is specified") {
+    run(someOf('x'), "xxabc", "xx")
+  }
+
+  test("someOf - succeed for all matching characters when 3 characters are specified") {
+    run(someOf('x', 'y', 'z'), "xxyzxabc", "xxyzx")
+  }
+
+  test("someOf - succeed in case the end of the input is reached") {
+    run(someOf('x', 'y', 'z'), "xxyzx", "xxyzx")
+  }
+
+  test("someOf - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(someOf('x').min(3), "xxabc")
+  }
+
+  test("someOf - fail when it does not consume any characters as min(1) is implicit in someOf parsers") {
+    expectFailure(someOf('x'), "abcde")
+  }
+
+  test("someOf - succeed when it does consume the specified minimum number of characters") {
+    run(someOf('x').min(3), "xxxxabc", "xxxx")
+  }
+
+  test("someOf - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(someOf('x').max(3), "xxxxxx", "xxx")
+  }
+
+
+  test("oneOf - succeed for the matching character when 1 character is specified") {
+    run(TextParsers.oneOf('x'), "xxabc", "x")
+  }
+
+  test("oneOf - succeed for any of the specified 3 characters") {
+    run(TextParsers.oneOf('x', 'y', 'z'), "yzxabc", "y")
+  }
+
+  test("oneOf - fail in case the end of the input is reached") {
+    expectFailure(TextParsers.oneOf('x', 'y', 'z'), "")
+  }
+
+  test("oneOf - fail when the first character does not match") {
+    expectFailure(TextParsers.oneOf('x'), "yxxabc")
+  }
+
+
+  test("anyNot - succeed for all non-matching characters when 1 character is specified") {
+    run(anyNot('x'), "abcxxabc", "abc")
+  }
+
+  test("anyNot - succeed for all non-matching characters when 3 characters are specified") {
+    run(anyNot('x', 'y', 'z'), "abczyxabc", "abc")
+  }
+
+  test("anyNot - succeed in case the end of the input is reached") {
+    run(anyNot('x', 'y', 'z'), "abcabc", "abcabc")
+  }
+
+  test("anyNot - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(anyNot('x').min(3), "abxx")
+  }
+
+  test("anyNot - succeed when it does consume the specified minimum number of characters") {
+    run(anyNot('x').min(3), "abcdxxxx", "abcd")
+  }
+
+  test("anyNot - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(anyNot('x').max(3), "abcdxxxx", "abc")
+  }
+
+
+  test("someNot - succeed for all non-matching characters when 1 character is specified") {
+    run(someNot('x'), "abcxxabc", "abc")
+  }
+
+  test("someNot - succeed for all non-matching characters when 3 characters are specified") {
+    run(someNot('x', 'y', 'z'), "abczyxabc", "abc")
+  }
+
+  test("someNot - succeed in case the end of the input is reached") {
+    run(someNot('x', 'y', 'z'), "abcabc", "abcabc")
+  }
+
+  test("someNot - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(someNot('x').min(3), "abxx")
+  }
+
+  test("someNot - fail when it does not consume any characters as min(1) is implicit in someNot parsers") {
+    expectFailure(someNot('a', 'b'), "abcde")
+  }
+
+  test("someNot - succeed when it does consume the specified minimum number of characters") {
+    run(someNot('x').min(3), "abcdxxxx", "abcd")
+  }
+
+  test("someNot - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(someNot('x').max(3), "abcdxxxx", "abc")
+  }
+
+
+  test("oneNot - succeed for a non-matching character when 1 character is specified") {
+    run(TextParsers.oneNot('a'), "xxabc", "x")
+  }
+
+  test("oneNot - succeed for any of the specified 3 characters") {
+    run(TextParsers.oneNot('a', 'b', 'c'), "yzxabc", "y")
+  }
+
+  test("oneNot - fail in case the end of the input is reached") {
+    expectFailure(TextParsers.oneNot('x', 'y', 'z'), "")
+  }
+
+  test("oneNot - fail when the first character does not match") {
+    expectFailure(TextParsers.oneNot('x', 'y'), "yxxabc")
+  }
+
+
+  test("anyOf - succeed for any character within the specified range when 1 range is specified") {
+    run(anyOf(range('a', 'd')), "abcde $&", "abcd")
+  }
+
+  test("anyOf - succeed for any character within the specified ranges when 2 ranges are specified") {
+    run(anyOf(range('a', 'd') ++ range('x', 'z')), "abcdxyzff", "abcdxyz")
+  }
+
+  test("anyOf - succeed in case the end of the input is reached") {
+    run(anyOf(range('a', 'd')), "abcabd", "abcabd")
+  }
+
+
+  test("anyWhile - succeed with an empty result when no characters match") {
+    run(anyWhile(_ < 'd'), "xyzzyw", "")
+  }
+
+  test("anyWhile - succeed as long as the specified condition is met") {
+    run(anyWhile(_ < 'd'), "abcde $&", "abc")
+  }
+
+  test("anyWhile - succeed in case the end of the input is reached") {
+    run(anyWhile(_ < 'd'), "abcabc", "abcabc")
+  }
+
+  test("anyWhile - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(anyWhile(_ < 'd').min(3), "abxx")
+  }
+
+  test("anyWhile - succeed when it does consume the specified minimum number of characters") {
+    run(anyWhile(_ < 'd').min(3), "abcdxxxx", "abc")
+  }
+
+  test("anyWhile - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(anyWhile(_ < 'd').max(2), "abcdxxxx", "ab")
+  }
+
+
+  test("someWhile - succeed as long as the specified condition is met") {
+    run(someWhile(_ < 'd'), "abcde $&", "abc")
+  }
+
+  test("someWhile - succeed in case the end of the input is reached") {
+    run(someWhile(_ < 'd'), "abcabc", "abcabc")
+  }
+
+  test("someWhile - fail when it does not consume the specified minimum number of characters") {
+    expectFailure(someWhile(_ < 'd').min(3), "abxx")
+  }
+
+  test("someWhile - fail when it does not consume any characters as min(1) is implicit in someNot parsers") {
+    expectFailure(someWhile(_ < 'd'), "xxyyzz")
+  }
+
+  test("someWhile - succeed when it does consume the specified minimum number of characters") {
+    run(someWhile(_ < 'd').min(3), "abcdxxxx", "abc")
+  }
+
+  test("someWhile - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+    run(someWhile(_ < 'd').max(2), "abcdxxxx", "ab")
+  }
+
+
+  test("oneIf - succeed as long as the specified condition is met") {
+    run(oneIf(_ < 'd'), "abcde $&", "a")
+  }
+
+  test("oneIf - fail in case the end of the input is reached") {
+    expectFailure(oneIf(_ < 'd'), "")
+  }
+
+  test("oneIf - fail in case the specified predicate is not met") {
+    expectFailure(oneIf(_ < 'd'), "zxxxyyyz")
+  }
+
+
+  private val az = delimitedBy(CharGroup.lowerAlpha)
+
+  test("delimitedBy - stop as soon as one of the specified delimiter characters is seen") {
+    run(az, "123abc", "123")
+  }
+
+  test("delimitedBy - succeed even when the result is empty") {
+    run(az, "abc", "")
+  }
+
+  test("delimitedBy - fail when the result is empty but nonEmpty is specified") {
+    expectFailure(az.nonEmpty, "abc")
+  }
+
+  test("delimitedBy - fail when a stop char is seen before the end delimiter") {
+    expectFailure(az.failOn('3', '4'), "1234abcd")
+  }
+
+  test("delimitedBy - fail in case the end of the input is reached before seeing a delimiter character") {
+    expectFailure(az, "1234567")
+  }
+
+
+  private val lit = delimitedBy(">>>")
+
+  test("delimitedBy - stop as soon as the specified string delimiter is seen") {
+    run(lit, "123>>>", "123")
+  }
+
+  test("delimitedBy - succeed even when the result is empty") {
+    run(lit, ">>>", "")
+  }
+
+  test("delimitedBy - fail when the result is empty but nonEmpty is specified") {
+    expectFailure(lit.nonEmpty, ">>>")
+  }
+
+  test("delimitedBy - fail when a stop char is seen before the end delimiter") {
+    expectFailure(lit.failOn('3', '4'), "1234>>>")
+  }
+
+  test("delimitedBy - fail in case the end of the input is reached before seeing the delimiter string") {
+    expectFailure(lit, "1234567")
+  }
+
+  test("delimitedBy - succeed when the specified post condition is met") {
     import laika.parse.implicits._
-
-    val lit = delimitedBy(">>>")
-
-    "stop as soon as the specified string delimiter is seen" in {
-      run(lit, "123>>>", "123")
-    }
-
-    "succeed even when the result is empty" in {
-      run(lit, ">>>", "")
-    }
-
-    "fail when the result is empty but nonEmpty is specified" in {
-      expectFailure(lit.nonEmpty, ">>>")
-    }
-
-    "fail when a stop char is seen before the end delimiter" in {
-      expectFailure(lit.failOn('3','4'), "1234>>>")
-    }
-
-    "fail in case the end of the input is reached before seeing the delimiter string" in {
-      expectFailure(lit, "1234567")
-    }
-
-    "succeed when the specified post condition is met" in {
-      run(delimitedBy(">>>" <~ ws.min(1)), "123>>> ", "123")
-    }
-
-    "fail when the specified post condition is not met" in {
-      expectFailure(delimitedBy(">>>" <~ ws.min(1)), "123>>>A")
-    }
-
+    run(delimitedBy(">>>" <~ ws.min(1)), "123>>> ", "123")
   }
 
-  
+  test("delimitedBy - fail when the specified post condition is not met") {
+    import laika.parse.implicits._
+    expectFailure(delimitedBy(">>>" <~ ws.min(1)), "123>>>A")
+  }
+
 }

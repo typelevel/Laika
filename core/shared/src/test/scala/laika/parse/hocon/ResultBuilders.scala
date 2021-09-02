@@ -16,7 +16,7 @@
 
 package laika.parse.hocon
 
-import laika.config.{BooleanValue, DoubleValue, LongValue, NullValue, StringValue}
+import laika.config.{BooleanValue, DoubleValue, LongValue, NullValue}
 
 /**
   * @author Jens Halm
