@@ -22,11 +22,10 @@ import laika.ast.{Block, RootElement, Text}
 import laika.format.Markdown
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement}
 import laika.parse.Parser
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.RootParser
-import org.scalatest.Assertion
+import munit.FunSuite
  
-class HTMLBlockParserSpec extends MigrationFlatSpec
+class HTMLBlockParserSpec extends FunSuite
                           with ParagraphCompanionShortcuts 
                           with HTMLModelBuilder {
 
@@ -35,11 +34,11 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
-  def run (input: String, blocks: Block*): Assertion =
+  def run (input: String, blocks: Block*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
   
-  "The HTML block parser" should "parse a block level HTML element with a nested element and text content" in {
+  test("block level HTML element with a nested element and text content") {
     val input = """aaa
       |
       |<div>
@@ -52,7 +51,7 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
     run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
   
-  it should "ignore Markdown markup inside a block level HTML element" in {
+  test("ignore Markdown markup inside a block level HTML element") {
     val input = """aaa
       |
       |<div>
@@ -65,7 +64,7 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
     run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
 
-  it should "recognize a script tag inside a block level HTML element" in {
+  test("recognize a script tag inside a block level HTML element") {
     val input = """aaa
                   |
                   |<div>
@@ -81,7 +80,7 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
     run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
 
-  it should "recognize a script tag with attributes inside a block level HTML element" in {
+  test("recognize a script tag with attributes inside a block level HTML element") {
     val input = """aaa
                   |
                   |<div>
@@ -100,7 +99,7 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
     run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
   }
   
-  it should "ignore elements which are not listed as block-level elements" in {
+  test("ignore elements which are not listed as block-level elements") {
     val input = """aaa
       |
       |<span>
@@ -113,7 +112,7 @@ class HTMLBlockParserSpec extends MigrationFlatSpec
     run(input, p("aaa"), p(outer), p("bbb"))
   }
   
-  it should "ignore elements which are not at the very start of a block" in {
+  test("ignore elements which are not at the very start of a block") {
     val input = """aaa
       |
       |xx<div>

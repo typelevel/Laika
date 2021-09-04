@@ -17,48 +17,43 @@
 package laika.rst
 
 import laika.rst.BaseParsers.simpleRefName
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class BaseParsersSpec extends AnyWordSpec with Matchers {
+class BaseParsersSpec extends FunSuite {
 
-  "The reference name parser" should {
-
-    "parse a name consisting of characters" in {
-       simpleRefName.parse("name").toEither shouldBe Right("name")
-    }
-      
-    "parse a name consisting of characters and digits" in {
-      simpleRefName.parse("7name9").toEither shouldBe Right("7name9")
-    }
-
-    "parse a name consisting of characters and any of the supported symbols" in {
-      simpleRefName.parse("a-a_a.a:a+a").toEither shouldBe Right("a-a_a.a:a+a")
-    }
-
-    "fail if the name starts with a symbol" in {
-      simpleRefName.parse("-a_a.a:a+a").toEither.isLeft shouldBe true
-    }
-
-    "ignore a trailing symbol" in {
-      simpleRefName.parse("a-a_a.a:a+").toEither shouldBe Right("a-a_a.a:a")
-    }
-
-    "stop parsing at two consecutive symbols" in {
-      simpleRefName.parse("a-a.+a").toEither shouldBe Right("a-a")
-    }
-
-    "stop parsing at unsupported symbols" in {
-      simpleRefName.parse("a-a(a").toEither shouldBe Right("a-a")
-    }
-
-    "parse a name containing non-ASCII characters" in {
-      simpleRefName.parse("näme").toEither shouldBe Right("näme")
-    }
-
+  test("parse a name consisting of characters") {
+    assertEquals(simpleRefName.parse("name").toEither, Right("name"))
   }
-  
+    
+  test("parse a name consisting of characters and digits") {
+    assertEquals(simpleRefName.parse("7name9").toEither, Right("7name9"))
+  }
+
+  test("parse a name consisting of characters and any of the supported symbols") {
+    assertEquals(simpleRefName.parse("a-a_a.a:a+a").toEither, Right("a-a_a.a:a+a"))
+  }
+
+  test("fail if the name starts with a symbol") {
+    assertEquals(simpleRefName.parse("-a_a.a:a+a").toEither.isLeft, true)
+  }
+
+  test("ignore a trailing symbol") {
+    assertEquals(simpleRefName.parse("a-a_a.a:a+").toEither, Right("a-a_a.a:a"))
+  }
+
+  test("stop parsing at two consecutive symbols") {
+    assertEquals(simpleRefName.parse("a-a.+a").toEither, Right("a-a"))
+  }
+
+  test("stop parsing at unsupported symbols") {
+    assertEquals(simpleRefName.parse("a-a(a").toEither, Right("a-a"))
+  }
+
+  test("parse a name containing non-ASCII characters") {
+    assertEquals(simpleRefName.parse("näme").toEither, Right("näme"))
+  }
+
 }

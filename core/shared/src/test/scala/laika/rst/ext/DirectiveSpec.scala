@@ -19,15 +19,15 @@ package laika.rst.ext
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.parse.combinator.Parsers
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.{Parser, SourceFragment}
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.TextRoles.TextRole
-import org.scalatest.Assertion
-   
-class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts with TestSourceBuilders {
+import munit.FunSuite
+
+
+class DirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
   val stringContent: DirectivePartBuilder[String] = content(src => Right(src.input))
 
@@ -101,126 +101,126 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
   def toLowerCase [T] (tuple: (String, T)): (String, T) = (tuple._1.toLowerCase, tuple._2)
 
 
-  def run (input: String, blocks: Block*): Assertion =
+  def run (input: String, blocks: Block*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
 
-  "The directive parser" should "parse a directive with one required argument" in {
+  test("directive with one required argument") {
     val input = """.. oneArg:: arg"""
     run(input, p("arg"))
   }
   
-  it should "detect a directive with a required argument missing as invalid" in {
+  test("failure - directive with a required argument missing as invalid") {
     val error = "missing required argument"
     val input = """.. oneArg::"""
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with a required argument being invalid" in {
+  test("failure - directive with a required argument being invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneIntArg:: foo"""
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with a converted required argument" in {
+  test("directive with a converted required argument") {
     val input = """.. oneIntArg:: 7"""
     run(input, p("*" * 7))
   }
   
-  it should "parse a directive with two required arguments" in {
+  test("directive with two required arguments") {
     val input = """.. twoArgs:: arg arg"""
     run(input, p("argarg"))
   }
   
-  it should "detect a directive with one out of two required arguments missing as invalid" in {
+  test("failure - directive with one out of two required arguments missing as invalid") {
     val error = "missing required argument"
     val input = """.. twoArgs:: arg"""
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one optional argument" in {
+  test("directive with one optional argument") {
     val input = """.. oneOptArg:: arg"""
     run(input, p("arg"))
   }
   
-  it should "parse a directive with one optional argument missing" in {
+  test("directive with one optional argument missing") {
     val input = """.. oneOptArg::"""
     run(input, p("missing"))
   }
   
-  it should "parse a directive with a converted optional argument" in {
+  test("directive with a converted optional argument") {
     val input = """.. oneOptIntArg:: 7"""
     run(input, p("*" * 7))
   }
   
-  it should "detect a directive with an optional argument being invalid" in {
+  test("failure - directive with an optional argument being invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneOptIntArg:: foo"""
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one required and one optional argument" in {
+  test("directive with one required and one optional argument") {
     val input = """.. reqAndOptArg:: arg arg"""
     run(input, p("argarg"))
   }
   
-  it should "parse a directive with one required and one missing optional argument" in {
+  test("directive with one required and one missing optional argument") {
     val input = """.. reqAndOptArg:: arg"""
     run(input, p("argmissing"))
   }
   
-  it should "parse a directive with one regular argument and one argument with whitespace" in {
+  test("directive with one regular argument and one argument with whitespace") {
     val input = """.. argWithWS:: arg Line1 !
       | Line2""".stripMargin
     run(input, p("argLine1 !\nLine2"))
   }
   
-  it should "detect a directive with a required argument with whitespace missing as invalid" in {
+  test("failure - directive with a required argument with whitespace missing as invalid") {
     val error = "missing required argument"
     val input = """.. argWithWS:: arg"""
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one required field" in {
+  test("directive with one required field") {
     val input = """.. oneFd::
       | :name: arg""".stripMargin
     run(input, p("arg"))
   }
   
-  it should "detect a directive with a required field missing as invalid" in {
+  test("failure - directive with a required field missing as invalid") {
     val error = """missing required options: name"""
     val input = """.. oneFd::"""
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with a required field being invalid" in {
+  test("failure - directive with a required field being invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneIntFd::
       | :name: foo""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with a converted required field" in {
+  test("directive with a converted required field") {
     val input = """.. oneIntFd::
       | :name: 7""".stripMargin
     run(input, p("*" * 7))
   }
   
-  it should "parse a directive with two required fields" in {
+  test("directive with two required fields") {
     val input = """.. twoFd::
       | :name1: value1
       | :name2: value2""".stripMargin
     run(input, p("value1value2"))
   }
   
-  it should "detect a directive with one out of two required fields missing as invalid" in {
+  test("failure - directive with one out of two required fields missing as invalid") {
     val error = """missing required options: name2"""
     val input = """.. twoFd::
       | :name1: value1""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with an unknown field name as invalid" in {
+  test("failure - directive with an unknown field name as invalid") {
     val error = "unknown options: name3"
     val input = """.. twoFd::
       | :name1: value1
@@ -229,96 +229,96 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one optional field" in {
+  test("directive with one optional field") {
     val input = """.. oneOptFd::
       | :name: arg""".stripMargin
     run(input, p("arg"))
   }
   
-  it should "parse a directive with one optional field with a value spanning two lines" in {
+  test("directive with one optional field with a value spanning two lines") {
     val input = """.. oneOptFd::
       | :name: arg
       |  arg""".stripMargin
     run(input, p("arg\narg"))
   }
   
-  it should "parse a directive with one optional field missing" in {
+  test("directive with one optional field missing") {
     val input = """.. oneOptFd::"""
     run(input, p("missing"))
   }
   
-  it should "parse a directive with a converted optional field" in {
+  test("directive with a converted optional field") {
     val input = """.. oneOptIntFd:: 
       | :name: 7""".stripMargin
     run(input, p("*" * 7))
   }
   
-  it should "detect a directive with an optional field being invalid" in {
+  test("failure - directive with an optional field being invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneOptIntFd::
       | :name: foo""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one required and one optional field" in {
+  test("directive with one required and one optional field") {
     val input = """.. reqAndOptFd::
       | :name1: value1
       | :name2: value2""".stripMargin
     run(input, p("value1value2"))
   }
   
-  it should "parse a directive with one required and one missing optional field" in {
+  test("directive with one required and one missing optional field") {
     val input = """.. reqAndOptFd::
       | :name1: value1""".stripMargin
     run(input, p("value1missing"))
   }
   
-  it should "parse a directive with one converted argument and one converted field" in {
+  test("directive with one converted argument and one converted field") {
     val input = """.. argAndFd:: 3
       | :name: 5""".stripMargin
     run(input, p("***#####"))
   }
   
-  it should "detect a directive with one converted argument and one required field missing as invalid" in {
+  test("failure - directive with one converted argument and one required field missing as invalid") {
     val error = """missing required options: name"""
     val input = """.. argAndFd:: 3"""
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with one converted field and one required argument missing as invalid" in {
+  test("failure - directive with one converted field and one required argument missing as invalid") {
     val error = "missing required argument"
     val input = """.. argAndFd::
       | :name: 5""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with one converted argument and one field invalid" in {
+  test("failure - directive with one converted argument and one field invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. argAndFd:: 3
       | :name: foo""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with one converted field and one argument invalid" in {
+  test("failure - directive with one converted field and one argument invalid") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. argAndFd:: foo
       | :name: 5""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with one optional argument and one missing optional field" in {
+  test("directive with one optional argument and one missing optional field") {
     val input = """.. optArgAndFd:: arg""".stripMargin
     run(input, p("argmissing"))
   }
   
-  it should "parse a directive with one optional argument, one missing optional field and standard body" in {
+  test("directive with one optional argument, one missing optional field and standard body") {
     val input = """.. optArgFdBody:: arg
       |
       | Some Text""".stripMargin
     run(input, p("argmissingSome Text"))
   }
   
-  it should "parse a directive with one optional field and standard body" in {
+  test("directive with one optional field and standard body") {
     val input = """.. optFdBody::
       | :name: foo
       |
@@ -326,46 +326,46 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p("fooSome Text"))
   }
   
-  it should "parse a directive with one missing optional field and standard body after a blank line" in {
+  test("directive with one missing optional field and standard body after a blank line") {
     val input = """.. optFdBody::
       |
       | Some Text""".stripMargin
     run(input, p("missingSome Text"))
   }
   
-  it should "parse a directive with one missing optional field and standard body on the same line" in {
+  test("directive with one missing optional field and standard body on the same line") {
     val input = """.. optFdBody:: Some Text
       | Some More""".stripMargin
     run(input, p("missingSome Text\nSome More"))
   }
   
-  it should "parse a directive with standard block content" in {
+  test("directive with standard block content") {
     val input = """.. stdBody:: Line 1
       | 
       | Line 2""".stripMargin
     run(input, BlockSequence(p("Line 1"),p("Line 2")))
   }
   
-  it should "parse a directive with empty block content" in {
+  test("directive with empty block content") {
     val input = """.. stdBody::"""
     run(input, BlockSequence.empty)
   }
   
-  it should "parse a directive with custom content" in {
+  test("directive with custom content") {
     val input = """.. customBody:: Line 1
       | 
       | Line 2""".stripMargin
     run(input, p("Line 1\n\nLine 2"))
   }
   
-  it should "detect a directive with invalid custom content" in {
+  test("failure - directive with invalid custom content") {
     val input = """.. customBody:: 1
       | 
       | 2""".stripMargin
     run(input, invalid(input, "body too short"))
   }
   
-  it should "parse a directive with an argument and standard block content" in {
+  test("directive with an argument and standard block content") {
     val input = """.. argAndBlocks:: arg
       |
       | Line 1
@@ -374,12 +374,12 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, BlockSequence(p("arg!"),p("Line 1"),p("Line 2")))
   }
   
-  it should "parse a directive with an argument and empty block content" in {
+  test("directive with an argument and empty block content") {
     val input = """.. argAndBlocks:: arg"""
     run(input, BlockSequence(p("arg!")))
   }
   
-  it should "parse a directive with an argument and standard span content" in {
+  test("directive with an argument and standard span content") {
     val input = """.. argAndSpans:: arg
       |
       | Line 1
@@ -387,12 +387,12 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p(Text("arg"),Text("Line 1\nLine 2")))
   }
   
-  it should "parse a directive with an argument and empty span content" in {
+  test("directive with an argument and empty span content") {
     val input = """.. argAndSpans:: arg"""
     run(input, p(Text("arg")))
   }
   
-  it should "parse a directive with a field and standard block content" in {
+  test("directive with a field and standard block content") {
     val input = """.. fdAndBody::
       | :name: value
       |
@@ -402,13 +402,13 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, BlockSequence(p("value!"),p("Line 1"),p("Line 2")))
   }
   
-  it should "parse a directive with a field and empty block content" in {
+  test("directive with a field and empty block content") {
     val input = """.. fdAndBody::
       | :name: value""".stripMargin
     run(input, BlockSequence(p("value!")))
   }
   
-  it should "detect a directive with standard block content and a missing required field as invalid" in {
+  test("failure - directive with standard block content and a missing required field as invalid") {
     val error = "missing required options: name"
     val input = """.. fdAndBody:: Line 1
       | 
@@ -416,7 +416,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with an argument, a field and standard block content" in {
+  test("directive with an argument, a field and standard block content") {
     val input = """.. all:: arg
       | :name: value
       |
@@ -426,7 +426,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, BlockSequence(p("arg:value"),p("Line 1"),p("Line 2")))
   }
   
-  it should "detect a directive with a field and standard block content, but a missing required argument as invalid" in {
+  test("failure - directive with a field and standard block content, but a missing required argument as invalid") {
     val error = "missing required argument"
     val input = """.. all::
       | :name: value
@@ -437,7 +437,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with an argument and standard block content, but a missing required field as invalid" in {
+  test("failure - directive with an argument and standard block content, but a missing required field as invalid") {
     val error = "missing required options: name"
     val input = """.. all:: arg
       |
@@ -447,13 +447,13 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "parse a directive with an argument, a field and empty block content" in {
+  test("directive with an argument, a field and empty block content") {
     val input = """.. all:: arg
       | :name: value""".stripMargin
     run(input, BlockSequence(p("arg:value")))
   }
   
-  it should "parse a directive with a converted argument, field and body" in {
+  test("directive with a converted argument, field and body") {
     val input = """.. allOpt:: 2
       | :name: 3
       |
@@ -463,7 +463,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p("14"))
   }
   
-  it should "parse a directive with a converted field and body and a missing optional argument" in {
+  test("directive with a converted field and body and a missing optional argument") {
     val input = """.. allOpt::
       | :name: 3
       |
@@ -473,7 +473,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p("12"))
   }
   
-  it should "parse a directive with a converted argument and body and a missing optional field" in {
+  test("directive with a converted argument and body and a missing optional field") {
     val input = """.. allOpt:: 2
       |
       | 4
@@ -482,7 +482,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p("11"))
   }
   
-  it should "parse a directive with a converted body and missing optional argument and field" in {
+  test("directive with a converted body and missing optional argument and field") {
     val input = """.. allOpt::
       |
       | 4
@@ -491,7 +491,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, p("9"))
   }
   
-  it should "detect a directive with a converted field and body and an invalid argument" in {
+  test("failure - directive with a converted field and body and an invalid argument") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. allOpt:: foo
       | :name: 3
@@ -502,7 +502,7 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with a converted argument and body and an invalid field" in {
+  test("failure - directive with a converted argument and body and an invalid field") {
     val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. allOpt:: 2
       | :name: foo
@@ -513,14 +513,14 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with a converted field and argument and an invalid body" in {
+  test("failure - directive with a converted field and argument and an invalid body") {
     val error = "no integers provided"
     val input = """.. allOpt:: 2
       | :name: 3""".stripMargin
     run(input, invalid(input,error))
   }
   
-  it should "detect a directive with an unknown name as invalid" in {
+  test("failure - directive with an unknown name as invalid") {
     val error = "unknown directive: foo"
     val input = """.. foo::
       | :name: 3""".stripMargin
@@ -528,12 +528,12 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
   }
   
   
-  "The substitution definition parser" should "parse a simple definition" in {
+  test("substitution definition") {
     val input = ".. |def| spans:: text"
     run(input, SubstitutionDefinition("def", Text("text")))
   }
   
-  it should "detect a definition with an invalid directive" in {
+  test("substitution definition with an invalid directive") {
     val error = "missing required argument"
     val input = ".. |def| spans::"
     run(input, invalid(input,error))
@@ -546,13 +546,13 @@ class DirectiveSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts w
     }
   }
   
-  "The role directive parser" should "parse a simple definition" in {
+  test("role directive") {
     val input = """.. role::custom(role)
     	| :name: 9""".stripMargin
     assertEquals(Parsers.consumeAll(docWithTextRoles).parse(input).toEither, Right(RootElement(p("custom(9)"))))
   }
   
-  it should "detect a definition with a missing required field as invalid" in {
+  test("role directive with a missing required field as invalid") {
     val error = "missing required options: name"
     val input = """.. role::custom(role)"""
     run(input, invalid(input, error))

@@ -19,22 +19,19 @@ package laika.markdown
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.ast.{RootElement, Text}
+import laika.ast.{Block, RootElement, Text}
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class APISpec extends AnyFlatSpec 
-                 with Matchers
-                 with ParagraphCompanionShortcuts {
+class APISpec extends FunSuite with ParagraphCompanionShortcuts {
   
   
-  trait BlockDirectives {
+  object BlockDirectives {
     import laika.directive.Blocks
     import Blocks.dsl._
 
-    object TestDirectives extends DirectiveRegistry {
+    object Registry extends DirectiveRegistry {
 
       val blockDirectives: List[Blocks.Directive] = List(
         Blocks.create("oneArg")(attribute(0).as[String] map p),
@@ -53,13 +50,22 @@ class APISpec extends AnyFlatSpec
       val linkDirectives = Seq()
     }
 
+    private lazy val parser = MarkupParser.of(Markdown).using(Registry).build
+    private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
+
+    def runWith (input: String, parser: MarkupParser, expected: RootElement): Unit = {
+      val res = parser.parse(input).map(_.content)
+      assertEquals(res, Right(expected))
+    }
+    def run (input: String, expected: Block*): Unit = runWith(input, parser, RootElement(expected))
+    def runStrict (input: String, expected: Block*): Unit = runWith(input, strictParser, RootElement(expected))
   }
-  
-  trait SpanDirectives {
+
+  object SpanDirectives {
     import laika.directive.Spans
     import Spans.dsl._
 
-    object TestDirectives extends DirectiveRegistry {
+    object Registry extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
         Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
@@ -74,50 +80,50 @@ class APISpec extends AnyFlatSpec
       val templateDirectives = Seq()
       val linkDirectives = Seq()
     }
+    private lazy val parser = MarkupParser.of(Markdown).using(Registry).build
+    private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
+
+    def runWith (input: String, parser: MarkupParser, expected: RootElement): Unit = {
+      val res = parser.parse(input).map(_.content)
+      assertEquals(res, Right(expected))
+    }
+    def run (input: String, expected: Block*): Unit = runWith(input, parser, RootElement(expected))
+    def runStrict (input: String, expected: Block*): Unit = runWith(input, strictParser, RootElement(expected))
   }
   
-  "The API" should "support the registration of block directives" in {
-    new BlockDirectives {
-      val input = """@:oneArg(arg)
-        |
-        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("arg1arg2")))
-    }
+  
+  test("registration of block directives") {
+    val input = """@:oneArg(arg)
+      |
+      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    BlockDirectives.run(input, p("arg"), p("arg1arg2"))
   }
 
-  it should "ignore the registration of block directives when run in strict mode" in {
-    new BlockDirectives {
-      val input = """@:oneArg(arg)
-        |
-        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
-    }
+  test("ignore the registration of block directives when run in strict mode") {
+    val input = """@:oneArg(arg)
+      |
+      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    BlockDirectives.runStrict(input, p("@:oneArg(arg)"), p("@:twoArgs(arg1) { name=arg2 }"))
   }
   
-  it should "support the registration of block directives with inherited attributes" in {
-    new BlockDirectives {
-      val input = """{% name = fromHeader %}
-        |  
-        |@:oneArg(arg)
-        |
-        |@:inheritedArg""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("fromHeader")))
-    }
+  test("registration of block directives with inherited attributes") {
+    val input = """{% name = fromHeader %}
+      |  
+      |@:oneArg(arg)
+      |
+      |@:inheritedArg""".stripMargin
+    BlockDirectives.run(input, p("arg"), p("fromHeader"))
   }
   
-  it should "support the registration of span directives" in {
-    new SpanDirectives {
-      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three""".stripMargin
-      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("one arg two arg1arg2 three")))
-    }
+  test("registration of span directives") {
+    val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three""".stripMargin
+    SpanDirectives.run(input, p("one arg two arg1arg2 three"))
   }
 
-  it should "ignore the registration of span directives when run in strict mode" in {
-    new SpanDirectives {
-      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
-    }
+  test("ignore the registration of span directives when run in strict mode") {
+    val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
+    SpanDirectives.runStrict(input, p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"))
   }
-  
+
 
 }

@@ -21,12 +21,10 @@ import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{Element, QuotedBlock, Text}
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
  
 
-class VerbatimHTMLRendererSpec extends AnyFlatSpec 
-                               with Matchers
+class VerbatimHTMLRendererSpec extends FunSuite 
                                with ParagraphCompanionShortcuts 
                                with HTMLModelBuilder {
 
@@ -34,82 +32,83 @@ class VerbatimHTMLRendererSpec extends AnyFlatSpec
     val parser = MarkupParser.of(Markdown).withRawContent
     Renderer.of(HTML).withConfig(parser.config).build
   }
-    
-  def render (elem: Element): String = renderer.render(elem)
    
+  def run (elem: Element, expected: String): Unit =
+    assertEquals(renderer.render(elem), expected)
   
-  "The Verbatim HTML renderer" should "render an HTML character reference unescaped" in {
+  
+  test("render an HTML character reference unescaped") {
     val elem = p(Text("some "), charRef("&amp;"), Text(" & text"))
-    render (elem) should be ("<p>some &amp; &amp; text</p>") 
+    run(elem, "<p>some &amp; &amp; text</p>") 
   }
   
-  it should "render an HTML comment with content unescaped" in {
+  test("render an HTML comment with content unescaped") {
     val elem = p(Text("some "), comment(" yes < no "), Text(" & text"))
-    render (elem) should be ("<p>some <!-- yes < no --> &amp; text</p>") 
+    run(elem, "<p>some <!-- yes < no --> &amp; text</p>") 
   }
 
-  it should "render a script element with content unescaped" in {
+  test("render a script element with content unescaped") {
     val elem = p(Text("some "), HTMLScriptElement(Nil, " var x = 'foo'; "), Text(" & text"))
-    render (elem) should be ("<p>some <script> var x = 'foo'; </script> &amp; text</p>")
+    run(elem, "<p>some <script> var x = 'foo'; </script> &amp; text</p>")
   }
 
-  it should "render a script element with attributes with content unescaped" in {
+  test("render a script element with attributes with content unescaped") {
     val script = HTMLScriptElement(List(
       HTMLAttribute("type", List(Text("text/javascript")),Some('"')),
       HTMLAttribute("defer", List(),None)
     ), " var x = 'foo'; ")
     val elem = p(Text("some "), script, Text(" & text"))
-    render (elem) should be ("<p>some <script type=\"text/javascript\" defer> var x = 'foo'; </script> &amp; text</p>")
+    run(elem, "<p>some <script type=\"text/javascript\" defer> var x = 'foo'; </script> &amp; text</p>")
   }
   
-  it should "render an HTML end tag unescaped" in {
+  test("render an HTML end tag unescaped") {
     val elem = p(Text("some "), endTag("orphan"), Text(" & text"))
-    render (elem) should be ("<p>some </orphan> &amp; text</p>") 
+    run(elem, "<p>some </orphan> &amp; text</p>") 
   }
   
-  it should "render an HTML start tag without attributes unescaped" in {
+  test("render an HTML start tag without attributes unescaped") {
     val elem = p(Text("some "), startTag("hr"), Text(" & text"))
-    render (elem) should be ("<p>some <hr> &amp; text</p>") 
+    run(elem, "<p>some <hr> &amp; text</p>") 
   }
   
-  it should "render an HTML start tag with one attribute unescaped" in {
+  test("render an HTML start tag with one attribute unescaped") {
     val elem = p(Text("some "), startTag("hr", ("foo",Text("bar"))), Text(" & text"))
-    render (elem) should be ("""<p>some <hr foo="bar"> &amp; text</p>""") 
+    run(elem, """<p>some <hr foo="bar"> &amp; text</p>""") 
   }
   
-  it should "render an HTML start tag with two attributes unescaped" in {
+  test("render an HTML start tag with two attributes unescaped") {
     val elem = p(Text("some "), startTag("hr", ("foo",Text("bar")), ("bar",Text("foo"))), Text(" & text"))
-    render (elem) should be ("""<p>some <hr foo="bar" bar="foo"> &amp; text</p>""") 
+    run(elem, """<p>some <hr foo="bar" bar="foo"> &amp; text</p>""") 
   }
   
-  it should "render an empty HTML tag without attributes unescaped" in {
+  test("render an empty HTML tag without attributes unescaped") {
     val elem = p(Text("some "), emptyTag("br"), Text(" & text"))
-    render (elem) should be ("<p>some <br/> &amp; text</p>") 
+    run(elem, "<p>some <br/> &amp; text</p>") 
   }
   
-  it should "render an empty HTML tag with one attribute unescaped" in {
+  test("render an empty HTML tag with one attribute unescaped") {
     val elem = p(Text("some "), emptyTag("br", ("foo",Text("bar"))), Text(" & text"))
-    render (elem) should be ("""<p>some <br foo="bar"/> &amp; text</p>""") 
+    run(elem, """<p>some <br foo="bar"/> &amp; text</p>""") 
   }
   
-  it should "render an HTML element without attributes unescaped" in {
+  test("render an HTML element without attributes unescaped") {
     val elem = p(Text("some "), element(startTag("span"), Text("inner")), Text(" & text"))
-    render (elem) should be ("<p>some <span>inner</span> &amp; text</p>") 
+    run(elem, "<p>some <span>inner</span> &amp; text</p>") 
   }
   
-  it should "render an HTML element with one attribute unescaped" in {
+  test("render an HTML element with one attribute unescaped") {
     val elem = p(Text("some "), element(startTag("span", ("foo",Text("bar"))), Text("inner")), Text(" & text"))
-    render (elem) should be ("""<p>some <span foo="bar">inner</span> &amp; text</p>""") 
+    run(elem, """<p>some <span foo="bar">inner</span> &amp; text</p>""") 
   }
   
-  it should "render two nested HTML elements unescaped" in {
+  test("render two nested HTML elements unescaped") {
     val inner = element(startTag("span"), Text("inner"))
     val outer = element(startTag("span"), Text("aaa "), inner, Text(" bbb"))
     val elem = p(Text("some "), outer, Text(" & text"))
-    render (elem) should be ("<p>some <span>aaa <span>inner</span> bbb</span> &amp; text</p>") 
+    run(elem, "<p>some <span>aaa <span>inner</span> bbb</span> &amp; text</p>") 
   }
   
-  it should "render a <pre> element without indentation" in {
+  test("render a <pre> element without indentation") {
     val elem = QuotedBlock(p("1st paragraph"),p(Text("some "), element(startTag("pre"), Text("Line1\nLine2")), Text(" text")), p("3rd paragraph"))
     val html = """<blockquote>
       |  <p>1st paragraph</p>
@@ -117,32 +116,32 @@ class VerbatimHTMLRendererSpec extends AnyFlatSpec
       |Line2</pre> text</p>
       |  <p>3rd paragraph</p>
       |</blockquote>""".stripMargin
-    render (elem) should be (html) 
+    run(elem, html) 
   }
   
-  it should "render an HTML attribute with the value in single quotes" in {
+  test("render an HTML attribute with the value in single quotes") {
     val attr = HTMLAttribute("foo", List(Text("bar")), Some('\''))
     val tag = HTMLStartTag("x", List(attr))
-    render (tag) should be ("<x foo='bar'>") 
+    run(tag, "<x foo='bar'>") 
   } 
   
-  it should "render an HTML attribute with an unquoted value" in {
+  test("render an HTML attribute with an unquoted value") {
     val attr = HTMLAttribute("foo", List(Text("bar")), None)
     val tag = HTMLStartTag("x", List(attr))
-    render (tag) should be ("<x foo=bar>") 
+    run(tag, "<x foo=bar>") 
   } 
   
-  it should "render an HTML attribute without value" in {
+  test("render an HTML attribute without value") {
     val attr = HTMLAttribute("foo", Nil, None)
     val tag = HTMLStartTag("x", List(attr))
-    render (tag) should be ("<x foo>") 
+    run(tag, "<x foo>") 
   } 
   
-  it should "render an HTML block unescaped" in {
+  test("render an HTML block unescaped") {
     val inner = element(startTag("span"), Text("inner"))
     val outer = element(startTag("span"), Text("aaa "), inner, Text(" bbb"))
     val elem = HTMLBlock(outer)
-    render (elem) should be ("<span>aaa <span>inner</span> bbb</span>") 
+    run(elem, "<span>aaa <span>inner</span> bbb</span>") 
   }
   
   

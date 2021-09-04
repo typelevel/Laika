@@ -21,11 +21,10 @@ import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.bundle.ParserBundle
 import laika.format.ReStructuredText
 import laika.parse.Parser
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.RootParser
-import org.scalatest.Assertion
+import munit.FunSuite
      
-class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts {
+class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
 
   val rootParser = new RootParser(ReStructuredText, ParserBundle().markupExtensions)
@@ -35,11 +34,11 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   def cell (content: String, colspan: Int, rowspan: Int): Cell = 
     Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
 
-  def run (input: String, blocks: Block*): Assertion =
+  def run (input: String, blocks: Block*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
   
-  "The grid table parser" should "parse a small table with 2 rows and 2 cells" in {
+  test("grid table - 2 rows and 2 cells") {
     val input = """+---+---+
       || a | b |
       |+---+---+
@@ -48,7 +47,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(textRow("a","b"), textRow("c","d")))
   }
   
-  it should "parse a table with horizontally merged cells in the first row" in {
+  test("grid table - horizontally merged cells in the first row") {
     val input = """+---+---+
       ||  a b  |
       |+---+---+
@@ -57,7 +56,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(Row(cell("a b", 2, 1)), textRow("c","d")))
   }
   
-  it should "parse a table with horizontally merged cells in the second row" in {
+  test("grid table - horizontally merged cells in the second row") {
     val input = """+---+---+
       || a | b |
       |+---+---+
@@ -66,7 +65,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(textRow("a","b"), Row(cell("c d", 2, 1))))
   }
   
-  it should "parse a table with vertically merged cells in the left column" in {
+  test("grid table - vertically merged cells in the left column") {
     val input = """+---+---+
       || a | d |
       |+ b +---+
@@ -75,7 +74,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(Row(cell("a\nb\nc", 1, 2), BodyCell("d")), textRow("e")))
   }
   
-  it should "parse a table with vertically merged cells in the right column" in {
+  test("grid table - vertically merged cells in the right column") {
     val input = """+---+---+
       || a | b |
       |+---+ c +
@@ -84,7 +83,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(Row(BodyCell("a"), cell("b\nc\nd", 1, 2)), textRow("e")))
   }
   
-  it should "parse a table with vertically and horizontally merged cells" in {
+  test("grid table - vertically and horizontally merged cells") {
     val input = """+---+---+---+
       || a | b | c |
       |+---+---+---+
@@ -99,7 +98,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     ))
   }
   
-  it should "parse tables with empty cells" in {
+  test("grid table - empty cells") {
     val input = """+---+---+
       ||   |   |
       |+---+---+
@@ -111,7 +110,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     ))
   }
   
-  it should "fail in case of illegal merging of cells (variant 1)" in {
+  test("grid table - fail in case of illegal merging of cells (variant 1)") {
     val input = """+---+---+
       || a | b |
       |+   +---+
@@ -120,7 +119,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p(input))
   }
   
-  it should "fail in case of illegal merging of cells (variant 2)" in {
+  test("grid table - fail in case of illegal merging of cells (variant 2)") {
     val input = """+---+---+
       || a | b |
       |+---+   +
@@ -129,7 +128,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p(input))
   }
   
-  it should "fail in case of illegal merging of cells (variant 3)" in {
+  test("grid table - fail in case of illegal merging of cells (variant 3)") {
     val input = """+---+---+
       ||  a b  |
       |+   +---+
@@ -138,7 +137,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p(input))
   }
   
-  it should "fail in case of illegal merging of cells (variant 4)" in {
+  test("grid table - fail in case of illegal merging of cells (variant 4)") {
     val input = """+---+---+
       ||  a b  |
       |+---+   +
@@ -147,7 +146,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p(input))
   }
   
-  it should "parse cells containing multiple block elements" in {
+  test("grid table - parse cells containing multiple block elements") {
     val input = """+---+---------+
       || a | Text    |
       ||   |         |
@@ -164,7 +163,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     ))
   }
   
-  it should "parse tables with header cells" in {
+  test("grid table - parse tables with header cells") {
     val input = """+---+---+
       || a | b |
       |+===+===+
@@ -178,7 +177,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The simple table parser" should "parse a small table with 2 rows and 2 cells" in {
+  test("simple table - 2 rows and 2 cells") {
     val input = """===  ===
       | a    b
       | c    d
@@ -186,7 +185,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(textRow("a","b"), textRow("c","d")))
   }
   
-  it should "parse a table with horizontally merged cells in the first row" in {
+  test("simple table - horizontally merged cells in the first row") {
     val input = """===  ===
       | a    b
       |--------
@@ -195,7 +194,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(Row(cell("a    b", 2, 1)), textRow("c","d")))
   }
   
-  it should "parse a table with horizontally merged cells in the second row" in {
+  test("simple table - horizontally merged cells in the second row") {
     val input = """===  ===
       | a    b
       | c    d
@@ -203,7 +202,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, Table(textRow("a","b"), Row(cell("c    d", 2, 1))))
   }
   
-  it should "parse tables with empty cells" in {
+  test("simple table - empty cells") {
     val input = """===  ===
       | a     
       | c     
@@ -214,7 +213,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     ))
   }
   
-  it should "parse cells containing multiple block elements" in {
+  test("simple table - cells containing multiple block elements") {
     val input = """===  ===
       | a    Text
       |
@@ -231,7 +230,7 @@ class TableParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     ))
   }
   
-  it should "parse tables with header cells" in {
+  test("simple table - header cells") {
     val input = """===  ===
       | a    b
       |===  ===

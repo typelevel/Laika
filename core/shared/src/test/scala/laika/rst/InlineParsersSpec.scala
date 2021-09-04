@@ -19,13 +19,11 @@ package laika.rst
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.parse.Parser
-import laika.parse.helper.MigrationFlatSpec
 import laika.rst.ast.{InterpretedText, RstStyle, SubstitutionReference}
 import laika.rst.ext.{ExtensionProvider, RootParserProvider}
-import org.scalatest.Assertion
+import munit.FunSuite
      
-class InlineParsersSpec extends MigrationFlatSpec
-  with TestSourceBuilders {
+class InlineParsersSpec extends FunSuite with TestSourceBuilders {
 
 
   val defaultTextRole = "foo"
@@ -34,163 +32,163 @@ class InlineParsersSpec extends MigrationFlatSpec
     RootParserProvider.forBundle(ExtensionProvider.forDefaultTextRole(defaultTextRole)).standaloneSpanParser
 
 
-  trait RefBuilder {
-    
-    def input: String
-    
-    def subst (name: String) = SubstitutionReference(name, source(s"|$name|", input))
+  def subst (name: String, input: String): SubstitutionReference = 
+    SubstitutionReference(name, source(s"|$name|", input))
+
+  def pLinkRef (id: String, text: String, input: String): LinkIdReference = 
+    LinkIdReference(Seq(Text(text)), id, source(s"`$text`_", input))
+
+  def pLinkRef (id: String, input: String): LinkIdReference = pLinkRef(id, id, input)
   
-    def pLinkRef (id: String, text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), id, source(s"`$text`_", input))
+  def anonPLinkRef (text: String, input: String): LinkIdReference = 
+    LinkIdReference(Seq(Text(text)), "", source(s"`$text`__", input))
   
-    def pLinkRef (id: String): LinkIdReference = pLinkRef(id,id)
-    
-    def anonPLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", source(s"`$text`__", input))
-    
-    def linkRef (id: String): LinkIdReference = LinkIdReference(Seq(Text(id)), id, source(id+"_", input))
-    
-    def anonLinkRef (text: String): LinkIdReference = LinkIdReference(Seq(Text(text)), "", source(text+"__", input))
-  }
+  def linkRef (id: String, input: String): LinkIdReference = 
+    LinkIdReference(Seq(Text(id)), id, source(id+"_", input))
+  
+  def anonLinkRef (text: String, input: String): LinkIdReference = 
+    LinkIdReference(Seq(Text(text)), "", source(text+"__", input))
 
 
-  def run (input: String, spans: Span*): Assertion =
+  def run (input: String, spans: Span*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(spans.toList))
 
-  def runEnclosed (input: String, middleSpan: Span): Assertion =
+  def runEnclosed (input: String, middleSpan: Span): Unit =
     run(input, Text("some "), middleSpan, Text(" here"))
   
   
-  "The text parser" should "parse content without any markup as plain text" in {
+  test("inline text - parse content without any markup as plain text") {
     run("some text", Text("some text"))
   }
   
   
-  "The markup recognition rules" should "recognize markup surrounded by whitespace" in new RefBuilder {
+  test("markup recognition rules - recognize markup surrounded by whitespace") {
     val input = "some |replaced| text"
-    run(input, Text("some "), subst("replaced"), Text(" text"))
+    run(input, Text("some "), subst("replaced", input), Text(" text"))
   }
 
-  it should "recognize markup surrounded by punctuation" in new RefBuilder {
+  test("markup recognition rules - recognize markup surrounded by punctuation") {
     val input = "some (|replaced|) text"
-    run(input, Text("some ("), subst("replaced"), Text(") text"))
+    run(input, Text("some ("), subst("replaced", input), Text(") text"))
   }
   
-  it should "recognize markup at the start of the input" in new RefBuilder {
+  test("markup recognition rules - recognize markup at the start of the input") {
     val input = "|replaced| text"
-    run(input, subst("replaced"), Text(" text"))
+    run(input, subst("replaced", input), Text(" text"))
   }
   
-  it should "recognize markup at the end of the input" in new RefBuilder {
+  test("markup recognition rules - recognize markup at the end of the input") {
     val input = "text |replaced|"
-    run(input, Text("text "), subst("replaced"))
+    run(input, Text("text "), subst("replaced", input))
   }
   
-  it should "recognize markup at the end and the end of the input" in new RefBuilder {
+  test("markup recognition rules - recognize markup at the end and the end of the input") {
     val input = "|replaced|"
-    run(input, subst("replaced"))
+    run(input, subst("replaced", input))
   }
   
-  it should "ignore markup surrounded by characters (rules 1 and 4)" in {
+  test("markup recognition rules - ignore markup surrounded by characters (rules 1 and 4)") {
     run("some|replaced|text", Text("some|replaced|text"))
   }
   
-  it should "ignore markup with a space after the start character (rule 2)" in {
+  test("markup recognition rules - ignore markup with a space after the start character (rule 2)") {
     run("some | replaced| text", Text("some | replaced| text"))
   }
   
-  it should "ignore markup with a space before the end character (rule 3)" in {
+  test("markup recognition rules - ignore markup with a space before the end character (rule 3)") {
     run("some |replaced | text", Text("some |replaced | text"))
   }
   
-  it should "ignore markup end characters immediately following the start character (rule 6)" in {
+  test("markup recognition rules - ignore markup end characters immediately following the start character (rule 6)") {
     run("some || text", Text("some || text"))
   }
   
-  it should "ignore markup characters between matching punctuation characters (rule 5)" in {
+  test("markup recognition rules - ignore markup characters between matching punctuation characters (rule 5)") {
     run("some (|)replaced| text", Text("some (|)replaced| text"))
   }
   
-  it should "recognize markup when preceding and following characters are escaped" in new RefBuilder {
+  test("markup recognition rules - recognize markup when preceding and following characters are escaped") {
     val input = """some\ |replaced|\ text"""
-    run(input, Text("some"), subst("replaced"), Text("text"))
+    run(input, Text("some"), subst("replaced", input), Text("text"))
   }
   
   
   
-  "The em parser" should "parse content enclosed in *" in {
+  test("em - content enclosed in *") {
     runEnclosed("some *text* here", Emphasized("text"))
   }
   
-  it should "ignore an * character when it is not matched by a second *" in {
+  test("em - ignore an * character when it is not matched by a second *") {
     run("some *text here", Text("some *text here"))
   }
   
-  it should "ignore markup for nested spans" in {
+  test("em - ignore markup for nested spans") {
     runEnclosed("some *nested ``code`` span* here", Emphasized("nested ``code`` span"))
   }
   
-  it should "ignore markup for emphasis when strong failed at the same position based on the markup recognition rules" in {
+  test("em - ignore markup for emphasis when strong failed at the same position based on the markup recognition rules") {
     run("a**b O(N**2)", Text("a**b O(N**2)"))
   }
     
   
   
-  "The strong parser" should "parse content enclosed in **" in {
+  test("strong - content enclosed in **") {
     runEnclosed("some **text** here", Strong("text"))
   }
   
-  it should "ignore a ** sequence when it is not matched by a second **" in {
+  test("strong - ignore a ** sequence when it is not matched by a second **") {
     run("some **text here", Text("some **text here"))
   }
   
   
   
-  "The inline literal parser" should "parse content enclosed in ``" in {
+  test("inline literal - content enclosed in ``") {
     runEnclosed("some ``text`` here", Literal("text"))
   }
   
-  it should "ignore a ` character when it is not matched by a second `" in {
+  test("inline literal - ignore a ` character when it is not matched by a second `") {
     run("some ``text here", Text("some ``text here"))
   }
   
-  it should "not treat a single ` as markup when the code span is enclosed in double ``" in {
+  test("inline literal - do not treat a single ` as markup when the code span is enclosed in double ``") {
     runEnclosed("some ``text`text`` here", Literal("text`text"))
   }
   
   
   
-  "The substitution reference" should "parse content enclosed in |" in new RefBuilder {
+  test("substitution reference - content enclosed in |") {
     val input = "some |replaced| here"
-    runEnclosed(input,  subst("replaced"))
+    runEnclosed(input,  subst("replaced", input))
   }
   
-  it should "ignore a | character when it is not matched by a second |" in {
+  test("substitution reference - ignore a | character when it is not matched by a second |") {
     run("some |text here", Text("some |text here"))
   }
   
   
   
-  "The internal link target parser" should "parse content enclosed in _` and `" in {
+  test("internal link target - content enclosed in _` and `") {
     runEnclosed("some _`Text` here",  Text("Text", Id("text") + RstStyle.target))
   }
   
   
   
-  "The interpreted text parser" should "parse content enclosed in ` with implicit default role" in new RefBuilder {
+  test("interpreted text - enclosed in ` with implicit default role") {
     val input = "some `text` here"
     runEnclosed(input, InterpretedText(defaultTextRole, "text", source("`text`", input)))
   }
   
-  it should "parse content enclosed in ` with role prefix" in new RefBuilder {
+  test("interpreted text - enclosed in ` with role prefix") {
     val input = "some :role:`text` here"
     runEnclosed(input, InterpretedText("role", "text", source(":role:`text`", input)))
   }
   
-  it should "parse content enclosed in ` with role suffix" in new RefBuilder {
+  test("interpreted text - enclosed in ` with role suffix") {
     val input = "some `text`:role: here"
     runEnclosed(input, InterpretedText("role", "text", source("`text`:role:", input)))
   }
   
-  it should "parse content enclosed in ` but ignore illegal role prefix" in new RefBuilder {
+  test("interpreted text - enclosed in ` but ignore illegal role prefix") {
     val input = "some :#*#:`text` here"
     run(input, 
       Text("some :#*#:"),
@@ -201,30 +199,29 @@ class InlineParsersSpec extends MigrationFlatSpec
   
   
   
-  "The citation reference parser" should "parse content enclosed between [ and ]_" in {
+  test("citation reference - enclosed between [ and ]_") {
     val input = "some [text]_ here"
     runEnclosed(input, CitationReference("text", source("[text]_", input)))
   }
   
   
-  
-  "The footnote reference parser" should "parse content enclosed between [ and ]_ with autonumber label" in {
+  test("footnote reference - enclosed between [ and ]_ with autonumber label") {
     val input = "some [#]_ here"
     runEnclosed(input, FootnoteReference(Autonumber, source(toSource(Autonumber), input)))
   }
   
-  it should "parse content enclosed between [ and ]_ with autosymbol label" in {
+  test("footnote reference - enclosed between [ and ]_ with autosymbol label") {
     val input = "some [*]_ here"
     runEnclosed(input, FootnoteReference(Autosymbol, source(toSource(Autosymbol), input)))
   }
   
-  it should "parse content enclosed between [ and ]_ with an autonumber named label" in {
+  test("footnote reference - enclosed between [ and ]_ with an autonumber named label") {
     val input = "some [#foo]_ here"
     val label = AutonumberLabel("foo")
     runEnclosed(input, FootnoteReference(label, source(toSource(label), input)))
   }
   
-  it should "parse content enclosed between [ and ]_ with a numeric label" in {
+  test("footnote reference - enclosed between [ and ]_ with a numeric label") {
     val input = "some [17]_ here"
     val label = NumericLabel(17)
     runEnclosed(input, FootnoteReference(label, source(toSource(label), input)))
@@ -233,18 +230,18 @@ class InlineParsersSpec extends MigrationFlatSpec
   
   private val relPath = RelativePath.parse("../foo/bar.rst#ref")
   
-  "The link reference parser" should "parse a phrase link without url" in new RefBuilder {
+  test("phrase link without url") {
     val input = "some `link`_ here"
-    runEnclosed(input, pLinkRef("link"))
+    runEnclosed(input, pLinkRef("link", input))
   }
   
-  it should "parse an external phrase link with text and url" in {
+  test("external phrase link with text and url") {
     val uri = "http://foo.com"
     val spanSeq = List(SpanLink.external(uri)("link"), LinkDefinition("link", ExternalTarget(uri)))
     runEnclosed(s"some `link<$uri>`_ here", SpanSequence(spanSeq))
   }
 
-  it should "parse an internal phrase link with text and url" in new RefBuilder {
+  test("internal phrase link with text and url") {
     val linkSrc = "`link<../foo/bar.rst#ref>`_"
     val input = s"some $linkSrc here"
     val spanSeq = List(
@@ -254,7 +251,7 @@ class InlineParsersSpec extends MigrationFlatSpec
     runEnclosed(input, SpanSequence(spanSeq))
   }
   
-  it should "parse a phrase link with only a url" in {
+  test("phrase link with only a url") {
     val uri = "http://foo.com"
     runEnclosed(s"some `<$uri>`_ here",
       SpanSequence(
@@ -264,7 +261,7 @@ class InlineParsersSpec extends MigrationFlatSpec
     )
   }
 
-  it should "parse an internal phrase link with only a url" in new RefBuilder {
+  test("internal phrase link with only a url") {
     val input = "some `<../foo/bar.rst#ref>`_ here"
     val linkSrc = "`<../foo/bar.rst#ref>`_"
     val spanSeq = List(
@@ -274,7 +271,7 @@ class InlineParsersSpec extends MigrationFlatSpec
     runEnclosed(input, SpanSequence(spanSeq))
   }
   
-  it should "remove whitespace from an url" in {
+  test("phrase link - remove whitespace from an url") {
     val uri = "http://foo.com"
     val input = """some `<http://
       | foo.com>`_ here""".stripMargin
@@ -282,58 +279,58 @@ class InlineParsersSpec extends MigrationFlatSpec
       SpanSequence(SpanLink.external(uri)(uri), LinkDefinition("http://foo.com", ExternalTarget("http://foo.com"))))
   }
   
-  it should "parse an anonymous phrase link without url" in new RefBuilder {
+  test("anonymous phrase link without url") {
     val input = "some `link`__ here"
-    runEnclosed(input, anonPLinkRef("link"))
+    runEnclosed(input, anonPLinkRef("link", input))
   }
   
-  it should "parse an anonymous phrase link with text and url" in {
+  test("anonymous phrase link with text and url") {
     runEnclosed("some `link<http://foo.com>`__ here", SpanLink.external("http://foo.com")("link"))
   }
   
-  it should "parse an anonymous phrase link with only an url" in {
+  test("anonymous phrase link with only an url") {
     val uri = "http://foo.com"
     runEnclosed("some `<http://foo.com>`__ here", SpanLink.external(uri)(uri))
   }
   
-  it should "parse a named link reference" in new RefBuilder {
+  test("named link reference") {
     val input = "some link_ here"
-    runEnclosed(input, linkRef("link"))
+    runEnclosed(input, linkRef("link", input))
   }
   
-  it should "parse an anonymous link reference" in new RefBuilder {
+  test("anonymous link reference") {
     val input = "some link__ here"
-    runEnclosed(input, anonLinkRef("link"))
+    runEnclosed(input, anonLinkRef("link", input))
   }
   
-  it should "normalize the id of a phrase link" in new RefBuilder {
+  test("normalize the id of a phrase link") {
     val input = """some `strange
       | phrase   link`_ here""".stripMargin
-    runEnclosed(input, pLinkRef("strange phrase link","strange\n phrase   link"))
+    runEnclosed(input, pLinkRef("strange phrase link","strange\n phrase   link", input))
   }
   
   
-  "The standalone link parser" should "parse a http URI" in {
+  test("standalone link - http URI") {
     val uri = "http://www.link.com"
     runEnclosed("some http://www.link.com here", SpanLink.external(uri)(uri))
   }
 
-  it should "parse a http URI containing an IP4 address" in {
+  test("standalone link - http URI containing an IP4 address") {
     val uri = "http://127.0.0.1/path"
     runEnclosed(s"some $uri here", SpanLink.external(uri)(uri))
   }
   
-  it should "parse a https URI" in {
+  test("standalone link - https URI") {
     val uri = "https://www.link.com"
     runEnclosed("some https://www.link.com here", SpanLink.external(uri)(uri))
   }
   
-  it should "parse an email address" in {
+  test("standalone link - email address") {
     val email = "user@domain.com"
     runEnclosed("some user@domain.com here", SpanLink.external("mailto:"+email)(email))
   }
   
-  it should "parse a http URI without trailing punctuation" in {
+  test("standalone link - http URI without trailing punctuation") {
     val uri = "http://www.link.com"
     run("some http://www.link.com. here",
       Text("some "),
@@ -342,12 +339,12 @@ class InlineParsersSpec extends MigrationFlatSpec
     )
   }
 
-  it should "not parse a URI containing unicode characters" in {
+  test("standalone link - do not parse a URI containing unicode characters") {
     val text = "some http://www.link.com/fooá here"
     run(text, Text(text))
   }
   
-  it should "parse an email address without surrounding punctuation" in {
+  test("standalone link - email address without surrounding punctuation") {
     val email = "user@domain.com"
     run("some {user@domain.com} here", 
       Text("some {"),
@@ -358,7 +355,7 @@ class InlineParsersSpec extends MigrationFlatSpec
   
   
   
-  "A backslash " should "cause a following character not to be treated as markup" in {
+  test("backslash escape") {
     run("""some \*text* here""", Text("some *text* here"))
   }
   

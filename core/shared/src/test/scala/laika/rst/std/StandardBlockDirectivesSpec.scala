@@ -30,107 +30,105 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import laika.rewrite.link.LinkConfig
 import laika.rst.ast.{Contents, Include, RstStyle}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
  * @author Jens Halm
  */
-class StandardBlockDirectivesSpec extends AnyFlatSpec 
-                                  with Matchers 
-                                  with ParagraphCompanionShortcuts {
+class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
 
   private val parser = MarkupParser
     .of(ReStructuredText)
+    .build
+  
+  private val docParser = MarkupParser
+    .of(ReStructuredText)
     .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
   
-  def parseDoc (input: String): Document = parser.parse(input).toOption.get
+  def run (input: String, expected: Block*): Unit =
+    assertEquals(docParser.parse(input).map(_.content), Right(RootElement(expected)))
 
-  def parseRaw (input: String): RootElement = MarkupParser
-    .of(ReStructuredText)
-    .build
-    .parseUnresolved(input)
-    .toOption
-    .get
-    .document
-    .content
-    .rewriteBlocks({ case _: Hidden with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
+  def runRaw (input: String, expected: Block*): Unit = {
+    val res = parser
+      .parseUnresolved(input)
+      .map(_
+        .document
+        .content
+        .rewriteBlocks({ case _: Hidden with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
+      )
+    
+    assertEquals(res, Right(RootElement(expected)))
+  }
 
-  def parse (input: String): RootElement = parseDoc(input).content
-   
-  def parseWithFragments (input: String): (Map[String, Element], RootElement) = {
-    val doc = parseDoc(input)
-    (doc.fragments, doc.content)
+  def runFragments (input: String, expectedFragments: Map[String, Element], expectedContent: RootElement): Unit = {
+    val res = docParser.parse(input).map { doc =>
+      (doc.fragments, doc.content)
+    }
+    assertEquals(res, Right((expectedFragments, expectedContent)))
   }
   
-  "The compound directive" should "parse a sequence of two paragraphs" in {
+  test("compound - sequence of two paragraphs") {
     val input = """.. compound::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(BlockSequence(simplePars, RstStyle.compound))
-    parse(input) should be (result)
+    run(input, BlockSequence(simplePars, RstStyle.compound))
   }
   
-  it should "allow to set an id for the sequence" in {
+  test("compound - set an id for the sequence") {
     val input = """.. compound::
       | :name: foo
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(BlockSequence(simplePars, RstStyle.compound + Id("foo")))
-    parse(input) should be (result)
+    run(input, BlockSequence(simplePars, RstStyle.compound + Id("foo")))
   }
   
-  it should "allow to set a style for the sequence" in {
+  test("compound - set a style for the sequence") {
     val input = """.. compound::
       | :class: foo
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(BlockSequence(simplePars, Styles("foo", "compound")))
-    parse(input) should be (result)
+    run(input, BlockSequence(simplePars, Styles("foo", "compound")))
   }
   
   
-  "The container directive" should "parse a sequence of two paragraphs" in {
+  test("container - sequence of two paragraphs") {
     val input = """.. container::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(BlockSequence(simplePars))
-    parse(input) should be (result)
+    run(input, BlockSequence(simplePars))
   }
   
-  it should "parse a sequence of two paragraphs with two custom styles" in {
+  test("container - sequence of two paragraphs with two custom styles") {
     val input = """.. container:: foo bar
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(BlockSequence(simplePars, Styles("foo", "bar")))
-    parse(input) should be (result)
+    run(input, BlockSequence(simplePars, Styles("foo", "bar")))
   }
   
   
-  "The admonition directives" should "parse a generic admonition" in {
+  test("admonition - generic") {
     val input = """.. admonition:: TITLE
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.admonition))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, RstStyle.admonition))
   }
   
-  it should "allow to set id and style for the admonition" in {
+  test("admonition - set id and style") {
     val input = """.. admonition:: TITLE
       | :name: foo
       | :class: bar
@@ -138,21 +136,19 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","admonition")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","admonition")))
   }
   
-  it should "parse the attention admonition" in {
+  test("attention admonition") {
     val input = """.. attention::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Attention!")), simplePars, Styles("attention")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Attention!")), simplePars, Styles("attention")))
   }
   
-  it should "allow to set id and style for the attention admonition" in {
+  test("attention admonition with id and style") {
     val input = """.. attention::
       | :name: foo
       | :class: bar
@@ -160,122 +156,110 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
   }
   
-  it should "correctly parse nested blocks and inline markup" in {
+  test("attention admonition with nested blocks and inline markup") {
     val input = """.. attention::
       |
       | 1st *Para*
       |
       |  2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), QuotedBlock("2nd Para")), Styles("attention")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Attention!")), List(p(Text("1st "),Emphasized("Para")), QuotedBlock("2nd Para")), Styles("attention")))
   }
   
-  it should "parse the caution admonition" in {
+  test("caution admonition") {
     val input = """.. caution::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Caution!")), simplePars, Styles("caution")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Caution!")), simplePars, Styles("caution")))
   }
   
-  it should "parse the danger admonition" in {
+  test("danger admonition") {
     val input = """.. danger::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("!DANGER!")), simplePars, Styles("danger")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("!DANGER!")), simplePars, Styles("danger")))
   }
   
-  it should "parse the error admonition" in {
+  test("the error admonition") {
     val input = """.. error::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Error")), simplePars, Styles("error")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Error")), simplePars, Styles("error")))
   }
   
-  it should "parse the hint admonition" in {
+  test("hint admonition") {
     val input = """.. hint::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Hint")), simplePars, Styles("hint")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Hint")), simplePars, Styles("hint")))
   }
   
-  it should "parse the important admonition" in {
+  test("important admonition") {
     val input = """.. important::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Important")), simplePars, Styles("important")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Important")), simplePars, Styles("important")))
   }
   
-  it should "parse the note admonition" in {
+  test("note admonition") {
     val input = """.. note::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Note")), simplePars, Styles("note")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Note")), simplePars, Styles("note")))
   }
   
-  it should "parse the tip admonition" in {
+  test("tip admonition") {
     val input = """.. tip::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Tip")), simplePars, Styles("tip")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Tip")), simplePars, Styles("tip")))
   }
   
-  it should "parse the warning admonition" in {
+  test("warning admonition") {
     val input = """.. warning::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
   }
   
-  it should "match the name of the directive case-insensitively" in {
+  test("warning admonition - match the name of the directive case-insensitively") {
     val input = """.. Warning::
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("Warning")), simplePars, Styles("warning")))
   }
   
   
-  "The topic directive" should "parse a sequence of two paragraphs" in {
+  test("topic - sequence of two paragraphs") {
     val input = """.. topic:: TITLE
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.topic))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, RstStyle.topic))
   }
   
-  it should "allow to set id and style for the admonition" in {
+  test("topic - set id and style") {
     val input = """.. topic:: TITLE
       | :name: foo
       | :class: bar
@@ -283,22 +267,20 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","topic")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","topic")))
   }
   
   
-  "The sidebar directive" should "parse a sequence of two paragraphs" in {
+  test("sidebar - sequence of two paragraphs") {
     val input = """.. sidebar:: TITLE
       |
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, RstStyle.sidebar))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, RstStyle.sidebar))
   }
   
-  it should "allow to set id and style for the admonition" in {
+  test("sidebar - set id and style") {
     val input = """.. sidebar:: TITLE
       | :name: foo
       | :class: bar
@@ -306,11 +288,10 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","sidebar")))
-    parse(input) should be (result)
+    run(input, TitledBlock(List(Text("TITLE")), simplePars, Id("foo") + Styles("bar","sidebar")))
   }
   
-  it should "allow to set the id and a subtitle for the admonition" in {
+  test("sidebar - set id and subtitle") {
     val input = """.. sidebar:: TITLE
       | :name: foo
       | :subtitle: some *text*
@@ -318,131 +299,117 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = RootElement(TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), RstStyle.subtitle) :: simplePars, 
+    run(input, TitledBlock(List(Text("TITLE")), Paragraph(List(Text("some "),Emphasized("text")), RstStyle.subtitle) :: simplePars, 
         Id("foo") + RstStyle.sidebar))
-    parse(input) should be (result)
   }
   
   
-  "The rubric directive" should "parse spans without other options" in {
+  test("rubric - parse spans without other options") {
     val input = """.. rubric:: some *text*"""
-    val result = RootElement(Paragraph(List(Text("some "),Emphasized("text")), RstStyle.rubric))
-    parse(input) should be (result)
+    run(input, Paragraph(List(Text("some "),Emphasized("text")), RstStyle.rubric))
   }
   
-  it should "allow to set id and styles" in {
+  test("rubric - set id and styles") {
     val input = """.. rubric:: some *text*
       | :name: foo
       | :class: bar""".stripMargin
-    val result = RootElement(Paragraph(List(Text("some "),Emphasized("text")), Id("foo") + Styles("bar","rubric")))
-    parse(input) should be (result)
+    run(input, Paragraph(List(Text("some "),Emphasized("text")), Id("foo") + Styles("bar","rubric")))
   }
   
   
-  "The epigraph directive" should "parse a single line" in {
+  test("epigraph - single line") {
     val input = """.. epigraph:: some *text*"""
-    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("epigraph")))
-    parse(input) should be (result)
+    run(input, QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("epigraph")))
   }
   
-  it should "parse multiple lines" in {
+  test("epigraph - multiple lines") {
     val input = """.. epigraph:: 
       |
       | some *text*
       | some more""".stripMargin
-    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), Nil, Styles("epigraph")))
-    parse(input) should be (result)
+    run(input, QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), Nil, Styles("epigraph")))
   }
   
-  it should "support attributions" in {
+  test("epigraph - with attributions") {
     val input = """.. epigraph:: 
       |
       | some *text*
       | some more
       | 
       | -- attr""".stripMargin
-    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr", Style.attribution)), Styles("epigraph")))
-    parse(input) should be (result)
+    run(input, QuotedBlock(List(p(Text("some "),Emphasized("text"),Text("\nsome more"))), List(Text("attr", Style.attribution)), Styles("epigraph")))
   }
   
-  "The highlights directive" should "parse a single line" in {
+  test("highlights - single line") {
     val input = """.. highlights:: some *text*"""
-    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("highlights")))
-    parse(input) should be (result)
+    run(input, QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("highlights")))
   }
   
-  "The pull-quote directive" should "parse a single line" in {
+  test("pull-quote - single line") {
     val input = """.. pull-quote:: some *text*"""
-    val result = RootElement(QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("pull-quote")))
-    parse(input) should be (result)
+    run(input, QuotedBlock(List(p(Text("some "),Emphasized("text"))), Nil, Styles("pull-quote")))
   }
   
   
-  "The parsed-literal directive" should "parse multiple lines" in {
+  test("parsed-literal - multiple lines") {
     val input = """.. parsed-literal::
       | 
       | some *text*
       | some more""".stripMargin
-    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more"))))
-    parse(input) should be (result)
+    run(input, ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more"))))
   }
   
-  it should "allow to set id and style" in {
+  test("parsed-literal - set id and style") {
     val input = """.. parsed-literal::
       | :name: foo
       | :class: bar
       |
       | some *text*
       | some more""".stripMargin
-    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more")), Id("foo") + Styles("bar")))
-    parse(input) should be (result)
+    run(input, ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more")), Id("foo") + Styles("bar")))
   }
   
-  it should "parse multiple lines separated by spaces, preserving indentation" in {
+  test("parsed-literal - multiple lines separated by spaces, preserving indentation") {
     val input = """.. parsed-literal::
       | 
       | some *text*
       | some more
       |
       |  indented""".stripMargin
-    val result = RootElement(ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more\n\n indented"))))
-    parse(input) should be (result)
+    run(input, ParsedLiteralBlock(List(Text("some "),Emphasized("text"),Text("\nsome more\n\n indented"))))
   }
   
   
-  "The code directive" should "parse multiple lines" in {
+  test("code - multiple lines") {
     val input = """.. code:: banana-script
       | 
       | some banana
       | some more""".stripMargin
-    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more"))))
-    parse(input) should be (result)
+    run(input, CodeBlock("banana-script", List(Text("some banana\nsome more"))))
   }
   
-  it should "allow to set id and style" in {
+  test("code - set id and style") {
     val input = """.. code:: banana-script
       | :name: foo
       | :class: bar
       |
       | some banana
       | some more""".stripMargin
-    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more")), Nil, Id("foo") + Styles("bar")))
-    parse(input) should be (result)
+    run(input, CodeBlock("banana-script", List(Text("some banana\nsome more")), Nil, Id("foo") + Styles("bar")))
   }
   
-  it should "parse multiple lines separated by spaces, preserving indentation" in {
+  test("code - multiple lines separated by spaces, preserving indentation") {
     val input = """.. code:: banana-script
       | 
       | some banana
       | some more
       |
       |  indented""".stripMargin
-    val result = RootElement(CodeBlock("banana-script", List(Text("some banana\nsome more\n\n indented"))))
-    parse(input) should be (result)
+    run(input, CodeBlock("banana-script", List(Text("some banana\nsome more\n\n indented"))))
   }
   
   
-  "The table directive" should "parse a grid table with caption" in {
+  test("grid table with caption") {
     val input = """.. table:: *caption*
       | 
       | +---+---+
@@ -450,128 +417,113 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       | +---+---+
       | | c | d |
       | +---+---+""".stripMargin
-    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
-    parse(input) should be (result)
+    run(input, Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
   }
   
-  it should "parse a simple table with caption" in {
+  test("simple table with caption") {
     val input = """.. table:: *caption*
       | 
       | ===  ===
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
-    parse(input) should be (result)
+    run(input, Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))).copy(caption = Caption(List(Emphasized("caption")))))
   }
   
-  it should "parse a simple table without caption" in {
+  test("simple table without caption") {
     val input = """.. table::
       | 
       | ===  ===
       |  a    b
       |  c    d
       | ===  ===""".stripMargin
-    val result = RootElement(Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))))
-    parse(input) should be (result)
+    run(input, Table(Row(BodyCell("a"),BodyCell("b")), Row(BodyCell("c"),BodyCell("d"))))
   }
   
   
-  val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
-  val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg")
-  val imgLink = SpanLink.external("http://foo.com/")(Image(resolvedImageTarget))
+  private val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg")
+  private val imgLink = SpanLink.external("http://foo.com/")(Image(resolvedImageTarget))
   
-  "The image directive" should "parse the URI argument" in {
+  test("image without options") {
     val input = """.. image:: picture.jpg"""
-    val result = RootElement(p(Image(resolvedImageTarget)))
-    parse(input) should be (result)
+    run(input, p(Image(resolvedImageTarget)))
   }
   
-  it should "support the alt option" in {
+  test("image with alt option") {
     val input = """.. image:: picture.jpg
       | :alt: alt""".stripMargin
-    val result = RootElement(p(Image(resolvedImageTarget, alt = Some("alt"))))
-    parse(input) should be (result)
+    run(input, p(Image(resolvedImageTarget, alt = Some("alt"))))
   }
   
-  it should "support the target option with a simple reference" in {
+  test("image with target option with a simple reference") {
     val input = """.. image:: picture.jpg
       | :target: ref_
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = RootElement(p(imgLink))
-    parse(input) should be (result)
+    run(input, p(imgLink))
   }
   
-  it should "support the target option with a phrase reference" in {
+  test("image with target option with a phrase reference") {
     val input = """.. image:: picture.jpg
       | :target: `some ref`_
       |
       |.. _`some ref`: http://foo.com/""".stripMargin
-    val result = RootElement(p(imgLink))
-    parse(input) should be (result)
+    run(input, p(imgLink))
   }
   
-  it should "support the target option with a uri" in {
+  test("image with target option with a uri") {
     val input = """.. image:: picture.jpg
       | :target: http://foo.com/""".stripMargin
-    val result = RootElement(p(imgLink))
-    parse(input) should be (result)
+    run(input, p(imgLink))
   }
   
-  it should "support the class option" in {
+  test("image with class option") {
     val input = """.. image:: picture.jpg
       | :class: foo""".stripMargin
-    val result = RootElement(p(Image(resolvedImageTarget, options=Styles("foo"))))
-    parse(input) should be (result)
+    run(input, p(Image(resolvedImageTarget, options=Styles("foo"))))
   }
   
   
-  "The figure directive" should "parse the URI argument" in {
+  test("figure without options") {
     val input = """.. figure:: picture.jpg"""
-    val result = RootElement(Figure(Image(resolvedImageTarget),Nil,Nil))
-    parse(input) should be (result)
+    run(input, Figure(Image(resolvedImageTarget),Nil,Nil))
   }
   
-  it should "support a caption" in {
+  test("figure with a caption") {
     val input = """.. figure:: picture.jpg
       |
       | This is the *caption*""".stripMargin
-    val result = RootElement(Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), Nil))
-    parse(input) should be (result)
+    run(input, Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), Nil))
   }
   
-  it should "support a caption and a legend" in {
+  test("figure with a caption and a legend") {
     val input = """.. figure:: picture.jpg
       |
       | This is the *caption*
       |
       | And this is the legend""".stripMargin
-    val result = RootElement(Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), List(p("And this is the legend"))))
-    parse(input) should be (result)
+    run(input, Figure(Image(resolvedImageTarget), List(Text("This is the "),Emphasized("caption")), List(p("And this is the legend"))))
   }
   
-  it should "support the class option for the figure and the image" in {
+  test("support the class option for the figure and the image") {
     val input = """.. figure:: picture.jpg
       | :class: img
       | :figclass: fig""".stripMargin
-    val result = RootElement(Figure(Image(resolvedImageTarget, options=Styles("img")), Nil, Nil, Styles("fig")))
-    parse(input) should be (result)
+    run(input, Figure(Image(resolvedImageTarget, options=Styles("img")), Nil, Nil, Styles("fig")))
   }
   
-  it should "support the target option with a simple reference and a caption" in {
+  test("support the target option with a simple reference and a caption") {
     val input = """.. figure:: picture.jpg
       | :target: ref_
       |
       | This is the *caption*
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = RootElement(Figure(imgLink, List(Text("This is the "),Emphasized("caption")), Nil))
-    parse(input) should be (result)
+    run(input, Figure(imgLink, List(Text("This is the "),Emphasized("caption")), Nil))
   }
   
   
-  "The header directive" should "create a fragment in the document" in {
+  test("header - creates a fragment in the document") {
     val input = """.. header:: 
       | This is
       | a header
@@ -579,10 +531,10 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |This isn't""".stripMargin
     val fragments = Map("header" -> BlockSequence("This is\na header"))
     val rootElem = RootElement(p("This isn't"))
-    parseWithFragments(input) should be ((fragments, rootElem))
+    runFragments(input, fragments, rootElem)
   }
   
-  "The footer directive" should "create a fragment in the document" in {
+  test("footer - creates a fragment in the document") {
     val input = """.. footer:: 
       | This is
       | a footer
@@ -590,16 +542,15 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       |This isn't""".stripMargin
     val fragments = Map("footer" -> BlockSequence("This is\na footer"))
     val rootElem = RootElement(p("This isn't"))
-    parseWithFragments(input) should be ((fragments, rootElem))
+    runFragments(input, fragments, rootElem)
   }
   
-  "The include directive" should "create a placeholder in the document" in {
+  test("include - creates a placeholder in the document") {
     val input = """.. include:: other.rst"""
-    val expected = RootElement(Include("other.rst", GeneratedSource))
-    parseRaw(input) should be (expected)
+    runRaw(input, Include("other.rst", GeneratedSource))
   }
   
-  "The include rewriter" should "replace the node with the corresponding document" in {
+  test("include rewriter replaces the node with the corresponding document") {
     val ref = TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     val tree = SampleTrees.twoDocuments
       .doc1.content(Include("doc-2", GeneratedSource))
@@ -613,46 +564,48 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html"))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
 
-    result should be (Right(RootElement(BlockSequence("text"))))
+    assertEquals(result, Right(RootElement(BlockSequence("text"))))
   }
   
-  "The title directive" should "set the title in the document instance" in {
+  test("title - sets the title in the document instance") {
     val input = """.. title:: Title"""
-    parseDoc(input).title should be (Some(SpanSequence("Title")))
+    assertEquals(docParser.parse(input).map(_.title), Right(Some(SpanSequence("Title"))))
   }
   
-  "The meta directive" should "create config entries in the document instance" in {
+  test("meta - creates config entries in the document instance") {
     val input = """.. meta::
       | :key1: val1
       | :key2: val2""".stripMargin
-    val config = ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
-    parseDoc(input).config.get[ConfigValue]("meta") should be (Right(config))
+    val expected = ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
+    val res = docParser.parse(input).flatMap(_.config.get[ConfigValue]("meta"))
+    assertEquals(res, Right(expected))
   }
   
-  "The sectnum directive" should "create config entries in the document instance" in {
+  test("sectnum - creates config entries in the document instance") {
     val input = """.. sectnum::
       | :depth: 3
       | :start: 1
       | :prefix: (
       | :suffix: )""".stripMargin
-    val config = ObjectValue(Seq(
+    val expected = ObjectValue(Seq(
       Field("depth", StringValue("3")), 
       Field("start", StringValue("1")), 
       Field("prefix", StringValue("(")), 
       Field("suffix", StringValue(")"))
     ))
-    parseDoc(input).config.get[ConfigValue](LaikaKeys.autonumbering) should be (Right(config))
+    val res = docParser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+    assertEquals(res, Right(expected))
   }
   
-  "The contents directive" should "create a placeholder in the document" in {
+  test("contents - creates a placeholder in the document") {
     val input = """.. contents:: This is the title
       | :depth: 3
       | :local: true""".stripMargin
     val elem = Contents("This is the title", GeneratedSource, depth = 3, local = true)
-    parseRaw(input) should be (RootElement(elem))
+    runRaw(input, elem)
   }
   
-  "The contents rewriter" should "replace the node with the corresponding list element" in {
+  test("contents rewriter replaces the node with the corresponding list element") {
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text("Title "+title)),Id("title-"+title) + Styles(style))
       
@@ -695,18 +648,18 @@ class StandardBlockDirectivesSpec extends AnyFlatSpec
       rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
       templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), TemplateContext("html"))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
-    result should be (Right(expected))
+    assertEquals(result, Right(expected))
   }
   
   
-  "The raw directive" should "support raw input with one format" in {
+  test("raw - support raw input with one format") {
     val input = """.. raw:: format
       |
       | some input
       |
       | some more""".stripMargin
-    val result = RootElement(RawContent(NonEmptySet.one("format"), "some input\n\nsome more"))
-    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
+    val res = MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).map(_.content)
+    assertEquals(res, Right(RootElement(RawContent(NonEmptySet.one("format"), "some input\n\nsome more"))))
   }
   
   

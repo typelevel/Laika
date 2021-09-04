@@ -42,9 +42,9 @@ trait HTMLModelBuilder {
   def element (startTag: HTMLStartTag, content: Span*): HTMLElement = 
     HTMLElement(startTag, content.toList)
   
-  def charRef (str: String) = HTMLCharacterReference(str)
+  def charRef (str: String): HTMLCharacterReference = HTMLCharacterReference(str)
   
-  def comment (str: String) = HTMLComment(str)
+  def comment (str: String): HTMLComment = HTMLComment(str)
   
   
 }

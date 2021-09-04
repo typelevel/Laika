@@ -22,11 +22,11 @@ import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
 import laika.parse.Parser
-import laika.parse.helper.MigrationSpec
 import laika.parse.markup.RootParser
-import org.scalatest.Assertion
+import munit.FunSuite
 
-class GitHubFlavorSpec extends MigrationSpec with ParagraphCompanionShortcuts {
+
+class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions)
     .withBundles(Seq(GitHubFlavor)).markupExtensions)
@@ -47,412 +47,397 @@ class GitHubFlavorSpec extends MigrationSpec with ParagraphCompanionShortcuts {
   def bodyRowSpans(cells: Seq[Span]*): Row =
     Row(cells.map(c => BodyCell(Paragraph(c))))
 
-  def runBlocks (input: String, blocks: Block*): Assertion =
+  def runBlocks (input: String, blocks: Block*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
 
-  def runSpans (input: String, spans: Span*): Assertion =
+  def runSpans (input: String, spans: Span*): Unit =
     runBlocks(input, Paragraph(spans))
 
-  "The Markdown parser with GitHubFlavor extension" should {
 
-    "parse standard Markdown" in {
-      val input = """aaa
-                    |bbb
-                    |
-                    |# CCC""".stripMargin
-      runBlocks(input, p("aaa\nbbb"), Header(1, Seq(Text("CCC"))))
-    }
+  test("parse standard Markdown") {
+    val input = """aaa
+                  |bbb
+                  |
+                  |# CCC""".stripMargin
+    runBlocks(input, p("aaa\nbbb"), Header(1, Seq(Text("CCC"))))
+  }
+  
 
+  test("strikethrough - enclosed in ~~ at the beginning of a phrase") {
+    runSpans("~~some~~ text", Deleted("some"),Text(" text"))
   }
 
-  "The GitHubFlavor strikethrough parser" should {
-
-    "parse content enclosed in ~~ at the beginning of a phrase" in {
-      runSpans("~~some~~ text", Deleted("some"),Text(" text"))
-    }
-
-    "parse content enclosed in ~~ at the end of a phrase" in {
-      runSpans("some ~~text~~", Text("some "),Deleted("text"))
-    }
-
-    "parse content enclosed in ~~ in the middle of a phrase" in {
-      runSpans("some ~~text~~ here", Text("some "),Deleted("text"),Text(" here"))
-    }
-
-    "parse content enclosed in ~~ with a nested em span" in {
-      runSpans("some ~~*text*~~ here", Text("some "),Deleted(Emphasized("text")),Text(" here"))
-    }
-
-    "parse content enclosed in ~~ when it spans the entire phrase" in {
-      runSpans("~~text~~", Deleted("text"))
-    }
-
-    "ignore a ~~ sequence when it is enclosed in spaces" in {
-      runSpans("some ~~ text ~~ here", Text("some ~~ text ~~ here"))
-    }
-
-    "ignore a ~~ sequence when it is not matched by a second ~~" in {
-      runSpans("some ~~text here", Text("some ~~text here"))
-    }
-
+  test("strikethrough - enclosed in ~~ at the end of a phrase") {
+    runSpans("some ~~text~~", Text("some "),Deleted("text"))
   }
 
-  "The GitHubFlavor auto-link parser" should {
-
-    "parse a http URI" in {
-      val uri = "http://www.link.com"
-      runSpans("some http://www.link.com here", Text("some "),
-        SpanLink.external(uri)(uri), Text(" here"))
-    }
-
-    "parse a http URI containing an IP4 address" in {
-      val uri = "http://127.0.0.1/path"
-      runSpans(s"some $uri here", Text("some "),
-        SpanLink.external(uri)(uri), Text(" here"))
-    }
-
-    "parse a https URI" in {
-      val uri = "https://www.link.com"
-      runSpans("some https://www.link.com here", Text("some "),
-        SpanLink.external(uri)(uri), Text(" here"))
-    }
-
-    "parse a www URI" in {
-      val uri = "www.link.com"
-      runSpans("some www.link.com here", Text("some "),
-        SpanLink.external(uri)(uri), Text(" here"))
-    }
-
-    "parse an email address" in {
-      val email = "user@domain.com"
-      runSpans("some user@domain.com here", Text("some "),
-        SpanLink.external("mailto:"+email)(email), Text(" here"))
-    }
-
-    "parse a http URI without trailing punctuation" in {
-      val uri = "http://www.link.com"
-      runSpans("some http://www.link.com. here", Text("some "),
-        SpanLink.external(uri)(uri), Text(". here"))
-    }
-
-    "parse a www URI without trailing punctuation" in {
-      val uri = "www.link.com"
-      runSpans("some www.link.com. here", Text("some "),
-        SpanLink.external(uri)(uri), Text(". here"))
-    }
-
-    "not parse a URI containing unicode characters" in {
-      val text = "some http://www.link.com/fooá here"
-      runSpans(text, Text(text))
-    }
-
-    "parse an email address without surrounding punctuation" in {
-      val email = "user@domain.com"
-      runSpans("some (user@domain.com) here", Text("some ("),
-        SpanLink.external("mailto:"+email)(email), Text(") here"))
-    }
-
+  test("strikethrough - enclosed in ~~ in the middle of a phrase") {
+    runSpans("some ~~text~~ here", Text("some "),Deleted("text"),Text(" here"))
   }
 
-  "The GitHubFlavor parser for fenced code blocks" should {
-
-    "parse a code block with backtick fences" in {
-      val input =
-        """```
-          |code
-          |```
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code"))
-    }
-
-    "parse a code block with tilde fences" in {
-      val input =
-        """~~~
-          |code
-          |~~~
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code"))
-    }
-
-    "parse a code block with a closing fence that is longer than the opening fence" in {
-      val input =
-        """~~~
-          |code
-          |~~~~~
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code"))
-    }
-
-    "not recognize a closing fence that is shorter than the opening fence" in {
-      val input =
-        """~~~~~
-          |code
-          |~~~
-          |~~~~~
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code\n~~~"))
-    }
-
-    "not recognize a closing fence that consists of different fence characters" in {
-      val input =
-        """~~~~~
-          |code
-          |`````
-          |~~~~~
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code\n`````"))
-    }
-
-    "parse a code block with an info/language hint" in {
-      val input =
-        """~~~ foo
-          |code
-          |~~~
-        """.stripMargin
-      runBlocks(input, CodeBlock("foo", Seq(Text("code"))))
-    }
-
-    "parse a code block that is indented" in {
-      val input =
-        """  ~~~ foo
-          |  code
-          |    indent
-          |  code
-          |  ~~~
-        """.stripMargin
-      runBlocks(input, CodeBlock("foo", Seq(Text("code\n  indent\ncode"))))
-    }
-
-    "parse a code block inside a list item, indented by 4 spaces" in {
-      val input =
-        """- list item:
-          |  
-          |    ~~~ foo
-          |    code
-          |      indent
-          |    code
-          |    ~~~
-        """.stripMargin
-      val result = BulletList(StringBullet("-"))(Seq(
-        Paragraph("list item:"),
-        CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
-      ))
-      runBlocks(input, result)
-    }
-
-    "parse a code block without a closing fence" in {
-      val input =
-        """~~~
-          |code
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code"))
-    }
-
-    "not recognize a fence that is shorter than 3 characters" in {
-      val input =
-        """~~
-          |code
-          |~~
-        """.stripMargin
-      runBlocks(input, p("~~\ncode\n~~"))
-    }
-
-    "not recognize a fence that is indented more than 3 characters" in {
-      val input =
-        """    ~~~~
-          |    code
-          |    ~~~~""".stripMargin
-      runBlocks(input, LiteralBlock("~~~~\ncode\n~~~~"))
-    }
-
-    "not recognize a closing fence with additional characters" in {
-      val input =
-        """~~~
-          |code
-          |~~~xxx
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code\n~~~xxx"))
-    }
-
-    "parse a code block with an empty line" in {
-      val input =
-        """```
-          |code
-          |
-          |code
-          |```
-        """.stripMargin
-      runBlocks(input, LiteralBlock("code\n\ncode"))
-    }
-
-    "parse a code block without a preceding empty line" in {
-      val input =
-        """aaa
-          |```
-          |code
-          |```
-          |bbb
-        """.stripMargin
-      runBlocks(input, BlockSequence(p("aaa"), LiteralBlock("code")), p("bbb"))
-    }
-
+  test("strikethrough - enclosed in ~~ with a nested em span") {
+    runSpans("some ~~*text*~~ here", Text("some "),Deleted(Emphasized("text")),Text(" here"))
   }
 
-  "The GitHubFlavor table parser" should {
+  test("strikethrough - enclosed in ~~ when it spans the entire phrase") {
+    runSpans("~~text~~", Deleted("text"))
+  }
 
-    "parse a table head and body" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || CCC | DDD |
-           || EEE | FFF |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
-      )
+  test("strikethrough - ignore a ~~ sequence when it is enclosed in spaces") {
+    runSpans("some ~~ text ~~ here", Text("some ~~ text ~~ here"))
+  }
+
+  test("strikethrough - ignore a ~~ sequence when it is not matched by a second ~~") {
+    runSpans("some ~~text here", Text("some ~~text here"))
+  }
+
+
+  test("auto-links - http URI") {
+    val uri = "http://www.link.com"
+    runSpans("some http://www.link.com here", Text("some "),
+      SpanLink.external(uri)(uri), Text(" here"))
+  }
+
+  test("auto-links - http URI containing an IP4 address") {
+    val uri = "http://127.0.0.1/path"
+    runSpans(s"some $uri here", Text("some "),
+      SpanLink.external(uri)(uri), Text(" here"))
+  }
+
+  test("auto-links - https URI") {
+    val uri = "https://www.link.com"
+    runSpans("some https://www.link.com here", Text("some "),
+      SpanLink.external(uri)(uri), Text(" here"))
+  }
+
+  test("auto-links - www URI") {
+    val uri = "www.link.com"
+    runSpans("some www.link.com here", Text("some "),
+      SpanLink.external(uri)(uri), Text(" here"))
+  }
+
+  test("auto-links - email address") {
+    val email = "user@domain.com"
+    runSpans("some user@domain.com here", Text("some "),
+      SpanLink.external("mailto:"+email)(email), Text(" here"))
+  }
+
+  test("auto-links - http URI without trailing punctuation") {
+    val uri = "http://www.link.com"
+    runSpans("some http://www.link.com. here", Text("some "),
+      SpanLink.external(uri)(uri), Text(". here"))
+  }
+
+  test("auto-links - www URI without trailing punctuation") {
+    val uri = "www.link.com"
+    runSpans("some www.link.com. here", Text("some "),
+      SpanLink.external(uri)(uri), Text(". here"))
+  }
+
+  test("auto-links - do not parse a URI containing unicode characters") {
+    val text = "some http://www.link.com/fooá here"
+    runSpans(text, Text(text))
+  }
+
+  test("auto-links - email address without surrounding punctuation") {
+    val email = "user@domain.com"
+    runSpans("some (user@domain.com) here", Text("some ("),
+      SpanLink.external("mailto:"+email)(email), Text(") here"))
+  }
+
+
+  test("code block with backtick fences") {
+    val input =
+      """```
+        |code
+        |```
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code"))
+  }
+
+  test("code block with tilde fences") {
+    val input =
+      """~~~
+        |code
+        |~~~
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code"))
+  }
+
+  test("code block with a closing fence that is longer than the opening fence") {
+    val input =
+      """~~~
+        |code
+        |~~~~~
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code"))
+  }
+
+  test("code blocks - do not recognize a closing fence that is shorter than the opening fence") {
+    val input =
+      """~~~~~
+        |code
+        |~~~
+        |~~~~~
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code\n~~~"))
+  }
+
+  test("code blocks - do not recognize a closing fence that consists of different fence characters") {
+    val input =
+      """~~~~~
+        |code
+        |`````
+        |~~~~~
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code\n`````"))
+  }
+
+  test("code block with an info/language hint") {
+    val input =
+      """~~~ foo
+        |code
+        |~~~
+      """.stripMargin
+    runBlocks(input, CodeBlock("foo", Seq(Text("code"))))
+  }
+
+  test("code block that is indented") {
+    val input =
+      """  ~~~ foo
+        |  code
+        |    indent
+        |  code
+        |  ~~~
+      """.stripMargin
+    runBlocks(input, CodeBlock("foo", Seq(Text("code\n  indent\ncode"))))
+  }
+
+  test("code block inside a list item, indented by 4 spaces") {
+    val input =
+      """- list item:
+        |  
+        |    ~~~ foo
+        |    code
+        |      indent
+        |    code
+        |    ~~~
+      """.stripMargin
+    val result = BulletList(StringBullet("-"))(Seq(
+      Paragraph("list item:"),
+      CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
+    ))
+    runBlocks(input, result)
+  }
+
+  test("code block without a closing fence") {
+    val input =
+      """~~~
+        |code
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code"))
+  }
+
+  test("code block - do not recognize a fence that is shorter than 3 characters") {
+    val input =
+      """~~
+        |code
+        |~~
+      """.stripMargin
+    runBlocks(input, p("~~\ncode\n~~"))
+  }
+
+  test("code block - do not recognize a fence that is indented more than 3 characters") {
+    val input =
+      """    ~~~~
+        |    code
+        |    ~~~~""".stripMargin
+    runBlocks(input, LiteralBlock("~~~~\ncode\n~~~~"))
+  }
+
+  test("code block - do not recognize a closing fence with additional characters") {
+    val input =
+      """~~~
+        |code
+        |~~~xxx
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code\n~~~xxx"))
+  }
+
+  test("code block with an empty line") {
+    val input =
+      """```
+        |code
+        |
+        |code
+        |```
+      """.stripMargin
+    runBlocks(input, LiteralBlock("code\n\ncode"))
+  }
+
+  test("code block without a preceding empty line") {
+    val input =
+      """aaa
+        |```
+        |code
+        |```
+        |bbb
+      """.stripMargin
+    runBlocks(input, BlockSequence(p("aaa"), LiteralBlock("code")), p("bbb"))
+  }
+
+
+  test("table head and body") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || CCC | DDD |
+         || EEE | FFF |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    )
+  }
+
+  test("table with inline markup in one cell") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || CCC | DDD |
+         || EEE | FFF *GGG* |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(
+        bodyRow("CCC","DDD"),
+        bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized("GGG")))
+      )))
+    )
+  }
+
+  test("table head and body with leading and trailing '|' missing in some rows") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || CCC | DDD
+         |  EEE | FFF |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    )
+  }
+
+  test("tables - ignore cells that are exceeding the number of header cells") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || CCC | DDD | XXX |
+         |  EEE | FFF |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    )
+  }
+
+  test("tables - insert empty cells when the row has less cells than the header row") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || CCC |
+         |  EEE | FFF |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC"), bodyRow("EEE","FFF"))))
+    )
+  }
+
+  test("table with escaped '|' as literal text") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         || \|  | \|  |
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("|","|"))))
+    )
+  }
+
+  test("table that ends on a blank line") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         |CCC
+         |
+         |DDD
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+      p("DDD")
+    )
+  }
+
+  test("table that ends when a new block item starts") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+         |CCC
+         |* DDD
+         |* EEE
+      """.stripMargin
+    runBlocks(input, 
+      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+      BulletList("DDD", "EEE")
+    )
+  }
+
+  test("table with alignments") {
+    val input =
+      """|| AAA | BBB | CCC |
+         || :--- | ---: | :--: |
+         || DDD | EEE | FFF |
+         || GGG | HHH | III |
+      """.stripMargin
+    val options = Seq(Style.alignLeft, Style.alignRight, Style.alignCenter)
+    def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
+      Row(row.content.zip(options).map {
+        case (cell, opt) => cell.withOptions(opt)
+      })
     }
+    runBlocks(input, Table(
+      TableHead(applyOptions(headerRow("AAA","BBB","CCC").content)),
+      TableBody(applyOptions(Seq(bodyRow("DDD","EEE","FFF"), bodyRow("GGG","HHH","III")))))
+    )
+  }
 
-    "parse a table with inline markup in one cell" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || CCC | DDD |
-           || EEE | FFF *GGG* |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(
-          bodyRow("CCC","DDD"),
-          bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized("GGG")))
-        )))
-      )
-    }
+  test("table head without body") {
+    val input =
+      """|| AAA | BBB |
+         || --- | --- |
+      """.stripMargin
+    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+  }
 
-    "parse a table head and body with leading and trailing '|' missing in some rows" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || CCC | DDD
-           |  EEE | FFF |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
-      )
-    }
+  test("table head without body without leading '|' in the separator row") {
+    val input =
+      """|| AAA | BBB |
+         |  --- | --- |
+      """.stripMargin
+    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+  }
 
-    "ignore cells that are exceeding the number of header cells" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || CCC | DDD | XXX |
-           |  EEE | FFF |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
-      )
-    }
+  test("table head without body without trailing '|' in the separator row") {
+    val input =
+      """|| AAA | BBB |
+         || --- | ---
+      """.stripMargin
+    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+  }
 
-    "insert empty cells when the row has less cells than the header row" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || CCC |
-           |  EEE | FFF |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC"), bodyRow("EEE","FFF"))))
-      )
-    }
-
-    "parse an escaped '|' as literal text" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           || \|  | \|  |
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("|","|"))))
-      )
-    }
-
-    "parse a table that ends on a blank line" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           |CCC
-           |
-           |DDD
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
-        p("DDD")
-      )
-    }
-
-    "parse a table that ends when a new block item starts" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-           |CCC
-           |* DDD
-           |* EEE
-        """.stripMargin
-      runBlocks(input, 
-        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
-        BulletList("DDD", "EEE")
-      )
-    }
-
-    "parse a table with alignments" in {
-      val input =
-        """|| AAA | BBB | CCC |
-           || :--- | ---: | :--: |
-           || DDD | EEE | FFF |
-           || GGG | HHH | III |
-        """.stripMargin
-      val options = Seq(Style.alignLeft, Style.alignRight, Style.alignCenter)
-      def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
-        Row(row.content.zip(options).map {
-          case (cell, opt) => cell.withOptions(opt)
-        })
-      }
-      runBlocks(input, Table(
-        TableHead(applyOptions(headerRow("AAA","BBB","CCC").content)),
-        TableBody(applyOptions(Seq(bodyRow("DDD","EEE","FFF"), bodyRow("GGG","HHH","III")))))
-      )
-    }
-
-    "parse a table head without body" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | --- |
-        """.stripMargin
-      runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
-    }
-
-    "parse a table head without body without leading '|' in the separator row" in {
-      val input =
-        """|| AAA | BBB |
-           |  --- | --- |
-        """.stripMargin
-      runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
-    }
-
-    "parse a table head without body without trailing '|' in the separator row" in {
-      val input =
-        """|| AAA | BBB |
-           || --- | ---
-        """.stripMargin
-      runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
-    }
-
-    "not recognize a table head where the number of cells in the separator row does not match the header row" in {
-      val input =
-        """|| AAA | BBB |
-           |  --- |
-           |  CCC |""".stripMargin
-      runBlocks(input, p(input))
-    }
-
+  test("tables - do not recognize a table head where the number of cells in the separator row does not match the header row") {
+    val input =
+      """|| AAA | BBB |
+         |  --- |
+         |  CCC |""".stripMargin
+    runBlocks(input, p(input))
   }
 
 }
