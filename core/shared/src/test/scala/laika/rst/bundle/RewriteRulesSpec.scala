@@ -23,12 +23,9 @@ import laika.config.Config.ConfigResult
 import laika.format.ReStructuredText
 import laika.parse.GeneratedSource
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
  
-class RewriteRulesSpec extends AnyFlatSpec 
-                  with Matchers
-                  with ParagraphCompanionShortcuts {
+class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   
   def rewritten (root: RootElement): ConfigResult[RootElement] = {
@@ -41,15 +38,19 @@ class RewriteRulesSpec extends AnyFlatSpec
   }
   
   def invalidSpan (message: String): InvalidSpan = InvalidSpan(message, GeneratedSource)
+  
+  def run (input: RootElement, expected: RootElement): Unit =
+    assertEquals(rewritten(input), Right(expected))
       
       
-  "The rewrite rules for substitutions" should "replace a single reference with the target span" in {
-    val rootElem = RootElement(p(SubstitutionReference("id", GeneratedSource)), SubstitutionDefinition("id", Text("subst")))
-    rewritten (rootElem) should be (Right(RootElement(p("subst"))))
+  test("substitutions - replace a single reference with the target span") {
+    val input = RootElement(p(SubstitutionReference("id", GeneratedSource)), SubstitutionDefinition("id", Text("subst")))
+    val expected = RootElement(p("subst"))
+    run(input, expected)
   }
   
-  it should "replace multiple occurrences of the same reference with the same target span" in {
-    val rootElem = RootElement(
+  test("substitutions - replace multiple occurrences of the same reference with the same target span") {
+    val input = RootElement(
       p(
         SubstitutionReference("id", GeneratedSource), 
         Text(" foo "), 
@@ -57,25 +58,28 @@ class RewriteRulesSpec extends AnyFlatSpec
       ), 
       SubstitutionDefinition("id", Text("subst"))
     )
-    rewritten (rootElem) should be (Right(RootElement(p(Text("subst"),Text(" foo "),Text("subst")))))
+    val expected = RootElement(p(Text("subst"),Text(" foo "),Text("subst")))
+    run(input, expected)
   }
   
-  it should "replace a reference with an unknown substitution id with an invalid span" in {
-    val rootElem = RootElement(
+  test("substitutions - replace a reference with an unknown substitution id with an invalid span") {
+    val input = RootElement(
       p(SubstitutionReference("id1", GeneratedSource)), 
       SubstitutionDefinition("id2", Text("subst"))
     )
-    rewritten (rootElem) should be (Right(RootElement(p(invalidSpan("unknown substitution id: id1")))))
+    val expected = RootElement(p(invalidSpan("unknown substitution id: id1")))
+    run(input, expected)
   }
   
   
-  "The rewrite rules for interpreted text roles" should "replace a single reference with the result of applying the role function" in {
-    val rootElem = RootElement(p(InterpretedText("id", "foo", GeneratedSource)), CustomizedTextRole("id", s => Text(s":$s:")))
-    rewritten (rootElem) should be (Right(RootElement(p(":foo:"))))
+  test("interpreted text roles - replace a single reference with the result of applying the role function") {
+    val input = RootElement(p(InterpretedText("id", "foo", GeneratedSource)), CustomizedTextRole("id", s => Text(s":$s:")))
+    val expected = RootElement(p(":foo:"))
+    run(input, expected)
   }
   
-  it should "replace multiple references with the result of applying corresponding role functions" in {
-    val rootElem = RootElement(
+  test("interpreted text roles - replace multiple references with the result of applying corresponding role functions") {
+    val input = RootElement(
       p(
         InterpretedText("id1", "foo", GeneratedSource),
         InterpretedText("id2", "bar", GeneratedSource),
@@ -84,15 +88,17 @@ class RewriteRulesSpec extends AnyFlatSpec
       CustomizedTextRole("id1", s => Text(":"+s+":")),
       CustomizedTextRole("id2", s => Text(s".$s."))
     )
-    rewritten (rootElem) should be (Right(RootElement(p(Text(":foo:"),Text(".bar."),Text(":baz:")))))
+    val expected = RootElement(p(Text(":foo:"),Text(".bar."),Text(":baz:")))
+    run(input, expected)
   }
   
-  it should "replace an unknown text role with an invalid span" in {
-    val rootElem = RootElement(
+  test("interpreted text roles - replace an unknown text role with an invalid span") {
+    val input = RootElement(
       p(InterpretedText("id1", "foo", GeneratedSource)), 
       CustomizedTextRole("id2", s => Text(s".$s."))
     )
-    rewritten (rootElem) should be (Right(RootElement(p(invalidSpan("unknown text role: id1")))))
+    val expected = RootElement(p(invalidSpan("unknown text role: id1")))
+    run(input, expected)
   }
   
   

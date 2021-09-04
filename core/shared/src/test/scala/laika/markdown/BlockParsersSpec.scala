@@ -21,24 +21,23 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.parse.Parser
-import laika.parse.helper.MigrationFlatSpec
 import laika.parse.markup.RootParser
-import org.scalatest.Assertion
+import munit.FunSuite
     
-class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcuts {
+class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
 
   val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions).forStrictMode.markupExtensions)
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
-  def run (input: String, blocks: Block*): Assertion =
+  def run (input: String, blocks: Block*): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
-  def fp (content: String) = ForcedParagraph(List(Text(content)))
+  def fp (content: String): ForcedParagraph = ForcedParagraph(List(Text(content)))
   
   
-  "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {
+  test("paragraphs - blocks without block-level markup parsed as normal paragraphs") {
     val input = """aaa
       |bbb
       |ccc
@@ -48,57 +47,57 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb\nccc"), p("ddd\neee"))
   }
   
-  it should "parse a double space at a line end as a hard line break" in {
+  test("paragraphs - double space at a line end parsed as a hard line break") {
     run("some text  \nsome more", p(Text("some text"), LineBreak(), Text("\nsome more")))
   }
   
   
   
-  "The list parser" should "parse items that are not separated by blank lines as list items with flow content" in {
+  test("bullet lists - items not separated by blank lines as list items with flow content") {
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    run(input,BulletList("aaa","bbb","ccc"))
+    run(input, BulletList("aaa","bbb","ccc"))
   }
   
-  it should "parse items that are separated by blank lines as list items with paragraph" in {
+  test("bullet lists - items separated by blank lines as list items with 'forced' paragraphs") {
     val input = """* aaa
       |
       |* bbb
       |
       |* ccc""".stripMargin
-    run(input,BulletList(fp("aaa"), fp("bbb"), fp("ccc")))
+    run(input, BulletList(fp("aaa"), fp("bbb"), fp("ccc")))
   }
   
-  it should "parse items indented by a tab after the '*' in the same way as items indented by a space" in {
+  test("bullet lists - items indented by a tab after the '*' treated the same way as items indented by a space") {
     val input = """*	aaa
       |*	bbb
       |*	ccc""".stripMargin
-    run(input,BulletList("aaa","bbb","ccc"))
+    run(input, BulletList("aaa","bbb","ccc"))
   }
   
-  it should "parse items starting with a '+' the same way as those starting with a '*'" in {
+  test("bullet lists - items starting with a '+' treated the same way as those starting with a '*'") {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    run(input,BulletList(StringBullet("+"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(StringBullet("+"))("aaa", "bbb", "ccc"))
   }
   
-  it should "parse items starting with a '-' the same way as those starting with a '*'" in {
+  test("bullet lists - items starting with a '-' treated the same way as those starting with a '*'") {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    run(input,BulletList(StringBullet("-"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(StringBullet("-"))("aaa", "bbb", "ccc"))
   }
   
-  it should "parse items prefixed by numbers as items of an enumerated list" in {
+  test("bullet lists - items prefixed by numbers as items of an enumerated list") {
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    run(input,EnumList("aaa", "bbb", "ccc"))
+    run(input, EnumList("aaa", "bbb", "ccc"))
   }
   
-  it should "parse items prefixed by numbers and separated by blank lines as ordered list items with paragraph" in {
+  test("enum lists - items prefixed by numbers and separated by blank lines as ordered list items with paragraph") {
     val input = """1. aaa
       |
       |2. bbb
@@ -107,7 +106,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,EnumList(fp("aaa"), fp("bbb"), fp("ccc")))
   }
   
-  it should "parse items prefixed by numbers containing multiple paragraphs in a single item" in {
+  test("enum lists - items prefixed by numbers containing multiple paragraphs in a single item") {
     val input = """1. aaa
       |   
       |   bbb
@@ -124,7 +123,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,expected)
   }
   
-  it should "parse nested items indented by spaces" in {
+  test("bullet lists - nested items indented by spaces") {
     val input = """*   aaa
                   |    *   bbb
                   |        * ccc""".stripMargin
@@ -136,7 +135,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,list1)
   }
   
-  it should "parse nested items indented by tabs" in {
+  test("bullet lists - nested items indented by tabs") {
     val input = """*	aaa
       |	* bbb
       |		* ccc""".stripMargin
@@ -148,7 +147,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,list1)
   }
   
-  it should "parse a bullet list nested inside an enumerated list" in {
+  test("lists - bullet list nested inside enumerated list") {
     val input = """1.  111
       |2.  222
       |    * aaa
@@ -165,7 +164,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,expected)
   }
   
-  it should "parse a bullet list nested inside an enumerated list with blank lines between the items" in {
+  test("lists - bullet list nested inside enumerated list with blank lines between the items") {
     val input = """1.  111
       |
       |2.  222
@@ -184,7 +183,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input,expected)
   }
   
-  it should "parse a list nested between two paragraphs inside a list item" in {
+  test("enum lists - list nested between two paragraphs inside a list item") {
     val input = """*	aaa
       |
       |	*	bbb
@@ -198,21 +197,21 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The blockquote parser" should "parse a paragraph decorated with '>' at the beginning of each line" in {
+  test("blockquotes - paragraph decorated with '>' at the beginning of each line") {
     val input = """>aaa
       |>bbb
       |>ccc""".stripMargin
     run(input, QuotedBlock("aaa\nbbb\nccc"))
   }
   
-  it should "parse a paragraph decorated with '>' only at the beginning of the first line" in {
+  test("blockquotes - paragraph decorated with '>' only at the beginning of the first line") {
     val input = """>aaa
       |bbb
       |ccc""".stripMargin
     run(input, QuotedBlock("aaa\nbbb\nccc"))
   }
   
-  it should "parse two adjacent paragraphs decorated with '>' as a single blockquote with two paragraphs" in {
+  test("blockquotes - two adjacent paragraphs decorated with '>' as a single blockquote with two paragraphs") {
     val input = """>aaa
       |bbb
       |ccc
@@ -223,7 +222,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, QuotedBlock(p("aaa\nbbb\nccc"),p("ddd\neee\nfff")))
   }
   
-  it should "parse a nested blockquote decorated with a second '>'" in {
+  test("blockquotes - nested blockquote decorated with a second '>'") {
     val input = """>aaa
       |>
       |>>bbb
@@ -232,7 +231,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, QuotedBlock(p("aaa"), QuotedBlock("bbb"), p("ccc")))
   }
 
-  it should "prevent endless recursion and stop after the configured maximum of 12 nest levels" in {
+  test("blockquotes - prevent endless recursion and stop after the configured maximum of 12 nest levels") {
     val input = ">>>>>>>>>>>>>>>>aaa\n\nbbb"
     // 3 '>' chars left (16 minus root level minus 12 nest levels)
     val res = defaultParser.parse(input).toOption
@@ -241,7 +240,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The literal block parser" should "parse paragraphs indented with 4 or more spaces as a code block" in {
+  test("literal blocks - paragraphs indented with 4 or more spaces as a code block") {
     val input = """    code
       |
       |text
@@ -254,7 +253,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, LiteralBlock("code"), p("text"), LiteralBlock("code"), p("text"), LiteralBlock("code"))
   }
   
-  it should "parse paragraphs indented with 1 or more tabs as a code block" in {
+  test("literal blocks - paragraphs indented with 1 or more tabs as a code block") {
     val input = """	code
       |
       |text
@@ -267,7 +266,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, LiteralBlock("code"), p("text"), LiteralBlock("code"), p("text"), LiteralBlock("code"))
   }
   
-  it should "parse indented lines separated by blank lines into a single code block" in {
+  test("literal blocks - indented lines separated by blank lines as a single code block") {
     val input = """    code 1
       |
       |    code 2
@@ -278,7 +277,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The setext header parser" should "parse a title decorated by one or more '=' on the following line as a level 1 header" in {
+  test("setext header - title decorated by one or more '=' on the following line as a level 1 header") {
     val input = """aaa
       |bbb
       |
@@ -287,7 +286,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(1, "CCC"))
   }
   
-  it should "parse a title decorated by one or more '-' on the following line as a level 2 header" in {
+  test("setext header - title decorated by one or more '-' on the following line as a level 2 header") {
     val input = """aaa
       |bbb
       |
@@ -296,7 +295,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(2, "CCC"))
   }
   
-  it should "parse a title that includes markup" in {
+  test("setext header - title that includes markup") {
     val input = """aaa
       |bbb
       |
@@ -307,7 +306,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The atx header parser" should "parse a title decorated by one '#' on the beginning of the line as a level 1 header" in {
+  test("atx header - title decorated by one '#' on the beginning of the line as a level 1 header") {
     val input = """aaa
       |bbb
       |
@@ -315,7 +314,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(1, "CCC"))
   }
   
-  it should "parse a title decorated by three '#' on the beginning of the line as a level 3 header" in {
+  test("atx header - title decorated by three '#' on the beginning of the line as a level 3 header") {
     val input = """aaa
       |bbb
       |
@@ -323,7 +322,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(3, "CCC"))
   }
 
-  it should "parse a title decorated by six '#' on the beginning of the line as a level 3 header" in {
+  test("atx header - title decorated by six '#' on the beginning of the line as a level 3 header") {
     val input = """aaa
       |bbb
       |
@@ -331,7 +330,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(6, "CCC"))
   }
   
-  it should "parse a title that includes markup" in {
+  test("atx header - title that includes markup") {
     val input = """aaa
       |bbb
       |
@@ -339,7 +338,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(5, Text("CCC "), Literal("DDD"), Text(" EEE")))
   }
   
-  it should "strip all trailing '#' from the header" in {
+  test("atx header - strip all trailing '#' from the header") {
     val input = """aaa
       |bbb
       |
@@ -347,7 +346,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Header(4, "CCC DDD EEE"))
   }
   
-  it should "ignore title lines without title text" in {
+  test("atx header - ignore title lines without title text") {
     val input = """aaa
       |bbb
       |
@@ -357,7 +356,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The rule parser" should "parse a line decorated by '-' and space characters ending on a '-' as a horizontal rule" in {
+  test("rules - line decorated by '-' and space characters ending on a '-'") {
     val input = """aaa
       |bbb
       |
@@ -367,7 +366,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
   
-  it should "parse a line decorated by '-' and space characters ending on several spaces as a horizontal rule" in {
+  test("rules - line decorated by '-' and space characters ending on several spaces") {
     val input = """aaa
       |bbb
       |
@@ -377,7 +376,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
   
-  it should "parse a line decorated by '-' and space characters even if the number of spaces varies" in {
+  test("rules - line decorated by '-' and space characters even if the number of spaces varies") {
     val input = """aaa
       |bbb
       |
@@ -387,7 +386,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
   
-  it should "treat a line decorated by '_' and space characters as normal text in case it is followed by other characters" in {
+  test("rules - treat a line decorated by '_' and space characters as normal text in case it is followed by other characters") {
     val input = """aaa
       |bbb
       |
@@ -397,7 +396,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), p("_ _ _ _ abc"), p("ccc"))
   }
   
-  it should "treat a line decorated by '_' and space characters as normal text in case the pattern is repeated less than 3 times" in {
+  test("rules - treat a line decorated by '_' and space characters as normal text in case the pattern is repeated less than 3 times") {
     val input = """aaa
       |bbb
       |
@@ -407,7 +406,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), p("_ _"), p("ccc"))
   }
   
-  it should "parse a line decorated by '-' and space characters indented up to 3 spaces as a horizontal rule" in {
+  test("rules - line decorated by '-' and space characters indented up to 3 spaces") {
     val input = """aaa
       |bbb
       |
@@ -417,7 +416,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
   
-  it should "parse a line decorated by '-' without space characters as a horizontal rule" in {
+  test("rules - line decorated by '-' without space characters") {
     val input = """aaa
       |bbb
       |
@@ -427,7 +426,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
 
-  it should "parse a line decorated by '_' and space characters" in {
+  test("rules - line decorated by '_' and space characters") {
     val input = """aaa
       |bbb
       |
@@ -437,7 +436,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, p("aaa\nbbb"), Rule(), p("ccc"))
   }
   
-  it should "parse a line decorated by '*' and space characters" in {
+  test("rules - line decorated by '*' and space characters") {
     val input = """aaa
       |bbb
       |
@@ -449,57 +448,57 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
   
   
   
-  "The link target parser" should "parse a link target without title and url without angle brackets" in {
+  test("link target without title and url without angle brackets") {
     val input = """[def]: http://foo/""".stripMargin
     run(input, LinkDefinition("def", ExternalTarget("http://foo/"), None))
   }
   
-  it should "parse a link target without title and url in angle brackets" in {
+  test("link target without title and url in angle brackets") {
     val input = """[def]: <http://foo/>""".stripMargin
     run(input, LinkDefinition("def", ExternalTarget("http://foo/"), None))
   }
   
-  it should "parse a link target with title enclosed in double quotes" in {
+  test("link target with title enclosed in double quotes") {
     val input = """[def]: <http://foo/> "Some Title"   """.stripMargin
     run(input, LinkDefinition("def", ExternalTarget("http://foo/"), Some("Some Title")))
   }
   
-  it should "parse a link target with title enclosed in single quotes" in {
+  test("link target with title enclosed in single quotes") {
     val input = """[def]: <http://foo/> 'Some Title'   """.stripMargin
     run(input, LinkDefinition("def", ExternalTarget("http://foo/"), Some("Some Title")))
   }
   
-  it should "parse a link target with title enclosed in parentheses" in {
+  test("link target with title enclosed in parentheses") {
     val input = """[def]: <http://foo/> (Some Title)""".stripMargin
     run(input, LinkDefinition("def", ExternalTarget("http://foo/"), Some("Some Title")))
   }
   
-  it should "parse a link target with the title indented on the following line" in {
+  test("link target with the title indented on the following line") {
     val input = """[def]: <http://foo/> 
                   |       (Some Title)""".stripMargin
     run(input,LinkDefinition("def", ExternalTarget("http://foo/"), Some("Some Title")))
   }
   
-  it should "parse a link target ignoring the title when it is following after a blank line" in {
+  test("link target ignoring the title when it is following after a blank line") {
     val input = """[def]: <http://foo/> 
                   |
                   |       (Some Title)""".stripMargin
     run(input,LinkDefinition("def", ExternalTarget("http://foo/"), None), LiteralBlock("   (Some Title)"))
   }
   
-  it should "parse an internal target" in {
+  test("internal target") {
     val input = """[def]: ../foo/bar.md#xy""".stripMargin
     run(input,LinkDefinition("def", InternalTarget(RelativePath.parse("../foo/bar.md#xy"))))
   }
 
-  it should "parse an internal target with title enclosed in parentheses" in {
+  test("internal target with title enclosed in parentheses") {
     val input = """[def]: foo/bar.md#xy (Some Title)""".stripMargin
     run(input,LinkDefinition("def", InternalTarget(RelativePath.parse("foo/bar.md#xy")), Some("Some Title")))
   }
   
   
   
-  "The block parser" should "parse a code block nested inside a list" in {
+  test("code block nested inside a list") {
     val input = """* aaa
       |* bbb
       |
@@ -513,7 +512,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, expected)
   }
   
-  it should "parse a blockquote nested inside a list" in {
+  test("blockquote nested inside a list") {
     val input = """* aaa
       |* bbb
       |
@@ -527,7 +526,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, expected)
   }
   
-  it should "parse a list nested inside a blockquote" in {
+  test("list nested inside a blockquote") {
     val input = """>aaa
       |>bbb
       |>
@@ -536,7 +535,7 @@ class BlockParsersSpec extends MigrationFlatSpec with ParagraphCompanionShortcut
     run(input, QuotedBlock( p("aaa\nbbb"), BulletList("ccc", "ddd")))
   }
   
-  it should "parse a code block nested inside a blockquote" in {
+  test("code block nested inside a blockquote") {
     val input = """>aaa
       |>bbb
       |>

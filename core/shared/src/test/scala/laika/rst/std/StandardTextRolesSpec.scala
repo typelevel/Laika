@@ -23,191 +23,177 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.ReStructuredText
 import laika.rst.ast.RstStyle
 import laika.rst.ext.ExtensionProvider
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
  * @author Jens Halm
  */
-class StandardTextRolesSpec extends AnyFlatSpec 
-  with Matchers 
-  with ParagraphCompanionShortcuts
-  with TestSourceBuilders {
+class StandardTextRolesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
   private val parser = MarkupParser
     .of(ReStructuredText)
     .failOnMessages(MessageFilter.None)
     .build
   
-  def parse (input: String): RootElement = parser.parse(input).toOption.get.content
+  def run (input: String, expected: Block*): Unit =
+    assertEquals(parser.parse(input).map(_.content), Right(RootElement(expected)))
+
+  def run (input: String, expected: Span): Unit = run(input, p(Text("some "), expected))
   
   
-  "The emphasis text role" should "produce an Emphasized node without styles" in {
+  test("emphasis - without styles") {
     val input = "some :emphasis:`text`"
-    val result = RootElement(p(Text("some "),Emphasized("text")))
-    parse(input) should be (result)
+    run(input, Emphasized("text"))
   }
   
-  it should "be customizable with a custom style" in {
+  test("emphasis - with custom style") {
     val input = """.. role:: foo(emphasis)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")),Styles("foo"))))
-    parse(input) should be (result)
+    run(input, Emphasized(List(Text("text")),Styles("foo")))
   }
   
   
-  "The strong text role" should "produce a Strong node without styles" in {
+  test("strong - without styles") {
     val input = "some :strong:`text`"
-    val result = RootElement(p(Text("some "),Strong("text")))
-    parse(input) should be (result)
+    run(input, Strong("text"))
   }
   
-  it should "be customizable with a custom style" in {
+  test("strong - with custom style") {
     val input = """.. role:: foo(strong)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Strong(List(Text("text")),Styles("foo"))))
-    parse(input) should be (result)
+    run(input, Strong(List(Text("text")),Styles("foo")))
   }
   
   
-  "The literal text role" should "produce a Literal node without styles" in {
+  test("literal - without styles") {
     val input = "some :literal:`text`"
-    val result = RootElement(p(Text("some "), Literal("text")))
-    parse(input) should be (result)
+    run(input, Literal("text"))
   }
   
-  it should "be customizable with a custom style" in {
+  test("literal - with custom style") {
     val input = """.. role:: foo(literal)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Literal("text",Styles("foo"))))
-    parse(input) should be (result)
+    run(input, Literal("text",Styles("foo")))
   }
   
   
-  "The subscript text role" should "produce a text node with subscript style" in {
+  test("subscript - without styles") {
     val input = "some :subscript:`text`"
-    val result = RootElement(p(Text("some "), Text("text", RstStyle.subscript)))
-    parse(input) should be (result)
+    run(input, Text("text", RstStyle.subscript))
   }
   
-  it should "be customizable with a custom style" in {
+  test("subscript - with custom style") {
     val input = """.. role:: foo(subscript)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Text("text", Styles("foo") + RstStyle.subscript)))
-    parse(input) should be (result)
+    run(input, Text("text", Styles("foo") + RstStyle.subscript))
   }
   
-  it should "support the sub alias" in {
+  test("subscript - sub alias") {
     val input = "some :sub:`text`"
-    val result = RootElement(p(Text("some "), Text("text", RstStyle.subscript)))
-    parse(input) should be (result)
+    run(input, Text("text", RstStyle.subscript))
   }
   
   
-  "The superscript text role" should "produce a text node with superscript style" in {
+  test("superscript - without styles") {
     val input = "some :superscript:`text`"
-    val result = RootElement(p(Text("some "), Text("text", RstStyle.superscript)))
-    parse(input) should be (result)
+    run(input, Text("text", RstStyle.superscript))
   }
   
-  it should "be customizable with a custom style" in {
+  test("superscript - with custom style") {
     val input = """.. role:: foo(superscript)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Text("text", Styles("foo") + RstStyle.superscript)))
-    parse(input) should be (result)
+    run(input, Text("text", Styles("foo") + RstStyle.superscript))
   }
   
-  it should "support the sup alias" in {
+  test("superscript - sup alias") {
     val input = "some :sup:`text`"
-    val result = RootElement(p(Text("some "), Text("text", RstStyle.superscript)))
-    parse(input) should be (result)
+    run(input, Text("text", RstStyle.superscript))
   }
   
   
-  "The title-reference text role" should "produce an Emphasized node with title-reference style" in {
+  test("title-reference - without styles") {
     val input = "some :title-reference:`text`"
-    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
-    parse(input) should be (result)
+    run(input, Emphasized(List(Text("text")), RstStyle.titleReference))
   }
   
-  it should "be customizable with a custom style" in {
+  test("title-reference - with custom style") {
     val input = """.. role:: foo(title-reference)
       | :class: foo
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), Styles("foo") + RstStyle.titleReference)))
-    parse(input) should be (result)
+    run(input, Emphasized(List(Text("text")), Styles("foo") + RstStyle.titleReference))
   }
   
-  it should "support the title alias" in {
+  test("support the title alias") {
     val input = "some :title:`text`"
-    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
-    parse(input) should be (result)
+    run(input, Emphasized(List(Text("text")), RstStyle.titleReference))
   }
   
-  it should "be used as the default role if none is specified" in {
+  test("be used as the default role if none is specified") {
     val input = "some `text`"
-    val result = RootElement(p(Text("some "), Emphasized(List(Text("text")), RstStyle.titleReference)))
-    parse(input) should be (result)
+    run(input, Emphasized(List(Text("text")), RstStyle.titleReference))
   }
   
   
-  "The code text role" should "produce a code span without styles" in {
+  test("code - without styles") {
     val input = "some :code:`text`"
-    val result = RootElement(p(Text("some "), InlineCode("", List(Text("text")))))
-    parse(input) should be (result)
+    run(input, InlineCode("", List(Text("text"))))
   }
   
-  it should "be customizable with a custom style and language" in {
+  test("code - with custom style and language") {
     val input = """.. role:: foo(code)
       | :class: foo
       | :language: banana-script
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), InlineCode("banana-script", List(Text("text")), Styles("foo"))))
-    parse(input) should be (result)
+    run(input, InlineCode("banana-script", List(Text("text")), Styles("foo")))
   }
   
   
-  "The raw text role" should "produce raw content with format and style options" in {
+  test("raw - with format and style options") {
     val input = """.. role:: foo(raw)
       | :class: foo
       | :format: AML BML CML
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(p(Text("some "), RawContent(NonEmptySet.of("AML","BML","CML"), "text", Styles("foo"))))
-    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
+    val res = MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).map(_.content)
+    val expected = RootElement(p(Text("some "), RawContent(NonEmptySet.of("AML","BML","CML"), "text", Styles("foo"))))
+    assertEquals(res, Right(expected))
   }
 
-  it should "be disabled by default" in {
+  test("raw - disabled by default") {
     val role = """.. role:: foo(raw)
                  | :format: AML BML CML""".stripMargin
     val input = s"""$role
       |
       |some :foo:`text`""".stripMargin
-    val result = RootElement(
+    run(input, 
       InvalidBlock("unknown text role: raw", source(role, input, defaultPath)),
       p(Text("some "), InvalidSpan("unknown text role: foo", source(":foo:`text`", input, defaultPath)))
     )
-    parse(input) should be (result)
   }
   
   
-  "The default text role" should "be adjustable through the API" in {
+  test("default text configurable through the API") {
     val input = "some `text`"
-    val result = RootElement(p(Text("some "), Emphasized("text")))
-    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forDefaultTextRole("emphasis")).build.parse(input)
-      .toOption.get.content should be (result)
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(ExtensionProvider.forDefaultTextRole("emphasis"))
+      .build
+      .parse(input)
+      .map(_.content)
+    val expected = RootElement(p(Text("some "), Emphasized("text")))
+    assertEquals(res, Right(expected))
   } 
   
   

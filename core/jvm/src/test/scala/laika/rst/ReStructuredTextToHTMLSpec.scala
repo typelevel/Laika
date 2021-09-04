@@ -25,16 +25,14 @@ import laika.file.FileIO
 import laika.format.{HTML, ReStructuredText}
 import laika.html.TidyHTML
 import laika.render.HTMLFormatter
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 import scala.io.Codec
 
 /**
  * @author Jens Halm
  */
-class ReStructuredTextToHTMLSpec extends AnyFlatSpec 
-                                 with Matchers {
+class ReStructuredTextToHTMLSpec extends FunSuite {
   
   implicit val codec: Codec = Codec.UTF8
     
@@ -119,13 +117,15 @@ class ReStructuredTextToHTMLSpec extends AnyFlatSpec
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .transform(input, Root / "doc")
+      .map(tidyAndAdjust)
     
     val expected = FileIO.readFile(path + "-tidy.html")
-    tidyAndAdjust(actual.toOption.get) should be (expected)
+    
+    assertEquals(actual, Right(expected))
   }
   
   
-  "The adjusted transformer for reStructuredText" should "transform the reStructuredText specification to HTML equivalent to the output of the reference parser" in {
+  test("transform the reStructuredText specification to HTML equivalent to the output of the reference parser") {
     transformAndCompare("rst-spec")
   }
   

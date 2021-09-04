@@ -21,12 +21,9 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{HTML, ReStructuredText}
 import laika.rst.ast._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class ExtendedHTMLRendererSpec extends AnyFlatSpec
-                       with Matchers
-                       with ParagraphCompanionShortcuts {
+class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts {
  
   
   def render (elem: Element): String = Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
@@ -35,12 +32,13 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
     Renderer.of(HTML).renderMessages(messageFilter).using(ReStructuredText.extensions:_*).build.render(elem)
   
   
-  "The Extended HTML renderer" should "render a doctest block" in {
+  test("render a doctest block") {
     val elem = DoctestBlock("some text")
-    render (elem) should be ("""<pre class="doctest-block">&gt;&gt;&gt; some text</pre>""") 
+    val html = """<pre class="doctest-block">&gt;&gt;&gt; some text</pre>"""
+    assertEquals(render(elem), html)
   }
   
-  it should "render a field list" in {
+  test("render a field list") {
     val elem = FieldList(List(
       Field(List(Text("name 1")), List(p("value 1"))),
       Field(List(Text("name 2")), List(p("value 2")))
@@ -61,10 +59,10 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render (elem) should be (html)
+    assertEquals(render(elem), html)
   }
   
-  it should "render a list of program options" in {
+  test("render a list of program options") {
     val option1 = OptionListItem(List(ProgramOption("-a", Some(OptionArgument("arg"," ")))), List(p("Description 1")))
     val option2 = OptionListItem(List(ProgramOption("-b", None), ProgramOption("--foo", Some(OptionArgument("bar","=")))), List(p("Description 2")))
     val elem = OptionList(List(option1,option2))
@@ -88,10 +86,10 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    render (elem) should be (html)
+    assertEquals(render(elem), html)
   }
 
-  it should "render nested line blocks" in {
+  test("render nested line blocks") {
     val elem = LineBlock(LineBlock(Line("1"),Line("2")), Line("3"))
     val html = """<div class="line-block">
                  |  <div class="line-block">
@@ -100,7 +98,7 @@ class ExtendedHTMLRendererSpec extends AnyFlatSpec
                  |  </div>
                  |  <div class="line">3</div>
                  |</div>""".stripMargin
-    render(elem) should be (html)
+    assertEquals(render(elem), html)
   }
   
 }

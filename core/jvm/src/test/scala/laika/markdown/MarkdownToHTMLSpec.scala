@@ -21,16 +21,14 @@ import laika.ast.{ExternalTarget, Header, Id, InvalidSpan, LinkPathReference, Li
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 import scala.io.Codec
 
 /**
  * @author Jens Halm
  */
-class MarkdownToHTMLSpec extends AnyFlatSpec 
-                         with Matchers {
+class MarkdownToHTMLSpec extends FunSuite {
   
   implicit val codec: Codec = Codec.UTF8
   
@@ -70,98 +68,100 @@ class MarkdownToHTMLSpec extends AnyFlatSpec
       .failOnMessages(MessageFilter.None)
       .build
       .transform(input)
+      .map(tidyAndAdjust)
 
-    val expected = FileIO.readFile(path + ".html")
-    tidyAndAdjust(actual.toOption.get) should be (tidyAndAdjust(expected))
+    val expected = tidyAndAdjust(FileIO.readFile(path + ".html"))
+    
+    assertEquals(actual, Right(expected))
   }
   
   
-  "The official Markdown test suite" should "pass for 'Amps and angle encoding'" in {
+  test("pass for 'Amps and angle encoding'") {
     transformAndCompare("Amps and angle encoding")
   }
   
-  it should "pass for 'Auto links'" in {
+  test("pass for 'Auto links'") {
     transformAndCompare("Auto links")
   }
   
-  it should "pass for 'Backslash escapes'" in {
+  test("pass for 'Backslash escapes'") {
     transformAndCompare("Backslash escapes")
   }
   
-  it should "pass for 'Blockquotes with code blocks'" in {
+  test("pass for 'Blockquotes with code blocks'") {
     transformAndCompare("Blockquotes with code blocks")
   }
   
-  it should "pass for 'Code Blocks'" in {
+  test("pass for 'Code Blocks'") {
     transformAndCompare("Code Blocks")
   }
   
-  it should "pass for 'Code Spans'" in {
+  test("pass for 'Code Spans'") {
     transformAndCompare("Code Spans")
   }
   
-  it should "pass for 'Hard-wrapped paragraphs with list-like lines'" in {
+  test("pass for 'Hard-wrapped paragraphs with list-like lines'") {
     transformAndCompare("Hard-wrapped paragraphs with list-like lines")
   }
   
-  it should "pass for 'Horizontal rules'" in {
+  test("pass for 'Horizontal rules'") {
     transformAndCompare("Horizontal rules")
   }
   
-  it should "pass for 'Inline HTML (Advanced)'" in {
+  test("pass for 'Inline HTML (Advanced)'") {
     transformAndCompare("Inline HTML (Advanced)")
   }
   
-  it should "pass for 'Inline HTML (Simple)'" in {
+  test("pass for 'Inline HTML (Simple)'") {
     transformAndCompare("Inline HTML (Simple)")
   }
   
-  it should "pass for 'Inline HTML comments'" in {
+  test("pass for 'Inline HTML comments'") {
     transformAndCompare("Inline HTML comments")
   }
   
-  it should "pass for 'Links, inline style'" in {
+  test("pass for 'Links, inline style'") {
     transformAndCompare("Links, inline style")
   }
   
-  it should "pass for 'Links, reference style'" in {
+  test("pass for 'Links, reference style'") {
     transformAndCompare("Links, reference style")
   }
   
-  it should "pass for 'Links, shortcut references'" in {
+  test("pass for 'Links, shortcut references'") {
     transformAndCompare("Links, shortcut references")
   }
   
-  it should "pass for 'Literal quotes in titles'" in {
+  test("pass for 'Literal quotes in titles'") {
     transformAndCompare("Literal quotes in titles")
   }
   
-  it should "pass for 'Nested blockquotes'" in {
+  test("pass for 'Nested blockquotes'") {
     transformAndCompare("Nested blockquotes")
   }
   
-  it should "pass for 'Ordered and unordered lists'" in {
+  test("pass for 'Ordered and unordered lists'") {
     transformAndCompare("Ordered and unordered lists")
   }
   
-  it should "pass for 'Strong and em together'" in {
+  test("pass for 'Strong and em together'") {
     transformAndCompare("Strong and em together")
   }
   
-  it should "pass for 'Tabs'" in {
+  test("pass for 'Tabs'") {
     transformAndCompare("Tabs")
   }
   
-  it should "pass for 'Tidyness'" in {
+  test("pass for 'Tidyness'") {
     transformAndCompare("Tidyness")
   }
   
   
-  it should "pass for 'Full Docs - Basics'" in {
+  test("pass for 'Full Docs - Basics'") {
     transformAndCompare("Markdown Documentation - Basics")
   }
   
-  it should "pass for 'Full Docs - Syntax'" in {
+  test("pass for 'Full Docs - Syntax'") {
     transformAndCompare("Markdown Documentation - Syntax")
   }
   

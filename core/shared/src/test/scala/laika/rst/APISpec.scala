@@ -26,15 +26,12 @@ import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionProvider
 import laika.rst.ext.TextRoles._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
-class APISpec extends AnyFlatSpec 
-                 with Matchers
-                 with ParagraphCompanionShortcuts {
+class APISpec extends FunSuite with ParagraphCompanionShortcuts {
   
   
-  "The API" should "support registration of block directives" in {
+  test("registration of native block directives") {
     val directives = List(
       BlockDirective("oneArg")(argument() map p),
       BlockDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => p(arg1+arg2) })
@@ -42,11 +39,16 @@ class APISpec extends AnyFlatSpec
     val input = """.. oneArg:: arg
       |
       |.. twoArgs:: arg arg""".stripMargin
-    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(blocks = directives)).build.parse(input)
-      .toOption.get.content should be (RootElement(p("arg"),p("argarg")))
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(ExtensionProvider.forExtensions(blocks = directives))
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p("arg"), p("argarg"))))
   }
   
-  it should "support registration of span directives" in {
+  test("registration of native span directives") {
     val directives = List(
       SpanDirective("oneArg")(argument() map (Text(_))),
       SpanDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => Text(arg1+arg2) })
@@ -56,12 +58,16 @@ class APISpec extends AnyFlatSpec
       |.. |one| oneArg:: arg
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
-    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
-      .toOption.get.content should be (RootElement
-        (p(Text("foo arg foo argarg"))))
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(ExtensionProvider.forExtensions(spans = directives))
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p(Text("foo arg foo argarg")))))
   }
   
-  it should "support registration of text roles" in {
+  test("registration of text roles") {
     import laika.rst.ext.TextRoles.{Parts => P}
     val roles = List(
       TextRole("oneArg", "foo1")(P.field("name")) { (res,text) =>
@@ -79,14 +85,19 @@ class APISpec extends AnyFlatSpec
       |.. role::two(twoArgs)
       | :name1: val1
       | :name2: val2""".stripMargin
-    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
-      .toOption.get.content should be (RootElement(p(Text("foo valone foo val1val2two"))))
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(ExtensionProvider.forExtensions(roles = roles))
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p(Text("foo valone foo val1val2two")))))
   }
   
-  trait BlockDirectives {
+  object BlockDirectives {
     import Blocks.dsl._
 
-    object TestDirectives extends DirectiveRegistry {
+    object Registry extends DirectiveRegistry {
 
       val blockDirectives: List[Blocks.Directive] = List(
         Blocks.create("oneArg")(attribute(0).as[String] map p),
@@ -100,11 +111,11 @@ class APISpec extends AnyFlatSpec
       val linkDirectives = Seq()
     }
   }
-  
-  trait SpanDirectives {
+
+  object SpanDirectives {
     import Spans.dsl._
 
-    object TestDirectives extends DirectiveRegistry {
+    object Registry extends DirectiveRegistry {
 
       val spanDirectives: List[Spans.Directive] = List(
         Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
@@ -121,44 +132,67 @@ class APISpec extends AnyFlatSpec
     }
   }
   
-  it should "support the registration of Laika block directives" in {
-    new BlockDirectives {
-      val input = """@:oneArg(arg)
-        |
-        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("arg"),p("arg1arg2")))
-    }
+  test("registration of Laika block directives") {
+    val input = """@:oneArg(arg)
+      |
+      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(BlockDirectives.Registry)
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p("arg"),p("arg1arg2"))))
   }
 
-  it should "ignore the registration of Laika block directives when run in strict mode" in {
-    new BlockDirectives {
-      val input = """@:oneArg(arg)
-        |
-        |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }")))
-    }
+  test("ignore registration of Laika block directives in strict mode") {
+    val input = """@:oneArg(arg)
+      |
+      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(BlockDirectives.Registry)
+      .strict
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }"))))
   }
   
-  it should "support the registration of Laika span directives" in {
-    new SpanDirectives {
-      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).toOption.get.content should be (RootElement(p("one arg two arg1arg2 three")))
-    }
+  test("registration of Laika span directives") {
+    val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(SpanDirectives.Registry)
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p("one arg two arg1arg2 three"))))
   }
 
-  it should "ignore the registration of Laika span directives when run in strict mode" in {
-    new SpanDirectives {
-      val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).toOption.get.content should be (RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
-    }
+  test("ignore registration of Laika span directives in strict mode") {
+    val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .using(SpanDirectives.Registry)
+      .strict
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"))))
   }
   
-  it should "pre-process tabs" in {
+  test("pre-process tabs") {
     val input = " Line1\n\tLine2\n\tLine3"
     val list = DefinitionList(
       DefinitionListItem("Line1", p("Line2\nLine3"))
     )
-    MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content should be (RootElement(QuotedBlock(list)))
+    val res = MarkupParser
+      .of(ReStructuredText)
+      .build
+      .parse(input)
+      .map(_.content)
+    assertEquals(res, Right(RootElement(QuotedBlock(list))))
   }
   
 

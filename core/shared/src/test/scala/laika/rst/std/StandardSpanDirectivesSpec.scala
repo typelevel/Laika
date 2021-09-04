@@ -17,100 +17,95 @@
 package laika.rst.std
 
 import java.util.Date
-
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.ReStructuredText
+import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.link.LinkConfig
 import laika.time.PlatformDateFormat
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
  * @author Jens Halm
  */
-class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with ParagraphCompanionShortcuts {
+class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts {
 
+  private val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
+  
   private val parser = MarkupParser
     .of(ReStructuredText)
     .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
 
-  def parse (input: String): RootElement = parser.parse(input, Root / "test.rst").toOption.get.content
+  def parse (input: String): Either[ParserError, RootElement] = 
+    parser.parse(input, Root / "test.rst").map(_.content)
   
-  val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
+  def run (input: String, expected: Block*): Unit =
+    assertEquals(parse(input), Right(RootElement(expected)))
   
-  "The image directive" should "parse the URI argument" in {
+  test("image - without options") {
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "),Image(imgTarget)))
-    parse(input) should be (result)
+    run(input, p(Text("Some "),Image(imgTarget)))
   }
   
-  it should "support the alt option" in {
+  test("image - with alt option") {
     val input = """.. |subst| image:: picture.jpg
       | :alt: alt
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "),Image(imgTarget, alt = Some("alt"))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "),Image(imgTarget, alt = Some("alt"))))
   }
   
-  it should "support the target option with a simple reference" in {
+  test("image - with target option with a simple reference") {
     val input = """.. |subst| image:: picture.jpg
       | :target: ref_
       |
       |.. _ref: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
   }
   
-  it should "support the target option with a phrase reference" in {
+  test("image - with target option with a phrase reference") {
     val input = """.. |subst| image:: picture.jpg
       | :target: `some ref`_
       |
       |.. _`some ref`: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
   }
   
-  it should "support the target option with a uri" in {
+  test("image - with target option with a uri") {
     val input = """.. |subst| image:: picture.jpg
       | :target: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), SpanLink.external("http://foo.com/")(Image(imgTarget))))
   }
   
-  it should "support the class option" in {
+  test("image - with class option") {
     val input = """.. |subst| image:: picture.jpg
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "), Image(imgTarget, options = Styles("foo"))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), Image(imgTarget, options = Styles("foo"))))
   }
 
-  it should "support the align option" in {
+  test("image - with align option") {
     val input = """.. |subst| image:: picture.jpg
                   | :align: top
                   |
                   |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "), Image(imgTarget, options=Styles("align-top"))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), Image(imgTarget, options=Styles("align-top"))))
   }
 
-  it should "support the width and height option" in {
+  test("image - with width and height options") {
     val input = """.. |subst| image:: picture.jpg
                   | :width: 200px
                   | :height: 120px
@@ -118,11 +113,10 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(200))
     val expectedHeight = Some(LengthUnit.px(120))
-    val result = RootElement(p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), Image(imgTarget, width = expectedWidth,height = expectedHeight)))
   }
 
-  it should "support the scale option" in {
+  test("image - with scale option") {
     val input = """.. |subst| image:: picture.jpg
                   | :width: 200 px
                   | :height: 120 px
@@ -131,36 +125,34 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
                   |Some |subst|""".stripMargin
     val expectedWidth = Some(LengthUnit.px(100))
     val expectedHeight = Some(LengthUnit.px(60))
-    val result = RootElement(p(Text("Some "),Image(imgTarget, width = expectedWidth,height = expectedHeight)))
-    parse(input) should be (result)
+    run(input, p(Text("Some "), Image(imgTarget, width = expectedWidth,height = expectedHeight)))
   }
   
   
-  "The replace directive" should "support regular inline markup" in {
+  test("replace - regular inline markup") {
     val input = """.. |subst| replace:: *text* here
       |
       |Some |subst|""".stripMargin
-    val result = RootElement(p(Text("Some "),SpanSequence(Emphasized("text"),Text(" here"))))
-    parse(input) should be (result)
+    run(input, p(Text("Some "),SpanSequence(Emphasized("text"),Text(" here"))))
   }
 
-  "The date directive" should "use the default pattern when no pattern is specified" in {
+  test("date - using the default pattern when no pattern is specified") {
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
-    parse(input) should be (RootElement(p(Text(s"Some $date"))))
+    run(input, p(Text(s"Some $date")))
   }
   
-  it should "support custom patterns" in {
+  test("date - custom pattern") {
     val input = """.. |subst| date:: yyyy-MMM-dd
       |
       |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
-    parse(input) should be (RootElement(p(Text(s"Some $date"))))
+    run(input, p(Text(s"Some $date")))
   }
 
-  it should "support custom patterns with a time component" in {
+  test("date - custom pattern with a time component") {
 
     /* Avoid flaky tests caused by potential time differences (1 second offset), 
      * in particular when run on GitHub Actions with Scala.js
@@ -176,71 +168,63 @@ class StandardSpanDirectivesSpec extends AnyFlatSpec with Matchers with Paragrap
                   |Some |subst|""".stripMargin
     val date = PlatformDateFormat.format(new Date, format).toOption.get
     val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
-    stripMinutesAndSeconds(parse(input)) should be (result)
+    assertEquals(parse(input).map(stripMinutesAndSeconds), Right(result))
   }
   
-  "The unicode directive" should "support unicode hex values starting with '0x' intertwined with normal text" in {
+  test("unicode - hex values starting with '0x' intertwined with normal text") {
     val input = """.. |subst| unicode:: 0xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values starting with 'x' intertwined with normal text" in {
+  test("unicode - hex values starting with 'x' intertwined with normal text") {
     val input = """.. |subst| unicode:: xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values starting with '\\x' intertwined with normal text" in {
+  test("unicode - hex values starting with '\\x' intertwined with normal text") {
     val input = """.. |subst| unicode:: \xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values starting with 'U+' intertwined with normal text" in {
+  test("unicode - hex values starting with 'U+' intertwined with normal text") {
     val input = """.. |subst| unicode:: U+A9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values starting with 'u' intertwined with normal text" in {
+  test("unicode - hex values starting with 'u' intertwined with normal text") {
     val input = """.. |subst| unicode:: uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values starting with '\\u' intertwined with normal text" in {
+  test("unicode - hex values starting with '\\u' intertwined with normal text") {
     val input = """.. |subst| unicode:: \""" + """uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode hex values as XML-style entities intertwined with normal text" in {
+  test("unicode - hex values as XML-style entities intertwined with normal text") {
     val input = """.. |subst| unicode:: &#xA9; Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
-  it should "support unicode decimal values intertwined with normal text" in {
+  test("unicode - decimal values intertwined with normal text") {
     val input = """.. |subst| unicode:: 169 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = RootElement(p(Text("Copyright " + '\u00a9'.toString + " Company")))
-    parse(input) should be (result)
+    run(input, p(Text("Copyright " + '\u00a9'.toString + " Company")))
   }
   
   
