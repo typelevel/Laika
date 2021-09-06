@@ -27,7 +27,7 @@ import laika.io.runtime.{InputRuntime, OutputRuntime}
 
 import scala.io.Codec
 
-trait FileIO { this: IOSpec =>
+trait FileIO {
 
   def readFile (base: String): IO[String] = readFile(new File(base))
   

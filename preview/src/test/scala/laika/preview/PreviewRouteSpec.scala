@@ -20,32 +20,31 @@ import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.format.Markdown
-import laika.io.IOFunSuite
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.theme.Theme
+import munit.CatsEffectSuite
 import org.http4s.headers.`Content-Type`
 import org.http4s.implicits._
 import org.http4s.{MediaType, Method, Request, Response, Status, Uri}
-import org.scalatest.Assertion
 
-class PreviewRouteSpec extends IOFunSuite with InputBuilder {
+class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
   
-  def stringBody (expected: String)(response: Response[IO]): IO[Assertion] =
-    response.as[String].map(_ shouldBe expected)
+  def stringBody (expected: String)(response: Response[IO]): IO[Unit] =
+    response.as[String].assertEquals(expected)
 
-  def nonEmptyBody (response: Response[IO]): IO[Assertion] =
-    response.body.compile.last.map(_.nonEmpty shouldBe true)
+  def nonEmptyBody (response: Response[IO]): IO[Unit] =
+    response.body.compile.last.map(_.nonEmpty).assert
 
-  def ignoreBody (response: Response[IO]): IO[Assertion] = IO.pure(succeed)
+  def ignoreBody: Response[IO] => IO[Unit] = _ => IO.unit
 
-  val defaultParser = MarkupParser
+  private val defaultParser = MarkupParser
     .of(Markdown)
     .parallel[IO]
     .withTheme(Theme.empty)
     .build
-  
-  val defaultServer = {
+
+  private val defaultServer = {
     val inputs = build(Seq(
       (Root / "doc.md") -> "foo",
       (Root / "dir" / "README.md") -> "foo",
@@ -57,11 +56,11 @@ class PreviewRouteSpec extends IOFunSuite with InputBuilder {
   def check[A](actual:            IO[Response[IO]],
                expectedStatus:    Status,
                expectedMediaType: Option[MediaType] = None,
-               bodyCheck:         Response[IO] => IO[Assertion] = ignoreBody): IO[Assertion] =
+               bodyCheck:         Response[IO] => IO[Unit] = ignoreBody): IO[Unit] =
     actual.flatMap { response =>
-      response.status shouldBe expectedStatus
+      assertEquals(response.status, expectedStatus)
       expectedMediaType.foreach { mt =>
-        response.headers.get[`Content-Type`] shouldBe Some(`Content-Type`(mt))
+        assertEquals(response.headers.get[`Content-Type`], Some(`Content-Type`(mt)))
       }
       bodyCheck(response)
     }
@@ -69,8 +68,8 @@ class PreviewRouteSpec extends IOFunSuite with InputBuilder {
   def run (uri: Uri,
            expectedStatus:    Status,
            expectedMediaType: Option[MediaType] = None,
-           bodyCheck:         Response[IO] => IO[Assertion] = ignoreBody,
-           config:            ServerConfig = ServerConfig.defaults): Assertion = 
+           bodyCheck:         Response[IO] => IO[Unit] = ignoreBody,
+           config:            ServerConfig = ServerConfig.defaults): IO[Unit] = 
     defaultServer
       .withConfig(config)
       .buildRoutes
@@ -78,7 +77,6 @@ class PreviewRouteSpec extends IOFunSuite with InputBuilder {
         val res = app.run(Request[IO](Method.GET, uri))
         check(res, expectedStatus, expectedMediaType, bodyCheck)
       }
-      .run
 
   
   test("serve a rendered document") {
