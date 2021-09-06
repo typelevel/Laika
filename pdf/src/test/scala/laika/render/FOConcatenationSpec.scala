@@ -16,7 +16,6 @@
 
 package laika.render
 
-import cats.data.NonEmptyChain
 import cats.effect.IO
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -28,34 +27,35 @@ import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class FOConcatenationSpec extends AnyFlatSpec with Matchers with TestSourceBuilders {
+class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
-  val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
-  
-  val result = RenderedTreeRoot[IO](
+  private val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
+
+  private val result = RenderedTreeRoot[IO](
     tree = RenderedTree(Root, None, Seq(RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
     styles = TestTheme.foStyles
   )
   
-  "The FO concatenation" should "fail when there are invalid elements in the template result" in {
-    FOConcatenation(result, PDF.BookConfig(), OperationConfig.default) shouldBe Left(InvalidDocument(Root / "merged.fo", invalidElement))
+  test("fail when there are invalid elements in the template result") {
+    val actual = FOConcatenation(result, PDF.BookConfig(), OperationConfig.default)
+    val expected = Left(InvalidDocument(Root / "merged.fo", invalidElement))
+    assertEquals(actual, expected)
   }
   
-  it should "succeed when there are errors in the template result, but the filter is None" in {
+  test("succeed when there are errors in the template result, but the filter is None") {
     val config = OperationConfig.default.copy(
       renderMessages = MessageFilter.Warning,
       failOnMessages = MessageFilter.None
     )
-    val fo = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="9pt">faulty input</fo:inline>"""
-    FOConcatenation(result, PDF.BookConfig(), config) shouldBe Right(fo)
+    val expected = """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="9pt">faulty input</fo:inline>"""
+    assertEquals(FOConcatenation(result, PDF.BookConfig(), config), Right(expected))
   }
   
 }

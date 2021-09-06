@@ -18,16 +18,15 @@ package laika.ast.sample
 
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TemplateDocument}
 import laika.config.Config.ConfigResult
-import org.scalatest.Assertion
-import org.scalatest.matchers.should.Matchers
+import munit.Assertions
 
-trait DocumentTreeAssertions extends Matchers {
+trait DocumentTreeAssertions extends Assertions { self =>
 
   implicit class DocumentTreeRootEitherOps (val root: ConfigResult[DocumentTreeRoot]) {
 
     def assertEquals (expected: DocumentTreeRoot): Unit = {
       root.fold(
-        err  => fail(s"rewriting failed: $err"), 
+        err  => Assertions.fail(s"rewriting failed: $err"), 
         root => root.assertEquals(expected)
       )
     }
@@ -38,7 +37,7 @@ trait DocumentTreeAssertions extends Matchers {
 
     def assertEquals (expected: DocumentTree): Unit = {
       root.fold(
-        err  => fail(s"rewriting failed: $err"),
+        err  => Assertions.fail(s"rewriting failed: $err"),
         root => root.assertEquals(expected)
       )
     }
@@ -51,20 +50,14 @@ trait DocumentTreeAssertions extends Matchers {
 
       root.tree.assertEquals(expected.tree)
 
-      withClue("tree structure differs") {
-        root.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
-      }
-    
-      withClue(s"difference in cover documents") {
-        (root.coverDocument, expected.coverDocument) match {
-          case (Some(actual), Some(exp)) => actual.assertEquals(exp)
-          case _ => ()
-        }
+      self.assertEquals(root.allDocuments.map(_.path), expected.allDocuments.map(_.path), "tree structure differs")
+      
+      (root.coverDocument, expected.coverDocument) match {
+        case (Some(actual), Some(exp)) => actual.assertEquals(exp)
+        case _ => ()
       }
 
-      withClue(s"difference in static documents") {
-        root.staticDocuments shouldBe expected.staticDocuments
-      }
+      self.assertEquals(root.staticDocuments, expected.staticDocuments, "number or names of static documents differ")
       
     }
   }
@@ -73,10 +66,8 @@ trait DocumentTreeAssertions extends Matchers {
     
     def assertEquals (expected: DocumentTree): Unit = {
       
-      def validateStructure(): Assertion = {
-        withClue("tree structure differs") {
-          tree.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
-        }
+      def validateStructure(): Unit = {
+        self.assertEquals(tree.allDocuments.map(_.path), expected.allDocuments.map(_.path), "tree structure differs")
       }
       
       def validateContent(): Unit = {
@@ -85,20 +76,16 @@ trait DocumentTreeAssertions extends Matchers {
         }
       }
       
-      def collectTemplates (tree: DocumentTree): Seq[TemplateDocument] = tree.templates ++ (tree.content.collect {
+      def collectTemplates (tree: DocumentTree): Seq[TemplateDocument] = tree.templates ++ tree.content.collect {
         case child: DocumentTree => collectTemplates(child)
-      }.flatten)
+      }.flatten
       
       def validateTemplates(): Unit = {
         val actualTmp = collectTemplates(tree)
         val expectedTmp = collectTemplates(expected)
-        withClue("number or names of templates differs") {
-          actualTmp.map(_.path) shouldBe expectedTmp.map(_.path)
-        }
+        self.assertEquals(actualTmp.map(_.path), expectedTmp.map(_.path), "number or names of templates differs")
         actualTmp.zip(expectedTmp).foreach { case (actual, expected) =>
-          withClue(s"difference in content of template '${actual.path.toString}'") {
-            actual.content shouldBe expected.content
-          }
+          self.assertEquals(actual.content, expected.content, s"difference in content of template '${actual.path.toString}'")
         }
       }
       
@@ -113,15 +100,9 @@ trait DocumentTreeAssertions extends Matchers {
     
     def assertEquals (expected: Document): Unit = {
       val doc = s"of document '${actual.path.toString}'"
-      withClue(s"difference in content $doc") {
-        actual.content shouldBe expected.content
-      }
-      withClue(s"difference in title $doc") {
-        actual.title shouldBe expected.title
-      }
-      withClue(s"difference in fragments $doc") {
-        actual.fragments shouldBe expected.fragments
-      }
+      self.assertEquals(actual.content, expected.content, s"difference in content $doc")
+      self.assertEquals(actual.title, expected.title, s"difference in title $doc")
+      self.assertEquals(actual.fragments, expected.fragments, s"difference in fragments $doc")
     }
     
   }

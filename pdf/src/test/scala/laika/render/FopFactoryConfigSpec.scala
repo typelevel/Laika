@@ -21,13 +21,12 @@ import laika.helium.Helium
 import laika.helium.generate.ConfigGenerator
 import laika.render.pdf.FopFactoryBuilder
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class FopFactoryConfigSpec extends AnyFunSuite with Matchers {
+class FopFactoryConfigSpec extends FunSuite {
 
   
   def renderXML (helium: Helium): String = {
@@ -65,7 +64,7 @@ class FopFactoryConfigSpec extends AnyFunSuite with Matchers {
         |    </renderer>
         |  </renderers>
         |</fop>""".stripMargin
-    renderXML(Helium.defaults) shouldBe expected
+    assertEquals(renderXML(Helium.defaults), expected)
   }
   
   private val customXML = 
@@ -89,7 +88,7 @@ class FopFactoryConfigSpec extends AnyFunSuite with Matchers {
       FontDefinition(Font.embedFile("/projects/fonts/font-1.tff"), "Font-1", FontWeight.Normal, FontStyle.Normal),
       FontDefinition(Font.embedFile("/projects/fonts/font-2.tff"), "Font-2", FontWeight.Bold, FontStyle.Italic)
     )
-    renderXML(helium) shouldBe customXML
+    assertEquals(renderXML(helium), customXML)
   }
 
   test("custom fonts via 'all' selector") {
@@ -97,7 +96,7 @@ class FopFactoryConfigSpec extends AnyFunSuite with Matchers {
       FontDefinition(Font.embedFile("/projects/fonts/font-1.tff"), "Font-1", FontWeight.Normal, FontStyle.Normal),
       FontDefinition(Font.embedFile("/projects/fonts/font-2.tff"), "Font-2", FontWeight.Bold, FontStyle.Italic)
     )
-    renderXML(helium) shouldBe customXML
+    assertEquals(renderXML(helium), customXML)
   }
   
 }

@@ -16,18 +16,17 @@
 
 package laika.render
 
-import java.io.{BufferedInputStream, File, FileInputStream}
-
 import cats.effect.IO
-import cats.implicits._
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.format.{Markdown, PDF}
+import laika.io.FileIO
 import laika.io.implicits._
 import laika.io.model.{InputTree, ParsedTree}
-import laika.io.{FileIO, IOWordSpec}
 import laika.rewrite.DefaultTemplatePath
-import org.scalatest.Assertion
+import munit.CatsEffectSuite
+
+import java.io.{BufferedInputStream, File, FileInputStream}
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -38,10 +37,10 @@ import org.scalatest.Assertion
  *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having 
  *  limited scope in this particular spec is acceptable.  
  */
-class PDFRendererSpec extends IOWordSpec with FileIO {
+class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   
-  trait FileSetup {
+  class FileSetup {
     
     val file: File = File.createTempFile("output", null)
     
@@ -50,49 +49,49 @@ class PDFRendererSpec extends IOWordSpec with FileIO {
       read <- IO(in.read)
     } yield read
     
-    def firstCharAvailable(render: IO[Unit]): Assertion = (render >> firstChar).asserting(_ should not be (-1))
+    def firstCharAvailable(render: IO[Unit]): IO[Unit] = (render >> firstChar).map(_ != -1).assert
   }
   
   
-  "The PDF Renderer" should {
-    
-    val templateParser = MarkupParser.of(Markdown).parallel[IO].build
-    
-    // run a parser with an empty input tree to obtain a parsed default template
-    val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
-    
-    def buildInputTree (templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
-      val treeWithTemplate = inputTree.copy(
-        templates = Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
-        config = templateTree.root.config
-      )
-      DocumentTreeRoot(treeWithTemplate)
-    }
+  private val templateParser = MarkupParser.of(Markdown).parallel[IO].build
+  
+  // run a parser with an empty input tree to obtain a parsed default template
+  private val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
+  
+  def buildInputTree (templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
+    val treeWithTemplate = inputTree.copy(
+      templates = Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
+      config = templateTree.root.config
+    )
+    DocumentTreeRoot(treeWithTemplate)
+  }
 
-    "render a tree to a file" in new PDFTreeModel with FileSetup {
-      val renderer = Renderer.of(PDF)
-        .parallel[IO]
-        .build
+  test("render a tree to a file") {
+    val fileSetup = new FileSetup
+    val renderer = Renderer.of(PDF)
+      .parallel[IO]
+      .build
 
-      val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
-        r.from(buildInputTree(templateTree, tree)).toFile(file).render
+    val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
+      r.from(buildInputTree(templateTree, createTree())).toFile(fileSetup.file).render
+    }}
+
+    fileSetup.firstCharAvailable(res)
+  }
+
+  test("render a tree to an OutputStream") {
+    val renderer = Renderer
+      .of(PDF)
+      .parallel[IO]
+      .build
+
+    withByteArrayOutput { out =>
+      renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree => 
+        r.from(buildInputTree(templateTree, createTree())).toStream(IO.pure(out)).render.void
       }}
-      
-      firstCharAvailable(res)
     }
-
-    "render a tree to an OutputStream" in new PDFTreeModel {
-      val renderer = Renderer
-        .of(PDF)
-        .parallel[IO]
-        .build
-
-      withByteArrayOutput { out =>
-        renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree => 
-          r.from(buildInputTree(templateTree, tree)).toStream(IO.pure(out)).render.void
-        }}
-      }.asserting(_ should not be empty)
-    }
-
+      .map(_.nonEmpty)
+      .assert
   }
+
 }

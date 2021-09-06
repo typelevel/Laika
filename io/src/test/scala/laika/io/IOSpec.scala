@@ -19,15 +19,121 @@ package laika.io
 import cats.implicits._
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import laika.ast.DocumentTreeRoot
-import laika.ast.sample.DocumentTreeAssertions
+import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TemplateDocument}
+import laika.config.Config.ConfigResult
 import laika.io.helper.RenderedTreeAssertions
 import laika.io.model.RenderedTreeRoot
 import org.scalatest.Assertion
 import org.scalatest.funsuite.AnyFunSuite
-
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+trait DocumentTreeAssertions extends Matchers {
+
+  implicit class DocumentTreeRootEitherOps (val root: ConfigResult[DocumentTreeRoot]) {
+
+    def assertEquals (expected: DocumentTreeRoot): Unit = {
+      root.fold(
+        err  => fail(s"rewriting failed: $err"),
+        root => root.assertEquals(expected)
+      )
+    }
+
+  }
+
+  implicit class DocumentTreeEitherOps (val root: ConfigResult[DocumentTree]) {
+
+    def assertEquals (expected: DocumentTree): Unit = {
+      root.fold(
+        err  => fail(s"rewriting failed: $err"),
+        root => root.assertEquals(expected)
+      )
+    }
+
+  }
+
+  implicit class DocumentTreeRootOps (val root: DocumentTreeRoot) {
+
+    def assertEquals (expected: DocumentTreeRoot): Unit = {
+
+      root.tree.assertEquals(expected.tree)
+
+      withClue("tree structure differs") {
+        root.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
+      }
+
+      withClue(s"difference in cover documents") {
+        (root.coverDocument, expected.coverDocument) match {
+          case (Some(actual), Some(exp)) => actual.assertEquals(exp)
+          case _ => ()
+        }
+      }
+
+      withClue(s"difference in static documents") {
+        root.staticDocuments shouldBe expected.staticDocuments
+      }
+
+    }
+  }
+
+  implicit class DocumentTreeOps (val tree: DocumentTree) {
+
+    def assertEquals (expected: DocumentTree): Unit = {
+
+      def validateStructure(): Assertion = {
+        withClue("tree structure differs") {
+          tree.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
+        }
+      }
+
+      def validateContent(): Unit = {
+        tree.allDocuments.zip(expected.allDocuments).foreach { case (actual, expected) =>
+          actual.assertEquals(expected)
+        }
+      }
+
+      def collectTemplates (tree: DocumentTree): Seq[TemplateDocument] = tree.templates ++ tree.content.collect {
+        case child: DocumentTree => collectTemplates(child)
+      }.flatten
+
+      def validateTemplates(): Unit = {
+        val actualTmp = collectTemplates(tree)
+        val expectedTmp = collectTemplates(expected)
+        withClue("number or names of templates differs") {
+          actualTmp.map(_.path) shouldBe expectedTmp.map(_.path)
+        }
+        actualTmp.zip(expectedTmp).foreach { case (actual, expected) =>
+          withClue(s"difference in content of template '${actual.path.toString}'") {
+            actual.content shouldBe expected.content
+          }
+        }
+      }
+
+      validateStructure()
+      validateContent()
+      validateTemplates()
+    }
+
+  }
+
+  implicit class DocumentOps (val actual: Document) {
+
+    def assertEquals (expected: Document): Unit = {
+      val doc = s"of document '${actual.path.toString}'"
+      withClue(s"difference in content $doc") {
+        actual.content shouldBe expected.content
+      }
+      withClue(s"difference in title $doc") {
+        actual.title shouldBe expected.title
+      }
+      withClue(s"difference in fragments $doc") {
+        actual.fragments shouldBe expected.fragments
+      }
+    }
+
+  }
+
+}
 
 trait IOSpec extends Matchers {
   
@@ -48,10 +154,6 @@ trait IOSpec extends Matchers {
 
   }
 
-  implicit class AssertingIO[A] (private val self: IO[Assertion]) {
-    def run: Assertion = self.unsafeRunSync()
-  }
-  
   implicit class Asserting[A](private val self: IO[A]) {
 
     def assertEquals(a: A): Assertion = self.map(_ shouldBe a).unsafeRunSync()

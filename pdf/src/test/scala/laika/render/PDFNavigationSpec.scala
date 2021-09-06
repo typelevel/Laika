@@ -24,18 +24,19 @@ import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.config.{Config, ConfigException}
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{Markdown, PDF, XSLFO}
+import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
 import laika.io.implicits._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.io.{FileIO, IOWordSpec}
 import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
+import munit.CatsEffectSuite
 
 
-class PDFNavigationSpec extends IOWordSpec with FileIO {
+class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   
   object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
@@ -71,124 +72,113 @@ class PDFNavigationSpec extends IOWordSpec with FileIO {
   }
   
   
-  trait ResultModel {
     
-    private val defaultParagraphProperties = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
-    private val defaultTitleProperties = """color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm""""
-    
-    def idPrefix (num: Int): String = if (num > 4) "_tree-2" else if (num > 2) "_tree-1" else ""
-    
-    def results (range: Range): String = range.map(result).reduceLeft(_ + _)
-    
-    def result (num: Int): String = {
-      s"""
-        |
-        |<fo:block id="${idPrefix(num)}_doc-$num" page-break-before="always">
-        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
-        |</fo:block>
-        |<fo:block id="${idPrefix(num)}_doc-${num}_title-$num" $defaultTitleProperties>Title $num &amp; More</fo:block>
-        |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
-    }
+  private val defaultParagraphProperties = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
+  private val defaultTitleProperties = """color="#007c99" font-family="sans-serif" font-size="24pt" font-weight="bold" keep-with-next="always" space-after="6mm" space-before="0mm""""
+  
+  def idPrefix (num: Int): String = if (num > 4) "_tree-2" else if (num > 2) "_tree-1" else ""
+  
+  def results (range: Range): String = range.map(result).reduceLeft(_ + _)
+  
+  def result (num: Int): String = {
+    s"""
+      |
+      |<fo:block id="${idPrefix(num)}_doc-$num" page-break-before="always">
+      |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
+      |</fo:block>
+      |<fo:block id="${idPrefix(num)}_doc-${num}_title-$num" $defaultTitleProperties>Title $num &amp; More</fo:block>
+      |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
+  }
 
-    def treeTitleResult (num: Int): String = {
-      val idPrefix = if (num == 3) "_tree-2" else if (num == 2) "_tree-1" else ""
+  def treeTitleResult (num: Int): String = {
+    val idPrefix = if (num == 3) "_tree-2" else if (num == 2) "_tree-1" else ""
 
-      s"""
-         |
-         |<fo:block id="${idPrefix}_index" page-break-before="always">
-         |  <fo:marker marker-class-name="chapter"><fo:block>Title Doc $num</fo:block></fo:marker>
-         |</fo:block>
-         |<fo:block id="${idPrefix}_index_title-$num" $defaultTitleProperties>Title Doc $num</fo:block>
-         |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
-    }
+    s"""
+       |
+       |<fo:block id="${idPrefix}_index" page-break-before="always">
+       |  <fo:marker marker-class-name="chapter"><fo:block>Title Doc $num</fo:block></fo:marker>
+       |</fo:block>
+       |<fo:block id="${idPrefix}_index_title-$num" $defaultTitleProperties>Title Doc $num</fo:block>
+       |<fo:block $defaultParagraphProperties>Text $num</fo:block>""".stripMargin
+  }
 
-    def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withFallbackTemplate(result, bookmarks)
+  def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withFallbackTemplate(result, bookmarks)
+  
+  def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
+    val title = if (!titleDoc) s"Tree $treeNum &amp; More" else s"Title Doc ${treeNum+1}"
+    val treeLink = if (!titleDoc) s"doc-$docNum" else "index" 
+    s"""  <fo:bookmark internal-destination="_tree-${treeNum}_$treeLink">
+       |    <fo:bookmark-title>$title</fo:bookmark-title>
+       |    <fo:bookmark internal-destination="_tree-${treeNum}_doc-$docNum">
+       |      <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
+       |    </fo:bookmark>
+       |    <fo:bookmark internal-destination="_tree-${treeNum}_doc-${docNum + 1}">
+       |      <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
+       |    </fo:bookmark>
+       |  </fo:bookmark>
+       |""".stripMargin
+  }
     
-    def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
-      val title = if (!titleDoc) s"Tree $treeNum &amp; More" else s"Title Doc ${treeNum+1}"
-      val treeLink = if (!titleDoc) s"doc-$docNum" else "index" 
-      s"""  <fo:bookmark internal-destination="_tree-${treeNum}_$treeLink">
-         |    <fo:bookmark-title>$title</fo:bookmark-title>
-         |    <fo:bookmark internal-destination="_tree-${treeNum}_doc-$docNum">
-         |      <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
-         |    </fo:bookmark>
-         |    <fo:bookmark internal-destination="_tree-${treeNum}_doc-${docNum + 1}">
-         |      <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
-         |    </fo:bookmark>
-         |  </fo:bookmark>
-         |""".stripMargin
-    }
-      
-    val bookmarkRootResult: String = """<fo:bookmark-tree>
-      |  <fo:bookmark internal-destination="_doc-1">
-      |    <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
-      |  </fo:bookmark>
-      |  <fo:bookmark internal-destination="_doc-2">
-      |    <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
-      |  </fo:bookmark>
-      |""".stripMargin  
-      
-    val closeBookmarks = "</fo:bookmark-tree>"
+  val bookmarkRootResult: String = """<fo:bookmark-tree>
+    |  <fo:bookmark internal-destination="_doc-1">
+    |    <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
+    |  </fo:bookmark>
+    |  <fo:bookmark internal-destination="_doc-2">
+    |    <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
+    |  </fo:bookmark>
+    |""".stripMargin  
+    
+  val closeBookmarks = "</fo:bookmark-tree>"
+  
+  lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = {
+    val builder = Renderer.of(FOTest)
+    builder.withConfig(builder.config.withBundlesFor(Markdown))
+      .parallel[IO]
+      .withTheme(TestTheme.heliumTestProps.build)
+      .build
   }
   
+  type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor[IO]]
   
-  trait Setup extends PDFTreeModel with ResultModel {
-    
-    lazy val renderer: Resource[IO, BinaryTreeRenderer[IO]] = {
-      val builder = Renderer.of(FOTest)
-      builder.withConfig(builder.config.withBundlesFor(Markdown))
-        .parallel[IO]
-        .withTheme(TestTheme.heliumTestProps.build)
-        .build
-    }
-    
-    type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor[IO]]
-    
-    def result: IO[String] = renderer.use { r =>
-      withByteArrayTextOutput { out =>
+  def result (navigationDepth: Int = 23, useTitleDocuments: Boolean = false): IO[String] = renderer.use { r =>
+    val tree = createTree(navigationDepth, useTitleDocuments).withDefaultTemplate(TestTheme.foTemplate, "fo")
+    val root = DocumentTreeRoot(tree, styles = Map("fo" -> TestTheme.foStyles))
+    withByteArrayTextOutput { out =>
       r
-        .from(DocumentTreeRoot(tree.withDefaultTemplate(TestTheme.foTemplate, "fo"), styles = Map("fo" -> TestTheme.foStyles)))
+        .from(root)
         .toStream(IO.pure(out))
         .render
         .void
       } 
     }
     
+  
+
+  test("render a tree with all structure elements disabled") {
+
+    result(navigationDepth = 0).assertEquals(withDefaultTemplate(results(1 to 6)))
   }
-  
-  
-  "The PDF navigation utility" should {
 
-    "render a tree with all structure elements disabled" in new Setup {
+  test("render a tree with navigation elements enabled") {
 
-      override val navigationDepth = 0
+    result().assertEquals(withDefaultTemplate(
+      results(1 to 6),
+      bookmarkRootResult + 
+      bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5) + 
+      closeBookmarks
+    ))
+  }
 
-      result.assertEquals(withDefaultTemplate(results(1 to 6)))
-    }
+  test("render a tree with navigation elements enabled, handling a title document in both subtrees") {
 
-    "render a tree with navigation elements enabled" in new Setup {
-
-      result.assertEquals(withDefaultTemplate(
-        results(1 to 6),
-        bookmarkRootResult + 
-        bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5) + 
-        closeBookmarks
-      ))
-    }
-
-    "render a tree with navigation elements enabled, handling a title document in both subtrees" in new Setup {
-
-      override val useTitleDocuments = true
-
-      result.assertEquals(withDefaultTemplate(
-        results(1 to 2) +
-        treeTitleResult(2) + results(3 to 4) +
-        treeTitleResult(3) + results(5 to 6),
-        bookmarkRootResult + 
-        bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true) + 
-        closeBookmarks
-      ))
-    }
+    result(useTitleDocuments = true).assertEquals(withDefaultTemplate(
+      results(1 to 2) +
+      treeTitleResult(2) + results(3 to 4) +
+      treeTitleResult(3) + results(5 to 6),
+      bookmarkRootResult + 
+      bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true) + 
+      closeBookmarks
+    ))
   }
   
 }

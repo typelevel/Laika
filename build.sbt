@@ -65,7 +65,8 @@ val scalatest  = "org.scalatest"          %% "scalatest"   % versions.scalatest 
 val munit      = "org.scalameta"          %% "munit"       % versions.munit     % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % versions.jTidy     % "test"
 
-val catsEffect = "org.typelevel"          %% "cats-effect" % versions.catsEffect
+val catsEffect = "org.typelevel"          %% "cats-effect"         % versions.catsEffect
+val munitCE3   = "org.typelevel"          %% "munit-cats-effect-3" % versions.munitCE3 % "test"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % versions.fop
 val http4s     = Seq(
@@ -105,7 +106,6 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     name := "laika-core",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit"     % versions.munit     % "test",
-      "org.scalatest" %%% "scalatest" % versions.scalatest % "test",
       "org.typelevel" %%% "cats-core" % versions.catsCore
     )
   )
@@ -124,7 +124,7 @@ lazy val io = project.in(file("io"))
   .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(scalatest, catsEffect)
+    libraryDependencies ++= Seq(scalatest, catsEffect, munit, munitCE3)
   )
   
 lazy val pdf = project.in(file("pdf"))
@@ -133,7 +133,7 @@ lazy val pdf = project.in(file("pdf"))
   .settings(publishSettings)
   .settings(
     name := "laika-pdf",
-    libraryDependencies ++= Seq(fop, scalatest)
+    libraryDependencies ++= Seq(fop, munit)
   )
 
 lazy val preview = project.in(file("preview"))
@@ -142,7 +142,7 @@ lazy val preview = project.in(file("preview"))
   .settings(publishSettings)
   .settings(
     name := "laika-preview",
-    libraryDependencies ++= (http4s :+ scalatest)
+    libraryDependencies ++= (http4s :+ munit)
   )
 
 lazy val plugin = project.in(file("sbt"))

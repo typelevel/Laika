@@ -24,7 +24,7 @@ import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.sample.{DocumentTreeAssertions, ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees, TestSourceBuilders}
+import laika.ast.sample.{ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees, TestSourceBuilders}
 import laika.ast.{StylePredicate, _}
 import laika.bundle._
 import laika.config.Origin.TreeScope

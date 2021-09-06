@@ -8,10 +8,11 @@ object Dependencies {
     val scala3     = "3.0.1"
 
     val catsCore   = "2.6.1"
-    val catsEffect = "3.2.1"
-    val http4s     = "0.23.0"
+    val catsEffect = "3.2.5"
+    val http4s     = "0.23.2"
     
-    val munit      = "0.7.27"
+    val munit      = "0.7.29"
+    val munitCE3   = "1.0.5"
     val scalatest  = "3.2.9"
     val jTidy      = "r938"
     val fop        = "2.6"
