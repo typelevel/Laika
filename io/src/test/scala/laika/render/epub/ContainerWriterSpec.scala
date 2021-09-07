@@ -19,11 +19,10 @@ package laika.render.epub
 import cats.effect.IO
 import laika.format.EPUB
 import laika.io.model.RenderedTreeRoot
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 
-class ContainerWriterSpec extends AnyFlatSpec with Matchers {
+class ContainerWriterSpec extends FunSuite {
 
 
   val writer = new ContainerWriter
@@ -43,27 +42,27 @@ class ContainerWriterSpec extends AnyFlatSpec with Matchers {
       .map(_.path.toString)
 
 
-  "The ContainerWriter" should "collect a single target document" in new SingleDocument {
-    collectInputs(input) shouldBe standardFiles :+ "/EPUB/content/foo.xhtml"
+  test("collect a single target document") {
+    assertEquals(collectInputs(SingleDocument.input), standardFiles :+ "/EPUB/content/foo.xhtml")
   }
 
-  it should "render a tree with a two documents" in new TwoDocuments {
+  test("render a tree with a two documents") {
     val result = Seq(
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/bar.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    assertEquals(collectInputs(TwoDocuments.input), standardFiles ++ result)
   }
 
-  it should "render a tree with a nested tree" in new NestedTree {
+  test("render a tree with a nested tree") {
     val result = Seq(
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/sub/bar.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    assertEquals(collectInputs(NestedTree.input), standardFiles ++ result)
   }
 
-  it should "render a tree with two nested trees" in new TwoNestedTrees {
+  test("render a tree with two nested trees") {
     val result = Seq(
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/sub1/bar.xhtml",
@@ -71,17 +70,17 @@ class ContainerWriterSpec extends AnyFlatSpec with Matchers {
       "/EPUB/content/sub2/bar.xhtml",
       "/EPUB/content/sub2/baz.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    assertEquals(collectInputs(TwoNestedTrees.input), standardFiles ++ result)
   }
 
-  it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
+  test("render a tree with a nested tree and static documents") {
     val result = Seq(
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/sub/bar.xhtml",
       "/EPUB/content/sub/image-1.5x.jpg",
       "/EPUB/content/sub/styles.epub.css"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    assertEquals(collectInputs(TreeWithStaticDocuments.input), standardFiles ++ result)
   }
 
 }

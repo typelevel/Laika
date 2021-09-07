@@ -16,47 +16,56 @@
 
 package laika.render.epub
 
-import laika.ast._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import cats.effect.IO
+import laika.io.model.RenderedTreeRoot
+import munit.FunSuite
 
-class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
+class HTMLNavRendererSpec extends FunSuite {
 
   val renderer = new HtmlNavRenderer
   val title = "Tree 1"
+  
+  def result (navItems: String): String = renderer.fileContent(title, "", navItems)
+  
+  def render (input: RenderedTreeRoot[IO], depth: Int = 1): String =
+    renderer.render(input, title, Some(depth))
+  
+  def run (input: RenderedTreeRoot[IO], expectedNavItems: String, depth: Int = 1): Unit =
+    assertEquals(render(input, depth), result(expectedNavItems))
 
-  "The Navigation Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), title, Some(1)) shouldBe renderer.fileContent(title, "", "")
+  
+  test("render an empty tree") {
+    run(EmptyTree.input, "")
   }
 
-  it should "render a tree with a single document" in new SingleDocument {
-    val result =
-    """      <ol class="toc">
-      |        <li id="toc-li-0">
-      |          <a href="content/foo.epub.xhtml">Title 2</a>
-      |
-      |        </li>
-      |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result)
+  test("render a tree with a single document") {
+    val expected =
+      """      <ol class="toc">
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |
+        |        </li>
+        |      </ol>""".stripMargin
+    run(SingleDocument.input, expected)
   }
 
-  it should "render a tree with two documents" in new TwoDocuments {
-    val result =
-    """      <ol class="toc">
-     |        <li id="toc-li-0">
-     |          <a href="content/foo.epub.xhtml">Title 2</a>
-     |
-     |        </li>
-     |        <li id="toc-li-1">
-     |          <a href="content/bar.epub.xhtml">Title 3</a>
-     |
-     |        </li>
-     |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result)
+  test("render a tree with two documents") {
+    val expected =
+      """      <ol class="toc">
+       |        <li id="toc-li-0">
+       |          <a href="content/foo.epub.xhtml">Title 2</a>
+       |
+       |        </li>
+       |        <li id="toc-li-1">
+       |          <a href="content/bar.epub.xhtml">Title 3</a>
+       |
+       |        </li>
+       |      </ol>""".stripMargin
+    run(TwoDocuments.input, expected)
   }
 
-  it should "render a tree with a single document and a CSS file" in new DocumentPlusStyle {
-    val result =
+  test("render a tree with a single document and a CSS file") {
+    val html =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -64,22 +73,26 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
         |        </li>
         |      </ol>""".stripMargin
     val cssLink = """<link rel="stylesheet" type="text/css" href="content/test-style.css" />"""
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, cssLink, result)
+    val expected = renderer.fileContent(title, cssLink, html)
+    assertEquals(render(DocumentPlusStyle.input), expected)
   }
 
-  it should "render a tree with a title document" in new DocumentPlusTitle {
-    val result =
+  test("render a tree with a title document") {
+    val html =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/bar.epub.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, "From TitleDoc", Some(1)) shouldBe renderer.fileContent("From TitleDoc", "", result, titleDoc = Some("content/title.epub.xhtml"))
+    val title = "From TitleDoc"
+    val expected = renderer.fileContent(title, "", html, titleDoc = Some("content/title.epub.xhtml"))
+    val actual = renderer.render(DocumentPlusTitle.input, "From TitleDoc", Some(1))
+    assertEquals(actual, expected)
   }
 
-  it should "render a tree with a cover image" in new DocumentPlusCover {
-    val result =
+  test("render a tree with a cover image") {
+    val html =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -88,11 +101,12 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
         |          <a href="content/bar.epub.xhtml">Title 3</a>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result, coverDoc = Some("content/cover.epub.xhtml"))
+    val expected = renderer.fileContent(title, "", html, coverDoc = Some("content/cover.epub.xhtml"))
+    assertEquals(render(DocumentPlusCover.input), expected)
   }
 
-  it should "render a tree with a nested tree" in new NestedTree {
-    val result =
+  test("render a tree with a nested tree") {
+    val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -108,11 +122,11 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, title, Some(2)) shouldBe renderer.fileContent(title, "", result)
+    run(NestedTree.input, expected, depth = 2)
   }
 
-  it should "render a tree with a nested tree with a title document" in new NestedTreeWithTitleDoc {
-    val result =
+  test("render a tree with a nested tree with a title document") {
+    val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -128,22 +142,22 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, title, Some(2)) shouldBe renderer.fileContent(title, "", result)
+    run(NestedTreeWithTitleDoc.input, expected, depth = 2)
   }
 
-  it should "not render a nested tree if the depth is 1" in new NestedTree {
-    val result =
-    """      <ol class="toc">
-     |        <li id="toc-li-0">
-     |          <a href="content/foo.epub.xhtml">Title 2</a>
-     |
-     |        </li>
-     |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result)
+  test("not render a nested tree if the depth is 1") {
+    val expected =
+      """      <ol class="toc">
+       |        <li id="toc-li-0">
+       |          <a href="content/foo.epub.xhtml">Title 2</a>
+       |
+       |        </li>
+       |      </ol>""".stripMargin
+    run(NestedTree.input, expected)
   }
 
-  it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
-    val result =
+  test("render a document with sections when the depth is 2") {
+    val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -172,11 +186,11 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, title, Some(2)) shouldBe renderer.fileContent(title, "", result)
+    run(DocumentsWithSections.input, expected, depth = 2)
   }
 
-  it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
-    val result = """      <ol class="toc">
+  test("not render a document with sections when the depth is 1") {
+    val expected = """      <ol class="toc">
      |        <li id="toc-li-0">
      |          <a href="content/foo.epub.xhtml">Title 2</a>
      |
@@ -186,20 +200,18 @@ class HTMLNavRendererSpec extends AnyFlatSpec with Matchers {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result)
+    run(DocumentsWithSections.input, expected)
   }
 
-  it should "escape special characters in titles" in new InputTreeBuilder {
-    val docRef = doc(Path.Root / "foo", "This & That")
-    val input = rootTree(Path.Root, 1, docRef)
-    val result =
+  test("escape special characters in titles") {
+    val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">This &amp; That</a>
         |
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, title, Some(1)) shouldBe renderer.fileContent(title, "", result)
+    run(DocumentWithSpecialChars.input, expected)
   }
 
 }

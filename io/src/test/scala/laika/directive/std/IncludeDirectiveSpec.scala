@@ -17,21 +17,21 @@
 package laika.directive.std
 
 import cats.effect.{IO, Resource}
-import laika.io.implicits._
 import laika.api.MarkupParser
-import laika.ast.{Block, BlockSequence, EmbeddedRoot, Paragraph, Path, TemplateElement, TemplateRoot, TemplateSpanSequence, TemplateString}
 import laika.ast.Path.Root
+import laika.ast._
 import laika.config.ConfigException
 import laika.format.Markdown
-import laika.io.{FileIO, IOFunSuite}
+import laika.io.FileIO
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
+import laika.io.implicits._
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import laika.theme.Theme
-import org.scalatest.matchers.should.Matchers
+import munit.CatsEffectSuite
 
 
-class IncludeDirectiveSpec extends IOFunSuite with Matchers with InputBuilder with FileIO {
+class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder with FileIO {
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
