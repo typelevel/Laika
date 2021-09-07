@@ -16,53 +16,63 @@
 
 package laika.render.epub
 
-import laika.ast._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import cats.effect.IO
+import laika.io.model.RenderedTreeRoot
+import munit.FunSuite
 
-class NCXRendererSpec extends AnyFlatSpec with Matchers {
+class NCXRendererSpec extends FunSuite {
 
   val renderer = new NCXRenderer
   val title = "Tree 1"
+  val uuid = "some-uuid"
 
-  "The NCX Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, "", 1)
+  def render (input: RenderedTreeRoot[IO], depth: Int = 1): String = 
+    renderer.render(input, title, uuid, Some(depth))
+    
+  def result (navPoints: String, depth: Int = 1): String = 
+    renderer.fileContent(uuid, title, navPoints, depth)
+    
+  def run (input: RenderedTreeRoot[IO], expectedNavPoints: String, depth: Int = 1): Unit =
+    assertEquals(render(input, depth), result(expectedNavPoints, depth))
+  
+  test("render an empty tree") {
+    run(EmptyTree.input, "")
   }
 
-  it should "render a tree with a single document" in new SingleDocument {
-    val result =
-    """    <navPoint id="navPoint-0">
-      |      <navLabel>
-      |        <text>Title 2</text>
-      |      </navLabel>
-      |      <content src="content/foo.epub.xhtml" />
-      |
-      |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
+  test("render a tree with a single document") {
+    val expected =
+      """    <navPoint id="navPoint-0">
+        |      <navLabel>
+        |        <text>Title 2</text>
+        |      </navLabel>
+        |      <content src="content/foo.epub.xhtml" />
+        |
+        |    </navPoint>""".stripMargin
+    run(SingleDocument.input, expected)
   }
 
-  it should "render a tree with a two documents" in new TwoDocuments {
-    val result =
-    """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml" />
-     |
-     |    </navPoint>
-     |    <navPoint id="navPoint-1">
-     |      <navLabel>
-     |        <text>Title 3</text>
-     |      </navLabel>
-     |      <content src="content/bar.epub.xhtml" />
-     |
-     |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
+  test("render a tree with a two documents") {
+    val expected =
+      """    <navPoint id="navPoint-0">
+       |      <navLabel>
+       |        <text>Title 2</text>
+       |      </navLabel>
+       |      <content src="content/foo.epub.xhtml" />
+       |
+       |    </navPoint>
+       |    <navPoint id="navPoint-1">
+       |      <navLabel>
+       |        <text>Title 3</text>
+       |      </navLabel>
+       |      <content src="content/bar.epub.xhtml" />
+       |
+       |    </navPoint>""".stripMargin
+    run(TwoDocuments.input, expected)
   }
 
-  it should "render a tree with a nested tree" in new NestedTree {
+  test("render a tree with a nested tree") {
 
-    val result =
+    val expected =
     """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
@@ -83,23 +93,23 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(2)) shouldBe renderer.fileContent(uuid, title, result, 2)
+    run(NestedTree.input, expected, depth = 2)
   }
 
-  it should "not render a nested tree if the depth is 1" in new NestedTree {
-    val result =
-    """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml" />
-     |
-     |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
+  test("not render a nested tree if the depth is 1") {
+    val expected =
+      """    <navPoint id="navPoint-0">
+       |      <navLabel>
+       |        <text>Title 2</text>
+       |      </navLabel>
+       |      <content src="content/foo.epub.xhtml" />
+       |
+       |    </navPoint>""".stripMargin
+    run(NestedTree.input, expected)
   }
 
-  it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
-    val result = """    <navPoint id="navPoint-0">
+  test("render a document with sections when the depth is 2") {
+    val expected = """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
@@ -139,11 +149,11 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(2)) shouldBe renderer.fileContent(uuid, title, result, 2)
+    run(DocumentsWithSections.input, expected, depth = 2)
   }
 
-  it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
-    val result = """    <navPoint id="navPoint-0">
+  test("not render a document with sections when the depth is 1") {
+    val expected = """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
@@ -157,13 +167,11 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers {
      |      <content src="content/bar.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
+    run(DocumentsWithSections.input, expected)
   }
 
-  it should "escape special characters in titles" in new InputTreeBuilder {
-    val docRef = doc(Path.Root / "foo", "This & That")
-    val input = rootTree(Path.Root, 1, docRef)
-    val result =
+  test("escape special characters in titles") {
+    val expected =
       """    <navPoint id="navPoint-0">
         |      <navLabel>
         |        <text>This &amp; That</text>
@@ -171,7 +179,7 @@ class NCXRendererSpec extends AnyFlatSpec with Matchers {
         |      <content src="content/foo.epub.xhtml" />
         |
         |    </navPoint>""".stripMargin
-    renderer.render(input, title, uuid, Some(1)) shouldBe renderer.fileContent(uuid, title, result, 1)
+    run(DocumentWithSpecialChars.input, expected)
   }
 
 }

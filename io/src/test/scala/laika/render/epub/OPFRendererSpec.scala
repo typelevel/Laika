@@ -18,22 +18,23 @@ package laika.render.epub
 
 import java.time.Instant
 import java.util.{Date, Locale}
-
 import cats.effect.IO
-import cats.instances.uuid
 import laika.ast.Path.Root
 import laika.ast._
+import laika.config.ConfigBuilder
 import laika.format.EPUB
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import laika.format.EPUB.ScriptedTemplate
+import laika.io.model.RenderedTreeRoot
+import munit.FunSuite
 
-class OPFRendererSpec extends AnyFlatSpec with Matchers {
+class OPFRendererSpec extends FunSuite {
 
   val renderer = new OPFRenderer
   
   val title = "Tree 1"
+  val uuid = "some-uuid"
   val timestamp = "2018-01-01T12:00:00Z"
-  val instant = Date.from(Instant.parse(timestamp))
+  val instant: Date = Date.from(Instant.parse(timestamp))
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
   val config: EPUB.BookConfig = EPUB.BookConfig(metadata = DocumentMetadata(
     identifier = Some(identifier),
@@ -44,60 +45,82 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
 
   case class CoverEntries (metadata: String, spine: String, guide: String)
 
+  object TreeWithScriptedDocuments extends InputTreeBuilder {
 
-  "The OPF Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(rootTree(Path.Root, 1), title, config) shouldBe fileContent("", "", "", uuid)
+    private val doc1 = doc(Path.Root / "foo", 2, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Always).build)
+    private val doc2 = doc(Path.Root / "sub" / "bar", 3, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Auto).build)
+    private val static1 = ByteInput("", Path.parse("/sub/code.shared.js"))
+    private val static2 = ByteInput("", Path.parse("/sub/code.epub.js"))
+    private val static3 = ByteInput("", Path.parse("/sub/styles.epub.css"))
+    private val subtree = tree(Path.Root / "sub", 4, doc2)
+
+    def input (hasJS: Boolean): RenderedTreeRoot[IO] = rootTree(Path.Root, 1, doc1, subtree)
+      .copy[IO](staticDocuments = if (hasJS) Seq(static1, static2, static3) else Seq(static3))
+  }
+  
+  def run (input: RenderedTreeRoot[IO], expected: String): Unit = runWith(input, this.config, expected)
+  
+  def runWith (input: RenderedTreeRoot[IO], config: EPUB.BookConfig, expected: String): Unit = {
+    val actual = renderer.render(input, title, config)
+    assertEquals(actual, expected)
+  }
+  
+
+  test("render an empty tree") {
+    run(EmptyTree.input, fileContent("", ""))
   }
 
-  it should "render a tree with a single document" in new SingleDocument {
+  test("render a tree with a single document") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />"""
-    renderer.render[IO](input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(SingleDocument.input, fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with a single document with the default locale rendered correctly" in new SingleDocument {
+  test("render a tree with a single document with the default locale rendered correctly") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />"""
     val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
-    renderer.render[IO](input, title, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+    val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
+    runWith(SingleDocument.input, configWithoutLang, expected)
   }
 
-  it should "render a tree with a single document with valid XML id for the name starting with a digit" in new InputTreeBuilder {
-    val docRef = doc(Path.Root / "01-foo", 2)
-    val input = rootTree(Path.Root, 1, docRef)
+  test("render a tree with a single document with valid XML id for the name starting with a digit") {
     val manifestItems =
       """    <item id="_01-foo_epub_xhtml" href="content/01-foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="_01-foo_epub_xhtml" />"""
     val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
-    renderer.render[IO](input, title, configWithoutLang) shouldBe fileContent(manifestItems, "", spineRefs, uuid, language = Locale.getDefault.toLanguageTag)
+    val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
+    runWith(DocumentNameStartingWithDigit.input, configWithoutLang, expected)
   }
 
-  it should "render a tree with two documents" in new TwoDocuments {
+  test("render a tree with two documents") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(TwoDocuments.input, fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with a title document" in new DocumentPlusTitle {
+  test("render a tree with a title document") {
     val manifestItems =
       """    <item id="title_epub_xhtml" href="content/title.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val titleRef = """    <itemref idref="title_epub_xhtml" />"""
     val spineRefs =
       """    <itemref idref="bar_epub_xhtml" />"""
-    renderer.render(input, "From TitleDoc", config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "From TitleDoc")
+    val expected = fileContent(manifestItems, spineRefs, titleRef = titleRef, title = "From TitleDoc")
+    val actual = renderer.render(DocumentPlusTitle.input, "From TitleDoc", config)
+    assertEquals(actual, expected)
   }
 
-  it should "render a tree with a cover" in new DocumentPlusCover {
+  test("render a tree with a cover") {
     val manifestItems =
       """    <item id="cover_epub_xhtml" href="content/cover.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
@@ -111,20 +134,22 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />""".stripMargin
-    renderer.render(input, title, config.copy(coverImage = Some(Root / "cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
+    val expected = fileContent(manifestItems, spineRefs, coverEntries = Some(coverEntries))
+    val coverConfig = config.copy(coverImage = Some(Root / "cover.png"))
+    runWith(DocumentPlusCover.input, coverConfig, expected)
   }
 
-  it should "render a tree with a nested tree" in new NestedTree {
+  test("render a tree with a nested tree") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(NestedTree.input, fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with two nested trees" in new TwoNestedTrees {
+  test("render a tree with two nested trees") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub1_bar_epub_xhtml" href="content/sub1/bar.epub.xhtml" media-type="application/xhtml+xml" />
@@ -137,10 +162,10 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
         |    <itemref idref="sub1_baz_epub_xhtml" />
         |    <itemref idref="sub2_bar_epub_xhtml" />
         |    <itemref idref="sub2_baz_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(TwoNestedTrees.input, fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
+  test("render a tree with a nested tree and static documents") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
@@ -149,11 +174,10 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(TreeWithStaticDocuments.input, fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with a nested tree and script documents" in new TreeWithScriptedDocuments {
-    def hasScriptDocuments = true
+  test("render a tree with a nested tree and script documents") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
@@ -163,11 +187,10 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(TreeWithScriptedDocuments.input(hasJS = true), fileContent(manifestItems, spineRefs))
   }
 
-  it should "render a tree with a nested tree and no script documents" in new TreeWithScriptedDocuments {
-    def hasScriptDocuments = false
+  test("render a tree with a nested tree and no script documents") {
     val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
         |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
@@ -175,13 +198,12 @@ class OPFRendererSpec extends AnyFlatSpec with Matchers {
     val spineRefs =
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="sub_bar_epub_xhtml" />"""
-    renderer.render(input, title, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    run(TreeWithScriptedDocuments.input(hasJS = false), fileContent(manifestItems, spineRefs))
   }
 
   def fileContent (manifestItems: String, 
-                   titleRef: String, 
                    spineRefs: String, 
-                   uuid: String, 
+                   titleRef: String = "", 
                    title: String = "Tree 1",
                    language: String = "en-GB",
                    coverEntries: Option[CoverEntries] = None): String =

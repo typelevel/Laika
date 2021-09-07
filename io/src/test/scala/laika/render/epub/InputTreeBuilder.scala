@@ -34,7 +34,7 @@ trait InputTreeBuilder extends InputBuilder {
   def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil, config: Config = Config.empty): RenderedDocument = 
     RenderedDocument(path.withSuffix("xhtml"), Some(SpanSequence(Text(s"Title $num"))), sections, "zzz", config)
 
-  def section(letter: Char) = SectionInfo(letter.toString, SpanSequence(s"Section $letter"), Nil)
+  def section(letter: Char): SectionInfo = SectionInfo(letter.toString, SpanSequence(s"Section $letter"), Nil)
 
   def sections: Seq[SectionInfo] = Seq(section('A'), section('B'))
 
@@ -53,7 +53,13 @@ trait InputTreeBuilder extends InputBuilder {
 
 }
 
-trait SingleDocument extends InputTreeBuilder {
+object EmptyTree extends InputTreeBuilder {
+
+  val input = rootTree(Path.Root, 1)
+
+}
+
+object SingleDocument extends InputTreeBuilder {
 
   val docRef = doc(Path.Root / "foo", 2)
 
@@ -61,7 +67,23 @@ trait SingleDocument extends InputTreeBuilder {
 
 }
 
-trait TwoDocuments extends InputTreeBuilder {
+object DocumentNameStartingWithDigit extends InputTreeBuilder {
+
+  val docRef = doc(Path.Root / "01-foo", 2)
+
+  val input = rootTree(Path.Root, 1, docRef)
+
+}
+
+object DocumentWithSpecialChars extends InputTreeBuilder {
+
+  val docRef = doc(Path.Root / "foo", "This & That")
+
+  val input = rootTree(Path.Root, 1, docRef)
+
+}
+
+object TwoDocuments extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "bar", 3)
@@ -69,7 +91,7 @@ trait TwoDocuments extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, doc2)
 }
 
-trait DocumentPlusTitle extends InputTreeBuilder {
+object DocumentPlusTitle extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "title", 2)
   val doc2 = doc(Path.Root / "bar", 3)
@@ -77,7 +99,7 @@ trait DocumentPlusTitle extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, doc2)
 }
 
-trait DocumentPlusCover extends InputTreeBuilder {
+object DocumentPlusCover extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "bar", 3)
@@ -89,7 +111,7 @@ trait DocumentPlusCover extends InputTreeBuilder {
   )
 }
 
-trait DocumentPlusStyle extends InputTreeBuilder {
+object DocumentPlusStyle extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val css = ByteInput("{}", Path.Root / "test-style.css")
@@ -97,7 +119,7 @@ trait DocumentPlusStyle extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1).copy[IO](staticDocuments = Seq(css))
 }
 
-trait NestedTree extends InputTreeBuilder {
+object NestedTree extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
@@ -106,7 +128,7 @@ trait NestedTree extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, subtree.tree)
 }
 
-trait NestedTreeWithTitleDoc extends InputTreeBuilder {
+object NestedTreeWithTitleDoc extends InputTreeBuilder {
 
   val titleDoc = doc(Path.Root / "sub" / "title", 0)
   val doc1 = doc(Path.Root / "foo", 2)
@@ -116,7 +138,7 @@ trait NestedTreeWithTitleDoc extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, subtree)
 }
 
-trait TwoNestedTrees extends InputTreeBuilder {
+object TwoNestedTrees extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub1" / "bar", 3)
@@ -129,7 +151,7 @@ trait TwoNestedTrees extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, subtree1.tree, subtree2.tree)
 }
 
-trait TreeWithStaticDocuments extends InputTreeBuilder {
+object TreeWithStaticDocuments extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
@@ -141,22 +163,7 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
   val input = rootTree(Path.Root, 1, doc1, subtree).copy[IO](staticDocuments = Seq(static1, static2, unknown))
 }
 
-trait TreeWithScriptedDocuments extends InputTreeBuilder {
-
-  val doc1 = doc(Path.Root / "foo", 2, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Always).build)
-  val doc2 = doc(Path.Root / "sub" / "bar", 3, config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Auto).build)
-  val static1 = ByteInput("", Path.parse("/sub/code.shared.js"))
-  val static2 = ByteInput("", Path.parse("/sub/code.epub.js"))
-  val static3 = ByteInput("", Path.parse("/sub/styles.epub.css"))
-  val subtree = tree(Path.Root / "sub", 4, doc2)
-  
-  def hasScriptDocuments: Boolean
-
-  val input = rootTree(Path.Root, 1, doc1, subtree)
-    .copy[IO](staticDocuments = if (hasScriptDocuments) Seq(static1, static2, static3) else Seq(static3))
-}
-
-trait DocumentsWithSections extends InputTreeBuilder {
+object DocumentsWithSections extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2, sections)
   val doc2 = doc(Path.Root / "bar", 3, sections)

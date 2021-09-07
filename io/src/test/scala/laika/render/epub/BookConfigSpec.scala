@@ -23,13 +23,12 @@ import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key}
 import laika.format.EPUB.BookConfig
 import laika.render.fo.TestTheme
 import laika.time.PlatformDateFormat
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class BookConfigSpec extends AnyWordSpec with Matchers {
+class BookConfigSpec extends FunSuite {
 
   private val testKey = Key("test")
   
@@ -38,70 +37,71 @@ class BookConfigSpec extends AnyWordSpec with Matchers {
 
   def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
   
-  "The codec for EPUB book configuration " should {
 
-    "decode defaults with an empty config" in {
-      BookConfig.decodeWithDefaults(Config.empty) shouldBe Right(BookConfig())
-    }
-    
-    "decode an instance with fallbacks" in {
-      val input =
-        """{
-          |laika {
-          |  metadata {
-          |    description = "Undescribable"
-          |    identifier = XX-33-FF-01
-          |    author = "Helen North"
-          |    language = en
-          |    date = "2002-10-10T12:00:00"
-          |  }
-          |  fonts = [
-          |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
-          |  ]
-          |  navigationDepth = 3
-          |  coverImage = cover.jpg
-          |  epub {
-          |    metadata {
-          |      title = "Hell is around the corner"
-          |      identifier = XX-33-FF-02
-          |      author = "Maria South"
-          |    }
-          |    fonts = [
-          |      { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
-          |      { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
-          |    ]
-          |    navigationDepth = 4
-          |  }
-          |}}
-        """.stripMargin
-      ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("Hell is around the corner"),
-          Some("Undescribable"),
-          Some("XX-33-FF-02"),
-          Seq("Maria South", "Helen North"),
-          Some("en"),
-          Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-        ),
-        Some(4),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
-      ))
-    }
-
-    "round-trip encode and decode" in {
-      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
-      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-      decode[BookConfig](encoded) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("XX-33-FF-01")
-        ),
-        Some(3),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
-      ))
-    }
-    
+  test("decode defaults with an empty config") {
+    assertEquals(BookConfig.decodeWithDefaults(Config.empty), Right(BookConfig()))
   }
   
+  test("decode an instance with fallbacks") {
+    val input =
+      """{
+        |laika {
+        |  metadata {
+        |    description = "Undescribable"
+        |    identifier = XX-33-FF-01
+        |    author = "Helen North"
+        |    language = en
+        |    date = "2002-10-10T12:00:00"
+        |  }
+        |  fonts = [
+        |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
+        |  ]
+        |  navigationDepth = 3
+        |  coverImage = cover.jpg
+        |  epub {
+        |    metadata {
+        |      title = "Hell is around the corner"
+        |      identifier = XX-33-FF-02
+        |      author = "Maria South"
+        |    }
+        |    fonts = [
+        |      { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
+        |      { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
+        |    ]
+        |    navigationDepth = 4
+        |  }
+        |}}
+      """.stripMargin
+    val actual = ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults)  
+    val expected = BookConfig(
+      DocumentMetadata(
+        Some("Hell is around the corner"),
+        Some("Undescribable"),
+        Some("XX-33-FF-02"),
+        Seq("Maria South", "Helen North"),
+        Some("en"),
+        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+      ),
+      Some(4),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    assertEquals(actual, Right(expected))
+  }
+
+  test("round-trip encode and decode") {
+    val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
+    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    val actual = decode[BookConfig](encoded)
+    val expected = BookConfig(
+      DocumentMetadata(
+        Some("XX-33-FF-01")
+      ),
+      Some(3),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    assertEquals(actual, Right(expected))
+  }
+    
 }
