@@ -22,7 +22,7 @@ import munit.Assertions
 
 trait RenderedTreeAssertions extends Assertions { self =>
 
-  implicit class DocumentTreeRootOps (val root: RenderedTreeRoot[IO]) {
+  implicit class RenderedDocumentTreeRootOps (val root: RenderedTreeRoot[IO]) {
 
     def assertEquals (expected: RenderedTreeRoot[IO]): Unit = {
 
@@ -41,7 +41,7 @@ trait RenderedTreeAssertions extends Assertions { self =>
     }
   }
 
-  implicit class DocumentTreeOps (val tree: RenderedTree) {
+  implicit class RenderedDocumentTreeOps (val tree: RenderedTree) {
     
     def assertEquals (expected: RenderedTree): Unit = {
       
@@ -59,7 +59,7 @@ trait RenderedTreeAssertions extends Assertions { self =>
     
   }
 
-  implicit class DocumentOps (val actual: RenderedDocument) {
+  implicit class RenderedDocumentOps (val actual: RenderedDocument) {
     
     def assertEquals (expected: RenderedDocument): Unit = {
       val doc = s"of document '${actual.path.toString}'"
