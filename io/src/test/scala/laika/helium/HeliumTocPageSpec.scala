@@ -17,20 +17,19 @@
 package laika.helium
 
 import java.util.Locale
-
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
@@ -56,7 +55,7 @@ class HeliumTocPageSpec extends IOFunSuite with InputBuilder with ResultExtracto
     
   test("no table of content page configured") {
     transformAndExtract(twoDocs, Helium.defaults.site.landingPage(), "", "")
-      .assertFailsWithMessage("Missing document under test")
+      .interceptMessage[RuntimeException]("Missing document under test")
   }
   
   test("table of content included") {

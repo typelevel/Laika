@@ -23,7 +23,6 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{Markdown, XSLFO}
 import laika.helium.config.ColorQuintet
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
@@ -33,11 +32,12 @@ import laika.parse.code.SyntaxHighlighting
 import laika.rewrite.nav.CoverImage
 import laika.theme.ThemeProvider
 import laika.theme.config.Color
+import munit.CatsEffectSuite
 
 /**
   * @author Jens Halm
   */
-class HeliumFORendererSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)

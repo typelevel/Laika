@@ -23,106 +23,89 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
 import laika.ast._
+import laika.io.implicits._
 import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.format.{HTML, Markdown}
 import laika.io.helper.TestThemeBuilder
-import laika.io.{FileIO, IOWordSpec}
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class ThemeBundleSpec extends IOWordSpec with Matchers {
+class ThemeBundleSpec extends FunSuite {
 
 
-  trait BundleSetup {
-
-    import laika.io.implicits._
-    
-    def themeBundles: Seq[ExtensionBundle]
-
-    def appBundles: Seq[ExtensionBundle]
-
-    def config: OperationConfig = {
-      Transformer
-        .from(Markdown)
-        .to(HTML)
-        .using(appBundles:_*)
-        .parallel[IO]
-        .withTheme(TestThemeBuilder.forBundles(themeBundles))
-        .build
-        .use(t => IO.pure(t.config))
-        .unsafeRunSync()
-    }
-
+  def config (themeBundles: Seq[ExtensionBundle], appBundles: Seq[ExtensionBundle]): OperationConfig = {
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(appBundles:_*)
+      .parallel[IO]
+      .withTheme(TestThemeBuilder.forBundles(themeBundles))
+      .build
+      .use(t => IO.pure(t.config))
+      .unsafeRunSync()
   }
 
-  "The configuration for baseConfig settings" should {
 
-    "merge baseConfig from a theme with the baseConfig from an app extension" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
-      val appBundles = Seq(BundleProvider.forConfigString("bar: 2"))
 
-      val baseConfig = config.baseConfig
-      baseConfig.get[Int]("foo") shouldBe Right(1)
-      baseConfig.get[Int]("bar") shouldBe Right(2)
-    }
+  test("baseConfig - merged from theme and app extension") {
+    val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
+    val appBundles = Seq(BundleProvider.forConfigString("bar: 2"))
 
-    "let an app config override an identical key in the theme config" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
-      val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
-      val baseConfig = config.baseConfig
-      baseConfig.get[Int]("foo") shouldBe Right(2)
-    }
-
+    val baseConfig = config(themeBundles, appBundles).baseConfig
+    assertEquals(baseConfig.get[Int]("foo"), Right(1))
+    assertEquals(baseConfig.get[Int]("bar"), Right(2))
   }
 
-  "The configuration for the docTypeMatcher" should {
-
-    "merge docTypeMatcher from a markup extension with the docTypeMatcher from an app extension" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
-      val appBundles =    Seq(BundleProvider.forDocTypeMatcher { case Root / "bar" => Markup })
-
-      val docTypeMatcher = config.docTypeMatcher
-      docTypeMatcher(Root / "foo") shouldBe Markup
-      docTypeMatcher(Root / "bar") shouldBe Markup
-      docTypeMatcher(Root / "baz") shouldBe Static()
-    }
-
-    "let an app config override an identical path key in the extension config" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
-      val appBundles =    Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Template })
-
-      val docTypeMatcher = config.docTypeMatcher
-      docTypeMatcher(Root / "foo") shouldBe Template
-      docTypeMatcher(Root / "bar") shouldBe Static()
-    }
-
+  test("baseConfig - app config overrides an identical key in the theme config") {
+    val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
+    val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
+    val baseConfig = config(themeBundles, appBundles).baseConfig
+    assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
 
-  "The configuration for the rewrite rule" should {
 
-    "merge a rewrite rule from a markup extension with the rewrite rule from an app extension" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong => Replace(Literal(s.extractText)) })
-      val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case s: Emphasized => Replace(Literal(s.extractText)) })
+  test("docTypeMatcher - merged from a markup extension and an app extension") {
+    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
+    val appBundles =   Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "bar" => Markup })
 
-      val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
-
-      val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
-
-      config.rewriteRulesFor(doc).flatMap(doc.rewrite) shouldBe Right(expected)
-    }
-
-    "apply a rewrite rule from an app config and a rule from a markup extension successively" in new BundleSetup {
-      val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case Literal(text, _) => Replace(Literal(text+"!")) })
-      val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) })
-
-      val doc =      Document(Root, RootElement(Literal("foo")))
-      val expected = Document(Root, RootElement(Literal("foo!?")))
-
-      config.rewriteRulesFor(doc).flatMap(doc.rewrite) shouldBe Right(expected)
-    }
-
+    val docTypeMatcher = config(themeBundles, appBundles).docTypeMatcher
+    assertEquals(docTypeMatcher(Root / "foo"), Markup)
+    assertEquals(docTypeMatcher(Root / "bar"), Markup)
+    assertEquals(docTypeMatcher(Root / "baz"), Static())
   }
+
+  test("docTypeMatcher - app config overrides an identical path key in the extension config") {
+    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
+    val appBundles =   Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "foo" => Template })
+
+    val docTypeMatcher = config(themeBundles, appBundles).docTypeMatcher
+    assertEquals(docTypeMatcher(Root / "foo"), Template)
+    assertEquals(docTypeMatcher(Root / "bar"), Static())
+  }
+
+
+  test("rewrite rules - merged from a markup extension and an app extension") {
+    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong => Replace(Literal(s.extractText)) })
+    val appBundles =   Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) { case s: Emphasized => Replace(Literal(s.extractText)) })
+
+    val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
+
+    val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
+
+    assertEquals(config(themeBundles, appBundles).rewriteRulesFor(doc).flatMap(doc.rewrite), Right(expected))
+  }
+
+  test("rewrite rules - apply a rule from an app config and a rule from a markup extension successively") {
+    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case Literal(text, _) => Replace(Literal(text+"!")) })
+    val appBundles =   Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) { case Literal(text, _) => Replace(Literal(text+"?")) })
+
+    val doc =      Document(Root, RootElement(Literal("foo")))
+    val expected = Document(Root, RootElement(Literal("foo!?")))
+
+    assertEquals(config(themeBundles, appBundles).rewriteRulesFor(doc).flatMap(doc.rewrite), Right(expected))
+  }
+
 
 }

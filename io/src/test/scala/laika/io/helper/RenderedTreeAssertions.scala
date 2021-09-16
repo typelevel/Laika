@@ -18,10 +18,9 @@ package laika.io.helper
 
 import cats.effect.IO
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
-import org.scalatest.Assertion
-import org.scalatest.matchers.should.Matchers
+import munit.Assertions
 
-trait RenderedTreeAssertions extends Matchers {
+trait RenderedTreeAssertions extends Assertions { self =>
 
   implicit class DocumentTreeRootOps (val root: RenderedTreeRoot[IO]) {
 
@@ -29,21 +28,16 @@ trait RenderedTreeAssertions extends Matchers {
 
       root.tree.assertEquals(expected.tree)
 
-      withClue("tree structure differs") {
-        root.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
-      }
-    
-      withClue(s"difference in cover documents") {
-        (root.coverDocument, expected.coverDocument) match {
-          case (Some(actual), Some(exp)) => actual.assertEquals(exp)
-          case _ => ()
-        }
+      (root.coverDocument, expected.coverDocument) match {
+        case (Some(actual), Some(exp)) => actual.assertEquals(exp)
+        case _ => ()
       }
 
-      withClue(s"difference in static documents") {
-        root.staticDocuments.map(_.path) shouldBe expected.staticDocuments.map(_.path)
-      }
-      
+      self.assertEquals(
+        root.staticDocuments.map(_.path),
+        expected.staticDocuments.map(_.path),
+        s"difference in static documents"
+      )
     }
   }
 
@@ -51,20 +45,16 @@ trait RenderedTreeAssertions extends Matchers {
     
     def assertEquals (expected: RenderedTree): Unit = {
       
-      def validateStructure(): Assertion = {
-        withClue("tree structure differs") {
-          tree.allDocuments.map(_.path) shouldBe expected.allDocuments.map(_.path)
-        }
+      self.assertEquals(
+        tree.allDocuments.map(_.path), 
+        expected.allDocuments.map(_.path), 
+        "tree structure differs"
+      )
+    
+      tree.allDocuments.zip(expected.allDocuments).foreach { case (actual, expected) =>
+        actual.assertEquals(expected)
       }
       
-      def validateContent(): Unit = {
-        tree.allDocuments.zip(expected.allDocuments).foreach { case (actual, expected) =>
-          actual.assertEquals(expected)
-        }
-      }
-      
-      validateStructure()
-      validateContent()
     }
     
   }
@@ -73,15 +63,9 @@ trait RenderedTreeAssertions extends Matchers {
     
     def assertEquals (expected: RenderedDocument): Unit = {
       val doc = s"of document '${actual.path.toString}'"
-      withClue(s"difference in content $doc") {
-        actual.content shouldBe expected.content
-      }
-      withClue(s"difference in title $doc") {
-        actual.title shouldBe expected.title
-      }
-      withClue(s"difference in sections $doc") {
-        actual.sections shouldBe expected.sections
-      }
+      self.assertEquals(actual.content, expected.content, s"difference in content $doc")
+      self.assertEquals(actual.title, expected.title, s"difference in title $doc")
+      self.assertEquals(actual.sections, expected.sections, s"difference in sections $doc")
     }
     
   }

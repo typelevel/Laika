@@ -20,21 +20,23 @@ import laika.api.MarkupParser
 import laika.format.Markdown
 import laika.helium.builder.HeliumRewriteRules
 import laika.markdown.github.GitHubFlavor
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class LineEstimatesSpec extends AnyFunSuite with Matchers {
+class LineEstimatesSpec extends FunSuite {
 
   private val parser = MarkupParser
     .of(Markdown)
     .using(GitHubFlavor)
     .build
   
-  def parseAndCount (input: String): Int = {
-    parser.parse(input).fold(_ => 0, doc => HeliumRewriteRules.estimateLines(doc.content.content))
+  def run (input: String, expected: Int): Unit = {
+    val actual = parser
+      .parse(input)
+      .fold(_ => 0, doc => HeliumRewriteRules.estimateLines(doc.content.content))
+    assertEquals(actual, expected)
   }
   
   test("count paragraph lines") {
@@ -47,7 +49,7 @@ class LineEstimatesSpec extends AnyFunSuite with Matchers {
         |4
         |5
       """.stripMargin
-    parseAndCount(input) shouldBe 5
+    run(input, 5)
   }
 
   test("count list item lines") {
@@ -65,7 +67,7 @@ class LineEstimatesSpec extends AnyFunSuite with Matchers {
         |    * 8
         |    * 9
       """.stripMargin
-    parseAndCount(input) shouldBe 9
+    run(input, 9)
   }
 
   test("count table rows") {
@@ -75,7 +77,7 @@ class LineEstimatesSpec extends AnyFunSuite with Matchers {
         || 22 | 22 | 22 |
         || 33 | 33 | 33 |
       """.stripMargin
-    parseAndCount(input) shouldBe 3
+    run(input, 3)
   }
   
   test("count sections and navigation list items") {
@@ -97,7 +99,7 @@ class LineEstimatesSpec extends AnyFunSuite with Matchers {
         |  entries = [ { target = "#", excludeRoot = true } ]
         |}
       """.stripMargin
-    parseAndCount(input) shouldBe 12
+    run(input, 12)
   }
   
 }

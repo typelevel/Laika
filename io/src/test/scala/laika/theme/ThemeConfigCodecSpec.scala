@@ -23,13 +23,12 @@ import laika.config._
 import laika.render.fo.TestTheme
 import laika.theme.config.BookConfig
 import laika.time.PlatformDateFormat
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
 /**
   * @author Jens Halm
   */
-class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
+class ThemeConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
 
@@ -38,75 +37,74 @@ class ThemeConfigCodecSpec extends AnyWordSpec with Matchers {
 
   def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
   
-  "The codec for BookConfig" should {
+  test("decode an instance with all fields populated") {
+    val input =
+      """{
+        |laika {
+        |  metadata {
+        |    title = "Hell is around the corner"
+        |    description = "Undescribable"
+        |    identifier = XX-33-FF-01
+        |    authors = [ "Helen North", "Maria South" ]
+        |    language = en
+        |    date = "2002-10-10T12:00:00"
+        |  }
+        |  fonts = [
+        |    { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
+        |    { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
+        |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
+        |  ]
+        |  navigationDepth = 3
+        |  coverImage = cover.jpg
+        |}}
+      """.stripMargin
+    val expected = BookConfig(
+      DocumentMetadata(
+        Some("Hell is around the corner"),
+        Some("Undescribable"),
+        Some("XX-33-FF-01"),
+        Seq("Helen North", "Maria South"),
+        Some("en"),
+        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+      ),
+      Some(3),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    assertEquals(decode[BookConfig](input), Right(expected))
+  }
 
-    "decode an instance with all fields populated" in {
-      val input =
-        """{
-          |laika {
-          |  metadata {
-          |    title = "Hell is around the corner"
-          |    description = "Undescribable"
-          |    identifier = XX-33-FF-01
-          |    authors = [ "Helen North", "Maria South" ]
-          |    language = en
-          |    date = "2002-10-10T12:00:00"
-          |  }
-          |  fonts = [
-          |    { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }
-          |    { family = Font-B, weight = bold, style = normal, embedResource = /path/to/font-b.tff }
-          |    { family = Font-C, weight = normal, style = italic, webCSS = "http://fonts.com/font-c.css" }
-          |  ]
-          |  navigationDepth = 3
-          |  coverImage = cover.jpg
-          |}}
-        """.stripMargin
-      decode[BookConfig](input) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("Hell is around the corner"),
-          Some("Undescribable"),
-          Some("XX-33-FF-01"),
-          Seq("Helen North", "Maria South"),
-          Some("en"),
-          Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
-        ),
-        Some(3),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
-      ))
-    }
+  test("decode an instance with some fields populated") {
+    val input =
+      """{
+        |laika {
+        |  metadata {
+        |    identifier = XX-33-FF-01
+        |  }
+        |  navigationDepth = 3
+        |}}
+      """.stripMargin
+    val expected = BookConfig(
+      DocumentMetadata(
+        identifier = Some("XX-33-FF-01")
+      ),
+      Some(3)
+    )
+    assertEquals(decode[BookConfig](input), Right(expected))
+  }
 
-    "decode an instance with some fields populated" in {
-      val input =
-        """{
-          |laika {
-          |  metadata {
-          |    identifier = XX-33-FF-01
-          |  }
-          |  navigationDepth = 3
-          |}}
-        """.stripMargin
-      decode[BookConfig](input) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          identifier = Some("XX-33-FF-01")
-        ),
-        Some(3)
-      ))
-    }
-
-    "round-trip encode and decode" in {
-      val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
-      val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-      decode[BookConfig](encoded) shouldBe Right(BookConfig(
-        DocumentMetadata(
-          Some("XX-33-FF-01")
-        ),
-        Some(3),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
-      ))
-    }
-
+  test("round-trip encode and decode") {
+    val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
+    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    val expected = BookConfig(
+      DocumentMetadata(
+        Some("XX-33-FF-01")
+      ),
+      Some(3),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    assertEquals(decode[BookConfig](encoded), Right(expected))
   }
 
 }

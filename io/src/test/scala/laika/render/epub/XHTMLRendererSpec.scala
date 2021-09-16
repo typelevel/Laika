@@ -25,7 +25,6 @@ import laika.format.EPUB
 import laika.io.FileIO
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
 import munit.CatsEffectSuite
-import org.scalatest.matchers.should
 
 /**
   * @author Jens Halm

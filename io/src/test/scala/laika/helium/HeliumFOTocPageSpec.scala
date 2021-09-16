@@ -21,14 +21,14 @@ import laika.api.Transformer
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{Markdown, XSLFO}
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumFOTocPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumFOTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
@@ -54,7 +54,7 @@ class HeliumFOTocPageSpec extends IOFunSuite with InputBuilder with ResultExtrac
     
   test("no table of content page configured") {
     transformAndExtract(twoDocs, Helium.defaults, "", "")
-      .assertFailsWithMessage("Missing document under test")
+      .interceptMessage[RuntimeException]("Missing document under test")
   }
   
   test("table of content included") {

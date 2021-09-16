@@ -17,7 +17,6 @@
 package laika.helium
 
 import java.util.Locale
-
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
@@ -28,13 +27,13 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.io.IOFunSuite
 import laika.render.HTMLFormatter
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
   
@@ -63,7 +62,7 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
     
   test("no download page configured") {
     transformAndExtract(singleDoc, Helium.defaults, "", "")
-      .assertFailsWithMessage("Missing document under test")
+      .interceptMessage[RuntimeException]("Missing document under test")
   }
   
   private val heliumWithDownloadPage = Helium.defaults.site.downloadPage(
@@ -125,7 +124,8 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |</main>
                      |</div>
                      |</body>""".stripMargin
-    transformAndExtract(singleDoc, heliumWithDownloadPage, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
+    transformAndExtract(singleDoc, heliumWithDownloadPage, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>")
+      .assertEquals(expected)
   }
 
   test("configure artifact base name") {
@@ -145,7 +145,8 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p><a href="downloads/documentation.pdf">Download</a></p>
                      |</div>
                      |</div>""".stripMargin
-    transformAndExtract(inputs, heliumWithDownloadPage, "<main class=\"content\">", "</main>").assertEquals(expected)
+    transformAndExtract(inputs, heliumWithDownloadPage, "<main class=\"content\">", "</main>")
+      .assertEquals(expected)
   }
 
   test("include only EPUB") {
@@ -163,7 +164,8 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p><a href="downloads/download.epub">Download</a></p>
                      |</div>
                      |</div>""".stripMargin
-    transformAndExtract(singleDoc, heliumWithEPUBDownloads, "<main class=\"content\">", "</main>").assertEquals(expected)
+    transformAndExtract(singleDoc, heliumWithEPUBDownloads, "<main class=\"content\">", "</main>")
+      .assertEquals(expected)
   }
 
   test("include cover image") {
@@ -189,7 +191,8 @@ class HeliumDownloadPageSpec extends IOFunSuite with InputBuilder with ResultExt
                      |<p><a href="downloads/download.pdf">Download</a></p>
                      |</div>
                      |</div>""".stripMargin
-    transformAndExtract(singleDoc, heliumWithDownloadsAndCovers, "<main class=\"content\">", "</main>").assertEquals(expected)
+    transformAndExtract(singleDoc, heliumWithDownloadsAndCovers, "<main class=\"content\">", "</main>")
+      .assertEquals(expected)
   }
 
   test("include cover image with configured selections (choices)") {
