@@ -61,7 +61,6 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest  = "org.scalatest"          %% "scalatest"   % versions.scalatest % "test"
 val munit      = "org.scalameta"          %% "munit"       % versions.munit     % "test"
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % versions.jTidy     % "test"
 
@@ -124,7 +123,7 @@ lazy val io = project.in(file("io"))
   .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(scalatest, catsEffect, munit, munitCE3)
+    libraryDependencies ++= Seq(catsEffect, munit, munitCE3)
   )
   
 lazy val pdf = project.in(file("pdf"))

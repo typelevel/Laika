@@ -22,7 +22,6 @@ import laika.ast.{Image, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
@@ -30,8 +29,9 @@ import laika.io.model.StringTreeOutput
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.{Version, Versions}
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumHTMLNavSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)

@@ -17,22 +17,21 @@
 package laika.helium
 
 import java.util.Locale
-
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
 import laika.ast.{Image, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.rewrite.link.LinkConfig
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
@@ -73,7 +72,7 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
     
   test("no landing page configured") {
     transformAndExtract(inputs, Helium.defaults, "", "")
-      .assertFailsWithMessage("Missing document under test")
+      .interceptMessage[RuntimeException]("Missing document under test")
   }
   
   test("full landing page configured") {
@@ -142,7 +141,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         Teaser("Teaser 3", "Description 3")
       )
     )
-    transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
+    transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>")
+      .assertEquals(expected)
   }
 
   test("partial landing page configured with custom content and fragment") {
@@ -201,7 +201,8 @@ class HeliumLandingPageSpec extends IOFunSuite with InputBuilder with ResultExtr
         |
         |Some *markup* here.""".stripMargin
     val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", content)
-    transformAndExtract(inputsWithExtraDoc, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>").assertEquals(expected)
+    transformAndExtract(inputsWithExtraDoc, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>")
+      .assertEquals(expected)
   }
 
 }

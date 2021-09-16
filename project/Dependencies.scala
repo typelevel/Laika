@@ -13,7 +13,6 @@ object Dependencies {
     
     val munit      = "0.7.29"
     val munitCE3   = "1.0.5"
-    val scalatest  = "3.2.9"
     val jTidy      = "r938"
     val fop        = "2.6"
   }

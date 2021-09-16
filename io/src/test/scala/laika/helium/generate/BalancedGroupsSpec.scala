@@ -17,46 +17,37 @@
 package laika.helium.generate
 
 import cats.effect.IO
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import munit.FunSuite
 
-class BalancedGroupsSpec extends AnyWordSpec with Matchers {
+class BalancedGroupsSpec extends FunSuite {
 
-  trait Setup {
+  val dummyOp: IO[Unit] = IO.unit
 
-    val dummyOp: IO[Unit] = IO.unit
-
-    def groupCount (numOps: Int, size: Int): Seq[Int] = {
-      val ops = Vector.fill(numOps)(dummyOp)
-      BalancedGroups
-        .create(ops, size)
-        .map(_.size)
-    }
-
+  def groupCount (numOps: Int, size: Int): Seq[Int] = {
+    val ops = Vector.fill(numOps)(dummyOp)
+    BalancedGroups
+      .create(ops, size)
+      .map(_.size)
   }
 
-  "The BalancedGroups utility" should {
+  test("create a single group when size is 1") {
+    assertEquals(groupCount(5, 1), Seq(5))
+  }
 
-    "create a single group when size is 1" in new Setup {
-      groupCount(5, 1) should be (Seq(5))
-    }
+  test("create groups of size 1 when the number of items is lower than the specified size") {
+    assertEquals(groupCount(3, 5), Seq(1,1,1))
+  }
 
-    "create groups of size 1 when the number of items is lower than the specified size" in new Setup {
-      groupCount(3, 5) should be (Seq(1,1,1))
-    }
+  test("create groups of size 1 when the number of items is equal to the specified size") {
+    assertEquals(groupCount(4, 4), Seq(1,1,1,1))
+  }
 
-    "create groups of size 1 when the number of items is equal to the specified size" in new Setup {
-      groupCount(4, 4) should be (Seq(1,1,1,1))
-    }
+  test("create groups of variable size when the number of items is not a multiple of the specified size") {
+    assertEquals(groupCount(9, 4), Seq(3,2,2,2))
+  }
 
-    "create groups of variable size when the number of items is not a multiple of the specified size" in new Setup {
-      groupCount(9, 4) should be (Seq(3,2,2,2))
-    }
-
-    "create groups of equal size when the number of items is a multiple of the specified size" in new Setup {
-      groupCount(9, 3) should be (Seq(3,3,3))
-    }
-
+  test("create groups of equal size when the number of items is a multiple of the specified size") {
+    assertEquals(groupCount(9, 3), Seq(3,3,3))
   }
 
 }

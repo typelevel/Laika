@@ -23,7 +23,6 @@ import laika.ast.{Icon, IconGlyph, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config.{AnchorPlacement, HeliumIcon}
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
@@ -32,8 +31,9 @@ import laika.render.HTMLFormatter
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import laika.theme._
+import munit.CatsEffectSuite
 
-class HeliumRenderOverridesSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
   

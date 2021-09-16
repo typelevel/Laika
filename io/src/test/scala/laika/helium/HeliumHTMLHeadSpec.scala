@@ -23,7 +23,6 @@ import laika.ast.Path.Root
 import laika.config.LaikaKeys
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
-import laika.io.IOFunSuite
 import laika.io.api.{TreeParser, TreeRenderer, TreeTransformer}
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
@@ -32,8 +31,9 @@ import laika.rewrite.link.LinkConfig
 import laika.rewrite.{Version, Versions}
 import laika.theme._
 import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
+import munit.CatsEffectSuite
 
-class HeliumHTMLHeadSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)

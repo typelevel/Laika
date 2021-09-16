@@ -23,15 +23,14 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{EPUB, Markdown}
 import laika.helium.config.ColorQuintet
-import laika.io.IOFunSuite
 import laika.io.api.TreeTransformer
-import laika.io.helper.RenderResult.epub
 import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.theme.ThemeProvider
+import munit.CatsEffectSuite
 
-class HeliumEPUBCSSSpec extends IOFunSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
