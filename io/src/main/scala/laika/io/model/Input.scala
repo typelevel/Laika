@@ -193,7 +193,7 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
   
   private def addStep (path: Path, newFileRoot: Option[File] = None)
                       (f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
-    addStep(newFileRoot) { (docTypeFunction, _) => 
+    addStep(newFileRoot) { (docTypeFunction, _) =>
       Kleisli { tree =>
         f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
       }
@@ -225,6 +225,7 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
   def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
+    if (fileFilter(dir)) Kleisli.ask else
     Kleisli { input => 
       DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
     }
