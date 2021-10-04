@@ -31,7 +31,7 @@ import laika.io.api.{BinaryTreeTransformer, TreeTransformer}
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
+import laika.io.model.{InputTree, InputTreeBuilder, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -71,8 +71,8 @@ class TreeTransformerSpec extends CatsEffectSuite
     transformWithBundle(inputs, BundleProvider.forTemplateDirective(directive))
   def transformWithDocumentMapper (inputs: Seq[(Path, String)], f: Document => Document): IO[RenderedTreeRoot[IO]] = 
     transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].mapDocuments(f).build)
-  
-  def describe (inputs: Seq[(Path, String)]): IO[TransformerDescriptor] = Transformer
+
+  def describe (inputs: InputTreeBuilder[IO]): IO[TransformerDescriptor] = Transformer
     .from(Markdown)
     .to(AST)
     .using(SyntaxHighlighting)
@@ -80,11 +80,13 @@ class TreeTransformerSpec extends CatsEffectSuite
     .withAlternativeParser(MarkupParser.of(ReStructuredText))
     .build
     .use (_
-      .fromInput(build(inputs))
+      .fromInput(inputs)
       .toOutput(StringTreeOutput)
       .describe
     )
-  
+
+  def describe (inputs: Seq[(Path, String)]): IO[TransformerDescriptor] = describe(build(inputs))
+
   protected def transformWith (inputs: Seq[(Path, String)],
                                transformer: Resource[IO, TreeTransformer[IO]] = transformer): IO[RenderedTreeRoot[IO]] =
     transformer.use (_
@@ -542,6 +544,11 @@ class TreeTransformerSpec extends CatsEffectSuite
     describe(inputs)
       .map(_.formatted)
       .assertEquals(expected)
+  }
+
+  test("do not fail a describe operation in case of a directory input that does not exist") {
+    val inputs = InputTree[IO].addDirectory("/xxx/yyy/zzz/does-not-exist/")
+    describe(inputs).attempt.map(_.isRight).assert
   }
 
   object TwoPhaseTransformer extends InputBuilder {
