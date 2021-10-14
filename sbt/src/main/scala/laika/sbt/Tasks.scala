@@ -218,8 +218,8 @@ object Tasks {
       .allocated
       .unsafeRunSync()
 
-    logger.info(s"Preview server started on port $port. Press ctrl-D to exit.")
-    
+    logger.info(s"Preview server started on port ${previewConfig.port}. Press ctrl-D to exit.")
+
     try {
       System.in.read
     }
