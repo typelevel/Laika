@@ -59,8 +59,8 @@ This is a complete list of values exposed in the `cursor` namespace:
   Sub-keys are:
   
     * `content`: The entire AST of the markup document, see [Inserting Content from Markup Documents] for details.
-    
-    * `fragements`: The AST of all named fragments declared in the markup document, under their respective keys,
+
+    * `fragments`: The AST of all named fragments declared in the markup document, under their respective keys,
       e.g. `cursor.currentDocument.fragments.sidebar` for a fragment declared with `@:fragment(sidebar)` inside
       the markup document. See [Document Fragments] for details.
 

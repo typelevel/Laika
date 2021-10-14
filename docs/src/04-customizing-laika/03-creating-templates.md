@@ -174,7 +174,7 @@ ${?cursor.currentDocument.title}
 
 If an optional reference points to an undefined value, the reference in the template is substituted with an empty string.
 
-For a full list of predefined values see [Substitution Variables] in the Reference section.
+For a full list of predefined values see [Substitution Variables](../07-reference/02-substitution-variables.md) in the Reference section.
 For instructions on defining your own see [User-Defined Variables].
 
 
