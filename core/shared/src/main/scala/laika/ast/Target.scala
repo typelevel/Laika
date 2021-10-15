@@ -39,12 +39,13 @@ object Target {
     * External targets on the other hand are not validated, 
     * as the availability of the external resource during validation cannot be guaranteed.
     */
-  def parse (url: String): Target =
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) ExternalTarget(url)
-    else RelativeInternalTarget(RelativePath.parse(url))
+  def parse (url: String): Target = parseInternal(url).fold(identity, identity)
 
+  /** In contrast to the public method this internal parse method exposes the knowledge that any internal
+    * target is always a relative target as this point.
+    */
   private[laika] def parseInternal (url: String): Either[RelativeInternalTarget, ExternalTarget] =
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("/")) Right(ExternalTarget(url))
+    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("mailto:") || url.startsWith("/")) Right(ExternalTarget(url))
     else Left(RelativeInternalTarget(RelativePath.parse(url)))
 
 }

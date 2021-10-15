@@ -172,6 +172,10 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
   test("links - inline link without title") {
     runEnclosed("some [link](http://foo) here", SpanLink.external("http://foo")("link"))
   }
+
+  test("links - recognize email link as external link") {
+    runEnclosed("some [link](mailto:nobody@nowhere.com) here", SpanLink.external("mailto:nobody@nowhere.com")("link"))
+  }
   
   test("links - inline link with an optional title enclosed in double quotes") {
     runEnclosed("""some [link](http://foo "a title") here""", 
