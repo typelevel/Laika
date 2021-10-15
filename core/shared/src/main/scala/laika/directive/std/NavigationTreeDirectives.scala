@@ -164,7 +164,7 @@ object NavigationTreeDirectives {
         }
 
         optTarget.fold(createManualNode(None)) { targetStr =>
-          if (targetStr.startsWith("http:") || targetStr.startsWith("https:"))
+          if (targetStr.startsWith("http:") || targetStr.startsWith("https:") || targetStr.startsWith("mailto:"))
             createManualNode(Some(ExternalTarget(targetStr)))
           else
             createGeneratedNode(PathBase.parse(targetStr))
