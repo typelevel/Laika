@@ -348,7 +348,7 @@ object BlockSource {
     val trimmedLines = lines.map { line =>
       if (line.input.endsWith("\n")) LineSource(line.input.dropRight(1), line.parent) else line
     }
-    val input = new InputString(trimmedLines.map(_.input).mkString_("\n"))
+    val input = InputString.safe(trimmedLines.map(_.input).mkString_("\n"))
     new BlockSource(input, trimmedLines, 0, lines.head.nestLevel)
   }
 
@@ -390,17 +390,17 @@ object SourceCursor {
 
   /** Builds a new instance for the specified input string.
     */
-  def apply (input: String): SourceCursor = new RootSource(new InputString(input), 0, 0)
+  def apply (input: String): SourceCursor = new RootSource(InputString(input), 0, 0)
 
   /** Builds a new instance for the specified input string and source path.
     */
-  def apply (input: String, path: Path): SourceCursor = new RootSource(new InputString(input, Some(path)), 0, 0)
+  def apply (input: String, path: Path): SourceCursor = new RootSource(InputString(input, Some(path)), 0, 0)
 
 }
 
 /** Represents the input string for a parsing operation.
   */
-private[parse] class InputString (val value: String, val path: Option[Path] = None, val isReverse: Boolean = false) {
+private[parse] class InputString private (val value: String, val path: Option[Path] = None, val isReverse: Boolean = false) {
 
   /** An index that contains all line starts, including first line, and eof.
     */
@@ -425,6 +425,10 @@ private[parse] class InputString (val value: String, val path: Option[Path] = No
 
 private[parse] object InputString {
   val empty: InputString = new InputString("")
+  def apply (value: String, path: Option[Path] = None, isReverse: Boolean = false): InputString =
+    new InputString(value.replace("\r\n", "\n"), path, isReverse)
+  def safe (value: String, path: Option[Path] = None, isReverse: Boolean = false): InputString =
+    new InputString(value, path, isReverse)
 }
 
 /**  Represents an offset into a source string. Its main purpose

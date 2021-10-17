@@ -23,11 +23,11 @@ class RootCursorSpec extends FunSuite {
 
   private val cursor = SourceCursor("abc\ndef")
 
-  test("not be at the end of input after creation") {
+  test("not at the end of input after creation") {
     assertEquals(cursor.atEnd, false)
   }
 
-  test("be at the end of input after consuming all characters") {
+  test("at the end of input after consuming all characters") {
     assertEquals(cursor.consume(7).atEnd, true)
   }
 
@@ -94,6 +94,10 @@ class RootCursorSpec extends FunSuite {
   test("keep the path information") {
     assertEquals(SourceCursor("foo", Root / "bar").path, Some(Root / "bar"))
   }
+
+  test("convert Windows line feeds") {
+    assertEquals(SourceCursor("abc\r\ndef\r\nghi").input, "abc\ndef\nghi")
+  }
   
 }
 
@@ -102,7 +106,7 @@ class BlockCursorSpec extends FunSuite {
   import cats.data.NonEmptyChain
 
   private val cursor = {
-    val root = new RootSource(new InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
+    val root = new RootSource(InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
     val lines = NonEmptyChain(
       LineSource("abc", root),
       LineSource("def", root.consume(4))
