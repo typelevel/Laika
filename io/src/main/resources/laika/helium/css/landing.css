@@ -98,14 +98,9 @@ h2 {
   font-size: 20px;
   margin-top: 0;
   line-height: 28px;
-}
-/*.teaser p {*/
-/*  border: 2px solid lightsalmon;*/
-/*}*/
-h2 {
   margin-bottom: 5px;
-  /*border: 2px solid lightsalmon;*/
 }
+
 @media (max-width: 850px) {
   #header-right {
     padding-left: 20px;

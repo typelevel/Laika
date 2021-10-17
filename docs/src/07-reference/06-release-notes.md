@@ -3,7 +3,7 @@ Release Notes
 =============
 
 0.18.0 (Aug 2, 2021)
--------------------------
+--------------------
 
 * Migrate to cats-effect 3
     * Adjust public API in `laika-io` module by removing all usages of `ContextShift` and `Blocker`

@@ -32,7 +32,6 @@ import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
 import Settings.validated
-import com.comcast.ip4s.Literals.port
 import laika.config.Config
 import laika.preview.{ServerBuilder, ServerConfig}
 

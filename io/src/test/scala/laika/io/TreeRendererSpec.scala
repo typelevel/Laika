@@ -596,7 +596,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .assertEquals(expectedRendered)
   }
 
-  test("tree while excluding all unversioned documents, based on configuration") {
+  test("render tree while excluding all unversioned documents, based on configuration") {
     val versions = Versions(Version("0.4.x", "0.4"), Seq(), Seq(), renderUnversioned = false)
     val input = SampleTrees.sixDocuments
       .root.config(_.withValue(versions))
