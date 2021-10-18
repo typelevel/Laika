@@ -10,7 +10,7 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion) {
   const menuList = document.getElementById("version-list");
   data.versions.forEach(version => {
     const pathPrefix = localRootPrefix + version.pathSegment;
-    const href = (currentTarget.versions.includes(version.pathSegment)) ? 
+    const href = (currentTarget && currentTarget.versions.includes(version.pathSegment)) ?
         pathPrefix + currentPath : pathPrefix + version.fallbackLink;
 
     const link = document.createElement('a');

@@ -19,9 +19,9 @@
       <link rel="stylesheet" href="${_}">
     @:@
     @:linkCSS { paths = ${helium.site.includeCSS} }
-    @:for(laika.versions)
-    <link rel="stylesheet" type="text/css" href="${_.currentVersion.pathSegment}/helium/landing.page.css" />
-    @:empty
+    @:if(laika.versioned)
+    <link rel="stylesheet" type="text/css" href="${laika.versions.currentVersion.pathSegment}/helium/landing.page.css" />
+    @:else
     <link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
     @:@
     @:linkJS { paths = ${helium.site.includeJS} }

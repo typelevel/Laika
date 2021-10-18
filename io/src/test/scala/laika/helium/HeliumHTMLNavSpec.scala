@@ -33,6 +33,17 @@ import munit.CatsEffectSuite
 
 class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
+  private val versions = Versions(
+    Version("0.42.x", "0.42"),
+    Seq(
+      Version("0.41.x", "0.41"),
+      Version("0.40.x", "0.40", "toc.html")
+    ),
+    Seq(
+      Version("0.43.x", "0.43")
+    )
+  )
+
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
@@ -160,17 +171,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
-  test("top navigation - with version dropdown") {
-    val versions = Versions(
-      Version("0.42.x", "0.42"),
-      Seq(
-        Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43")
-      )
-    )
+  test("top navigation - with version dropdown on a versioned page") {
     val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
     val expected =
       """<div class="row">
@@ -187,9 +188,32 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</nav>
         |</div>
         |</div>
+        |<a class="icon-link" href="../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<span class="row"></span>""".stripMargin
+    val config = Root / "directory.conf" -> "laika.versioned = true"
+    transformAndExtract(inputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)
+  }
+
+  test("top navigation - with version dropdown on an unversioned page") {
+    val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |</a>
+        |<div id="version-menu-container">
+        |<a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+        |Documentation
+        |</a>
+        |<nav id="version-menu">
+        |<ul id="version-list" class="nav-list">
+        |</ul>
+        |</nav>
+        |</div>
+        |</div>
         |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row"></span>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
-  
+
 }

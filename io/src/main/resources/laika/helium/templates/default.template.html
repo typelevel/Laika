@@ -36,7 +36,11 @@
         @:for(laika.versions)
         <div id="version-menu-container">
           <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
-            ${helium.topBar.versionPrefix} ${_.currentVersion.displayValue}
+            @:if(laika.versioned)
+            ${helium.topBar.versionPrefix} ${laika.versions.currentVersion.displayValue}
+            @:else
+            Documentation
+            @:@
           </a>
           <nav id="version-menu">
             <ul id="version-list" class="nav-list">

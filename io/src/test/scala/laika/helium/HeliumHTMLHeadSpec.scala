@@ -64,6 +64,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   val singleDoc = Seq(
     Root / "name.md" -> "text"
   )
+  val singleVersionedDoc = Seq(
+    Root / "name.md" -> "text",
+    Root / "directory.conf" -> "laika.versioned = true",
+  )
   
   val meta = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                |<meta charset="utf-8">
@@ -249,7 +253,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
                    |<script src="../helium/laika-helium.js"></script>
                    |<script src="../helium/laika-versions.js"></script>
-                   |<script>initVersions("../../", "/dir/name.html", "0.42.x");</script>
+                   |<script>initVersions("../../", "/dir/name.html", "0.42");</script>
                    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
@@ -270,7 +274,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
-  test("versioning") {
+  test("version menu on a versioned page") {
     val versions = Versions(
       Version("0.42.x", "0.42"),
       Seq(
@@ -290,8 +294,33 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                     |<script src="helium/laika-helium.js"></script>
                     |<script src="helium/laika-versions.js"></script>
-                    |<script>initVersions("../", "/name.html", "0.42.x");</script>
+                    |<script>initVersions("../", "/name.html", "0.42");</script>
                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(singleVersionedDoc, helium, Root / "0.42" / "name.html").assertEquals(expected)
+  }
+
+  test("version menu on an unversioned page") {
+    val versions = Versions(
+      Version("0.42.x", "0.42"),
+      Seq(
+        Version("0.41.x", "0.41"),
+        Version("0.40.x", "0.40", "toc.html")
+      ),
+      Seq(
+        Version("0.43.x", "0.43")
+      )
+    )
+    val helium = Helium.defaults.site.landingPage().site.versions(versions)
+    val expected = meta ++ """
+                     |<title></title>
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                     |<script src="helium/laika-helium.js"></script>
+                     |<script src="helium/laika-versions.js"></script>
+                     |<script>initVersions("", "", "");</script>
+                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 

@@ -33,15 +33,19 @@ private[helium] object HeliumDirectives {
     Templates.dsl.cursor.map { cursor =>
       val versions = cursor.config.get[Versions].toOption
       val html = versions.fold("") { versions =>
-        val localRootPrefix = "../" * cursor.path.depth
-        val lookup: Path => Option[TranslatorSpec] = path => 
-          if (path == cursor.path) Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
-        val config = TranslatorConfig.readFrom(cursor.root.config).getOrElse(TranslatorConfig.empty)
-        val translator = ConfigurablePathTranslator(config, "html", "html", Root / "doc", lookup)
-        val currentPath = translator.translate(cursor.path).toString
-        val currentVersion = versions.currentVersion.displayValue
+        val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+        val localRootPrefix = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
+        val (currentPath, currentVersion) = if (isVersioned) {
+          val lookup: Path => Option[TranslatorSpec] = path =>
+            if (path == cursor.path) Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
+          val config = TranslatorConfig.readFrom(cursor.root.config).getOrElse(TranslatorConfig.empty)
+          val translator = ConfigurablePathTranslator(config, "html", "html", Root / "doc", lookup)
+          val path = translator.translate(cursor.path).toString
+          val version = versions.currentVersion.pathSegment
+          (path, version)
+        } else ("", "")
         s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion");</script>"""
-      } 
+      }
       TemplateString(html)
     }
   }
