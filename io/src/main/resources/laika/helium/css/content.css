@@ -242,7 +242,7 @@ table {
 thead > tr {
   border-bottom: 1px solid var(--primary-medium);
 }
-td {
+td, th {
   padding: 5px 8px;
 }
 tbody > tr:nth-child(odd) {
