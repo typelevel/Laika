@@ -81,9 +81,9 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--syntax-wheel4: #7fb971;
                                 |--syntax-wheel5: #4dbed4;""".stripMargin
   
-  private val defaultFonts = """--body-font: "Lato";
-                               |--header-font: "Lato";
-                               |--code-font: "Fira Code";
+  private val defaultFonts = """--body-font: "Lato", sans-serif;
+                               |--header-font: "Lato", sans-serif;
+                               |--code-font: "Fira Code", monospace;
                                |--body-font-size: 15px;
                                |--code-font-size: 14px;
                                |--small-font-size: 12px;
@@ -109,9 +109,9 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
   
   private val customFonts = s"""$defaultColors
-                              |--body-font: "Custom-Body";
-                              |--header-font: "Custom-Header";
-                              |--code-font: "Custom-Code";
+                              |--body-font: "Custom-Body", sans-serif;
+                              |--header-font: "Custom-Header", sans-serif;
+                              |--code-font: "Custom-Code", monospace;
                               |--body-font-size: 14px;
                               |--code-font-size: 13px;
                               |--small-font-size: 11px;
