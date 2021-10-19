@@ -55,7 +55,7 @@ class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
     (targets ++ static).groupBy(_._1).collect {
       case (key, Seq((_, target))) => (key, target)
       case ((path, selector: UniqueSelector), dupTargets) => 
-        ((path, selector), TargetResolver.forDuplicateSelector(selector, path, dupTargets.map(_._2)))
+        ((path, selector), TargetResolver.forDuplicateSelector(selector, path, dupTargets.map(_._2), isDocScope = false))
     }
   }
 

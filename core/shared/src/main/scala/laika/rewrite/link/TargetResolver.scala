@@ -119,24 +119,43 @@ object TargetResolver {
     }
   }
 
-  def forDuplicateSelector (selector: UniqueSelector, path: Path, targets: Seq[TargetResolver]): TargetResolver = {
-    val sorted = targets.sortBy(_.precedence).reverse
-    sorted.takeWhile(_.precedence == sorted.head.precedence) match {
-      case Seq(single) => single
-      case _ => forInvalidTarget(selector, s"More than one ${selector.description} in path $path")
+  def forDuplicateSelector (uniqueSelector: UniqueSelector,
+                            path: Path,
+                            targets: Seq[TargetResolver],
+                            isDocScope: Boolean): TargetResolver = new TargetResolver(uniqueSelector) {
+
+    private val sorted = targets.sortBy(_.precedence).reverse
+    private val resolver: LinkSource => Option[Span] = sorted.takeWhile(_.precedence == sorted.head.precedence) match {
+      case Seq(single) if !isDocScope => single.resolveReference
+      case _ => ReferenceResolver.lift { case LinkSource(ref: Reference, _) =>
+        InvalidSpan(s"Ambiguous reference: more than one ${uniqueSelector.description} in path $path", ref.source)
+      }
+    }
+
+    override def resolveReference(linkSource: LinkSource): Option[Span] = resolver(linkSource)
+
+    private val indexed = targets.zipWithIndex.iterator
+    def nextOption: Option[(TargetResolver, Int)] = if (indexed.hasNext) Some(indexed.next()) else None
+
+    override def replaceTarget(rewrittenOriginal: Element): Option[Element] = nextOption.flatMap { case (target, index) =>
+      target.replaceTarget(rewrittenOriginal).map { targetBase =>
+        targetBase.options.id match {
+          case Some(id) => targetBase.withId(id + "-" + (index + 1))
+          case None => targetBase
+        }
+      }
     }
   }
 
   def forDelegate (selector: Selector, delegate: TargetResolver): TargetResolver = new TargetResolver(selector, delegate.targetFormats) {
-    override def resolveReference (linkSource: LinkSource) = delegate.resolveReference(linkSource)
-    override def replaceTarget (rewrittenOriginal: Element) = delegate.replaceTarget(rewrittenOriginal)
+    override def resolveReference (linkSource: LinkSource): Option[Span] = delegate.resolveReference(linkSource)
+    override def replaceTarget (rewrittenOriginal: Element): Option[Element] = delegate.replaceTarget(rewrittenOriginal)
   }
 
 }
 
-/** Represents a resolver for a sequence of targets where matching reference nodes
-  *  get determined by position. The `resolveReference` and `resolveTarget`
-  *  methods can be invoked as many times as this sequence contains elements.
+/** Represents a resolver for a sequence of targets where matching reference nodes get determined by position.
+  * The `resolveReference` and `resolveTarget` methods can be invoked as many times as this sequence contains elements.
   */
 case class TargetSequenceResolver (targets: Seq[TargetResolver], sel: Selector) extends TargetResolver(sel) {
   private val refIt = targets.iterator
