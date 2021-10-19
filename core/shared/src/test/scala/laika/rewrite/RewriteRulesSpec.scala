@@ -564,13 +564,13 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     runRootWithoutTitles(rootElem, expected)
   }
 
-
-  test("duplicate ids - remove the id from all elements with duplicate ids") {
-    val target1a = Citation("name", List(p("citation 1")))
-    val target1b = Citation("name", List(p("citation 2")))
-    val msg = "More than one link target with id 'name' in path /doc"
-    val rootElem = RootElement(target1a, target1b)
-    val expected = RootElement(invalidBlock(msg, target1a), invalidBlock(msg, target1b))
+  test("duplicate ids - append auto-increment numbers") {
+    val header = Header(1, "Header")
+    val rootElem = RootElement(header, header)
+    val expected = RootElement(
+      Title("Header").withOptions(Id("header-1") + Styles("title")),
+      Section(header.withOptions(Id("header-2") + Styles("section")), Nil)
+    )
     runRoot(rootElem, expected)
   }
 
@@ -585,7 +585,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("duplicate ids - replace ambiguous references to duplicate ids with invalid spans") {
     val target1a = LinkDefinition("name", ExternalTarget("http://foo/1"))
     val target1b = LinkDefinition("name", ExternalTarget("http://foo/2"))
-    val msg = "More than one link definition with id 'name' in path /doc"
+    val msg = "Ambiguous reference: more than one link definition with id 'name' in path /doc"
     val rootElem = RootElement(p(linkIdRef()), target1a, target1b)
     val expected = RootElement(p(invalidSpan(msg, "<<name>>")))
     runRoot(rootElem, expected)
@@ -593,10 +593,14 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("duplicate ids - replace ambiguous references for a link alias pointing to duplicate ids with invalid spans") {
     val target = InternalLinkTarget(Id("ref"))
-    val targetMsg = "More than one link target with id 'ref' in path /doc"
+    val targetMsg = "Ambiguous reference: more than one link target with id 'ref' in path /doc"
     val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
     val rootElem = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
-    val expected = RootElement(p(invalidSpan(targetMsg, "[<name>]")), invalidTarget, invalidTarget)
+    val expected = RootElement(
+      p(invalidSpan(targetMsg, "[<name>]")),
+      InternalLinkTarget(Id("ref-1")),
+      InternalLinkTarget(Id("ref-2"))
+    )
     runRoot(rootElem, expected)
   }
 

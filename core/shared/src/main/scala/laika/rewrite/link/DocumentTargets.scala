@@ -132,7 +132,7 @@ case class DocumentTargets (document: Document, slugBuilder: String => String) {
       case (sel: UniqueSelector, target :: Nil) =>
         (sel, target)
       case (sel: UniqueSelector, duplicates) =>
-        (sel, TargetResolver.forDuplicateSelector(sel, document.path, duplicates))
+        (sel, TargetResolver.forDuplicateSelector(sel, document.path, duplicates, isDocScope = true))
       case (selector, list) =>
         (selector, TargetSequenceResolver(list, selector))
     }
