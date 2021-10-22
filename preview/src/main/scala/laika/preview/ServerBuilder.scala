@@ -83,7 +83,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   private def createServer (httpApp: HttpApp[F],
                             ctx: ExecutionContext): Resource[F, Server] =
     BlazeServerBuilder[F](ctx)
-      .bindHttp(config.port, "localhost")
+      .bindHttp(config.port, config.host)
       .withHttpApp(httpApp)
       .resource
   
@@ -135,6 +135,7 @@ object ServerBuilder {
   * @param apiDir an optional API directory from which API documentation should be served (default None)
   */
 class ServerConfig private (val port: Int,
+                            val host:String,
                             val pollInterval: FiniteDuration,
                             val artifactBasename: String,
                             val includeEPUB: Boolean,
@@ -143,17 +144,22 @@ class ServerConfig private (val port: Int,
                             val apiDir: Option[File]) {
 
   private def copy (newPort: Int = port,
+                    newHost: String = host,
                     newPollInterval: FiniteDuration = pollInterval,
                     newArtifactBasename: String = artifactBasename,
                     newIncludeEPUB: Boolean = includeEPUB,
                     newIncludePDF: Boolean = includePDF,
                     newVerbose: Boolean = isVerbose,
                     newAPIDir: Option[File] = apiDir): ServerConfig =
-    new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
+    new ServerConfig(newPort, newHost,newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
 
   /** Specifies the port the server should run on (default 4242).
     */
   def withPort (port: Int): ServerConfig = copy(newPort = port)
+
+  /** Specifies the host the server should run on (default localhost).
+  */
+  def withHost(host:String):ServerConfig = copy(newHost = host)
 
   /** Specifies the interval at which input file resources are polled for changes (default 1 second).
     */
@@ -189,11 +195,13 @@ object ServerConfig {
 
   val defaultPort: Int = 4242
 
+  val defaultHost:String = "localhost"
+
   val defaultPollInterval: FiniteDuration = 1.second
 
   val defaultArtifactBasename: String = "docs"
 
   /** A ServerConfig instance populated with default values. */
-  val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None)
+  val defaults = new ServerConfig(defaultPort,defaultHost,defaultPollInterval, defaultArtifactBasename, false, false, false, None)
   
 }
