@@ -65,9 +65,9 @@ Further Information
 
 * Follow on [Twitter] for release announcements.
 
-* Create [Issues] here on GitHub for bug reports or enhancement requests.
+* Create [Issues] for bug reports or enhancement requests.
 
-* Ask questions on [Stackoverflow], tagging with Laika and Scala.
+* Ask questions or share ideas in [Discussions].
  
 
 [Manual]: https://planet42.github.io/Laika/index.html
@@ -75,4 +75,4 @@ Further Information
 [API]: https://planet42.github.com/Laika/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
-[Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
+[Discussions]: https://github.com/planet42/Laika/discussions
