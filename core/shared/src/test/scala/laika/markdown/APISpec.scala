@@ -53,12 +53,12 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
     private lazy val parser = MarkupParser.of(Markdown).using(Registry).build
     private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
 
-    def runWith (input: String, parser: MarkupParser, expected: RootElement): Unit = {
+    def runWith (input: String, parser: MarkupParser, expected: RootElement)(implicit loc: munit.Location): Unit = {
       val res = parser.parse(input).map(_.content)
       assertEquals(res, Right(expected))
     }
-    def run (input: String, expected: Block*): Unit = runWith(input, parser, RootElement(expected))
-    def runStrict (input: String, expected: Block*): Unit = runWith(input, strictParser, RootElement(expected))
+    def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, parser, RootElement(expected))
+    def runStrict (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, strictParser, RootElement(expected))
   }
 
   object SpanDirectives {
@@ -83,12 +83,12 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
     private lazy val parser = MarkupParser.of(Markdown).using(Registry).build
     private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
 
-    def runWith (input: String, parser: MarkupParser, expected: RootElement): Unit = {
+    def runWith (input: String, parser: MarkupParser, expected: RootElement)(implicit loc: munit.Location): Unit = {
       val res = parser.parse(input).map(_.content)
       assertEquals(res, Right(expected))
     }
-    def run (input: String, expected: Block*): Unit = runWith(input, parser, RootElement(expected))
-    def runStrict (input: String, expected: Block*): Unit = runWith(input, strictParser, RootElement(expected))
+    def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, parser, RootElement(expected))
+    def runStrict (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, strictParser, RootElement(expected))
   }
   
   

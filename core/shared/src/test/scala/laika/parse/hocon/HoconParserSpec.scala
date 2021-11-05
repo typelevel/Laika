@@ -40,7 +40,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
   
   def result (fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(ObjectBuilderValue(fields))
   
-  def run (input: String, expectedFields: BuilderField*): Unit =
+  def run (input: String, expectedFields: BuilderField*)(implicit loc: munit.Location): Unit =
     assertEquals(parse(input), Right(ObjectBuilderValue(expectedFields)))
 
   test("empty root object that is not enclosed in braces") {

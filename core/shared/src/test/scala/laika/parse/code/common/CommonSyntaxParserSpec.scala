@@ -71,7 +71,7 @@ class CommonSyntaxParserSpec extends FunSuite {
   
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()
 
-  def run (input: String, spans: CodeSpan*): Unit =
+  def run (input: String, spans: CodeSpan*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(spans.toList))
     
   

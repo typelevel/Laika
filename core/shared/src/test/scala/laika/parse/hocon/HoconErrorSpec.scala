@@ -24,7 +24,7 @@ import munit.FunSuite
   */
 class HoconErrorSpec extends FunSuite {
   
-  def run (input: String, expectedMessage: String): Unit = {
+  def run (input: String, expectedMessage: String)(implicit loc: munit.Location): Unit = {
 
     ConfigParser.parse(input).resolve() match {
       case Right(result) => fail(s"Unexpected parser success: $result")

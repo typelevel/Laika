@@ -30,16 +30,16 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
     result  <- ConfigResolver.resolve(builder, Origin.root, fallback, includes)
   } yield result
 
-  def run (input: String, expectedFields: Field*): Unit =
+  def run (input: String, expectedFields: Field*)(implicit loc: munit.Location): Unit =
     assertEquals(parseAndResolve(input), Right(ObjectValue(expectedFields)))
 
-  def runWithFallback (input: String, fallback: Config, expectedFields: Field*): Unit =
+  def runWithFallback (input: String, fallback: Config, expectedFields: Field*)(implicit loc: munit.Location): Unit =
     assertEquals(parseAndResolve(input, fallback), Right(ObjectValue(expectedFields)))
 
-  def runWithIncludes (input: String, includes: IncludeMap, expectedFields: Field*): Unit =
+  def runWithIncludes (input: String, includes: IncludeMap, expectedFields: Field*)(implicit loc: munit.Location): Unit =
     assertEquals(parseAndResolve(input, includes = includes), Right(ObjectValue(expectedFields)))
 
-  def runFailure (input: String, expectedMessage: String, includes: IncludeMap = Map.empty, adjustMsg: String => String = identity): Unit = {
+  def runFailure (input: String, expectedMessage: String, includes: IncludeMap = Map.empty, adjustMsg: String => String = identity)(implicit loc: munit.Location): Unit = {
     val res = parseAndResolve(input, includes = includes).left.map(e => ConfigResolverError(adjustMsg(e.message)))
     assertEquals(res, Left(ConfigResolverError(adjustMsg(expectedMessage))))
   }

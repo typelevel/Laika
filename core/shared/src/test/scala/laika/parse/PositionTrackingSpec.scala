@@ -34,7 +34,7 @@ class PositionTrackingSpec extends FunSuite {
     case Right(doc) => s"Unexpected success: $doc"
   }
   
-  def run (input: String, expectedMessage: String): Unit =
+  def run (input: String, expectedMessage: String)(implicit loc: munit.Location): Unit =
     assertEquals(parseAndExtractMessage(input), expectedMessage)
 
   test("report an invalid block directive") {

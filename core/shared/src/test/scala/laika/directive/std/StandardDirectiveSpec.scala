@@ -32,21 +32,21 @@ class StandardDirectiveSpec extends FunSuite
   with TestSourceBuilders {
 
   
-  def run (input: String, expectedContent: Block*): Unit = {
+  def run (input: String, expectedContent: Block*)(implicit loc: munit.Location): Unit = {
     assertEquals(parse(input).map(_.content.content), Right(expectedContent))
   }
 
-  def runFragment (input: String, expectedFragment: Block): Unit = {
+  def runFragment (input: String, expectedFragment: Block)(implicit loc: munit.Location): Unit = {
     val res = parse(input)
     assertEquals(res.map(_.content.content), Right(Seq(p("aa"), p("bb"))))
     assertEquals(res.map(_.fragments), Right(Map("foo" -> expectedFragment)))
   }
   
-  def runTemplate (input: String, config: String, expectedContent: TemplateSpan*): Unit = {
+  def runTemplate (input: String, config: String, expectedContent: TemplateSpan*)(implicit loc: munit.Location): Unit = {
     assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
   }
 
-  def runTemplate (input: String, config: Config, expectedContent: TemplateSpan*): Unit = {
+  def runTemplate (input: String, config: Config, expectedContent: TemplateSpan*)(implicit loc: munit.Location): Unit = {
     assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
   }
 

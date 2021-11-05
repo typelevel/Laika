@@ -28,7 +28,7 @@ class CSSParsersSpec extends FunSuite with StyleBuilders {
   
   val defaultParser: Parser[Set[StyleDeclaration]] = styleDeclarationSet
   
-  def run (input: String, expected: StyleDeclaration*): Unit =
+  def run (input: String, expected: StyleDeclaration*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(expected.toSet))
   
   test("parse a style with a type selector") {

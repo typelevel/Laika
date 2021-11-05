@@ -31,7 +31,7 @@ trait ListParserRunner extends Assertions with ParagraphCompanionShortcuts {
   
   def fp (content: String): ForcedParagraph = ForcedParagraph(List(Text(content)))
 
-  def run (input: String, blocks: Block*): Unit =
+  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
 }
 
