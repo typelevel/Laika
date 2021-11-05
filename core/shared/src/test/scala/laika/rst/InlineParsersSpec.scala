@@ -50,10 +50,10 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     LinkIdReference(Seq(Text(text)), "", source(text+"__", input))
 
 
-  def run (input: String, spans: Span*): Unit =
+  def run (input: String, spans: Span*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(spans.toList))
 
-  def runEnclosed (input: String, middleSpan: Span): Unit =
+  def runEnclosed (input: String, middleSpan: Span)(implicit loc: munit.Location): Unit =
     run(input, Text("some "), middleSpan, Text(" here"))
   
   

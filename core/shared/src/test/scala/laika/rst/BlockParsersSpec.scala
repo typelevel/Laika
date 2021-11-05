@@ -48,7 +48,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     DecoratedHeader(deco, List(Text(content)), source(fragment, input))
 
 
-  def run (input: String, blocks: Block*): Unit =
+  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
 

@@ -39,7 +39,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
   
   def invalidSpan (message: String): InvalidSpan = InvalidSpan(message, GeneratedSource)
   
-  def run (input: RootElement, expected: RootElement): Unit =
+  def run (input: RootElement, expected: RootElement)(implicit loc: munit.Location): Unit =
     assertEquals(rewritten(input), Right(expected))
       
       

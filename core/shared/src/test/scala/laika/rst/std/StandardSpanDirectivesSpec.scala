@@ -43,7 +43,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
   def parse (input: String): Either[ParserError, RootElement] = 
     parser.parse(input, Root / "test.rst").map(_.content)
   
-  def run (input: String, expected: Block*): Unit =
+  def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(parse(input), Right(RootElement(expected)))
   
   test("image - without options") {

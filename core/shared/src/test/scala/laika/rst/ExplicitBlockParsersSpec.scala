@@ -31,7 +31,7 @@ class ExplicitBlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts
   private val defaultParser: Parser[RootElement] = 
     new RootParser(ReStructuredText, OperationConfig(ReStructuredText.extensions).markupExtensions).rootElement
 
-  def run (input: String, blocks: Block*): Unit =
+  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
     
   

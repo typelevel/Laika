@@ -101,7 +101,7 @@ class DirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestS
   def toLowerCase [T] (tuple: (String, T)): (String, T) = (tuple._1.toLowerCase, tuple._2)
 
 
-  def run (input: String, blocks: Block*): Unit =
+  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
 

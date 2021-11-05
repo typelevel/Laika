@@ -30,7 +30,7 @@ class HTMLNavRendererSpec extends FunSuite {
   def render (input: RenderedTreeRoot[IO], depth: Int = 1): String =
     renderer.render(input, title, Some(depth))
   
-  def run (input: RenderedTreeRoot[IO], expectedNavItems: String, depth: Int = 1): Unit =
+  def run (input: RenderedTreeRoot[IO], expectedNavItems: String, depth: Int = 1)(implicit loc: munit.Location): Unit =
     assertEquals(render(input, depth), result(expectedNavItems))
 
   

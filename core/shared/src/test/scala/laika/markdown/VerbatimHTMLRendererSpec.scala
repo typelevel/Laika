@@ -33,7 +33,7 @@ class VerbatimHTMLRendererSpec extends FunSuite
     Renderer.of(HTML).withConfig(parser.config).build
   }
    
-  def run (elem: Element, expected: String): Unit =
+  def run (elem: Element, expected: String)(implicit loc: munit.Location): Unit =
     assertEquals(renderer.render(elem), expected)
   
   
