@@ -93,7 +93,7 @@ The blue elements of the API are identical to the pure transformer.
 The new `parallel` method used above becomes available with `import laika.io.implicits._`.
 
 This API introduces a dependency on `cats-effect` which is used to model the effectful computations.
-You can use it with any effect that supports the `cats-effect` type classes, like cats-IO, Monix or Zio.
+You can use it with any effect that supports the `cats-effect` type classes, such as `cats.IO`.
 
 The call to `parallel[IO]` builds a transformer that lets you specify entire directories as input and allows to instruct
 the library which effect type to use (cats-IO in this example). There are two more variants, `sequential`, 
@@ -164,8 +164,7 @@ you need to switch your dependency to the `laika-io` module as shown in the [Dep
 
 This dependency will add file/stream IO, theme support, templating and the ability to process entire directories.
 
-This module depends on cats-effect, and models all side effects in an abstract effect,
-so that you can use it with cats IO, Monix or Zio.
+This module depends on cats-effect, and models all side effects in an abstract effect.
 
 With the dependency in place you also need to add a third import to those you used for pure transformations:
 
@@ -175,17 +174,17 @@ import laika.format._
 import laika.io.implicits._
 ```
 
-The remainder of the setup depends on whether you are [Using cats.IO, Monix or Zio]
+The remainder of the setup depends on whether you are [Using cats-effect]
 or whether you build [Applications without Effect Library].
 
 
-### Using cats.IO, Monix or Zio
+### Using cats-effect
 
-When your application is already using one of the effect libraries compatible with the cats-effect type class hierarchy,
+When your application is already using one of the libraries compatible with the cats-effect type class hierarchy,
 integrating Laika will be seamless. 
 
-The exact mechanics of your Laika transformer setup will depend on which of the aforementioned libraries you are using 
-and whether you keep all of you code in an abstract `F[_]` instead of coding against a concrete effect type.
+The exact mechanics of your Laika transformer setup will depend on which of those libraries you are using 
+and whether you keep all of your code in an abstract `F[_]` instead of coding against a concrete effect type.
 
 The following example assumes the use case of an application written around abstract effect types and using `IOApp`
 from cats.IO for initialization:

@@ -130,8 +130,7 @@ The only minor exception is the implementation of the sbt plugin (< 2% of Laika'
 which has to code against sbt's impure APIs.
 
 The library API is fully referentially transparent and abstracts all effectful computations behind a polymorphic
-effect type based on `cats-effect` typeclasses, so that any compatible library can be used with Laika (`cats.IO`,
-`Monix`, `Zio`).
+effect type based on `cats-effect` typeclasses, so that any compatible library can be used with Laika.
 
 While the target audience of this project is larger than the purely functional part of the Scala community,
 it is always easier to ignore the aspect of referential transparency of a library that supports it in
