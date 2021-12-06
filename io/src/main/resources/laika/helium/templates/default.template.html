@@ -58,6 +58,8 @@
 
     <nav id="sidebar">
 
+      ${?helium.topBar.phoneLinks}
+      
       @:navigationTree {
         entries = [ 
           { target = "/", excludeRoot = true, excludeSections = true, depth = 2 } 
