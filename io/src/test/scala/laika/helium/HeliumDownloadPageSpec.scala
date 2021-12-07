@@ -93,9 +93,11 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |</a>
                      |</div>
                      |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-                     |<span class="row"></span>
+                     |<span class="row links"></span>
                      |</header>
                      |<nav id="sidebar">
+                     |<div class="row">
+                     |</div>
                      |<ul class="nav-list">
                      |<li class="level1 active"><a href="#">Downloads</a></li>
                      |<li class="level1"><a href="doc.html">doc.md</a></li>

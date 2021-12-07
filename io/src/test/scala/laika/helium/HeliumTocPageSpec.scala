@@ -80,9 +80,11 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |</a>
                      |</div>
                      |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-                     |<span class="row"></span>
+                     |<span class="row links"></span>
                      |</header>
                      |<nav id="sidebar">
+                     |<div class="row">
+                     |</div>
                      |<ul class="nav-list">
                      |<li class="level1 active"><a href="#">Contents</a></li>
                      |<li class="level1"><a href="doc-1.html">doc-1.md</a></li>
