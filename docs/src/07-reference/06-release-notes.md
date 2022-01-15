@@ -2,6 +2,25 @@
 Release Notes
 =============
 
+0.18.1 (Dec 12, 2021)
+---------------------
+
+* Scala.js support: this is the first release published for Scala 3 on Scala.js
+* Link validation now allows duplicate headers on the same page as long as no internal link points to them
+* All tests have been migrated from ScalaTest to munit
+* Improvements and fixes for the Helium theme
+    * The content and landing pages now render properly in portrait mode on phones
+    * The version dropdown now works correctly on unversioned pages
+    * Anchor placement for section headers no longer overlaps with header text
+    * The font for code now falls back to `monospace` for unavailable glyphs
+* Other Bugfixes:
+    * Parser inputs with Windows line breaks led to errors
+    * `mailto` links were incorrectly validated as internal links
+    * The `laikaPreview` task of the sbt plugin did not report the port correctly when launching
+    * The `laikaDescribe` task of the sbt plugin failed in case of non-existing input directories 
+      (which is common when using Laika with mdoc)
+
+
 0.18.0 (Aug 2, 2021)
 --------------------
 
