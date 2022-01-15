@@ -118,6 +118,23 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
+  lazy val prevDoc: Templates.Directive = Templates.create("prevDoc"){
+    import Templates.dsl._
+    cursor.map { cursor =>
+      cursor.previousDocument.fold[TemplateSpan](TemplateElement(Deleted(Nil))) {
+        d => TemplateElement(SpanLink(d.target.title.getOrElse(SpanSequence(Text(d.path.toString)+:Nil)) +:Nil,InternalTarget(PathBase.parse(d.path.toString))))
+      }
+    }
+  }
+  lazy val nextDoc: Templates.Directive = Templates.create("nextDoc"){
+    import Templates.dsl._
+    cursor.map { cursor =>
+      cursor.nextDocument.fold[TemplateSpan](TemplateElement(Deleted(Nil))) {
+        d => TemplateElement(SpanLink(d.target.title.getOrElse(SpanSequence(Text(d.path.toString)+:Nil)) +:Nil,InternalTarget(PathBase.parse(d.path.toString))))
+      }
+    }
+  }
+
   lazy val path: Templates.Directive = Templates.eval("path") {
     import Templates.dsl._
     
@@ -276,6 +293,8 @@ object StandardDirectives extends DirectiveRegistry {
     HTMLHeadDirectives.linkJS,
     iconTemplate,
     path,
+    prevDoc,
+    nextDoc,
     attr
   )
 
