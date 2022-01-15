@@ -35,10 +35,10 @@ class StandardTextRolesSpec extends FunSuite with ParagraphCompanionShortcuts wi
     .failOnMessages(MessageFilter.None)
     .build
   
-  def run (input: String, expected: Block*): Unit =
+  def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(parser.parse(input).map(_.content), Right(RootElement(expected)))
 
-  def run (input: String, expected: Span): Unit = run(input, p(Text("some "), expected))
+  def run (input: String, expected: Span)(implicit loc: munit.Location): Unit = run(input, p(Text("some "), expected))
   
   
   test("emphasis - without styles") {

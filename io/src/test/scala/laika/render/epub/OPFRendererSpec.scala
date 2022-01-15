@@ -58,9 +58,9 @@ class OPFRendererSpec extends FunSuite {
       .copy[IO](staticDocuments = if (hasJS) Seq(static1, static2, static3) else Seq(static3))
   }
   
-  def run (input: RenderedTreeRoot[IO], expected: String): Unit = runWith(input, this.config, expected)
+  def run (input: RenderedTreeRoot[IO], expected: String)(implicit loc: munit.Location): Unit = runWith(input, this.config, expected)
   
-  def runWith (input: RenderedTreeRoot[IO], config: EPUB.BookConfig, expected: String): Unit = {
+  def runWith (input: RenderedTreeRoot[IO], config: EPUB.BookConfig, expected: String)(implicit loc: munit.Location): Unit = {
     val actual = renderer.render(input, title, config)
     assertEquals(actual, expected)
   }

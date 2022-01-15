@@ -145,7 +145,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
         .left.map(_.message)
     }
 
-    def run (input: String, result: TemplateSpan): Unit =
+    def run (input: String, result: TemplateSpan)(implicit loc: munit.Location): Unit =
       assertEquals(defaultParser.parse(input).toEither, Right(TemplateRoot(
         TemplateString("aa "),
         result,

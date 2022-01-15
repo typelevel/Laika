@@ -47,10 +47,10 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
   def bodyRowSpans(cells: Seq[Span]*): Row =
     Row(cells.map(c => BodyCell(Paragraph(c))))
 
-  def runBlocks (input: String, blocks: Block*): Unit =
+  def runBlocks (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
 
-  def runSpans (input: String, spans: Span*): Unit =
+  def runSpans (input: String, spans: Span*)(implicit loc: munit.Location): Unit =
     runBlocks(input, Paragraph(spans))
 
 

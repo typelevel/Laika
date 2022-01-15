@@ -32,7 +32,7 @@ class NCXRendererSpec extends FunSuite {
   def result (navPoints: String, depth: Int = 1): String = 
     renderer.fileContent(uuid, title, navPoints, depth)
     
-  def run (input: RenderedTreeRoot[IO], expectedNavPoints: String, depth: Int = 1): Unit =
+  def run (input: RenderedTreeRoot[IO], expectedNavPoints: String, depth: Int = 1)(implicit loc: munit.Location): Unit =
     assertEquals(render(input, depth), result(expectedNavPoints, depth))
   
   test("render an empty tree") {
