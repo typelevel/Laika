@@ -13,7 +13,7 @@
       <meta name="description" content="${_}"/>
     @:@
     @:for(helium.favIcons)
-      <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) href="@:path(_.target)"/>
+      <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) @:attribute(href, _.target)/>
     @:@
     @:for(helium.webFonts)
       <link rel="stylesheet" href="${_}">
