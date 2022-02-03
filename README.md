@@ -72,7 +72,7 @@ Further Information
 
 [Manual]: https://planet42.github.io/Laika/index.html
 [Demo App]: http://planet42.org/
-[API]: https://planet42.github.com/Laika/api/laika/api/
+[API]: https://planet42.github.io/Laika/0.18/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Discussions]: https://github.com/planet42/Laika/discussions
