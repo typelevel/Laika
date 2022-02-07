@@ -105,9 +105,9 @@ private[helium] object CSSVarGenerator {
     val vars = 
       colorSet(common.colors, topBarHighContrast) ++ 
       Seq(
-        "body-font" -> ("\"" + themeFonts.body + "\""),
-        "header-font" -> ("\"" + themeFonts.headlines + "\""),
-        "code-font" -> ("\"" + themeFonts.code + "\""),
+        "body-font" -> ("\"" + themeFonts.body + "\", sans-serif"),
+        "header-font" -> ("\"" + themeFonts.headlines + "\", sans-serif"),
+        "code-font" -> ("\"" + themeFonts.code + "\", monospace"),
         "body-font-size" -> fontSizes.body.displayValue,
         "code-font-size" -> fontSizes.code.displayValue,
         "small-font-size" -> fontSizes.small.displayValue,

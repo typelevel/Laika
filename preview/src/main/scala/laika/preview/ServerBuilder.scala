@@ -34,7 +34,6 @@ import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
 import org.http4s.blaze.server.BlazeServerBuilder
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 /** Configures and instantiates a resource for a preview server.
@@ -80,8 +79,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     Router("/" -> renderStacktrace(new RouteBuilder[F](cache, topic, routeLogger).build)).orNotFound
   }
     
-  private def createServer (httpApp: HttpApp[F],
-                            ctx: ExecutionContext): Resource[F, Server] =
+  private def createServer (httpApp: HttpApp[F]): Resource[F, Server] =
     BlazeServerBuilder[F](ctx)
       .bindHttp(config.port, config.host)
       .withHttpApp(httpApp)
@@ -100,8 +98,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   
   def build: Resource[F, Server] = for {
     routes <- buildRoutes
-    ctx    <- Resource.eval(Async[F].executionContext)
-    server <- createServer(routes, ctx)
+    server <- createServer(routes)
   } yield server
 
   def withLogger (logger: Logger[F]): ServerBuilder[F] = copy(newLogger = Some(logger))

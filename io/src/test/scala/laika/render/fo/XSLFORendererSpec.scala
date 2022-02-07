@@ -42,16 +42,16 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   def render (elem: Element, style: StyleDeclarationSet): String = 
     defaultRenderer.render(elem, Root / "doc", pathTranslator, style)
   
-  def run (input: Element, expectedFO: String): Unit =
+  def run (input: Element, expectedFO: String)(implicit loc: munit.Location): Unit =
     assertEquals(render(input, TestTheme.foStyles), expectedFO)
 
-  def run (input: Element, style: StyleDeclaration, expectedFO: String): Unit =
+  def run (input: Element, style: StyleDeclaration, expectedFO: String)(implicit loc: munit.Location): Unit =
     run(input, TestTheme.foStyles ++ StyleDeclarationSet(Path.Root, style), expectedFO)
 
-  def run (input: Element, style: StyleDeclarationSet, expectedFO: String): Unit =
+  def run (input: Element, style: StyleDeclarationSet, expectedFO: String)(implicit loc: munit.Location): Unit =
     assertEquals(defaultRenderer.render(input, Root / "doc", pathTranslator, style), expectedFO)
 
-  def run (elem: Element, messageFilter: MessageFilter, expectedFO: String): Unit = {
+  def run (elem: Element, messageFilter: MessageFilter, expectedFO: String)(implicit loc: munit.Location): Unit = {
     val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root / "doc", pathTranslator, TestTheme.foStyles)
     assertEquals(res, expectedFO)
   }

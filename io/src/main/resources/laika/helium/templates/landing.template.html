@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Laika 0.18.0 + Helium Theme" />
+    <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
     <title>${?laika.site.metadata.title}</title>
     @:for(laika.site.metadata.authors)
       <meta name="author" content="${_}"/>
@@ -19,9 +19,9 @@
       <link rel="stylesheet" href="${_}">
     @:@
     @:linkCSS { paths = ${helium.site.includeCSS} }
-    @:if(laika.versioned)
-    <link rel="stylesheet" type="text/css" href="${laika.versions.currentVersion.pathSegment}/helium/landing.page.css" />
-    @:else
+    @:for(laika.versions)
+    <link rel="stylesheet" type="text/css" href="${_.currentVersion.pathSegment}/helium/landing.page.css" />
+    @:empty
     <link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
     @:@
     @:linkJS { paths = ${helium.site.includeJS} }

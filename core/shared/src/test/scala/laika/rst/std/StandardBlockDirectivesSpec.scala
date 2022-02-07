@@ -48,7 +48,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
     .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
   
-  def run (input: String, expected: Block*): Unit =
+  def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(docParser.parse(input).map(_.content), Right(RootElement(expected)))
 
   def runRaw (input: String, expected: Block*): Unit = {

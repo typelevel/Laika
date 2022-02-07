@@ -16,20 +16,28 @@ header {
   padding: 0 45px 0 20px;
   border-bottom: 1px solid var(--top-border);
 }
-header a {
+header a, nav .row a {
   color: var(--top-color);
 }
-header a:hover {
+header a:hover, nav .row a:hover {
   text-decoration: none;
   cursor: pointer;
   color: var(--top-hover)
 }
-header img {
+header img, nav .row img {
   height: 80%;
   width: auto;
 }
-header .row a {
+header .row a, nav .row a {
   margin: 0 0 0 20px;
+}
+header .row.links {
+  display: none;
+}
+nav .row {
+  margin: 10px 15px 3px 25px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--top-border);
 }
 
 #nav-icon {
@@ -37,6 +45,14 @@ header .row a {
 }
 @media (min-width: 1020px) {
   #nav-icon {
+    display: none;
+  }
+}
+@media (min-width: 500px) {
+  header .row.links {
+    display: block;
+  }
+  nav .row {
     display: none;
   }
 }

@@ -34,7 +34,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
   def cell (content: String, colspan: Int, rowspan: Int): Cell = 
     Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
 
-  def run (input: String, blocks: Block*): Unit =
+  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
   
   

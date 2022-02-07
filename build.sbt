@@ -4,7 +4,7 @@ import sbt.Keys.{artifactPath, crossScalaVersions}
 import Dependencies._
 
 lazy val basicSettings = Seq(
-  version               := "0.18.1-SNAPSHOT",
+  version               := "0.18.1",
   homepage              := Some(new URL("https://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
@@ -12,7 +12,7 @@ lazy val basicSettings = Seq(
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
   scalaVersion          := versions.scala2_12,
-  scalacOptions         := (Opts.compile.encoding("UTF-8") :+ 
+  scalacOptions        ++= (Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
                            "-feature" :+ 
@@ -114,7 +114,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   )
   .jsSettings(
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13)
+    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
   )
 
 lazy val io = project.in(file("io"))

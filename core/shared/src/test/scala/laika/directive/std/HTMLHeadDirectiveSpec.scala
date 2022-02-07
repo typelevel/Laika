@@ -70,7 +70,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     )))
   }
   
-  def run (input: String, expectedResult: Seq[TemplateSpan]): Unit = {
+  def run (input: String, expectedResult: Seq[TemplateSpan])(implicit loc: munit.Location): Unit = {
     assertEquals(parseAndRewrite(input), buildResult(expectedResult))
   }
   

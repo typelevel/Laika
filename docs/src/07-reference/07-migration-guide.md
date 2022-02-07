@@ -194,8 +194,8 @@ library API. The following changes had been implemented for this purpose:
 * No method in the public API throws any Exceptions anymore.
 * The result of pure operations is provided by instances of `Either`.
 * The result of side-effecting operations is provided by a return type of `F[A]`
-  where `F[_]` is the standard Bring-Your-Own-Effect pattern, so that
-  Laika can be used with cats-IO, Monix or Zio.
+  where `F[_]` is the standard Bring-Your-Own-Effect pattern, so that any effect implementing
+  the cats-effect typeclasses (`Sync` or `Async`, depending on use case) can be used.
 * The dependency on the Typesafe Config library and its impure Java API has
   been removed in favor of a new lightweight and pure HOCON parser provided
   by Laika, supporting the full spec.

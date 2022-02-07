@@ -43,7 +43,7 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
   def parse (input: String): RootElement = parser.parse(input).toOption.get.content
   
-  def run (input: String, expected: Block): Unit = {
+  def run (input: String, expected: Block)(implicit loc: munit.Location): Unit = {
     assertEquals(
       parser.parse(input).map(_.content.content),
       Right(Seq(p("aa"), expected, p("bb")))

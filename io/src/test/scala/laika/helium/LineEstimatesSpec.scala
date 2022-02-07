@@ -32,7 +32,7 @@ class LineEstimatesSpec extends FunSuite {
     .using(GitHubFlavor)
     .build
   
-  def run (input: String, expected: Int): Unit = {
+  def run (input: String, expected: Int)(implicit loc: munit.Location): Unit = {
     val actual = parser
       .parse(input)
       .fold(_ => 0, doc => HeliumRewriteRules.estimateLines(doc.content.content))

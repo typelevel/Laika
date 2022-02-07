@@ -80,7 +80,7 @@ Library API
 * Use a purely functional API, with full referential transparency, no exceptions and no runtime reflection.
 
 * Abstracts all effectful computations behind a polymorphic effect type based on `cats-effect` 3.x typeclasses, 
-  so that any compatible library can be used with Laika (`cats.IO`, `Monix`, `Zio`).
+  so that any compatible library can be used with Laika.
 
 
 Customizations

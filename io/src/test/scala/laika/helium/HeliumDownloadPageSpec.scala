@@ -76,7 +76,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.18.0 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
                      |<title>Downloads</title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
@@ -93,9 +93,11 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |</a>
                      |</div>
                      |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-                     |<span class="row"></span>
+                     |<span class="row links"></span>
                      |</header>
                      |<nav id="sidebar">
+                     |<div class="row">
+                     |</div>
                      |<ul class="nav-list">
                      |<li class="level1 active"><a href="#">Downloads</a></li>
                      |<li class="level1"><a href="doc.html">doc.md</a></li>
