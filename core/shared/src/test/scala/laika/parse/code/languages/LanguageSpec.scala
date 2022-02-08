@@ -306,6 +306,67 @@ class LanguageSpec extends FunSuite {
     assertEquals(parse(input), expected)
   }
 
+  
+  test("Dart") {
+    val input = 
+    """#Doc
+      |
+      |```dart
+      |import 'package:http/http.dart' as http;
+      |
+      |mixin Foo on App {
+      |  void g(List<int> args) => null;
+      |}
+      |
+      |extension Bar on App {
+      |
+      |}
+      |
+      |@Thing
+      |abstract class App extends Component with Foo {
+      |  const App({required this.i}) : super();
+      |  final int i;
+      |
+      |  Future<void> f(List<String> args,{required dynamic arg0},[int? arg1]) async {
+      |    try {
+      |      await doSomething();
+      |    } on Exception catch(e) {
+      |      rethrow;
+      |    } finally {
+      |      yield null;
+      |    }
+      |}
+      |```""".stripMargin
+
+      val expected = result("dart",
+      keyword("import"),space,string("'package:http/http.dart'"),space,
+      keyword("as"),space,id("http"),other(";\n\n"),
+      keyword("mixin"),space,typeName("Foo"),space,keyword("on"),space,
+      typeName("App"),other(" {\n  "),
+      typeName("void"),space,id("g"),other("("),typeName("List"),other("<"),typeName("int"),other("> "),
+      id("args"),other(") => "),literal("null"),other(";\n}\n\n"),
+      keyword("extension"),space,typeName("Bar"),space,
+      keyword("on"),space,typeName("App"),other(" {\n\n}\n\n"),
+      annotation("Thing"),other("\n"),
+      keyword("abstract"),space,keyword("class"),space,typeName("App"),space,
+      keyword("extends"),space,typeName("Component"),
+      space,keyword("with"),space,typeName("Foo"),other(" {\n  "),
+      keyword("const"),space,typeName("App"),other("({"),
+      keyword("required"),space,keyword("this"),other("."),id("i"),other("}) : "),keyword("super"),other("();\n  "),
+      keyword("final"),space,typeName("int"),space,id("i"),other(";\n\n  "),
+      typeName("Future"),other("<"),typeName("void"),other("> "),id("f"),other("("),
+      typeName("List"),other("<"),typeName("String"),other("> "),id("args"),
+      other(",{"),keyword("required"),space,typeName("dynamic"),space,id("arg0"),other("},["),
+      typeName("int"),other("? "),id("arg1"),other("]) "),keyword("async"),other(" {\n    "),
+      keyword("try"),other(" {\n      "),
+      keyword("await"),space,id("doSomething"),other("();\n    } "),
+      keyword("on"),space,typeName("Exception"),space,keyword("catch"),other("("),id("e"),other(") {\n      "),
+      keyword("rethrow"),other(";\n    } "),
+      keyword("finally"),other(" {\n      "),keyword("yield"),space,literal("null"),other(";\n    }\n}")
+      )
+      assertEquals(parse(input),expected)
+    }
+
   test("Haskell") {
     val input =
       """#Doc
