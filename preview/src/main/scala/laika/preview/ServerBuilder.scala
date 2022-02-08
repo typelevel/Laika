@@ -80,7 +80,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   }
     
   private def createServer (httpApp: HttpApp[F]): Resource[F, Server] =
-    BlazeServerBuilder[F](ctx)
+    BlazeServerBuilder[F]
       .bindHttp(config.port, config.host)
       .withHttpApp(httpApp)
       .resource
