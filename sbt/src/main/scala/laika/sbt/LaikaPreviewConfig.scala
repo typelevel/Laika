@@ -27,17 +27,21 @@ import scala.concurrent.duration.FiniteDuration
   * @param isVerbose whether each served page and each detected file change should be logged (default false)
   */
 class LaikaPreviewConfig (val port: Int,
+                          val host:String,
                           val pollInterval: FiniteDuration,
                           val isVerbose: Boolean) {
 
   private def copy (newPort: Int = port,
+                    newHost:String = host,
                     newPollInterval: FiniteDuration = pollInterval,
                     newVerbose: Boolean = isVerbose): LaikaPreviewConfig =
-    new LaikaPreviewConfig(newPort, newPollInterval, newVerbose)
+    new LaikaPreviewConfig(newPort, newHost,newPollInterval, newVerbose)
   
   /** Specifies the port the server should run on (default 4242).
     */
   def withPort (port: Int): LaikaPreviewConfig = copy(newPort = port)
+
+  def withHost(host:String):LaikaPreviewConfig = copy(newHost = host)
 
   /** Specifies the interval at which input file resources are polled for changes (default 3 seconds).
     */
@@ -54,6 +58,6 @@ class LaikaPreviewConfig (val port: Int,
 object LaikaPreviewConfig {
 
   /** A config instance populated with default values. */
-  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort, ServerConfig.defaultPollInterval, false)
+  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort,ServerConfig.defaultHost, ServerConfig.defaultPollInterval, false)
 
 }

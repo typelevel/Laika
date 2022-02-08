@@ -207,6 +207,7 @@ object Tasks {
     
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
+      .withHost(previewConfig.host)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
     
