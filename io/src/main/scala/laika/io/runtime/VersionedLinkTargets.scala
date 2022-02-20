@@ -30,10 +30,11 @@ import laika.rewrite.{VersionScannerConfig, Versions}
 
 import java.io.File
 import scala.io.Codec
+import cats.effect.kernel.Async
 
 private[runtime] object VersionedLinkTargets {
 
-  private def scanTargetDirectory[F[_]: Sync] (versions: Versions, config: VersionScannerConfig): F[Map[String, Seq[Path]]] = {
+  private def scanTargetDirectory[F[_]: Async] (versions: Versions, config: VersionScannerConfig): F[Map[String, Seq[Path]]] = {
     val existingVersions = (versions.newerVersions ++ versions.olderVersions).map(_.pathSegment).toSet
     val excluded = config.exclude.flatMap { exclude =>
       existingVersions.toSeq.map(v => Root / v / exclude.relative)
@@ -86,7 +87,7 @@ private[runtime] object VersionedLinkTargets {
       }
   }
   
-  def gatherTargets[F[_]: Sync] (versions: Versions, staticDocs: Seq[BinaryInput[F]]): F[Map[String, Seq[Path]]] =
+  def gatherTargets[F[_]: Async] (versions: Versions, staticDocs: Seq[BinaryInput[F]]): F[Map[String, Seq[Path]]] =
     (staticDocs.find(_.path == VersionInfoGenerator.path), versions.scannerConfig) match {
       case (Some(info), _)   => loadVersionInfo(info)
       case (_, Some(config)) => scanTargetDirectory(versions, config)

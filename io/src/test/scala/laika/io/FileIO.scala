@@ -24,22 +24,28 @@ import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.io.model.{TextInput, TextOutput}
 import laika.io.runtime.{InputRuntime, OutputRuntime}
-
+import fs2.io._
 import scala.io.Codec
+import fs2.io.file.Path
+import fs2.io.file.Files
 
 trait FileIO {
 
-  def readFile (base: String): IO[String] = readFile(new File(base))
+  def readFile (base: String): IO[String] = readFile(Path(base))
   
-  def readFile (f: File): IO[String] = readFile(f, Codec.UTF8)
+  def readFile (f: File): IO[String] = readFile(Path.fromNioPath(f.toPath()))
 
   def readFile (f: File, codec: Codec): IO[String] = {
     val input = TextInput.fromFile[IO](Root, DocumentType.Markup, f, codec)
     InputRuntime.readParserInput(input).map(_.source.input)
   }
+  def readFile (f: Path,codec: fs2.Pipe[IO,Byte,String] = fs2.text.utf8.decode): IO[String] = {
+    val input = TextInput.fromFile[IO](Root, DocumentType.Markup, f,codec)
+    InputRuntime.readParserInput(input).map(_.source.input)
+  }
 
   def writeFile (f: File, content: String): IO[Unit] = {
-    val output = TextOutput.forFile[IO](Root, f, Codec.UTF8)
+    val output = TextOutput.forFile[IO](Root, Path.fromNioPath(f.toPath()))
     OutputRuntime.write(content, output)
   }
 

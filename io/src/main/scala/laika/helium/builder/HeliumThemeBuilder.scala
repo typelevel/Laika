@@ -23,6 +23,7 @@ import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.generate._
 import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
+import cats.effect.kernel.Async
 
 /**
   * @author Jens Halm
@@ -39,7 +40,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
   }
   
   
-  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
+  def build[F[_]: Async]: Resource[F, Theme[F]] = {
 
     import helium._
 

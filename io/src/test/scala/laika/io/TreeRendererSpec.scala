@@ -45,6 +45,7 @@ import laika.rewrite.nav.TargetFormats
 import munit.CatsEffectSuite
 
 import scala.io.Codec
+import cats.effect.kernel.Async
 
 class TreeRendererSpec extends CatsEffectSuite 
   with ParagraphCompanionShortcuts
@@ -357,7 +358,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     )
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
     }
     val renderer = Renderer.of(HTML)
@@ -425,7 +426,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     )
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
     }
     val renderer = 
@@ -468,7 +469,7 @@ class TreeRendererSpec extends CatsEffectSuite
     import FORenderer._
     
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addStyles(customThemeStyles, FOStyles.defaultPath)
         .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
     }
@@ -533,7 +534,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_] : Sync] = InputTree[F].addString("...", Root / "static1.txt")
+      def build[F[_] : Async] = InputTree[F].addString("...", Root / "static1.txt")
     }
     val theme = TestThemeBuilder.forInputs(inputs)
     Renderer

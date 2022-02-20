@@ -20,6 +20,11 @@ import java.io._
 
 import cats.implicits._
 import cats.effect.{Sync, Resource}
+import fs2._
+import cats.effect.IO
+import fs2.io.file.Path
+import fs2.io.file.Files
+import cats.effect.kernel.Async
 
 /** Internal runtime for copying bytes from an InputStream to an OutputStream.
   * 
@@ -30,26 +35,17 @@ object CopyRuntime {
   /**  Copies all bytes from the specified InputStream to the
     *  OutputStream, executing in the blocking ExecutionContext of the implicit Runtime.
     */
-  def copy[F[_]: Sync] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
-      
-    case (in: FileInputStream, out: FileOutputStream) =>
-      Sync[F].blocking {
-        in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel)
-      }
-      
-    case _ =>
-      Sync[F].blocking {
-        val buffer = new Array[Byte](8192)
-        Iterator.continually(input.read(buffer))
-          .takeWhile(_ != -1)
-          .foreach { output.write(buffer, 0 , _) }
-      }
-  }
+  def copy[F[_]: Sync] (input: InputStream, output: OutputStream): F[Unit] = 
+    io.readInputStream(Sync[F].blocking(input),8192,false).through(io.writeOutputStream(Sync[F].blocking(output),false)).compile.drain
 
   /** Copies all bytes from the specified binary Input to the binary Output,
     * executing in the blocking ExecutionContext of the implicit Runtime.
     */
   def copy[F[_]: Sync] (input: Resource[F, InputStream], output: Resource[F, OutputStream]): F[Unit] =
     (input, output).tupled.use { case (in, out) => copy(in, out) }
-
+  
+  def copy[F[_]: Async](input: Resource[F, InputStream],output:Path,chunk:Int = 8192):F[Unit] = {
+      type G[T] = Resource[F,T]
+      io.readInputStream(input,8192).through(Files[G].writeAll(output)).compile.drain.use_
+  }
 }

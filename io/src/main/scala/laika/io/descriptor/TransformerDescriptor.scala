@@ -72,7 +72,7 @@ object TransformerDescriptor {
       renderer.renderFormatted
     )
   
-  def create[F[_]: Sync: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+  def create[F[_]: Async: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(TreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)

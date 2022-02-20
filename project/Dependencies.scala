@@ -15,6 +15,7 @@ object Dependencies {
     val munitCE3   = "1.0.5"
     val jTidy      = "r938"
     val fop        = "2.6"
+    val fs2 = "3.2.5"
   }
 
 }

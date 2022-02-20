@@ -31,6 +31,7 @@ import laika.io.model.{InputTree, InputTreeBuilder}
 import munit.CatsEffectSuite
 
 import java.io.ByteArrayInputStream
+import cats.effect.kernel.Async
 
 class TreeParserFileIOSpec 
   extends CatsEffectSuite
@@ -144,14 +145,14 @@ class TreeParserFileIOSpec
     lazy val input: InputTreeBuilder[IO] = InputTree[IO].addDirectory(dirname)
     
     trait Builder {
-      def addDoc[F[_]: Sync] (builder: InputTreeBuilder[F]): InputTreeBuilder[F]
+      def addDoc[F[_]: Async] (builder: InputTreeBuilder[F]): InputTreeBuilder[F]
     }
     
     def run (builder: Builder,
              expected: DocumentTreeRoot,
              extraCheck: DocumentTreeRoot => Unit = _ => ()): IO[Unit] = {
       val themInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
-        def build[G[_]: Sync] = builder.addDoc(InputTree[G])
+        def build[G[_]: Async] = builder.addDoc(InputTree[G])
       }
       val parser = defaultBuilder.withTheme(TestThemeBuilder.forInputs(themInputs)).build
       runWith(parser, input, expected, extraCheck)
@@ -201,7 +202,7 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one AST input from a theme") {
     object Builder extends CustomTheme.Builder {
-      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Async] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
     }
     CustomTheme.run(Builder, ExtraDoc.expected)
@@ -239,7 +240,7 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one extra template from a string in a theme") {
     object Builder extends CustomTheme.Builder {
-      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Async] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addString("Template", ExtraTemplate.path)
     }
     CustomTheme.run(Builder, ExtraTemplate.expected)
@@ -262,7 +263,7 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one extra config document from a string in a theme") {
     object Builder extends CustomTheme.Builder {
-      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Async] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addString("foo = 7", ExtraConfig.path)
     }
     CustomTheme.run(Builder, ExtraConfig.expected(), ExtraConfig.checkConfig(_))

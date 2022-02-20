@@ -25,6 +25,7 @@ import laika.parse.markup.DocumentParser.DocumentInput
 import cats.implicits._
 
 import scala.io.Codec
+import cats.effect.kernel.Async
 
 /** Internal runtime for creating and reading from InputStreams.
   * 
@@ -32,11 +33,13 @@ import scala.io.Codec
   */
 object InputRuntime {
 
-  def readParserInput[F[_]: Sync] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
+  def readParserInput[F[_]: Async] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
     case PureReader(input) => 
       Sync[F].pure(DocumentInput(doc.path, SourceCursor(input, doc.path)))
-    case StreamReader(reader, sizeHint) => 
+    case StreamReader(reader, sizeHint) =>
       readAll(reader, sizeHint).map(source => DocumentInput(doc.path, SourceCursor(source, doc.path)))
+    case SourceReader(stream) =>
+      stream.asInstanceOf[fs2.Stream[F,String]].compile.string.map(source => DocumentInput(doc.path, SourceCursor(source, doc.path)))
   }
 
   def readAll[F[_]: Sync] (reader: Reader, sizeHint: Int): F[String] = {

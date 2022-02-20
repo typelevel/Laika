@@ -30,6 +30,8 @@ import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateRe
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import cats.effect.IO
+import cats.effect.kernel.Resource
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -42,10 +44,10 @@ object RendererRuntime {
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
+  def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
     run(op, op.theme.inputs, TemplateContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
 
-  private def run[F[_]: Sync: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -114,8 +116,7 @@ object RendererRuntime {
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
-          val out = OutputRuntime.binaryFileResource(outFile)
-          CopyRuntime.copy(doc.input, out).as(result)
+          CopyRuntime.copy(doc.input,fs2.io.file.Path.fromNioPath(outFile.toPath())).as(result)
         case _ =>
           Sync[F].pure(result)
       }

@@ -28,6 +28,7 @@ import laika.factory.Format
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.theme.Theme.TreeProcessor
 import laika.theme.ThemeBuilder.BundleBuilder
+import cats.effect.kernel.Async
 
 /** Builder API for constructing `Theme` instances, providing several shortcuts for defining the contents
   * of a theme. 
@@ -170,7 +171,7 @@ object ThemeBuilder {
     * The theme name is used in logging or the data returned by the `describe` method of the parser,
     * renderer and transformer APIs.
     */
-  def apply[F[_] : Sync] (themeName: String): ThemeBuilder[F] = 
+  def apply[F[_] : Async] (themeName: String): ThemeBuilder[F] = 
     new ThemeBuilder[F](themeName, Sync[F].pure(InputTree[F]), Nil, BundleBuilder(themeName), Nil)
 
 }

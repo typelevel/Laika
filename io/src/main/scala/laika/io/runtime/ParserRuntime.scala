@@ -32,6 +32,7 @@ import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{InputTree, ParsedTree, TextInput}
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{InvalidDocuments, ParserError, DocumentInput}
+import cats.effect.kernel.Async
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
   * 
@@ -41,7 +42,7 @@ object ParserRuntime {
   
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
-  def run[F[_]: Sync: Batch] (op: TreeParser.Op[F]): F[ParsedTree[F]] = {
+  def run[F[_]: Async: Batch] (op: TreeParser.Op[F]): F[ParsedTree[F]] = {
     
     import DocumentType.{Config => ConfigType, _}
     import TreeResultBuilder._

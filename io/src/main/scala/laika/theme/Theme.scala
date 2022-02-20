@@ -22,6 +22,7 @@ import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.{InputTree, ParsedTree}
 import laika.theme.Theme.TreeProcessor
+import cats.effect.kernel.Async
 
 /** A theme is a way of pre-populating the input tree with a set of templates, styles and configurations
   * to achieve a particular look & feel without the need for the user to craft their own templates, 
@@ -86,7 +87,7 @@ object Theme {
     * right into the input directories.
     */
   def empty: ThemeProvider = new ThemeProvider {
-    def build[F[_]: Sync] = ThemeBuilder("Empty Theme").build
+    def build[F[_]: Async] = ThemeBuilder("Empty Theme").build
   }
 
 }

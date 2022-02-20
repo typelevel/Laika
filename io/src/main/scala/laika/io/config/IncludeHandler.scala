@@ -25,6 +25,7 @@ import laika.config.Config.IncludeMap
 import laika.config.{ConfigParser, ConfigResourceError}
 import laika.io.runtime.Batch
 import laika.parse.hocon.{IncludeAny, IncludeClassPath, IncludeFile, IncludeResource, IncludeUrl, ValidStringValue}
+import cats.effect.kernel.Async
 
 /** Internal utility that provides configuration files requested by include statements in other
   * configuration instances.
@@ -45,7 +46,7 @@ object IncludeHandler {
     * be mapped to the requested resource as a `Left`. Successfully loaded and parsed
     * resources appear in the result map as a `Right`.
     */
-  def load[F[_]: Sync : Batch] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
+  def load[F[_]: Async : Batch] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
     
     if (includes.isEmpty) Sync[F].pure(Map.empty) else {
       

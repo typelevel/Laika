@@ -68,21 +68,21 @@ import laika.io.runtime.Batch
   */
 object implicits {
 
-  implicit class ImplicitParserOps (val builder: ParserBuilder) extends SyncIOBuilderOps[TreeParser.Builder] {
+  implicit class ImplicitParserOps (val builder: ParserBuilder) extends AsyncIOBuilderOps[TreeParser.Builder] {
 
-    protected def build[F[_]: Sync: Batch]: TreeParser.Builder[F] =
+    protected def build[F[_]: Async: Batch]: TreeParser.Builder[F] =
       new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
   }
 
-  implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends SyncIOBuilderOps[TreeRenderer.Builder] {
+  implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends AsyncIOBuilderOps[TreeRenderer.Builder] {
 
-    protected def build[F[_]: Sync: Batch]: TreeRenderer.Builder[F] =
+    protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
       new TreeRenderer.Builder[F](builder.build, Helium.defaults.build.build)
   }
 
-  implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends SyncIOBuilderOps[TreeTransformer.Builder] {
+  implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends AsyncIOBuilderOps[TreeTransformer.Builder] {
 
-    protected def build[F[_]: Sync: Batch]: TreeTransformer.Builder[F] = {
+    protected def build[F[_]: Async: Batch]: TreeTransformer.Builder[F] = {
       val transformer = builder.build
       new TreeTransformer.Builder[F](
         NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))

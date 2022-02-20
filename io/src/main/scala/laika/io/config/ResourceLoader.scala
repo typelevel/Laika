@@ -28,6 +28,11 @@ import laika.io.model.TextInput
 import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
+import cats.effect.kernel.Async
+import fs2.io.file.Path
+import fs2.io.file.Files
+import fs2.io.net.Socket
+import com.comcast.ip4s.SocketAddress
 
 /** Internal utility for loading text resources from the file system, the classpath or via its URL.
   * 
@@ -41,7 +46,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadFile[F[_]: Async] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
     loadFile(new File(file))
 
   /** Load the specified file (which may be a file on the file system or a classpath resource).
@@ -50,10 +55,11 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
-    
+  def loadFile[F[_]: Async] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
+    val fPath = Path.fromNioPath(file.toPath()) 
+
     def load: F[Either[ConfigResourceError, String]] = {
-      val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
+      val input = TextInput.fromFile[F](Root, DocumentType.Config, fPath)
       InputRuntime.readParserInput(input).attempt.map(_.bimap(
         t => ConfigResourceError(s"Unable to load file '${file.getPath}': ${t.getMessage}"), 
         _.source.input
@@ -61,7 +67,29 @@ object ResourceLoader {
     }
     
     for {
-      exists <- Sync[F].delay(file.exists())
+      exists <- Files[F].exists(fPath)
+      res    <- (if (exists) load.map(Option(_)) else Sync[F].pure(None)): F[Option[Either[ConfigResourceError, String]]]
+    } yield res
+  }
+
+    /** Load the specified file (which may be a file on the file system or a classpath resource).
+    *
+    * If the file does not exist the result will be `None`.
+    * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
+    * successfully parsed resources will be returned as `Some(Right(...))`.
+    */
+  def loadFile[F[_]: Async] (file: Path): F[Option[Either[ConfigResourceError, String]]] = {
+    
+    def load: F[Either[ConfigResourceError, String]] = {
+      val input = TextInput.fromFile[F](Root, DocumentType.Config, file)
+      InputRuntime.readParserInput(input).attempt.map(_.bimap(
+        t => ConfigResourceError(s"Unable to load file '${file.absolute.toString}': ${t.getMessage}"), 
+        _.source.input
+      ))
+    }
+    
+    for {
+      exists <- Files[F].exists(file)
       res    <- (if (exists) load.map(Option(_)) else Sync[F].pure(None)): F[Option[Either[ConfigResourceError, String]]]
     } yield res
   }
@@ -74,7 +102,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadClasspathResource[F[_]: Sync] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadClasspathResource[F[_]: Async] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
     Option(getClass.getClassLoader.getResource(resource)) match {
       case Some(url) => loadFile(url.getFile)
       case None => Sync[F].pure(None)
@@ -86,7 +114,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadUrl[F[_]: Sync] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadUrl[F[_]: Async] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
     
     val stream: F[InputStream] = for {
       con <- Sync[F].delay(url.openConnection())
@@ -94,6 +122,7 @@ object ResourceLoader {
       _   <- Sync[F].blocking(con.connect())
       str <- Sync[F].delay(con.getInputStream)
     } yield str
+
     
     val input = TextInput.fromStream[F](Root, DocumentType.Config, stream, Codec.UTF8, autoClose = true)
     InputRuntime.readParserInput(input).attempt.map {

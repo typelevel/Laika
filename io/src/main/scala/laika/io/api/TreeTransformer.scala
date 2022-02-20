@@ -28,19 +28,20 @@ import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutpu
 import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
 import laika.io.runtime.{Batch, TransformerRuntime}
 import laika.theme.{Theme, ThemeProvider}
+import cats.effect.kernel.Async
 
 /** Transformer for a tree of input and output documents.
   *
   * @author Jens Halm
   */
-class TreeTransformer[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+class TreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                           renderer: Renderer,
                                           theme: Theme[F],
                                           mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = TreeTransformer.OutputOps[F]
 
-  val F: Sync[F] = Sync[F]
+  val F: Async[F] = Async[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -61,7 +62,7 @@ object TreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Builder[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                          renderer: Renderer,
                                          theme: ThemeProvider,
                                          mapper: TreeMapper[F]) extends TreeMapperOps[F] {
@@ -101,13 +102,13 @@ object TreeTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class OutputOps[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                            renderer: Renderer,
                                            theme: Theme[F],
                                            input: InputTreeBuilder[F],
                                            mapper: TreeMapper[F]) extends TextOutputOps[F] {
 
-    val F: Sync[F] = Sync[F]
+    val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
@@ -121,7 +122,7 @@ object TreeTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Op[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                     renderer: Renderer,
                                     theme: Theme[F],
                                     input: InputTreeBuilder[F],

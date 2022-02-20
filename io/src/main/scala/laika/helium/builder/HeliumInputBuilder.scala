@@ -25,13 +25,14 @@ import laika.helium.generate.{CSSVarGenerator, FOStyles, MergedCSSGenerator}
 import laika.io.model.{InputTree, InputTreeBuilder}
 import laika.rewrite.DefaultTemplatePath
 import laika.theme.config.{EmbeddedFontFile, EmbeddedFontResource}
+import cats.effect.kernel.Async
 
 /**
   * @author Jens Halm
   */
 private[helium] object HeliumInputBuilder {
 
-  def build[F[_]: Sync] (helium: Helium): F[InputTreeBuilder[F]] = {
+  def build[F[_]: Async] (helium: Helium): F[InputTreeBuilder[F]] = {
     
     import helium._
     

@@ -25,10 +25,13 @@ import laika.config.Config
 import laika.io.runtime.OutputRuntime
 
 import scala.io.Codec
-
+import cats.effect.kernel.Async
+import fs2.io.file
+import cats.data.Kleisli
 
 sealed trait OutputWriter extends Product with Serializable
 case object PureWriter extends OutputWriter
+case class SinkWriter[F[_]:Async](sink: fs2.Pipe[F,String,Unit]) extends OutputWriter
 case class StreamWriter(output: Writer) extends OutputWriter
 
 /** Character output for the various renderers of this library
@@ -46,6 +49,13 @@ object TextOutput {
     TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter.apply), Some(file))
   def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
     TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter.apply))
+  def forSink[F[_]:Async](path: Path,sink:fs2.Pipe[F,String,Unit]) :TextOutput[F] = {
+    TextOutput[F](path,Resource.pure(SinkWriter(sink)))
+  }
+  def forFile[F[_]:Async](path: Path,dest:file.Path,codec:fs2.Pipe[F,String,Byte] = fs2.text.utf8.encode[F]) :TextOutput[F] = {
+    val p:fs2.Pipe[F,String,Unit] = _.through(codec).through(file.Files[F].writeAll(dest))
+    forSink(path,p)
+  }
 }
 
 /** A resource for binary output.

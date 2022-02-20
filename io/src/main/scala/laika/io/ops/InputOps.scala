@@ -24,6 +24,8 @@ import laika.io.model.{DirectoryInput, InputTree, InputTreeBuilder}
 import laika.io.runtime.DirectoryScanner
 
 import scala.io.Codec
+import cats.effect.kernel.Async
+import fs2.io.file.Files
 
 /** API for specifying the tree of character inputs for a parsing operation.
   *
@@ -34,7 +36,7 @@ import scala.io.Codec
   */
 trait InputOps[F[_]] {
 
-  def F: Sync[F]
+  def F: Async[F]
 
   type FileFilter = File => Boolean
 
@@ -105,6 +107,7 @@ trait InputOps[F[_]] {
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): Result =
     fromInput(InputTree[F](exclude)(F).addDirectories(roots))
 
+  @deprecated("Use fromWorkingDirectory :F[Result]", "0.19.0")
   /**  Builder step that instructs the runtime to parse files from the
     *  current working directory.
     *
@@ -113,7 +116,15 @@ trait InputOps[F[_]] {
     */
   def fromWorkingDirectory (exclude: FileFilter = DirectoryInput.hiddenFileFilter)(implicit codec: Codec): Result =
     fromDirectories(Seq(new File(System.getProperty("user.dir"))), exclude)
-
+  /**  Builder step that instructs the runtime to parse files from the
+    *  current working directory.
+    *
+    *  @param exclude the files to exclude from processing
+    *  @param codec the character encoding of the files, if not specified the platform default will be used.
+    */
+  def fromWorkingDirectory (exclude: FileFilter)(implicit codec: Codec,G :Async[F]): F[Result] = {
+    F.map(Files.forAsync.currentWorkingDirectory)(dir => fromDirectories(Seq(dir.toNioPath.toFile()),exclude))
+  }
   /** Builder step that instructs the runtime to use the specified input builder for all parsing operations.
     * 
     * This is the most generic way to specify the input as it allows to freely compose inputs from multiple

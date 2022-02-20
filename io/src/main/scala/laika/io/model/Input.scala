@@ -31,10 +31,14 @@ import laika.io.runtime.{DirectoryScanner, InputRuntime}
 import laika.rewrite.nav.TargetFormats
 
 import scala.io.Codec
+import cats.effect.kernel.Async
+import java.nio.channels.Pipe
+import fs2.io.file.Files
 
 sealed trait InputReader extends Product with Serializable
 case class PureReader(input: String) extends InputReader
 case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
+case class SourceReader[F[_]:Async](stream:fs2.Stream[F,String]) extends InputReader
 
 /** A binary input stream and its virtual path within the input tree.
   */
@@ -78,6 +82,12 @@ object TextInput {
     TextInput[F](path, docType, InputRuntime.textFileResource[F](file, codec).map(StreamReader(_, file.length.toInt)), Some(file))
   def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
     TextInput[F](path, docType, InputRuntime.textStreamResource(stream, codec, autoClose).map(StreamReader(_, 8096)))
+  def fromSource[F[_]:Async](path:Path, docType: TextDocumentType,src:fs2.Stream[F,Byte],codec:fs2.Pipe[F,Byte,String] = fs2.text.utf8.decode[F]) :TextInput[F] = {
+    TextInput[F](path,docType,Resource.pure(SourceReader(src.through(codec))))
+  }
+  def fromFile[F[_]:Async](path:Path,docType: TextDocumentType, file: fs2.io.file.Path,codec:fs2.Pipe[F,Byte,String] = fs2.text.utf8.decode[F]):TextInput[F] = {
+    fromSource(path,docType,Files[F].readAll(file),codec)
+  }
 }
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
@@ -120,11 +130,11 @@ object InputTree {
     * The filter will only be used for scanning directories when calling `addDirectory` on the builder,
     * not for any of the other methods.
     */
-  def apply[F[_]: Sync] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty, Vector.empty)
+  def apply[F[_]: Async] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty, Vector.empty)
 
   /** Creates a new, empty InputTreeBuilder.
     */
-  def apply[F[_]: Sync]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty, Vector.empty)
+  def apply[F[_]: Async]: InputTreeBuilder[F] = new InputTreeBuilder(DirectoryInput.hiddenFileFilter, Vector.empty, Vector.empty)
   
   /** An empty input tree.
     */
@@ -180,7 +190,7 @@ object InputTree {
   */
 class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean, 
                              private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]],
-                             private[laika] val fileRoots: Vector[File])(implicit F: Sync[F]) {
+                             private[laika] val fileRoots: Vector[File])(implicit F: Async[F]) {
   
   import cats.implicits._
 

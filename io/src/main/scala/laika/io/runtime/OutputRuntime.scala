@@ -21,9 +21,13 @@ import java.io._
 import cats.effect.{Sync, Resource}
 import cats.implicits._
 import laika.io.model.{PureWriter, _}
-
+import fs2.io.file._
 import scala.io.Codec
-
+import cats.effect.IO
+import fs2.io.file.Files
+import fs2.io.file.Path
+import cats.effect.kernel.Async
+import fs2.Pipe
 /** Internal runtime for creating and writing to OutputStreams.
   * 
   * @author Jens Halm
@@ -32,23 +36,33 @@ object OutputRuntime {
 
   /** Creates a Writer for the specified output model and writes the given string to it.
     */
-  def write[F[_]: Sync] (result: String, output: TextOutput[F]): F[Unit] = {
+  def write[F[_]: Async] (result: String, output: TextOutput[F]): F[Unit] = {
     output.resource.use {
       case PureWriter => Sync[F].unit
       case StreamWriter(writer) => Sync[F].delay {
         writer.write(result)
         writer.flush()
       }
+      case SinkWriter(sink) =>
+        fs2.Stream.emit[F,String](result).through[F,Unit](sink.asInstanceOf[Pipe[F,String,Unit]]).compile.drain
     }
   }
 
   /** Creates a directory for the specified file, including parent directories of that file if they do not exist yet.
     */
-  def createDirectory[F[_]: Sync] (file: File): F[Unit] = 
-    Sync[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Sync[F].unit 
-    else Sync[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
+  def createDirectory[F[_]: Async] (file: File): F[Unit] = 
+    createDirectory(Path.fromNioPath(file.toPath()))
+  /** Creates a directory for the specified file, including parent directories of that file if they do not exist yet.
+    */
+  def createDirectory[F[_]: Async] (path: Path): F[Unit] = 
+    Files[F].exists(path)
+      .ifM(
+        Async[F].unit,
+        Files[F].createDirectories(path)
+      )
 
-  def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Sync[F].delay {
+  def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Writer] = 
+    Resource.fromAutoCloseable(Sync[F].delay {
     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
   })
 
