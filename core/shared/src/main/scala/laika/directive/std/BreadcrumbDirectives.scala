@@ -20,6 +20,7 @@ import cats.syntax.all._
 import laika.ast._
 import laika.directive.{Blocks, Templates}
 import laika.parse.SourceFragment
+import scala.annotation.tailrec
 
 /** Provides the implementation for the standard breadcrumb directives.
   *
@@ -50,10 +51,16 @@ object BreadcrumbDirectives {
         itemStyles = Set(Style.breadcrumb.styles.head)
       )
 
-      def entriesFor (tree: TreeCursor): Vector[NavigationItem] = {
+      
+
+      @tailrec
+      def entriesFor(tree: TreeCursor,items:List[NavigationItem] = Nil) :List[NavigationItem] = {
         val title = tree.target.title.getOrElse(SpanSequence(tree.path.name))
         val item = context.newNavigationItem(title, tree.target.titleDocument, Nil, tree.target.targetFormats)
-        tree.parent.fold(Vector(item))(parent => entriesFor(parent) :+ item)
+        tree.parent match {
+          case None => item :: items
+          case Some(parent) => entriesFor(parent,item ::items)
+        }
       }
 
       val docEntry = {
