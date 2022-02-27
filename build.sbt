@@ -153,7 +153,12 @@ lazy val plugin = project.in(file("sbt"))
     name := "laika-sbt",
     sbtPlugin := true,
     crossScalaVersions := Seq(versions.scala2_12),
-    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= Seq(
+      "-Xmx1024M",
+      "-Dplugin.version=" + version.value,
+      "-Duser.language=en",
+      "-Duser.country=GB"
+    ),
     scriptedBufferLog := false
   )
 
