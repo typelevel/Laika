@@ -18,9 +18,10 @@ package laika.webtool
 
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
+import com.comcast.ip4s._
 import org.http4s.implicits._
 import org.http4s.server.Server
-import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.ember.server.EmberServerBuilder
 
 /**
   * @author Jens Halm
@@ -34,11 +35,9 @@ object Main extends IOApp {
     app.use(_ => IO.never).as(ExitCode.Success)
 
   val app: Resource[IO, Server] =
-    for {
-      ctx    <- Resource.eval(IO.executionContext)
-      server <- BlazeServerBuilder[IO](ctx)
-        .bindHttp(8080, "0.0.0.0")
-        .withHttpApp(service)
-        .resource
-    } yield server
+    EmberServerBuilder.default[IO]
+      .withHost(host"0.0.0.0")
+      .withPort(port"8080")
+      .withHttpApp(service)
+      .build
 }
