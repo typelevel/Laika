@@ -66,7 +66,9 @@ This is a complete list of values exposed in the `cursor` namespace:
 
     * `title`: the AST of the title of this document - including formatting.
 
-    * `path`: the absolute (virtual) path of the document inside the input tree.
+    * `sourcePath`: the absolute (virtual) path of the document in the input tree.
+
+    * `path` (deprecated since 0.19.0): use `sourcePath`.
     
 * Access to surrounding documents via `cursor.parentDocument`, `cursor.previousDocument`, `cursor.nextDocument`,
   `cursor.flattenedSiblings.previousDocument` and `cursor.flattenedSiblings.nextDocument`.
@@ -80,10 +82,14 @@ This is a complete list of values exposed in the `cursor` namespace:
   Sub-keys of these document pointers are:
   
     * `title`: the AST of the title of the document - including formatting.
+
+    * `path`: the path of the document in the generated output, e.g. `../herbs/parsley.html`.
+
+    * `sourcePath`: the absolute (virtual) path of the document in the input tree, e.g. `/herbs/parsley.md`.
     
-    * `absolutePath`: the absolute path in the virtual input tree as a string, e.g. `/herbs/parsley.md`.
+    * `absolutePath` (deprecated since 0.19.0): use `sourcePath`.
     
-    * `relativePath`: the path relative to this document as a string, e.g. `../parsley.md`.
+    * `relativePath` (deprecated since 0.19.0): use `sourcePath`.
     
 * `root.title`: The title of the root node, usually the title of the website or e-book.
     
