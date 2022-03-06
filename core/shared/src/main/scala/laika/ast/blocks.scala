@@ -95,7 +95,7 @@ case class Rule (options: Options = NoOpt) extends Block {
 
 /** A named document fragment that usually gets rendered separately from the main root element
   */
-case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block with Hidden {
+case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block {
   type Self = DocumentFragment
   def withOptions (options: Options): DocumentFragment = copy(options = options)
 }
