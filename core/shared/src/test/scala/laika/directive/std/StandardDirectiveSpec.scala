@@ -253,6 +253,25 @@ class StandardDirectiveSpec extends FunSuite
       )
     )
   }
+
+  test("style directive - including link") {
+    val input =
+      """aa @:style(foo) 11 [link][id] 33 @:@ bb
+        |
+        |[id]: http://foo.com
+        |""".stripMargin
+    run(input,
+      p(
+        Text("aa "),
+        SpanSequence(
+          Text(" 11 "),
+          SpanLink.external("http://foo.com")("link"),
+          Text(" 33 ")
+        ).withStyles("foo"),
+        Text(" bb")
+      )
+    )
+  }
   
   
   test("icon directive - success") {
@@ -292,6 +311,25 @@ class StandardDirectiveSpec extends FunSuite
       p("aa"),
       BlockSequence("11\n22").withStyles("callout", "info"),
       p("bb")
+    )
+  }
+
+  test("callout directive - body with a link reference") {
+    val input = """aa
+                  |
+                  |@:callout(info)
+                  |
+                  |11 [link][id] 22
+                  |
+                  |@:@
+                  |
+                  |[id]: http://foo.com
+                  |
+                  |bb""".stripMargin
+    run(input,
+      p("aa"),
+      BlockSequence(p(Text("11 "), SpanLink.external("http://foo.com")("link"), Text(" 22"))).withStyles("callout", "info"),
+      p("bb"),
     )
   }
 

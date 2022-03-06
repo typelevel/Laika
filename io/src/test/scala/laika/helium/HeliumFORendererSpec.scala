@@ -255,7 +255,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
       Root / "doc.md" -> markup
     )
     val expected = 
-      """<fo:block background-color="#fcfacd" border-left="3pt solid #b1a400" font-family="Lato" font-size="10pt" fox:border-after-end-radius="2mm" fox:border-before-end-radius="2mm" line-height="1.5" margin-left="2mm" margin-right="2mm" padding="3mm 3mm 0.1mm 3mm" space-after="6mm">
+      """<fo:block background-color="#fcfacd" border-left="3pt solid #b1a400" font-family="Lato" font-size="10pt" fox:border-after-end-radius="2mm" fox:border-before-end-radius="2mm" line-height="1.5" margin-left="2mm" margin-right="2mm" padding="3mm 3mm 0.1mm 3mm" page-break-inside="avoid" space-after="6mm">
         |<fo:block padding-top="-2mm"><fo:inline color="#b1a400" font-family="IcoFont" font-size="16pt">&#xf026;</fo:inline></fo:block>
         |<fo:block font-family="Lato" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">You really should not do this.</fo:block>
         |</fo:block>""".stripMargin
