@@ -185,7 +185,7 @@ object RendererRuntime {
     
     def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig, staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
       (config.versions, context.finalFormat) match {
-        case (Some(versions), "html") =>
+        case (Some(versions), "html") if versions.renderUnversioned =>
           VersionedLinkTargets
             .gatherTargets[F](versions, staticDocs)
             .map { existing =>
