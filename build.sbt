@@ -70,7 +70,7 @@ val munitCE3   = "org.typelevel"          %% "munit-cats-effect-3" % versions.mu
 val fop        = "org.apache.xmlgraphics" %  "fop"         % versions.fop
 val http4s     = Seq(
                    "org.http4s"           %% "http4s-dsl"          % versions.http4s,
-                   "org.http4s"           %% "http4s-blaze-server" % versions.http4s
+                   "org.http4s"           %% "http4s-ember-server" % versions.http4s
                  )
 
 lazy val root = project.in(file("."))
@@ -153,7 +153,12 @@ lazy val plugin = project.in(file("sbt"))
     name := "laika-sbt",
     sbtPlugin := true,
     crossScalaVersions := Seq(versions.scala2_12),
-    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= Seq(
+      "-Xmx1024M",
+      "-Dplugin.version=" + version.value,
+      "-Duser.language=en",
+      "-Duser.country=GB"
+    ),
     scriptedBufferLog := false
   )
 

@@ -49,7 +49,8 @@ private[helium] object HeliumRenderOverrides {
     }
   }
   
-  def icon (opt: Options): Option[Icon] = (opt.styles - "callout").headOption match {
+  private val messageLevels = Set("warning","error","info")
+  def icon (opt: Options): Option[Icon] = (opt.styles.intersect(messageLevels)).headOption match {
     case Some("warning") => Some(HeliumIcon.warning)
     case Some("error") => Some(HeliumIcon.error)
     case Some("info") => Some(HeliumIcon.info)
@@ -58,6 +59,9 @@ private[helium] object HeliumRenderOverrides {
   
   def renderCallout (fmt:HTMLFormatter, opt: Options, content: Seq[Block]): String =
     fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
+    
+  def htmlCalloutOptions (b: BlockSequence): Options = 
+    Options(b.options.id, b.options.styles - "pdf" - "epub" - "keep-together")
 
   def forHTML (anchorPlacement: AnchorPlacement): PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, Header(level, content, opt)) =>
@@ -75,7 +79,7 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, InvalidBlock(msg, _, fallback, opt)) =>
       fmt.forMessage(msg)(renderCallout(fmt, opt + Styles("callout", msg.level.toString), Seq(Paragraph(msg), fallback)))
     
-    case (fmt, b: BlockSequence) if b.hasStyle("callout") => renderCallout(fmt, b.options, b.content)
+    case (fmt, b: BlockSequence) if b.hasStyle("callout") => renderCallout(fmt, htmlCalloutOptions(b), b.content)
     case (fmt, Selection(name, choices, opt))             => renderChoices(fmt, name, choices, opt)
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)

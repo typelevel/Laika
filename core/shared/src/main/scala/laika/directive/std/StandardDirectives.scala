@@ -66,7 +66,7 @@ import scala.collection.immutable.TreeSet
   * 
   * - `linkCSS`: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
   * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
-  * - `relativePath`: Translates an absolute or relative path from the perspective of a template
+  * - `path`: Translates an absolute or relative path from the perspective of a template
   *   to a path relative to the document the template had been applied to
   * 
   * '''Conditionals and Loops'''

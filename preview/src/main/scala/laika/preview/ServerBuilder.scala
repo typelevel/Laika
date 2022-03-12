@@ -21,6 +21,7 @@ import java.io.{File, PrintWriter, StringWriter}
 import cats.data.{Kleisli, OptionT}
 import cats.effect._
 import cats.syntax.all._
+import com.comcast.ip4s._
 import fs2.concurrent.Topic
 import laika.ast
 import laika.ast.DocumentType
@@ -32,7 +33,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpApp, HttpRoutes, Request}
 import org.http4s.implicits._
 import org.http4s.server.{Router, Server}
-import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.ember.server.EmberServerBuilder
 
 import scala.concurrent.duration._
 
@@ -80,10 +81,11 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
   }
     
   private def createServer (httpApp: HttpApp[F]): Resource[F, Server] =
-    BlazeServerBuilder[F]
-      .bindHttp(config.port, "localhost")
+    EmberServerBuilder.default[F]
+      .withPort(config.port)
+      .withHost(config.host)
       .withHttpApp(httpApp)
-      .resource
+      .build
   
   private def binaryRenderFormats =
     List(EPUB).filter(_ => config.includeEPUB) ++
@@ -131,7 +133,8 @@ object ServerBuilder {
   * @param isVerbose whether each served page and each detected file change should be logged (default false)
   * @param apiDir an optional API directory from which API documentation should be served (default None)
   */
-class ServerConfig private (val port: Int,
+class ServerConfig private (val port: Port,
+                            val host:Host,
                             val pollInterval: FiniteDuration,
                             val artifactBasename: String,
                             val includeEPUB: Boolean,
@@ -139,18 +142,23 @@ class ServerConfig private (val port: Int,
                             val isVerbose: Boolean,
                             val apiDir: Option[File]) {
 
-  private def copy (newPort: Int = port,
+  private def copy (newPort: Port = port,
+                    newHost: Host = host,
                     newPollInterval: FiniteDuration = pollInterval,
                     newArtifactBasename: String = artifactBasename,
                     newIncludeEPUB: Boolean = includeEPUB,
                     newIncludePDF: Boolean = includePDF,
                     newVerbose: Boolean = isVerbose,
                     newAPIDir: Option[File] = apiDir): ServerConfig =
-    new ServerConfig(newPort, newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
+    new ServerConfig(newPort, newHost,newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
 
   /** Specifies the port the server should run on (default 4242).
     */
-  def withPort (port: Int): ServerConfig = copy(newPort = port)
+  def withPort (port: Port): ServerConfig = copy(newPort = port)
+
+  /** Specifies the host the server should run on (default localhost).
+  */
+  def withHost(host:Host):ServerConfig = copy(newHost = host)
 
   /** Specifies the interval at which input file resources are polled for changes (default 1 second).
     */
@@ -184,13 +192,15 @@ class ServerConfig private (val port: Int,
   */
 object ServerConfig {
 
-  val defaultPort: Int = 4242
+  val defaultPort: Port = port"4242"
+
+  val defaultHost:Host = host"localhost"
 
   val defaultPollInterval: FiniteDuration = 1.second
 
   val defaultArtifactBasename: String = "docs"
 
   /** A ServerConfig instance populated with default values. */
-  val defaults = new ServerConfig(defaultPort, defaultPollInterval, defaultArtifactBasename, false, false, false, None)
+  val defaults = new ServerConfig(defaultPort,defaultHost,defaultPollInterval, defaultArtifactBasename, false, false, false, None)
   
 }

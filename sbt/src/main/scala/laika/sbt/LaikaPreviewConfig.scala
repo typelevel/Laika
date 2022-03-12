@@ -16,6 +16,7 @@
 
 package laika.sbt
 
+import com.comcast.ip4s._
 import laika.preview.ServerConfig
 
 import scala.concurrent.duration.FiniteDuration
@@ -26,18 +27,22 @@ import scala.concurrent.duration.FiniteDuration
   * @param pollInterval the interval at which input file resources are polled for changes (default 3 seconds)
   * @param isVerbose whether each served page and each detected file change should be logged (default false)
   */
-class LaikaPreviewConfig (val port: Int,
+class LaikaPreviewConfig (val port: Port,
+                          val host:Host,
                           val pollInterval: FiniteDuration,
                           val isVerbose: Boolean) {
 
-  private def copy (newPort: Int = port,
+  private def copy (newPort: Port = port,
+                    newHost:Host = host,
                     newPollInterval: FiniteDuration = pollInterval,
                     newVerbose: Boolean = isVerbose): LaikaPreviewConfig =
-    new LaikaPreviewConfig(newPort, newPollInterval, newVerbose)
+    new LaikaPreviewConfig(newPort, newHost,newPollInterval, newVerbose)
   
   /** Specifies the port the server should run on (default 4242).
     */
-  def withPort (port: Int): LaikaPreviewConfig = copy(newPort = port)
+  def withPort (port: Port): LaikaPreviewConfig = copy(newPort = port)
+
+  def withHost(host:Host):LaikaPreviewConfig = copy(newHost = host)
 
   /** Specifies the interval at which input file resources are polled for changes (default 3 seconds).
     */
@@ -54,6 +59,6 @@ class LaikaPreviewConfig (val port: Int,
 object LaikaPreviewConfig {
 
   /** A config instance populated with default values. */
-  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort, ServerConfig.defaultPollInterval, false)
+  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort,ServerConfig.defaultHost, ServerConfig.defaultPollInterval, false)
 
 }

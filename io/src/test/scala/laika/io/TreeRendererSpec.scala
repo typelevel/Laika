@@ -631,7 +631,7 @@ class TreeRendererSpec extends CatsEffectSuite
           Results.docNoTitle(Root / "0.4" / "tree-2" / "doc-6.html", docHTML(6))
         ))
       ))
-    ), None, staticDocuments = expectedStatic :+ Root / "laika" / "versionInfo.json")
+    ), None, staticDocuments = expectedStatic)
 
     HTMLRenderer.defaultRenderer
       .use(_
