@@ -33,29 +33,35 @@ object DartSyntax extends SyntaxHighlighter {
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(charEscapes),
-    StringLiteral.singleLine('"').embed(charEscapes),
-    StringLiteral.singleLine('\'').embed(charEscapes),
+    StringLiteral.singleLine('"').embed(
+      charEscapes,
+      StringLiteral.Substitution.between("${", "}")
+    ),
+    StringLiteral.singleLine('\'').embed(
+      charEscapes,
+      StringLiteral.Substitution.between("${", "}")
+    ),
     annotation,
-    StringLiteral.multiLine("`").embed(
+    StringLiteral.multiLine("\"\"\"").embed(
+      charEscapes,
+      StringLiteral.Substitution.between("${", "}"),
+    ),
+    StringLiteral.multiLine("\'\'\'").embed(
       charEscapes,
       StringLiteral.Substitution.between("${", "}"),
     ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
-    Keywords(TypeName)("bool", "byte", "double", "float", "int", "long","dynamic","void"),
+    Keywords(TypeName)("bool", "double", "int", "dynamic","String","void"),
     Keywords(
-    "abstract","as","assert","async","await","break","case","catch","class","const","continue","default","else",
-    "enum","export","extends","extension","final","finally","for","if","implements","import",
-    "is","is!","mixin","new","on","required","rethrow","return","show", "static", "super", "switch", "this", "throw",
+    "abstract","as","assert","async","await","break","case","catch","class","const","default","else",
+    "enum","export","extends","extension","final","finally","for","get","if","implements","import",
+    "is","late","mixin","new","on","operator","required","rethrow","return", "static", "super", "switch", "this", "throw",
     "try", "var", "while", "with", "yield"),
     Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
-    number(NumberLiteral.binary),
-    number(NumberLiteral.octal),
     number(NumberLiteral.hex),
     number(NumberLiteral.decimalFloat),
     number(NumberLiteral.decimalInt),
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),
   )
   
 }
