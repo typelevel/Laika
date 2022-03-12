@@ -237,39 +237,67 @@ class DocumentTreeAPISpec extends FunSuite
     )
   }
   
-  test("resolve a substitution reference to the previous document") { 
-    val cursor = leafDocCursor(Some("cursor.previousDocument.relativePath"))
+  test("resolve a substitution reference to the source path of the previous document") { 
+    val cursor = leafDocCursor(Some("cursor.previousDocument.sourcePath"))
     assertEquals(
       cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
-      Right(RootElement(p("doc-5")))
+      Right(RootElement(p("/tree-2/doc-5")))
+    )
+  }
+
+  test("resolve a substitution reference to the output path of the previous document") {
+    val cursor = leafDocCursor(Some("cursor.previousDocument.path"))
+    assertEquals(
+      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      Right(RootElement(RawLink.internal(Root / "tree-2" / "doc-5")))
     )
   }
 
   test("be empty for the next document in the final leaf node of the tree") { 
-    val cursor = leafDocCursor(Some("cursor.nextDocument.relativePath"))
+    val cursor = leafDocCursor(Some("cursor.nextDocument.path"))
     assertEquals(
       cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
       Right(RootElement(p("")))
     )
   }
 
-  test("resolve a substitution reference to the parent document") { 
-    val cursor = leafDocCursor(Some("cursor.parentDocument.relativePath"))
+  test("resolve a substitution reference to the source path of the parent document") { 
+    val cursor = leafDocCursor(Some("cursor.parentDocument.sourcePath"))
     assertEquals(
       cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
-      Right(RootElement(p("README")))
+      Right(RootElement(p("/tree-2/README")))
     )
   }
 
-  test("resolve a substitution reference to the previous document in a flattened view") { 
-    val cursor = leafDocCursor(Some("cursor.flattenedSiblings.previousDocument.relativePath")).map(_
+  test("resolve a substitution reference to the output path of the parent document") {
+    val cursor = leafDocCursor(Some("cursor.parentDocument.path"))
+    assertEquals(
+      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      Right(RootElement(RawLink.internal(Root / "tree-2" / "README")))
+    )
+  }
+
+  test("resolve a substitution reference to the source path of the previous document in a flattened view") { 
+    val cursor = leafDocCursor(Some("cursor.flattenedSiblings.previousDocument.sourcePath")).map(_
       .flattenedSiblings.previousDocument
       .flatMap(_.flattenedSiblings.previousDocument)
       .get
     )
     assertEquals(
       cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
-      Right(RootElement(p("../tree-1/doc-4")))
+      Right(RootElement(p("/tree-1/doc-4")))
+    )
+  }
+
+  test("resolve a substitution reference to the output path of the previous document in a flattened view") {
+    val cursor = leafDocCursor(Some("cursor.flattenedSiblings.previousDocument.path")).map(_
+      .flattenedSiblings.previousDocument
+      .flatMap(_.flattenedSiblings.previousDocument)
+      .get
+    )
+    assertEquals(
+      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      Right(RootElement(RawLink.internal(Root / "tree-1" / "doc-4")))
     )
   }
   
