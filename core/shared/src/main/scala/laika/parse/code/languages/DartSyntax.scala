@@ -37,18 +37,18 @@ object DartSyntax extends SyntaxHighlighter {
       charEscapes,
       StringLiteral.Substitution.between("${", "}")
     ),
-    StringLiteral.singleLine('\'').embed(
-      charEscapes,
-      StringLiteral.Substitution.between("${", "}")
-    ),
     annotation,
     StringLiteral.multiLine("\"\"\"").embed(
       charEscapes,
       StringLiteral.Substitution.between("${", "}"),
     ),
-    StringLiteral.multiLine("\'\'\'").embed(
+    StringLiteral.multiLine("'''").embed(
       charEscapes,
       StringLiteral.Substitution.between("${", "}"),
+    ),
+    StringLiteral.singleLine('\'').embed(
+      charEscapes,
+      StringLiteral.Substitution.between("${", "}")
     ),
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),

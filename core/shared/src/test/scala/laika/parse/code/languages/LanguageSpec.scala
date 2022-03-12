@@ -309,7 +309,7 @@ class LanguageSpec extends FunSuite {
   
   test("Dart") {
     val input = 
-    """#Doc
+    s"""#Doc
       |
       |```dart
       |import 'package:http/http.dart' as http;
@@ -326,6 +326,9 @@ class LanguageSpec extends FunSuite {
       |abstract class App extends Component with Foo {
       |  const App({required this.i}) : super();
       |  final int i;
+      |  const multiline = '''line 0
+      |line 1
+      |line 2'''
       |
       |  Future<void> f(List<String> args,{required dynamic arg0},[int? arg1]) async {
       |    try {
@@ -353,7 +356,8 @@ class LanguageSpec extends FunSuite {
       space,keyword("with"),space,typeName("Foo"),other(" {\n  "),
       keyword("const"),space,typeName("App"),other("({"),
       keyword("required"),space,keyword("this"),other("."),id("i"),other("}) : "),keyword("super"),other("();\n  "),
-      keyword("final"),space,typeName("int"),space,id("i"),other(";\n\n  "),
+      keyword("final"),space,typeName("int"),space,id("i"),other(";\n  "),
+      keyword("const"),space,id("multiline"),other(" = "),string("'''line 0\nline 1\nline 2'''"),other("\n\n  "),
       typeName("Future"),other("<"),typeName("void"),other("> "),id("f"),other("("),
       typeName("List"),other("<"),typeName("String"),other("> "),id("args"),
       other(",{"),keyword("required"),space,typeName("dynamic"),space,id("arg0"),other("},["),
@@ -364,6 +368,7 @@ class LanguageSpec extends FunSuite {
       keyword("rethrow"),other(";\n    } "),
       keyword("finally"),other(" {\n      "),keyword("yield"),space,literal("null"),other(";\n    }\n}")
       )
+      println(parse(input))
       assertEquals(parse(input),expected)
     }
 
