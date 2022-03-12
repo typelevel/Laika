@@ -54,10 +54,9 @@ object DartSyntax extends SyntaxHighlighter {
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("bool", "double", "int", "dynamic","String","void"),
     Keywords(
-    "abstract","as","assert","async","await","break","case","catch","class","const","default","else",
-    "enum","export","extends","extension","final","finally","for","get","if","implements","import",
-    "is","late","mixin","new","on","operator","required","rethrow","return", "static", "super", "switch", "this", "throw",
-    "try", "var", "while", "with", "yield"),
+    "assert","break","case","catch","class","const","default","do","else",
+    "enum","extends","final","finally","for","if","is","in","new","rethrow",
+    "return","super", "switch", "this", "throw","try", "var", "while", "with"),
     Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
     number(NumberLiteral.hex),
     number(NumberLiteral.decimalFloat),
