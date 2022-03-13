@@ -343,7 +343,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     val inputs = Seq(
       Root / "omg.txt" -> Contents.name
     )
-    transformTree(inputs).assertEquals(renderedRoot(Nil, staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
+    transformTree(inputs).assertEquals(
+      renderedRoot(Nil, staticDocuments = TestTheme.staticASTPaths :+ Root / "omg.txt")
+    )
   }
   
   object DocWithSection {
@@ -458,7 +460,7 @@ class TreeTransformerSpec extends CatsEffectSuite
           (Root / "dir2" / "doc6.txt", withTemplate1),
         ))
       ), 
-      staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths
+      staticDocuments = TestTheme.staticASTPaths :+ Root / "dir2" / "omg.txt"
     ))
   }
 
