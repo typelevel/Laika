@@ -309,7 +309,7 @@ class LanguageSpec extends FunSuite {
   
   test("Dart") {
     val input = 
-    s"""#Doc
+    """#Doc
       |
       |```dart
       |import 'package:http/http.dart' as http;
@@ -325,10 +325,13 @@ class LanguageSpec extends FunSuite {
       |@Thing
       |abstract class App extends Component with Foo {
       |  const App({required this.i}) : super();
-      |  final int i;
+      |  final int i = 1;
+      |  const color = Color(0xffb74093);
       |  const multiline = '''line 0
       |line 1
-      |line 2'''
+      |line 2''';
+      |  const rawString = r"${'substitution'}";
+      |  const str = "${'substitution'}";
       |
       |  Future<void> f(List<String> args,{required dynamic arg0},[int? arg1]) async {
       |    try {
@@ -342,33 +345,35 @@ class LanguageSpec extends FunSuite {
       |```""".stripMargin
 
       val expected = result("dart",
-      keyword("import"),space,string("'package:http/http.dart'"),space,
-      keyword("as"),space,id("http"),other(";\n\n"),
-      keyword("mixin"),space,typeName("Foo"),space,keyword("on"),space,
+      id("import"),space,string("'package:http/http.dart'"),space,
+      id("as"),space,id("http"),other(";\n\n"),
+      id("mixin"),space,typeName("Foo"),space,id("on"),space,
       typeName("App"),other(" {\n  "),
       typeName("void"),space,id("g"),other("("),typeName("List"),other("<"),typeName("int"),other("> "),
       id("args"),other(") => "),literal("null"),other(";\n}\n\n"),
-      keyword("extension"),space,typeName("Bar"),space,
-      keyword("on"),space,typeName("App"),other(" {\n\n}\n\n"),
+      id("extension"),space,typeName("Bar"),space,
+      id("on"),space,typeName("App"),other(" {\n\n}\n\n"),
       annotation("Thing"),other("\n"),
-      keyword("abstract"),space,keyword("class"),space,typeName("App"),space,
+      id("abstract"),space,keyword("class"),space,typeName("App"),space,
       keyword("extends"),space,typeName("Component"),
       space,keyword("with"),space,typeName("Foo"),other(" {\n  "),
       keyword("const"),space,typeName("App"),other("({"),
-      keyword("required"),space,keyword("this"),other("."),id("i"),other("}) : "),keyword("super"),other("();\n  "),
-      keyword("final"),space,typeName("int"),space,id("i"),other(";\n  "),
-      keyword("const"),space,id("multiline"),other(" = "),string("'''line 0\nline 1\nline 2'''"),other("\n\n  "),
+      id("required"),space,keyword("this"),other("."),id("i"),other("}) : "),keyword("super"),other("();\n  "),
+      keyword("final"),space,typeName("int"),space,id("i"),other(" = "),number("1"),other(";\n  "),
+      keyword("const"),space,id("color"),other(" = "),typeName("Color"),other("("),number("0xffb74093"),other(");\n  "),
+      keyword("const"),space,id("multiline"),other(" = "),string("'''line 0\nline 1\nline 2'''"),other(";\n  "),
+      keyword("const"),space,id("rawString"),other(" = "),string("""r"${'substitution'}""""),other(";\n  "),
+      keyword("const"),space,id("str"),other(" = "),string("\""),subst("${'substitution'}"),string("\""),other(";\n\n  "),
       typeName("Future"),other("<"),typeName("void"),other("> "),id("f"),other("("),
       typeName("List"),other("<"),typeName("String"),other("> "),id("args"),
-      other(",{"),keyword("required"),space,typeName("dynamic"),space,id("arg0"),other("},["),
-      typeName("int"),other("? "),id("arg1"),other("]) "),keyword("async"),other(" {\n    "),
+      other(",{"),id("required"),space,typeName("dynamic"),space,id("arg0"),other("},["),
+      typeName("int"),other("? "),id("arg1"),other("]) "),id("async"),other(" {\n    "),
       keyword("try"),other(" {\n      "),
-      keyword("await"),space,id("doSomething"),other("();\n    } "),
-      keyword("on"),space,typeName("Exception"),space,keyword("catch"),other("("),id("e"),other(") {\n      "),
+      id("await"),space,id("doSomething"),other("();\n    } "),
+      id("on"),space,typeName("Exception"),space,keyword("catch"),other("("),id("e"),other(") {\n      "),
       keyword("rethrow"),other(";\n    } "),
-      keyword("finally"),other(" {\n      "),keyword("yield"),space,literal("null"),other(";\n    }\n}")
+      keyword("finally"),other(" {\n      "),id("yield"),space,literal("null"),other(";\n    }\n}")
       )
-      println(parse(input))
       assertEquals(parse(input),expected)
     }
 

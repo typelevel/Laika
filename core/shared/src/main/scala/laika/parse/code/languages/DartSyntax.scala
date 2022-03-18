@@ -21,9 +21,6 @@ object DartSyntax extends SyntaxHighlighter {
     }
   }
 
-  def number(parser: NumberLiteral.NumericParser): CodeSpanParser = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
-
-
   val charEscapes: CodeSpanParser = 
     StringLiteral.Escape.unicode ++
     StringLiteral.Escape.octal ++
@@ -33,6 +30,8 @@ object DartSyntax extends SyntaxHighlighter {
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
     CharLiteral.standard.embed(charEscapes),
+    StringLiteral.singleLine("r\"","\""),
+    StringLiteral.singleLine("r'","'"),
     StringLiteral.singleLine('"').embed(
       charEscapes,
       StringLiteral.Substitution.between("${", "}")
@@ -58,9 +57,9 @@ object DartSyntax extends SyntaxHighlighter {
     "enum","extends","final","finally","for","if","is","in","new","rethrow",
     "return","super", "switch", "this", "throw","try", "var", "while", "with"),
     Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
-    number(NumberLiteral.hex),
-    number(NumberLiteral.decimalFloat),
-    number(NumberLiteral.decimalInt),
+    NumberLiteral.hex,
+    NumberLiteral.decimalFloat,
+    NumberLiteral.decimalInt,
   )
   
 }
