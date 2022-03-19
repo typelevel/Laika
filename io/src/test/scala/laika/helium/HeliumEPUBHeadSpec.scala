@@ -43,7 +43,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   
   private val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                                 |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                                |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                                |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />
                                 |<title></title>
                                 |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
   
@@ -86,7 +86,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
@@ -106,7 +106,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       .epub.autoLinkJS(Root / "custom-js")
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
@@ -120,7 +120,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
     val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />
                      |<title></title>
                      |<meta name="author" content="Maria Green"/>
                      |<meta name="author" content="Elena Blue"/>

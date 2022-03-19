@@ -62,7 +62,7 @@ class HeliumEPUBTocPageSpec extends CatsEffectSuite with InputBuilder with Resul
     val expected = """<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                     |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />
                      |<title>Contents</title>
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
                      |</head>

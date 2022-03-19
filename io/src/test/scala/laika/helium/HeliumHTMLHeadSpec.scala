@@ -72,7 +72,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   val meta = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                |<meta charset="utf-8">
                |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-               |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />""".stripMargin
+               |<meta name="generator" content="Laika 0.18.2 + Helium Theme" />""".stripMargin
   
   val defaultResult = meta ++ """
     |<title></title>
