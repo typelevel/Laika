@@ -57,4 +57,11 @@ trait ParserSetup {
       .parallel[IO]
       .withTheme(TestThemeBuilder.forBundle(themeBundle))
       .build
+
+  def parserWithThemeExtension (themeBundle: ExtensionBundle, themeExtBundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
+    MarkupParser
+      .of(Markdown)
+      .parallel[IO]
+      .withTheme(TestThemeBuilder.forBundle(themeBundle).extendWith(TestThemeBuilder.forBundle(themeExtBundle)))
+      .build
 }

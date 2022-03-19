@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{BuilderKey, ParagraphCompanionShortcuts, SampleConfig, SampleTrees, TestSourceBuilders}
-import laika.bundle.{BundleOrigin, BundleProvider}
+import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.config.{Config, ConfigBuilder, LaikaKeys}
 import laika.format._
 import laika.helium.generate.FOStyles
@@ -120,8 +120,10 @@ class TreeRendererSpec extends CatsEffectSuite
 
     def docNoTitle (path: Path): RenderedDocument = docNoTitle(path, content)
     
-    def betweenBrackets (span: TemplateSpan): TemplateRoot = 
-      TemplateRoot(TemplateString("["), span, TemplateString("]"))
+    def betweenBrackets (span: TemplateSpan): TemplateRoot = between(span, "[", "]")
+
+    def between (span: TemplateSpan, before: String, after: String): TemplateRoot =
+      TemplateRoot(TemplateString(before), span, TemplateString(after))
   }
   
   trait TreeRendererSetup[FMT] {
@@ -331,20 +333,35 @@ class TreeRendererSpec extends CatsEffectSuite
       .render(HTMLRenderer.defaultTree, renderer)
       .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
   }
+  
+  private def renderOverrideBundle (appendChar: Char, origin: BundleOrigin): ExtensionBundle = BundleProvider.forOverrides(HTML.Overrides {
+    case (fmt, Text(txt, _)) => fmt.text(txt + appendChar)
+  }, origin)
 
   test("tree with a single document to HTML with a render override that shadows an override in a theme") {
     val renderer = Renderer
       .of(HTML)
-      .using(BundleProvider.forOverrides(HTML.Overrides {
-        case (fmt, Text(txt, _)) => fmt.text(txt + "?")
-      }))
+      .using(renderOverrideBundle('?', BundleOrigin.User))
       .parallel[IO]
-      .withTheme(TestThemeBuilder.forBundle(BundleProvider.forOverrides(HTML.Overrides {
-        case (fmt, Text(txt, _)) => fmt.text(txt + "!")
-      }, origin = BundleOrigin.Theme))
-      )
+      .withTheme(TestThemeBuilder.forBundle(renderOverrideBundle('!', BundleOrigin.Theme)))
       .build
     
+    val expected = """<h1 id="title" class="title">Title?</h1>
+                     |<p>bbb?</p>""".stripMargin
+    HTMLRenderer
+      .render(HTMLRenderer.defaultTree, renderer)
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
+  }
+
+  test("tree with a single document to HTML with a render override in a theme extension that shadows an override in a base theme") {
+    val theme = TestThemeBuilder.forBundle(renderOverrideBundle('!', BundleOrigin.Theme))
+      .extendWith(TestThemeBuilder.forBundle(renderOverrideBundle('?', BundleOrigin.Theme)))
+    val renderer = Renderer
+      .of(HTML)
+      .parallel[IO]
+      .withTheme(theme)
+      .build
+
     val expected = """<h1 id="title" class="title">Title?</h1>
                      |<p>bbb?</p>""".stripMargin
     HTMLRenderer
@@ -436,6 +453,31 @@ class TreeRendererSpec extends CatsEffectSuite
         .build
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
+    val path = (Root / "doc").withSuffix("epub.xhtml")
+    EPUB_XHTMLRenderer
+      .render(EPUB_XHTMLRenderer.defaultTree, renderer)
+      .assertEquals(Results.rootWithSingleDoc(path, expected))
+  }
+  
+  test("tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme") {
+    val contentRef = TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    val baseThemeInputs = new TestThemeBuilder.Inputs {
+      def build[F[_]: Sync] = InputTree[F]
+        .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.betweenBrackets(contentRef)))
+    }
+    val themeExtensionInputs = new TestThemeBuilder.Inputs {
+      def build[F[_]: Sync] = InputTree[F]
+        .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.between(contentRef, "?", "?")))
+    }
+    val theme = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(TestThemeBuilder.forInputs(themeExtensionInputs))
+    val renderer =
+      Renderer
+        .of(EPUB.XHTML)
+        .parallel[IO]
+        .withTheme(theme)
+        .build
+    val expected = """?<h1 id="title" class="title">Title</h1>
+                     |<p>bbb</p>?""".stripMargin
     val path = (Root / "doc").withSuffix("epub.xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
