@@ -164,7 +164,7 @@ class TreeParserFileIOSpec
     def customizeTree (sample: DocumentTreeRoot): DocumentTreeRoot = sample.copy(
       tree = sample.tree.copy(
         content = sample.tree.content.map {
-          case tree: DocumentTree if tree.path.name == "tree-2" => tree.copy(content = tree.content :+ extraDoc)
+          case tree: DocumentTree if tree.path.name == "tree-2" => tree.appendContent(extraDoc)
           case other => other
         }
       )
@@ -298,14 +298,13 @@ class TreeParserFileIOSpec
 
     private val tree2 = baseTree.tree.content(3).asInstanceOf[DocumentTree]
 
-    val expected: DocumentTreeRoot = baseTree.copy(
-      tree = baseTree.tree.copy(
-        content =
-          baseTree.tree.content.take(2) :+
-            doc9 :+
-            baseTree.tree.content(2) :+
-            tree2.copy(content = tree2.content :+ doc7) :+
-            DocumentTree(Root / "tree-3", Seq(doc8))
+    val expected: DocumentTreeRoot = baseTree.modifyTree(tree =>
+      tree.copy(content =
+        tree.content.take(2) :+
+          doc9 :+
+          tree.content(2) :+
+          tree2.appendContent(doc7) :+
+          DocumentTree(Root / "tree-3", Seq(doc8))
       )
     )
   }

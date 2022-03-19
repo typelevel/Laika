@@ -276,6 +276,22 @@ trait TreeStructure { this: TreeContent =>
       None
   }
 
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(content +: contents)
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: Seq[TreeContent]): DocumentTree = targetTree.copy(content = targetTree.content ++ content)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: TreeContent, contents: TreeContent*): DocumentTree = prependContent(content +: contents)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: Seq[TreeContent]): DocumentTree = targetTree.copy(content = content ++ targetTree.content)
+
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
     */
