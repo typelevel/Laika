@@ -17,13 +17,12 @@
 package laika.io.model
 
 import java.io._
-
 import cats.Applicative
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
 import cats.instances.stream
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
+import laika.ast.{Document, DocumentTree, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
@@ -427,6 +426,14 @@ object DirectoryInput {
   */
 case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) {
 
+  /** Creates a new instance by applying the specified function to the root tree.
+    */
+  def modifyRoot (f: DocumentTreeRoot => DocumentTreeRoot): ParsedTree[F] = copy(root = f(root))
+
+  /** Creates a new instance by applying the specified function to the nested tree.
+    */
+  def modifyTree (f: DocumentTree => DocumentTree): ParsedTree[F] = copy(root = root.copy(tree = f(root.tree)))
+  
   /** Removes all static documents of this instance that match the specified filter.
     */
   def removeStaticDocuments (filter: Path => Boolean): ParsedTree[F] = copy(
