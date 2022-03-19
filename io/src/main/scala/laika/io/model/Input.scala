@@ -432,7 +432,7 @@ case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[Binary
 
   /** Creates a new instance by applying the specified function to the nested tree.
     */
-  def modifyTree (f: DocumentTree => DocumentTree): ParsedTree[F] = copy(root = root.copy(tree = f(root.tree)))
+  def modifyTree (f: DocumentTree => DocumentTree): ParsedTree[F] = copy(root = root.modifyTree(f))
   
   /** Removes all static documents of this instance that match the specified filter.
     */

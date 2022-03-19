@@ -497,6 +497,10 @@ case class DocumentTreeRoot (tree: DocumentTree,
   def withConfig (config: Config): DocumentTreeRoot = {
     copy(tree = tree.copy(config = config))
   }
+
+  /** Creates a new instance by applying the specified function to the root tree.
+    */
+  def modifyTree (f: DocumentTree => DocumentTree): DocumentTreeRoot = copy(tree = f(tree))
   
   /** Returns a new tree, with all the document models contained in it rewritten based on the specified rewrite rules.
     *
