@@ -397,6 +397,24 @@ case class Document (path: Path,
   
   protected val configScope: Origin.Scope = Origin.DocumentScope
 
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: Block, contents: Block*): Document = appendContent(content +: contents)
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (newContent: Seq[Block]): Document = 
+    copy(content = content.withContent(this.content.content ++ newContent))
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: Block, contents: Block*): Document = prependContent(content +: contents)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (newContent: Seq[Block]): Document = 
+    copy(content = content.withContent(newContent ++ this.content.content))
+
 }
 
 /** Represents a tree with all its documents, templates, configurations and subtrees.

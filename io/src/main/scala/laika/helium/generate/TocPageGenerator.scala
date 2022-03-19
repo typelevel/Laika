@@ -61,7 +61,7 @@ private[helium] object TocPageGenerator {
         val title = Title(tocConfig.title).withOptions(Style.title)
         val root = RootElement(Preamble(tocConfig.title), title, navList) // TODO - Preamble should be inserted in PDF.prepareTree
         val doc = Document(Root / "table-of-content", root, config = tree.root.config.withValue("helium.markupEditLinks", false).build)
-        tree.modifyTree(_.appendContent(doc))
+        tree.modifyTree(_.prependContent(doc))
       }
     Sync[F].pure(result)
   }
