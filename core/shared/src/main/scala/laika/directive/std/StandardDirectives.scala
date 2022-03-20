@@ -24,6 +24,7 @@ import laika.config.{Key, SimpleConfigValue}
 import laika.directive._
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
+import scala.annotation.nowarn
 import scala.collection.immutable.TreeSet
 
 /** Provides the implementation for the standard directives included in Laika.
@@ -66,8 +67,10 @@ import scala.collection.immutable.TreeSet
   * 
   * - `linkCSS`: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
   * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
-  * - `path`: Translates an absolute or relative path from the perspective of a template
-  *   to a path relative to the document the template had been applied to
+  * - `target`: Translates a link target. 
+  *   External targets will be rendered verbatim, internal targets (absolute or relative paths) will be resolved 
+  *   from the perspective of a template to a path relative to the document the template had been applied to.
+  * - `path`: Deprecated, use the newer target directive instead which is a superset of its functionality
   * 
   * '''Conditionals and Loops'''
   * 
@@ -118,6 +121,7 @@ object StandardDirectives extends DirectiveRegistry {
     }
   }
 
+  @deprecated("use target directive instead", "0.19.0")
   lazy val path: Templates.Directive = Templates.eval("path") {
     import Templates.dsl._
     
@@ -135,6 +139,27 @@ object StandardDirectives extends DirectiveRegistry {
       val config = cursor.resolver.config
       if (config.hasKey(pathKey)) config.get[Path](pathKey).leftMap(_.message).flatMap(resolvePath)
       else resolvePath(literalPath)
+    }
+  }
+
+  lazy val target: Templates.Directive = Templates.eval("target") {
+    import Templates.dsl._
+
+    (attribute(0).as[Target], attribute(0).as[String], cursor).mapN { (literalTarget, pathKey, cursor) =>
+
+      def resolveTarget (target: Target): Either[String, TemplateSpan] = target match {
+        case et: ExternalTarget => Right(TemplateElement(RawLink.external(et.url)))
+        case it: InternalTarget =>
+          cursor.validate(it) match {
+            case ValidTarget => Right(TemplateElement(RawLink(it.relativeTo(cursor.path))))
+            case InvalidTarget(message) => Left(message)
+            case RecoveredTarget(message, _) => Left(message)
+          }
+      }
+
+      val config = cursor.resolver.config
+      if (config.hasKey(pathKey)) config.get[Target](pathKey).leftMap(_.message).flatMap(resolveTarget)
+      else resolveTarget(literalTarget)
     }
   }
   
@@ -265,6 +290,7 @@ object StandardDirectives extends DirectiveRegistry {
   
   /** The complete list of standard directives for templates.
    */
+  @nowarn("cat=deprecation")
   lazy val templateDirectives: Seq[Templates.Directive] = List(
     BreadcrumbDirectives.forTemplates,
     NavigationTreeDirectives.forTemplates,
@@ -275,6 +301,7 @@ object StandardDirectives extends DirectiveRegistry {
     HTMLHeadDirectives.linkCSS,
     HTMLHeadDirectives.linkJS,
     iconTemplate,
+    target,
     path,
     attr
   )

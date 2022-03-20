@@ -140,7 +140,63 @@ class StandardDirectiveSpec extends FunSuite
     )
   }
   
-  
+  private val resolvedTarget = ResolvedInternalTarget(
+    absolutePath = Path.parse("/theme/theme.css"),
+    relativePath = RelativePath.parse("../theme/theme.css"),
+  )
+
+  test("target directive - translate a relative path") {
+    val input = """aa @:target(theme.css) bb"""
+    runTemplate(input,
+      "laika.links.excludeFromValidation = [\"/\"]",
+      TemplateString("aa "),
+      TemplateElement(RawLink(resolvedTarget)),
+      TemplateString(" bb")
+    )
+  }
+
+  test("target directive - translate an absolute path") {
+    val input = """aa @:target(/theme/theme.css) bb"""
+    runTemplate(input,
+      "laika.links.excludeFromValidation = [\"/\"]",
+      TemplateString("aa "),
+      TemplateElement(RawLink(resolvedTarget)),
+      TemplateString(" bb")
+    )
+  }
+
+  test("target directive - fail with an invalid target") {
+    val dirSrc = "@:target(/theme/theme.css)"
+    val input = s"""aa $dirSrc bb"""
+    val msg = "One or more errors processing directive 'target': unresolved internal reference: ../theme/theme.css"
+    runTemplate(input,
+      "",
+      TemplateString("aa "),
+      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
+      TemplateString(" bb")
+    )
+  }
+
+  test("target directive - translate an absolute path from a config value") {
+    val input = """aa @:target(var.link) bb"""
+    runTemplate(input,
+      "laika.links.excludeFromValidation = [\"/\"]\nvar.link = \"/theme/theme.css\"",
+      TemplateString("aa "),
+      TemplateElement(RawLink(resolvedTarget)),
+      TemplateString(" bb")
+    )
+  }
+
+  test("target directive - render an external target") {
+    val input = """aa @:target(http://foo.com) bb"""
+    runTemplate(input,
+      "laika.links.excludeFromValidation = [\"/\"]",
+      TemplateString("aa "),
+      TemplateElement(RawLink(ExternalTarget("http://foo.com"))),
+      TemplateString(" bb")
+    )
+  }
+
   test("attribute directive - produce a string value for a valid config value") {
     val input = """<a @:attribute(src, foo.bar)/>"""
     runTemplate(input, 
