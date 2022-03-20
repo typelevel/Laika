@@ -49,7 +49,7 @@ class TreeParserSpec
 
   
   object Contents {
-    val link = "[link](/foo)"
+    val link = "[link](http://foo.com)"
     val name = "foo"
     val name2 = "bar"
     val multiline: String = 
@@ -331,8 +331,8 @@ class TreeParserSpec
       Root / "static-1" / "omg.js" -> Contents.name,
     )
     
-    val linkResult = Seq(p(SpanLink.external("/foo")("link")))
-    val rstResult = Seq(p("[link](/foo)"))
+    val linkResult = Seq(p(SpanLink.external("http://foo.com")("link")))
+    val rstResult = Seq(p(Text("[link]("), SpanLink.external("http://foo.com")("http://foo.com"), Text(")")))
     
     val expected = SampleTrees.sixDocuments
       .staticDoc(Root / "static-1" / "omg.js", "html")

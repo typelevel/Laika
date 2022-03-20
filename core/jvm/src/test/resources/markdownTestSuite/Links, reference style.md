@@ -5,7 +5,7 @@ Foo [bar][1].
 Foo [bar]
 [1].
 
-[1]: /url/  "Title"
+[1]: ext:/url/  "Title"
 
 
 With [embedded [brackets]] [b].
@@ -19,16 +19,16 @@ Indented [thrice][].
 
 Indented [four][] times.
 
- [once]: /url
+ [once]: ext:/url
 
-  [twice]: /url
+  [twice]: ext:/url
 
-   [thrice]: /url
+   [thrice]: ext:/url
 
     [four]: /url
 
 
-[b]: /url/
+[b]: ext:/url/
 
 * * *
 
@@ -52,11 +52,11 @@ Nor [that].
 
 [Same with [this].]
 
-In this case, [this](/somethingelse/) points to something else.
+In this case, [this](ext:/somethingelse/) points to something else.
 
 Backslashing should suppress \[this] and [this\].
 
-[this]: /foo
+[this]: ext:/foo
 
 
 * * *
@@ -68,4 +68,4 @@ Here's another where the [link
 breaks] across lines, but with a line-ending space.
 
 
-[link breaks]: /url/
+[link breaks]: ext:/url/

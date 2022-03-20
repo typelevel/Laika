@@ -113,7 +113,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       """.stripMargin
     val aa = "aa"
     val style = "13"
-    val link = "[link](/foo)"
+    val link = "[link](http://foo.com)"
     val directive = "${cursor.currentDocument.content} @:foo(bar) bb"
     val templateConfigRef = "${cursor.currentDocument.content}${value}"
     val template1 = "${cursor.currentDocument.content}"
@@ -436,12 +436,15 @@ class TreeTransformerSpec extends CatsEffectSuite
     val markdown =
       """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
-        |. . SpanLink(ExternalTarget(/foo),None) - Spans: 1
+        |. . SpanLink(ExternalTarget(http://foo.com),None) - Spans: 1
         |. . . Text - 'link'""".stripMargin
     val rst =
       """RootElement - Blocks: 1
-        |. Paragraph - Spans: 1
-        |. . Text - '[link](/foo)'""".stripMargin
+        |. Paragraph - Spans: 3
+        |. . Text - '[link]('
+        |. . SpanLink(ExternalTarget(http://foo.com),None) - Spans: 1
+        |. . . Text - 'http://foo.com'
+        |. . Text - ')'""".stripMargin
         
     transformMixedMarkup(inputs).assertEquals(renderedRoot(
       docs(

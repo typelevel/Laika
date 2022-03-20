@@ -1,7 +1,7 @@
 Foo [bar][].
 
-Foo [bar](/url/ "Title with "quotes" inside").
+Foo [bar](ext:/url/ "Title with "quotes" inside").
 
 
-  [bar]: /url/ "Title with "quotes" inside"
+  [bar]: ext:/url/ "Title with "quotes" inside"
 

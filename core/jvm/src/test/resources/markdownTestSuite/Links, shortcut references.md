@@ -1,6 +1,6 @@
 This is the [simple case].
 
-[simple case]: /simple
+[simple case]: ext:/simple
 
 
 
@@ -10,11 +10,11 @@ break].
 This one has a [line 
 break] with a line-ending space.
 
-[line break]: /foo
+[line break]: ext:/foo
 
 
 [this] [that] and the [other]
 
-[this]: /this
-[that]: /that
-[other]: /other
+[this]: ext:/this
+[that]: ext:/that
+[other]: ext:/other
