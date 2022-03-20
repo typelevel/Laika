@@ -2,6 +2,20 @@
 Release Notes
 =============
 
+0.18.2 (Mar ??, 2021)
+---------------------
+
+* Fixes and improvements:
+    * When using versioned output, the document `versionInfo.json` was still rendered when the `renderUnversioned`
+      flag was set to `false`, even though the document is unversioned itself.
+    * Link references within directive bodies (e.g. a `@:callout` component) were not resolved.
+    * Several variable substitutions like `cursor.nextDocument.relativePath` were pointing to the markup sources
+      and not to the rendered output, even though the latter is much more commonly needed for rendering links.
+      This release deprecates the old variable names ending in `.relativePath` and `.absolutePath` and replaces them
+      with `.path` (pointing to the output document for rendering links) and `.sourcePath` (pointing to the 
+      markup sources - the existing behaviour, but with a clearer name).
+
+
 0.18.1 (Dec 12, 2021)
 ---------------------
 
