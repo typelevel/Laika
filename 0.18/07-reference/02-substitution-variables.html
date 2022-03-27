@@ -191,7 +191,10 @@
                 <p><code>title</code>: the AST of the title of this document - including formatting.</p>
               </li>
               <li>
-                <p><code>path</code>: the absolute (virtual) path of the document inside the input tree.</p>
+                <p><code>sourcePath</code>: the absolute (virtual) path of the document in the input tree.</p>
+              </li>
+              <li>
+                <p><code>path</code> (deprecated since 0.18.2): use <code>sourcePath</code>.</p>
               </li>
             </ul>
           </li>
@@ -209,10 +212,16 @@
                 <p><code>title</code>: the AST of the title of the document - including formatting.</p>
               </li>
               <li>
-                <p><code>absolutePath</code>: the absolute path in the virtual input tree as a string, e.g. <code>/herbs/parsley.md</code>.</p>
+                <p><code>path</code>: the path of the document in the generated output, e.g. <code>../herbs/parsley.html</code>.</p>
               </li>
               <li>
-                <p><code>relativePath</code>: the path relative to this document as a string, e.g. <code>../parsley.md</code>.</p>
+                <p><code>sourcePath</code>: the absolute (virtual) path of the document in the input tree, e.g. <code>/herbs/parsley.md</code>.</p>
+              </li>
+              <li>
+                <p><code>absolutePath</code> (deprecated since 0.18.2): use <code>sourcePath</code>.</p>
+              </li>
+              <li>
+                <p><code>relativePath</code> (deprecated since 0.18.2): use <code>sourcePath</code>.</p>
               </li>
             </ul>
           </li>
