@@ -276,6 +276,22 @@ trait TreeStructure { this: TreeContent =>
       None
   }
 
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(content +: contents)
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: Seq[TreeContent]): DocumentTree = targetTree.copy(content = targetTree.content ++ content)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: TreeContent, contents: TreeContent*): DocumentTree = prependContent(content +: contents)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: Seq[TreeContent]): DocumentTree = targetTree.copy(content = content ++ targetTree.content)
+
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
     */
@@ -380,6 +396,24 @@ case class Document (path: Path,
   def rewrite (rules: RewriteRules): Either[ConfigError, Document] = DocumentCursor(this).map(_.rewriteTarget(rules))
   
   protected val configScope: Origin.Scope = Origin.DocumentScope
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (content: Block, contents: Block*): Document = appendContent(content +: contents)
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent (newContent: Seq[Block]): Document = 
+    copy(content = content.withContent(this.content.content ++ newContent))
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (content: Block, contents: Block*): Document = prependContent(content +: contents)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent (newContent: Seq[Block]): Document = 
+    copy(content = content.withContent(newContent ++ this.content.content))
 
 }
 
@@ -497,6 +531,10 @@ case class DocumentTreeRoot (tree: DocumentTree,
   def withConfig (config: Config): DocumentTreeRoot = {
     copy(tree = tree.copy(config = config))
   }
+
+  /** Creates a new instance by applying the specified function to the root tree.
+    */
+  def modifyTree (f: DocumentTree => DocumentTree): DocumentTreeRoot = copy(tree = f(tree))
   
   /** Returns a new tree, with all the document models contained in it rewritten based on the specified rewrite rules.
     *

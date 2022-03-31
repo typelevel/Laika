@@ -58,7 +58,7 @@ abstract class TreeMapperOps[F[_]: Sync] {
     for {
       mappedTree  <- mapTree(parsed.root.tree)
       mappedCover <- parsed.root.coverDocument.map(f).sequence
-    } yield parsed.copy(root = parsed.root.copy(tree = mappedTree, coverDocument = mappedCover))
+    } yield parsed.modifyRoot(_.copy(tree = mappedTree, coverDocument = mappedCover))
 
   }
 

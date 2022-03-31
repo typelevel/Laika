@@ -162,7 +162,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     BookConfig.decodeWithDefaults(root.config).map { treeConfig =>
       
       treeConfig.coverImage.fold(root) { image =>
-        root.copy(tree = root.tree.copy(
+        root.modifyTree(_.copy(
           content = Document(
             path    = Root / "cover", 
             content = RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))), 

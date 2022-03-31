@@ -171,9 +171,11 @@ object RendererRuntime {
 
     def applyTemplate (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
 
-      val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(context.templateSuffix).fold(
-        root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
-      )(_ => root.tree)
+      val treeWithTpl: DocumentTree = 
+        if (root.tree.getDefaultTemplate(context.templateSuffix).isEmpty)
+          root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
+        else 
+          root.tree
       
       mapError(TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))

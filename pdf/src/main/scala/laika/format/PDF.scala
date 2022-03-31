@@ -70,10 +70,10 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
     */
   def prepareTree (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] =
     Right(root
-      .copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+      .modifyTree(_.withDefaultTemplate(TemplateRoot.fallback, "fo"))
       .mapDocuments { doc =>
         val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
-        doc.copy(content = doc.content.copy(content = preamble +: doc.content.content))
+        doc.prependContent(preamble)
       })
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.

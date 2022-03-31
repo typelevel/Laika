@@ -240,13 +240,14 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val raw = input.source.input
     input.copy(source = SourceCursor(raw + append, input.path))
   }
+  
+  def appendString (root: RootElement, append: String): RootElement = root.copy(content = root.content.map {
+    case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
+  })
 
-  def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => unresolved.copy(
-     document =
-       unresolved.document.copy(content = unresolved.document.content.copy(content = unresolved.document.content.content map {
-        case Paragraph(Seq(Text(text, _)), _) => Paragraph(text + append)
-      })))
-    }
+  def processDoc (append: String): UnresolvedDocument => UnresolvedDocument = { unresolved => 
+    unresolved.copy(document = unresolved.document.copy(content = appendString(unresolved.document.content, append)))
+  }
 
   def processBlocks (append: String): Seq[Block] => Seq[Block] = { blocks =>
     blocks map {

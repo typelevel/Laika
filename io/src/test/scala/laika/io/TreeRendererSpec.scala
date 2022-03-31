@@ -559,7 +559,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .tree
     )
 
-    val finalInput = input.copy(content = input.content :+ fontConfigTree)
+    val finalInput = input.appendContent(fontConfigTree)
 
     val staticDocs = Seq(
       Inputs.staticDoc(1, Root),
@@ -604,7 +604,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .tree2.config(SampleConfig.versioned(true))
       .build
       .tree
-    val finalInput = input.copy(content = input.content :+ HTMLRenderer.fontConfigTree)
+    val finalInput = input.appendContent(HTMLRenderer.fontConfigTree)
 
     val staticDocs = Seq(
       Inputs.staticDoc(1, Root),
