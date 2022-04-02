@@ -50,7 +50,7 @@ object ManualSettings {
     val favicon       = images / "site" / "laika-favicon.png"
     val docsURL       = "http://planet42.github.io/Laika/"
     val srcURL        = "https://github.com/planet42/Laika"
-    val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs"
+    val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs/src"
     val demoURL       = "http://planet42.org"
   }
 

@@ -131,7 +131,7 @@ by combining Laika's building blocks for parsing string and number literals, ide
 For a fairly simple highlighter implementation as an example you can examine the [ScalaSyntax] source
 as a starting point.
 
-[ScalaSyntax]: https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/parse/code/languages/ScalaSyntax.scala
+[ScalaSyntax]: https://github.com/planet42/Laika/blob/master/core/shared/src/main/scala/laika/parse/code/languages/ScalaSyntax.scala
 
 Once you have implemented and tested your highlighter you can add it to the built-in ones like this:
 
