@@ -177,7 +177,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaAST                := Tasks.generate.toTask(" ast").value,
     
     laikaPackageSite        := Tasks.packageSite.value,
-    laikaPreview            := Tasks.preview.value,
+    laikaPreview            := Tasks.startPreviewServer.value,
     Laika / clean           := Tasks.clean.value,
 
     laikaSite / mappings    := Def.sequential(Tasks.site, Tasks.mappings).value,
