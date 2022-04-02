@@ -127,7 +127,7 @@
           <li class="level1"><a href="#adding-your-own-highlighters">Adding Your Own Highlighters</a></li>
         </ul>
         
-        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/03-preparing-content/05-syntax-highlighting.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
+        <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/src/03-preparing-content/05-syntax-highlighting.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>
       </nav>
 
       <main class="content">
@@ -230,7 +230,7 @@
         <h2 id="adding-your-own-highlighters" class="section">Adding Your Own Highlighters<a class="anchor-link right" href="#adding-your-own-highlighters"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>Creating your own highlighter can potentially be quite easy, in cases where the syntax can be defined mostly
         by combining Laika&#39;s building blocks for parsing string and number literals, identifiers and keywords.
-        For a fairly simple highlighter implementation as an example you can examine the <a href="https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/parse/code/languages/ScalaSyntax.scala">ScalaSyntax</a> source
+        For a fairly simple highlighter implementation as an example you can examine the <a href="https://github.com/planet42/Laika/blob/master/core/shared/src/main/scala/laika/parse/code/languages/ScalaSyntax.scala">ScalaSyntax</a> source
         as a starting point.</p>
         <p>Once you have implemented and tested your highlighter you can add it to the built-in ones like this:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaExtensions</span><span> ++= </span><span class="type-name">Seq</span><span>(
