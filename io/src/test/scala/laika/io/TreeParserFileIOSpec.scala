@@ -149,11 +149,20 @@ class TreeParserFileIOSpec
     
     def run (builder: Builder,
              expected: DocumentTreeRoot,
+             themeExtension: Option[Builder] = None,
              extraCheck: DocumentTreeRoot => Unit = _ => ()): IO[Unit] = {
-      val themInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
+      
+      val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
         def build[G[_]: Sync] = builder.addDoc(InputTree[G])
       }
-      val parser = defaultBuilder.withTheme(TestThemeBuilder.forInputs(themInputs)).build
+      val baseTheme = TestThemeBuilder.forInputs(themeInputs)
+      val theme = themeExtension.fold(baseTheme) { extBuilder =>
+        val themeExtInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
+          def build[G[_]: Sync] = extBuilder.addDoc(InputTree[G])
+        }
+        baseTheme.extendWith(TestThemeBuilder.forInputs(themeExtInputs))
+      }
+      val parser = defaultBuilder.withTheme(theme).build
       runWith(parser, input, expected, extraCheck)
     }
   }
@@ -205,6 +214,18 @@ class TreeParserFileIOSpec
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
     }
     CustomTheme.run(Builder, ExtraDoc.expected)
+  }
+
+  test("read a directory from the file system plus one AST input from a theme extension overriding a theme input") {
+    object Builder extends CustomTheme.Builder {
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc99"))))
+    }
+    object ExtBuilder extends CustomTheme.Builder {
+      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
+    }
+    CustomTheme.run(Builder, ExtraDoc.expected, themeExtension = Some(ExtBuilder))
   }
 
   test("read a directory from the file system plus one string input") {
@@ -265,7 +286,7 @@ class TreeParserFileIOSpec
       def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addString("foo = 7", ExtraConfig.path)
     }
-    CustomTheme.run(Builder, ExtraConfig.expected(), ExtraConfig.checkConfig(_))
+    CustomTheme.run(Builder, ExtraConfig.expected(), extraCheck = ExtraConfig.checkConfig(_))
   }
 
   test("read a directory from the file system plus one extra config document built programmatically") {

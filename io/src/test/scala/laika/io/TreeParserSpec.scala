@@ -508,6 +508,14 @@ class TreeParserSpec
       )
         .use(_.fromInput(input).parse)
         .map(_.root.allDocuments.head.content)
+
+    def parseWithThemeExtension (themeParsers: Seq[SpanParserBuilder] = Nil, themeExtensionParsers: Seq[SpanParserBuilder] = Nil): IO[RootElement] =
+      parserWithThemeExtension(
+        BundleProvider.forMarkupParser(spanParsers = themeParsers, origin = BundleOrigin.Theme),
+        BundleProvider.forMarkupParser(spanParsers = themeExtensionParsers)
+      )
+        .use(_.fromInput(input).parse)
+        .map(_.root.allDocuments.head.content)
   }
 
   test("use a span parser from a theme") {
@@ -529,6 +537,19 @@ class TreeParserSpec
     val appParsers = Seq(spanFor('+', '!'))
 
     parse(themeParsers, appParsers).assertEquals(RootElement(Paragraph(
+      Text("aaa "),
+      DecoratedSpan('!', "bbb"),
+      Text(" ccc")
+    )))
+  }
+
+  test("let a span parser from a theme extension override a span parser from a base theme") {
+    import CustomSpanParsers._
+
+    val themeParsers = Seq(spanFor('+'))
+    val themeExtParsers = Seq(spanFor('+', '!'))
+
+    parseWithThemeExtension(themeParsers, themeExtParsers).assertEquals(RootElement(Paragraph(
       Text("aaa "),
       DecoratedSpan('!', "bbb"),
       Text(" ccc")

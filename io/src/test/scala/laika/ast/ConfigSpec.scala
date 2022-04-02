@@ -325,7 +325,7 @@ class ConfigSpec extends CatsEffectSuite
     parseRST(build(inputs)).assertEquals(expected)
   }
 
-  test("merge configuration found in documents, templates, directories, programmatic setup, bundles and themes") {
+  test("merge configuration found in documents, templates, directories, programmatic setup, bundles, themes and theme extensions") {
 
     val template =
       """{% key2: val2 %}
@@ -334,7 +334,8 @@ class ConfigSpec extends CatsEffectSuite
         |${key3}
         |${key4}
         |${key5}
-        |${key6}""".stripMargin
+        |${key6}
+        |${key7}""".stripMargin
 
     val md =
       """{% key1: val1 %}
@@ -344,6 +345,7 @@ class ConfigSpec extends CatsEffectSuite
     val config4 = "key4: val4"
     val config5 = "key5: val5"
     val config6 = "key6: val6"
+    val config7 = "key7: val7"
 
     val inputs = Seq(
       Root / "directory.conf" -> config4,
@@ -354,15 +356,20 @@ class ConfigSpec extends CatsEffectSuite
 
     val expected = RootElement(
       TemplateRoot(
-        (1 to 6) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
+        (1 to 7) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
       )
     )
+    
+    val theme = TestThemeBuilder
+      .forBundle(BundleProvider.forConfigString(config6))
+      .extendWith(TestThemeBuilder
+        .forBundle(BundleProvider.forConfigString(config7)))
 
     MarkupParser
       .of(Markdown)
       .using(BundleProvider.forConfigString(config5))
       .parallel[IO]
-      .withTheme(TestThemeBuilder.forBundle(BundleProvider.forConfigString(config6)))
+      .withTheme(theme)
       .build
       .use { p =>
         p.fromInput(build(inputs)).parse

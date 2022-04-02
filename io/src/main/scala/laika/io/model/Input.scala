@@ -20,7 +20,6 @@ import java.io._
 import cats.Applicative
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
-import cats.instances.stream
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.bundle.{DocumentTypeMatcher, Precedence}
@@ -95,7 +94,11 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
     */
   lazy val allPaths: Seq[Path] = textInputs.map(_.path) ++ binaryInputs.map(_.path) ++ parsedResults.map(_.path) 
   
-  /** Merges the inputs of two collections.
+  /** Merges the inputs of two trees recursively.
+    * 
+    * This method does not perform any de-duplication in case both trees contain entries with the same virtual path, 
+    * which would lead to errors when such a tree is used as input for a transformation.
+    * If one tree should take precedence over the other in case of duplicates, use `overrideWith` instead. 
     */
   def ++ (other: InputTree[F]): InputTree[F] = InputTree(
     textInputs ++ other.textInputs, 
@@ -105,10 +108,30 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
     sourcePaths ++ other.sourcePaths
   )
   
+  /** Overrides inputs in this instance with the provided inputs.
+    * 
+    * Merges the inputs of two trees recursively, like the `++` method, but with the main difference
+    * that in case both trees contain an entry with the same virtual path, 
+    * the one in the overriding tree will take precedence and the one in this tree will be removed.
+    */
+  def overrideWith (overrides: InputTree[F]): InputTree[F] = remove(overrides.allPaths.toSet) ++ overrides
+  
   def + (textInput: TextInput[F]): InputTree[F] = copy(textInputs = textInputs :+ textInput)
   def + (binaryInput: BinaryInput[F]): InputTree[F] = copy(binaryInputs = binaryInputs :+ binaryInput)
   def + (parsedResult: ParserResult): InputTree[F] = copy(parsedResults = parsedResults :+ parsedResult)
   def + (providedPath: StaticDocument): InputTree[F] = copy(providedPaths = providedPaths :+ providedPath)
+
+  /** Returns a new input tree with all inputs matching the provided exclusions removed from this tree.
+    */
+  def remove (paths: Set[Path]): InputTree[F] = {
+    InputTree(
+      textInputs    = textInputs.filterNot(in => paths.contains(in.path)),
+      binaryInputs  = binaryInputs.filterNot(in => paths.contains(in.path)),
+      parsedResults = parsedResults.filterNot(in => paths.contains(in.path)),
+      sourcePaths   = sourcePaths
+    )
+  }
+  
 }
 
 /** Factory methods for creating `InputTreeBuilder` instances.

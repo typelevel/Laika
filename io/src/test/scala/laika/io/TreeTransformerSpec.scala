@@ -204,6 +204,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       Root / "cover.md" -> Contents.name
     )
     val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+    val mapperFunctionExt: Document => Document = doc => doc.copy(content = doc.content.withContent(doc.content.content :+ Paragraph("baz")))
     def transformWithProcessor (theme: ThemeProvider): IO[RenderedTreeRoot[IO]] =
       transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].withTheme(theme).build)
 
@@ -219,6 +220,18 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a document mapper from a theme") {
     TreeProcessors.run(TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunction), mappedResult)
+  }
+
+  test("tree with a document mapper from a theme and one from a theme extension") {
+    val expectedResult: String = 
+      """RootElement - Blocks: 2
+        |. Paragraph - Spans: 1
+        |. . Text - 'foo-bar'
+        |. Paragraph - Spans: 1
+        |. . Text - 'baz'""".stripMargin
+    val theme = TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunction)
+      .extendWith(TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunctionExt))
+    TreeProcessors.run(theme, expectedResult)
   }
 
   test("tree with a document mapper from a theme specific to the output format") {
@@ -343,7 +356,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     val inputs = Seq(
       Root / "omg.txt" -> Contents.name
     )
-    transformTree(inputs).assertEquals(renderedRoot(Nil, staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
+    transformTree(inputs).assertEquals(
+      renderedRoot(Nil, staticDocuments = TestTheme.staticASTPaths :+ Root / "omg.txt")
+    )
   }
   
   object DocWithSection {
@@ -461,7 +476,7 @@ class TreeTransformerSpec extends CatsEffectSuite
           (Root / "dir2" / "doc6.txt", withTemplate1),
         ))
       ), 
-      staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths
+      staticDocuments = TestTheme.staticASTPaths :+ Root / "dir2" / "omg.txt"
     ))
   }
 
