@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast.{ExternalTarget, Header, Id, InvalidSpan, LinkPathReference, Literal, MessageFilter, NoOpt, QuotedBlock, RelativePath, Replace, SpanLink, Target, Text, Title}
+import laika.ast.{ExternalTarget, Header, Id, InvalidSpan, LinkPathReference, Literal, MessageFilter, NoOpt, PathBase, QuotedBlock, RelativePath, Replace, SpanLink, Target, Text, Title}
 import laika.file.FileIO
 import laika.format.{HTML, Markdown}
 import laika.html.TidyHTML
@@ -48,7 +48,7 @@ class MarkdownToHTMLSpec extends FunSuite {
   }
 
   def transformAndCompare (name: String): Unit = {
-    def renderPath(relPath: RelativePath): Target = 
+    def renderPath(relPath: PathBase): Target = 
       if (relPath == RelativePath.CurrentDocument()) ExternalTarget("") else ExternalTarget(relPath.toString)
     val path = FileIO.classPathResourcePath("/markdownTestSuite") + "/" + name
     val input = FileIO.readFile(path + ".md")

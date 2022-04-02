@@ -26,10 +26,19 @@ sealed trait Target {
 }
 
 object Target {
+  
+  /* Absolute paths (starting with /) are interpreted as internal links using an absolute path into
+     the (virtual) input tree of a transformation and are translated to relative links in rendered output. 
+     References to an HTML site root are not universally applicable (e.g. don't work for EPUB or PDF output)
+     and can only be used as a link target by prefixing it with the pseudo-protocol `ext:`.
+   */
+  private val pseudoProtocol = "ext:"
 
+  private val recognizedProtocols: Set[String] = Set("http:", "https:", "mailto:", pseudoProtocol)
+  
   /** Creates a new target by parsing the specified URL.
     *
-    * If the target is an absolute URL (starting with '/' or 'http'/'https') the
+    * If the target is an absolute URL (starting with 'http:'/'https:'/'mailto:') the
     * result will be an external target. 
     *
     * Relative URLs will be interpreted as pointing to the target within the virtual tree of input and output
@@ -39,14 +48,9 @@ object Target {
     * External targets on the other hand are not validated, 
     * as the availability of the external resource during validation cannot be guaranteed.
     */
-  def parse (url: String): Target = parseInternal(url).fold(identity, identity)
-
-  /** In contrast to the public method this internal parse method exposes the knowledge that any internal
-    * target is always a relative target as this point.
-    */
-  private[laika] def parseInternal (url: String): Either[RelativeInternalTarget, ExternalTarget] =
-    if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("mailto:") || url.startsWith("/")) Right(ExternalTarget(url))
-    else Left(RelativeInternalTarget(RelativePath.parse(url)))
+  def parse (url: String): Target = 
+    if (recognizedProtocols.exists(url.startsWith)) ExternalTarget(url.stripPrefix(pseudoProtocol))
+    else InternalTarget(PathBase.parse(url))
 
 }
 
@@ -60,6 +64,15 @@ case class ExternalTarget (url: String) extends Target {
   */
 trait InternalTarget extends Target {
   def relativeTo (refPath: Path): ResolvedInternalTarget
+
+  /** The underlying path reference, which is either a relative or absolute path,
+    * depending on the implementation of this trait.
+    */
+  def underlying: PathBase = this match {
+    case t: ResolvedInternalTarget => t.absolutePath
+    case t: AbsoluteInternalTarget => t.path
+    case t: RelativeInternalTarget => t.path
+  }
 }
 
 object InternalTarget {
