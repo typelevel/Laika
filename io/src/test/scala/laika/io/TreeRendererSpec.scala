@@ -463,11 +463,11 @@ class TreeRendererSpec extends CatsEffectSuite
   test("tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme") {
     val contentRef = TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     val baseThemeInputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.betweenBrackets(contentRef)))
     }
     val themeExtensionInputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.between(contentRef, "?", "?")))
     }
     val theme = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(TestThemeBuilder.forInputs(themeExtensionInputs))

@@ -152,13 +152,13 @@ class TreeParserFileIOSpec
              expected: DocumentTreeRoot,
              themeExtension: Option[Builder] = None,
              extraCheck: DocumentTreeRoot => Unit = _ => ()): IO[Unit] = {
-      val themInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
+      val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
         def build[G[_]: Async] = builder.addDoc(InputTree[G])
       }
       val baseTheme = TestThemeBuilder.forInputs(themeInputs)
       val theme = themeExtension.fold(baseTheme) { extBuilder =>
         val themeExtInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
-          def build[G[_]: Sync] = extBuilder.addDoc(InputTree[G])
+          def build[G[_]: Async] = extBuilder.addDoc(InputTree[G])
         }
         baseTheme.extendWith(TestThemeBuilder.forInputs(themeExtInputs))
       }
@@ -218,11 +218,11 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one AST input from a theme extension overriding a theme input") {
     object Builder extends CustomTheme.Builder {
-      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Async] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc99"))))
     }
     object ExtBuilder extends CustomTheme.Builder {
-      def addDoc[F[_]: Sync] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
+      def addDoc[F[_]: Async] (input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
     }
     CustomTheme.run(Builder, ExtraDoc.expected, themeExtension = Some(ExtBuilder))
