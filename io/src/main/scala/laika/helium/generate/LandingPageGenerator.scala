@@ -56,11 +56,12 @@ private[helium] object LandingPageGenerator {
         if (doc.config.hasKey(LaikaKeys.template)) doc
         else doc.copy(config = doc.config.withValue(LaikaKeys.template, "landing.template.html").build)
         
-      // TODO - add API for replaceDocument, removeDocument, appendDocument, prependDocument
-      tree.copy(root = tree.root.copy(tree = tree.root.tree.copy(
-        titleDocument = Some(titleDocWithTemplate),
-        content = tree.root.tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
-      )))
+      tree.modifyTree { tree => 
+        tree.copy(
+          titleDocument = Some(titleDocWithTemplate),
+          content = tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
+        )
+      }
     }
     
     Sync[F].fromEither(result.leftMap(ConfigException.apply))

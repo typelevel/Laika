@@ -141,9 +141,9 @@ First you might want to avoid to reinvent the wheel and ensure the directive ide
 Secondly you could look at the existing directive implementations as examples and guidelines for creating your own.
 
 All available directives are documented in the chapter [Standard Directives], 
-their source code can be found [here][directive-api]
+their source code can be found [here][directive-api].
 
-[directive-api]: https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/directive/StandardDirectives.scala
+[directive-api]: https://github.com/planet42/Laika/blob/master/core/shared/src/main/scala/laika/directive/std/StandardDirectives.scala
 
 
 Sample Directive

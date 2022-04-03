@@ -113,7 +113,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       """.stripMargin
     val aa = "aa"
     val style = "13"
-    val link = "[link](/foo)"
+    val link = "[link](http://foo.com)"
     val directive = "${cursor.currentDocument.content} @:foo(bar) bb"
     val templateConfigRef = "${cursor.currentDocument.content}${value}"
     val template1 = "${cursor.currentDocument.content}"
@@ -204,6 +204,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       Root / "cover.md" -> Contents.name
     )
     val mapperFunction: Document => Document = doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+    val mapperFunctionExt: Document => Document = doc => doc.copy(content = doc.content.withContent(doc.content.content :+ Paragraph("baz")))
     def transformWithProcessor (theme: ThemeProvider): IO[RenderedTreeRoot[IO]] =
       transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].withTheme(theme).build)
 
@@ -219,6 +220,18 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a document mapper from a theme") {
     TreeProcessors.run(TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunction), mappedResult)
+  }
+
+  test("tree with a document mapper from a theme and one from a theme extension") {
+    val expectedResult: String = 
+      """RootElement - Blocks: 2
+        |. Paragraph - Spans: 1
+        |. . Text - 'foo-bar'
+        |. Paragraph - Spans: 1
+        |. . Text - 'baz'""".stripMargin
+    val theme = TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunction)
+      .extendWith(TestThemeBuilder.forDocumentMapper(TreeProcessors.mapperFunctionExt))
+    TreeProcessors.run(theme, expectedResult)
   }
 
   test("tree with a document mapper from a theme specific to the output format") {
@@ -343,7 +356,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     val inputs = Seq(
       Root / "omg.txt" -> Contents.name
     )
-    transformTree(inputs).assertEquals(renderedRoot(Nil, staticDocuments = Seq(Root / "omg.txt") ++ TestTheme.staticASTPaths))
+    transformTree(inputs).assertEquals(
+      renderedRoot(Nil, staticDocuments = TestTheme.staticASTPaths :+ Root / "omg.txt")
+    )
   }
   
   object DocWithSection {
@@ -436,12 +451,15 @@ class TreeTransformerSpec extends CatsEffectSuite
     val markdown =
       """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
-        |. . SpanLink(ExternalTarget(/foo),None) - Spans: 1
+        |. . SpanLink(ExternalTarget(http://foo.com),None) - Spans: 1
         |. . . Text - 'link'""".stripMargin
     val rst =
       """RootElement - Blocks: 1
-        |. Paragraph - Spans: 1
-        |. . Text - '[link](/foo)'""".stripMargin
+        |. Paragraph - Spans: 3
+        |. . Text - '[link]('
+        |. . SpanLink(ExternalTarget(http://foo.com),None) - Spans: 1
+        |. . . Text - 'http://foo.com'
+        |. . Text - ')'""".stripMargin
         
     transformMixedMarkup(inputs).assertEquals(renderedRoot(
       docs(
@@ -458,7 +476,7 @@ class TreeTransformerSpec extends CatsEffectSuite
           (Root / "dir2" / "doc6.txt", withTemplate1),
         ))
       ), 
-      staticDocuments = Seq(Root / "dir2" / "omg.txt") ++ TestTheme.staticASTPaths
+      staticDocuments = TestTheme.staticASTPaths :+ Root / "dir2" / "omg.txt"
     ))
   }
 

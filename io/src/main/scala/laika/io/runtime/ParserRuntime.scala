@@ -57,22 +57,10 @@ object ParserRuntime {
         else Sync[F].raiseError(ParserErrors(duplicates.toSet))
       }
 
-      def mergedInputs: InputTree[F] = {
-        // user inputs override theme inputs
-        val userPaths = userInputs.allPaths.toSet
-        val filteredThemeInputs = InputTree(
-          textInputs = themeInputs.textInputs.filterNot(in => userPaths.contains(in.path)),
-          binaryInputs = themeInputs.binaryInputs.filterNot(in => userPaths.contains(in.path)),
-          parsedResults = themeInputs.parsedResults.filterNot(in => userPaths.contains(in.path)),
-          sourcePaths = themeInputs.sourcePaths
-        )
-        userInputs ++ filteredThemeInputs
-      }
-
       for {
         _ <- validateInputPaths(userInputs)
         _ <- validateInputPaths(themeInputs)
-      } yield mergedInputs
+      } yield themeInputs.overrideWith(userInputs)
     }
     
     def parseAll(inputs: InputTree[F]): F[ParsedTree[F]] = {

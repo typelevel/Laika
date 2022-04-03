@@ -172,9 +172,11 @@ object RendererRuntime {
 
     def applyTemplate (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
 
-      val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(context.templateSuffix).fold(
-        root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
-      )(_ => root.tree)
+      val treeWithTpl: DocumentTree = 
+        if (root.tree.getDefaultTemplate(context.templateSuffix).isEmpty)
+          root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
+        else 
+          root.tree
       
       mapError(TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
@@ -186,7 +188,7 @@ object RendererRuntime {
     
     def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig, staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
       (config.versions, context.finalFormat) match {
-        case (Some(versions), "html") =>
+        case (Some(versions), "html") if versions.renderUnversioned =>
           VersionedLinkTargets
             .gatherTargets[F](versions, staticDocs)
             .map { existing =>

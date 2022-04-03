@@ -614,10 +614,13 @@ object Spans extends BuilderContext[Span] {
                                 parsedResult: ParsedDirective,
                                 parser: RecursiveSpanParsers,
                                 source: SourceFragment,
-                                options: Options = NoOpt) extends SpanResolver with DirectiveInstanceBase {
+                                rewriteRules: RewriteRules = RewriteRules.empty,
+                                options: Options = NoOpt) extends SpanResolver with RewritableContainer with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "span"
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
+    def rewriteChildren (rules: RewriteRules): DirectiveInstance = copy(rewriteRules = rewriteRules ++ rules)
+    override def resolve (cursor: DocumentCursor): Span = rewriteRules.rewriteSpan(super.resolve(cursor))
     def createInvalidElement (message: String): Span = InvalidSpan(message, source)
     lazy val unresolvedMessage: String = s"Unresolved span directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }
@@ -647,10 +650,13 @@ object Blocks extends BuilderContext[Block] {
                                 parsedResult: ParsedDirective,
                                 parser: RecursiveParsers,
                                 source: SourceFragment,
-                                options: Options = NoOpt) extends BlockResolver with DirectiveInstanceBase {
+                                rewriteRules: RewriteRules = RewriteRules.empty,
+                                options: Options = NoOpt) extends BlockResolver with RewritableContainer with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String = "block"
     def withOptions (options: Options): DirectiveInstance = copy(options = options)
+    def rewriteChildren (rules: RewriteRules): DirectiveInstance = copy(rewriteRules = rewriteRules ++ rules)
+    override def resolve (cursor: DocumentCursor): Block = rewriteRules.rewriteBlock(super.resolve(cursor))
     def createInvalidElement (message: String): Block = InvalidBlock(message, source)
     lazy val unresolvedMessage: String = s"Unresolved block directive instance with name '${directive.fold("<unknown>")(_.name)}'"
   }

@@ -314,9 +314,9 @@ object ParsedTarget {
     * internal or external target.
     */
   def forLink (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
-    Target.parseInternal(url) match {
-      case Right(external) => SpanLink(linkText, external, title)
-      case Left(internal)  => LinkPathReference(linkText, internal.path, source, title)
+    Target.parse(url) match {
+      case et: ExternalTarget => SpanLink(linkText, et, title)
+      case it: InternalTarget => LinkPathReference(linkText, it.underlying, source, title)
     }
 
   /** Creates a image span based on the specified URL which will be parsed and interpreted as an 
@@ -324,9 +324,9 @@ object ParsedTarget {
     */
   def forImage (url: String, source: SourceFragment, width: Option[Length] = None,
                 height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
-    Target.parseInternal(url) match {
-      case Right(external) => Image(external, width, height, alt, title)
-      case Left(internal)  => ImagePathReference(internal.path, source, width, height, alt, title)
+    Target.parse(url) match {
+      case et: ExternalTarget => Image(et, width, height, alt, title)
+      case it: InternalTarget => ImagePathReference(it.underlying, source, width, height, alt, title)
     }
 }
 
@@ -351,7 +351,7 @@ object LinkDefinition {
   */
 trait PathReference extends Reference {
   /** The content (section or document or image) this reference points to. */
-  def path: RelativePath
+  def path: PathBase
   /** Creates the final AST element based on the resolved target. */
   def resolve(target: Target): Link
 }
@@ -362,7 +362,7 @@ trait PathReference extends Reference {
   * differ in more than just the file suffix, depending on configuration.
   */
 case class LinkPathReference(content: Seq[Span],
-                             path: RelativePath,
+                             path: PathBase,
                              source: SourceFragment,
                              title: Option[String] = None,
                              options: Options = NoOpt) extends PathReference with SpanContainer {
@@ -378,7 +378,7 @@ case class LinkPathReference(content: Seq[Span],
   * replace the source path with the final target path of the output document, resolving any
   * relative path references in the process.
   */
-case class ImagePathReference (path: RelativePath,
+case class ImagePathReference (path: PathBase,
                                source: SourceFragment,
                                width: Option[Length] = None,
                                height: Option[Length] = None,

@@ -56,20 +56,32 @@ Serves as a shortcut for creating links to the source code of types, e.g. `@:sou
 See [Linking to Source Code] for details.
 
 
+### `@:target`
+
+Can only be used in templates.
+
+Renders a link target which is specified as the only (required) attribute of this directive.
+
+The attribute can either be a literal target or the key of a config value of type string.
+
+External targets will be rendered unmodified, internal targets will be interpreted as relative to the template,
+validated and then translated. 
+For every document the template is applied to it is resolved as relative to that rendered document.
+
+Example:
+```laika-html
+<link rel="icon" href="@:target(../styles/manual.css)" />
+```
+
+See [Disabling Validation] when you only want the path translation without the validation.
+
+
 ### `@:path`
 
 Can only be used in templates.
 
-Renders a validated path from the virtual input tree which can be absolute or relative. 
-If it is relative, it is interpreted as relative to the template, 
-but when rendering translated for every document the template is applied to as relative to that rendered document.
-
-Example:
-```laika-html
-<link rel="icon" href="@:path(../styles/manual.css)" />
-```
-
-See [Disabling Validation] when you only want to path translation without the validation.
+Deprecated since version 0.19.0 - use the `@:target` directive which is a superset of the functionality
+of the old `@:path` directive which did not support external targets.
 
 
 Inclusions

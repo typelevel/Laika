@@ -16,8 +16,11 @@
 
 package laika.theme
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Resource}
 import cats.effect.kernel.Async
+import laika.bundle.ExtensionBundle
+import laika.factory.Format
+import laika.io.model.InputTree
 
 /** Responsible for building a theme resource with the user-provided effect type and runtime configuration.
   * 
@@ -28,7 +31,7 @@ import cats.effect.kernel.Async
   * 
   * @author Jens Halm
   */
-trait ThemeProvider {
+trait ThemeProvider { self =>
 
   /** Builds the theme resource with the user-provided effect type and runtime configuration.
     * 
@@ -36,5 +39,30 @@ trait ThemeProvider {
     * `Theme` instances, but this is not mandatory.
     */
   def build[F[_]: Async]: Resource[F, Theme[F]]
-  
+  /** Creates a new theme using this instance as a base and the provided instance as the extension.
+    * 
+    * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
+    * They are roughly as follows:
+    * 
+    * - For functionality that is an accumulation of features, for example parser extensions, renderer overrides
+    *   or AST rewrite rules, the effect is accumulative, this theme and the extensions will be merged to a single set
+    *   of features.
+    *   
+    * - For functionality that is provided by unique instances, for example the template engine or the default template,
+    *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
+    *   if present.
+    */
+  def extendWith (extensions: ThemeProvider): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Async] = for {
+      base <- self.build
+      ext  <- extensions.build
+    } yield {
+      new Theme[F] {
+        override def inputs: InputTree[F] = base.inputs.overrideWith(ext.inputs)
+        override def extensions: Seq[ExtensionBundle] = base.extensions ++ ext.extensions
+        override def treeProcessor: Format => Theme.TreeProcessor[F] = fmt =>
+          base.treeProcessor(fmt).andThen(ext.treeProcessor(fmt))
+      }
+    }
+  }
 }

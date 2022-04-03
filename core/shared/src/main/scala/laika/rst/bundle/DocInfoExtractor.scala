@@ -48,12 +48,9 @@ object DocInfoExtractor extends (UnresolvedDocument => UnresolvedDocument) {
       }
     }
     
-    embeddedConfigs.fold(doc){ configs =>
-      val block = BlockSequence(configs)
-      val oldRoot = doc.document.content
-      doc.copy(document = doc.document.copy(content = oldRoot.copy(content = block +: oldRoot.content)))
+    embeddedConfigs.fold(doc) { configs =>
+      doc.copy(document = doc.document.prependContent(BlockSequence(configs)))
     }
-    
   }
 
 }

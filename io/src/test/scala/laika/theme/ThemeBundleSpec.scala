@@ -35,13 +35,17 @@ import munit.FunSuite
 class ThemeBundleSpec extends FunSuite {
 
 
-  def config (themeBundles: Seq[ExtensionBundle], appBundles: Seq[ExtensionBundle]): OperationConfig = {
+  def config (themeBundles: Seq[ExtensionBundle], appBundles: Seq[ExtensionBundle], themeExtensionBundles: Seq[ExtensionBundle] = Nil): OperationConfig = {
+    val baseTheme = TestThemeBuilder.forBundles(themeBundles)
+    val theme = 
+      if (themeExtensionBundles.isEmpty) baseTheme
+      else baseTheme.extendWith(TestThemeBuilder.forBundles(themeExtensionBundles)) 
     Transformer
       .from(Markdown)
       .to(HTML)
       .using(appBundles:_*)
       .parallel[IO]
-      .withTheme(TestThemeBuilder.forBundles(themeBundles))
+      .withTheme(theme)
       .build
       .use(t => IO.pure(t.config))
       .unsafeRunSync()
@@ -62,6 +66,14 @@ class ThemeBundleSpec extends FunSuite {
     val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
     val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
     val baseConfig = config(themeBundles, appBundles).baseConfig
+    assertEquals(baseConfig.get[Int]("foo"), Right(2))
+  }
+
+  test("baseConfig - theme extension config overrides an identical key in the base theme's config") {
+    val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
+    val themeExtBundles = Seq(BundleProvider.forConfigString("foo: 2", BundleOrigin.Theme))
+    val appBundles = Nil
+    val baseConfig = config(themeBundles, appBundles, themeExtBundles).baseConfig
     assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
 

@@ -27,9 +27,9 @@ and translate it to XHTML.
 **Note:** This document is itself written using Markdown; you
 can [see the source for it by adding '.text' to the URL] [src].
 
-  [s]: /projects/markdown/syntax  "Markdown Syntax"
-  [d]: /projects/markdown/dingus  "Markdown Dingus"
-  [src]: /projects/markdown/basics.text
+  [s]: ext:/projects/markdown/syntax  "Markdown Syntax"
+  [d]: ext:/projects/markdown/dingus  "Markdown Dingus"
+  [src]: ext:/projects/markdown/basics.text
 
 
 ## Paragraphs, Headers, Blockquotes ##
