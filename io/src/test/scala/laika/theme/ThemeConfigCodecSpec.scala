@@ -47,7 +47,7 @@ class ThemeConfigCodecSpec extends FunSuite {
         |    identifier = XX-33-FF-01
         |    authors = [ "Helen North", "Maria South" ]
         |    language = en
-        |    date = "2002-10-10T12:00:00"
+        |    datePublished = "2002-10-10T12:00:00"
         |  }
         |  fonts = [
         |    { family = Font-A, weight = normal, style = normal, embedFile = /path/to/font-a.tff }

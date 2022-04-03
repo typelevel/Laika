@@ -16,7 +16,6 @@
 
 package laika.ast
 
-import java.util.Date
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 import laika.time.PlatformDateTime
 
@@ -29,7 +28,8 @@ case class DocumentMetadata (title: Option[String] = None,
                              identifier: Option[String] = None,
                              authors: Seq[String] = Nil,
                              language: Option[String] = None,
-                             date: Option[PlatformDateTime.Type] = None,
+                             datePublished: Option[PlatformDateTime.Type] = None,
+                             dateModified: Option[PlatformDateTime.Type] = None,
                              version: Option[String] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
@@ -40,7 +40,8 @@ case class DocumentMetadata (title: Option[String] = None,
     identifier.orElse(defaults.identifier),
     authors ++ defaults.authors,
     language.orElse(defaults.language),
-    date.orElse(defaults.date),
+    datePublished.orElse(defaults.datePublished),
+    dateModified.orElse(defaults.dateModified),
     version.orElse(defaults.version)
   )
   
@@ -51,7 +52,8 @@ case class DocumentMetadata (title: Option[String] = None,
         other.identifier == identifier &&
         other.authors == authors &&
         other.language == language &&
-        other.date.toString == date.toString && // equals does not work properly on js.Date
+        other.datePublished.toString == datePublished.toString && // equals does not work properly on js.Date
+        other.dateModified.toString == dateModified.toString && // equals does not work properly on js.Date
         other.version == version
     case _ => false
   } 
@@ -62,16 +64,17 @@ object DocumentMetadata {
 
   implicit val decoder: ConfigDecoder[DocumentMetadata] = ConfigDecoder.config.flatMap { config =>
     for {
-      title       <- config.getOpt[String]("title")
-      description <- config.getOpt[String]("description")
-      identifier <- config.getOpt[String]("identifier")
-      author     <- config.getOpt[String]("author")
-      authors    <- config.get[Seq[String]]("authors", Nil)
-      lang       <- config.getOpt[String]("language")
-      date       <- config.getOpt[PlatformDateTime.Type]("date")
-      version    <- config.getOpt[String]("version")
+      title         <- config.getOpt[String]("title")
+      description   <- config.getOpt[String]("description")
+      identifier    <- config.getOpt[String]("identifier")
+      author        <- config.getOpt[String]("author")
+      authors       <- config.get[Seq[String]]("authors", Nil)
+      lang          <- config.getOpt[String]("language")
+      datePublished <- config.getOpt[PlatformDateTime.Type]("datePublished")
+      dateModified  <- config.getOpt[PlatformDateTime.Type]("dateModified")
+      version       <- config.getOpt[String]("version")
     } yield {
-      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)
+      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, datePublished, dateModified, version)
     }
   }
   implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
@@ -81,7 +84,8 @@ object DocumentMetadata {
       .withValue("identifier", metadata.identifier)
       .withValue("authors", metadata.authors)
       .withValue("language", metadata.language)
-      .withValue("date", metadata.date)
+      .withValue("datePublished", metadata.datePublished)
+      .withValue("dateModified", metadata.dateModified)
       .withValue("version", metadata.version)
       .build
   }

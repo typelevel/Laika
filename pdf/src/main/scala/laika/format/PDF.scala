@@ -111,7 +111,7 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
                         fonts: Seq[FontDefinition] = Nil,
                         coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-    lazy val date: OffsetDateTime = metadata.date.getOrElse(OffsetDateTime.now())
+    lazy val date: OffsetDateTime = metadata.dateModified.orElse(metadata.datePublished).getOrElse(OffsetDateTime.now())
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
     lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
   }

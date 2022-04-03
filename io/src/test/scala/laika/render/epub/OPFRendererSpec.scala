@@ -38,7 +38,7 @@ class OPFRendererSpec extends FunSuite {
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
   val config: EPUB.BookConfig = EPUB.BookConfig(metadata = DocumentMetadata(
     identifier = Some(identifier),
-    date = Some(instant),
+    datePublished = Some(instant),
     language = Some(Locale.UK.toLanguageTag),
     authors = Seq("Mia Miller")
   ))

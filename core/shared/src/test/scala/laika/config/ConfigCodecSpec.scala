@@ -63,7 +63,8 @@ class ConfigCodecSpec extends FunSuite {
         |  identifier = XX-33-FF-01
         |  authors = [ "Helen North", "Maria South" ]
         |  language = en
-        |  date = "2002-10-10T12:00:00"
+        |  datePublished = "2002-10-10T12:00:00"
+        |  dateModified = "2002-12-12T12:00:00"
         |}}
       """.stripMargin
     decode[DocumentMetadata](input, DocumentMetadata(
@@ -72,7 +73,8 @@ class ConfigCodecSpec extends FunSuite {
       Some("XX-33-FF-01"),
       Seq("Helen North", "Maria South"),
       Some("en"),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
+      Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get)
     ))
   }
 
@@ -83,7 +85,7 @@ class ConfigCodecSpec extends FunSuite {
         |  identifier = XX-33-FF-01
         |  author = "Dorothea West"
         |  language = en
-        |  date = "2002-10-10T12:00:00"
+        |  datePublished = "2002-10-10T12:00:00"
         |}}
       """.stripMargin
     decode[DocumentMetadata](input, DocumentMetadata(
@@ -114,10 +116,10 @@ class ConfigCodecSpec extends FunSuite {
         |  identifier = XX-33-FF-01
         |  author = "Dorothea West"
         |  language = en
-        |  date = "2000-XX-01T00:00:00Z"
+        |  dateModified = "2000-XX-01T00:00:00Z"
         |}}
       """.stripMargin
-    failDecode[DocumentMetadata](input, "Error decoding 'laika.metadata.date': Invalid date format")
+    failDecode[DocumentMetadata](input, "Error decoding 'laika.metadata.dateModified': Invalid date format")
   }
 
 
