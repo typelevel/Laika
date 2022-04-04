@@ -54,7 +54,7 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
       .eval(renderResult)
       .flatMap(bytes => Resource.eval(Async[F].delay(new ByteArrayInputStream(bytes))))
   }
-  
+
   def transformBinaries (tree: ParsedTree[F]): ConfigResult[ResultMap[F]] = {
     for {
       roots            <- Selections.createCombinations(tree.root)

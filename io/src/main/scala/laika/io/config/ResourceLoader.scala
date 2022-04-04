@@ -115,7 +115,7 @@ object ResourceLoader {
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
   def loadUrl[F[_]: Async] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
-    
+    // note: replace java stuffs with fs2.io.net.*
     val stream: F[InputStream] = for {
       con <- Sync[F].delay(url.openConnection())
       _   <- Sync[F].delay(con.setRequestProperty("Accept", "application/hocon"))
