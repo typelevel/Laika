@@ -300,7 +300,7 @@ case class DocumentCursor (target: Document,
 
     /** The next document in a flattened tree view or None if this is the cursor points to the last document.
       */
-    def nextDocument: Option[DocumentCursor] = if (currentIndex + 1 == documents.size) None else Some(documents(currentIndex + 1))
+    def nextDocument: Option[DocumentCursor] = if ( 0 == documents.lengthCompare(currentIndex + 1)) None else Some(documents(currentIndex + 1))
   }
 
   /** Provides navigation capabilities to the siblings of this document where the entire

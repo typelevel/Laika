@@ -41,11 +41,11 @@ case class Literal (expected: String) extends PrefixedParser[String] {
     val start = in.offset
     var i = 0
     var j = start
-    while (i < expected.length && j < source.length && expected.charAt(i) == source.charAt(j)) {
+    while (expected.lengthCompare(i) > 0 && source.lengthCompare(j) > 0 && expected.charAt(i) == source.charAt(j)) {
       i += 1
       j += 1
     }
-    if (i == expected.length) Success(expected, in.consume(i))
+    if (expected.lengthCompare(i)==0) Success(expected, in.consume(i))
     else Failure(msgProvider, in, j)
   }
 

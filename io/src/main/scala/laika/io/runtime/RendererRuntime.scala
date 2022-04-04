@@ -50,7 +50,7 @@ object RendererRuntime {
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
       val duplicates = paths.groupBy(identity).values.collect {
-        case p if p.size > 1 => DuplicatePath(p.head)
+        case p if p.lengthCompare(1) > 0 => DuplicatePath(p.head)
       }
       if (duplicates.isEmpty) Sync[F].unit
       else Sync[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))

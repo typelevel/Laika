@@ -61,10 +61,10 @@ class Repeat[+T] (parser: Parser[T], min: Int = 0, max: Int = Int.MaxValue, sep:
 
     @tailrec
     def rec (source: SourceCursor, p: Parser[T]): Parsed[List[T]] =
-      if (elems.length == max) Success(elems.toList, source)
+      if (elems.lengthCompare(max) == 0) Success(elems.toList, source)
       else p.parse(source) match {
         case Success(x, next)                  => elems += x; rec(next, repParser)
-        case _: Failure if elems.length >= min => Success(elems.toList, source)
+        case _: Failure if elems.lengthCompare(min) >= 0 => Success(elems.toList, source)
         case f: Failure                        => f
       }
 

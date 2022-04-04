@@ -182,7 +182,7 @@ object BlockParsers {
     def processLiteralMarker (par: Paragraph) = {
       par.content.lastOption match {
         case Some(Text(text,opt)) if text.trim.endsWith("::") =>
-          val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 3 else 1
+          val drop = if (text.lengthCompare(2) > 0 && text.charAt(text.length-3) == ' ') 3 else 1
           val spans = par.content.init.toList ::: List(Text(text.dropRight(drop),opt))
           (Paragraph(spans,par.options), litBlock)
         case _ => (par, defaultBlock)

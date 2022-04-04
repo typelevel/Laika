@@ -209,7 +209,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         val styles = fmt.styles.collectStyles(SpanSequence.empty.withStyle("svg-shape"), fmt.parents).get("color")
         val svg = styles.fold(icon.content) { color =>
           val parts = icon.content.split(">", 2) // inlining styles as FOP itself does not support CSS for SVG
-          if (parts.length == 2) parts.head + s">\n  <style>.svg-shape { fill: $color; }</style>" + parts.last
+          if (parts.lengthCompare(2) == 0) parts.head + s">\n  <style>.svg-shape { fill: $color; }</style>" + parts.last
           else icon.content
         }
         fmt.rawElement("fo:instream-foreign-object", icon, svg)

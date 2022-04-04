@@ -448,7 +448,7 @@ class Position(s: InputString, offset: Int) {
     */
   lazy val line: Int = {
     val result = java.util.Arrays.binarySearch(s.lineStarts, offset)
-    if (result == s.lineStarts.length - 1) result // EOF position is not on a new line
+    if (s.lineStarts.lengthCompare(result+1)==0) result // EOF position is not on a new line
     else if (result < 0) Math.abs(result) - 1 // see javadoc for binarySearch
     else result + 1 // line is 1-based
   }

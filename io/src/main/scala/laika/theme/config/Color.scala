@@ -61,7 +61,7 @@ object Color {
     */
   def hex (hexValue: String): Color = new Color(s"#$hexValue") {
     def validate: Option[String] =
-      if ((hexValue.length != 3 && hexValue.length != 6) || hexValue.forall(CharGroup.hexDigit.contains))
+      if ((hexValue.lengthCompare(3) != 0 && hexValue.lengthCompare(6) != 0) || hexValue.forall(CharGroup.hexDigit.contains))
         Some("value must be 3 or 6 hexadecimal digits")
       else None
   }

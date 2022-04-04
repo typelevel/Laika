@@ -79,7 +79,7 @@ object Tables {
     case class Header (row: Row, columnOptions: Seq[Options])
 
     val header: PrefixedParser[Header] = (firstRow ~ sepRow).collect {
-      case row ~ sep if row.content.size == sep.size => Header(row, sep)
+      case row ~ sep if   row.content.lengthCompare(sep.size)==0 => Header(row, sep)
     }
 
     def applyColumnOptions (rows: Seq[Row], columnOptions: Seq[Options]): Seq[Row] = {
