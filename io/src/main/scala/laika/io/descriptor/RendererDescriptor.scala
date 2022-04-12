@@ -18,7 +18,7 @@ package laika.io.descriptor
 
 import cats.Applicative
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
-import laika.io.model.{BinaryOutput, DirectoryOutput, TreeOutput}
+import laika.io.model.{BinaryOutput,BinaryOutput2, DirectoryOutput, TreeOutput}
 
 /** Provides a description of a render operation, including the renderers
   * and extension bundles used, as well as the output target.
@@ -50,6 +50,11 @@ object RendererDescriptor {
   private def describeOutput[F[_]] (out: BinaryOutput[F]): String = out.targetFile.fold(
     "In-memory bytes or stream"
   )(f => s"File '${f.getPath}'")
+
+  
+  private def describeOutput[F[_]] (out: BinaryOutput2[F]): String = out.targetFile.fold(
+    "In-memory bytes or stream"
+  )(f => s"File '${f.getPath}'")
   
   private def describeOutput (out: TreeOutput): String = out match {
     case DirectoryOutput(dir, _) => s"Directory '${dir.getPath}'"
@@ -63,6 +68,14 @@ object RendererDescriptor {
     op.renderer.config.renderFormatted
   ))
 
+  
+  def create[F[_]: Applicative] (op: TreeRenderer.Op2[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
+    op.renderer.format.description,
+    op.renderer.config.bundles.filter(op.renderer.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
+    describeOutput(op.output),
+    op.renderer.config.renderFormatted
+  ))
+
   def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.description,
     op.renderer.interimRenderer.config.bundles.filter(op.renderer.interimRenderer.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
@@ -70,4 +83,10 @@ object RendererDescriptor {
     op.renderer.interimRenderer.config.renderFormatted
   ))
 
+    def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op2[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
+    op.renderer.description,
+    op.renderer.interimRenderer.config.bundles.filter(op.renderer.interimRenderer.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
+    describeOutput(op.output),
+    op.renderer.interimRenderer.config.renderFormatted
+  ))
 }

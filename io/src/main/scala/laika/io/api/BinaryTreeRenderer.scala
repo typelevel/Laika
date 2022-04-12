@@ -23,7 +23,7 @@ import laika.ast.DocumentTreeRoot
 import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat}
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{BinaryInput, BinaryOutput, ParsedTree}
+import laika.io.model.{BinaryInput, BinaryOutput,BinaryOutput2, ParsedTree}
 import laika.io.ops.BinaryOutputOps
 import laika.io.runtime.{Batch, RendererRuntime}
 import laika.theme.{Theme, ThemeProvider}
@@ -119,6 +119,7 @@ object BinaryTreeRenderer {
     def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
 
     def toOutput (output: BinaryOutput[F]): Op[F] = Op[F](renderer, theme, input, output, staticDocuments)
+    def toOutput2 (output: BinaryOutput2[F]): Op2[F] = Op2[F](renderer, theme, input, output, staticDocuments)
 
   }
 
@@ -132,6 +133,27 @@ object BinaryTreeRenderer {
                                      theme: Theme[F],
                                      input: DocumentTreeRoot,
                                      output: BinaryOutput[F],
+                                     staticDocuments: Seq[BinaryInput[F]] = Nil) {
+
+    /** The configuration of the renderer for the interim format.
+      */
+    val config: OperationConfig = renderer.interimRenderer.config
+
+    /** Performs the rendering operation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
+    def render: F[Unit] = RendererRuntime.run(this)
+
+    /** Provides a description of this operation, the renderers
+      * and extension bundles used, as well as the output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
+  }
+  case class Op2[F[_]: Async: Batch] (renderer: BinaryRenderer[F],
+                                     theme: Theme[F],
+                                     input: DocumentTreeRoot,
+                                     output: BinaryOutput2[F],
                                      staticDocuments: Seq[BinaryInput[F]] = Nil) {
 
     /** The configuration of the renderer for the interim format.

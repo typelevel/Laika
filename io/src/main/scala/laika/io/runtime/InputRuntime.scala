@@ -23,7 +23,7 @@ import laika.io.model._
 import laika.parse.SourceCursor
 import laika.parse.markup.DocumentParser.DocumentInput
 import cats.implicits._
-
+import fs2.io.file.{Path=>FPath}
 import scala.io.Codec
 import cats.effect.kernel.Async
 
@@ -33,6 +33,8 @@ import cats.effect.kernel.Async
   */
 object InputRuntime {
 
+  def readParserInput[F[_]: Async] (doc: TextInput2[F]): F[DocumentInput] = 
+    doc.input.compile.string.map(source => DocumentInput(doc.path, SourceCursor(source, doc.path)))
   def readParserInput[F[_]: Async] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
     case PureReader(input) => 
       Sync[F].pure(DocumentInput(doc.path, SourceCursor(input, doc.path)))
@@ -61,6 +63,12 @@ object InputRuntime {
 
   def binaryFileResource[F[_]: Sync] (file: File): Resource[F, InputStream] =
     Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
+
+  def binaryFileStream[F[_]:Async](file:FPath):fs2.Stream[F,Byte] = fs2.io.file.Files[F].readAll(file)
+  def textStream[F[_]:Async](file:FPath):fs2.Stream[F,String] = fs2.io.file.Files[F].readAll(file).through(fs2.text.utf8.decode)
+  
+  def binaryFileResource[F[_]:Async](file:File):fs2.Stream[F,Byte] =
+    fs2.io.readInputStream[F](Async[F].delay(new FileInputStream(file)),8912,false)
 
   def textFileResource[F[_]: Sync] (file: File, codec: Codec): Resource[F, Reader] =
     textStreamResource(Resource.fromAutoCloseable(Sync[F].delay(new FileInputStream(file))), codec)

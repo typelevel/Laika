@@ -48,6 +48,12 @@ object OutputRuntime {
     }
   }
 
+  /** Creates a Writer for the specified output model and writes the given string to it.
+    */
+  def write[F[_]: Async] (result: String, output: TextOutput2[F]): F[Unit] = {
+    fs2.Stream.emit[F,String](result).through[F,Unit](output.sink).compile.drain
+  }
+
   /** Creates a directory for the specified file, including parent directories of that file if they do not exist yet.
     */
   def createDirectory[F[_]: Async] (file: File): F[Unit] = 
@@ -76,5 +82,5 @@ object OutputRuntime {
 
   def binaryStreamResource[F[_]: Sync] (stream: F[OutputStream], autoClose: Boolean): Resource[F, OutputStream] =
     if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
-
+  
 }

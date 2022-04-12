@@ -45,21 +45,36 @@ case class BinaryInput[F[_]: Sync] (path: Path,
                                     formats: TargetFormats = TargetFormats.All, 
                                     sourceFile: Option[File] = None) extends Navigatable
 
+case class BinaryInput2[F[_]:Async](path:Path,input:fs2.Stream[F,Byte],formats:TargetFormats = TargetFormats.All,sourceFile:Option[File]=None) extends Navigatable
 object BinaryInput {
   
   def fromString[F[_]: Sync] (path: Path, input: String, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
     val resource = Resource.eval[F, InputStream](Sync[F].delay(new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet))))
     BinaryInput(path, resource, targetFormats)
   }
-
+  def fromString2[F[_]:Async](path:Path,input:String,targetFormats:TargetFormats=TargetFormats.All):BinaryInput2[F] ={
+    val s = fs2.Stream.emits(input.getBytes(Codec.UTF8.charSet))
+    BinaryInput2(path,s,targetFormats)
+  }
   def fromFile[F[_]: Sync] (path: Path, file: File, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
     val resource = Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
     BinaryInput[F](path, resource, targetFormats, Some(file))
+  }
+  def fromFile2[F[_]:Async](path:Path,file:File,targetFormats:TargetFormats=TargetFormats.All):BinaryInput2[F] = {
+    val s = fs2.io.file.Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath()))
+    BinaryInput2(path,s,targetFormats)
   }
 
   def fromStream[F[_]: Sync] (path: Path, stream: F[InputStream], autoClose: Boolean, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
     val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
     BinaryInput(path, resource, targetFormats)
+  }
+  def fromInputStream[F[_]:Async](path:Path,stream:F[InputStream],autoClose:Boolean,targetFormats:TargetFormats=TargetFormats.All):BinaryInput2[F] = {
+    val s = fs2.io.readInputStream(stream,4096,autoClose)
+    BinaryInput2(path,s,targetFormats)
+  }
+  def fromStream2[F[_]:Async](path:Path,stream:fs2.Stream[F,Byte],targetFormats:TargetFormats = TargetFormats.All):BinaryInput2[F] = {
+    BinaryInput2(path,stream,targetFormats)
   }
 }
 
@@ -72,7 +87,7 @@ object BinaryInput {
   * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
 case class TextInput[F[_]] (path: Path, docType: TextDocumentType, input: Resource[F, InputReader], sourceFile: Option[File] = None) extends Navigatable
-
+case class TextInput2[F[_]](path:Path,docType:TextDocumentType,input:fs2.Stream[F,String],sourceFile:Option[File]=None) extends Navigatable
 object TextInput {
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
     TextInput[F](path, docType, Resource.pure[F, InputReader](PureReader(input)))

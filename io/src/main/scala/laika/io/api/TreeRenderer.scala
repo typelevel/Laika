@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.api.BinaryTreeRenderer.Builder
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{BinaryInput,BinaryInput2, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
 import laika.io.runtime.{Batch, RendererRuntime}
 import laika.theme.{Theme, ThemeProvider}
@@ -98,6 +98,34 @@ object TreeRenderer {
                                     input: DocumentTreeRoot,
                                     output: TreeOutput,
                                     staticDocuments: Seq[BinaryInput[F]] = Nil) {
+
+    /** The configuration of the renderer.
+      */
+    val config: OperationConfig = renderer.config.withBundles(theme.extensions)
+
+    /** Performs the rendering operation based on the library's default runtime implementation,
+      * suspended in the effect F.
+      */
+    def render: F[RenderedTreeRoot[F]] = RendererRuntime.run(this)
+
+    /** Provides a description of this operation, the renderers and extension bundles used,
+      * as well as the output target.
+      * This functionality is mostly intended for tooling support.
+      */
+    def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
+    
+  }
+
+  /** Represents a rendering operation for a tree of documents.
+    *
+    * It can be run by invoking the `render` method which delegates to the library's default runtime implementation
+    * or by developing a custom runner that performs the rendering based on this operation's properties.
+    */
+  case class Op2[F[_]: Async: Batch] (renderer: Renderer,
+                                    theme: Theme[F],
+                                    input: DocumentTreeRoot,
+                                    output: TreeOutput,
+                                    staticDocuments: Seq[BinaryInput2[F]] = Nil) {
 
     /** The configuration of the renderer.
       */

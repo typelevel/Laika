@@ -41,6 +41,24 @@ case class StreamWriter(output: Writer) extends OutputWriter
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
 case class TextOutput[F[_]] (path: Path, resource: Resource[F, OutputWriter], targetFile: Option[File] = None)
+/** Character output for the various renderers of this library
+  *
+  * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
+  * @param sink   The sink to write the character output to
+  * @param targetFile The target file in the file system, empty if this does not represent a file system resource
+  */
+case class TextOutput2[F[_]] (path: Path, sink: fs2.Pipe[F, String,fs2.INothing], targetFile: Option[File] = None)
+
+object TextOutput2{
+  def forFile[F[_]:Async](path:Path,file:File) :TextOutput2[F]= {
+    val sink:fs2.Pipe[F,String,fs2.INothing] =  _.through(fs2.text.utf8.encode).through(fs2.io.file.Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath()))) 
+    TextOutput2(path,sink)
+  }
+  def forOutputStream[F[_]:Sync](path:Path,stream:F[OutputStream],codec:Codec,autoClose:Boolean):TextOutput2[F] = {
+    val sink:fs2.Pipe[F,String,fs2.INothing] = _.through(fs2.text.utf8.encode).through(fs2.io.writeOutputStream(stream,autoClose))
+    TextOutput2(path,sink)
+  }
+}
 
 object TextOutput {
   def forString[F[_]: Applicative] (path: Path): TextOutput[F] =
@@ -58,12 +76,21 @@ object TextOutput {
   }
 }
 
+
+object BinaryOutput2 {
+  def forFile[F[_]:Async](path:Path,file:File):BinaryOutput2[F] = {
+    val sink = fs2.io.file.Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath()))
+    BinaryOutput2(path,sink)
+  }
+}
+
 /** A resource for binary output.
   *
   * Most renderers write character data, but formats like PDF or EPUB
   * require a binary stream to write to.
   */
 case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], targetFile: Option[File] = None)
+case class BinaryOutput2[F[_]] (path: Path, sink: fs2.Pipe[F,Byte,Unit], targetFile: Option[File] = None)
 
 /** A (virtual) tree of output documents.
   */
