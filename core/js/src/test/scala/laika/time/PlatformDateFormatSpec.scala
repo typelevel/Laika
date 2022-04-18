@@ -18,30 +18,28 @@ package laika.time
 
 import munit.FunSuite
 
-import java.util.Date
-
 import scala.scalajs.js
 
 class PlatformDateFormatSpec extends FunSuite {
 
   
-  private def getDate(dateString: String): Date = new Date(js.Date.parse(dateString).toLong)
-  
-  
+  private def getDate(dateString: String): String = new js.Date(dateString).toISOString()
+
+
   test("parse a date without time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10"), Right(getDate("2011-10-10T00:00:00Z")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10").map(_.toISOString), Right(getDate("2011-10-10T00:00:00Z")))
   }
 
   test("parse a local date time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00"), Right(getDate("2011-10-10T14:48:00")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00").map(_.toISOString), Right(getDate("2011-10-10T14:48:00")))
   }
 
   test("parse a UTC date time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00Z"), Right(getDate("2011-10-10T14:48:00Z")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00Z").map(_.toISOString), Right(getDate("2011-10-10T14:48:00Z")))
   }
 
   test("parse a date time with an offset") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0100"), Right(getDate("2011-10-10T13:48:00Z")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0100").map(_.toISOString), Right(getDate("2011-10-10T13:48:00Z")))
   }
 
   test("fail in case of invalid date format") {

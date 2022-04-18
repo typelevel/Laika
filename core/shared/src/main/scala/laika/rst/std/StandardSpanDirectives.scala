@@ -57,7 +57,7 @@ class StandardSpanDirectives {
    */
   lazy val date: DirectivePartBuilder[Span] = {
     optArgument(withWS = true).evalMap { pattern => 
-      PlatformDateFormat.format(new Date, pattern.getOrElse("yyyy-MM-dd")).fold(
+      PlatformDateFormat.format(PlatformDateFormat.now, pattern.getOrElse("yyyy-MM-dd")).fold(
         msg => Left(s"Unable to format date: $msg"),
         date => Right(Text(date))
       )

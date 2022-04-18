@@ -16,8 +16,6 @@
 
 package laika.time
 
-import java.util.Date
-
 import scala.scalajs.js
 import scala.util.Try
 
@@ -26,13 +24,17 @@ import scala.util.Try
   */
 object PlatformDateFormatImpl extends PlatformDateFormat {
 
-  def parse (dateString: String): Either[String, Date] = {
-    val ms = js.Date.parse(dateString)
-    if (ms.isNaN) Left(s"Invalid date format: $dateString")
-    else Right(new Date(ms.toLong))
+  type Type = js.Date
+
+  private[laika] def now: Type = new js.Date()
+
+  def parse (dateString: String): Either[String, Type] = {
+    val result = new js.Date(dateString)
+    if (result.getTime().isNaN) Left(s"Invalid date format: $dateString")
+    else Right(result)
   }
   
-  private[laika] def format (date: Date, pattern: String): Either[String, String] = {
+  private[laika] def format (date: Type, pattern: String): Either[String, String] = {
     /*
     Formatting based on an explicit pattern is not supported for JavaScript Dates.
     The specified pattern is therefore mostly ignored, apart from looking for a colon as a hint whether
@@ -46,8 +48,8 @@ object PlatformDateFormatImpl extends PlatformDateFormat {
     As a consequence, using this directive with Scala.js is currently not fully supported.
      */
     val attempt = {
-      if (pattern.contains(":")) Try(new js.Date(date.getTime.toDouble).toLocaleString())
-      else Try(new js.Date(date.getTime.toDouble).toLocaleDateString())
+      if (pattern.contains(":")) Try(date.toLocaleString())
+      else Try(date.toLocaleDateString())
     }
     attempt.toEither.left.map(_.getMessage)
   }

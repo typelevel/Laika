@@ -17,10 +17,8 @@
 package laika.time
 
 import java.text.SimpleDateFormat
-import java.time.{Instant, LocalDateTime, ZoneId}
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
 import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
-import java.util.Date
-
 import scala.util.Try
 
 /**
@@ -28,27 +26,38 @@ import scala.util.Try
   */
 object PlatformDateFormatImpl extends PlatformDateFormat {
 
+  type Type = OffsetDateTime
+
+  private[laika] def now: Type = OffsetDateTime.now()
+
   private val offsetDateTime: DateTimeFormatter = new DateTimeFormatterBuilder()
     .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     .appendPattern("[XXX][X]")
     .toFormatter
 
-  def parse (dateString: String): Either[String, Date] = {
+  def parse (dateString: String): Either[String, Type] = {
 
-    def parseOffsetDateTime(input: String): Either[String, Date] = Try {
-      Date.from(Instant.from(offsetDateTime.parse(input)))
+    def parseOffsetDateTime(input: String): Either[String, Type] = Try {
+      OffsetDateTime.from(offsetDateTime.parse(input))
     }.toEither.left.map(_.getMessage)
 
-    def parseLocalDateTime(input: String): Either[String, Date] = Try {
-      Date.from(LocalDateTime.parse(input).atZone(ZoneId.systemDefault()).toInstant )
+    def parseLocalDateTime(input: String): Either[String, Type] = Try {
+      OffsetDateTime.from(LocalDateTime.parse(input).atZone(ZoneId.systemDefault()))
     }.toEither.left.map(_.getMessage)
 
     if (dateString.matches(".*(Z|[+-]\\d\\d[:]?\\d\\d)")) parseOffsetDateTime(dateString)
     else if (dateString.contains("T")) parseLocalDateTime(dateString)
-    else parseOffsetDateTime(dateString + "T00:00:00Z")
+    else parseLocalDateTime(dateString + "T00:00:00")
   }
 
-  private[laika] def format (date: Date, pattern: String): Either[String, String] =
+  private[laika] def formatOld (date: Type, pattern: String): Either[String, String] =
     Try(new SimpleDateFormat(pattern).format(date)).toEither.left.map(_.getMessage)
+
+  private[laika] def format (date: Type, pattern: String): Either[String, String] =
+    Try(new DateTimeFormatterBuilder()
+      .appendPattern(pattern)
+      .toFormatter
+      .format(date)
+    ).toEither.left.map(_.getMessage)
   
 }

@@ -115,7 +115,7 @@ object ConfigDecoder {
     }
   }
 
-  implicit lazy val date: ConfigDecoder[Date] = string.flatMap { dateString =>
+  implicit lazy val date: ConfigDecoder[PlatformDateFormat.Type] = string.flatMap { dateString =>
     PlatformDateFormat.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
   }
 

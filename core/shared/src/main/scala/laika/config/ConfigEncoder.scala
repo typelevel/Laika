@@ -57,8 +57,9 @@ object ConfigEncoder {
     def apply (value: Path) = StringValue(value.toString)
   }
 
-  implicit val date: ConfigEncoder[Date] = new ConfigEncoder[Date] {
-    def apply (value: Date) = StringValue(PlatformDateFormat.format(value, "yyyy-MM-dd'T'HH:mm:ss").getOrElse(value.toString))
+  implicit val date: ConfigEncoder[PlatformDateFormat.Type] = new ConfigEncoder[PlatformDateFormat.Type] {
+    def apply (value: PlatformDateFormat.Type) = 
+      StringValue(PlatformDateFormat.format(value, "yyyy-MM-dd'T'HH:mm:ss").getOrElse(value.toString))
   }
 
   implicit val astValue: ConfigEncoder[Element] = new ConfigEncoder[Element] {

@@ -18,22 +18,21 @@ package laika.time
 
 import munit.FunSuite
 
-import java.time.{Instant, LocalDateTime, ZoneId}
-import java.util.Date
+import java.time.{Instant, OffsetDateTime, ZoneId}
 
 class PlatformDateFormatSpec extends FunSuite {
 
 
-  private def getDate(dateString: String): Date = Date.from(Instant.parse(dateString))
+  private val expectedLocalOffset = ZoneId.systemDefault().getRules.getOffset(Instant.now()).toString
   
+  private def getDate(dateString: String): PlatformDateFormat.Type = OffsetDateTime.parse(dateString)
   
   test("parse a date without time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10"), Right(getDate("2011-10-10T00:00:00Z")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10"), Right(getDate(s"2011-10-10T00:00:00$expectedLocalOffset")))
   }
 
   test("parse a local date time") {
-    val expected = Date.from(LocalDateTime.parse("2011-10-10T14:48:00").atZone(ZoneId.systemDefault).toInstant)
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00"), Right(expected))
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00"), Right(getDate(s"2011-10-10T14:48:00$expectedLocalOffset")))
   }
 
   test("parse a UTC date time") {
@@ -41,7 +40,7 @@ class PlatformDateFormatSpec extends FunSuite {
   }
 
   test("parse a date time with an offset") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0100"), Right(getDate("2011-10-10T13:48:00Z")))
+    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0300"), Right(getDate("2011-10-10T14:48:00+03:00")))
   }
 
   test("fail in case of invalid date format") {
