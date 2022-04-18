@@ -21,7 +21,7 @@ import java.util.Date
 import laika.ast._
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
  *  A span directive can be used in substitution definitions.
@@ -57,7 +57,7 @@ class StandardSpanDirectives {
    */
   lazy val date: DirectivePartBuilder[Span] = {
     optArgument(withWS = true).evalMap { pattern => 
-      PlatformDateFormat.format(PlatformDateFormat.now, pattern.getOrElse("yyyy-MM-dd")).fold(
+      PlatformDateTime.format(PlatformDateTime.now, pattern.getOrElse("yyyy-MM-dd")).fold(
         msg => Left(s"Unable to format date: $msg"),
         date => Right(Text(date))
       )

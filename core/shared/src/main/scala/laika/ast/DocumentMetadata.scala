@@ -18,7 +18,7 @@ package laika.ast
 
 import java.util.Date
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 
 /** Metadata associated with a document.
   * 
@@ -29,7 +29,7 @@ case class DocumentMetadata (title: Option[String] = None,
                              identifier: Option[String] = None,
                              authors: Seq[String] = Nil,
                              language: Option[String] = None,
-                             date: Option[PlatformDateFormat.Type] = None,
+                             date: Option[PlatformDateTime.Type] = None,
                              version: Option[String] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
@@ -68,7 +68,7 @@ object DocumentMetadata {
       author     <- config.getOpt[String]("author")
       authors    <- config.get[Seq[String]]("authors", Nil)
       lang       <- config.getOpt[String]("language")
-      date       <- config.getOpt[PlatformDateFormat.Type]("date")
+      date       <- config.getOpt[PlatformDateTime.Type]("date")
       version    <- config.getOpt[String]("version")
     } yield {
       DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)

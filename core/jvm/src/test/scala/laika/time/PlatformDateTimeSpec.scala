@@ -18,32 +18,33 @@ package laika.time
 
 import munit.FunSuite
 
-import scala.scalajs.js
+import java.time.{Instant, OffsetDateTime, ZoneId}
 
-class PlatformDateFormatSpec extends FunSuite {
+class PlatformDateTimeSpec extends FunSuite {
 
+
+  private val expectedLocalOffset = ZoneId.systemDefault().getRules.getOffset(Instant.now()).toString
   
-  private def getDate(dateString: String): String = new js.Date(dateString).toISOString()
-
-
+  private def getDate(dateString: String): PlatformDateTime.Type = OffsetDateTime.parse(dateString)
+  
   test("parse a date without time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10").map(_.toISOString), Right(getDate("2011-10-10T00:00:00Z")))
+    assertEquals(PlatformDateTime.parse("2011-10-10"), Right(getDate(s"2011-10-10T00:00:00$expectedLocalOffset")))
   }
 
   test("parse a local date time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00").map(_.toISOString), Right(getDate("2011-10-10T14:48:00")))
+    assertEquals(PlatformDateTime.parse("2011-10-10T14:48:00"), Right(getDate(s"2011-10-10T14:48:00$expectedLocalOffset")))
   }
 
   test("parse a UTC date time") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00Z").map(_.toISOString), Right(getDate("2011-10-10T14:48:00Z")))
+    assertEquals(PlatformDateTime.parse("2011-10-10T14:48:00Z"), Right(getDate("2011-10-10T14:48:00Z")))
   }
 
   test("parse a date time with an offset") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10T14:48:00+0100").map(_.toISOString), Right(getDate("2011-10-10T13:48:00Z")))
+    assertEquals(PlatformDateTime.parse("2011-10-10T14:48:00+0300"), Right(getDate("2011-10-10T14:48:00+03:00")))
   }
 
   test("fail in case of invalid date format") {
-    assertEquals(PlatformDateFormat.parse("2011-10-10XX14:48:00+0100").isLeft, true)
+    assertEquals(PlatformDateTime.parse("2011-10-10XX14:48:00+0100").isLeft, true)
   }
 
   

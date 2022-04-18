@@ -22,7 +22,7 @@ import scala.util.Try
 /**
   * @author Jens Halm
   */
-object PlatformDateFormatImpl extends PlatformDateFormat {
+object PlatformDateTimeImpl extends PlatformDateTime {
 
   type Type = js.Date
 

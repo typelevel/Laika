@@ -34,7 +34,7 @@ import java.util.Date
   * 
   * @author Jens Halm
   */
-trait PlatformDateFormat {
+trait PlatformDateTime {
 
   /** The platform-dependent type representing dates. */
   type Type
@@ -65,7 +65,7 @@ trait PlatformDateFormat {
   
 }
 
-object PlatformDateFormat extends PlatformDateFormat {
+object PlatformDateTime extends PlatformDateTime {
   
   /*
   This indirection is not strictly necessary, but reduces good-code-red in IDEs,
@@ -73,13 +73,13 @@ object PlatformDateFormat extends PlatformDateFormat {
   which are implemented twice (with the same signatures) in jvm and js projects.
    */
   
-  type Type = PlatformDateFormatImpl.Type
+  type Type = PlatformDateTimeImpl.Type
 
-  private[laika] def now: Type = PlatformDateFormatImpl.now
+  private[laika] def now: Type = PlatformDateTimeImpl.now
 
-  def parse (dateString: String): Either[String, Type] = 
-    PlatformDateFormatImpl.parse(dateString)
+  def parse (dateString: String): Either[String, Type] =
+    PlatformDateTimeImpl.parse(dateString)
 
-  private[laika] def format (date: Type, pattern: String): Either[String, String] = 
-    PlatformDateFormatImpl.format(date, pattern)
+  private[laika] def format (date: Type, pattern: String): Either[String, String] =
+    PlatformDateTimeImpl.format(date, pattern)
 }
