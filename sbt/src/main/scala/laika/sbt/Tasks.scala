@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import laika.api.Renderer
@@ -34,6 +34,7 @@ import sbt.util.CacheStore
 import Settings.validated
 import laika.config.Config
 import laika.preview.{ServerBuilder, ServerConfig}
+import org.http4s.server.Server
 
 import scala.annotation.tailrec
 
@@ -186,10 +187,9 @@ object Tasks {
     outputFiles.intersect(Settings.allTargets.value)
   }
 
-  /** The preview task launches an HTTP server for the generated site and e-books, auto-refreshing when inputs change.
-    * The server can be stopped with `ctrl-D`.
+  /** Creates a preview server as a `cats.effect.Resource` based on parser and input settings.
     */
-  val preview: Initialize[Task[Unit]] = task {
+  val buildPreviewServer: Initialize[Task[Resource[IO, Server]]] = task {
     
     val logger = streams.value.log
     logger.info("Initializing server...")
@@ -198,7 +198,6 @@ object Tasks {
       if (flag) f else identity
     
     val previewConfig = laikaPreviewConfig.value
-    val _ = generateAPI.value
     
     val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
@@ -211,20 +210,29 @@ object Tasks {
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
     
-    val (_, cancel) = ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
+    ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withLogger(s => IO(logger.info(s)))
       .withConfig(applyFlags(config))
       .build
-      .allocated
-      .unsafeRunSync()
 
-    logger.info(s"Preview server started on port ${previewConfig.port}. Press return/enter to exit.")
+  }
+
+  /** Launches an HTTP server for the generated site and e-books, auto-refreshing when inputs change.
+    * The server can be stopped with return/enter keys.
+    */
+  val startPreviewServer: Initialize[Task[Unit]] = task {
+    
+    val _ = generateAPI.value
+    
+    val (_, cancel) = buildPreviewServer.value.allocated.unsafeRunSync()
+
+    streams.value.log.info(s"Preview server started on port ${laikaPreviewConfig.value.port}. Press return/enter to exit.")
 
     try {
       System.in.read
     }
     finally {
-      logger.info(s"Shutting down preview server.")
+      streams.value.log.info(s"Shutting down preview server.")
       cancel.unsafeRunSync()
     }
   }
