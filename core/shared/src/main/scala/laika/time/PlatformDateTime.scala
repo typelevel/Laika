@@ -16,8 +16,6 @@
 
 package laika.time
 
-import java.util.Date
-
 /** A little abstraction that isolates aspects of parsing and formatting
   * dates from the underlying Date API which may differ between JVM
   * and Scala.js applications.
@@ -62,6 +60,18 @@ trait PlatformDateTime {
     * The result will be a `Left` in case the pattern is invalid.
     */
   private[laika] def format (date: Type, pattern: String): Either[String, String]
+
+  /** Formats the specified date with the given platform-specific constant.
+    * An example for a constant supported on the JVM would be `ISO_OFFSET_DATE_TIME`.
+    * 
+    * Not public API, added to aid in functionality like the date directive,
+    * extracting platform-specific behaviour into one place.
+    *
+    * The result will be `None` in case no date format is supported for the specified constant,
+    * a `Some(Left(...))` in case the constant is supported, but formatting fails
+    * and a `Some(Right(...))` in case of success.
+    */
+  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]]
   
 }
 
@@ -82,4 +92,8 @@ object PlatformDateTime extends PlatformDateTime {
 
   private[laika] def format (date: Type, pattern: String): Either[String, String] =
     PlatformDateTimeImpl.format(date, pattern)
+
+  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] =
+    PlatformDateTimeImpl.formatConstant(date, constant)
+    
 }

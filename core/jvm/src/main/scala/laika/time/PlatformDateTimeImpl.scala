@@ -16,9 +16,8 @@
 
 package laika.time
 
-import java.text.SimpleDateFormat
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, FormatStyle}
 import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
-import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 import scala.util.Try
 
 /**
@@ -50,14 +49,36 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     else parseLocalDateTime(dateString + "T00:00:00")
   }
 
-  private[laika] def formatOld (date: Type, pattern: String): Either[String, String] =
-    Try(new SimpleDateFormat(pattern).format(date)).toEither.left.map(_.getMessage)
-
   private[laika] def format (date: Type, pattern: String): Either[String, String] =
     Try(new DateTimeFormatterBuilder()
       .appendPattern(pattern)
       .toFormatter
       .format(date)
     ).toEither.left.map(_.getMessage)
-  
+    
+  private lazy val formatterConstants = Map(
+    "BASIC_ISO_DATE"       -> DateTimeFormatter.BASIC_ISO_DATE,
+    "ISO_LOCAL_DATE"       -> DateTimeFormatter.ISO_LOCAL_DATE,
+    "ISO_OFFSET_DATE"      -> DateTimeFormatter.ISO_OFFSET_DATE,
+    "ISO_DATE"             -> DateTimeFormatter.ISO_DATE,
+    "ISO_LOCAL_TIME"       -> DateTimeFormatter.ISO_LOCAL_TIME,
+    "ISO_OFFSET_TIME"      -> DateTimeFormatter.ISO_OFFSET_TIME,
+    "ISO_TIME"             -> DateTimeFormatter.ISO_TIME,
+    "ISO_LOCAL_DATE_TIME"  -> DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+    "ISO_OFFSET_DATE_TIME" -> DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+    "ISO_ZONED_DATE_TIME"  -> DateTimeFormatter.ISO_ZONED_DATE_TIME,
+    "ISO_DATE_TIME"        -> DateTimeFormatter.ISO_DATE_TIME,
+    "ISO_ORDINAL_DATE"     -> DateTimeFormatter.ISO_ORDINAL_DATE,
+    "ISO_WEEK_DATE"        -> DateTimeFormatter.ISO_WEEK_DATE,
+    "ISO_INSTANT"          -> DateTimeFormatter.ISO_INSTANT,
+    "RFC_1123_DATE_TIME"   -> DateTimeFormatter.RFC_1123_DATE_TIME,
+    "MEDIUM" -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM),
+    "SHORT"  -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+  )
+
+  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] = 
+    formatterConstants.get(constant.trim.toUpperCase).map { formatter =>
+      Try(formatter.format(date)).toEither.left.map(_.getMessage)
+    }
+    
 }

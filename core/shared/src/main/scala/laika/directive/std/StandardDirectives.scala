@@ -172,7 +172,10 @@ object StandardDirectives extends DirectiveRegistry {
     (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (refKey, pattern, cursor) =>
 
       cursor.resolver.config.get[PlatformDateTime.Type](refKey).leftMap(_.message).flatMap { date =>
-        PlatformDateTime.format(date, pattern).map(TemplateString(_))
+        PlatformDateTime
+          .formatConstant(date, pattern)
+          .getOrElse(PlatformDateTime.format(date, pattern))
+          .map(TemplateString(_))
       }
     }
   }

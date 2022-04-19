@@ -54,4 +54,6 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     attempt.toEither.left.map(_.getMessage)
   }
 
+  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] = None
+
 }

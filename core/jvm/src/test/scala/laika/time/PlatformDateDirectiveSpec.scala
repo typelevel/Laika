@@ -5,6 +5,10 @@ import laika.ast.{RootElement, TemplateRoot, TemplateSpan, TemplateString}
 import laika.directive.std.{MarkupParserSetup, TemplateParserSetup}
 import munit.FunSuite
 
+import java.time.OffsetDateTime
+import java.time.format.{DateTimeFormatter, FormatStyle}
+import java.util.Locale
+
 class PlatformDateDirectiveSpec extends FunSuite
   with ParagraphCompanionShortcuts
   with TemplateParserSetup
@@ -44,5 +48,28 @@ class PlatformDateDirectiveSpec extends FunSuite
       TemplateString(" bb")
     )
   }
-  
+
+  test("date directive - ISO offset date time") {
+    val input = """aa @:date(laika.metadata.datePublished, ISO_OFFSET_DATE_TIME) bb"""
+    runTemplate(input,
+      """laika.metadata.datePublished = "2012-01-01T12:30:00+03:00"""",
+      TemplateString("aa "),
+      TemplateString("2012-01-01T12:30:00+03:00"),
+      TemplateString(" bb")
+    )
+  }
+
+  test("date directive - MEDIUM format") {
+    val dateString = "2012-01-01T12:30:00+03:00"
+    val input = """aa @:date(laika.metadata.datePublished, MEDIUM) bb"""
+    val fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault)
+    val expected = fmt.format(OffsetDateTime.parse(dateString))
+    runTemplate(input,
+      s"""laika.metadata.datePublished = "$dateString"""",
+      TemplateString("aa "),
+      TemplateString(expected),
+      TemplateString(" bb")
+    )
+  }
+
 }
