@@ -23,6 +23,7 @@ import laika.bundle.BundleOrigin
 import laika.config.{Key, SimpleConfigValue}
 import laika.directive._
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
+import laika.time.PlatformDateTime
 
 import scala.annotation.nowarn
 import scala.collection.immutable.TreeSet
@@ -71,6 +72,8 @@ import scala.collection.immutable.TreeSet
   *   External targets will be rendered verbatim, internal targets (absolute or relative paths) will be resolved 
   *   from the perspective of a template to a path relative to the document the template had been applied to.
   * - `path`: Deprecated, use the newer target directive instead which is a superset of its functionality
+  * - `date`: renders a date with a specified formatting pattern
+  * - `attribute`: renders an HTML attribute if the specified config value is defined
   * 
   * '''Conditionals and Loops'''
   * 
@@ -160,6 +163,17 @@ object StandardDirectives extends DirectiveRegistry {
       val config = cursor.resolver.config
       if (config.hasKey(pathKey)) config.get[Target](pathKey).leftMap(_.message).flatMap(resolveTarget)
       else resolveTarget(literalTarget)
+    }
+  }
+
+  lazy val date: Templates.Directive = Templates.eval("date") {
+    import Templates.dsl._
+
+    (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (refKey, pattern, cursor) =>
+
+      cursor.resolver.config.get[PlatformDateTime.Type](refKey).leftMap(_.message).flatMap { date =>
+        PlatformDateTime.format(date, pattern).map(TemplateString(_))
+      }
     }
   }
   
@@ -303,6 +317,7 @@ object StandardDirectives extends DirectiveRegistry {
     iconTemplate,
     target,
     path,
+    date,
     attr
   )
 
