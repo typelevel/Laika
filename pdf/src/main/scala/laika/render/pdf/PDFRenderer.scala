@@ -47,7 +47,7 @@ class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F
   def render (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
-      metadata.date.foreach(d => agent.setCreationDate(d))
+      metadata.date.foreach(d => agent.setCreationDate(new java.util.Date(d.toInstant.toEpochMilli)))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       metadata.title.foreach(t => agent.setTitle(t))
     }

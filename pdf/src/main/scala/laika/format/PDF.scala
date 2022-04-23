@@ -18,8 +18,7 @@ package laika.format
 
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.{Date, Locale, UUID}
-
+import java.util.{Locale, UUID}
 import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
 import cats.implicits._
@@ -34,6 +33,8 @@ import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{FOConcatenation, FopFactoryBuilder, PDFRenderer}
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
+
+import java.time.OffsetDateTime
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -110,7 +111,7 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
                         fonts: Seq[FontDefinition] = Nil,
                         coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-    lazy val date: Date = metadata.date.getOrElse(new Date)
+    lazy val date: OffsetDateTime = metadata.date.getOrElse(OffsetDateTime.now())
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
     lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
   }

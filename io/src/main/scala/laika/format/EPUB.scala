@@ -18,8 +18,7 @@ package laika.format
 
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.{Date, Locale, UUID}
-
+import java.util.{Locale, UUID}
 import cats.effect.{Async, Resource}
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
@@ -28,12 +27,12 @@ import laika.config.Config.ConfigResult
 import laika.config._
 import laika.factory._
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
-import laika.parse.{Parsed, SourceCursor}
 import laika.render.epub.{ContainerWriter, XHTMLRenderer}
 import laika.render.{HTMLFormatter, XHTMLFormatter}
-import laika.rewrite.nav.Scope.Documents
 import laika.theme.config.{FontDefinition, BookConfig => CommonBookConfig}
 import laika.theme.Theme
+
+import java.time.OffsetDateTime
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -97,7 +96,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
                         fonts: Seq[FontDefinition] = Nil,
                         coverImage: Option[Path] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-    lazy val date: Date = metadata.date.getOrElse(new Date)
+    lazy val date: OffsetDateTime = metadata.date.getOrElse(OffsetDateTime.now())
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
     lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
   }
