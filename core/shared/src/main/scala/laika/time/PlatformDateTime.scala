@@ -59,7 +59,7 @@ trait PlatformDateTime {
     * 
     * The result will be a `Left` in case the pattern is invalid.
     */
-  private[laika] def format (date: Type, pattern: String): Either[String, String]
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String]
 
   /** Formats the specified date with the given platform-specific constant.
     * An example for a constant supported on the JVM would be `ISO_OFFSET_DATE_TIME`.
@@ -71,7 +71,7 @@ trait PlatformDateTime {
     * a `Some(Left(...))` in case the constant is supported, but formatting fails
     * and a `Some(Right(...))` in case of success.
     */
-  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]]
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]]
   
 }
 
@@ -90,10 +90,10 @@ object PlatformDateTime extends PlatformDateTime {
   def parse (dateString: String): Either[String, Type] =
     PlatformDateTimeImpl.parse(dateString)
 
-  private[laika] def format (date: Type, pattern: String): Either[String, String] =
-    PlatformDateTimeImpl.format(date, pattern)
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String] =
+    PlatformDateTimeImpl.format(date, pattern, locale)
 
-  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] =
-    PlatformDateTimeImpl.formatConstant(date, constant)
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]] =
+    PlatformDateTimeImpl.formatConstant(date, constant, locale)
     
 }

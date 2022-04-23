@@ -16,8 +16,10 @@
 
 package laika.time
 
+import cats.syntax.all._
 import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, FormatStyle}
 import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
+import java.util.Locale
 import scala.util.Try
 
 /**
@@ -49,12 +51,15 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     else parseLocalDateTime(dateString + "T00:00:00")
   }
 
-  private[laika] def format (date: Type, pattern: String): Either[String, String] =
-    Try(new DateTimeFormatterBuilder()
-      .appendPattern(pattern)
-      .toFormatter
-      .format(date)
-    ).toEither.left.map(_.getMessage)
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String] =
+    getLocale(locale).flatMap { loc =>
+      Try(new DateTimeFormatterBuilder()
+        .appendPattern(pattern)
+        .toFormatter
+        .withLocale(loc)
+        .format(date)
+      ).toEither.left.map(_.getMessage)
+    }
     
   private lazy val formatterConstants = Map(
     "BASIC_ISO_DATE"       -> DateTimeFormatter.BASIC_ISO_DATE,
@@ -75,10 +80,17 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     "MEDIUM" -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM),
     "SHORT"  -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
   )
+  
+  private def getLocale (languageTag: Option[String]): Either[String, Locale] = 
+    languageTag.fold[Either[String, Locale]](Right(Locale.getDefault)) { lang =>
+      Try(new Locale.Builder().setLanguageTag(lang).build()).toEither.leftMap(_.getMessage)
+    }
 
-  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] = 
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]] = 
     formatterConstants.get(constant.trim.toUpperCase).map { formatter =>
-      Try(formatter.format(date)).toEither.left.map(_.getMessage)
+      getLocale(locale).flatMap { loc =>
+        Try(formatter.withLocale(loc).format(date)).toEither.leftMap(_.getMessage)
+      }
     }
     
 }

@@ -35,7 +35,10 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     else Right(result)
   }
   
-  private[laika] def format (date: Type, pattern: String): Either[String, String] = {
+  private def jsLocaleParam (locale: Option[String]): js.Any = 
+    locale.map(js.Any.fromString).getOrElse(new js.Array())
+  
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String] = {
     /*
     Formatting based on an explicit pattern is not supported for JavaScript Dates.
     The specified pattern is therefore mostly ignored, apart from looking for a colon as a hint whether
@@ -46,24 +49,30 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     For this reason this is currently not public API.
      */
     val attempt = {
-      if (pattern.contains(":")) Try(date.toLocaleString())
-      else Try(date.toLocaleDateString())
+      if (pattern.contains(":")) Try(date
+        .asInstanceOf[js.Dynamic]
+        .toLocaleString(jsLocaleParam(locale)) // arguments not supported by core Scala.js, hence the dynamic approach
+        .asInstanceOf[String]
+      )
+      else Try(date
+        .asInstanceOf[js.Dynamic]
+        .toLocaleDateString(jsLocaleParam(locale))
+        .asInstanceOf[String])
     }
     attempt.toEither.left.map(_.getMessage)
   }
 
   private lazy val formatterConstants = Set("full", "long", "medium", "short")
 
-  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] =
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]] =
     if (formatterConstants.contains(constant.toLowerCase)) {
       val opts = js.Dynamic.literal(
         "dateStyle" -> constant.toLowerCase, 
         "timeStyle" -> constant.toLowerCase
       )
-      val locale = "en" // TODO - query from metadata
       Try(date
         .asInstanceOf[js.Dynamic]
-        .toLocaleString(locale, opts) // arguments not supported by core Scala.js, hence the dynamic approach
+        .toLocaleString(jsLocaleParam(locale), opts) // arguments not supported by core Scala.js, hence the dynamic approach
         .asInstanceOf[String]
       )
         .toEither

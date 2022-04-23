@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import cats.syntax.all._
 import laika.ast._
 import laika.bundle.BundleOrigin
-import laika.config.{Key, SimpleConfigValue}
+import laika.config.{Key, LaikaKeys, SimpleConfigValue}
 import laika.directive._
 import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 import laika.time.PlatformDateTime
@@ -169,12 +169,15 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val date: Templates.Directive = Templates.eval("date") {
     import Templates.dsl._
 
-    (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (refKey, pattern, cursor) =>
+    (attribute(0).as[String], attribute(1).as[String], attribute(2).as[String].optional, cursor).mapN { (refKey, pattern, localeAttr, cursor) =>
 
+      val locale = localeAttr
+        .orElse(cursor.resolver.config.get[String](LaikaKeys.metadata.child("language")).toOption)
+      
       cursor.resolver.config.get[PlatformDateTime.Type](refKey).leftMap(_.message).flatMap { date =>
         PlatformDateTime
-          .formatConstant(date, pattern)
-          .getOrElse(PlatformDateTime.format(date, pattern))
+          .formatConstant(date, pattern, locale)
+          .getOrElse(PlatformDateTime.format(date, pattern, locale))
           .map(TemplateString(_))
       }
     }

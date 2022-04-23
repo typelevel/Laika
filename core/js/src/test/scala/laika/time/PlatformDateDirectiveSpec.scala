@@ -31,10 +31,11 @@ class PlatformDateDirectiveSpec extends FunSuite
     assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
   }
 
-  private def run(dateStyle: String, expectedFormattedDate: String)(implicit loc: munit.Location): Unit = {
-    val input = s"""aa @:date(laika.metadata.datePublished, $dateStyle) bb"""
+  private def run(dateStyle: String, expectedFormattedDate: String, language: String = "en", extraDirectiveArg: String = "")(implicit loc: munit.Location): Unit = {
+    val input = s"""aa @:date(laika.metadata.datePublished, $dateStyle$extraDirectiveArg) bb"""
     runTemplate(input,
-      s"""laika.metadata.datePublished = "$testDate"""",
+      s"""laika.metadata.datePublished = "$testDate"
+         |laika.metadata.language = $language""".stripMargin,
       TemplateString("aa "),
       TemplateString(expectedFormattedDate),
       TemplateString(" bb")
@@ -51,6 +52,14 @@ class PlatformDateDirectiveSpec extends FunSuite
 
   test("date directive - LONG format") {
     run(s"LONG", s"January 1, 2012 at 9:30:00 AM $longTZ")
+  }
+
+  test("date directive - LONG format - German - language from document metadata") {
+    run(s"LONG", s"1. Januar 2012 um 09:30:00 $longTZ", "de")
+  }
+
+  test("date directive - LONG format - German - language from directive argument") {
+    run(s"LONG", s"1. Januar 2012 um 09:30:00 $longTZ", extraDirectiveArg = ", de")
   }
 
   test("date directive - FULL format") {

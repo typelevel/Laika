@@ -72,4 +72,31 @@ class PlatformDateDirectiveSpec extends FunSuite
     )
   }
 
+  test("date directive - MEDIUM format - German - language from document metadata") {
+    val dateString = "2012-01-01T12:30:00+03:00"
+    val input = """aa @:date(laika.metadata.datePublished, MEDIUM) bb"""
+    val fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.GERMAN)
+    val expected = fmt.format(OffsetDateTime.parse(dateString))
+    runTemplate(input,
+      s"""laika.metadata.datePublished = "$dateString"
+         |laika.metadata.language = de""".stripMargin,
+      TemplateString("aa "),
+      TemplateString(expected),
+      TemplateString(" bb")
+    )
+  }
+
+  test("date directive - MEDIUM format - German - language from directive argument") {
+    val dateString = "2012-01-01T12:30:00+03:00"
+    val input = """aa @:date(laika.metadata.datePublished, MEDIUM, de) bb"""
+    val fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.GERMAN)
+    val expected = fmt.format(OffsetDateTime.parse(dateString))
+    runTemplate(input,
+      s"""laika.metadata.datePublished = "$dateString"""",
+      TemplateString("aa "),
+      TemplateString(expected),
+      TemplateString(" bb")
+    )
+  }
+
 }
