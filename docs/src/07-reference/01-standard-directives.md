@@ -534,6 +534,45 @@ Required attributes can be rendered with standard substitution syntax instead:
 <a src="${myConf.myURL}"/>
 ```
 
+
+### `@:date`
+
+Renders a formatted, localized date.
+
+```laika-html
+Date published: @:date(laika.metadata.datePublished, ISO_LOCAL_DATE, en-US).
+```
+
+The directive has two required and one optional attribute:
+
+* The first attribute is the key in the configuration that contains the date.
+  The internal representation for the date is `java.time.OffsetDateTime` on the JVM and `js.Date` for Scala.js.
+  Configuration values must provide dates in ISO-8601 extended offset date-time format 
+  (e.g. `2012-01-01T12:30:00+03:00`).
+  The time component can be omitted.
+
+* The second attribute is the format to use for rendering the date.
+  Supported values are one of these three options:
+
+    1. (JVM only): A constant referring to a pattern provided by `java.time.format.DateTimeFormatter`
+       (e.g. `ISO_LOCAL_DATE`). The full list of supported constants can be found here:
+       <https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#predefined>.
+     
+    2. A constant for a localized style (either `medium` or `short`). 
+       Scala.js additionally supports the `long` and `full` constants.
+
+    3. (JVM only): A literal pattern (e.g. `yyyy-MM-dd'T'HH:mm:ss`) as documented here:
+       <https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns>
+  
+* The final attribute is optional and specifies the locale to use (a IETF BCP 47 language tag such as `en-GB`).
+  If not specified directly with the directive, the locale lookup happens in the following order:
+   
+    1. A `laika.metadata.language` attribute defined in the configuration header of the markup document.
+    2. A `laika.metadata.language` attribute defined in the configuration file for the directory (or root directory).
+    3. When using the Helium theme, a language specified with the [Helium Configuration API].
+    4. The platform default.
+
+
 Conditionals and Loops
 ----------------------
 
