@@ -16,6 +16,7 @@
 
 package laika.time
 
+import cats.syntax.all._
 import scala.scalajs.js
 import scala.util.Try
 
@@ -43,9 +44,6 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     A proper way to handle this would be to parse the pattern and translate it to a JavaScript options object,
     but this is currently considered beyond the scope of Laika.
     For this reason this is currently not public API.
-    The only place where it is indirectly exposed to users is the date directive for reStructuredText,
-    which allows to pass a pattern.
-    As a consequence, using this directive with Scala.js is currently not fully supported.
      */
     val attempt = {
       if (pattern.contains(":")) Try(date.toLocaleString())
@@ -54,6 +52,24 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     attempt.toEither.left.map(_.getMessage)
   }
 
-  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] = None
+  private lazy val formatterConstants = Set("full", "long", "medium", "short")
+
+  private[laika] def formatConstant (date: Type, constant: String): Option[Either[String, String]] =
+    if (formatterConstants.contains(constant.toLowerCase)) {
+      val opts = js.Dynamic.literal(
+        "dateStyle" -> constant.toLowerCase, 
+        "timeStyle" -> constant.toLowerCase
+      )
+      val locale = "en" // TODO - query from metadata
+      Try(date
+        .asInstanceOf[js.Dynamic]
+        .toLocaleString(locale, opts) // arguments not supported by core Scala.js, hence the dynamic approach
+        .asInstanceOf[String]
+      )
+        .toEither
+        .leftMap(_.getMessage)
+        .some
+    }
+    else None
 
 }
