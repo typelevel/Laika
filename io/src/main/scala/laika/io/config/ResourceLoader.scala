@@ -54,7 +54,7 @@ object ResourceLoader {
     
     def load: F[Either[ConfigResourceError, String]] = {
       val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
-      InputRuntime.readParserInput(input).attempt.map(_.bimap(
+      input.asDocumentInput.attempt.map(_.bimap(
         t => ConfigResourceError(s"Unable to load file '${file.getPath}': ${t.getMessage}"), 
         _.source.input
       ))
@@ -96,7 +96,7 @@ object ResourceLoader {
     } yield str
     
     val input = TextInput.fromStream[F](Root, DocumentType.Config, stream, Codec.UTF8, autoClose = true)
-    InputRuntime.readParserInput(input).attempt.map {
+    input.asDocumentInput.attempt.map {
       case Left(_: FileNotFoundException) => None
       case Left(t) => Some(Left(ConfigResourceError(s"Unable to load config from URL '${url.toString}': ${t.getMessage}")))
       case Right(res) => Some(Right(res.source.input))

@@ -17,22 +17,20 @@
 package laika.io.model
 
 import java.io._
-import cats.Applicative
+import cats.syntax.all._
+import cats.{Applicative, Functor}
 import cats.data.Kleisli
 import cats.effect.{Resource, Sync}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentTree, DocumentTreeRoot, DocumentType, Navigatable, Path, StaticDocument, StyleDeclaration, StyleDeclarationSet, TemplateDocument, TextDocumentType}
+import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
 import laika.io.runtime.{DirectoryScanner, InputRuntime}
+import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.TargetFormats
 
 import scala.io.Codec
-
-sealed trait InputReader extends Product with Serializable
-case class PureReader(input: String) extends InputReader
-case class StreamReader(input: Reader, sizeHint: Int) extends InputReader
 
 /** A binary input stream and its virtual path within the input tree.
   */
@@ -64,18 +62,26 @@ object BinaryInput {
   * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
   * @param docType Indicates the type of the document, to distinguish between text markup, templates, configuration 
   *                and style sheets, which all have a different kind of parser
-  * @param input   The resource to read the character input from
+  * @param input   The character input
   * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
-case class TextInput[F[_]] (path: Path, docType: TextDocumentType, input: Resource[F, InputReader], sourceFile: Option[File] = None) extends Navigatable
+case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, input: F[String], sourceFile: Option[File] = None) extends Navigatable {
+  lazy val asDocumentInput: F[DocumentInput] = input.map(DocumentInput(path, _))
+}
 
 object TextInput {
+
+  private def readAll[F[_]: Sync](reader: Resource[F, Reader], sizeHint: Int): F[String] = 
+   reader.use(InputRuntime.readAll(_, sizeHint))
+
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
-    TextInput[F](path, docType, Resource.pure[F, InputReader](PureReader(input)))
+    TextInput[F](path, docType, Applicative[F].pure(input))
+
   def fromFile[F[_]: Sync] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
-    TextInput[F](path, docType, InputRuntime.textFileResource[F](file, codec).map(StreamReader(_, file.length.toInt)), Some(file))
+    TextInput[F](path, docType, readAll(InputRuntime.textFileResource[F](file, codec), file.length.toInt), Some(file))
+
   def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
-    TextInput[F](path, docType, InputRuntime.textStreamResource(stream, codec, autoClose).map(StreamReader(_, 8096)))
+    TextInput[F](path, docType, readAll(InputRuntime.textStreamResource(stream, codec, autoClose), 8096))
 }
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 

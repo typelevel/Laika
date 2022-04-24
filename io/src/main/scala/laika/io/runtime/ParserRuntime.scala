@@ -79,7 +79,7 @@ object ParserRuntime {
       }
       
       def parseDocument[D] (doc: TextInput[F], parse: DocumentInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
-        InputRuntime.readParserInput(doc).flatMap(in => Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
+        doc.asDocumentInput.flatMap(in => Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
       def parseConfig(input: DocumentInput): Either[ParserError, ConfigParser] =
         Right(op.config.configProvider.configDocument(input.source.input))
