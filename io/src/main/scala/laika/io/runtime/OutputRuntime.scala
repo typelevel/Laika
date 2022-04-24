@@ -17,10 +17,8 @@
 package laika.io.runtime
 
 import java.io._
-
-import cats.effect.{Sync, Resource}
+import cats.effect.{Resource, Sync}
 import cats.implicits._
-import laika.io.model.{PureWriter, _}
 
 import scala.io.Codec
 
@@ -32,15 +30,11 @@ object OutputRuntime {
 
   /** Creates a Writer for the specified output model and writes the given string to it.
     */
-  def write[F[_]: Sync] (result: String, output: TextOutput[F]): F[Unit] = {
-    output.resource.use {
-      case PureWriter => Sync[F].unit
-      case StreamWriter(writer) => Sync[F].delay {
-        writer.write(result)
-        writer.flush()
-      }
+  def write[F[_]: Sync] (result: String, writer: Writer): F[Unit] =
+    Sync[F].delay {
+      writer.write(result)
+      writer.flush()
     }
-  }
 
   /** Creates a directory for the specified file, including parent directories of that file if they do not exist yet.
     */

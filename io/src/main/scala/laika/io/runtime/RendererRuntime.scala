@@ -102,7 +102,7 @@ object RendererRuntime {
           val pathTranslator = createPathTranslator(translatorConfig, document.path, lookup)
           val outputPath = pathTranslator.translate(document.path)
           val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
-          OutputRuntime.write(renderResult, output(outputPath)).as {
+          output(outputPath).writer(renderResult).as {
             val result = RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)
             Right(result): RenderResult
           }
@@ -131,7 +131,7 @@ object RendererRuntime {
       
       op.output match {
         case StringTreeOutput => 
-          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forString(p))
+          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.noOp(p))
           val copyOps = copyDocuments(staticDocs, None, pathTranslator)
           RenderOps(Nil, renderOps ++ copyOps)
         case DirectoryOutput(dir, codec) =>
