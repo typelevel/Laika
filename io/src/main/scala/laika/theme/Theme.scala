@@ -17,7 +17,7 @@
 package laika.theme
 
 import cats.data.Kleisli
-import cats.effect.Sync
+import cats.effect.Async
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.{InputTree, ParsedTree}
@@ -86,7 +86,7 @@ object Theme {
     * right into the input directories.
     */
   def empty: ThemeProvider = new ThemeProvider {
-    def build[F[_]: Sync] = ThemeBuilder("Empty Theme").build
+    def build[F[_]: Async] = ThemeBuilder("Empty Theme").build
   }
 
 }

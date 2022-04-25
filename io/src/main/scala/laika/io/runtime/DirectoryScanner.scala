@@ -16,8 +16,9 @@
 
 package laika.io.runtime
 
-import java.nio.file.{Files, Path => JPath}
+import cats.effect.kernel.Async
 
+import java.nio.file.{Files, Path => JPath}
 import cats.effect.{Resource, Sync}
 import cats.implicits._
 import laika.ast.DocumentType.Static
@@ -41,7 +42,7 @@ object DirectoryScanner {
   
   /** Scans the specified directory and transforms it into a generic InputCollection.
     */
-  def scanDirectories[F[_]: Sync] (input: DirectoryInput): F[InputTree[F]] = {
+  def scanDirectories[F[_]: Async] (input: DirectoryInput): F[InputTree[F]] = {
     val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
     join(input.directories.map(d => scanDirectory[F, InputTree[F]](d.toPath)(asInputCollection(input.mountPoint, input))))
       .map(_.copy(sourcePaths = sourcePaths))
@@ -52,7 +53,7 @@ object DirectoryScanner {
     .sequence
     .map(_.reduceLeftOption(_ ++ _).getOrElse(InputTree.empty))
 
-  private def asInputCollection[F[_]: Sync] (path: Path, input: DirectoryInput)(entries: Seq[JPath]): F[InputTree[F]] = {
+  private def asInputCollection[F[_]: Async] (path: Path, input: DirectoryInput)(entries: Seq[JPath]): F[InputTree[F]] = {
 
     def toCollection (filePath: JPath): F[InputTree[F]] = {
 

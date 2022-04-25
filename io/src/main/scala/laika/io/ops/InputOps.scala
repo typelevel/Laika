@@ -16,13 +16,11 @@
 
 package laika.io.ops
 
-import java.io.File
-
-import cats.effect.Sync
+import cats.effect.Async
 import laika.api.builder.OperationConfig
 import laika.io.model.{DirectoryInput, InputTree, InputTreeBuilder}
-import laika.io.runtime.DirectoryScanner
 
+import java.io.File
 import scala.io.Codec
 
 /** API for specifying the tree of character inputs for a parsing operation.
@@ -34,7 +32,7 @@ import scala.io.Codec
   */
 trait InputOps[F[_]] {
 
-  def F: Sync[F]
+  def F: Async[F]
 
   type FileFilter = File => Boolean
 

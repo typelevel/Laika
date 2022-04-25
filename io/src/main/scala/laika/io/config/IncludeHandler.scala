@@ -18,8 +18,7 @@ package laika.io.config
 
 import java.io.File
 import java.net.URL
-
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.{ConfigParser, ConfigResourceError}
@@ -45,7 +44,7 @@ object IncludeHandler {
     * be mapped to the requested resource as a `Left`. Successfully loaded and parsed
     * resources appear in the result map as a `Right`.
     */
-  def load[F[_]: Sync : Batch] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
+  def load[F[_]: Async : Batch] (includes: Seq[RequestedInclude]): F[IncludeMap] = 
     
     if (includes.isEmpty) Sync[F].pure(Map.empty) else {
       

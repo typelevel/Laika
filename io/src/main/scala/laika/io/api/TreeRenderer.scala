@@ -16,11 +16,10 @@
 
 package laika.io.api
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource, Sync}
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
-import laika.io.api.BinaryTreeRenderer.Builder
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput}
 import laika.io.ops.TextOutputOps
@@ -31,7 +30,7 @@ import laika.theme.{Theme, ThemeProvider}
   *
   * @author Jens Halm
   */
-class TreeRenderer[F[_]: Sync: Batch] (renderer: Renderer, theme: Theme[F]) {
+class TreeRenderer[F[_]: Async: Batch] (renderer: Renderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
@@ -52,7 +51,7 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  class Builder[F[_]: Sync: Batch] (renderer: Renderer, theme: Resource[F, Theme[F]]) {
+  class Builder[F[_]: Async: Batch] (renderer: Renderer, theme: Resource[F, Theme[F]]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
@@ -70,7 +69,7 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Batch] (renderer: Renderer,
+  case class OutputOps[F[_]: Async: Batch] (renderer: Renderer,
                                            theme: Theme[F],
                                            input: DocumentTreeRoot,
                                            staticDocuments: Seq[BinaryInput[F]]) extends TextOutputOps[F] {
@@ -92,7 +91,7 @@ object TreeRenderer {
     * It can be run by invoking the `render` method which delegates to the library's default runtime implementation
     * or by developing a custom runner that performs the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Batch] (renderer: Renderer,
+  case class Op[F[_]: Async: Batch] (renderer: Renderer,
                                     theme: Theme[F],
                                     input: DocumentTreeRoot,
                                     output: TreeOutput,

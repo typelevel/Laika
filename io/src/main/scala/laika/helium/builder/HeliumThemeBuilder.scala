@@ -16,7 +16,7 @@
 
 package laika.helium.builder
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource}
 import laika.bundle.BundleOrigin
 import laika.directive.{Blocks, DirectiveRegistry, Links, Spans, Templates}
 import laika.format.{EPUB, HTML, XSLFO}
@@ -39,7 +39,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
   }
   
   
-  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
+  def build[F[_]: Async]: Resource[F, Theme[F]] = {
 
     import helium._
 
