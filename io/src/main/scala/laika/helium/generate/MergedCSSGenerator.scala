@@ -16,13 +16,19 @@
 
 package laika.helium.generate
 
-import cats.effect.Async
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.io.model.InputTree
+import laika.io.model.{BinaryInput, InputTree}
 
 private[helium] object MergedCSSGenerator {
 
+  private def merge[F[_]: Sync](inputs: Seq[BinaryInput[F]]): F[String] =
+    inputs.toList
+      .map(_.input.through(fs2.text.utf8.decode).compile.string)
+      .sequence
+      .map(_.mkString("\n\n"))
+  
   def mergeSiteCSS[F[_]: Async](varBlock: String): F[String] = {
 
     val inputTree = InputTree[F]
@@ -35,7 +41,7 @@ private[helium] object MergedCSSGenerator {
     
     for {
       inputs <- inputTree
-      merged <- MergedStringInputs.merge(inputs.binaryInputs)
+      merged <- merge(inputs.binaryInputs)
     } yield varBlock + merged
   }
 
@@ -60,7 +66,7 @@ private[helium] object MergedCSSGenerator {
 
     for {
       inputs <- inputTree
-      merged <- MergedStringInputs.merge(inputs.binaryInputs)
+      merged <- merge(inputs.binaryInputs)
     } yield varBlock + addImportantAnnotation(merged)
   }
   

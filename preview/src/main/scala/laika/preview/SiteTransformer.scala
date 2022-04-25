@@ -16,10 +16,9 @@
 
 package laika.preview
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, InputStream}
-
 import cats.effect.{Async, Resource}
 import cats.syntax.all._
+import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.{MessageFilter, Path}
@@ -35,6 +34,8 @@ import laika.preview.SiteTransformer.ResultMap
 import laika.rewrite.nav.{Selections, TargetFormats}
 import laika.theme.Theme
 
+import java.io.{ByteArrayOutputStream, File}
+
 private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
                                                       htmlRenderer: TreeRenderer[F],
                                                       binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
@@ -44,15 +45,13 @@ private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F],
 
   private val parse = parser.fromInput(inputs).parse
 
-  def renderBinary (renderer: BinaryTreeRenderer[F], tree: ParsedTree[F]): Resource[F, InputStream] = {
+  def renderBinary (renderer: BinaryTreeRenderer[F], tree: ParsedTree[F]): fs2.Stream[F, Byte] = {
     val renderResult = for {
       out <- Async[F].delay(new ByteArrayOutputStream(1024 * 64))
       _   <- renderer.from(tree).toStream(Async[F].pure(out)).render
-    } yield out.toByteArray
+    } yield Chunk.array(out.toByteArray)
     
-    Resource
-      .eval(renderResult)
-      .flatMap(bytes => Resource.eval(Async[F].delay(new ByteArrayInputStream(bytes))))
+    fs2.Stream.evalUnChunk(renderResult)
   }
   
   def transformBinaries (tree: ParsedTree[F]): ConfigResult[ResultMap[F]] = {
@@ -178,4 +177,4 @@ class SiteResults[F[_]: Async] (map: Map[Path, SiteResult[F]]) {
 
 sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
 case class RenderedResult[F[_]: Async] (content: String) extends SiteResult[F]
-case class StaticResult[F[_]: Async] (content: Resource[F, InputStream]) extends SiteResult[F]
+case class StaticResult[F[_]: Async] (content: fs2.Stream[F, Byte]) extends SiteResult[F]

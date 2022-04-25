@@ -16,9 +16,6 @@
 
 package laika.render.epub
 
-import java.io.ByteArrayInputStream
-import java.nio.charset.Charset
-
 import cats.effect.Sync
 import cats.implicits._
 import laika.ast.Path

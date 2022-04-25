@@ -16,12 +16,12 @@
 
 package laika.io.model
 
-import java.io._
 import cats.Applicative
 import cats.effect.{Async, Resource, Sync}
+import fs2.io.file.Files
 import laika.ast._
-import laika.io.runtime.OutputRuntime
 
+import java.io.{File, OutputStream}
 import scala.io.Codec
 
 /** Character output for the various renderers of this library
@@ -36,25 +36,49 @@ object TextOutput {
   
   type Writer[F[_]] = String => F[Unit]
 
-  private def writeAll[F[_]: Sync](writer: Resource[F, java.io.Writer]): Writer[F] =
-    output => writer.use(OutputRuntime.write(output, _))
+  private def writeAll[F[_]: Sync](outPipe: fs2.Pipe[F, Byte, Nothing], codec: Codec): Writer[F] =
+    output => fs2.Stream
+      .emit(output)
+      .through(fs2.text.encode(codec.charSet))
+      .through(outPipe)
+      .compile
+      .drain
   
   def noOp[F[_]: Applicative] (path: Path): TextOutput[F] =
     TextOutput[F](path, _ => Applicative[F].unit)
-    
+
   def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
-    TextOutput[F](path, writeAll(OutputRuntime.textFileResource(file, codec)), Some(file))
+    TextOutput[F](path, writeAll(Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec), Some(file))
     
   def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
-    TextOutput[F](path, writeAll(OutputRuntime.textStreamResource(stream, codec, autoClose)))
+    TextOutput[F](path, writeAll(fs2.io.writeOutputStream(stream, autoClose), codec))
 }
 
 /** A resource for binary output.
   *
   * Most renderers write character data, but formats like PDF or EPUB
   * require a binary stream to write to.
+  * 
+  * This is the only I/O type not expressed through a generic `F[_]` or an `fs2.Stream` or `fs2.Pipe`
+  * as Laika's binary output needs to work with Java libraries for its EPUB and PDF output.
   */
 case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], targetFile: Option[File] = None)
+
+object BinaryOutput {
+
+  def forFile[F[_]: Sync] (path: Path, file: File): BinaryOutput[F] = {
+    val resource = Resource.fromAutoCloseable(Sync[F].delay(
+      new java.io.BufferedOutputStream(new java.io.FileOutputStream(file)))
+    )
+    BinaryOutput(path, resource)
+  }
+
+  def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], autoClose: Boolean): BinaryOutput[F] = {
+    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
+    BinaryOutput(path, resource)
+  }
+
+}
 
 /** A (virtual) tree of output documents.
   */

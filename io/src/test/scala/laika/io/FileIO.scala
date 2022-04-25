@@ -16,15 +16,13 @@
 
 package laika.io
 
-import java.io.{ByteArrayOutputStream, File}
-import java.util.UUID
-
 import cats.effect.IO
 import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.io.model.{TextInput, TextOutput}
-import laika.io.runtime.{InputRuntime, OutputRuntime}
 
+import java.io.{ByteArrayOutputStream, File}
+import java.util.UUID
 import scala.io.Codec
 
 trait FileIO {

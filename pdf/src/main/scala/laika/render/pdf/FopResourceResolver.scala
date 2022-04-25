@@ -47,7 +47,7 @@ class FopResourceResolver[F[_]: Async] (input: Seq[BinaryInput[F]], dispatcher: 
   def getResource (uri: URI): Resource =
     if (uri.isAbsolute && uri.getScheme != "file") fallbackResolver.getResource(uri)
     else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in => 
-      new Resource(dispatcher.unsafeRunSync(in.allocated.map(_._1)))
+      new Resource(dispatcher.unsafeRunSync(fs2.io.toInputStreamResource(in).allocated.map(_._1)))
     )
 
   def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)

@@ -16,44 +16,45 @@
 
 package laika.io.model
 
-import java.io._
+import cats.data.Kleisli
+import cats.effect.{Async, Sync}
 import cats.syntax.all._
 import cats.{Applicative, Functor}
-import cats.data.Kleisli
-import cats.effect.{Async, Resource, Sync}
+import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
+import laika.io.runtime.DirectoryScanner
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
-import laika.io.runtime.{DirectoryScanner, InputRuntime}
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.TargetFormats
 
+import java.io.{File, IOException, InputStream}
 import scala.io.Codec
 
 /** A binary input stream and its virtual path within the input tree.
   */
 case class BinaryInput[F[_]: Sync] (path: Path, 
-                                    input: Resource[F, InputStream], 
+                                    input: fs2.Stream[F, Byte], 
                                     formats: TargetFormats = TargetFormats.All, 
                                     sourceFile: Option[File] = None) extends Navigatable
 
 object BinaryInput {
   
   def fromString[F[_]: Sync] (path: Path, input: String, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = Resource.eval[F, InputStream](Sync[F].delay(new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet))))
-    BinaryInput(path, resource, targetFormats)
+    val stream = fs2.Stream.emit(input).through(fs2.text.utf8.encode)
+    BinaryInput(path, stream, targetFormats)
   }
 
   def fromFile[F[_]: Async] (path: Path, file: File, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
-    BinaryInput[F](path, resource, targetFormats, Some(file))
+    val stream = Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath))
+    BinaryInput[F](path, stream, targetFormats, Some(file))
   }
 
   def fromStream[F[_]: Sync] (path: Path, stream: F[InputStream], autoClose: Boolean, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
-    BinaryInput(path, resource, targetFormats)
+    val input = fs2.io.readInputStream(stream, 8096, autoClose)
+    BinaryInput(path, input, targetFormats)
   }
 }
 
@@ -71,17 +72,21 @@ case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, inpu
 
 object TextInput {
 
-  private def readAll[F[_]: Sync](reader: Resource[F, Reader], sizeHint: Int): F[String] = 
-   reader.use(InputRuntime.readAll(_, sizeHint))
+  private def readAll[F[_]: Sync](input: fs2.Stream[F, Byte], codec: Codec): F[String] = 
+    input.through(fs2.text.decodeWithCharset(codec.charSet)).compile.string
 
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
     TextInput[F](path, docType, Applicative[F].pure(input))
 
-  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
-    TextInput[F](path, docType, readAll(InputRuntime.textFileResource[F](file, codec), file.length.toInt), Some(file))
+  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] = {
+    val input = readAll(Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec)
+    TextInput[F](path, docType, input, Some(file))
+  }
 
-  def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
-    TextInput[F](path, docType, readAll(InputRuntime.textStreamResource(stream, codec, autoClose), 8096))
+  def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] = {
+    val input = readAll(fs2.io.readInputStream(stream, 8096, autoClose), codec)
+    TextInput[F](path, docType, input)
+  }
 }
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 

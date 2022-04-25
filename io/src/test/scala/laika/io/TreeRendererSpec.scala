@@ -32,7 +32,7 @@ import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
 import laika.io.model._
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
-import laika.io.runtime.{InputRuntime, VersionInfoGenerator}
+import laika.io.runtime.VersionInfoGenerator
 import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
@@ -850,11 +850,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .find(_.path == VersionInfoGenerator.path)
         .toRight(new RuntimeException("version info missing"))
       ))
-      .flatMap { in =>
-        InputRuntime
-          .textStreamResource(in.input, Codec.UTF8)
-          .use(InputRuntime.readAll[IO](_, 8096))
-      }
+      .flatMap(_.input.through(fs2.text.utf8.decode).compile.string)
       .assertEquals(expectedVersionInfo)
   }
 
