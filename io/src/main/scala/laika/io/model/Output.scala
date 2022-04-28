@@ -17,35 +17,36 @@
 package laika.io.model
 
 import java.io._
-
 import cats.Applicative
-import cats.effect.{Sync, Resource}
+import cats.effect.{Resource, Sync}
 import laika.ast._
-import laika.config.Config
 import laika.io.runtime.OutputRuntime
 
 import scala.io.Codec
 
-
-sealed trait OutputWriter extends Product with Serializable
-case object PureWriter extends OutputWriter
-case class StreamWriter(output: Writer) extends OutputWriter
-
 /** Character output for the various renderers of this library
   *
-  * @param path    The full virtual path of this input (does not represent the filesystem path in case of file I/O)
-  * @param resource   The resource to write the character output to
+  * @param path       The full virtual path of this input (does not represent the filesystem path in case of file I/O)
+  * @param writer     Handler for the character output (a function `String => F[Unit]`)
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-case class TextOutput[F[_]] (path: Path, resource: Resource[F, OutputWriter], targetFile: Option[File] = None)
+case class TextOutput[F[_]] (path: Path, writer: TextOutput.Writer[F], targetFile: Option[File] = None)
 
 object TextOutput {
-  def forString[F[_]: Applicative] (path: Path): TextOutput[F] =
-    TextOutput[F](path, Resource.pure[F, OutputWriter](PureWriter))
+  
+  type Writer[F[_]] = String => F[Unit]
+
+  private def writeAll[F[_]: Sync](writer: Resource[F, java.io.Writer]): Writer[F] =
+    output => writer.use(OutputRuntime.write(output, _))
+  
+  def noOp[F[_]: Applicative] (path: Path): TextOutput[F] =
+    TextOutput[F](path, _ => Applicative[F].unit)
+    
   def forFile[F[_]: Sync] (path: Path, file: File, codec: Codec): TextOutput[F] =
-    TextOutput[F](path, OutputRuntime.textFileResource(file, codec).map(StreamWriter.apply), Some(file))
+    TextOutput[F](path, writeAll(OutputRuntime.textFileResource(file, codec)), Some(file))
+    
   def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
-    TextOutput[F](path, OutputRuntime.textStreamResource(stream, codec, autoClose).map(StreamWriter.apply))
+    TextOutput[F](path, writeAll(OutputRuntime.textStreamResource(stream, codec, autoClose)))
 }
 
 /** A resource for binary output.

@@ -19,9 +19,6 @@ package laika.io.runtime
 import java.io._
 
 import cats.effect.{Sync, Resource}
-import laika.io.model._
-import laika.parse.SourceCursor
-import laika.parse.markup.DocumentParser.DocumentInput
 import cats.implicits._
 
 import scala.io.Codec
@@ -31,13 +28,6 @@ import scala.io.Codec
   * @author Jens Halm
   */
 object InputRuntime {
-
-  def readParserInput[F[_]: Sync] (doc: TextInput[F]): F[DocumentInput] = doc.input.use {
-    case PureReader(input) => 
-      Sync[F].pure(DocumentInput(doc.path, SourceCursor(input, doc.path)))
-    case StreamReader(reader, sizeHint) => 
-      readAll(reader, sizeHint).map(source => DocumentInput(doc.path, SourceCursor(source, doc.path)))
-  }
 
   def readAll[F[_]: Sync] (reader: Reader, sizeHint: Int): F[String] = {
     

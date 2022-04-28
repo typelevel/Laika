@@ -35,13 +35,11 @@ trait FileIO {
 
   def readFile (f: File, codec: Codec): IO[String] = {
     val input = TextInput.fromFile[IO](Root, DocumentType.Markup, f, codec)
-    InputRuntime.readParserInput(input).map(_.source.input)
+    input.asDocumentInput.map(_.source.input)
   }
 
-  def writeFile (f: File, content: String): IO[Unit] = {
-    val output = TextOutput.forFile[IO](Root, f, Codec.UTF8)
-    OutputRuntime.write(content, output)
-  }
+  def writeFile (f: File, content: String): IO[Unit] =
+    TextOutput.forFile[IO](Root, f, Codec.UTF8).writer(content)
 
   def newTempDirectory: IO[File] = {
     for {
