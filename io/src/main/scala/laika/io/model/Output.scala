@@ -67,7 +67,7 @@ case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], 
 object BinaryOutput {
 
   def forFile[F[_]: Sync] (path: Path, file: File): BinaryOutput[F] = {
-    val resource = Resource.fromAutoCloseable(Sync[F].delay(
+    val resource = Resource.fromAutoCloseable(Sync[F].blocking(
       new java.io.BufferedOutputStream(new java.io.FileOutputStream(file)))
     )
     BinaryOutput(path, resource)
