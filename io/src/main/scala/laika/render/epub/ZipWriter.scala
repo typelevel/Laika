@@ -17,7 +17,8 @@
 package laika.render.epub
 
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
+import cats.effect.kernel.Concurrent
 import cats.implicits._
 import laika.io.model.{BinaryInput, BinaryOutput}
 
@@ -35,7 +36,7 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Sync] (inputs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
+  def zipEPUB[F[_]: Async] (inputs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
 
     def copyAll (zipOut: ZipOutputStream, pipe: fs2.Pipe[F, Byte, Nothing]): F[Unit] = {
     

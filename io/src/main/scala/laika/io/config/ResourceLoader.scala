@@ -84,7 +84,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadUrl[F[_]: Sync] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadUrl[F[_]: Async] (url: URL): F[Option[Either[ConfigResourceError, String]]] = {
     
     val stream: F[InputStream] = for {
       con <- Sync[F].delay(url.openConnection())

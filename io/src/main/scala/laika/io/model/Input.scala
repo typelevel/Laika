@@ -17,7 +17,7 @@
 package laika.io.model
 
 import cats.data.Kleisli
-import cats.effect.{Async, Sync}
+import cats.effect.{Async, Concurrent, Sync}
 import cats.syntax.all._
 import cats.{Applicative, Functor}
 import fs2.io.file.Files
@@ -53,7 +53,7 @@ object BinaryInput {
   }
 
   def fromStream[F[_]: Sync] (path: Path, stream: F[InputStream], autoClose: Boolean, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val input = fs2.io.readInputStream(stream, 8096, autoClose)
+    val input = fs2.io.readInputStream(stream, 64 * 1024, autoClose)
     BinaryInput(path, input, targetFormats)
   }
 }
@@ -83,8 +83,8 @@ object TextInput {
     TextInput[F](path, docType, input, Some(file))
   }
 
-  def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] = {
-    val input = readAll(fs2.io.readInputStream(stream, 8096, autoClose), codec)
+  def fromStream[F[_]: Async] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] = {
+    val input = readAll(fs2.io.readInputStream(stream, 64 * 1024, autoClose), codec)
     TextInput[F](path, docType, input)
   }
 }

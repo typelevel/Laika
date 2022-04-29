@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.ast.Path
 import laika.ast.Path.Root
@@ -94,7 +94,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Sync] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+  def write[F[_]: Async] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
       config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException.apply))

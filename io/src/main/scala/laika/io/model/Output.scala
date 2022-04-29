@@ -17,7 +17,7 @@
 package laika.io.model
 
 import cats.Applicative
-import cats.effect.{Async, Resource, Sync}
+import cats.effect.{Async, Concurrent, Resource, Sync}
 import fs2.io.file.Files
 import laika.ast._
 
@@ -36,7 +36,7 @@ object TextOutput {
   
   type Writer[F[_]] = String => F[Unit]
 
-  private def writeAll[F[_]: Sync](outPipe: fs2.Pipe[F, Byte, Nothing], codec: Codec): Writer[F] =
+  private def writeAll[F[_]: Concurrent] (outPipe: fs2.Pipe[F, Byte, Nothing], codec: Codec): Writer[F] =
     output => fs2.Stream
       .emit(output)
       .through(fs2.text.encode(codec.charSet))
@@ -50,7 +50,7 @@ object TextOutput {
   def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
     TextOutput[F](path, writeAll(Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec), Some(file))
     
-  def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
+  def forStream[F[_]: Async] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
     TextOutput[F](path, writeAll(fs2.io.writeOutputStream(stream, autoClose), codec))
 }
 

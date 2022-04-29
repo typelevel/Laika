@@ -17,6 +17,7 @@
 package laika.io.runtime
 
 import cats.data.NonEmptyChain
+import cats.effect.kernel.Concurrent
 import cats.effect.{Async, Sync}
 import cats.syntax.all._
 import laika.collection.TransitionalCollectionOps._
@@ -69,8 +70,8 @@ private[runtime] object VersionedLinkTargets {
     }
   }
   
-  private def loadVersionInfo[F[_]: Sync] (existing: BinaryInput[F]): F[Map[String, Seq[Path]]] = {
-    def asSync[T](res: ConfigResult[T]): F[T] = Sync[F].fromEither(res.leftMap(ConfigException.apply))
+  private def loadVersionInfo[F[_]: Concurrent] (existing: BinaryInput[F]): F[Map[String, Seq[Path]]] = {
+    def asSync[T](res: ConfigResult[T]): F[T] = Concurrent[F].fromEither(res.leftMap(ConfigException.apply))
     
     existing.input
       .through(fs2.text.utf8.decode)
