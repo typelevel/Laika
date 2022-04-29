@@ -25,8 +25,7 @@ private[helium] object MergedCSSGenerator {
 
   private def merge[F[_]: Sync](inputs: Seq[BinaryInput[F]]): F[String] =
     inputs.toList
-      .map(_.input.through(fs2.text.utf8.decode).compile.string)
-      .sequence
+      .traverse(_.input.through(fs2.text.utf8.decode).compile.string)
       .map(_.mkString("\n\n"))
   
   def mergeSiteCSS[F[_]: Async](varBlock: String): F[String] = {
