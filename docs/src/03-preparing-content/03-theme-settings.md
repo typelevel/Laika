@@ -475,6 +475,7 @@ laika.metadata {
   authors = ["Helena North", "Maria South"]
   datePublished = "2012-10-10T12:00:00"
   dateModified = "2014-07-07T12:00:00"
+  canonicalLink = "http://foo.org/page.html"
 }
 %}
 ```
@@ -485,9 +486,14 @@ These values can then be used in templates like other substitution variables:
 <meta itemprop="datePublished" content="${laika.metadata.datePublished}">
 ```
 
-The page-level metadata is a core feature and available even when not using the Helium theme.
+The `canonicalLink` property will automatically render as a `link rel="canonical"...` tag in the HTML output
+when using the Helium theme.
+
+Otherwise the page-level metadata is a core feature and available even when not using the Helium theme.
 Note that, at the moment, `dateModified` is not auto-populated from the file system and has to be set manually.
 In many cases this is desirable anyway, as not every file modification represents a meaningful change to the user.
+
+
 
 
 Navigation, Links & Favicons

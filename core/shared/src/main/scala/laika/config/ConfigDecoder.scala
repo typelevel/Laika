@@ -16,13 +16,13 @@
 
 package laika.config
 
-import java.util.Date
 import cats.data.NonEmptyChain
 import cats.implicits._
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast.{ExternalTarget, InternalTarget, Path, PathBase, RelativePath, Target}
 import laika.time.PlatformDateTime
 
+import java.net.URI
 import scala.util.Try
 
 /** A type class that can decode a ConfigValue to an instance of T.
@@ -117,6 +117,10 @@ object ConfigDecoder {
 
   implicit lazy val date: ConfigDecoder[PlatformDateTime.Type] = string.flatMap { dateString =>
     PlatformDateTime.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
+  }
+
+  implicit lazy val uri: ConfigDecoder[URI] = string.flatMap { uriString =>
+    Try(new URI(uriString)).toEither.left.map(err => DecodingError(s"Invalid URI format: $err"))
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {

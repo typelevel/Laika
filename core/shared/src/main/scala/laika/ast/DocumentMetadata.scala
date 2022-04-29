@@ -19,6 +19,8 @@ package laika.ast
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
 import laika.time.PlatformDateTime
 
+import java.net.URI
+
 /** Metadata associated with a document.
   * 
   * @author Jens Halm
@@ -30,7 +32,8 @@ case class DocumentMetadata (title: Option[String] = None,
                              language: Option[String] = None,
                              datePublished: Option[PlatformDateTime.Type] = None,
                              dateModified: Option[PlatformDateTime.Type] = None,
-                             version: Option[String] = None) {
+                             version: Option[String] = None,
+                             canonicalLink: Option[URI] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
     */
@@ -42,7 +45,8 @@ case class DocumentMetadata (title: Option[String] = None,
     language.orElse(defaults.language),
     datePublished.orElse(defaults.datePublished),
     dateModified.orElse(defaults.dateModified),
-    version.orElse(defaults.version)
+    version.orElse(defaults.version),
+    canonicalLink.orElse(defaults.canonicalLink)
   )
   
   override def equals (obj: Any): Boolean = obj match {
@@ -53,8 +57,9 @@ case class DocumentMetadata (title: Option[String] = None,
         other.authors == authors &&
         other.language == language &&
         other.datePublished.toString == datePublished.toString && // equals does not work properly on js.Date
-        other.dateModified.toString == dateModified.toString && // equals does not work properly on js.Date
-        other.version == version
+        other.dateModified.toString == dateModified.toString &&
+        other.version == version &&
+        other.canonicalLink == canonicalLink
     case _ => false
   } 
 
@@ -73,8 +78,10 @@ object DocumentMetadata {
       datePublished <- config.getOpt[PlatformDateTime.Type]("datePublished")
       dateModified  <- config.getOpt[PlatformDateTime.Type]("dateModified")
       version       <- config.getOpt[String]("version")
+      canonicalLink <- config.getOpt[URI]("canonicalLink")
     } yield {
-      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, datePublished, dateModified, version)
+      DocumentMetadata(title, description, identifier, authors ++ author.toSeq, 
+        lang, datePublished, dateModified, version, canonicalLink)
     }
   }
   implicit val encoder: ConfigEncoder[DocumentMetadata] = ConfigEncoder[DocumentMetadata] { metadata =>
@@ -87,6 +94,7 @@ object DocumentMetadata {
       .withValue("datePublished", metadata.datePublished)
       .withValue("dateModified", metadata.dateModified)
       .withValue("version", metadata.version)
+      .withValue("canonicalLink", metadata.canonicalLink)
       .build
   }
 
