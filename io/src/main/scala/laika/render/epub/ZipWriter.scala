@@ -57,7 +57,7 @@ object ZipWriter {
       }
 
       writeEntry(inputs.head, prepareUncompressedEntry) >> 
-        inputs.toList.tail.map(writeEntry(_)).sequence >> 
+        inputs.toList.tail.traverse(writeEntry(_)) >> 
           Sync[F].blocking(zipOut.close())
     }
 
