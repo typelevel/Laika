@@ -72,7 +72,7 @@ case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, inpu
 
 object TextInput {
 
-  private def readAll[F[_]: Sync](input: fs2.Stream[F, Byte], codec: Codec): F[String] = 
+  private def readAll[F[_]: Concurrent](input: fs2.Stream[F, Byte], codec: Codec): F[String] = 
     input.through(fs2.text.decodeWithCharset(codec.charSet)).compile.string
 
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
