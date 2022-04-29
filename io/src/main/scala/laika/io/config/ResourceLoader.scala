@@ -18,14 +18,12 @@ package laika.io.config
 
 import java.io.{File, FileNotFoundException, InputStream}
 import java.net.URL
-
-import cats.effect.Sync
-import cats.implicits._
+import cats.effect.{Async, Sync}
+import cats.syntax.all._
 import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.config.ConfigResourceError
 import laika.io.model.TextInput
-import laika.io.runtime.InputRuntime
 
 import scala.io.Codec
 
@@ -41,7 +39,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadFile[F[_]: Async] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
     loadFile(new File(file))
 
   /** Load the specified file (which may be a file on the file system or a classpath resource).
@@ -50,7 +48,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Sync] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadFile[F[_]: Async] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
     
     def load: F[Either[ConfigResourceError, String]] = {
       val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
@@ -74,7 +72,7 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadClasspathResource[F[_]: Sync] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
+  def loadClasspathResource[F[_]: Async] (resource: String): F[Option[Either[ConfigResourceError, String]]] = 
     Option(getClass.getClassLoader.getResource(resource)) match {
       case Some(url) => loadFile(url.getFile)
       case None => Sync[F].pure(None)

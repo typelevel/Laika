@@ -17,11 +17,10 @@
 package laika.io.api
 
 import cats.data.NonEmptyList
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource, Sync}
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.io.api.BinaryTreeRenderer.Builder
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
@@ -33,14 +32,14 @@ import laika.theme.{Theme, ThemeProvider}
   *
   * @author Jens Halm
   */
-class TreeTransformer[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+class TreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                           renderer: Renderer,
                                           theme: Theme[F],
                                           mapper: TreeMapper[F]) extends InputOps[F] {
 
   type Result = TreeTransformer.OutputOps[F]
 
-  val F: Sync[F] = Sync[F]
+  val F: Async[F] = Async[F]
 
   val docType: TextDocumentType = DocumentType.Markup
 
@@ -61,7 +60,7 @@ object TreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Builder[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                          renderer: Renderer,
                                          theme: ThemeProvider,
                                          mapper: TreeMapper[F]) extends TreeMapperOps[F] {
@@ -101,7 +100,7 @@ object TreeTransformer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class OutputOps[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                            renderer: Renderer,
                                            theme: Theme[F],
                                            input: InputTreeBuilder[F],
@@ -121,7 +120,7 @@ object TreeTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Sync: Batch] (parsers: NonEmptyList[MarkupParser],
+  case class Op[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
                                     renderer: Renderer,
                                     theme: Theme[F],
                                     input: InputTreeBuilder[F],

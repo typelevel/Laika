@@ -16,7 +16,7 @@
 
 package laika.io
 
-import cats.effect.{IO, Resource, Sync}
+import cats.effect.{Async, IO, Resource, Sync}
 import laika.ast.DocumentType.Ignored
 import laika.ast.{/, Document, DocumentTree, DocumentTreeRoot, Paragraph, Path, RootElement, TemplateDocument, TemplateRoot, TemplateString}
 import laika.ast.Path.Root
@@ -153,12 +153,12 @@ class TreeParserFileIOSpec
              extraCheck: DocumentTreeRoot => Unit = _ => ()): IO[Unit] = {
       
       val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
-        def build[G[_]: Sync] = builder.addDoc(InputTree[G])
+        def build[G[_]: Async] = builder.addDoc(InputTree[G])
       }
       val baseTheme = TestThemeBuilder.forInputs(themeInputs)
       val theme = themeExtension.fold(baseTheme) { extBuilder =>
         val themeExtInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
-          def build[G[_]: Sync] = extBuilder.addDoc(InputTree[G])
+          def build[G[_]: Async] = extBuilder.addDoc(InputTree[G])
         }
         baseTheme.extendWith(TestThemeBuilder.forInputs(themeExtInputs))
       }

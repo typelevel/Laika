@@ -16,14 +16,14 @@
 
 package laika.helium.generate
 
-import cats.effect.Sync
+import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.io.model.InputTree
 
 private[helium] object MergedCSSGenerator {
 
-  def mergeSiteCSS[F[_]: Sync](varBlock: String): F[String] = {
+  def mergeSiteCSS[F[_]: Async](varBlock: String): F[String] = {
 
     val inputTree = InputTree[F]
       .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
@@ -39,7 +39,7 @@ private[helium] object MergedCSSGenerator {
     } yield varBlock + merged
   }
 
-  def mergeEPUBCSS[F[_]: Sync](varBlock: String): F[String] = {
+  def mergeEPUBCSS[F[_]: Async](varBlock: String): F[String] = {
     
     val importantVars = 
       (1 to 5).map("syntax-wheel" + _) ++ 

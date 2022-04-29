@@ -16,7 +16,7 @@
 
 package laika.helium.builder
 
-import cats.effect.Sync
+import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.config.{ConfigBuilder, LaikaKeys}
@@ -31,7 +31,7 @@ import laika.theme.config.{EmbeddedFontFile, EmbeddedFontResource}
   */
 private[helium] object HeliumInputBuilder {
 
-  def build[F[_]: Sync] (helium: Helium): F[InputTreeBuilder[F]] = {
+  def build[F[_]: Async] (helium: Helium): F[InputTreeBuilder[F]] = {
     
     import helium._
     

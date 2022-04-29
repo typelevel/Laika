@@ -16,7 +16,7 @@
 
 package laika.theme
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource}
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.InputTree
@@ -37,7 +37,7 @@ trait ThemeProvider { self =>
     * For convenience, implementations of this method usually utilize a [[laika.theme.ThemeBuilder]] to construct
     * `Theme` instances, but this is not mandatory.
     */
-  def build[F[_]: Sync]: Resource[F, Theme[F]]
+  def build[F[_]: Async]: Resource[F, Theme[F]]
 
   /** Creates a new theme using this instance as a base and the provided instance as the extension.
     * 
@@ -53,7 +53,7 @@ trait ThemeProvider { self =>
     *   if present.
     */
   def extendWith (extensions: ThemeProvider): ThemeProvider = new ThemeProvider {
-    def build[F[_]: Sync] = for {
+    def build[F[_]: Async] = for {
       base <- self.build
       ext  <- extensions.build
     } yield {

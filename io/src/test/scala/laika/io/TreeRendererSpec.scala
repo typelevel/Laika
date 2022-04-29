@@ -16,10 +16,9 @@
 
 package laika.io
 
-import java.io.File
-import cats.syntax.all._
 import cats.data.{Chain, NonEmptyChain}
-import cats.effect.{IO, Resource, Sync}
+import cats.effect.{Async, IO, Resource}
+import cats.syntax.all._
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -31,7 +30,7 @@ import laika.helium.generate.FOStyles
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.helper.{InputBuilder, RenderResult, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{BinaryInput, InputTree, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
+import laika.io.model._
 import laika.io.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.io.runtime.{InputRuntime, VersionInfoGenerator}
 import laika.parse.GeneratedSource
@@ -39,11 +38,12 @@ import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.render._
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
-import laika.rewrite.{DefaultTemplatePath, Version, VersionScannerConfig, Versions}
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.TargetFormats
+import laika.rewrite.{DefaultTemplatePath, Version, VersionScannerConfig, Versions}
 import munit.CatsEffectSuite
 
+import java.io.File
 import scala.io.Codec
 
 class TreeRendererSpec extends CatsEffectSuite 
@@ -374,7 +374,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     )
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
     }
     val renderer = Renderer.of(HTML)
@@ -442,7 +442,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     )
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
     }
     val renderer = 
@@ -462,11 +462,11 @@ class TreeRendererSpec extends CatsEffectSuite
   test("tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme") {
     val contentRef = TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
     val baseThemeInputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.betweenBrackets(contentRef)))
     }
     val themeExtensionInputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, Results.between(contentRef, "?", "?")))
     }
     val theme = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(TestThemeBuilder.forInputs(themeExtensionInputs))
@@ -510,7 +510,7 @@ class TreeRendererSpec extends CatsEffectSuite
     import FORenderer._
     
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_]: Sync] = InputTree[F]
+      def build[F[_]: Async] = InputTree[F]
         .addStyles(customThemeStyles, FOStyles.defaultPath)
         .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
     }
@@ -575,7 +575,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val treeRoot = DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     val inputs = new TestThemeBuilder.Inputs {
-      def build[F[_] : Sync] = InputTree[F].addString("...", Root / "static1.txt")
+      def build[F[_] : Async] = InputTree[F].addString("...", Root / "static1.txt")
     }
     val theme = TestThemeBuilder.forInputs(inputs)
     Renderer

@@ -16,17 +16,17 @@
 
 package laika.io.runtime
 
-import java.io.File
-
 import cats.Monad
-import cats.effect.{Async, Sync}
+import cats.effect.Async
 import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
-import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, ParsedTree, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, RenderedTreeRoot, TreeOutput}
 import laika.theme.Theme
 import laika.theme.Theme.TreeProcessor
+
+import java.io.File
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -48,7 +48,7 @@ object TransformerRuntime {
 
   /** Process the specified transform operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Sync: Batch] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
+  def run[F[_]: Async: Batch] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
     mappedTree <- op.mapper.run(tree)
     res        <- TreeRenderer.Op(op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render

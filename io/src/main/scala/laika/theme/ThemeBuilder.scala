@@ -16,12 +16,12 @@
 
 package laika.theme
 
-import cats.implicits._
 import cats.Monad
 import cats.data.Kleisli
-import cats.effect.{Resource, Sync}
+import cats.effect.{Async, Resource}
+import cats.implicits._
+import laika.ast.RewriteRules
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast.{DocumentCursor, RewriteRules}
 import laika.bundle.{BundleOrigin, ExtensionBundle, RenderOverrides}
 import laika.config.Config
 import laika.factory.Format
@@ -170,7 +170,7 @@ object ThemeBuilder {
     * The theme name is used in logging or the data returned by the `describe` method of the parser,
     * renderer and transformer APIs.
     */
-  def apply[F[_] : Sync] (themeName: String): ThemeBuilder[F] = 
-    new ThemeBuilder[F](themeName, Sync[F].pure(InputTree[F]), Nil, BundleBuilder(themeName), Nil)
+  def apply[F[_] : Async] (themeName: String): ThemeBuilder[F] = 
+    new ThemeBuilder[F](themeName, Async[F].pure(InputTree[F]), Nil, BundleBuilder(themeName), Nil)
 
 }

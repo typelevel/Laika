@@ -16,9 +16,9 @@
 
 package laika.io.descriptor
 
-import cats.implicits._
 import cats.data.NonEmptyList
-import cats.effect.{Async, Sync}
+import cats.effect.Async
+import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
@@ -72,7 +72,7 @@ object TransformerDescriptor {
       renderer.renderFormatted
     )
   
-  def create[F[_]: Sync: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+  def create[F[_]: Async: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(TreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
   } yield apply(parserDesc, renderDesc)
