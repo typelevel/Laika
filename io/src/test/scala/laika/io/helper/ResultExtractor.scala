@@ -16,7 +16,7 @@
 
 package laika.io.helper
 
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
 import cats.implicits._
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
@@ -26,7 +26,7 @@ import laika.io.model.RenderedTreeRoot
   */
 trait ResultExtractor {
 
-  implicit class RenderedTreeRootOps[F[_]: Sync](val root: RenderedTreeRoot[F]) extends StringOps  {
+  implicit class RenderedTreeRootOps[F[_]: Async] (val root: RenderedTreeRoot[F]) extends StringOps  {
 
     private def readText (stream: fs2.Stream[F, Byte]): F[String] = 
       stream.through(fs2.text.utf8.decode).compile.string

@@ -16,14 +16,14 @@
 
 package laika.helium.generate
 
-import cats.effect.{Async, Sync}
+import cats.effect.{Async, Concurrent}
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.io.model.{BinaryInput, InputTree}
 
 private[helium] object MergedCSSGenerator {
 
-  private def merge[F[_]: Sync](inputs: Seq[BinaryInput[F]]): F[String] =
+  private def merge[F[_]: Concurrent] (inputs: Seq[BinaryInput[F]]): F[String] =
     inputs.toList
       .traverse(_.input.through(fs2.text.utf8.decode).compile.string)
       .map(_.mkString("\n\n"))
