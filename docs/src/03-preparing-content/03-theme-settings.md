@@ -450,7 +450,7 @@ Helium.defaults
     identifier = Some("XSD-9876-XVT"),
     authors = Seq("Maria Green", "Helena Brown"),
     language = Some("de"),
-    date = Some(Instant.now),
+    datePublished = Some(Instant.now),
     version = Some("2.3.4") 
   )
 ```
@@ -459,6 +459,35 @@ When using the sbt plugin the `title`, `description` and `version` metadata will
 sbt settings `name`, `description` and `version` respectively. 
 When using the library API no medata will be defined by default.
 It is recommended to always define the language and title as the minimum set of metadata.
+
+
+Metadata for Individual Documents
+---------------------------------
+
+The API shown above specifies metadata globally which is most convenient for output formats like PDF or EPUB,
+which produce a single artefact.
+For site generation you may want to override some of these values per page.
+You can do that in a configuration header of your markup document:
+
+```laika-md
+{%
+laika.metadata {
+  authors = ["Helena North", "Maria South"]
+  datePublished = "2012-10-10T12:00:00"
+  dateModified = "2014-07-07T12:00:00"
+}
+%}
+```
+
+These values can then be used in templates like other substitution variables:
+
+```laika-html
+<meta itemprop="datePublished" content="${laika.metadata.datePublished}">
+```
+
+The page-level metadata is a core feature and available even when not using the Helium theme.
+Note that, at the moment, `dateModified` is not auto-populated from the file system and has to be set manually.
+In many cases this is desirable anyway, as not every file modification represents a meaningful change to the user.
 
 
 Navigation, Links & Favicons

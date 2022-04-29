@@ -97,9 +97,13 @@ This is a complete list of values exposed in the `cursor` namespace:
 ### Laika Configuration Values
 
 These are usually not accessed in user templates and mostly intended for Laika's own internal processing, 
-but are nevertheless exposed like any other value in the configuration.
+but are nevertheless exposed like any other value in the configuration. 
+Follow the links for details about the available attributes for these keys.
 
-* `laika.<format>.metadata`: holds the [Metadata] specified in configuration.
+* `laika.<format>.metadata`: holds the [Metadata] specified in configuration (e.g. authors, dates, language).
+
+* `laika.metadata`: holds the default [Metadata] that is not specific to certain output formats.
+  Values not specified for individual formats will be inherited from these base values.
 
 * `laika.links`: holds navigation configuration for [Global Link Definitions], [Linking to API Documentation]
   and [Disabling Validation].
@@ -110,7 +114,7 @@ but are nevertheless exposed like any other value in the configuration.
 * `laika.pdf` and `laika.epub`: e-book configuration, see [E-Books (EPUB & PDF)] for details
 
 * `laika.titleDocuments`: configures the names of documents that should be treated as title documents.
-  See [Title Documents] for details.  
+  See [Title Documents] for details.
 
 
 User-Defined Values
