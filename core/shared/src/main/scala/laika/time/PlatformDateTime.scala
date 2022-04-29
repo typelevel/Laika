@@ -16,8 +16,6 @@
 
 package laika.time
 
-import java.util.Date
-
 /** A little abstraction that isolates aspects of parsing and formatting
   * dates from the underlying Date API which may differ between JVM
   * and Scala.js applications.
@@ -34,7 +32,12 @@ import java.util.Date
   * 
   * @author Jens Halm
   */
-trait PlatformDateFormat {
+trait PlatformDateTime {
+
+  /** The platform-dependent type representing dates. */
+  type Type
+  
+  private[laika] def now: Type // impure impl only used by reStructuredText date directive and not public API 
 
   /** Parses the specified string either as a date with time zone,
     * or a local date time, or just a date.
@@ -50,27 +53,47 @@ trait PlatformDateFormat {
     * 
     * This is also designed to be somewhat aligned to `Date.parse` in JavaScript.
     */
-  def parse (dateString: String): Either[String, Date]
+  def parse (dateString: String): Either[String, Type]
 
   /** Formats the specified date with the given pattern.
     * 
     * The result will be a `Left` in case the pattern is invalid.
     */
-  private[laika] def format (date: Date, pattern: String): Either[String, String]
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String]
+
+  /** Formats the specified date with the given platform-specific constant.
+    * An example for a constant supported on the JVM would be `ISO_OFFSET_DATE_TIME`.
+    * 
+    * Not public API, added to aid in functionality like the date directive,
+    * extracting platform-specific behaviour into one place.
+    *
+    * The result will be `None` in case no date format is supported for the specified constant,
+    * a `Some(Left(...))` in case the constant is supported, but formatting fails
+    * and a `Some(Right(...))` in case of success.
+    */
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]]
   
 }
 
-object PlatformDateFormat extends PlatformDateFormat {
+object PlatformDateTime extends PlatformDateTime {
   
   /*
   This indirection is not strictly necessary, but reduces good-code-red in IDEs,
   which are struggling to deal with classes in the shared folder pointing to classes
   which are implemented twice (with the same signatures) in jvm and js projects.
    */
+  
+  type Type = PlatformDateTimeImpl.Type
 
-  def parse (dateString: String): Either[String, Date] = 
-    PlatformDateFormatImpl.parse(dateString)
+  private[laika] def now: Type = PlatformDateTimeImpl.now
 
-  private[laika] def format (date: Date, pattern: String): Either[String, String] = 
-    PlatformDateFormatImpl.format(date, pattern)
+  def parse (dateString: String): Either[String, Type] =
+    PlatformDateTimeImpl.parse(dateString)
+
+  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String] =
+    PlatformDateTimeImpl.format(date, pattern, locale)
+
+  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]] =
+    PlatformDateTimeImpl.formatConstant(date, constant, locale)
+    
 }

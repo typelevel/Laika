@@ -17,8 +17,8 @@
 package laika.ast
 
 import java.util.Date
-
 import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
+import laika.time.PlatformDateTime
 
 /** Metadata associated with a document.
   * 
@@ -29,7 +29,7 @@ case class DocumentMetadata (title: Option[String] = None,
                              identifier: Option[String] = None,
                              authors: Seq[String] = Nil,
                              language: Option[String] = None,
-                             date: Option[Date] = None,
+                             date: Option[PlatformDateTime.Type] = None,
                              version: Option[String] = None) {
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
@@ -43,6 +43,18 @@ case class DocumentMetadata (title: Option[String] = None,
     date.orElse(defaults.date),
     version.orElse(defaults.version)
   )
+  
+  override def equals (obj: Any): Boolean = obj match {
+    case other: DocumentMetadata => 
+      other.title == title &&
+        other.description == description &&
+        other.identifier == identifier &&
+        other.authors == authors &&
+        other.language == language &&
+        other.date.toString == date.toString && // equals does not work properly on js.Date
+        other.version == version
+    case _ => false
+  } 
 
 }
 
@@ -56,7 +68,7 @@ object DocumentMetadata {
       author     <- config.getOpt[String]("author")
       authors    <- config.get[Seq[String]]("authors", Nil)
       lang       <- config.getOpt[String]("language")
-      date       <- config.getOpt[Date]("date")
+      date       <- config.getOpt[PlatformDateTime.Type]("date")
       version    <- config.getOpt[String]("version")
     } yield {
       DocumentMetadata(title, description, identifier, authors ++ author.toSeq, lang, date, version)

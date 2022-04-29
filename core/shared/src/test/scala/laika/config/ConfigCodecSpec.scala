@@ -22,7 +22,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.rewrite.{Version, VersionScannerConfig, Versions}
 import laika.rewrite.link.{ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition}
 import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 import munit.FunSuite
 
 /**
@@ -72,7 +72,7 @@ class ConfigCodecSpec extends FunSuite {
       Some("XX-33-FF-01"),
       Seq("Helen North", "Maria South"),
       Some("en"),
-      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
     ))
   }
 
@@ -91,7 +91,7 @@ class ConfigCodecSpec extends FunSuite {
       Some("XX-33-FF-01"),
       Seq("Dorothea West"),
       Some("en"),
-      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
     ))
   }
 
@@ -102,7 +102,7 @@ class ConfigCodecSpec extends FunSuite {
       Some("XX-33-FF-01"),
       Seq("Helen North", "Maria South"),
       Some("en"),
-      Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
     )
     roundTrip(input)
   }

@@ -16,9 +16,7 @@
 
 package laika.helium.config
 
-import java.time.Instant
-import java.util.Date
-
+import java.time.OffsetDateTime
 import laika.ast.Path.Root
 import laika.ast.{DocumentMetadata, Image, Length, Path}
 import laika.helium.Helium
@@ -180,7 +178,7 @@ private[helium] trait CommonConfigOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Instant] = None,
+                date: Option[OffsetDateTime] = None,
                 version: Option[String] = None): Helium
 
   /** Adds a dedicated page for a table of content, in addition to the reader-native navigation structure.
@@ -251,9 +249,9 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Instant] = None,
+                date: Option[OffsetDateTime] = None,
                 version: Option[String] = None): Helium =
-    withMetadata(DocumentMetadata(title, description, identifier, authors, language, date.map(Date.from), version))
+    withMetadata(DocumentMetadata(title, description, identifier, authors, language, date, version))
 }
 
 private[helium] trait AllFormatsOps extends CommonConfigOps {
@@ -303,7 +301,7 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
                 identifier: Option[String] = None,
                 authors: Seq[String] = Nil,
                 language: Option[String] = None,
-                date: Option[Instant] = None,
+                date: Option[OffsetDateTime] = None,
                 version: Option[String] = None): Helium = formats.foldLeft(helium) {
     case (helium, format) =>
       format(helium).metadata(title, description, identifier, authors, language, date, version)

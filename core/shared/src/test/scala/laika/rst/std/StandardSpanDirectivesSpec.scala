@@ -16,7 +16,6 @@
 
 package laika.rst.std
 
-import java.util.Date
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -25,7 +24,7 @@ import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.ReStructuredText
 import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.link.LinkConfig
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 import munit.FunSuite
 
 /**
@@ -140,7 +139,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
-    val date = PlatformDateFormat.format(new Date, "yyyy-MM-dd").toOption.get
+    val date = PlatformDateTime.format(PlatformDateTime.now, "yyyy-MM-dd").toOption.get
     run(input, p(Text(s"Some $date")))
   }
   
@@ -148,7 +147,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
     val input = """.. |subst| date:: yyyy-MMM-dd
       |
       |Some |subst|""".stripMargin
-    val date = PlatformDateFormat.format(new Date, "yyyy-MMM-dd").toOption.get
+    val date = PlatformDateTime.format(PlatformDateTime.now, "yyyy-MMM-dd").toOption.get
     run(input, p(Text(s"Some $date")))
   }
 
@@ -166,7 +165,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
     val input = s""".. |subst| date:: $format
                   |
                   |Some |subst|""".stripMargin
-    val date = PlatformDateFormat.format(new Date, format).toOption.get
+    val date = PlatformDateTime.format(PlatformDateTime.now, format).toOption.get
     val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
     assertEquals(parse(input).map(stripMinutesAndSeconds), Right(result))
   }

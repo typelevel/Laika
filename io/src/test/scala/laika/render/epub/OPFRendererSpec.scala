@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import java.time.Instant
+import java.time.{Instant, OffsetDateTime}
 import java.util.{Date, Locale}
 import cats.effect.IO
 import laika.ast.Path.Root
@@ -34,7 +34,7 @@ class OPFRendererSpec extends FunSuite {
   val title = "Tree 1"
   val uuid = "some-uuid"
   val timestamp = "2018-01-01T12:00:00Z"
-  val instant: Date = Date.from(Instant.parse(timestamp))
+  val instant: OffsetDateTime = OffsetDateTime.parse(timestamp)
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
   val config: EPUB.BookConfig = EPUB.BookConfig(metadata = DocumentMetadata(
     identifier = Some(identifier),

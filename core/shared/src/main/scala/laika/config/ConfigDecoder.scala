@@ -21,7 +21,7 @@ import cats.data.NonEmptyChain
 import cats.implicits._
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast.{ExternalTarget, InternalTarget, Path, PathBase, RelativePath, Target}
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 
 import scala.util.Try
 
@@ -115,8 +115,8 @@ object ConfigDecoder {
     }
   }
 
-  implicit lazy val date: ConfigDecoder[Date] = string.flatMap { dateString =>
-    PlatformDateFormat.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
+  implicit lazy val date: ConfigDecoder[PlatformDateTime.Type] = string.flatMap { dateString =>
+    PlatformDateTime.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {

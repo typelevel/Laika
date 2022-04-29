@@ -20,7 +20,7 @@ import java.util.Date
 
 import cats.data.NonEmptyChain
 import laika.ast.{Element, Path}
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 
 /** A type class that can encode a value of type T as a ConfigValue.
   * 
@@ -57,8 +57,9 @@ object ConfigEncoder {
     def apply (value: Path) = StringValue(value.toString)
   }
 
-  implicit val date: ConfigEncoder[Date] = new ConfigEncoder[Date] {
-    def apply (value: Date) = StringValue(PlatformDateFormat.format(value, "yyyy-MM-dd'T'HH:mm:ss").getOrElse(value.toString))
+  implicit val date: ConfigEncoder[PlatformDateTime.Type] = new ConfigEncoder[PlatformDateTime.Type] {
+    def apply (value: PlatformDateTime.Type) = 
+      StringValue(PlatformDateTime.format(value, "yyyy-MM-dd'T'HH:mm:ss").getOrElse(value.toString))
   }
 
   implicit val astValue: ConfigEncoder[Element] = new ConfigEncoder[Element] {

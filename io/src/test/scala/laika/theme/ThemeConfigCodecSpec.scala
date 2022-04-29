@@ -22,7 +22,7 @@ import laika.config.Config.ConfigResult
 import laika.config._
 import laika.render.fo.TestTheme
 import laika.theme.config.BookConfig
-import laika.time.PlatformDateFormat
+import laika.time.PlatformDateTime
 import munit.FunSuite
 
 /**
@@ -65,7 +65,7 @@ class ThemeConfigCodecSpec extends FunSuite {
         Some("XX-33-FF-01"),
         Seq("Helen North", "Maria South"),
         Some("en"),
-        Some(PlatformDateFormat.parse("2002-10-10T12:00:00").toOption.get)
+        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
       ),
       Some(3),
       TestTheme.fonts,
