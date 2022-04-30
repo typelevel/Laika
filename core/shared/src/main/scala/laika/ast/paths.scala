@@ -31,7 +31,7 @@ import scala.annotation.tailrec
   * This trait is the only one within the Path API that is not sealed,
   * to allow for implementations in other modules (e.g. `FilePath` in `laika-io`).
   */
-trait GenericPath extends Product with Serializable {
+trait GenericPath {
 
   type Self <: GenericPath
 
@@ -99,7 +99,7 @@ trait GenericPath extends Product with Serializable {
   * e.g. from two different directories merged into a single virtual tree in memory
   * with some additional documents added programmatically without any file system reference.
   */
-sealed trait VirtualPath extends GenericPath {
+sealed trait VirtualPath extends GenericPath with Product with Serializable {
   
   type Self <: VirtualPath
 
