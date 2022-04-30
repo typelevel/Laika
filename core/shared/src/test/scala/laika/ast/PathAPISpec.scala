@@ -63,7 +63,7 @@ class PathAPISpec extends FunSuite {
     expectedName: String,
     expectedSuffix: String
   ): Unit = {
-    test(s"withBasename - $testName") {
+    test(s"withSuffix - $testName") {
       assertEquals(pathUnderTest.toString, expectedToString)
       assertEquals(pathUnderTest.name, expectedName)
       assertEquals(pathUnderTest.suffix, Some(expectedSuffix))
