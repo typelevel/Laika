@@ -20,7 +20,7 @@ import java.util.Date
 import cats.data.NonEmptyChain
 import cats.implicits._
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{ExternalTarget, InternalTarget, Path, PathBase, RelativePath, Target}
+import laika.ast.{ExternalTarget, InternalTarget, Path, VirtualPath, RelativePath, Target}
 import laika.time.PlatformDateTime
 
 import scala.util.Try
@@ -97,7 +97,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = valueDecoder(value).map(res => value.copy(value = res))
   }
   
-  private def resolvePath (path: PathBase, origin: Origin): Path =
+  private def resolvePath (path: VirtualPath, origin: Origin): Path =
     path match {
       case c: CurrentDocument => origin.path / c
       case p: RelativePath    => origin.path.parent / p
@@ -105,7 +105,7 @@ object ConfigDecoder {
     }
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
-    resolvePath(PathBase.parse(tracedValue.value), tracedValue.origin)
+    resolvePath(VirtualPath.parse(tracedValue.value), tracedValue.origin)
   }
 
   implicit lazy val target: ConfigDecoder[Target] = tracedValue[String].map { tracedValue =>

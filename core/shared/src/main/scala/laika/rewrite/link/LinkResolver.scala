@@ -86,7 +86,7 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def resolveLocal (ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
       resolveWith(ref, targets.select(cursor.path, selector), msg)
 
-    def resolvePath (ref: Reference, path: PathBase, msg: => String): RewriteAction[Span] = {
+    def resolvePath (ref: Reference, path: VirtualPath, msg: => String): RewriteAction[Span] = {
       val selector = PathSelector(InternalTarget(path).relativeTo(cursor.path).absolutePath)
       resolveWith(ref, targets.select(Root, selector), msg)
     }

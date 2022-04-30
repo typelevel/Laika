@@ -23,19 +23,17 @@ import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 
 import scala.annotation.tailrec
 
-/** The abstract base for absolute and relative paths.
+/** Generic base trait for all path abstractions in Laika.
   * 
-  * A path in Laika is always virtual and not pointing
-  * to a path in the file system, even if the data was obtained
-  * by scanning a directory. This is because in Laika transformation
-  * input can come from different sources, e.g. from two different
-  * directories merged into a single virtual tree in memory with
-  * some additional documents added programmatically without any
-  * file system reference.
+  * The most commonly used sub-type is `VirtualPath` which is used to assign paths to trees and documents
+  * within a Laika transformation.
+  * 
+  * This trait is the only one within the Path API that is not sealed,
+  * to allow for implementations in other modules (e.g. `FilePath` in `laika-io`).
   */
-sealed trait PathBase extends Product with Serializable {
-  
-  type Self <: PathBase
+trait GenericPath extends Product with Serializable {
+
+  type Self <: GenericPath
 
   /** The local name of this path, without the optional fragment part, but including the suffix if present.
     */
@@ -77,9 +75,9 @@ sealed trait PathBase extends Product with Serializable {
   /** Returns a new path that discards this path's fragment, if present.
     */
   def withoutFragment: Self = copyWith(fragment = None)
-  
-  protected def copyWith (basename: String = basename, 
-                          suffix: Option[String] = suffix, 
+
+  protected def copyWith (basename: String = basename,
+                          suffix: Option[String] = suffix,
                           fragment: Option[String] = fragment) : Self
 
   /** Creates a new path with the specified name
@@ -93,8 +91,22 @@ sealed trait PathBase extends Product with Serializable {
   
 }
 
+/** The abstract base for absolute and relative paths within Laika's virtual path abstraction.
+  * 
+  * A path in Laika is always virtual and not pointing to a path in the file system, 
+  * even if the data was obtained by scanning a directory. 
+  * This is because in Laika transformation input can come from different sources,
+  * e.g. from two different directories merged into a single virtual tree in memory
+  * with some additional documents added programmatically without any file system reference.
+  */
+sealed trait VirtualPath extends GenericPath {
+  
+  type Self <: VirtualPath
+
+}
+
 /** The common base for absolute and relative paths that contain one or more path segments. */
-sealed trait SegmentedPathBase extends PathBase {
+sealed trait SegmentedVirtualPath extends VirtualPath {
 
   /** The segments representing this path instance. The last segment does not include the suffix or fragment parts */
   def segments: NonEmptyChain[String]
@@ -110,7 +122,7 @@ sealed trait SegmentedPathBase extends PathBase {
 
 }
 
-object SegmentedPathBase {
+object SegmentedVirtualPath {
 
   private[laika] def parseLastSegment (segments: List[String]): (Option[NonEmptyChain[String]], Option[String], Option[String]) = 
     segments.lastOption.fold[(Option[NonEmptyChain[String]], Option[String], Option[String])]((None, None, None)) { lastSegment =>
@@ -135,7 +147,7 @@ object SegmentedPathBase {
   
 }
 
-object PathBase {
+object VirtualPath {
 
   /** Creates path from interpreting the specified string representation.
     *
@@ -144,13 +156,16 @@ object PathBase {
     *
     * Empty path segments are allowed, but should usually be avoided for usability reasons.
     */
-  def parse (path: String): PathBase = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
+  def parse (path: String): VirtualPath = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
   
 }
 
-/** Represents a path inside a virtual tree of documents.
- */
-sealed trait Path extends PathBase {
+/** Represents an absolute path inside a virtual tree of documents.
+  * 
+  * Since this is the most commonly used path abstraction in Laika it received a conveniently short type name.
+  * The full, accurate name of this type would be `AbsoluteVirtualPath`.
+  */
+sealed trait Path extends VirtualPath {
   
   type Self = Path
 
@@ -181,7 +196,7 @@ sealed trait Path extends PathBase {
   
 }
 
-case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String] = None, fragment: Option[String] = None) extends Path with SegmentedPathBase {
+case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String] = None, fragment: Option[String] = None) extends Path with SegmentedVirtualPath {
   
   val depth: Int = segments.length.toInt
   
@@ -292,7 +307,7 @@ object Path {
     }
   }
   
-  private def parseLastSegment (segments: List[String]): Path = SegmentedPathBase.parseLastSegment(segments) match {
+  private def parseLastSegment (segments: List[String]): Path = SegmentedVirtualPath.parseLastSegment(segments) match {
     case (Some(seg), suf, frag) => SegmentedPath(seg, suf, frag)
     case _ => Root
   }
@@ -301,7 +316,7 @@ object Path {
 
 }
 
-sealed trait RelativePath extends PathBase {
+sealed trait RelativePath extends VirtualPath {
 
   type Self = RelativePath
   
@@ -321,7 +336,7 @@ sealed trait RelativePath extends PathBase {
 case class SegmentedRelativePath(segments: NonEmptyChain[String], 
                                  suffix: Option[String] = None, 
                                  fragment: Option[String] = None, 
-                                 parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
+                                 parentLevels: Int = 0) extends RelativePath with SegmentedVirtualPath {
 
   lazy val parent: RelativePath = {
     def noSegments = if (parentLevels == 0) CurrentTree else Parent(parentLevels)
@@ -426,7 +441,7 @@ object RelativePath {
           else (current, path)
         val (levels, rest) = countParents(0, other)
         val segments = if (rest.isEmpty) Nil else rest.split("/").toList
-        SegmentedPathBase.parseLastSegment(segments) match {
+        SegmentedVirtualPath.parseLastSegment(segments) match {
           case (Some(seg), suf, frag) => SegmentedRelativePath(seg, suf, frag, levels)
           case _ => Parent(levels)
         }

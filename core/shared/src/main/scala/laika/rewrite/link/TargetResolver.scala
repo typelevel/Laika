@@ -58,7 +58,7 @@ object ReferenceResolver {
     case LinkSource(LinkIdReference (content, _, _, opt), sourcePath) =>
       SpanLink(content, InternalTarget(target).relativeTo(sourcePath), None, opt)
   }
-  def resolveTarget (target: PathBase, refPath: Path): Target = target match {
+  def resolveTarget (target: VirtualPath, refPath: Path): Target = target match {
       /* If an internal target point upwards beyond the virtual root of the processed tree, 
          it is treated as an external target and does not get validated. */
     case rp: RelativePath if (rp.parentLevels >= refPath.depth) => ExternalTarget(target.toString)
