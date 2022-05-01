@@ -784,7 +784,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
     def versions (scannerRoot: Option[String] = None): Versions = Versions(
       Version("0.4.x", "0.4"),
-      Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")),
+      Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", fallbackLink = "toc.html")),
       Seq(Version("0.5.x", "0.5")),
       scannerConfig = scannerRoot.map(VersionScannerConfig.apply(_))
     )

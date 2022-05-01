@@ -37,7 +37,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     Version("0.42.x", "0.42"),
     Seq(
       Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", "toc.html")
+      Version("0.40.x", "0.40", fallbackLink = "toc.html")
     ),
     Seq(
       Version("0.43.x", "0.43")

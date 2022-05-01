@@ -271,10 +271,10 @@ class ConfigCodecSpec extends FunSuite {
   
   object versions {
     val testInstance = Versions(
-      Version("0.42.x", "0.42"),
+      Version("0.42.x", "0.42", canonical = true),
       Seq(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", "toc.html")
+        Version("0.40.x", "0.40", fallbackLink = "toc.html")
       ),
       Seq(
         Version("0.43.x", "0.43", label = Some("dev"))
@@ -288,7 +288,7 @@ class ConfigCodecSpec extends FunSuite {
     val input =
        """{
         |  laika.versions {
-        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }
+        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html", canonical = true }
         |    olderVersions = [
         |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html" }
         |      { displayValue = "0.40.x", pathSegment = "0.40", fallbackLink = "toc.html" }
