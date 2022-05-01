@@ -21,12 +21,14 @@ import laika.ast.Path.Root
 import laika.ast.{GenericPath, Path, RelativePath, SegmentedPath}
 import laika.collection.TransitionalCollectionOps.JIteratorWrapper
 
-import java.nio.file.Paths
+import java.nio.file.{InvalidPathException, Paths}
 
 /** Represents a path on the file system, pointing to a file or directory that may or may not exist.
   * 
   * This type has a lot of shared API with the `VirtualPath` abstraction in `laika-core` via their
   * common super-trait `GenericPath`.
+  * Like the virtual path API it comes with convenience methods for querying and modifying
+  * suffix and fragment components, a common requirement in processing internal links for example.
   * 
   * However, it differs in two ways from the virtual path abstraction: semantically, as the latter
   * is never intended to represent an actual file and instead just describes a tree structure
@@ -35,11 +37,17 @@ import java.nio.file.Paths
   * Secondly, it comes with additional APIs to convert to and from other path representations,
   * namely `java.io.File`, `java.nio.file.Path` and `fs2.io.file.Path`.
   * 
+  * Having a dedicated file path abstraction also helps with type signatures for methods in Laika's APIs 
+  * that accept two path arguments: a file path and a virtual path indicating the mount point 
+  * (at which the specified file is supposed to be inserted into the virtual tree).
+  * 
   * @author Jens Halm
   */
-class FilePath private (private val underlying: Path) extends GenericPath {
+class FilePath private (private val root: String, private val underlying: Path) extends GenericPath {
 
   type Self = FilePath
+  
+  override val basename: String = underlying.basename
   
   def name: String = underlying.name
 
@@ -49,21 +57,24 @@ class FilePath private (private val underlying: Path) extends GenericPath {
 
   protected def copyWith (basename: String, suffix: Option[String], fragment: Option[String]) =
     underlying match {
-      case Root => new FilePath(Root)
-      case sp: SegmentedPath => new FilePath(sp.copy(
+      case Root => this
+      case sp: SegmentedPath => new FilePath(root, sp.copy(
         segments = NonEmptyChain.fromChainAppend(sp.segments.init, basename),
         suffix = suffix,
         fragment = fragment
       ))
     }
 
-  def / (path: RelativePath): FilePath = new FilePath(underlying / path)
+  def / (path: RelativePath): FilePath = new FilePath(root, underlying / path)
 
   /** Converts this `FilePath` to a `java.nio.file.Path`.
     */
   def toNioPath: java.nio.file.Path = underlying match {
-    case Root => Paths.get("/")
-    case sp: SegmentedPath => Paths.get(sp.segments.head, sp.segments.tail.toList:_*)
+    case Root => Paths.get(root)
+    case sp: SegmentedPath => 
+      val last = sp.name + fragment.fold("")("#" + _)
+      val segments = sp.segments.init.append(last).toList
+      Paths.get(root, segments:_*)
   }
 
   /** Converts this `FilePath` to an `fs2.io.file.Path`.
@@ -74,7 +85,7 @@ class FilePath private (private val underlying: Path) extends GenericPath {
     */
   def toJavaFile: java.io.File = toNioPath.toFile
   
-  override def toString: String = underlying.toString
+  override def toString: String = root + underlying.toString.drop(1)
 
   override def equals (other: Any): Boolean = other match {
     case fp: FilePath => fp.underlying == underlying
@@ -93,8 +104,10 @@ object FilePath {
   /** Creates a new `FilePath` from the specified NIO path after normalizing it.
     */
   def fromNioPath (path: java.nio.file.Path): FilePath = {
+    if (!path.isAbsolute) throw new InvalidPathException(path.toString, "File paths need to be absolute")
+    val root = Option(path.getRoot).fold("")(_.toString)
     val segments = JIteratorWrapper(path.normalize().iterator()).toList.map(_.toString)
-    new FilePath(Path.apply(segments))
+    new FilePath(root, Path.apply(segments))
   }
 
   /** Creates a new `FilePath` from the specified fs2 path after normalizing it.
