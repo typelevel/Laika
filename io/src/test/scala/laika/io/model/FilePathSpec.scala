@@ -19,30 +19,34 @@ package laika.io.model
 import munit.FunSuite
 
 import java.io.File
-import java.nio.file.Paths
+import java.nio.file.{FileSystems, Paths}
 
 class FilePathSpec extends FunSuite {
-  
-  val testPathString = "/foo/bar/../baz.jpg"
+
+  private val platformSeparator = FileSystems.getDefault.getSeparator
+  private val platformRoot = Paths.get(System.getProperty("user.dir")).getRoot.toString
+
+  private val testPathString = platformRoot + List("foo", "bar", "..", "baz.jpg").mkString(platformSeparator)
+  private val expectedPath = platformRoot + List("foo", "baz.gif").mkString(platformSeparator)
 
   test("create and modify normalized FilePath from NIO path") {
     val path = FilePath.fromNioPath(Paths.get(testPathString))
-    assertEquals(path.withSuffix("gif").toString, "/foo/baz.gif")
+    assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from fs2 path") {
     val path = FilePath.fromFS2Path(fs2.io.file.Path.fromNioPath(Paths.get(testPathString)))
-    assertEquals(path.withSuffix("gif").toString, "/foo/baz.gif")
+    assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from Java File") {
-    val path = FilePath.fromJavaFile(new File("/foo/bar", "../baz.jpg"))
-    assertEquals(path.withSuffix("gif").toString, "/foo/baz.gif")
+    val path = FilePath.fromJavaFile(new File(testPathString))
+    assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from parsed string") {
     val path = FilePath.parse(testPathString)
-    assertEquals(path.withSuffix("gif").toString, "/foo/baz.gif")
+    assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("round trip FilePath from and to NIO path") {
@@ -58,7 +62,7 @@ class FilePathSpec extends FunSuite {
   }
 
   test("round trip FilePath from and to Java file") {
-    val inPath = new File("/foo/bar", "../baz.jpg")
+    val inPath = new File(testPathString)
     val outPath = FilePath.fromJavaFile(inPath).toJavaFile
     assertEquals(outPath, inPath.getCanonicalFile)
   }

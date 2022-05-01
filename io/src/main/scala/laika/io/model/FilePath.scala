@@ -30,12 +30,16 @@ import java.nio.file.{InvalidPathException, Paths}
   * Like the virtual path API it comes with convenience methods for querying and modifying
   * suffix and fragment components, a common requirement in processing internal links for example.
   * 
-  * However, it differs in two ways from the virtual path abstraction: semantically, as the latter
-  * is never intended to represent an actual file and instead just describes a tree structure
-  * of inputs (and AST documents after parsing). 
+  * However, it differs in three ways from the virtual path abstraction: first, semantically,
+  * as the latter is never intended to represent an actual file
+  * and instead just describes a tree structure of inputs (and AST documents after parsing).
   * 
-  * Secondly, it comes with additional APIs to convert to and from other path representations,
+  * Secondly, this type comes with additional APIs to convert to and from other path representations,
   * namely `java.io.File`, `java.nio.file.Path` and `fs2.io.file.Path`.
+  *
+  * And finally, the `toString` method for this type returns a platform-dependent string representation
+  * by using the file separator of the underlying file system.
+  * Laika's virtual path abstractions on the other hand always uses a forward slash `/` as the separator.
   * 
   * Having a dedicated file path abstraction also helps with type signatures for methods in Laika's APIs 
   * that accept two path arguments: a file path and a virtual path indicating the mount point 
@@ -55,7 +59,7 @@ class FilePath private (private val root: String, private val underlying: Path) 
 
   def fragment: Option[String] = underlying.fragment
 
-  protected def copyWith (basename: String, suffix: Option[String], fragment: Option[String]) =
+  protected def copyWith (basename: String, suffix: Option[String], fragment: Option[String]): FilePath =
     underlying match {
       case Root => this
       case sp: SegmentedPath => new FilePath(root, sp.copy(
@@ -85,7 +89,7 @@ class FilePath private (private val root: String, private val underlying: Path) 
     */
   def toJavaFile: java.io.File = toNioPath.toFile
   
-  override def toString: String = root + underlying.toString.drop(1)
+  override def toString: String = toNioPath.toString
 
   override def equals (other: Any): Boolean = other match {
     case fp: FilePath => fp.underlying == underlying
@@ -104,7 +108,7 @@ object FilePath {
   /** Creates a new `FilePath` from the specified NIO path after normalizing it.
     */
   def fromNioPath (path: java.nio.file.Path): FilePath = {
-    if (!path.isAbsolute) throw new InvalidPathException(path.toString, "File paths need to be absolute")
+    if (!path.isAbsolute) throw new InvalidPathException(path.toString, "File paths must be absolute")
     val root = Option(path.getRoot).fold("")(_.toString)
     val segments = JIteratorWrapper(path.normalize().iterator()).toList.map(_.toString)
     new FilePath(root, Path.apply(segments))
