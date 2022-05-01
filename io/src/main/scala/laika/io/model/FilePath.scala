@@ -92,7 +92,7 @@ class FilePath private (private val root: String, private val underlying: Path) 
   override def toString: String = toNioPath.toString
 
   override def equals (other: Any): Boolean = other match {
-    case fp: FilePath => fp.underlying == underlying
+    case fp: FilePath => fp.root == root && fp.underlying == underlying
     case _ => false
   }
 
