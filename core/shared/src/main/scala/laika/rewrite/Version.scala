@@ -16,8 +16,10 @@
 
 package laika.rewrite
 
+import cats.syntax.all._
+import cats.data.NonEmptyChain
 import laika.ast.Path
-import laika.config.{ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys}
+import laika.config.{ConfigDecoder, ConfigEncoder, ConfigErrors, DefaultKey, LaikaKeys, ValidationError}
 
 /** Configuration for a single version of the documentation.
   * 
@@ -77,7 +79,7 @@ case class Versions (currentVersion: Version,
                      renderUnversioned: Boolean = true,
                      scannerConfig: Option[VersionScannerConfig] = None) {
   
-  def allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
+  lazy val allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
 
   /** Configures the version scanner to use during transformations.
     * These settings enable scanning and indexing existing versions during a transformation, 
@@ -85,6 +87,25 @@ case class Versions (currentVersion: Version,
     */
   def withVersionScanner (rootDirectory: String, exclude: Seq[Path]): Versions = 
     copy(scannerConfig = Some(VersionScannerConfig(rootDirectory, exclude)))
+
+  /** Validates this configuration instance and either returns a `Left` with a
+    * list of errors encountered or a `Right` containing this instance.
+    */
+  def validated: Either[NonEmptyChain[String], Versions] = {
+    
+    val dupSegments = allVersions.groupBy(_.pathSegment).filter(_._2.size > 1).keys.toList.sorted
+    val dupSegmentsMsg = if (dupSegments.isEmpty) None 
+      else Some(s"Path segments used for more than one version: ${dupSegments.mkString(", ")}")
+    
+    val dupCanonical = allVersions.filter(_.canonical).map(_.displayValue).toList.sorted
+    val dupCanonicalMsg = if (dupCanonical.size < 2) None
+      else Some(s"More than one version marked as canonical: ${dupCanonical.mkString(", ")}")
+    
+    NonEmptyChain.fromSeq(dupSegmentsMsg.toList ++ dupCanonicalMsg.toList) match {
+      case Some(chain) => Left(chain)
+      case None        => Right(this)
+    }
+  }
   
 }
 
@@ -142,9 +163,9 @@ object Versions {
       newerVersions       <- config.get[Seq[Version]]("newerVersions", Nil)
       renderUnversioned   <- config.get[Boolean]("renderUnversioned", false)
       versionScanner      <- config.getOpt[VersionScannerConfig]("scannerConfig")
-    } yield {
-      Versions(currentVersion, olderVersions, newerVersions, renderUnversioned, versionScanner)
-    }
+      result              <- Versions(currentVersion, olderVersions, newerVersions, renderUnversioned, versionScanner)
+                               .validated.leftMap(err => ConfigErrors(err.map(ValidationError(_))))
+    } yield result
   }
 
   implicit val encoder: ConfigEncoder[Versions] = ConfigEncoder[Versions] { versions =>
