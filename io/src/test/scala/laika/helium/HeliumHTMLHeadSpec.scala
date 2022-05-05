@@ -64,6 +64,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   val singleDoc = Seq(
     Root / "name.md" -> "text"
   )
+  val docWithCanonicalLink = Seq(
+    Root / "name.md" ->
+      """{%
+        |  laika.metadata.canonicalLink = "http://very.canonical/"
+        |%}
+        |
+        |content""".stripMargin
+  )
   val singleVersionedDoc = Seq(
     Root / "name.md" -> "text",
     Root / "directory.conf" -> "laika.versioned = true",
@@ -202,6 +210,20 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       language = Some("de")
     )
     transformAndExtract(singleDoc, helium, "<html ", ">").assertEquals("""lang="de"""")
+  }
+
+  test("metadata (canonical link)") {
+    val helium = Helium.defaults
+    val expected = meta ++ """
+                             |<title></title>
+                             |<link rel="canonical" href="http://very.canonical/"/>
+                             |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                             |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                             |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                             |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                             |<script src="helium/laika-helium.js"></script>
+                             |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(docWithCanonicalLink, helium).assertEquals(expected)
   }
 
   test("favicons") {

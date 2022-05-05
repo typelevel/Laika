@@ -12,6 +12,9 @@
     @:for(laika.site.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
+    @:for(laika.metadata.canonicalLink)
+      <link rel="canonical" href="${_}"/>
+    @:@
     @:for(helium.favIcons)
       <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) href="@:target(_.target)"/>
     @:@
