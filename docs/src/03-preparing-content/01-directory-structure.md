@@ -301,7 +301,7 @@ This is a global configuration artifact that you can define with the Helium conf
 
 ```scala
 val versions = Versions(
-  currentVersion = Version("0.42.x", "0.42"),
+  currentVersion = Version("0.42.x", "0.42", canonical = true),
   olderVersions = Seq(
     Version("0.41.x", "0.41"),
     Version("0.40.x", "0.40", fallbackLink = "toc.html")
@@ -316,10 +316,16 @@ Helium.defaults.site.versions(versions)
 The two required properties of the `Version` class are `displayValue` which is the version name to be used in
 UI elements and `pathSegment` which is the string to be used as part of URLs pointing to this version.
 
-Two optional properties are `label` which can be used to associate categories like `EOL`, `Stable` or `Dev` with
-each version.
+The remaining properties are optional. First, there is `label` which can be used to associate categories 
+like `EOL`, `Stable` or `Dev` with each version.
 Those three values come with default styles in the Helium CSS, but you can define additional labels if you manually
 include the CSS for those.
+
+Secondly, `canonical` is a boolean that allows to mark one version as the canonical version.
+When using Helium this will trigger the automatic insertion of a `<link rel="canonical" ...` into the output's
+`<head>` element in case the canonical version has a page with the same path. 
+For all other cases the canonical link can alternatively be set manually, 
+for details see [Metadata for Individual Documents].
 
 Finally, `fallbackLink` allows to define a link target that the version switcher should pick, if a target version
 does not have a page corresponding to the current page the user is on.
