@@ -25,15 +25,15 @@ import laika.config.{ConfigDecoder, ConfigEncoder, ConfigErrors, DefaultKey, Lai
   * 
   * @param displayValue the description of the version to use in any UI (e.g. version dropdowns)
   * @param pathSegment the string to use as a path segments in URLs pointing to this version
-  * @param canonical indicates whether this is the canonical version
   * @param fallbackLink the link target to use when switching to this version from a page that does not exist in this version
   * @param label an optional label that will be used in the UI (e.g. `Dev` or `Stable`) 
+  * @param canonical indicates whether this is the canonical version
   */
 case class Version (displayValue: String, 
                     pathSegment: String,
-                    canonical: Boolean = false,
                     fallbackLink: String = "index.html", 
-                    label: Option[String] = None)
+                    label: Option[String] = None,
+                    canonical: Boolean = false)
 
 object Version {
 
@@ -45,7 +45,7 @@ object Version {
       fallbackLink  <- config.get[String]("fallbackLink", "index.html")
       label         <- config.getOpt[String]("label")
     } yield {
-      Version(displayName, pathSegment, canonical, fallbackLink, label)
+      Version(displayName, pathSegment, fallbackLink, label, canonical)
     }
   }
 
@@ -53,9 +53,9 @@ object Version {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("displayValue", version.displayValue)
       .withValue("pathSegment", version.pathSegment)
-      .withValue("canonical", version.canonical)
       .withValue("fallbackLink", version.fallbackLink)
       .withValue("label", version.label)
+      .withValue("canonical", version.canonical)
       .build
   }
   

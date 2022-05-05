@@ -31,7 +31,6 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion, siteB
     }
     link.appendChild(document.createTextNode(version.displayValue));
     link.setAttribute("href", href);
-    document.body.appendChild(link);
     
     const listItem = document.createElement("li");
     listItem.classList.add("level1");
@@ -77,7 +76,7 @@ function initMenuToggle () {
 
 function insertCanonicalLink (linkHref) {
   if (!document.querySelector("link[rel='canonical']")) {
-    const head = document.getElementsByTagName("head")
+    const head = document.head;
     const link = document.createElement("link");
     link.setAttribute("rel", "canonical");
     link.setAttribute("href", linkHref);
