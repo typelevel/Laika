@@ -19,7 +19,7 @@ package laika.theme.config
 import java.io.File
 
 import laika.ast.Path.Root
-import laika.ast.{Path, PathBase}
+import laika.ast.{Path, VirtualPath}
 import laika.config._
 
 /** Represents a font resource, either based on a local classpath or file system resource,
@@ -113,7 +113,7 @@ case class EmbeddedFontFile (file: File) extends EmbeddedFont {
 /** Represent a font files as a classpath resource.
   */
 case class EmbeddedFontResource (name: String) extends EmbeddedFont {
-  val path: Path = Root / "laika" / "fonts" / PathBase.parse(name).name
+  val path: Path = Root / "laika" / "fonts" / VirtualPath.parse(name).name
 }
 
 /** Enumeration for the valid font weights that can be assigned to a font resource, compatible with CSS properties.

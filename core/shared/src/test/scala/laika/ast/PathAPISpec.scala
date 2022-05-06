@@ -39,11 +39,11 @@ class PathAPISpec extends FunSuite {
   def decoder (testName: String)(body: Any): Unit = test(s"decoder - $testName")(body)
   def parent (testName: String)(body: Any): Unit = test(s"parent - $testName")(body)
   def depth (testName: String)(body: Any): Unit = test(s"depth - $testName")(body)
-  def basename (testName: String, actual: PathBase, expected: String): Unit = 
+  def basename (testName: String, actual: VirtualPath, expected: String): Unit = 
     test(s"basename - $testName") {
       assertEquals(actual.basename, expected)
     }
-  def withBasename (testName: String, pathUnderTest: PathBase)(
+  def withBasename (testName: String, pathUnderTest: VirtualPath)(
     expectedToString: String,
     expectedName: String,
     expectedBasename: String
@@ -54,26 +54,26 @@ class PathAPISpec extends FunSuite {
       assertEquals(pathUnderTest.basename, expectedBasename)
     }
   }
-  def suffix (testName: String, actual: PathBase, expected: Option[String]): Unit =
+  def suffix (testName: String, actual: VirtualPath, expected: Option[String]): Unit =
     test(s"suffix - $testName") {
       assertEquals(actual.suffix, expected)
     }
-  def withSuffix (testName: String, pathUnderTest: PathBase)(
+  def withSuffix (testName: String, pathUnderTest: VirtualPath)(
     expectedToString: String,
     expectedName: String,
     expectedSuffix: String
   ): Unit = {
-    test(s"withBasename - $testName") {
+    test(s"withSuffix - $testName") {
       assertEquals(pathUnderTest.toString, expectedToString)
       assertEquals(pathUnderTest.name, expectedName)
       assertEquals(pathUnderTest.suffix, Some(expectedSuffix))
     }
   }
-  def fragment (testName: String, actual: PathBase, expected: Option[String]): Unit =
+  def fragment (testName: String, actual: VirtualPath, expected: Option[String]): Unit =
     test(s"fragment - $testName") {
       assertEquals(actual.fragment, expected)
     }
-  def withFragment (testName: String, pathUnderTest: PathBase)(
+  def withFragment (testName: String, pathUnderTest: VirtualPath)(
     expectedToString: String,
     expectedName: String,
     expectedFragment: String
@@ -90,7 +90,7 @@ class PathAPISpec extends FunSuite {
   def concatRel (testName: String, actual: RelativePath, expected: RelativePath): Unit =
     test(s"path concatenation for relative paths - $testName") { assertEquals(actual, expected) }
 
-  def relativeTo (testName: String, actual: PathBase, expected: PathBase)(implicit loc: Location): Unit =
+  def relativeTo (testName: String, actual: VirtualPath, expected: VirtualPath)(implicit loc: Location): Unit =
     test(s"relativeTo - $testName") { assertEquals(actual, expected) }
 
   def isSubPath (testName: String, actual: Boolean, expected: Boolean)(implicit loc: Location): Unit =
@@ -98,75 +98,75 @@ class PathAPISpec extends FunSuite {
   
   
   decoder("absolute path with three segments") {
-    assertEquals(PathBase.parse("/foo/bar/baz"), Root / "foo" / "bar" / "baz")
+    assertEquals(VirtualPath.parse("/foo/bar/baz"), Root / "foo" / "bar" / "baz")
   }
 
   decoder("absolute path with one segment") {
-    assertEquals(PathBase.parse("/foo"), Root / "foo")
+    assertEquals(VirtualPath.parse("/foo"), Root / "foo")
   }
 
   decoder("ignore trailing slashes for absolute paths") {
-    assertEquals(PathBase.parse("/foo/"), Root / "foo")
+    assertEquals(VirtualPath.parse("/foo/"), Root / "foo")
   }
   
   decoder("root path from a single slash") {
-    assertEquals(PathBase.parse("/"), Root)
+    assertEquals(VirtualPath.parse("/"), Root)
   }
 
   decoder("relative path with three segments") {
-    assertEquals(PathBase.parse("foo/bar/baz"), CurrentTree / "foo" / "bar" / "baz")
+    assertEquals(VirtualPath.parse("foo/bar/baz"), CurrentTree / "foo" / "bar" / "baz")
   }
 
   decoder("relative path with one segment") {
-    assertEquals(PathBase.parse("foo/"), CurrentTree / "foo")
+    assertEquals(VirtualPath.parse("foo/"), CurrentTree / "foo")
   }
 
   decoder("ignore trailing slashes for relative paths") {
-    assertEquals(PathBase.parse("foo/"), CurrentTree / "foo")
+    assertEquals(VirtualPath.parse("foo/"), CurrentTree / "foo")
   }
 
   decoder("current document from the empty string") {
-    assertEquals(PathBase.parse(""), CurrentDocument())
+    assertEquals(VirtualPath.parse(""), CurrentDocument())
   }
 
   decoder("current document from a hash") {
-    assertEquals(PathBase.parse("#"), CurrentDocument())
+    assertEquals(VirtualPath.parse("#"), CurrentDocument())
   }
 
   decoder("current relative path from a dot") {
-    assertEquals(PathBase.parse("."), CurrentTree)
+    assertEquals(VirtualPath.parse("."), CurrentTree)
   }
 
   decoder("fragment of the current document") {
-    assertEquals(PathBase.parse("#ref"), CurrentDocument("ref"))
+    assertEquals(VirtualPath.parse("#ref"), CurrentDocument("ref"))
   }
 
   decoder("relative path to parent with three segments") {
-    assertEquals(PathBase.parse("../foo/bar/baz"), Parent(1) / "foo" / "bar" / "baz")
+    assertEquals(VirtualPath.parse("../foo/bar/baz"), Parent(1) / "foo" / "bar" / "baz")
   }
   
   decoder("relative path to parent with one segment") {
-    assertEquals(PathBase.parse("../foo/"), Parent(1) / "foo")
+    assertEquals(VirtualPath.parse("../foo/"), Parent(1) / "foo")
   }
 
   decoder("relative path to parent three levels up") {
-    assertEquals(PathBase.parse("../../../foo/"), Parent(3) / "foo")
+    assertEquals(VirtualPath.parse("../../../foo/"), Parent(3) / "foo")
   }
 
   decoder("relative path to parent two levels up without any path segments") {
-    assertEquals(PathBase.parse("../../"), Parent(2))
+    assertEquals(VirtualPath.parse("../../"), Parent(2))
   }
 
   decoder("relative path to parent one level up without any path segments") {
-    assertEquals(PathBase.parse("../"), Parent(1))
+    assertEquals(VirtualPath.parse("../"), Parent(1))
   }
 
   decoder("relative path to parent two levels up without trailing slash") {
-    assertEquals(PathBase.parse("../.."), Parent(2))
+    assertEquals(VirtualPath.parse("../.."), Parent(2))
   }
 
   decoder("relative path to parent one level up without trailing slash") {
-    assertEquals(PathBase.parse(".."), Parent(1))
+    assertEquals(VirtualPath.parse(".."), Parent(1))
   }
   
   decoder("ignore leading slashes when RelativePath.parse is invoked directly") {

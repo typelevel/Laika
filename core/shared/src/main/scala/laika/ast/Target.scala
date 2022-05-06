@@ -50,7 +50,7 @@ object Target {
     */
   def parse (url: String): Target = 
     if (recognizedProtocols.exists(url.startsWith)) ExternalTarget(url.stripPrefix(pseudoProtocol))
-    else InternalTarget(PathBase.parse(url))
+    else InternalTarget(VirtualPath.parse(url))
 
 }
 
@@ -68,7 +68,7 @@ trait InternalTarget extends Target {
   /** The underlying path reference, which is either a relative or absolute path,
     * depending on the implementation of this trait.
     */
-  def underlying: PathBase = this match {
+  def underlying: VirtualPath = this match {
     case t: ResolvedInternalTarget => t.absolutePath
     case t: AbsoluteInternalTarget => t.path
     case t: RelativeInternalTarget => t.path
@@ -79,7 +79,7 @@ object InternalTarget {
 
   /** Creates an internal target based on the specified relative or absolute path.
     */
-  def apply (path: PathBase): InternalTarget = path match {
+  def apply (path: VirtualPath): InternalTarget = path match {
     case p: RelativePath => RelativeInternalTarget(p)
     case p: Path => AbsoluteInternalTarget(p)
   }
