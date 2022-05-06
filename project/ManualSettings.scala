@@ -1,5 +1,3 @@
-import java.io.File
-
 import laika.ast.LengthUnit.px
 import laika.ast.Path.Root
 import laika.ast._
@@ -48,7 +46,7 @@ object ManualSettings {
     val downloads     = Root / "downloads.gen"
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
-    val docsURL       = "http://planet42.github.io/Laika/"
+    val docsURL       = "https://planet42.github.io/Laika/"
     val srcURL        = "https://github.com/planet42/Laika"
     val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs/src"
     val demoURL       = "http://planet42.org"
