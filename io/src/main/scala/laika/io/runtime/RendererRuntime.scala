@@ -16,10 +16,10 @@
 
 package laika.io.runtime
 
-import java.io.File
-
+import java.io.{File, IOException}
 import cats.effect.{Async, Sync}
 import cats.implicits._
+import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -114,8 +114,8 @@ object RendererRuntime {
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
-          val out = OutputRuntime.binaryFileResource(outFile)
-          CopyRuntime.copy(doc.input, out).as(result)
+          val out = Files[F].writeAll(fs2.io.file.Path.fromNioPath(outFile.toPath))
+          doc.input.through(out).compile.drain.as(result)
         case _ =>
           Sync[F].pure(result)
       }
@@ -128,6 +128,10 @@ object RendererRuntime {
       
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
+
+      def createDirectory (file: File): F[Unit] =
+        Sync[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Sync[F].unit
+        else Sync[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
       
       op.output match {
         case StringTreeOutput => 
@@ -140,7 +144,7 @@ object RendererRuntime {
           val mkDirOps = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
             .map(pathTranslator(_).parent)
             .distinct
-            .map(p => OutputRuntime.createDirectory(file(dir, p)))
+            .map(p => createDirectory(file(dir, p)))
           RenderOps(mkDirOps, renderOps ++ copyOps)
       }
     }

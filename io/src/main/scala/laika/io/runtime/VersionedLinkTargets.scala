@@ -17,6 +17,7 @@
 package laika.io.runtime
 
 import cats.data.NonEmptyChain
+import cats.effect.kernel.Concurrent
 import cats.effect.{Async, Sync}
 import cats.syntax.all._
 import laika.collection.TransitionalCollectionOps._
@@ -69,12 +70,13 @@ private[runtime] object VersionedLinkTargets {
     }
   }
   
-  private def loadVersionInfo[F[_]: Sync] (existing: BinaryInput[F]): F[Map[String, Seq[Path]]] = {
-    def asSync[T](res: ConfigResult[T]): F[T] = Sync[F].fromEither(res.leftMap(ConfigException.apply))
+  private def loadVersionInfo[F[_]: Concurrent] (existing: BinaryInput[F]): F[Map[String, Seq[Path]]] = {
+    def asSync[T](res: ConfigResult[T]): F[T] = Concurrent[F].fromEither(res.leftMap(ConfigException.apply))
     
-    InputRuntime
-      .textStreamResource(existing.input, Codec.UTF8)
-      .use(InputRuntime.readAll(_, 8096))
+    existing.input
+      .through(fs2.text.utf8.decode)
+      .compile
+      .string
       .flatMap(json => asSync(ConfigParser.parse(json).resolve()))
       .flatMap(config => asSync(config.get[Seq[(Path, Seq[String])]]("linkTargets")))
       .map { _
