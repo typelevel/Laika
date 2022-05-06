@@ -19,6 +19,8 @@ package laika.io
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.{Async, IO, Resource}
 import cats.syntax.all._
+import fs2.io.file
+import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -857,11 +859,10 @@ class TreeRendererSpec extends CatsEffectSuite
   test("directory with existing versioned renderer output") {
     import VersionInfoSetup._
       
-    def mkDirs (dir: File): IO[Unit] = IO {
-      Seq("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").foreach { name =>
-        new File(dir, name).mkdirs()
-      }
-    }
+    def mkDirs (dir: File): IO[Unit] = 
+      List("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").map { name =>
+        Files[IO].createDirectories(fs2.io.file.Path.fromNioPath(new File(dir, name).toPath))
+      }.sequence.void
 
     def writeExistingVersionedFiles (root: DocumentTreeRoot, dir: File): IO[Unit] = {
       val paths = root.tree.allDocuments.map(_.path.withSuffix("html").toString)

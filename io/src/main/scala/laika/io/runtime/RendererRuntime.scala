@@ -129,9 +129,7 @@ object RendererRuntime {
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
 
-      def createDirectory (file: File): F[Unit] =
-        Sync[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Sync[F].unit
-        else Sync[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
+      def createDirectory (file: File): F[Unit] = Files[F].createDirectories(fs2.io.file.Path.fromNioPath(file.toPath))
       
       op.output match {
         case StringTreeOutput => 
