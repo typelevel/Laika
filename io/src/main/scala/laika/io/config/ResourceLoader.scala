@@ -16,15 +16,16 @@
 
 package laika.io.config
 
-import java.io.{File, FileNotFoundException, InputStream}
-import java.net.URL
 import cats.effect.{Async, Sync}
 import cats.syntax.all._
+import fs2.io.file.Files
 import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.config.ConfigResourceError
-import laika.io.model.TextInput
+import laika.io.model.{FilePath, TextInput}
 
+import java.io.{FileNotFoundException, InputStream}
+import java.net.URL
 import scala.io.Codec
 
 /** Internal utility for loading text resources from the file system, the classpath or via its URL.
@@ -40,7 +41,7 @@ object ResourceLoader {
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
   def loadFile[F[_]: Async] (file: String): F[Option[Either[ConfigResourceError, String]]] = 
-    loadFile(new File(file))
+    loadFile(FilePath.parse(file))
 
   /** Load the specified file (which may be a file on the file system or a classpath resource).
     *
@@ -48,20 +49,20 @@ object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Async] (file: File): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadFile[F[_]: Async] (file: FilePath): F[Option[Either[ConfigResourceError, String]]] = {
     
     def load: F[Either[ConfigResourceError, String]] = {
       val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
       input.asDocumentInput.attempt.map(_.bimap(
-        t => ConfigResourceError(s"Unable to load file '${file.getPath}': ${t.getMessage}"), 
+        t => ConfigResourceError(s"Unable to load file '${file.toString}': ${t.getMessage}"), 
         _.source.input
       ))
     }
     
-    for {
-      exists <- Sync[F].delay(file.exists())
-      res    <- (if (exists) load.map(Option(_)) else Sync[F].pure(None)): F[Option[Either[ConfigResourceError, String]]]
-    } yield res
+    Files[F].exists(file.toFS2Path).ifM(
+      load.map(Option(_)),
+      Async[F].pure(None)
+    )
   }
 
   /** Load the specified classpath resource. 

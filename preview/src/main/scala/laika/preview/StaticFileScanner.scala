@@ -16,30 +16,30 @@
 
 package laika.preview
 
-import java.io.File
-import java.nio.file.{Files, Path => JPath}
-
 import cats.syntax.all._
 import cats.effect.Async
+import fs2.io.file.Files
 import laika.api.builder.OperationConfig
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.io.config.SiteConfig
-import laika.io.model.BinaryInput
+import laika.io.model.{BinaryInput, FilePath}
 import laika.io.runtime.DirectoryScanner
 import laika.rewrite.Versions
 
 private[preview] object StaticFileScanner {
 
-  private def collect[F[_]: Async] (filePath: JPath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
+  private def collect[F[_]: Async] (filePath: FilePath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
     DirectoryScanner.scanDirectory(filePath) { paths =>
       paths.toList
         .map { path =>
-          val vChild = vPath / path.getFileName.toString
-          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(vPath, path.toFile).input))
-          if (Files.isDirectory(path)) collect(path, vChild)
-          else Async[F].pure(List(result))
+          val vChild = vPath / path.name
+          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(vPath, path).input))
+          Files[F].isDirectory(path.toFS2Path).ifM(
+            collect(path, vChild),
+            Async[F].pure(List(result))
+          )
         }
         .sequence
         .map(_.flatten)
@@ -50,14 +50,13 @@ private[preview] object StaticFileScanner {
 
     def otherVersions (versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
       (versions, versions.flatMap(_.scannerConfig)) match {
-        case (Some(v), Some(scanner)) =>
-          val versionRoot = new File(scanner.rootDirectory)
-          (v.olderVersions ++ v.newerVersions)
+        case (Some(vs), Some(scanner)) =>
+          val versionRoot = FilePath.parse(scanner.rootDirectory)
+          (vs.olderVersions ++ vs.newerVersions)
             .toList
-            .map { v =>
-              collect(new File(versionRoot, v.pathSegment).toPath, Root / v.pathSegment)
+            .traverse { v =>
+              collect(versionRoot / v.pathSegment, Root / v.pathSegment)
             }
-            .sequence
             .map(_.flatten)
         case _ => List.empty[(Path, SiteResult[F])].pure[F]
     }
@@ -70,10 +69,10 @@ private[preview] object StaticFileScanner {
     } yield files.toMap
   }
 
-  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: File): F[Map[Path, SiteResult[F]]] =
+  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: FilePath): F[Map[Path, SiteResult[F]]] =
     for {
       apiPath  <- Async[F].fromEither(SiteConfig.apiPath(config.baseConfig).leftMap(ConfigException.apply))
-      files    <- collect(apiDir.toPath, apiPath)
+      files    <- collect(apiDir, apiPath)
     } yield files.toMap
   
 }

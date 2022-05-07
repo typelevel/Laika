@@ -30,7 +30,7 @@ import scala.io.Codec
   * @param writer     Handler for the character output (a function `String => F[Unit]`)
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-case class TextOutput[F[_]] (path: Path, writer: TextOutput.Writer[F], targetFile: Option[File] = None)
+case class TextOutput[F[_]] (path: Path, writer: TextOutput.Writer[F], targetFile: Option[FilePath] = None)
 
 object TextOutput {
   
@@ -47,8 +47,8 @@ object TextOutput {
   def noOp[F[_]: Applicative] (path: Path): TextOutput[F] =
     TextOutput[F](path, _ => Applicative[F].unit)
 
-  def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
-    TextOutput[F](path, writeAll(Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec), Some(file))
+  def forFile[F[_]: Async] (path: Path, file: FilePath, codec: Codec): TextOutput[F] =
+    TextOutput[F](path, writeAll(Files[F].writeAll(file.toFS2Path), codec), Some(file))
     
   def forStream[F[_]: Async] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
     TextOutput[F](path, writeAll(fs2.io.writeOutputStream(stream, autoClose), codec))
@@ -66,9 +66,9 @@ case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], 
 
 object BinaryOutput {
 
-  def forFile[F[_]: Sync] (path: Path, file: File): BinaryOutput[F] = {
+  def forFile[F[_]: Sync] (path: Path, file: FilePath): BinaryOutput[F] = {
     val resource = Resource.fromAutoCloseable(Sync[F].blocking(
-      new java.io.BufferedOutputStream(new java.io.FileOutputStream(file)))
+      new java.io.BufferedOutputStream(new java.io.FileOutputStream(file.toJavaFile)))
     )
     BinaryOutput(path, resource)
   }
@@ -88,7 +88,7 @@ sealed trait TreeOutput
   * 
   * The specified codec will be used for writing all character output.
   */
-case class DirectoryOutput (directory: File, codec: Codec) extends TreeOutput
+case class DirectoryOutput (directory: FilePath, codec: Codec) extends TreeOutput
 
 /** Instructs the renderer to produce an in-memory representation of the
   * tree of rendered outputs.

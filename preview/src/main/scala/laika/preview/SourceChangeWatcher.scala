@@ -16,17 +16,17 @@
 
 package laika.preview
 
-import java.io.File
-import java.nio.file.{FileSystems, Files, WatchEvent, WatchKey, WatchService, Path => JPath}
+import java.nio.file.{FileSystems, WatchEvent, WatchKey, WatchService}
 import java.nio.file.StandardWatchEventKinds._
-
 import laika.ast.{DocumentType, Path}
 import cats.syntax.all._
 
 import scala.concurrent.duration._
 import cats.effect.{Async, Ref, Resource, Temporal}
+import fs2.io.file.Files
 import laika.ast.DocumentType.Static
 import laika.collection.TransitionalCollectionOps.{JIteratorWrapper, TransitionalMapOps}
+import laika.io.model.{FileFilter, FilePath}
 import laika.io.runtime.DirectoryScanner
 import laika.preview.SourceChangeWatcher.{ObservedDirectory, ObservedFiles, ObservedTarget}
 
@@ -34,25 +34,27 @@ import scala.annotation.tailrec
 
 private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
                                                           targetMap: Ref[F, Map[WatchKey, ObservedTarget]],
-                                                          inputs: List[File],
+                                                          inputs: List[FilePath],
                                                           update: F[Unit],
-                                                          fileFilter: File => Boolean,
+                                                          fileFilter: FileFilter,
                                                           docTypeMatcher: Path => DocumentType) {
   
-  private def scanDirectory (dir: JPath): F[List[JPath]] = DirectoryScanner.scanDirectory[F, List[JPath]](dir) {
+  private def scanDirectory (dir: FilePath): F[List[FilePath]] = DirectoryScanner.scanDirectory[F, List[FilePath]](dir) {
     _.toList
-      .map { childPath =>
-        if (Files.isDirectory(childPath) && !fileFilter(childPath.toFile)) scanDirectory(childPath)
-        else Async[F].pure(List.empty[JPath])
+      .traverse { childPath =>
+        (Files[F].isDirectory(childPath.toFS2Path), fileFilter.filter(childPath)).tupled
+          .flatMap { case (isDir, exclude) => 
+            if (isDir && !exclude) scanDirectory(childPath) else List.empty[FilePath].pure[F]
+          }
       }
-      .sequence.map(_.flatten :+ dir)
+      .map(_.flatten :+ dir)
   }
   
-  def registerRoot (file: JPath, children: List[JPath] = Nil): F[List[ObservedTarget]] = {
+  def registerRoot (file: FilePath, children: List[FilePath] = Nil): F[List[ObservedTarget]] = {
     
-    def registerDirectory (dir: JPath, children: List[JPath] = Nil): F[ObservedTarget] = {
+    def registerDirectory (dir: FilePath, children: List[FilePath] = Nil): F[ObservedTarget] = {
       Async[F]
-        .delay(dir.register(service, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY))
+        .delay(dir.toNioPath.register(service, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY))
         .map { key =>
           if (children.isEmpty) ObservedDirectory(dir, key, fileFilter, docTypeMatcher)
           else ObservedFiles(dir, key, children.toSet, docTypeMatcher)
@@ -71,20 +73,26 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
   val init: F[Unit] = {
     
     val groupedInputs = inputs
-      .map { input =>
-        if (input.isDirectory) (input.toPath, None)
-        else (input.toPath.getParent, Some(input.toPath))
+      .traverse { input =>
+        Files[F].isDirectory(input.toFS2Path).map(
+          if (_) (input, None) 
+          else (FilePath.fromNioPath(input.toNioPath.getParent), Some(input))
+        ) 
       }
-      .groupBy(_._1)
-      .mapValuesStrict(_.flatMap(_._2))
+      .map(_
+        .groupBy(_._1)
+        .mapValuesStrict(_.flatMap(_._2))
+      )
 
     groupedInputs
-      .map {
-        case (parent, children) => registerRoot(parent, children)
+      .flatMap {
+        _.map {
+          case (parent, children) => registerRoot(parent, children)
+        }
+        .toList
+        .sequence
+        .flatMap(updateTargetMap)
       }
-      .toList
-      .sequence
-      .flatMap(updateTargetMap)
   }
 
   @tailrec
@@ -98,39 +106,58 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
     }
   }
   
+  private case class ProcessedEvent(triggersUpdate: Boolean, newDirectory: Option[FilePath])
+  
+  private def processEvent (event: WatchEvent[_], watchKey: WatchKey, targets: Map[WatchKey, ObservedTarget]): F[ProcessedEvent] = {
+    
+    val targetKindF: F[Option[Either[FilePath, DocumentType]]] = event.context() match {
+      case p: java.nio.file.Path =>
+        val file = FilePath.fromNioPath(p)
+        val target = targets.get(watchKey)
+        (fileFilter.filter(file), Files[F].isDirectory(file.toFS2Path)).tupled.flatMap { case (exclude, isDir) =>
+          (exclude, isDir, target) match {
+            case (false, true, Some(_))  => Async[F].pure(Some(Left(file)))
+            case (false, false, Some(t)) => t.docTypeFor(file).map {
+              case DocumentType.Ignored  => None
+              case other                 => Some(Right(other))
+            }
+            case _                       => Async[F].pure(None)
+          }
+        }
+      case _ => Async[F].pure(None)
+    }
+    
+    targetKindF.map { targetKind =>
+      (event.kind, targetKind) match {
+        case (ENTRY_CREATE, Some(Left(path)))       => ProcessedEvent(triggersUpdate = true, Some(path))
+        case (ENTRY_MODIFY, Some(Right(Static(_)))) => ProcessedEvent(triggersUpdate = false, None)
+        case (ENTRY_CREATE, Some(_))                => ProcessedEvent(triggersUpdate = true, None)
+        case (ENTRY_DELETE, Some(_))                => ProcessedEvent(triggersUpdate = true, None)
+        case (ENTRY_MODIFY, Some(_))                => ProcessedEvent(triggersUpdate = true, None)
+        case _                                      => ProcessedEvent(triggersUpdate = false, None)
+      }
+    }
+  }
+  
   val poll: F[Unit] = {
     val events = Async[F].delay(collectEvents(Nil))
     (events, targetMap.get)
       .mapN { case (events, targets) =>
-        val (needsUpdate, newDirectories) = events.foldLeft((false, List.empty[JPath])) { case ((needsUpdate, newDirectories), (event, key)) =>
-          val targetKind = event.context() match {
-            case p: JPath if !fileFilter(p.toFile) => targets.get(key).flatMap { t =>
-              if (Files.isDirectory(p)) Some(Left(p))
-              else t.docTypeFor(p) match {
-                case DocumentType.Ignored  => None
-                case other                 => Some(Right(other)) 
-              }
-            }
-            case _ => None
-          }
-          (event.kind, targetKind) match {
-            case (ENTRY_CREATE, Some(Left(path)))        => (true,        newDirectories :+ path)
-            case (ENTRY_MODIFY, Some(Right(_: Static)))  => (needsUpdate, newDirectories)
-            case (ENTRY_CREATE, Some(_))                 => (true,        newDirectories)
-            case (ENTRY_DELETE, Some(_))                 => (true,        newDirectories)
-            case (ENTRY_MODIFY, Some(_))                 => (true,        newDirectories)
-            case _                                       => (needsUpdate, newDirectories)
+        events
+          .traverse { case (event, key) => processEvent(event, key, targets) }
+          .flatMap { processedEvents =>
+            val needsUpdate = processedEvents.find(_.triggersUpdate).nonEmpty
+            val newDirectories = processedEvents.flatMap(_.newDirectory)
+            val updateF = if (needsUpdate) update else Async[F].unit
+            val registrations = newDirectories
+              .map(registerRoot(_))
+              .sequence
+              .flatMap(updateTargetMap)
+            
+            updateF <* registrations
           }
         }
-        val updateF = if (needsUpdate) update else Async[F].unit
-        val registrations = newDirectories
-          .map(registerRoot(_))
-          .sequence
-          .flatMap(updateTargetMap)
-        
-        updateF <* registrations
-      }
-      .flatten
+        .flatten
   }
   
 }
@@ -138,19 +165,18 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
 private [preview] object SourceChangeWatcher {
 
   sealed trait ObservedTarget {
-    def parent: JPath
+    def parent: FilePath
     def key: WatchKey
     def docTypeMatcher: Path => DocumentType
-    def filter (child: JPath): Boolean
-    def docTypeFor (child: JPath): DocumentType =
-      if (filter(child)) docTypeMatcher(Path.parse(child.toString))
-      else DocumentType.Ignored
+    def filter[F[_]: Async] (child: FilePath): F[Boolean]
+    def docTypeFor[F[_]: Async] (child: FilePath): F[DocumentType] =
+      filter(child).map(if (_) docTypeMatcher(Path.parse(child.toString)) else DocumentType.Ignored) 
   }
-  case class ObservedDirectory (parent: JPath, key: WatchKey, fileFilter: File => Boolean, docTypeMatcher: Path => DocumentType) extends ObservedTarget {
-    def filter (child: JPath): Boolean = !fileFilter(child.toFile)
+  case class ObservedDirectory (parent: FilePath, key: WatchKey, fileFilter: FileFilter, docTypeMatcher: Path => DocumentType) extends ObservedTarget {
+    def filter[F[_]: Async] (child: FilePath): F[Boolean] = fileFilter.filter(child).map(!_)
   }
-  case class ObservedFiles (parent: JPath, key: WatchKey, children: Set[JPath], docTypeMatcher: Path => DocumentType) extends ObservedTarget {
-    def filter (child: JPath): Boolean = children.contains(child)
+  case class ObservedFiles (parent: FilePath, key: WatchKey, children: Set[FilePath], docTypeMatcher: Path => DocumentType) extends ObservedTarget {
+    def filter[F[_]: Async] (child: FilePath): F[Boolean] = Async[F].pure(children.contains(child))
   }
 
   def scheduledTaskResource[F[_]: Temporal] (task: F[Unit], interval: FiniteDuration): Resource[F, Unit] = {
@@ -158,10 +184,10 @@ private [preview] object SourceChangeWatcher {
     fs2.Stream.emit(()).concurrently(bg).compile.resource.lastOrError
   }
   
-  def create[F[_]: Async] (inputs: List[File], 
-                           update: F[Unit], 
+  def create[F[_]: Async] (inputs: List[FilePath],
+                           update: F[Unit],
                            pollInterval: FiniteDuration,
-                           fileFilter: File => Boolean,
+                           fileFilter: FileFilter,
                            docTypeMatcher: Path => DocumentType): Resource[F, Unit] = {
     if (inputs.isEmpty) Resource.unit
     else Resource

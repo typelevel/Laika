@@ -117,7 +117,7 @@ object Tasks {
         .build
         .use(_
           .from(tree)
-          .toDirectory(targetDir)(userConfig.encoding)
+          .toDirectory(FilePath.fromJavaFile(targetDir))(userConfig.encoding)
           .render
         )
         .unsafeRunSync()      
@@ -147,7 +147,7 @@ object Tasks {
             renderer
               .from(root)
               .copying(tree.staticDocuments)
-              .toFile(file)
+              .toFile(FilePath.fromJavaFile(file))
               .render
               .as(file)
           }.sequence
@@ -201,7 +201,7 @@ object Tasks {
     
     val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
-      .andThen(applyIf(laikaIncludeAPI.value, _.withAPIDirectory(Settings.apiTargetDirectory.value)))
+      .andThen(applyIf(laikaIncludeAPI.value, _.withAPIDirectory(FilePath.fromJavaFile(Settings.apiTargetDirectory.value))))
       .andThen(applyIf(previewConfig.isVerbose, _.verbose))
     
     val config = ServerConfig.defaults
@@ -306,8 +306,8 @@ object Tasks {
     * Ignores any virtual inputs in the input trees.
     */
   def collectInputFiles (inputs: InputTree[IO]): Set[File] = 
-    inputs.textInputs.flatMap(_.sourceFile).toSet ++ 
-      inputs.binaryInputs.flatMap(_.sourceFile)
+    inputs.textInputs.flatMap(_.sourceFile.map(_.toJavaFile)).toSet ++ 
+      inputs.binaryInputs.flatMap(_.sourceFile.map(_.toJavaFile))
 
   /** Enumeration of output formats supported by the plugin.
     */

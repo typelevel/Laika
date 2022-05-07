@@ -22,11 +22,9 @@ import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
-import laika.io.model.{DirectoryInput, DirectoryOutput, InputTree, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{DirectoryInput, DirectoryOutput, FileFilter, InputTree, RenderedTreeRoot, TreeOutput}
 import laika.theme.Theme
 import laika.theme.Theme.TreeProcessor
-
-import java.io.File
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -41,9 +39,9 @@ object TransformerRuntime {
     def treeProcessor: Format => TreeProcessor[F] = theme.treeProcessor
   }
   
-  private def fileFilterFor (output: TreeOutput): File => Boolean = output match {
-    case DirectoryOutput(directory, _) => DirectoryInput.filter(directory)
-    case _ => _ => false
+  private def fileFilterFor (output: TreeOutput): FileFilter = output match {
+    case DirectoryOutput(directory, _) => DirectoryInput.filterDirectory(directory)
+    case _                             => FileFilter.lift(_ => false)
   } 
 
   /** Process the specified transform operation for an entire input tree and a character output format.

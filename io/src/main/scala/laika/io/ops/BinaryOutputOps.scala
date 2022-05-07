@@ -18,7 +18,7 @@ package laika.io.ops
 
 import cats.effect.Async
 import laika.ast.Path.Root
-import laika.io.model.BinaryOutput
+import laika.io.model.{BinaryOutput, FilePath}
 
 import java.io.{File, OutputStream}
 
@@ -40,15 +40,18 @@ trait BinaryOutputOps[F[_]] {
     *
     *  @param name the name of the file to write to
     */
-  def toFile (name: String): Result = toFile(new File(name))
+  def toFile (name: String): Result = toFile(FilePath.parse(name))
+
+  @deprecated("use toFile(String) or toFile(FilePath)", "0.19.0")
+  def toFile (file: File): Result = toFile(FilePath.fromJavaFile(file))
 
   /** Builder step that instructs the runtime to render
     * to the specified file.
     *
     *  @param file the file to write to
     */
-  def toFile (file: File): Result =
-    toOutput(BinaryOutput.forFile(Root / file.getName, file)(F))
+  def toFile (file: FilePath): Result =
+    toOutput(BinaryOutput.forFile(Root / file.name, file)(F))
 
   /** Builder step that instructs the runtime to render
     * to the specified output stream.

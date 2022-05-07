@@ -30,7 +30,7 @@ import laika.io.api.{BinaryTreeTransformer, TreeTransformer}
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTree, InputTreeBuilder, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
+import laika.io.model.{FileFilter, FilePath, InputTree, InputTreeBuilder, RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
@@ -40,7 +40,7 @@ import laika.rewrite.link.SlugBuilder
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
-import java.io.{File, OutputStream}
+import java.io.OutputStream
 
 class TreeTransformerSpec extends CatsEffectSuite 
   with FileIO 
@@ -639,12 +639,12 @@ class TreeTransformerSpec extends CatsEffectSuite
   //    }
 
   test("render a tree with a RenderResultProcessor writing to a file") {
-    def transformTo(f: File): IO[Unit] = TwoPhaseTransformer.binary.use { t =>
+    def transformTo(f: FilePath): IO[Unit] = TwoPhaseTransformer.binary.use { t =>
       t.fromInput(build(TwoPhaseTransformer.inputs)).toFile(f).transform
     }
 
     val res = for {
-      f   <- IO(File.createTempFile("output", null))
+      f   <- newTempFile
       _   <- transformTo(f)
       res <- readFile(f)
     } yield res
@@ -698,7 +698,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     val res = for {
       targetDir <- newTempDirectory
       _         <- transformer.use(_.fromDirectory(sourceName).toDirectory(targetDir).transform)
-      results   <- readFiles(targetDir.getPath)
+      results   <- readFiles(targetDir.toString)
     } yield results
     res.assertEquals(expectedFileContents)
   }
@@ -714,9 +714,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     val res = for {
       targetDir  <- newTempDirectory
       _          <- transformer.use(_.fromDirectory(sourceName).toDirectory(targetDir).transform)
-      contents   <- readFilesFiltered(targetDir.getPath)
-      fileExists <- exists(new File(targetDir, "/doc1.txt"))
-      dirExists  <- exists(new File(targetDir, "/dir1"))
+      contents   <- readFilesFiltered(targetDir.toString)
+      fileExists <- exists(targetDir / "/doc1.txt")
+      dirExists  <- exists(targetDir / "/dir1")
     } yield (contents, fileExists, dirExists)
 
     res.assertEquals((expectedFileContents, false, false))
@@ -725,15 +725,15 @@ class TreeTransformerSpec extends CatsEffectSuite
   test("allow to specify custom exclude filter") {
     import FileSystemTest._
     val sourceName = resourcePath("/trees/a/")
-    val fileFilter = { (f: File) => f.getName == "doc1.md" || f.getName == "dir1" }
+    val fileFilter = FileFilter.lift(f => f.name == "doc1.md" || f.name == "dir1")
     val expectedFileContents = List(2,5,6).map(fileContent)
     
     val res = for {
       targetDir  <- newTempDirectory
       _          <- transformer.use(_.fromDirectory(sourceName, fileFilter).toDirectory(targetDir).transform)
-      contents   <- readFilesFiltered(targetDir.getPath)
-      fileExists <- exists(new File(targetDir, "/doc1.txt"))
-      dirExists  <- exists(new File(targetDir, "/dir1"))
+      contents   <- readFilesFiltered(targetDir.toString)
+      fileExists <- exists(targetDir / "/doc1.txt")
+      dirExists  <- exists(targetDir / "/dir1")
     } yield (contents, fileExists, dirExists)
 
     res.assertEquals((expectedFileContents, false, false))
@@ -741,13 +741,13 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("read from two root directories") {
     import FileSystemTest._
-    val source1 = new File(resourcePath("/trees/a/"))
-    val source2 = new File(resourcePath("/trees/b/"))
+    val source1 = FilePath.parse(resourcePath("/trees/a/"))
+    val source2 = FilePath.parse(resourcePath("/trees/b/"))
     val expectedFileContents = (1 to 9).map(fileContent).toList
     val res = for {
       targetDir <- newTempDirectory
       _         <- transformer.use(_.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform)
-      results   <- readFilesMerged(targetDir.getPath)
+      results   <- readFilesMerged(targetDir.toString)
     } yield results 
     res.assertEquals(expectedFileContents)
   }
@@ -760,19 +760,19 @@ class TreeTransformerSpec extends CatsEffectSuite
 
     val res = for {
       targetDir  <- newTempDirectory
-      staticFile = new File(targetDir, "static.txt")
-      inputFile  = new File(targetDir, "hello.md")
-      subdir     = new File(targetDir, "sub")
+      staticFile = targetDir / "static.txt"
+      inputFile  = targetDir / "hello.md"
+      subdir     = targetDir / "sub"
       _          <- writeFile(inputFile, "Hello")
       _          <- writeFile(staticFile, "Text")
       _          <- mkDir(subdir)
-      outputFile = new File(subdir, "hello.js")
+      outputFile = subdir / "hello.js"
       _          <- writeFile(outputFile, "Output")
       _          <- transformer.use(_.fromDirectory(targetDir).toDirectory(subdir).transform)
       hello      <- readFile(inputFile)
-      static     <- readFile(new File(subdir, "static.txt"))
-      result     <- readFile(new File(subdir, "hello.txt"))
-      subExists  <- exists(new File(subdir, "sub"))
+      static     <- readFile(subdir / "static.txt")
+      result     <- readFile(subdir / "hello.txt")
+      subExists  <- exists(subdir / "sub")
     } yield (hello, static, result, subExists)
 
     res.assertEquals(("Hello", "Text", result, false))

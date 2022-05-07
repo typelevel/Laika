@@ -38,7 +38,7 @@ import scala.io.Codec
 case class BinaryInput[F[_]: Sync] (path: Path, 
                                     input: fs2.Stream[F, Byte], 
                                     formats: TargetFormats = TargetFormats.All, 
-                                    sourceFile: Option[File] = None) extends Navigatable
+                                    sourceFile: Option[FilePath] = None) extends Navigatable
 
 object BinaryInput {
   
@@ -47,8 +47,8 @@ object BinaryInput {
     BinaryInput(path, stream, targetFormats)
   }
 
-  def fromFile[F[_]: Async] (path: Path, file: File, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val stream = Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath))
+  def fromFile[F[_]: Async] (path: Path, file: FilePath, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+    val stream = Files[F].readAll(file.toFS2Path)
     BinaryInput[F](path, stream, targetFormats, Some(file))
   }
 
@@ -72,7 +72,7 @@ object BinaryInput {
   * @param input   The character input
   * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
-case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, input: F[String], sourceFile: Option[File] = None) extends Navigatable {
+case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, input: F[String], sourceFile: Option[FilePath] = None) extends Navigatable {
   lazy val asDocumentInput: F[DocumentInput] = input.map(DocumentInput(path, _))
 }
 
@@ -84,8 +84,8 @@ object TextInput {
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
     TextInput[F](path, docType, Applicative[F].pure(input))
 
-  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] = {
-    val input = readAll(Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec)
+  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: FilePath, codec: Codec): TextInput[F] = {
+    val input = readAll(Files[F].readAll(file.toFS2Path), codec)
     TextInput[F](path, docType, input, Some(file))
   }
 
@@ -110,7 +110,7 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
                            binaryInputs: Seq[BinaryInput[F]] = Nil,
                            parsedResults: Seq[ParserResult] = Nil,
                            providedPaths: Seq[StaticDocument] = Nil,
-                           sourcePaths: Seq[String] = Nil) {
+                           sourcePaths: Seq[FilePath] = Nil) {
 
   /** A collection of all paths in this input tree, which may contain duplicates.
     */
@@ -164,7 +164,7 @@ object InputTree {
     * The filter will only be used for scanning directories when calling `addDirectory` on the builder,
     * not for any of the other methods.
     */
-  def apply[F[_]: Async] (exclude: File => Boolean): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty, Vector.empty)
+  def apply[F[_]: Async] (exclude: FileFilter): InputTreeBuilder[F] = new InputTreeBuilder(exclude, Vector.empty, Vector.empty)
 
   /** Creates a new, empty InputTreeBuilder.
     */
@@ -222,20 +222,20 @@ object InputTree {
   * }
   * }}}
   */
-class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean, 
-                             private[model] val steps: Vector[(Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]],
-                             private[laika] val fileRoots: Vector[File])(implicit F: Async[F]) {
+class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter, 
+                             private[model] val steps: Vector[(Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]],
+                             private[laika] val fileRoots: Vector[FilePath])(implicit F: Async[F]) {
   
   import cats.implicits._
 
-  private def addStep (step: (Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+  private def addStep (step: (Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
     addStep(None)(step)
     
-  private def addStep (newFileRoot: Option[File])
-                      (step: (Path => DocumentType, File => Boolean) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+  private def addStep (newFileRoot: Option[FilePath])
+                      (step: (Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
     new InputTreeBuilder(exclude, steps = steps :+ step, newFileRoot.fold(fileRoots)(fileRoots :+ _))
   
-  private def addStep (path: Path, newFileRoot: Option[File] = None)
+  private def addStep (path: Path, newFileRoot: Option[FilePath] = None)
                       (f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
     addStep(newFileRoot) { (docTypeFunction, _) =>
       Kleisli { tree =>
@@ -249,29 +249,40 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
 
   /** Adds the specified directories to the input tree, merging them all into a single virtual root, recursively.
     */
-  def addDirectories (dirs: Seq[File])(implicit codec: Codec): InputTreeBuilder[F] = dirs.foldLeft(this) {
+  def addDirectories (dirs: Seq[FilePath])(implicit codec: Codec): InputTreeBuilder[F] = dirs.foldLeft(this) {
     case (builder, dir) => builder.addDirectory(dir)
   }
-
+  
   /** Adds the specified directories to the input tree, placing it in the virtual root.
     */
-  def addDirectory (name: String)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(new File(name), Root)
+  def addDirectory (name: String)(implicit codec: Codec): InputTreeBuilder[F] = 
+    addDirectory(FilePath.parse(name), Root)
 
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
   def addDirectory (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
-    addDirectory(new File(name), mountPoint)
+    addDirectory(FilePath.parse(name), mountPoint)
+
+  @deprecated("use addDirectory(String) or addDirectory(FilePath)", "0.19.0")
+  def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = 
+    addDirectory(FilePath.fromJavaFile(dir), Root)
 
   /** Adds the specified directories to the input tree, placing it in the virtual root.
     */
-  def addDirectory (dir: File)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
+  def addDirectory (dir: FilePath)(implicit codec: Codec): InputTreeBuilder[F] = addDirectory(dir, Root)
+
+  @deprecated("use addDirectory(String, Path) or addDirectory(FilePath, Path)", "0.19.0")
+  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
+    addDirectory(FilePath.fromJavaFile(dir), mountPoint)
 
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
-  def addDirectory (dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
-    if (fileFilter(dir)) Kleisli.ask else
-    Kleisli { input => 
-      DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
+  def addDirectory (dir: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
+    Kleisli { input =>
+      fileFilter.filter(dir).ifM(
+        Async[F].pure(input),
+        DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
+      )
     }
   }
 
@@ -281,14 +292,18 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
   def addFile (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = 
-    addFile(new File(name), mountPoint)
+    addFile(FilePath.parse(name), mountPoint)
+
+  @deprecated("use addFile(String) or addFile(FilePath)", "0.19.0")
+  def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
+    addFile(FilePath.fromJavaFile(file), mountPoint)
 
   /** Adds the specified file to the input tree, placing it at the specified mount point in the virtual tree.
-    * 
+    *
     * The content type of the stream will be determined by the suffix of the virtual path, e.g.
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
-  def addFile (file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
+  def addFile (file: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint, Some(file)) {
       case DocumentType.Static(formats) => _ + BinaryInput.fromFile(mountPoint, file, formats)
       case docType: TextDocumentType    => _ + TextInput.fromFile[F](mountPoint, docType, file, codec)
@@ -385,15 +400,14 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
     * The filter will only be used for scanning directories when calling `addDirectory` on this builder,
     * not for any of the other methods.
     */
-  def withFileFilter (filter: File => Boolean): InputTreeBuilder[F] = {
-    val combinedFilter: File => Boolean = f => filter(f) || exclude(f)
-    new InputTreeBuilder(combinedFilter, steps, fileRoots)
+  def withFileFilter (newFilter: FileFilter): InputTreeBuilder[F] = {
+    new InputTreeBuilder(exclude.combine(newFilter), steps, fileRoots)
   }
 
   /** Merges this input tree with the specified tree, recursively.
     */
   def merge (other: InputTreeBuilder[F]): InputTreeBuilder[F] = 
-    new InputTreeBuilder(f => other.exclude(f) || exclude(f), steps ++ other.steps, fileRoots ++ other.fileRoots)
+    new InputTreeBuilder(exclude.combine(other.exclude), steps ++ other.steps, fileRoots ++ other.fileRoots)
 
   /** Merges this input tree with the specified tree, recursively.
     */
@@ -426,38 +440,60 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
 
 }
 
+/** File filter that defines the filter function in `[F[_]]` to allow for effectful filter logic.
+  */
+trait FileFilter { self =>
+  
+  def filter[F[_]: Async] (file: FilePath): F[Boolean]
+  
+  def combine (other: FileFilter): FileFilter = new FileFilter {
+    def filter[G[_] : Async] (file: FilePath) = self.filter[G](file).ifM(
+      Async[G].pure(true),
+      other.filter[G](file)
+    )
+  }
+}
 
+object FileFilter {
+ 
+  def lift (f: FilePath => Boolean): FileFilter = new FileFilter {
+    def filter[F[_] : Async] (file: FilePath) = Async[F].pure(f(file))
+  }
+  
+}
 
 /** A directory in the file system containing input documents for a tree transformation.
   *
   * The specified `docTypeMatcher` is responsible for determining the type of input 
   * (e.g. text markup, template, etc.) based on the (virtual) document path.
   */
-case class DirectoryInput (directories: Seq[File],
+case class DirectoryInput (directories: Seq[FilePath],
                            codec: Codec,
                            docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
-                           fileFilter: File => Boolean = DirectoryInput.hiddenFileFilter,
-                           mountPoint: Path = Root) {
-  lazy val sourcePaths: Seq[String] = directories map (_.getAbsolutePath)
-}
+                           fileFilter: FileFilter = DirectoryInput.hiddenFileFilter,
+                           mountPoint: Path = Root)
 
 object DirectoryInput {
 
-  /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
+  /** A filter that selects files that are hidden in a platform-dependent way.
     */
-  val hiddenFileFilter: File => Boolean = file => file.isHidden && file.getName != "."
+  val hiddenFileFilter: FileFilter = new FileFilter {
+    def filter[F[_] : Async] (file: FilePath) = Files[F].isHidden(file.toFS2Path)
+  }
 
+  @deprecated("use apply(FilePath)", "0.19.0")
+  def apply (directory: File)(implicit codec: Codec): DirectoryInput = apply(FilePath.fromJavaFile(directory))
+  
   /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
     * `fileFilter` properties.
     */
-  def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
+  def apply (directory: FilePath)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 
+  
   /** Creates a file filter that filters all files in the specified directory.
     */
-  def filter (dir: File): File => Boolean = file => {
-    val filePath = file.getCanonicalPath
-    val dirPath = dir.getCanonicalPath
-    filePath.startsWith(dirPath)
+  def filterDirectory (dir: FilePath): FileFilter = FileFilter.lift { file =>
+    file.toString.startsWith(dir.toString)
   }
 }
 

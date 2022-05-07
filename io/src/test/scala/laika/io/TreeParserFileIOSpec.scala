@@ -27,7 +27,7 @@ import laika.config.{ConfigBuilder, Origin}
 import laika.config.Origin.TreeScope
 import laika.io.api.TreeParser
 import laika.io.helper.TestThemeBuilder
-import laika.io.model.{InputTree, InputTreeBuilder}
+import laika.io.model.{FileFilter, FilePath, InputTree, InputTreeBuilder}
 import munit.CatsEffectSuite
 
 import java.io.ByteArrayInputStream
@@ -94,9 +94,11 @@ class TreeParserFileIOSpec
         content = baseTree.tree.content.filter(c => c.path.name != "doc-1.md" && c.path.name != "tree-1")
       )
     )
+    
+    val fileFilter = FileFilter.lift(f => f.name == "doc-1.md" || f.name == "tree-1")
 
     defaultParser
-      .use(_.fromDirectory(dirname, { (f: java.io.File) => f.getName == "doc-1.md" || f.getName == "tree-1" }).parse)
+      .use(_.fromDirectory(dirname, fileFilter).parse)
       .map(_.root)
       .assertEquals(expected)
   }
@@ -303,8 +305,8 @@ class TreeParserFileIOSpec
   
 
   trait DirectorySetup {
-    val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
-    val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
+    val dir1 = FilePath.parse(getClass.getResource("/trees/a/").getFile)
+    val dir2 = FilePath.parse(getClass.getResource("/trees/b/").getFile)
 
     val baseTree: DocumentTreeRoot = SampleTrees.sixDocuments
       .docContent(key => Seq(p("Doc" + key.num)))

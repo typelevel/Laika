@@ -27,7 +27,7 @@ import laika.ast
 import laika.ast.DocumentType
 import laika.format.{EPUB, PDF}
 import laika.io.api.TreeParser
-import laika.io.model.InputTreeBuilder
+import laika.io.model.{FilePath, InputTreeBuilder}
 import laika.preview.ServerBuilder.Logger
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpApp, HttpRoutes, Request}
@@ -140,7 +140,7 @@ class ServerConfig private (val port: Port,
                             val includeEPUB: Boolean,
                             val includePDF: Boolean,
                             val isVerbose: Boolean,
-                            val apiDir: Option[File]) {
+                            val apiDir: Option[FilePath]) {
 
   private def copy (newPort: Port = port,
                     newHost: Host = host,
@@ -149,7 +149,7 @@ class ServerConfig private (val port: Port,
                     newIncludeEPUB: Boolean = includeEPUB,
                     newIncludePDF: Boolean = includePDF,
                     newVerbose: Boolean = isVerbose,
-                    newAPIDir: Option[File] = apiDir): ServerConfig =
+                    newAPIDir: Option[FilePath] = apiDir): ServerConfig =
     new ServerConfig(newPort, newHost,newPollInterval, newArtifactBasename, newIncludeEPUB, newIncludePDF, newVerbose, newAPIDir)
 
   /** Specifies the port the server should run on (default 4242).
@@ -180,7 +180,10 @@ class ServerConfig private (val port: Port,
   /** Specifies a directory from which API documentation of the site can be served.
     * This step is only necessary if you want to test links to API documentation with the preview server.
     */
-  def withAPIDirectory (dir: File): ServerConfig = copy(newAPIDir = Some(dir))
+  def withAPIDirectory (dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
+
+  @deprecated("use withAPIDirectory(FilePath)", "0.19.0")
+  def withAPIDirectory (dir: File): ServerConfig = copy(newAPIDir = Some(FilePath.fromJavaFile(dir)))
 
   /** Indicates that each served page and each detected file change should be logged to the console.
     */

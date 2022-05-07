@@ -29,12 +29,12 @@ import laika.format.HTML
 import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.config.SiteConfig
 import laika.io.implicits._
-import laika.io.model.{BinaryInput, InputTree, InputTreeBuilder, ParsedTree, StringTreeOutput}
+import laika.io.model._
 import laika.preview.SiteTransformer.ResultMap
 import laika.rewrite.nav.{Selections, TargetFormats}
 import laika.theme.Theme
 
-import java.io.{ByteArrayOutputStream, File}
+import java.io.ByteArrayOutputStream
 
 private [preview] class SiteTransformer[F[_]: Async] (val parser: TreeParser[F], 
                                                       htmlRenderer: TreeRenderer[F],
@@ -131,7 +131,7 @@ private [preview] object SiteTransformer {
   def create[F[_]: Async](parser: Resource[F, TreeParser[F]],
                           inputs: InputTreeBuilder[F],
                           renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
-                          apiDir: Option[File],
+                          apiDir: Option[FilePath],
                           artifactBasename: String): Resource[F, SiteTransformer[F]] = {
     
     def adjustConfig (p: TreeParser[F]): TreeParser[F] = p.modifyConfig(oc => oc.copy(

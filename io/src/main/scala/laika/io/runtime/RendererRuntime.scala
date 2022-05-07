@@ -16,7 +16,6 @@
 
 package laika.io.runtime
 
-import java.io.{File, IOException}
 import cats.effect.{Async, Sync}
 import cats.implicits._
 import fs2.io.file.Files
@@ -61,7 +60,7 @@ object RendererRuntime {
     type RenderResult = Either[BinaryInput[F], RenderedDocument]
     case class RenderOps (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
     
-    def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
+    def file (rootDir: FilePath, path: Path): FilePath = rootDir / path.relative
 
     def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]],
                                root: DocumentTreeRoot,
@@ -109,12 +108,12 @@ object RendererRuntime {
         }
     }
     
-    def copyDocuments (docs: Seq[BinaryInput[F]], dir: Option[File], pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.map { doc =>
+    def copyDocuments (docs: Seq[BinaryInput[F]], dir: Option[FilePath], pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.map { doc =>
       val translatedDoc = doc.copy(path = pathTranslator(doc.path))
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
-          val out = Files[F].writeAll(fs2.io.file.Path.fromNioPath(outFile.toPath))
+          val out = Files[F].writeAll(outFile.toFS2Path)
           doc.input.through(out).compile.drain.as(result)
         case _ =>
           Sync[F].pure(result)
@@ -129,7 +128,7 @@ object RendererRuntime {
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
 
-      def createDirectory (file: File): F[Unit] = Files[F].createDirectories(fs2.io.file.Path.fromNioPath(file.toPath))
+      def createDirectory (file: FilePath): F[Unit] = Files[F].createDirectories(file.toFS2Path)
       
       op.output match {
         case StringTreeOutput => 
