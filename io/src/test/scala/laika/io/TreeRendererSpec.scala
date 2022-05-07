@@ -860,18 +860,18 @@ class TreeRendererSpec extends CatsEffectSuite
     import VersionInfoSetup._
       
     def mkDirs (dir: File): IO[Unit] = 
-      List("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").map { name =>
+      List("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").traverse { name =>
         Files[IO].createDirectories(fs2.io.file.Path.fromNioPath(new File(dir, name).toPath))
-      }.sequence.void
+      }.void
 
     def writeExistingVersionedFiles (root: DocumentTreeRoot, dir: File): IO[Unit] = {
       val paths = root.tree.allDocuments.map(_.path.withSuffix("html").toString)
       val versionedPaths = paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
       
-      versionedPaths.toList.map { path =>
+      versionedPaths.toList.traverse { path =>
         val file = new File(dir, path)
         writeFile(file, "<html></html>")
-      }.sequence.void
+      }.void
     }
 
     val expectedFileContents: List[String] = (1 to 6).map(num => s"<p>Text $num</p>").toList
