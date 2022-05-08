@@ -142,7 +142,7 @@ private [preview] object SiteTransformer {
     
     def asInputTree (map: ResultMap[F]): InputTree[F] = {
       val inputs = map.collect {
-        case (path, static: StaticResult[F]) => BinaryInput(path, static.content, TargetFormats.Selected("html")) 
+        case (path, static: StaticResult[F]) => BinaryInput(static.content, path, TargetFormats.Selected("html")) 
       }
       new InputTree[F](binaryInputs = inputs.toSeq)
     }

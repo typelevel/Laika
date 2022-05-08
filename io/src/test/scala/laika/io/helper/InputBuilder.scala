@@ -24,9 +24,11 @@ import laika.rewrite.nav.TargetFormats
 trait InputBuilder {
 
   object ByteInput {
+    
     def apply (input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[IO] =
-      BinaryInput.fromString(path, input, targetFormats)
-    def apply (path: Path): BinaryInput[IO] = BinaryInput.fromString(path, "")
+      BinaryInput.fromString(input, path, targetFormats)
+      
+    def empty (path: Path): BinaryInput[IO] = BinaryInput.fromString("", path)
   }
   
   def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =

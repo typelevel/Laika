@@ -24,6 +24,8 @@ import laika.ast.DocumentType.Static
 import laika.ast.{Path, TextDocumentType}
 import laika.io.model._
 
+import scala.io.Codec
+
 /** Scans a directory in the file system and transforms it into a generic InputCollection
   * that can serve as input for parallel parsers or transformers.
   * 
@@ -58,14 +60,15 @@ object DirectoryScanner {
     def toCollection (filePath: FilePath): F[InputTree[F]] = {
 
       val childPath = path / filePath.name
+      implicit val codec: Codec = input.codec
 
       input.fileFilter.filter(filePath).ifM(
         InputTree.empty[F].pure[F],
         Files[F].isDirectory(filePath.toFS2Path).ifM(
           scanDirectory(filePath)(asInputCollection(childPath, input)),
           input.docTypeMatcher(childPath) match {
-            case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(childPath, docType, filePath, input.codec)), Nil, Nil).pure[F]
-            case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(childPath, filePath, formats)), Nil).pure[F]
+            case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(filePath, childPath, docType)), Nil, Nil).pure[F]
+            case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(filePath, childPath, formats)), Nil).pure[F]
             case _                         => InputTree.empty[F].pure[F]
           }
         )

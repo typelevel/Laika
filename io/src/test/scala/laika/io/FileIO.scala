@@ -18,7 +18,6 @@ package laika.io
 
 import cats.effect.IO
 import fs2.io.file.Files
-import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.io.model.{FilePath, TextInput, TextOutput}
 
@@ -29,15 +28,9 @@ trait FileIO {
 
   def readFile (base: String): IO[String] = readFile(FilePath.parse(base))
   
-  def readFile (f: FilePath): IO[String] = readFile(f, Codec.UTF8)
+  def readFile (f: FilePath)(implicit codec: Codec): IO[String] = TextInput.fromFile[IO](f).input
 
-  def readFile (f: FilePath, codec: Codec): IO[String] = {
-    val input = TextInput.fromFile[IO](Root, DocumentType.Markup, f, codec)
-    input.asDocumentInput.map(_.source.input)
-  }
-
-  def writeFile (f: FilePath, content: String): IO[Unit] =
-    TextOutput.forFile[IO](Root, f, Codec.UTF8).writer(content)
+  def writeFile (f: FilePath, content: String): IO[Unit] = TextOutput.forFile[IO](f).writer(content)
 
   def newTempDirectory: IO[FilePath] = Files[IO].createTempDirectory.map(FilePath.fromFS2Path)
 

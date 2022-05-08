@@ -138,7 +138,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     TemplateRoot.fallback,
     Config.empty,
     coverDocument = coverDocument,
-    staticDocuments = staticDocuments.map(ByteInput.apply(_))
+    staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
 
   def renderedTree(path: Path, content: Seq[RenderContent]): RenderedTree = RenderedTree(path, None, content)

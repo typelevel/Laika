@@ -52,7 +52,7 @@ object ResourceLoader {
   def loadFile[F[_]: Async] (file: FilePath): F[Option[Either[ConfigResourceError, String]]] = {
     
     def load: F[Either[ConfigResourceError, String]] = {
-      val input = TextInput.fromFile[F](Root, DocumentType.Config, file, Codec.UTF8)
+      val input = TextInput.fromFile[F](file, Root, DocumentType.Config)
       input.asDocumentInput.attempt.map(_.bimap(
         t => ConfigResourceError(s"Unable to load file '${file.toString}': ${t.getMessage}"), 
         _.source.input
@@ -94,7 +94,7 @@ object ResourceLoader {
       str <- Sync[F].delay(con.getInputStream)
     } yield str
     
-    val input = TextInput.fromStream[F](Root, DocumentType.Config, stream, Codec.UTF8, autoClose = true)
+    val input = TextInput.fromStream[F](stream, Root, DocumentType.Config, autoClose = true)
     input.asDocumentInput.attempt.map {
       case Left(_: FileNotFoundException) => None
       case Left(t) => Some(Left(ConfigResourceError(s"Unable to load config from URL '${url.toString}': ${t.getMessage}")))

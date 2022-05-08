@@ -52,7 +52,7 @@ private[runtime] object VersionedLinkTargets {
     val input = DirectoryInput(Seq(FilePath.parse(config.rootDirectory)), Codec.UTF8, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
       tree.binaryInputs
-        .collect { case BinaryInput(path: SegmentedPath, _, _, _) if path.depth > 1 =>
+        .collect { case BinaryInput(_, path: SegmentedPath, _, _) if path.depth > 1 =>
           (path.segments.head, SegmentedPath(NonEmptyChain.fromChainUnsafe(path.segments.tail), path.suffix, None))
         }
         .groupBy(_._1)

@@ -33,11 +33,11 @@ private[preview] object StaticFileScanner {
   private def collect[F[_]: Async] (filePath: FilePath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
     DirectoryScanner.scanDirectory(filePath) { paths =>
       paths.toList
-        .map { path =>
-          val vChild = vPath / path.name
-          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(vPath, path).input))
-          Files[F].isDirectory(path.toFS2Path).ifM(
-            collect(path, vChild),
+        .map { filePath =>
+          val vChild = vPath / filePath.name
+          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(filePath, vPath).input))
+          Files[F].isDirectory(filePath.toFS2Path).ifM(
+            collect(filePath, vChild),
             Async[F].pure(List(result))
           )
         }

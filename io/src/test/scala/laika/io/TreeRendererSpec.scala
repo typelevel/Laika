@@ -104,7 +104,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateRoot.fallback,
       Config.empty,
       coverDocument = coverDocument,
-      staticDocuments = staticDocuments.map(Inputs.ByteInput.apply(_))
+      staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )
     
     def tree (path: Path, content: Seq[RenderContent]): RenderedTree = RenderedTree(path, None, content)
@@ -836,7 +836,7 @@ class TreeRendererSpec extends CatsEffectSuite
         |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2"] }
         |  ]
         |}""".stripMargin
-    val versionInfoInput = BinaryInput.fromString[IO](VersionInfoGenerator.path, existingVersionInfo)
+    val versionInfoInput = BinaryInput.fromString[IO](existingVersionInfo, VersionInfoGenerator.path)
 
     htmlRenderer
       .use(_
@@ -910,7 +910,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val res = for {
       d <- newTempDirectory
       _ <- ASTRenderer.defaultRenderer.use(_.from(ASTRenderer.defaultRoot(input)).toDirectory(d)(Codec.ISO8859).render)
-      res <- readFile(d / "doc.txt", Codec.ISO8859)
+      res <- readFile(d / "doc.txt")(Codec.ISO8859)
     } yield res
 
     res.assertEquals(expected)

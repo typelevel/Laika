@@ -51,7 +51,7 @@ trait BinaryOutputOps[F[_]] {
     *  @param file the file to write to
     */
   def toFile (file: FilePath): Result =
-    toOutput(BinaryOutput.forFile(Root / file.name, file)(F))
+    toOutput(BinaryOutput.forFile(file, Root / file.name)(F))
 
   /** Builder step that instructs the runtime to render
     * to the specified output stream.
@@ -60,7 +60,7 @@ trait BinaryOutputOps[F[_]] {
     * @param autoClose indicates whether the stream should be closed after all output had been written                 
     */
   def toStream (stream: F[OutputStream], autoClose: Boolean = true): Result =
-    toOutput(BinaryOutput.forStream(Root, stream, autoClose)(F))
+    toOutput(BinaryOutput.forStream(stream, Root, autoClose)(F))
 
   /** Builder step that instructs the runtime to render
     * to the specified output.
