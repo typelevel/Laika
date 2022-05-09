@@ -24,6 +24,7 @@ import laika.collection.TransitionalCollectionOps.JIteratorWrapper
 import java.nio.file.{InvalidPathException, Paths}
 
 /** Represents an absolute path on the file system, pointing to a file or directory that may or may not exist.
+  * Relative paths are interpreted as relative to the current working directory.
   * 
   * This type has a lot of shared API with the `VirtualPath` abstraction in `laika-core` via their
   * common super-trait `GenericPath`.
@@ -47,7 +48,7 @@ import java.nio.file.{InvalidPathException, Paths}
   * 
   * @author Jens Halm
   */
-class FilePath private (private val root: String, private val underlying: Path) extends GenericPath {
+class FilePath private (private val root: Option[String], private val underlying: Path) extends GenericPath {
 
   type Self = FilePath
   
@@ -74,11 +75,11 @@ class FilePath private (private val root: String, private val underlying: Path) 
   /** Converts this `FilePath` to a `java.nio.file.Path`.
     */
   def toNioPath: java.nio.file.Path = underlying match {
-    case Root => Paths.get(root)
+    case Root => Paths.get(root.getOrElse(""))
     case sp: SegmentedPath => 
       val last = sp.name + fragment.fold("")("#" + _)
-      val segments = sp.segments.init.append(last).toList
-      Paths.get(root, segments:_*)
+      val segments = root.toList ++: sp.segments.init.append(last).toList
+      Paths.get(segments.head, segments.tail:_*)
   }
 
   /** Converts this `FilePath` to an `fs2.io.file.Path`.
@@ -106,27 +107,22 @@ class FilePath private (private val root: String, private val underlying: Path) 
 object FilePath {
 
   /** Creates a new `FilePath` from the specified NIO path after normalizing it.
-    * The provided path needs to be absolute, for relative paths use `laika.ast.RelativePath`.
     */
   def fromNioPath (path: java.nio.file.Path): FilePath = {
-    if (!path.isAbsolute) throw new InvalidPathException(path.toString, "File paths must be absolute")
-    val root = Option(path.getRoot).fold("")(_.toString)
+    val root = Option(path.getRoot).map(_.toString)
     val segments = JIteratorWrapper(path.normalize().iterator()).toList.map(_.toString)
     new FilePath(root, Path.apply(segments))
   }
 
   /** Creates a new `FilePath` from the specified fs2 path after normalizing it.
-    * The provided path needs to be absolute, for relative paths use `laika.ast.RelativePath`.
     */
   def fromFS2Path (path: fs2.io.file.Path): FilePath = fromNioPath(path.toNioPath)
 
   /** Creates a new `FilePath` from the specified File instance after normalizing its path.
-    * The provided file needs to be absolute, for relative paths use `laika.ast.RelativePath`.
     */
   def fromJavaFile (file: java.io.File): FilePath = fromNioPath(file.toPath)
 
   /** Creates a new `FilePath` by parsing the specified path string in a platform-specific manner.
-    * The provided path string needs to be absolute, for relative paths use `laika.ast.RelativePath`.
     */
   def parse (path: String): FilePath = fromNioPath(Paths.get(path))
   
