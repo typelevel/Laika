@@ -48,7 +48,7 @@ import java.nio.file.{InvalidPathException, Paths}
   * 
   * @author Jens Halm
   */
-class FilePath private (private val root: Option[String], private val underlying: Path) extends GenericPath {
+class FilePath private (private val root: Option[String], private[FilePath] val underlying: Path) extends GenericPath {
 
   type Self = FilePath
   
@@ -69,6 +69,8 @@ class FilePath private (private val root: Option[String], private val underlying
         fragment = fragment
       ))
     }
+
+  override def / (name: String): FilePath = this / FilePath.parse(name).underlying.relative
 
   def / (path: RelativePath): FilePath = new FilePath(root, underlying / path)
 

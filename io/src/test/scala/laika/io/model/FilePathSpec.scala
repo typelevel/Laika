@@ -70,6 +70,7 @@ class FilePathSpec extends FunSuite {
 
   test("round trip relative FilePath from and to NIO path") {
     val inPath = Paths.get(relTestPathString)
+    inPath.resolve("foo")
     val outPath = FilePath.fromNioPath(inPath).toNioPath
     assertEquals(outPath, inPath.normalize())
   }
@@ -83,7 +84,6 @@ class FilePathSpec extends FunSuite {
   test("round trip relative FilePath from and to Java file") {
     val inPath = new File(relTestPathString)
     val outPath = FilePath.fromJavaFile(inPath).toJavaFile
-    val remove = ".." + platformSeparator
     assertEquals(outPath, new File(List("foo", "baz.jpg").mkString(platformSeparator)))
   }
   
