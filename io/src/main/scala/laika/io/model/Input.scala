@@ -320,7 +320,7 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
   def addDirectory (dir: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
     Kleisli { input =>
       fileFilter.filter(dir).ifM(
-        Async[F].pure(input),
+        F.pure(input),
         DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
       )
     }

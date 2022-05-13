@@ -74,6 +74,12 @@ class FilePath private (private val root: Option[String], private[FilePath] val 
 
   def / (path: RelativePath): FilePath = new FilePath(root, underlying / path)
 
+  /** Indicates whether this path is absolute.
+    * Relative paths are interpreted relative to the current working directory 
+    * during a transformation.
+    */
+  val isAbsolute: Boolean = root.nonEmpty 
+
   /** Converts this `FilePath` to a `java.nio.file.Path`.
     */
   def toNioPath: java.nio.file.Path = underlying match {

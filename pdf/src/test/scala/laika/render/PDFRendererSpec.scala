@@ -17,6 +17,7 @@
 package laika.render
 
 import cats.effect.IO
+import fs2.io.file.Files
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.format.{Markdown, PDF}
@@ -54,11 +55,6 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   test("render a tree to a file") {
 
-    def readFirstChar(f: FilePath): IO[Int] = for {
-      in   <- IO(new BufferedInputStream(new FileInputStream(f.toJavaFile)))
-      read <- IO(in.read)
-    } yield read
-
     val renderer = Renderer.of(PDF)
       .parallel[IO]
       .build
@@ -69,7 +65,7 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
         r.from(buildInputTree(templateTree, createTree())).toFile(tempFile).render
       }}
   
-      (res >> readFirstChar(tempFile)).map(_ != -1).assert
+      (res >> Files[IO].size(tempFile.toFS2Path)).map(_ > 0).assert
     }
   }
 
