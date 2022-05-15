@@ -16,31 +16,20 @@
 
 package laika.io.helper
 
-import java.io.InputStream
-
+import cats.effect.{Async, Sync}
 import cats.implicits._
-import cats.effect.{Resource, Sync}
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
-import laika.io.runtime.InputRuntime
-
-import scala.io.Codec
 
 /**
   * @author Jens Halm
   */
 trait ResultExtractor {
 
-  implicit class RenderedTreeRootOps[F[_]: Sync](val root: RenderedTreeRoot[F]) extends StringOps  {
+  implicit class RenderedTreeRootOps[F[_]: Async] (val root: RenderedTreeRoot[F]) extends StringOps  {
 
-    // TODO - move to InputRuntime
-    private def readText (stream: Resource[F, InputStream]): F[String] = {
-      stream.flatMap { str =>
-        InputRuntime.textStreamResource(Sync[F].pure(str), Codec.UTF8, autoClose = false)
-      }.use { reader =>
-        InputRuntime.readAll(reader, 4000)
-      }
-    }
+    private def readText (stream: fs2.Stream[F, Byte]): F[String] = 
+      stream.through(fs2.text.utf8.decode).compile.string
 
     def extractStaticContent (path: Path): F[String] = for {
       input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)

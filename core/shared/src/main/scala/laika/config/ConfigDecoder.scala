@@ -16,13 +16,13 @@
 
 package laika.config
 
-import java.util.Date
 import cats.data.NonEmptyChain
 import cats.implicits._
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{ExternalTarget, InternalTarget, Path, PathBase, RelativePath, Target}
+import laika.ast.{ExternalTarget, InternalTarget, Path, VirtualPath, RelativePath, Target}
 import laika.time.PlatformDateTime
 
+import java.net.URI
 import scala.util.Try
 
 /** A type class that can decode a ConfigValue to an instance of T.
@@ -97,7 +97,7 @@ object ConfigDecoder {
     def apply (value: Traced[ConfigValue]) = valueDecoder(value).map(res => value.copy(value = res))
   }
   
-  private def resolvePath (path: PathBase, origin: Origin): Path =
+  private def resolvePath (path: VirtualPath, origin: Origin): Path =
     path match {
       case c: CurrentDocument => origin.path / c
       case p: RelativePath    => origin.path.parent / p
@@ -105,7 +105,7 @@ object ConfigDecoder {
     }
 
   implicit lazy val path: ConfigDecoder[Path] = tracedValue[String].map { tracedValue =>
-    resolvePath(PathBase.parse(tracedValue.value), tracedValue.origin)
+    resolvePath(VirtualPath.parse(tracedValue.value), tracedValue.origin)
   }
 
   implicit lazy val target: ConfigDecoder[Target] = tracedValue[String].map { tracedValue =>
@@ -117,6 +117,10 @@ object ConfigDecoder {
 
   implicit lazy val date: ConfigDecoder[PlatformDateTime.Type] = string.flatMap { dateString =>
     PlatformDateTime.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
+  }
+
+  implicit lazy val uri: ConfigDecoder[URI] = string.flatMap { uriString =>
+    Try(new URI(uriString)).toEither.left.map(err => DecodingError(s"Invalid URI format: $err"))
   }
 
   implicit def seq[T] (implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] = new ConfigDecoder[Seq[T]] {

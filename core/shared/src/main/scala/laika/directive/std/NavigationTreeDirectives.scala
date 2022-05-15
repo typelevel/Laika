@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
-import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, PathBase, SpanSequence, TemplateElement}
+import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, VirtualPath, SpanSequence, TemplateElement}
 import laika.config.{ConfigDecoder, ConfigError, Key}
 import laika.directive.{Blocks, Templates}
 import laika.parse.{GeneratedSource, SourceFragment}
@@ -153,7 +153,7 @@ object NavigationTreeDirectives {
           ManualNavigationNode(SpanSequence(title), externalTarget, children)
         }
 
-        def createGeneratedNode (internalTarget: PathBase): Either[ConfigError, NavigationNodeConfig] = for {
+        def createGeneratedNode (internalTarget: VirtualPath): Either[ConfigError, NavigationNodeConfig] = for {
           title           <- config.getOpt[String]("title")
           depth           <- config.getOpt[Int]("depth")
           excludeRoot     <- config.getOpt[Boolean]("excludeRoot")
@@ -167,7 +167,7 @@ object NavigationTreeDirectives {
           if (targetStr.startsWith("http:") || targetStr.startsWith("https:") || targetStr.startsWith("mailto:"))
             createManualNode(Some(ExternalTarget(targetStr)))
           else
-            createGeneratedNode(PathBase.parse(targetStr))
+            createGeneratedNode(VirtualPath.parse(targetStr))
         }
       }
     }
@@ -182,7 +182,7 @@ object NavigationTreeDirectives {
     * @param excludeRoot indicates whether the root node should be excluded in which case the first-level children will be inserted into the parent node
     * @param excludeSections indicates whether sections within documents should be excluded in automatic entries
     */
-  case class GeneratedNavigationNode (target: PathBase,
+  case class GeneratedNavigationNode (target: VirtualPath,
                                       title: Option[SpanSequence] = None,
                                       depth: Option[Int] = None,
                                       excludeRoot: Option[Boolean] = None,

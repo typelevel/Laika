@@ -65,6 +65,7 @@ val munit      = "org.scalameta"          %% "munit"       % versions.munit     
 val jTidy      = "net.sf.jtidy"           %  "jtidy"       % versions.jTidy     % "test"
 
 val catsEffect = "org.typelevel"          %% "cats-effect"         % versions.catsEffect
+val fs2IO      = "co.fs2"                 %% "fs2-io"              % versions.fs2
 val munitCE3   = "org.typelevel"          %% "munit-cats-effect-3" % versions.munitCE3 % "test"
 
 val fop        = "org.apache.xmlgraphics" %  "fop"         % versions.fop
@@ -123,7 +124,7 @@ lazy val io = project.in(file("io"))
   .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, munit, munitCE3)
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3)
   )
   
 lazy val pdf = project.in(file("pdf"))

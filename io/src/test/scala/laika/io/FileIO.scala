@@ -16,15 +16,13 @@
 
 package laika.io
 
-import java.io.{ByteArrayOutputStream, File}
-import java.util.UUID
-
 import cats.effect.IO
+import fs2.io.file.Files
 import laika.ast.DocumentType
 import laika.ast.Path.Root
 import laika.io.model.{TextInput, TextOutput}
-import laika.io.runtime.{InputRuntime, OutputRuntime}
 
+import java.io.{ByteArrayOutputStream, File}
 import scala.io.Codec
 
 trait FileIO {
@@ -41,33 +39,17 @@ trait FileIO {
   def writeFile (f: File, content: String): IO[Unit] =
     TextOutput.forFile[IO](Root, f, Codec.UTF8).writer(content)
 
-  def newTempDirectory: IO[File] = {
-    for {
-      baseDir <- IO(System.getProperty("java.io.tmpdir")).map(new File(_))
-      uuid    <- IO(UUID.randomUUID)
-      tempDir =  new File(baseDir, s"temp-$uuid")
-      res     <- IO(tempDir.mkdir())
-      _       <- if (res) IO.unit else IO.raiseError(new RuntimeException("Unable to create temp directory"))
-    } yield tempDir
-  }
+  def newTempDirectory: IO[File] = Files[IO].createTempDirectory.map(_.toNioPath.toFile)
 
-  def newTempFile: IO[File] =
-    for {
-      uuid <- IO(UUID.randomUUID)
-      file <- IO(File.createTempFile(s"temp-$uuid", null))
-    } yield file
+  def newTempFile: IO[File] = Files[IO].createTempFile.map(_.toNioPath.toFile)
   
-  def mkDir (f: File): IO[Unit] = for {
-    res     <- IO(f.mkdir())
-    _       <- if (res) IO.unit else IO.raiseError(new RuntimeException(s"Unable to create directory '${f.getPath}'"))
-  } yield ()
+  def fs2Path(f: File): fs2.io.file.Path = fs2.io.file.Path.fromNioPath(f.toPath)
+  
+  def mkDir (f: File): IO[Unit] = Files[IO].createDirectory(fs2Path(f))
 
-  def delete (f: File): IO[Unit] = for {
-    res     <- IO(f.delete())
-    _       <- if (res) IO.unit else IO.raiseError(new RuntimeException(s"Unable to delete file '${f.getPath}'"))
-  } yield ()
+  def delete (f: File): IO[Unit] = Files[IO].delete(fs2Path(f))
   
-  def exists (f: File): IO[Boolean] = IO(f.exists())
+  def exists (f: File): IO[Boolean] = Files[IO].exists(fs2Path(f))
 
   def withByteArrayTextOutput (charSet: String)(f: ByteArrayOutputStream => IO[Unit]): IO[String] =
     for {

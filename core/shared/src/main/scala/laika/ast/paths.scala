@@ -23,17 +23,17 @@ import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
 
 import scala.annotation.tailrec
 
-/** The abstract base for absolute and relative paths.
+/** Generic base trait for all path abstractions in Laika.
   * 
-  * A path in Laika is always virtual and not pointing
-  * to a path in the file system, even if the data was obtained
-  * by scanning a directory. This is because in Laika transformation
-  * input can come from different sources, e.g. from two different
-  * directories merged into a single virtual tree in memory with
-  * some additional documents added programmatically without any
-  * file system reference.
+  * The most commonly used sub-type is `VirtualPath` which is used to assign paths to trees and documents
+  * within a Laika transformation.
+  * 
+  * This trait is the only one within the Path API that is not sealed,
+  * to allow for implementations in other modules (e.g. `FilePath` in `laika-io`).
   */
-sealed trait PathBase extends Product with Serializable {
+trait GenericPath {
+
+  type Self <: GenericPath
 
   /** The local name of this path, without the optional fragment part, but including the suffix if present.
     */
@@ -52,11 +52,61 @@ sealed trait PathBase extends Product with Serializable {
     * or `None` if this path does not have a fragment component.
     */
   def fragment: Option[String]
+
+  /** Returns a new path that replaces the base name with the specified
+    * new name while keeping both, suffix and fragment, in case they are present.
+    */
+  def withBasename (name: String): Self = copyWith(basename = name)
+
+  /** Returns a new path that either replaces the existing suffix
+    * with the specified one or appends it if this path does not have a suffix yet.
+    */
+  def withSuffix (suffix: String): Self = copyWith(suffix = Some(suffix))
+
+  /** Returns a new path that either replaces the existing fragment component
+    * with the specified one or appends it if this path does not have a component yet.
+    */
+  def withFragment (fragment: String): Self = copyWith(fragment = Some(fragment))
+
+  /** Returns a new path that discards this path's suffix, if present.
+    */
+  def withoutSuffix: Self = copyWith(suffix = None)
+
+  /** Returns a new path that discards this path's fragment, if present.
+    */
+  def withoutFragment: Self = copyWith(fragment = None)
+
+  protected def copyWith (basename: String = basename,
+                          suffix: Option[String] = suffix,
+                          fragment: Option[String] = fragment) : Self
+
+  /** Creates a new path with the specified name
+    *  as an immediate child of this path.
+    */
+  def / (name: String): Self = this / RelativePath.parse(name)
+
+  /** Combines this path with the specified relative path.
+    */
+  def / (path: RelativePath): Self
   
 }
 
+/** The abstract base for absolute and relative paths within Laika's virtual path abstraction.
+  * 
+  * A path in Laika is always virtual and not pointing to a path in the file system, 
+  * even if the data was obtained by scanning a directory. 
+  * This is because in Laika transformation input can come from different sources,
+  * e.g. from two different directories merged into a single virtual tree in memory
+  * with some additional documents added programmatically without any file system reference.
+  */
+sealed trait VirtualPath extends GenericPath with Product with Serializable {
+  
+  type Self <: VirtualPath
+
+}
+
 /** The common base for absolute and relative paths that contain one or more path segments. */
-sealed trait SegmentedPathBase extends PathBase {
+sealed trait SegmentedVirtualPath extends VirtualPath {
 
   /** The segments representing this path instance. The last segment does not include the suffix or fragment parts */
   def segments: NonEmptyChain[String]
@@ -72,7 +122,7 @@ sealed trait SegmentedPathBase extends PathBase {
 
 }
 
-object SegmentedPathBase {
+object SegmentedVirtualPath {
 
   private[laika] def parseLastSegment (segments: List[String]): (Option[NonEmptyChain[String]], Option[String], Option[String]) = 
     segments.lastOption.fold[(Option[NonEmptyChain[String]], Option[String], Option[String])]((None, None, None)) { lastSegment =>
@@ -97,7 +147,7 @@ object SegmentedPathBase {
   
 }
 
-object PathBase {
+object VirtualPath {
 
   /** Creates path from interpreting the specified string representation.
     *
@@ -106,13 +156,18 @@ object PathBase {
     *
     * Empty path segments are allowed, but should usually be avoided for usability reasons.
     */
-  def parse (path: String): PathBase = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
+  def parse (path: String): VirtualPath = if (path.startsWith("/")) Path.parse(path) else RelativePath.parse(path)
   
 }
 
-/** Represents a path inside a virtual tree of documents.
- */
-sealed trait Path extends PathBase {
+/** Represents an absolute path inside a virtual tree of documents.
+  * 
+  * Since this is the most commonly used path abstraction in Laika it received a conveniently short type name.
+  * The full, accurate name of this type would be `AbsoluteVirtualPath`.
+  */
+sealed trait Path extends VirtualPath {
+  
+  type Self = Path
 
   /** The parent of this path.
    *  Will return this if this path represents a root node.
@@ -122,38 +177,6 @@ sealed trait Path extends PathBase {
   /** The depth of this path from the virtual root.
     */
   def depth: Int
-
-  /** Returns a new path that replaces the base name with the specified
-    * new name while keeping both, suffix and fragment, in case they are present.
-    */
-  def withBasename (name: String): Path = this
-  
-  /** Returns a new path that either replaces the existing suffix
-    * with the specified one or appends it if this path does not have a suffix yet.
-    */
-  def withSuffix (suffix: String): Path = this
-
-  /** Returns a new path that either replaces the existing fragment component
-    * with the specified one or appends it if this path does not have a component yet.
-    */
-  def withFragment (fragment: String): Path = this
-
-  /** Returns a new path that discards this path's suffix, if present.
-    */
-  def withoutSuffix: Path = this
-
-  /** Returns a new path that discards this path's fragment, if present.
-    */
-  def withoutFragment: Path = this
-
-  /** Creates a new path with the specified name
-   *  as an immediate child of this path.
-   */
-  def / (name: String): Path = this / RelativePath.parse(name)
-
-  /** Combines this path with the specified relative path.
-   */
-  def / (path: RelativePath): Path
 
   /** Interprets this path as a relative path - a shortcut
     * for `relativeTo(Root)`.
@@ -173,7 +196,7 @@ sealed trait Path extends PathBase {
   
 }
 
-case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String] = None, fragment: Option[String] = None) extends Path with SegmentedPathBase {
+case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String] = None, fragment: Option[String] = None) extends Path with SegmentedVirtualPath {
   
   val depth: Int = segments.length.toInt
   
@@ -194,6 +217,7 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
 
     val refPath = if (path.isSubPath(withoutFragment)) path else path.parent
     
+    @tailrec
     def removeCommonParts (a: List[String], b: List[String]): (List[String],List[String]) = (a,b) match {
       case (p1 :: rest1, p2 :: rest2) if p1 == p2 => removeCommonParts(rest1,rest2)
       case _ => (a,b)
@@ -223,13 +247,17 @@ case class SegmentedPath (segments: NonEmptyChain[String], suffix: Option[String
         segments.toList.startsWith(otherSegments.toList) && 
         otherSuffix.isEmpty && 
         otherFragment.isEmpty
-  } 
+  }
   
-  override def withBasename (name: String): Path = copy(segments = NonEmptyChain.fromChainAppend(segments.init, name))
-  override def withSuffix (newSuffix: String): Path = copy(suffix = Some(newSuffix))
-  override def withFragment (newFragment: String): Path = copy(fragment = Some(newFragment))
-  override def withoutSuffix: Path = copy(suffix = None)
-  override def withoutFragment: Path = copy(fragment = None)
+  protected def copyWith (basename: String = basename,
+                          suffix: Option[String] = suffix,
+                          fragment: Option[String] = fragment): Path = {
+    copy(
+      segments = NonEmptyChain.fromChainAppend(segments.init, basename),
+      suffix = suffix,
+      fragment = fragment
+    )
+  }
   
   protected val pathPrefix: String = "/"
 }
@@ -246,6 +274,10 @@ object Path {
     val name: String = "/"
     val suffix: Option[String] = None
     val fragment: Option[String] = None
+
+    protected def copyWith (basename: String = basename,
+                            suffix: Option[String] = suffix,
+                            fragment: Option[String] = fragment): Path = this
     
     def / (path: RelativePath): Path = path match {
       case SegmentedRelativePath(segments, suf, frag, _) => SegmentedPath(segments, suf, frag)
@@ -275,7 +307,7 @@ object Path {
     }
   }
   
-  private def parseLastSegment (segments: List[String]): Path = SegmentedPathBase.parseLastSegment(segments) match {
+  private def parseLastSegment (segments: List[String]): Path = SegmentedVirtualPath.parseLastSegment(segments) match {
     case (Some(seg), suf, frag) => SegmentedPath(seg, suf, frag)
     case _ => Root
   }
@@ -284,58 +316,27 @@ object Path {
 
 }
 
-sealed trait RelativePath extends PathBase {
+sealed trait RelativePath extends VirtualPath {
 
+  type Self = RelativePath
+  
   /** The parent of this path.
-    * Will return this if this path represents the current node.
     */
   def parent: RelativePath
-
-  /** The local name of this path.
-    */
-  def name: String
 
   /** The number of levels this relative path points above the current level.
     */
   def parentLevels: Int
 
-  /** Creates a new path with the specified name
-    *  as an immediate child of this path.
-    */
-  def / (name: String): RelativePath = this / RelativePath.parse(name)
-
-  /** Combines this path with the specified relative path.
-    */
-  def / (path: RelativePath): RelativePath
-
-  /** Returns a new path that replaces the base name with the specified
-    * new name while keeping both, suffix and fragment, in case they are present.
-    */
-  def withBasename (name: String): RelativePath = this
-  
-  /** Returns a new path that either replaces the existing suffix
-    * with the specified one or appends it if this path does not have a suffix yet.
-    */
-  def withSuffix (newSuffix: String): RelativePath = this
-
-  /** Returns a new path that either replaces the existing fragment component
-    * with the specified one or appends it if this path does not have a component yet.
-    */
-  def withFragment (fragment: String): RelativePath = this
-
-  /** Returns a new path that discards this path's suffix, if present.
-    */
-  def withoutSuffix: RelativePath = this
-
-  /** Returns a new path that discards this path's fragment, if present.
-    */
-  def withoutFragment: RelativePath = this
+  protected def copyWith (basename: String = basename,
+                          suffix: Option[String] = suffix,
+                          fragment: Option[String] = fragment): RelativePath = this
 }
 
 case class SegmentedRelativePath(segments: NonEmptyChain[String], 
                                  suffix: Option[String] = None, 
                                  fragment: Option[String] = None, 
-                                 parentLevels: Int = 0) extends RelativePath with SegmentedPathBase {
+                                 parentLevels: Int = 0) extends RelativePath with SegmentedVirtualPath {
 
   lazy val parent: RelativePath = {
     def noSegments = if (parentLevels == 0) CurrentTree else Parent(parentLevels)
@@ -364,11 +365,13 @@ case class SegmentedRelativePath(segments: NonEmptyChain[String],
     }
   }
 
-  override def withBasename (name: String): RelativePath = copy(segments = NonEmptyChain.fromChainAppend(segments.init, name))
-  override def withSuffix (newSuffix: String): RelativePath = copy(suffix = Some(newSuffix))
-  override def withFragment (newFragment: String): RelativePath = copy(fragment = Some(newFragment))
-  override def withoutSuffix: RelativePath = copy(suffix = None)
-  override def withoutFragment: RelativePath = copy(fragment = None)
+  override protected def copyWith (basename: String = basename,
+                                   suffix: Option[String] = suffix,
+                                   fragment: Option[String] = fragment): RelativePath = copy(
+    segments = NonEmptyChain.fromChainAppend(segments.init, basename),
+    suffix = suffix,
+    fragment = fragment
+  )
   
   protected val pathPrefix: String = "../" * parentLevels
 }
@@ -438,7 +441,7 @@ object RelativePath {
           else (current, path)
         val (levels, rest) = countParents(0, other)
         val segments = if (rest.isEmpty) Nil else rest.split("/").toList
-        SegmentedPathBase.parseLastSegment(segments) match {
+        SegmentedVirtualPath.parseLastSegment(segments) match {
           case (Some(seg), suf, frag) => SegmentedRelativePath(seg, suf, frag, levels)
           case _ => Parent(levels)
         }

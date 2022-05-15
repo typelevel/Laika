@@ -116,13 +116,13 @@ object RawLink {
     * The string value represents a virtual path into the input tree of a transformation
     * and may be absolute (starting with '/') or relative.
     */
-  def internal (path: String): RawLink = internal(PathBase.parse(path))
+  def internal (path: String): RawLink = internal(VirtualPath.parse(path))
 
   /** Creates a new instance for the specified internal link.
     * The path value represents a virtual path into the input tree of a transformation
     * and may be absolute or relative.
     */
-  def internal (path: PathBase): RawLink = apply(InternalTarget(path))
+  def internal (path: VirtualPath): RawLink = apply(InternalTarget(path))
 
   /** Creates a new instance for the specified external URL.
     */
@@ -151,13 +151,13 @@ object SpanLink {
    *  The string value represents a virtual path into the input tree of a transformation
    *  and may be absolute (starting with '/') or relative.
    */
-  def internal (path: String): Companion = internal(PathBase.parse(path))
+  def internal (path: String): Companion = internal(VirtualPath.parse(path))
 
   /** Creates a new instance for the specified internal link.
    *  The path value represents a virtual path into the input tree of a transformation
    *  and may be absolute or relative.
    */
-  def internal (path: PathBase): Companion = apply(InternalTarget(path))
+  def internal (path: VirtualPath): Companion = apply(InternalTarget(path))
 
   /** Creates a new instance for the specified external URL.
    */
@@ -210,7 +210,7 @@ object Image {
     * The path value represents a virtual path into the input tree of a transformation
     * and may be absolute or relative.
     */
-  def internal (path: PathBase, width: Option[Length] = None, height: Option[Length] = None,
+  def internal (path: VirtualPath, width: Option[Length] = None, height: Option[Length] = None,
                 alt: Option[String] = None, title: Option[String] = None): Image =
     apply(InternalTarget(path), width, height, alt, title)
 
@@ -275,13 +275,13 @@ object SVGSymbolIcon {
     * The string value represents a virtual path into the input tree of a transformation
     * and may be absolute (starting with '/') or relative.
     */
-  def internal (path: String): SVGSymbolIcon = internal(PathBase.parse(path))
+  def internal (path: String): SVGSymbolIcon = internal(VirtualPath.parse(path))
 
   /** Creates a new instance for the specified internal link.
     * The path value represents a virtual path into the input tree of a transformation
     * and may be absolute or relative.
     */
-  def internal (path: PathBase): SVGSymbolIcon = apply(InternalTarget(path))
+  def internal (path: VirtualPath): SVGSymbolIcon = apply(InternalTarget(path))
 
   /** Creates a new instance for the specified external URL.
     */
@@ -351,7 +351,7 @@ object LinkDefinition {
   */
 trait PathReference extends Reference {
   /** The content (section or document or image) this reference points to. */
-  def path: PathBase
+  def path: VirtualPath
   /** Creates the final AST element based on the resolved target. */
   def resolve(target: Target): Link
 }
@@ -362,7 +362,7 @@ trait PathReference extends Reference {
   * differ in more than just the file suffix, depending on configuration.
   */
 case class LinkPathReference(content: Seq[Span],
-                             path: PathBase,
+                             path: VirtualPath,
                              source: SourceFragment,
                              title: Option[String] = None,
                              options: Options = NoOpt) extends PathReference with SpanContainer {
@@ -378,7 +378,7 @@ case class LinkPathReference(content: Seq[Span],
   * replace the source path with the final target path of the output document, resolving any
   * relative path references in the process.
   */
-case class ImagePathReference (path: PathBase,
+case class ImagePathReference (path: VirtualPath,
                                source: SourceFragment,
                                width: Option[Length] = None,
                                height: Option[Length] = None,

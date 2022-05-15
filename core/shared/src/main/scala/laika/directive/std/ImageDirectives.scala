@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, PathBase, SpanSequence, Styles}
+import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, VirtualPath, SpanSequence, Styles}
 import laika.directive.{Blocks, Spans}
 
 /** Provides the implementation for the image directives included in Laika.
@@ -56,7 +56,7 @@ object ImageDirectives {
       attribute("title").as[String].optional,
       cursor).mapN { (src, width, height, style, alt, title, cursor) =>
       val img = Image(
-        InternalTarget(PathBase.parse(src)).relativeTo(cursor.path),
+        InternalTarget(VirtualPath.parse(src)).relativeTo(cursor.path),
         width.map(LengthUnit.px(_)),
         height.map(LengthUnit.px(_)),
         alt,
@@ -92,7 +92,7 @@ object ImageDirectives {
       cursor).mapN { (src, width, height, style, alt, title, cursor) =>
       val options = Styles(style.getOrElse("default-image-span"))
       Image(
-        InternalTarget(PathBase.parse(src)).relativeTo(cursor.path),
+        InternalTarget(VirtualPath.parse(src)).relativeTo(cursor.path),
         width.map(LengthUnit.px(_)),
         height.map(LengthUnit.px(_)),
         alt,

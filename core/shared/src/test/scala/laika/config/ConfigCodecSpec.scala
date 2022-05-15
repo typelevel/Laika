@@ -26,6 +26,8 @@ import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selec
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
+import java.net.URI
+
 /**
   * @author Jens Halm
   */
@@ -66,6 +68,8 @@ class ConfigCodecSpec extends FunSuite {
         |  language = en
         |  datePublished = "2002-10-10T12:00:00"
         |  dateModified = "2002-12-12T12:00:00"
+        |  version = 125
+        |  canonicalLink = "http://foo.bar/baz"
         |}}
       """.stripMargin
     decode[DocumentMetadata](input, DocumentMetadata(
@@ -75,7 +79,9 @@ class ConfigCodecSpec extends FunSuite {
       Seq("Helen North", "Maria South"),
       Some("en"),
       Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-      Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get),
+      Some("125"),
+      Some(new URI("http://foo.bar/baz"))
     ))
   }
 
@@ -105,7 +111,10 @@ class ConfigCodecSpec extends FunSuite {
       Some("XX-33-FF-01"),
       Seq("Helen North", "Maria South"),
       Some("en"),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      Some(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get),
+      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
+      Some("125"),
+      Some(new URI("http://foo.bar/baz"))
     )
     roundTrip(input)
   }
@@ -123,6 +132,19 @@ class ConfigCodecSpec extends FunSuite {
     failDecode[DocumentMetadata](input, "Error decoding 'laika.metadata.dateModified': Invalid date format")
   }
 
+  test("DocumentMetadata - fail with an invalid URI") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  canonicalLink = "?#?@!#"
+        |}}
+      """.stripMargin
+    val msg = "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
+    failDecode[DocumentMetadata](input, msg)
+  }
 
   object links {
     

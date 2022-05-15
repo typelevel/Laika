@@ -16,45 +16,52 @@
 
 package laika.io.model
 
-import java.io._
+import cats.data.Kleisli
+import cats.effect.{Async, Concurrent, Sync}
 import cats.syntax.all._
 import cats.{Applicative, Functor}
-import cats.data.Kleisli
-import cats.effect.{Async, Resource, Sync}
+import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
+import laika.io.runtime.DirectoryScanner
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
-import laika.io.runtime.{DirectoryScanner, InputRuntime}
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.TargetFormats
 
+import java.io.{File, InputStream}
 import scala.io.Codec
 
 /** A binary input stream and its virtual path within the input tree.
   */
 case class BinaryInput[F[_]: Sync] (path: Path, 
-                                    input: Resource[F, InputStream], 
+                                    input: fs2.Stream[F, Byte], 
                                     formats: TargetFormats = TargetFormats.All, 
                                     sourceFile: Option[File] = None) extends Navigatable
 
 object BinaryInput {
   
   def fromString[F[_]: Sync] (path: Path, input: String, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = Resource.eval[F, InputStream](Sync[F].delay(new ByteArrayInputStream(input.getBytes(Codec.UTF8.charSet))))
-    BinaryInput(path, resource, targetFormats)
+    val stream = fs2.Stream.emit(input).through(fs2.text.utf8.encode)
+    BinaryInput(path, stream, targetFormats)
   }
 
   def fromFile[F[_]: Async] (path: Path, file: File, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = Resource.fromAutoCloseable(Sync[F].delay(new BufferedInputStream(new FileInputStream(file))))
-    BinaryInput[F](path, resource, targetFormats, Some(file))
+    val stream = Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath))
+    BinaryInput[F](path, stream, targetFormats, Some(file))
   }
 
   def fromStream[F[_]: Sync] (path: Path, stream: F[InputStream], autoClose: Boolean, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
-    val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
-    BinaryInput(path, resource, targetFormats)
+    val input = fs2.io.readInputStream(stream, 64 * 1024, autoClose)
+    BinaryInput(path, input, targetFormats)
   }
+
+  def fromClasspath[F[_]: Async] (name: String, path: Path, targetFormats: TargetFormats = TargetFormats.All, classLoader: ClassLoader = getClass.getClassLoader): BinaryInput[F] = {
+    val input = fs2.io.readClassLoaderResource(name, classLoader = classLoader)
+    BinaryInput[F](path, input, targetFormats)
+  }
+  
 }
 
 /** Character input for the various parsers of this library.
@@ -71,17 +78,26 @@ case class TextInput[F[_]: Functor] (path: Path, docType: TextDocumentType, inpu
 
 object TextInput {
 
-  private def readAll[F[_]: Sync](reader: Resource[F, Reader], sizeHint: Int): F[String] = 
-   reader.use(InputRuntime.readAll(_, sizeHint))
+  private def readAll[F[_]: Concurrent](input: fs2.Stream[F, Byte], codec: Codec): F[String] = 
+    input.through(fs2.text.decodeWithCharset(codec.charSet)).compile.string
 
   def fromString[F[_]: Applicative] (path: Path, docType: TextDocumentType, input: String): TextInput[F] = 
     TextInput[F](path, docType, Applicative[F].pure(input))
 
-  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] =
-    TextInput[F](path, docType, readAll(InputRuntime.textFileResource[F](file, codec), file.length.toInt), Some(file))
+  def fromFile[F[_]: Async] (path: Path, docType: TextDocumentType, file: File, codec: Codec): TextInput[F] = {
+    val input = readAll(Files[F].readAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec)
+    TextInput[F](path, docType, input, Some(file))
+  }
 
-  def fromStream[F[_]: Sync] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] =
-    TextInput[F](path, docType, readAll(InputRuntime.textStreamResource(stream, codec, autoClose), 8096))
+  def fromStream[F[_]: Async] (path: Path, docType: TextDocumentType, stream: F[InputStream], codec: Codec, autoClose: Boolean): TextInput[F] = {
+    val input = readAll(fs2.io.readInputStream(stream, 64 * 1024, autoClose), codec)
+    TextInput[F](path, docType, input)
+  }
+  
+  def fromClasspath[F[_]: Async] (name: String, path: Path, docType: TextDocumentType, classLoader: ClassLoader = getClass.getClassLoader)(implicit codec: Codec): TextInput[F] = {
+    val input = readAll(fs2.io.readClassLoaderResource(name, classLoader = classLoader), codec)
+    TextInput[F](path, docType, input)
+  }
 }
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or 
@@ -280,17 +296,20 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: File => Boolean,
 
   /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
     * The specified name must be compatible with Java's `ClassLoader.getResource`.
-    * 
+    * The optional `ClassLoader` argument can be used to ensure the resource is found in an application or plugin
+    * that uses multiple class loaders. 
+    * If the call site is in the same module as the classpath resource, simply using `getClass.getClassLoader` should suffice. 
+    *
     * The content type of the stream will be determined by the suffix of the virtual path, e.g.
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
-  def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = {
-    val streamF = F.delay(getClass.getClassLoader.getResourceAsStream(name)).flatMap[InputStream] {
-      case null   => F.raiseError(new IOException(s"Classpath resource '$name' does not exist"))
-      case stream => F.pure(stream)
+  def addClasspathResource (name: String, mountPoint: Path, classLoader: ClassLoader = getClass.getClassLoader)(implicit codec: Codec): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static(formats) =>
+        _ + BinaryInput.fromClasspath(name, mountPoint, formats, classLoader)
+      case docType: TextDocumentType =>
+        _ + TextInput.fromClasspath(name, mountPoint, docType, classLoader)
     }
-    addStream(streamF, mountPoint)
-  }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
     * 

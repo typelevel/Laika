@@ -16,14 +16,13 @@
 
 package laika.render.epub
 
-import java.io.InputStream
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
-
-import cats.effect.Sync
+import cats.effect.{Async, Sync}
+import cats.effect.kernel.Concurrent
 import cats.implicits._
-import laika.ast.Path
 import laika.io.model.{BinaryInput, BinaryOutput}
-import laika.io.runtime.CopyRuntime
+
+import java.io.OutputStream
 
 /**
   * @author Jens Halm
@@ -37,18 +36,17 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Sync] (inputFs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
+  def zipEPUB[F[_]: Async] (inputs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
 
-    def copy (inputs: Vector[(InputStream, Path)], zipOut: ZipOutputStream): F[Unit] = {
+    def copyAll (zipOut: ZipOutputStream, pipe: fs2.Pipe[F, Byte, Nothing]): F[Unit] = {
     
-      def writeEntry (input: (InputStream, Path), prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit): F[Unit] = for {
-        entry <- Sync[F].delay(new ZipEntry(input._2.relative.toString))
+      def writeEntry (input: BinaryInput[F], prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit): F[Unit] = for {
+        entry <- Sync[F].delay(new ZipEntry(input.path.relative.toString))
         _     <- prepareEntry(entry)
         _     <- Sync[F].blocking(zipOut.putNextEntry(entry))
-        _     <- CopyRuntime.copy(input._1, zipOut)
+        _     <- input.input.through(pipe).compile.drain
         _     <- Sync[F].blocking(zipOut.closeEntry())
       } yield ()
-      
       
       def prepareUncompressedEntry (entry: ZipEntry): F[Unit] = Sync[F].delay {
         val content = StaticContent.mimeType
@@ -60,18 +58,14 @@ object ZipWriter {
       }
 
       writeEntry(inputs.head, prepareUncompressedEntry) >> 
-        inputs.tail.map(writeEntry(_)).sequence >> 
+        inputs.toList.tail.traverse(writeEntry(_)) >> 
           Sync[F].blocking(zipOut.close())
     }
-    
-    val in = inputFs.toVector.map { doc =>
-      doc.input.map((_, doc.path))
-    }.sequence
 
-    val out = output.resource.map(new ZipOutputStream(_))
-
-    (in, out).tupled.use {
-      case (ins, zip) => copy(ins, zip)
+    output.resource.map(new ZipOutputStream(_)).use { zipOut =>
+      val outF: F[OutputStream] = Sync[F].pure(zipOut).widen
+      val pipe = fs2.io.writeOutputStream(outF, closeAfterUse = false)
+      copyAll(zipOut, pipe)
     }
   }
   

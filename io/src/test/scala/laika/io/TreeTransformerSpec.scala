@@ -16,7 +16,6 @@
   
 package laika.io
 
-import java.io._
 import cats.effect.{IO, Resource}
 import laika.api.builder.OperationConfig
 import laika.api.{MarkupParser, Transformer}
@@ -40,6 +39,8 @@ import laika.rewrite.DefaultTemplatePath
 import laika.rewrite.link.SlugBuilder
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
+
+import java.io.{File, OutputStream}
 
 class TreeTransformerSpec extends CatsEffectSuite 
   with FileIO 

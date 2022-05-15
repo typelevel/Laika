@@ -16,15 +16,14 @@
 
 package laika.io.runtime
 
+import cats.effect.Sync
 import cats.effect.kernel.Async
-
-import java.nio.file.{Files, Path => JPath}
-import cats.effect.{Resource, Sync}
 import cats.implicits._
 import laika.ast.DocumentType.Static
 import laika.ast.{Path, TextDocumentType}
-import laika.collection.TransitionalCollectionOps.JIteratorWrapper
 import laika.io.model._
+
+import java.nio.file.{Path => JPath}
 
 /** Scans a directory in the file system and transforms it into a generic InputCollection
   * that can serve as input for parallel parsers or transformers.
@@ -35,10 +34,12 @@ object DirectoryScanner {
 
   /** Scans the specified directory passing all child paths to the given function.
     */
-  def scanDirectory[F[_]: Sync, A] (directory: JPath)(f: Seq[JPath] => F[A]): F[A] =
-    Resource
-      .fromAutoCloseable(Sync[F].delay(Files.newDirectoryStream(directory)))
-      .use(str => f(JIteratorWrapper(str.iterator).toSeq))
+  def scanDirectory[F[_]: Async, A] (directory: JPath)(f: Seq[JPath] => F[A]): F[A] = 
+    fs2.io.file.Files[F]
+      .list(fs2.io.file.Path.fromNioPath(directory))
+      .compile
+      .toList
+      .flatMap(p => f(p.map(_.toNioPath)) )
   
   /** Scans the specified directory and transforms it into a generic InputCollection.
     */
@@ -60,12 +61,14 @@ object DirectoryScanner {
       val childPath = path / filePath.getFileName.toString
 
       if (input.fileFilter(filePath.toFile)) InputTree.empty[F].pure[F]
-      else if (Files.isDirectory(filePath)) scanDirectory(filePath)(asInputCollection(childPath, input))
-      else input.docTypeMatcher(childPath) match {
-        case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil, Nil).pure[F]
-        case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(childPath, filePath.toFile, formats)), Nil).pure[F]
-        case _                         => InputTree.empty[F].pure[F]
-      }
+      else fs2.io.file.Files[F].isDirectory(fs2.io.file.Path.fromNioPath(filePath)).ifM(
+        scanDirectory(filePath)(asInputCollection(childPath, input)),
+        input.docTypeMatcher(childPath) match {
+          case docType: TextDocumentType => InputTree[F](Seq(TextInput.fromFile(childPath, docType, filePath.toFile, input.codec)), Nil, Nil).pure[F]
+          case Static(formats)           => InputTree[F](Nil, Seq(BinaryInput.fromFile(childPath, filePath.toFile, formats)), Nil).pure[F]
+          case _                         => InputTree.empty[F].pure[F]
+        }
+      )
     }
 
     join(entries.map(toCollection))
