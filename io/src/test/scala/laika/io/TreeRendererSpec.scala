@@ -785,8 +785,8 @@ class TreeRendererSpec extends CatsEffectSuite
       .build
 
     def versions (scannerRoot: Option[String] = None): Versions = Versions(
-      Version("0.4.x", "0.4"),
-      Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", "toc.html")),
+      Version("0.4.x", "0.4", canonical = true),
+      Seq(Version("0.3.x", "0.3"), Version("0.2.x", "0.2"), Version("0.1.x", "0.1", fallbackLink = "toc.html")),
       Seq(Version("0.5.x", "0.5")),
       scannerConfig = scannerRoot.map(VersionScannerConfig.apply(_))
     )
@@ -800,11 +800,11 @@ class TreeRendererSpec extends CatsEffectSuite
     val expectedVersionInfo: String =
       """{
         |  "versions": [
-        |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html" },
-        |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html" },
-        |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html" },
-        |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html" },
-        |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html" }
+        |    { "displayValue": "0.5.x", "pathSegment": "0.5", "fallbackLink": "/index.html", "canonical": false },
+        |    { "displayValue": "0.4.x", "pathSegment": "0.4", "fallbackLink": "/index.html", "canonical": true },
+        |    { "displayValue": "0.3.x", "pathSegment": "0.3", "fallbackLink": "/index.html", "canonical": false },
+        |    { "displayValue": "0.2.x", "pathSegment": "0.2", "fallbackLink": "/index.html", "canonical": false },
+        |    { "displayValue": "0.1.x", "pathSegment": "0.1", "fallbackLink": "/toc.html", "canonical": false }
         |  ],
         |  "linkTargets": [
         |    { "path": "/doc-1.html", "versions": ["0.1","0.3"] },

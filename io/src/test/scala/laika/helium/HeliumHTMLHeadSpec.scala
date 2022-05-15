@@ -95,7 +95,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     Version("0.42.x", "0.42"),
     Seq(
       Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", "toc.html")
+      Version("0.40.x", "0.40", fallbackLink = "toc.html")
     ),
     Seq(
       Version("0.43.x", "0.43")
@@ -275,7 +275,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
                    |<script src="../helium/laika-helium.js"></script>
                    |<script src="../helium/laika-versions.js"></script>
-                   |<script>initVersions("../../", "/dir/name.html", "0.42");</script>
+                   |<script>initVersions("../../", "/dir/name.html", "0.42", null);</script>
                    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
@@ -301,13 +301,13 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Version("0.42.x", "0.42"),
       Seq(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", "toc.html")
+        Version("0.40.x", "0.40", fallbackLink = "toc.html")
       ),
       Seq(
         Version("0.43.x", "0.43")
       )
     )
-    val helium = Helium.defaults.site.landingPage().site.versions(versions)
+    val helium = Helium.defaults.site.landingPage().site.versions(versions).site.baseURL("https://foo.org/")
     val expected = meta ++ """
                     |<title></title>
                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
@@ -316,7 +316,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                     |<script src="helium/laika-helium.js"></script>
                     |<script src="helium/laika-versions.js"></script>
-                    |<script>initVersions("../", "/name.html", "0.42");</script>
+                    |<script>initVersions("../", "/name.html", "0.42", "https://foo.org/");</script>
                     |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleVersionedDoc, helium, Root / "0.42" / "name.html").assertEquals(expected)
   }
@@ -326,7 +326,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Version("0.42.x", "0.42"),
       Seq(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", "toc.html")
+        Version("0.40.x", "0.40", fallbackLink = "toc.html")
       ),
       Seq(
         Version("0.43.x", "0.43")
@@ -341,7 +341,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script src="helium/laika-versions.js"></script>
-                     |<script>initVersions("", "", "");</script>
+                     |<script>initVersions("", "", "", null);</script>
                      |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }

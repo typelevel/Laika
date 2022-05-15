@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.ast.LengthUnit.in
+import cats.data.{Chain, NonEmptyChain}
 import laika.ast.{DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -294,10 +294,10 @@ class ConfigCodecSpec extends FunSuite {
   
   object versions {
     val testInstance = Versions(
-      Version("0.42.x", "0.42"),
+      Version("0.42.x", "0.42", canonical = true),
       Seq(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", "toc.html")
+        Version("0.40.x", "0.40", fallbackLink = "toc.html")
       ),
       Seq(
         Version("0.43.x", "0.43", label = Some("dev"))
@@ -311,7 +311,7 @@ class ConfigCodecSpec extends FunSuite {
     val input =
        """{
         |  laika.versions {
-        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html" }
+        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html", canonical = true }
         |    olderVersions = [
         |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html" }
         |      { displayValue = "0.40.x", pathSegment = "0.40", fallbackLink = "toc.html" }
@@ -325,6 +325,25 @@ class ConfigCodecSpec extends FunSuite {
         |}
        """.stripMargin
     decode[Versions](input, versions.testInstance)
+  }
+
+  test("Versions - fail with invalid configuration") {
+    val input =
+      """{
+        |  laika.versions {
+        |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html", canonical = true }
+        |    olderVersions = [
+        |      { displayValue = "0.41.x", pathSegment = "0.41", fallbackLink = "index.html", canonical = true }
+        |      { displayValue = "0.40.x", pathSegment = "0.41", fallbackLink = "toc.html" }
+        |    ]
+        |  }
+        |}
+       """.stripMargin
+    val res = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
+    val expected = ConfigErrors(NonEmptyChain(
+      ValidationError("Path segments used for more than one version: 0.41"), 
+      ValidationError("More than one version marked as canonical: 0.41.x, 0.42.x")))
+    assertEquals(res, Left(expected))
   }
 
   test("Versions - round-trip encode and decode") {

@@ -35,16 +35,17 @@ private[helium] object HeliumDirectives {
       val html = versions.fold("") { versions =>
         val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
         val localRootPrefix = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
-        val (currentPath, currentVersion) = if (isVersioned) {
+        val (currentPath, currentVersion, siteBaseURL) = if (isVersioned) {
           val lookup: Path => Option[TranslatorSpec] = path =>
             if (path == cursor.path) Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
           val config = TranslatorConfig.readFrom(cursor.root.config).getOrElse(TranslatorConfig.empty)
           val translator = ConfigurablePathTranslator(config, "html", "html", Root / "doc", lookup)
           val path = translator.translate(cursor.path).toString
           val version = versions.currentVersion.pathSegment
-          (path, version)
-        } else ("", "")
-        s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion");</script>"""
+          val siteBaseURL = config.siteBaseURL.fold("null")(url => s""""$url"""")
+          (path, version, siteBaseURL)
+        } else ("", "", "null")
+        s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion", $siteBaseURL);</script>"""
       }
       TemplateString(html)
     }
