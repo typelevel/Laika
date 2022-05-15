@@ -239,7 +239,21 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one document from an input stream") {
     CustomInput.run(
-      _.addStream(IO.delay(new ByteArrayInputStream("Doc7".getBytes)), ExtraDoc.path),
+      _.addInputStream(IO.delay(new ByteArrayInputStream("Doc7".getBytes)), ExtraDoc.path),
+      ExtraDoc.expected
+    )
+  }
+
+  test("read a directory from the file system plus one document from an fs2 text stream") {
+    CustomInput.run(
+      _.addTextStream(fs2.Stream.emit("Doc7"), ExtraDoc.path),
+      ExtraDoc.expected
+    )
+  }
+
+  test("read a directory from the file system plus one document from an fs2 binary stream") {
+    CustomInput.run(
+      _.addBinaryStream(fs2.Stream.emit("Doc7").through(fs2.text.utf8.encode), ExtraDoc.path),
       ExtraDoc.expected
     )
   }
