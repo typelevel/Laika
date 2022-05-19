@@ -814,6 +814,43 @@ class LanguageSpec extends FunSuite {
 
     assertEquals(parse(input), expected)
   }
+
+  test("shell script") {
+    val input = """# Doc
+        |
+        |```sh
+        |# this is a comment
+        |export KEY=value # this is a trailing comment
+        |echo 'hello world'
+        |
+        |echo hello $(whoami)
+        |
+        |for i in ${array[@]}; do
+        |  read -p "" input
+        |  echo "\"${input}\""
+        |done
+        |
+        |exit
+        |```
+        |
+        |""".stripMargin
+    val parsed = parse(input)
+    val expected = result("sh",
+      comment("# this is a comment\n"),
+      keyword("export"),space,id("KEY"),other("="),id("value"),space,comment("# this is a trailing comment\n"),
+      keyword("echo"),space,string("'hello world'"),
+      other("\n\n"),
+      keyword("echo"),space,id("hello"),space,subst("$(whoami)"),other("\n\n"),
+      keyword("for"),space,id("i"),space,id("in"),space,subst("${array[@]}"),other("; "),keyword("do"),other("\n  "),
+      keyword("read"),other(" -"),id("p"),space,string("\"\""),space,id("input"),other("\n  "),
+      keyword("echo"),space,string("\""),escape("\\\""),subst("${input}"),escape("\\\""),string("\""),
+      other("\n"),
+      keyword("done"),
+      other("\n\n"),
+      keyword("exit")
+    )
+    assertEquals(parsed,expected)
+  }
   
   test("SQL") {
     val input =
