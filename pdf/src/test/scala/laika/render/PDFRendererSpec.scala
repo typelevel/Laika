@@ -17,16 +17,17 @@
 package laika.render
 
 import cats.effect.IO
+import fs2.io.file.Files
 import laika.api.{MarkupParser, Renderer}
 import laika.ast.{DocumentTree, DocumentTreeRoot}
 import laika.format.{Markdown, PDF}
 import laika.io.FileIO
 import laika.io.implicits._
-import laika.io.model.{InputTree, ParsedTree}
+import laika.io.model.{FilePath, InputTree, ParsedTree}
 import laika.rewrite.DefaultTemplatePath
 import munit.CatsEffectSuite
 
-import java.io.{BufferedInputStream, File, FileInputStream}
+import java.io.{BufferedInputStream, FileInputStream}
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -39,20 +40,6 @@ import java.io.{BufferedInputStream, File, FileInputStream}
  */
 class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
-  
-  class FileSetup {
-    
-    val file: File = File.createTempFile("output", null)
-    
-    val firstChar: IO[Int] = for {
-      in   <- IO(new BufferedInputStream(new FileInputStream(file)))
-      read <- IO(in.read)
-    } yield read
-    
-    def firstCharAvailable(render: IO[Unit]): IO[Unit] = (render >> firstChar).map(_ != -1).assert
-  }
-  
-  
   private val templateParser = MarkupParser.of(Markdown).parallel[IO].build
   
   // run a parser with an empty input tree to obtain a parsed default template
@@ -67,16 +54,19 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
   }
 
   test("render a tree to a file") {
-    val fileSetup = new FileSetup
+
     val renderer = Renderer.of(PDF)
       .parallel[IO]
       .build
 
-    val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
-      r.from(buildInputTree(templateTree, createTree())).toFile(fileSetup.file).render
-    }}
-
-    fileSetup.firstCharAvailable(res)
+    newTempFile.flatMap { tempFile =>
+      
+      val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
+        r.from(buildInputTree(templateTree, createTree())).toFile(tempFile).render
+      }}
+  
+      (res >> Files[IO].size(tempFile.toFS2Path)).map(_ > 0).assert
+    }
   }
 
   test("render a tree to an OutputStream") {

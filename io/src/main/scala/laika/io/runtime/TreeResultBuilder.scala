@@ -16,14 +16,13 @@
 
 package laika.io.runtime
 
-import java.io.File
-
 import laika.config.{Config, ConfigError, ConfigParser, Origin}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentTree, DocumentTreeRoot, Navigatable, Path, StyleDeclarationSet, TemplateDocument, TreeBuilder, TreeContent, UnresolvedDocument}
 import cats.implicits._
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{DocumentScope, TreeScope}
+import laika.io.model.FilePath
 import laika.rewrite.nav.TitleDocumentConfig
 
 /**
@@ -34,26 +33,26 @@ object TreeResultBuilder {
   import laika.collection.TransitionalCollectionOps._
 
   sealed trait ParserResult extends Navigatable {
-    def sourceFile: Option[File]
+    def sourceFile: Option[FilePath]
   }
   sealed trait TreeContentResult extends ParserResult
 
   case class DocumentResult (doc: Document) extends TreeContentResult {
     val path: Path = doc.path
-    val sourceFile: Option[File] = None
+    val sourceFile: Option[FilePath] = None
   }
-  case class MarkupResult (doc: UnresolvedDocument, sourceFile: Option[File] = None) extends TreeContentResult {
+  case class MarkupResult (doc: UnresolvedDocument, sourceFile: Option[FilePath] = None) extends TreeContentResult {
     val path: Path = doc.document.path
   }
-  case class TemplateResult (doc: TemplateDocument, sourceFile: Option[File] = None)  extends ParserResult {
+  case class TemplateResult (doc: TemplateDocument, sourceFile: Option[FilePath] = None)  extends ParserResult {
     val path: Path = doc.path
   }
-  case class StyleResult (doc: StyleDeclarationSet, format: String, sourceFile: Option[File] = None) extends ParserResult {
+  case class StyleResult (doc: StyleDeclarationSet, format: String, sourceFile: Option[FilePath] = None) extends ParserResult {
     val path: Path = doc.paths.head
   }
-  case class HoconResult (path: Path, config: ConfigParser, sourceFile: Option[File] = None) extends ParserResult
+  case class HoconResult (path: Path, config: ConfigParser, sourceFile: Option[FilePath] = None) extends ParserResult
   case class ConfigResult (path: Path, config: Config) extends ParserResult {
-    val sourceFile: Option[File] = None
+    val sourceFile: Option[FilePath] = None
   }
 
   type UnresolvedContent = Either[UnresolvedDocument, TreeResult]
@@ -64,7 +63,7 @@ object TreeResultBuilder {
                          templates: Seq[TemplateDocument],
                          hocon: Seq[HoconResult],
                          config: Seq[ConfigResult]) extends TreeContentResult {
-    val sourceFile: Option[File] = None
+    val sourceFile: Option[FilePath] = None
   }
 
   def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
@@ -85,7 +84,7 @@ object TreeResultBuilder {
   def resolveConfig (doc: UnresolvedDocument, baseConfig: Config, includes: IncludeMap): Either[ConfigError, Document] =
     doc.config.resolve(Origin(DocumentScope, doc.document.path), baseConfig, includes).map(config => doc.document.copy(config = config))
 
-  def resolveConfig (doc: Document, baseConfig: Config, includes: IncludeMap): Either[ConfigError, Document] =
+  def resolveConfig (doc: Document, baseConfig: Config): Either[ConfigError, Document] =
     Right(doc.copy(config = doc.config.withFallback(baseConfig).withOrigin(Origin(DocumentScope, doc.path))))
   
   def resolveConfig (result: TreeResult, baseConfig: Config, includes: IncludeMap, titleDocName: Option[String] = None): Either[ConfigError, DocumentTree] = {
@@ -106,7 +105,7 @@ object TreeResultBuilder {
       resolvedContent <- result.content.toVector.traverse {
         case tree: TreeResult => resolveConfig(tree, treeConfig, includes, Some(titleName))
         case markup: MarkupResult => resolveConfig(markup.doc, treeConfig, includes)
-        case doc: DocumentResult => resolveConfig(doc.doc, treeConfig, includes)
+        case doc: DocumentResult => resolveConfig(doc.doc, treeConfig)
       }
       title   = resolvedContent.collectFirst { case d: Document if isTitleDoc(titleName)(d) => d }
     } yield {

@@ -18,7 +18,7 @@ package laika.render.pdf
 
 import java.io.{ByteArrayInputStream, File}
 
-import cats.effect.{Async, Sync}
+import cats.effect.Async
 import cats.effect.std.Dispatcher
 import laika.format.PDF
 import laika.io.model.BinaryInput

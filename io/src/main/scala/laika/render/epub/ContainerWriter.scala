@@ -57,7 +57,7 @@ class ContainerWriter {
       if (path.suffix.contains("html")) contentRoot / path.withSuffix("xhtml").relative
       else contentRoot / path.relative
 
-    def toBinaryInput (content: String, path: Path): BinaryInput[F] = BinaryInput.fromString(path, content)
+    def toBinaryInput (content: String, path: Path): BinaryInput[F] = BinaryInput.fromString(content, path)
 
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments)
     

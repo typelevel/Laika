@@ -16,7 +16,6 @@
 
 package laika.io.runtime
 
-import java.io.File
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.{Async, Sync}
 import cats.implicits._
@@ -28,7 +27,7 @@ import laika.config.ConfigParser
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
-import laika.io.model.{InputTree, ParsedTree, TextInput}
+import laika.io.model.{FilePath, InputTree, ParsedTree, TextInput}
 import laika.parse.hocon.{IncludeFile, IncludeResource, ValidStringValue}
 import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocuments, ParserError}
 
@@ -77,7 +76,7 @@ object ParserRuntime {
           .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
       }
       
-      def parseDocument[D] (doc: TextInput[F], parse: DocumentInput => Either[ParserError, D], result: (D, Option[File]) => ParserResult): F[ParserResult] =
+      def parseDocument[D] (doc: TextInput[F], parse: DocumentInput => Either[ParserError, D], result: (D, Option[FilePath]) => ParserResult): F[ParserResult] =
         doc.asDocumentInput.flatMap(in => Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile))))
       
       def parseConfig(input: DocumentInput): Either[ParserError, ConfigParser] =
@@ -102,8 +101,8 @@ object ParserRuntime {
       
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
         
-        def toRequestedInclude(includes: Seq[IncludeResource], sourceFile: Option[File]): Seq[RequestedInclude] =
-          includes.map { include => RequestedInclude(include, sourceFile.map(f => IncludeFile(ValidStringValue(f.getPath)))) }
+        def toRequestedInclude(includes: Seq[IncludeResource], sourceFile: Option[FilePath]): Seq[RequestedInclude] =
+          includes.map { include => RequestedInclude(include, sourceFile.map(f => IncludeFile(ValidStringValue(f.toString)))) }
         
         val includes = results.flatMap {
           case HoconResult(_, config, sourceFile) => toRequestedInclude(config.includes, sourceFile)

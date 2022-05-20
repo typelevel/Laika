@@ -26,10 +26,9 @@ import laika.ast.Path.Root
 import laika.ast.{DocumentType, Path, SegmentedPath}
 import laika.config.Config.ConfigResult
 import laika.config.{ConfigDecoder, ConfigException, ConfigParser}
-import laika.io.model.{BinaryInput, DirectoryInput}
+import laika.io.model.{BinaryInput, DirectoryInput, FilePath}
 import laika.rewrite.{VersionScannerConfig, Versions}
 
-import java.io.File
 import scala.io.Codec
 
 private[runtime] object VersionedLinkTargets {
@@ -50,10 +49,10 @@ private[runtime] object VersionedLinkTargets {
       case p @ SegmentedPath(segments, _, _) if included(p, segments) => Static()
       case _ => Ignored
     }
-    val input = DirectoryInput(Seq(new File(config.rootDirectory)), Codec.UTF8, docTypeMather)
+    val input = DirectoryInput(Seq(FilePath.parse(config.rootDirectory)), Codec.UTF8, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
       tree.binaryInputs
-        .collect { case BinaryInput(path: SegmentedPath, _, _, _) if path.depth > 1 =>
+        .collect { case BinaryInput(_, path: SegmentedPath, _, _) if path.depth > 1 =>
           (path.segments.head, SegmentedPath(NonEmptyChain.fromChainUnsafe(path.segments.tail), path.suffix, None))
         }
         .groupBy(_._1)

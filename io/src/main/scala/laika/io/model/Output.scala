@@ -19,6 +19,7 @@ package laika.io.model
 import cats.Applicative
 import cats.effect.{Async, Concurrent, Resource, Sync}
 import fs2.io.file.Files
+import laika.ast.Path.Root
 import laika.ast._
 
 import java.io.{File, OutputStream}
@@ -26,11 +27,11 @@ import scala.io.Codec
 
 /** Character output for the various renderers of this library
   *
-  * @param path       The full virtual path of this input (does not represent the filesystem path in case of file I/O)
   * @param writer     Handler for the character output (a function `String => F[Unit]`)
+  * @param path       The full virtual path of this output (does not represent the filesystem path in case of file I/O)
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-case class TextOutput[F[_]] (path: Path, writer: TextOutput.Writer[F], targetFile: Option[File] = None)
+case class TextOutput[F[_]] (writer: TextOutput.Writer[F], path: Path, targetFile: Option[FilePath] = None)
 
 object TextOutput {
   
@@ -44,14 +45,17 @@ object TextOutput {
       .compile
       .drain
   
-  def noOp[F[_]: Applicative] (path: Path): TextOutput[F] =
-    TextOutput[F](path, _ => Applicative[F].unit)
+  def noOp[F[_]: Applicative] (path: Path = Root/"doc"): TextOutput[F] =
+    TextOutput[F](_ => Applicative[F].unit, path)
 
-  def forFile[F[_]: Async] (path: Path, file: File, codec: Codec): TextOutput[F] =
-    TextOutput[F](path, writeAll(Files[F].writeAll(fs2.io.file.Path.fromNioPath(file.toPath)), codec), Some(file))
+  def forFile[F[_]: Async] (file: FilePath, path: Path = Root/"doc")(implicit codec: Codec): TextOutput[F] =
+    TextOutput[F](writeAll(Files[F].writeAll(file.toFS2Path), codec), path, Some(file))
     
-  def forStream[F[_]: Async] (path: Path, stream: F[OutputStream], codec: Codec, autoClose: Boolean): TextOutput[F] =
-    TextOutput[F](path, writeAll(fs2.io.writeOutputStream(stream, autoClose), codec))
+  def forStream[F[_]: Async] (stream: F[OutputStream],
+                              path: Path = Root/"doc",
+                              autoClose: Boolean = true)
+                             (implicit codec: Codec): TextOutput[F] =
+    TextOutput[F](writeAll(fs2.io.writeOutputStream(stream, autoClose), codec), path)
 }
 
 /** A resource for binary output.
@@ -62,20 +66,20 @@ object TextOutput {
   * This is the only I/O type not expressed through a generic `F[_]` or an `fs2.Stream` or `fs2.Pipe`
   * as Laika's binary output needs to work with Java libraries for its EPUB and PDF output.
   */
-case class BinaryOutput[F[_]] (path: Path, resource: Resource[F, OutputStream], targetFile: Option[File] = None)
+case class BinaryOutput[F[_]] (resource: Resource[F, OutputStream], path: Path, targetFile: Option[File] = None)
 
 object BinaryOutput {
 
-  def forFile[F[_]: Sync] (path: Path, file: File): BinaryOutput[F] = {
+  def forFile[F[_]: Sync] (file: FilePath, path: Path): BinaryOutput[F] = {
     val resource = Resource.fromAutoCloseable(Sync[F].blocking(
-      new java.io.BufferedOutputStream(new java.io.FileOutputStream(file)))
+      new java.io.BufferedOutputStream(new java.io.FileOutputStream(file.toJavaFile)))
     )
-    BinaryOutput(path, resource)
+    BinaryOutput(resource, path)
   }
 
-  def forStream[F[_]: Sync] (path: Path, stream: F[OutputStream], autoClose: Boolean): BinaryOutput[F] = {
+  def forStream[F[_]: Sync] (stream: F[OutputStream], path: Path, autoClose: Boolean = true): BinaryOutput[F] = {
     val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
-    BinaryOutput(path, resource)
+    BinaryOutput(resource, path)
   }
 
 }
@@ -88,7 +92,7 @@ sealed trait TreeOutput
   * 
   * The specified codec will be used for writing all character output.
   */
-case class DirectoryOutput (directory: File, codec: Codec) extends TreeOutput
+case class DirectoryOutput (directory: FilePath, codec: Codec) extends TreeOutput
 
 /** Instructs the renderer to produce an in-memory representation of the
   * tree of rendered outputs.

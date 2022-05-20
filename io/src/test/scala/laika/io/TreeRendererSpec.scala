@@ -19,7 +19,6 @@ package laika.io
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.{Async, IO, Resource}
 import cats.syntax.all._
-import fs2.io.file
 import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
@@ -45,7 +44,6 @@ import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{DefaultTemplatePath, Version, VersionScannerConfig, Versions}
 import munit.CatsEffectSuite
 
-import java.io.File
 import scala.io.Codec
 
 class TreeRendererSpec extends CatsEffectSuite 
@@ -106,7 +104,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateRoot.fallback,
       Config.empty,
       coverDocument = coverDocument,
-      staticDocuments = staticDocuments.map(Inputs.ByteInput.apply(_))
+      staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )
     
     def tree (path: Path, content: Seq[RenderContent]): RenderedTree = RenderedTree(path, None, content)
@@ -773,7 +771,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val res = for {
       f   <- newTempDirectory
       _   <- renderer.use(_.from(FileSystemTest.input).toDirectory(f).render)
-      res <- FileSystemTest.readFiles(f.getPath)
+      res <- FileSystemTest.readFiles(f.toString)
     } yield res
     
     res.assertEquals(expectedFileContents)  
@@ -838,7 +836,7 @@ class TreeRendererSpec extends CatsEffectSuite
         |    { "path": "/tree-2/doc-6.html", "versions": ["0.1","0.2"] }
         |  ]
         |}""".stripMargin
-    val versionInfoInput = BinaryInput.fromString[IO](VersionInfoGenerator.path, existingVersionInfo)
+    val versionInfoInput = BinaryInput.fromString[IO](existingVersionInfo, VersionInfoGenerator.path)
 
     htmlRenderer
       .use(_
@@ -859,18 +857,17 @@ class TreeRendererSpec extends CatsEffectSuite
   test("directory with existing versioned renderer output") {
     import VersionInfoSetup._
       
-    def mkDirs (dir: File): IO[Unit] = 
+    def mkDirs (dir: FilePath): IO[Unit] = 
       List("0.1/tree-1", "0.1/tree-2", "0.2/tree-1", "0.2/tree-2", "0.3/tree-1", "0.3/tree-2").traverse { name =>
-        Files[IO].createDirectories(fs2.io.file.Path.fromNioPath(new File(dir, name).toPath))
+        Files[IO].createDirectories((dir / name).toFS2Path)
       }.void
 
-    def writeExistingVersionedFiles (root: DocumentTreeRoot, dir: File): IO[Unit] = {
+    def writeExistingVersionedFiles (root: DocumentTreeRoot, dir: FilePath): IO[Unit] = {
       val paths = root.tree.allDocuments.map(_.path.withSuffix("html").toString)
       val versionedPaths = paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
       
       versionedPaths.toList.traverse { path =>
-        val file = new File(dir, path)
-        writeFile(file, "<html></html>")
+        writeFile(dir / path, "<html></html>")
       }.void
     }
 
@@ -891,12 +888,12 @@ class TreeRendererSpec extends CatsEffectSuite
     
     val res = for {
       f    <- newTempDirectory
-      root =  versionedInput(Some(f.getAbsolutePath))
+      root =  versionedInput(Some(f.toString))
       _    <- mkDirs(f)
       _    <- writeExistingVersionedFiles(root, f)
       _    <- htmlRenderer.use(_.from(root).toDirectory(f).render)
-      res  <- readVersionedFiles(f.getPath)
-      vi   <- readVersionInfo(f.getPath)
+      res  <- readVersionedFiles(f.toString)
+      vi   <- readVersionInfo(f.toString)
     } yield (res, vi)
 
     res.assertEquals((expectedFileContents, expectedVersionInfo))
@@ -911,9 +908,9 @@ class TreeRendererSpec extends CatsEffectSuite
     val input = ASTRenderer.defaultTree(RootElement(p("Doc äöü")))
 
     val res = for {
-      f <- newTempDirectory
-      _ <- ASTRenderer.defaultRenderer.use(_.from(ASTRenderer.defaultRoot(input)).toDirectory(f)(Codec.ISO8859).render)
-      res <- readFile(new File(f, "doc.txt"), Codec.ISO8859)
+      d <- newTempDirectory
+      _ <- ASTRenderer.defaultRenderer.use(_.from(ASTRenderer.defaultRoot(input)).toDirectory(d)(Codec.ISO8859).render)
+      res <- readFile(d / "doc.txt")(Codec.ISO8859)
     } yield res
 
     res.assertEquals(expected)

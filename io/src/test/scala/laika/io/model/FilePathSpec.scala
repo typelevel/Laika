@@ -26,45 +26,65 @@ class FilePathSpec extends FunSuite {
   private val platformSeparator = FileSystems.getDefault.getSeparator
   private val platformRoot = Paths.get(System.getProperty("user.dir")).getRoot.toString
 
-  private val testPathString = platformRoot + List("foo", "bar", "..", "baz.jpg").mkString(platformSeparator)
+  private val absTestPathString = platformRoot + List("foo", "bar", "..", "baz.jpg").mkString(platformSeparator)
+  private val relTestPathString = List("foo", "bar", "..", "baz.jpg").mkString(platformSeparator)
   private val expectedPath = platformRoot + List("foo", "baz.gif").mkString(platformSeparator)
 
   test("create and modify normalized FilePath from NIO path") {
-    val path = FilePath.fromNioPath(Paths.get(testPathString))
+    val path = FilePath.fromNioPath(Paths.get(absTestPathString))
     assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from fs2 path") {
-    val path = FilePath.fromFS2Path(fs2.io.file.Path.fromNioPath(Paths.get(testPathString)))
+    val path = FilePath.fromFS2Path(fs2.io.file.Path.fromNioPath(Paths.get(absTestPathString)))
     assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from Java File") {
-    val path = FilePath.fromJavaFile(new File(testPathString))
+    val path = FilePath.fromJavaFile(new File(absTestPathString))
     assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
   test("create and modify normalized FilePath from parsed string") {
-    val path = FilePath.parse(testPathString)
+    val path = FilePath.parse(absTestPathString)
     assertEquals(path.withSuffix("gif").toString, expectedPath)
   }
 
-  test("round trip FilePath from and to NIO path") {
-    val inPath = Paths.get(testPathString)
+  test("round trip absolute FilePath from and to NIO path") {
+    val inPath = Paths.get(absTestPathString)
     val outPath = FilePath.fromNioPath(inPath).toNioPath
     assertEquals(outPath, inPath.normalize())
   }
 
-  test("round trip FilePath from and to fs2 path") {
-    val inPath = fs2.io.file.Path.fromNioPath(Paths.get(testPathString))
+  test("round trip absolute FilePath from and to fs2 path") {
+    val inPath = fs2.io.file.Path.fromNioPath(Paths.get(absTestPathString))
     val outPath = FilePath.fromFS2Path(inPath).toFS2Path
     assertEquals(outPath, inPath.normalize)
   }
 
-  test("round trip FilePath from and to Java file") {
-    val inPath = new File(testPathString)
+  test("round trip absolute FilePath from and to Java file") {
+    val inPath = new File(absTestPathString)
     val outPath = FilePath.fromJavaFile(inPath).toJavaFile
     assertEquals(outPath, inPath.getCanonicalFile)
+  }
+
+  test("round trip relative FilePath from and to NIO path") {
+    val inPath = Paths.get(relTestPathString)
+    inPath.resolve("foo")
+    val outPath = FilePath.fromNioPath(inPath).toNioPath
+    assertEquals(outPath, inPath.normalize())
+  }
+
+  test("round trip relative FilePath from and to fs2 path") {
+    val inPath = fs2.io.file.Path.fromNioPath(Paths.get(relTestPathString))
+    val outPath = FilePath.fromFS2Path(inPath).toFS2Path
+    assertEquals(outPath, inPath.normalize)
+  }
+
+  test("round trip relative FilePath from and to Java file") {
+    val inPath = new File(relTestPathString)
+    val outPath = FilePath.fromJavaFile(inPath).toJavaFile
+    assertEquals(outPath, new File(List("foo", "baz.jpg").mkString(platformSeparator)))
   }
   
 }

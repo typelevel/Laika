@@ -17,9 +17,8 @@
 package laika.io.ops
 
 import java.io.File
-
 import cats.effect.Sync
-import laika.io.model.{DirectoryOutput, TreeOutput}
+import laika.io.model.{DirectoryOutput, FilePath, TreeOutput}
 
 import scala.io.Codec
 
@@ -45,7 +44,7 @@ trait TextOutputOps[F[_]] {
     * @param name the name of the directory to write to
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (name: String)(implicit codec: Codec): Result = toDirectory(new File(name))
+  def toDirectory (name: String)(implicit codec: Codec): Result = toDirectory(FilePath.parse(name))
 
   /** Builder step that instructs the runtime to render the document tree to files
     * in the specified directory and its subdirectories.
@@ -56,18 +55,14 @@ trait TextOutputOps[F[_]] {
     * @param dir the directory to write to
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutput(DirectoryOutput(dir, codec))
+  def toDirectory (dir: FilePath)(implicit codec: Codec): Result = toOutput(DirectoryOutput(dir, codec))
 
-  /** Builder step that instructs the runtime to render the document tree to files
-    * in the working directory and its subdirectories.
-    *
-    * The virtual paths of the document tree will be translated to a directory structure,
-    * with the root of the virtual path being the directory specified with this method.
-    *
-    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-    */
+  @deprecated("use toDirectory(String) or toDirectory(FilePath)", "0.19.0")
+  def toDirectory (dir: File)(implicit codec: Codec): Result = toDirectory(FilePath.fromJavaFile(dir))
+
+  @deprecated("use toDirectory(String) or toDirectory(FilePath) using a relative path", "0.19.0")
   def toWorkingDirectory (implicit codec: Codec): Result = 
-    toOutput(DirectoryOutput(new File(System.getProperty("user.dir")), codec))
+    toOutput(DirectoryOutput(FilePath.parse(System.getProperty("user.dir")), codec))
 
   /** Builder step that instructs the runtime to render
     * to the specified tree output.

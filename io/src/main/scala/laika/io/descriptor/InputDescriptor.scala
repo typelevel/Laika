@@ -20,7 +20,7 @@ import cats.effect.Sync
 import cats.implicits._
 import laika.ast.DocumentType
 import laika.collection.TransitionalCollectionOps._
-import laika.io.model.{BinaryInput, TextInput, InputTree}
+import laika.io.model.{BinaryInput, FilePath, InputTree, TextInput}
 
 /** Describes a single, textual or binary input for a parsing or rendering operation.
   * This functionality is mostly intended for tooling support.
@@ -34,24 +34,24 @@ object InputDescriptor {
   def create[F[_]] (input: TextInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       "In-memory string or stream"
-    )(f => s"File '${f.getPath}'")
+    )(f => s"File '${f.toString}'")
     apply(desc, input.docType)
   }
 
   def create[F[_]] (input: BinaryInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       "In-memory bytes or stream"
-    )(f => s"File '${f.getPath}'")
+    )(f => s"File '${f.toString}'")
     apply(desc, DocumentType.Static())
   }
   
 }
 
-case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[String] = Nil) {
+case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[FilePath] = Nil) {
   
   def formatted: String = {
     val grouped = (inputs.map(in => (in.docType.productPrefix, in.description)) ++ 
-                    sourceDirectories.map(dir => ("Root Directories", dir)))
+                    sourceDirectories.map(dir => ("Root Directories", dir.toString)))
                     .groupBy(_._1).mapValuesStrict(_.map(_._2))
     
     TreeInputDescriptor.docTypeMappings.map { case (docType, typeDesc) =>

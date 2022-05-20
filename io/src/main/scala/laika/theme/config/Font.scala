@@ -17,10 +17,10 @@
 package laika.theme.config
 
 import java.io.File
-
 import laika.ast.Path.Root
 import laika.ast.{Path, VirtualPath}
 import laika.config._
+import laika.io.model.FilePath
 
 /** Represents a font resource, either based on a local classpath or file system resource,
   * or a web font URL, or both.
@@ -36,13 +36,16 @@ case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[Str
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile (name: String): Font = embedFile(new File(name))
+  def embedFile (name: String): Font = embedFile(FilePath.parse(name))
 
   /** Specifies a font file that can be used for embedding in EPUB or PDF.
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile (file: File): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
+  def embedFile (file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
+
+  @deprecated("use embedFile(String) or embedFile(FilePath)", "0.19.0")
+  def embedFile (file: File): Font = embedFile(FilePath.fromJavaFile(file))
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
@@ -73,14 +76,17 @@ object Font {
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile (name: String): Font = embedFile(new File(name))
+  def embedFile (name: String): Font = embedFile(FilePath.parse(name))
 
   /** Specifies a font file that can be used for embedding in EPUB or PDF.
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile (file: File): Font = new Font(Some(EmbeddedFontFile(file)), None)
+  def embedFile (file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), None)
 
+  @deprecated("use embedFile(String) or embedFile(FilePath)", "0.19.0")
+  def embedFile (file: File): Font = embedFile(FilePath.fromJavaFile(file))
+  
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
     */
@@ -93,7 +99,7 @@ object Font {
   private[laika] def create (embedResource: Option[String], embedFile: Option[String], webCSS: Option[String]): Option[Font] =
     (embedResource, embedFile, webCSS) match {
       case (None, None, None) => None
-      case (_, Some(file), _) => Some(new Font(Some(EmbeddedFontFile(new File(file))), webCSS))
+      case (_, Some(file), _) => Some(new Font(Some(EmbeddedFontFile(FilePath.parse(file))), webCSS))
       case (Some(res), _, _) => Some(new Font(Some(EmbeddedFontResource(res)), webCSS))
       case _ => Some(new Font(None, webCSS))
     }
@@ -107,8 +113,8 @@ sealed trait EmbeddedFont {
 
 /** Represent a font resource from the file system.
   */
-case class EmbeddedFontFile (file: File) extends EmbeddedFont {
-  val path: Path = Root / "laika" / "fonts" / file.getName
+case class EmbeddedFontFile (file: FilePath) extends EmbeddedFont {
+  val path: Path = Root / "laika" / "fonts" / file.name
 }
 /** Represent a font files as a classpath resource.
   */
@@ -192,7 +198,7 @@ object FontDefinition {
       .withValue("weight", fd.weight.value)
       .withValue("style", fd.style.value)
       .withValue("embedResource", fd.resource.embedResource.collect { case EmbeddedFontResource(r) => r })
-      .withValue("embedFile", fd.resource.embedResource.collect { case EmbeddedFontFile(f) => f.getPath })
+      .withValue("embedFile", fd.resource.embedResource.collect { case EmbeddedFontFile(f) => f.toString })
       .withValue("webCSS", fd.resource.webCSS)
       .build
   }

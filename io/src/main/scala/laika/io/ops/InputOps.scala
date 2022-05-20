@@ -18,7 +18,7 @@ package laika.io.ops
 
 import cats.effect.Async
 import laika.api.builder.OperationConfig
-import laika.io.model.{DirectoryInput, InputTree, InputTreeBuilder}
+import laika.io.model.{DirectoryInput, FileFilter, FilePath, InputTree, InputTreeBuilder}
 
 import java.io.File
 import scala.io.Codec
@@ -33,8 +33,6 @@ import scala.io.Codec
 trait InputOps[F[_]] {
 
   def F: Async[F]
-
-  type FileFilter = File => Boolean
 
   /** The type of the result returned by all operations of this trait.
     */
@@ -51,7 +49,7 @@ trait InputOps[F[_]] {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectory (name: String)(implicit codec: Codec): Result =
-    fromDirectory(new File(name), DirectoryInput.hiddenFileFilter)(codec)
+    fromDirectory(FilePath.parse(name), DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directory and its subdirectories.
@@ -61,7 +59,7 @@ trait InputOps[F[_]] {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): Result =
-    fromDirectory(new File(name), exclude)(codec)
+    fromDirectory(FilePath.parse(name), exclude)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directory and its subdirectories.
@@ -69,8 +67,12 @@ trait InputOps[F[_]] {
     *  @param dir the root directory to traverse
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDirectory (dir: File)(implicit codec: Codec): Result =
+  def fromDirectory (dir: FilePath)(implicit codec: Codec): Result =
     fromDirectory(dir, DirectoryInput.hiddenFileFilter)(codec)
+
+  @deprecated("use fromDirectory(String) or fromDirectory(FilePath)", "0.19.0")
+  def fromDirectory (dir: File)(implicit codec: Codec): Result =
+    fromDirectory(FilePath.fromJavaFile(dir), DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directory and its subdirectories.
@@ -79,8 +81,12 @@ trait InputOps[F[_]] {
     *  @param exclude the files to exclude from processing
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Result =
+  def fromDirectory (dir: FilePath, exclude: FileFilter)(implicit codec: Codec): Result =
     fromDirectories(Seq(dir), exclude)(codec)
+
+  @deprecated("use fromDirectory(String, FileFilter) or fromDirectory(FilePath, FileFilter)", "0.19.0")
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Result =
+    fromDirectories(Seq(FilePath.fromJavaFile(dir)), exclude)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directories and its subdirectories, merging them into
@@ -89,7 +95,7 @@ trait InputOps[F[_]] {
     *  @param roots the root directories to traverse
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec): Result =
+  def fromDirectories (roots: Seq[FilePath])(implicit codec: Codec): Result =
     fromDirectories(roots, DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
@@ -100,17 +106,12 @@ trait InputOps[F[_]] {
     *  @param exclude the files to exclude from processing
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): Result =
+  def fromDirectories (roots: Seq[FilePath], exclude: FileFilter)(implicit codec: Codec): Result =
     fromInput(InputTree[F](exclude)(F).addDirectories(roots))
 
-  /**  Builder step that instructs the runtime to parse files from the
-    *  current working directory.
-    *
-    *  @param exclude the files to exclude from processing
-    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-    */
+  @deprecated("use fromDirectory(String) or fromDirectory(FilePath) using a relative path", "0.19.0")
   def fromWorkingDirectory (exclude: FileFilter = DirectoryInput.hiddenFileFilter)(implicit codec: Codec): Result =
-    fromDirectories(Seq(new File(System.getProperty("user.dir"))), exclude)
+    fromDirectories(Seq(FilePath.parse(System.getProperty("user.dir"))), exclude)
 
   /** Builder step that instructs the runtime to use the specified input builder for all parsing operations.
     * 
