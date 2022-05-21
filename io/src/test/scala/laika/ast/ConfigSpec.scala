@@ -28,11 +28,9 @@ import laika.format.{Markdown, ReStructuredText}
 import laika.io.FileIO
 import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.{InputTreeBuilder, ParsedTree}
+import laika.io.model.{FilePath, InputTreeBuilder, ParsedTree}
 import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
 import munit.CatsEffectSuite
-
-import java.io.File
 
 
 class ConfigSpec extends CatsEffectSuite
@@ -240,8 +238,8 @@ class ConfigSpec extends CatsEffectSuite
   }
 
   test("include file resources in directory configuration") {
-    def inputs(file: File) = Seq(
-      Root / "directory.conf" -> Contents.configWithFileInclude(file.getPath),
+    def inputs(file: FilePath) = Seq(
+      Root / "directory.conf" -> Contents.configWithFileInclude(file.toString),
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
       Root / "input.md" -> Contents.markupWithRefs
     )
@@ -260,9 +258,9 @@ class ConfigSpec extends CatsEffectSuite
     
     val res = for {
       tempDir <- newTempDirectory
-      conf    =  new File(tempDir, "b.conf")
+      conf    =  tempDir / "b.conf"
       _       <- writeFile(conf, bConf)
-      _       <- writeFile(new File(tempDir, "c.conf"), "c = 3")
+      _       <- writeFile(tempDir / "c.conf", "c = 3")
       res     <- parseMD(build(inputs(conf)))
     } yield res
     

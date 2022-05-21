@@ -16,7 +16,6 @@
 
 package laika.io.runtime
 
-import java.io.{File, IOException}
 import cats.effect.{Async, Sync}
 import cats.implicits._
 import fs2.io.file.Files
@@ -61,7 +60,7 @@ object RendererRuntime {
     type RenderResult = Either[BinaryInput[F], RenderedDocument]
     case class RenderOps (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
     
-    def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
+    def file (rootDir: FilePath, path: Path): FilePath = rootDir / path.relative
 
     def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]],
                                root: DocumentTreeRoot,
@@ -109,12 +108,12 @@ object RendererRuntime {
         }
     }
     
-    def copyDocuments (docs: Seq[BinaryInput[F]], dir: Option[File], pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.map { doc =>
+    def copyDocuments (docs: Seq[BinaryInput[F]], dir: Option[FilePath], pathTranslator: Path => Path): Seq[F[RenderResult]] = docs.map { doc =>
       val translatedDoc = doc.copy(path = pathTranslator(doc.path))
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
-          val out = Files[F].writeAll(fs2.io.file.Path.fromNioPath(outFile.toPath))
+          val out = Files[F].writeAll(outFile.toFS2Path)
           doc.input.through(out).compile.drain.as(result)
         case _ =>
           Sync[F].pure(result)
@@ -129,7 +128,7 @@ object RendererRuntime {
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
 
-      def createDirectory (file: File): F[Unit] = Files[F].createDirectories(fs2.io.file.Path.fromNioPath(file.toPath))
+      def createDirectory (file: FilePath): F[Unit] = Files[F].createDirectories(file.toFS2Path)
       
       op.output match {
         case StringTreeOutput => 
@@ -137,7 +136,9 @@ object RendererRuntime {
           val copyOps = copyDocuments(staticDocs, None, pathTranslator)
           RenderOps(Nil, renderOps ++ copyOps)
         case DirectoryOutput(dir, codec) =>
-          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.forFile(p, file(dir, p), codec))
+          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => 
+            TextOutput.forFile(file(dir, p), p)(Async[F], codec)
+          )
           val copyOps = copyDocuments(staticDocs, Some(dir), pathTranslator)
           val mkDirOps = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
             .map(pathTranslator(_).parent)
@@ -194,8 +195,10 @@ object RendererRuntime {
             .gatherTargets[F](versions, staticDocs)
             .map { existing =>
               val pathTranslator = createPathTranslator(config.copy(versions = None), Root / "dummy", lookup)
-              val targets = VersionedLinkTargets.groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
-              Some(BinaryInput.fromString[F](VersionInfoGenerator.path, VersionInfoGenerator.generate(versions, targets), TargetFormats.Selected("html")))
+              val targets = VersionedLinkTargets
+                .groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
+              val versionInfoString = VersionInfoGenerator.generate(versions, targets)
+              Some(BinaryInput.fromString[F](versionInfoString, VersionInfoGenerator.path, TargetFormats.Selected("html")))
             }
         case _ =>
           Sync[F].pure(None)

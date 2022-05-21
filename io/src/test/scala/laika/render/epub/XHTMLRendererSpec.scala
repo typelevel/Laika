@@ -22,14 +22,13 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.EPUB
-import laika.io.FileIO
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
 import munit.CatsEffectSuite
 
 /**
   * @author Jens Halm
   */
-class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts with FileIO {
+class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts {
 
   private val defaultRenderer = Renderer.of(EPUB.XHTML).build
   

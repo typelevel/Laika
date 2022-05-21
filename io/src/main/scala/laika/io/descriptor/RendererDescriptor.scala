@@ -52,7 +52,7 @@ object RendererDescriptor {
   )(f => s"File '${f.getPath}'")
   
   private def describeOutput (out: TreeOutput): String = out match {
-    case DirectoryOutput(dir, _) => s"Directory '${dir.getPath}'"
+    case DirectoryOutput(dir, _) => s"Directory '${dir.toString}'"
     case _ => "In-memory strings or streams"
   }
   

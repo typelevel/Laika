@@ -22,7 +22,6 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.ConfigException
 import laika.format.Markdown
-import laika.io.FileIO
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
@@ -31,7 +30,7 @@ import laika.theme.Theme
 import munit.CatsEffectSuite
 
 
-class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder with FileIO {
+class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)

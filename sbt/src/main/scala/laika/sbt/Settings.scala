@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import cats.effect.{IO, Resource}
+import cats.effect.{Async, IO, Resource}
 import cats.effect.unsafe.implicits.global
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.api.{MarkupParser, Transformer}
@@ -27,11 +27,11 @@ import laika.factory.MarkupFormat
 import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.api.TreeParser
 import laika.io.config.SiteConfig
-import laika.io.implicits._
-import laika.io.model.{InputTree, InputTreeBuilder}
-import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
+import laika.io.implicits.*
+import laika.io.model.{FilePath, InputTree, InputTreeBuilder}
+import laika.sbt.LaikaPlugin.autoImport.*
+import sbt.Keys.*
+import sbt.*
 
 /** Implementations for Laika's sbt settings.
   *
@@ -40,11 +40,16 @@ import sbt._
 object Settings {
 
   import Def._
+  
+  private def asLaikaFileFilter(jFilter: java.io.FileFilter): laika.io.model.FileFilter = 
+    new laika.io.model.FileFilter {
+      def filter[F[_] : Async] (file: FilePath) = Async[F].delay(jFilter.accept(file.toJavaFile))
+    }
 
   val defaultInputs: Initialize[InputTreeBuilder[IO]] = setting {
     InputTree
-      .apply[IO]((Laika / excludeFilter).value.accept _)
-      .addDirectories((Laika / sourceDirectories).value)(laikaConfig.value.encoding)
+      .apply[IO](asLaikaFileFilter((Laika / excludeFilter).value))
+      .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(laikaConfig.value.encoding)
   }
   
   val describe: Initialize[String] = setting {
@@ -74,14 +79,12 @@ object Settings {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
 
-    val inputs = InputTree
-      .apply[IO]((Laika / excludeFilter).value.accept _)
-      .addDirectories((Laika / sourceDirectories).value)(laikaConfig.value.encoding)
+    val inputs = laikaInputs.value.delegate
 
     transformer
       .use(_
         .fromInput(inputs)
-        .toDirectory((laikaSite / target).value)
+        .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
         .describe
       )
       .unsafeRunSync()
