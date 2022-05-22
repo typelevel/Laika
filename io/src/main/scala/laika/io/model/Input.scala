@@ -369,6 +369,12 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
         _ + TextInput.fromClasspath(name, mountPoint, docType, classLoader)
     }
 
+  @deprecated("use addInputStream", "0.19.0")
+  def addStream (stream: F[InputStream],
+                 mountPoint: Path,
+                 autoClose: Boolean = true)
+                (implicit codec: Codec): InputTreeBuilder[F] = addInputStream(stream, mountPoint, autoClose) 
+  
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
     * 
     * The content type of the stream will be determined by the suffix of the virtual path, e.g.
@@ -378,15 +384,49 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
     * In some integration scenarios with 3rd-party libraries, e.g. for PDF creation, `autoClose` is not
     * guaranteed as the handling of the stream is entirely managed by the 3rd party tool.
     */
-  def addStream (stream: F[InputStream], 
-                 mountPoint: Path, 
-                 autoClose: Boolean = true)
-                (implicit codec: Codec): InputTreeBuilder[F] =
+  def addInputStream (stream: F[InputStream],
+                      mountPoint: Path,
+                      autoClose: Boolean = true)
+                     (implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
         _ + BinaryInput.fromStream(stream, mountPoint,autoClose, formats)
       case docType: TextDocumentType => 
         _ + TextInput.fromStream(stream, mountPoint, docType, autoClose)
+    }
+
+  /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
+    *
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    *
+    * If the content type is text-based the stream will be decoded as UTF-8.
+    * In case a different codec is required, use `addTextStream` and decode the text beforehand.
+    */
+  def addBinaryStream (stream: fs2.Stream[F, Byte],
+                       mountPoint: Path): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static(formats) =>
+        _ + BinaryInput(stream, mountPoint, formats)
+      case docType: TextDocumentType =>
+        _ + TextInput(stream.through(fs2.text.utf8.decode).compile.string, mountPoint, docType)
+    }
+
+  /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
+    *
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    *
+    * If the target content type is binary the stream will be encoded as UTF-8.
+    * In case a different codec is required, use `addBinaryStream` and encode the text beforehand.
+    */
+  def addTextStream (stream: fs2.Stream[F, String],
+                     mountPoint: Path): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static(formats) =>
+        _ + BinaryInput(stream.through(fs2.text.utf8.encode), mountPoint, formats)
+      case docType: TextDocumentType =>
+        _ + TextInput(stream.compile.string, mountPoint, docType)
     }
 
   /** Adds the specified string resource to the input tree, placing it at the specified mount point in the virtual tree.
