@@ -31,6 +31,14 @@ import laika.rewrite.Versions
   */
 trait PathTranslator {
 
+  /** Retrieves the attributes for the specified path in the context of the current virtual tree of documents.
+    * If there is no document or tree associated with the specified path, the result will be empty.
+    * 
+    * Mostly used by implementations of this trait, but accessible publicly for some less common scenarios,
+    * e.g. in directive implementations.
+    */
+  def getAttributes (path: Path): Option[PathAttributes]
+  
   /** Translates the specified path of an input document to the corresponding output path. 
     */
   def translate (input: Path): Path
@@ -67,6 +75,8 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
 
   private val currentVersion = config.versions.map(_.currentVersion.pathSegment)
   private val translatedRefPath = translate(refPath)
+
+  def getAttributes (path: Path): Option[PathAttributes] = targetLookup(path)
   
   def translate (input: Path): Path = translate(input, outputFormat == "html")
   
@@ -156,6 +166,8 @@ private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[P
   * cross references or static or versioned documents.
   */
 case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
+  private val defaultAttributes = Some(PathAttributes(isStatic = false, isVersioned = false))
+  def getAttributes (path: Path): Option[PathAttributes] = defaultAttributes
   def translate (input: Path): Path = input.withSuffix(outputSuffix)
   def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
 }
