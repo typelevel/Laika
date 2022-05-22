@@ -22,7 +22,7 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.EPUB
-import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TranslatorConfig, PathAttributes}
 import munit.CatsEffectSuite
 
 /**
@@ -92,8 +92,8 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
     val translator = {
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
       val tConfig = TranslatorConfig.readFrom(config).getOrElse(TranslatorConfig.empty)
-      val lookup: Path => Option[TranslatorSpec] = path => 
-        if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
+      val lookup: Path => Option[PathAttributes] = path => 
+        if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false)) else None
       ConfigurablePathTranslator(tConfig, "epub.xhtml", "epub", Root / "doc", lookup)
     }
     val html = """<p>some <a href="http://external/foo.html#ref">link</a> span</p>"""

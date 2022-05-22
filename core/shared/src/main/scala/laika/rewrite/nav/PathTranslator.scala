@@ -63,7 +63,7 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
                                        outputSuffix: String, 
                                        outputFormat: String, 
                                        refPath: Path, 
-                                       targetLookup: Path => Option[TranslatorSpec]) extends PathTranslator {
+                                       targetLookup: Path => Option[PathAttributes]) extends PathTranslator {
 
   private val currentVersion = config.versions.map(_.currentVersion.pathSegment)
   private val translatedRefPath = translate(refPath)
@@ -97,7 +97,7 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
   
 }
 
-private[laika] case class TranslatorSpec(isStatic: Boolean, isVersioned: Boolean)
+case class PathAttributes (isStatic: Boolean, isVersioned: Boolean)
 
 private[laika] case class TranslatorConfig(versions: Option[Versions],
                                            titleDocInputName: String, 
@@ -116,34 +116,34 @@ private[laika] object TranslatorConfig {
     TranslatorConfig(None, TitleDocumentConfig.defaultInputName, TitleDocumentConfig.defaultOutputName, None)
 }
 
-private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
+private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[PathAttributes]) {
 
   def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
   
-  private val lookup: Map[Path, TranslatorSpec] = {
+  private val lookup: Map[Path, PathAttributes] = {
 
     val treeConfigs = cursor.target.staticDocuments.map(doc => doc.path.parent).toSet[Path].map { path =>
       (path, cursor.treeConfig(path))
     }.toMap
 
     val markupDocs = cursor.target.allDocuments.map { doc =>
-      (doc.path.withoutFragment, TranslatorSpec(isStatic = false, isVersioned = isVersioned(doc.config)))
+      (doc.path.withoutFragment, PathAttributes(isStatic = false, isVersioned = isVersioned(doc.config)))
     }
 
     val staticDocs = cursor.target.staticDocuments.map { doc =>
-      (doc.path.withoutFragment, TranslatorSpec(isStatic = true, isVersioned = isVersioned(treeConfigs(doc.path.parent))))
+      (doc.path.withoutFragment, PathAttributes(isStatic = true, isVersioned = isVersioned(treeConfigs(doc.path.parent))))
     }
 
     (markupDocs ++ staticDocs).toMap
   }
 
   val versionedDocuments: Seq[Path] = lookup.collect {
-    case (path, TranslatorSpec(false, true)) => path
+    case (path, PathAttributes(false, true)) => path
   }.toSeq
 
-  def apply (path: Path): Option[TranslatorSpec] = 
+  def apply (path: Path): Option[PathAttributes] = 
     lookup.get(path.withoutFragment)
-      .orElse(Some(TranslatorSpec(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))))
+      .orElse(Some(PathAttributes(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))))
   // paths which have validation disabled might not appear in the lookup, we treat them as static and
   // pick the versioned flag from its directory config.
 

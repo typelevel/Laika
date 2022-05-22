@@ -22,7 +22,7 @@ import laika.ast.{Path, TemplateSpanSequence, TemplateString}
 import laika.config.LaikaKeys
 import laika.directive.Templates
 import laika.rewrite.Versions
-import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, TranslatorSpec}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, PathAttributes}
 
 /**
   * @author Jens Halm
@@ -36,8 +36,8 @@ private[helium] object HeliumDirectives {
         val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
         val localRootPrefix = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
         val (currentPath, currentVersion, siteBaseURL) = if (isVersioned) {
-          val lookup: Path => Option[TranslatorSpec] = path =>
-            if (path == cursor.path) Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
+          val lookup: Path => Option[PathAttributes] = path =>
+            if (path == cursor.path) Some(PathAttributes(isStatic = false, isVersioned = false)) else None
           val config = TranslatorConfig.readFrom(cursor.root.config).getOrElse(TranslatorConfig.empty)
           val translator = ConfigurablePathTranslator(config, "html", "html", Root / "doc", lookup)
           val path = translator.translate(cursor.path).toString

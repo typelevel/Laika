@@ -85,7 +85,7 @@ object RendererRuntime {
       }.leftMap(e => RendererErrors(Seq(ConfigException(e)))))
     }
     
-    def createPathTranslator (config: TranslatorConfig, refPath: Path, lookup: Path => Option[TranslatorSpec]): PathTranslator =
+    def createPathTranslator (config: TranslatorConfig, refPath: Path, lookup: Path => Option[PathAttributes]): PathTranslator =
       ConfigurablePathTranslator(config, fileSuffix, context.finalFormat, refPath, lookup)
     
     def renderDocuments(finalRoot: DocumentTreeRoot, 

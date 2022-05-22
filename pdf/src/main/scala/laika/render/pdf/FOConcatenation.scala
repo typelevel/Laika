@@ -26,7 +26,7 @@ import laika.format.{PDF, XSLFO}
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, TranslatorSpec}
+import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, PathAttributes}
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -69,7 +69,7 @@ object FOConcatenation {
         val lookup = {
           def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
           val map = result.allDocuments.map { doc =>
-            (doc.path.withoutFragment, TranslatorSpec(isStatic = false, isVersioned = isVersioned(doc.config)))
+            (doc.path.withoutFragment, PathAttributes(isStatic = false, isVersioned = isVersioned(doc.config)))
           }.toMap
           map.get _
         }
