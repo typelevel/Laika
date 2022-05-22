@@ -25,8 +25,8 @@ import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigEncoder, ConfigValue, DocumentConfigErrors, Key, LaikaKeys, TreeConfigErrors}
 import laika.parse.SourceFragment
 import laika.rewrite.{OutputContext, ReferenceResolver}
-import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup, TargetValidation}
-import laika.rewrite.nav.{AutonumberConfig, NavigationOrder, TargetFormats}
+import laika.rewrite.link.{LinkConfig, LinkValidator, TargetValidation}
+import laika.rewrite.nav.{AutonumberConfig, ConfigurablePathTranslator, NavigationOrder, PathTranslator, TargetFormats, TranslatorConfig}
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -67,14 +67,31 @@ sealed trait Cursor {
   * operations.
   *
   * @param target the root of the document tree this cursor points to
-  * @param outputContext the context for the output format when the cursor has been created for the final rewrite
-  *                      phase for a specific output format or empty in earlier rewrite phases that apply to all formats.
   */
-case class RootCursor private (target: DocumentTreeRoot, outputContext: Option[OutputContext] = None) {
+class RootCursor private (val target: DocumentTreeRoot, 
+                          renderContext: Option[(OutputContext, TranslatorConfig)] = None) {
   
   type Target = DocumentTreeRoot
   
-  private[ast] lazy val targetLookup = new TargetLookup(this)
+  private[ast] lazy val targetLookup = new laika.rewrite.link.TargetLookup(this)
+
+ /** The context for the output format when the cursor has been created for the final rewrite
+  *  phase for a specific output format or empty in earlier rewrite phases that apply to all formats.
+  */
+  val outputContext: Option[OutputContext] = renderContext.map(_._1)
+
+  /** The path translator to be used for translating internal links and output paths.
+    * 
+    * The translator is specific for each output format and therefore this value is empty
+    * for any cursor that has not been created for the final rewrite phase in the context
+    * of a concrete renderer and its template.
+    */
+  lazy val pathTranslator: Option[PathTranslator] = renderContext.map { case (outputContext, translatorConfig) =>
+    val lookup = new laika.rewrite.nav.TargetLookup(this)
+    ConfigurablePathTranslator(
+      translatorConfig, outputContext.fileSuffix, outputContext.formatSelector, Root / "refPath", lookup
+    )
+  }
   
   val config: Config = target.config
 
@@ -135,11 +152,21 @@ object RootCursor {
       target.config.getOpt[String](LaikaKeys.siteBaseURL).toEitherNec,
       target.config.getOpt[LinkConfig].toEitherNec,
     ).parSequence.fold(errs => Seq(DocumentConfigErrors(Root, errs)), _ => Nil)
-    
-    NonEmptyChain
+
+    val validations = NonEmptyChain
       .fromSeq(target.allDocuments.flatMap(validate) ++ validateRoot)
       .map(TreeConfigErrors.apply)
-      .toLeft(new RootCursor(target, outputContext))
+      .toLeft(())
+    
+    def translatorConfig = 
+      TranslatorConfig.readFrom(target.config)
+        .leftMap(err => TreeConfigErrors(NonEmptyChain.one(DocumentConfigErrors(Root, NonEmptyChain.one(err)))))
+    
+    for {
+      _             <- validations
+      renderContext <- outputContext.map(ctx => translatorConfig.map(cfg => (ctx, cfg))).sequence
+    } yield 
+      new RootCursor(target, renderContext)
   }
 
 }

@@ -23,7 +23,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.ConfigResult
-import laika.config.{ConfigError, ConfigException, LaikaKeys}
+import laika.config.{ConfigError, ConfigException, LaikaKeys, ValidationError}
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
@@ -210,11 +210,9 @@ object RendererRuntime {
       result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
 
     def createPathTranslator (finalRoot: DocumentTreeRoot): ConfigResult[PathTranslator] = for {
-      cursor  <- RootCursor(finalRoot, Some(context))
-      tConfig <- TranslatorConfig.readFrom(finalRoot.config)
-    } yield 
-      ConfigurablePathTranslator(tConfig, fileSuffix, context.formatSelector, Root / "refPath", new TargetLookup(cursor))
-      
+      cursor         <- RootCursor(finalRoot, Some(context))
+      pathTranslator <- cursor.pathTranslator.toRight(ValidationError("Internal error: path translator should not be empty"))
+    } yield pathTranslator
 
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
