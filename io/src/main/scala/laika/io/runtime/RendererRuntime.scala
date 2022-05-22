@@ -22,13 +22,14 @@ import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{ConfigError, ConfigException}
+import laika.config.Config.ConfigResult
+import laika.config.{ConfigError, ConfigException, LaikaKeys}
 import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter, Versions}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -64,14 +65,14 @@ object RendererRuntime {
 
     def filterStaticDocuments (staticDocs: Seq[BinaryInput[F]],
                                root: DocumentTreeRoot,
-                               lookup: TargetLookup,
-                               config: TranslatorConfig): F[Seq[BinaryInput[F]]] = {
+                               pathTranslator: PathTranslator,
+                               versions: Option[Versions]): F[Seq[BinaryInput[F]]] = {
 
       /* This method needs to use the original root before the templates were applied as that step removes subtrees
          where the target format does not match, which also removes the tree config which is needed in this impl. */
       
       Sync[F].fromEither(RootCursor(root).map { cursor =>
-        val renderUnversioned = config.versions.fold(true)(_.renderUnversioned)
+        val renderUnversioned = versions.fold(true)(_.renderUnversioned)
         
         staticDocs.filter { doc =>
           val treeConfig = cursor.treeConfig(doc.path.parent)
@@ -80,27 +81,24 @@ object RendererRuntime {
               .get[TargetFormats]
               .getOrElse(TargetFormats.All)
               .contains(context.finalFormat) &&
-            (renderUnversioned || lookup.isVersioned(treeConfig))
+            (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(_.isVersioned)) // TODO - extract
         }
       }.leftMap(e => RendererErrors(Seq(ConfigException(e)))))
     }
     
-    def createPathTranslator (config: TranslatorConfig, refPath: Path, lookup: Path => Option[PathAttributes]): PathTranslator =
-      ConfigurablePathTranslator(config, fileSuffix, context.finalFormat, refPath, lookup)
-    
-    def renderDocuments(finalRoot: DocumentTreeRoot, 
-                        styles: StyleDeclarationSet, 
-                        lookup: TargetLookup,
-                        translatorConfig: TranslatorConfig)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
-      val renderUnversioned = translatorConfig.versions.fold(true)(_.renderUnversioned)
+    def renderDocuments(finalRoot: DocumentTreeRoot,
+                        pathTranslator: PathTranslator,
+                        versions: Option[Versions],
+                        styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
+      val renderUnversioned = versions.fold(true)(_.renderUnversioned)
       finalRoot.allDocuments
         .filter(doc => doc.targetFormats.contains(context.finalFormat) &&
-          (renderUnversioned || lookup.isVersioned(doc.config)))
+          (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(_.isVersioned))) // TODO - extract
         .map { document =>
           val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
-          val pathTranslator = createPathTranslator(translatorConfig, document.path, lookup)
-          val outputPath = pathTranslator.translate(document.path)
-          val renderResult = renderer.render(document.content, outputPath, pathTranslator, styles)
+          val docPathTranslator = pathTranslator.forReferencePath(document.path)
+          val outputPath = docPathTranslator.translate(document.path)
+          val renderResult = renderer.render(document.content, outputPath, docPathTranslator, styles)
           output(outputPath).writer(renderResult).as {
             val result = RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)
             Right(result): RenderResult
@@ -120,28 +118,28 @@ object RendererRuntime {
       }
     }
     
-    def renderOps (finalRoot: DocumentTreeRoot, 
-                   lookup: TargetLookup,
-                   translatorConfig: TranslatorConfig,
+    def renderOps (finalRoot: DocumentTreeRoot,
+                   pathTranslator: PathTranslator,
+                   versions: Option[Versions],
                    staticDocs: Seq[BinaryInput[F]]): RenderOps = {
       
       val styles =  finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
-      val pathTranslator = createPathTranslator(translatorConfig, Root / "dummy", lookup).translate(_:Path)
+      val pathTranslatorF = pathTranslator.translate(_:Path)
 
       def createDirectory (file: FilePath): F[Unit] = Files[F].createDirectories(file.toFS2Path)
       
       op.output match {
         case StringTreeOutput => 
-          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => TextOutput.noOp(p))
-          val copyOps = copyDocuments(staticDocs, None, pathTranslator)
+          val renderOps = renderDocuments(finalRoot, pathTranslator, versions, styles)(p => TextOutput.noOp(p))
+          val copyOps = copyDocuments(staticDocs, None, pathTranslatorF)
           RenderOps(Nil, renderOps ++ copyOps)
         case DirectoryOutput(dir, codec) =>
-          val renderOps = renderDocuments(finalRoot, styles, lookup, translatorConfig)(p => 
+          val renderOps = renderDocuments(finalRoot, pathTranslator, versions, styles)(p =>
             TextOutput.forFile(file(dir, p), p)(Async[F], codec)
           )
-          val copyOps = copyDocuments(staticDocs, Some(dir), pathTranslator)
+          val copyOps = copyDocuments(staticDocs, Some(dir), pathTranslatorF)
           val mkDirOps = (finalRoot.allDocuments.map(_.path) ++ staticDocs.map(_.path))
-            .map(pathTranslator(_).parent)
+            .map(pathTranslatorF(_).parent)
             .distinct
             .map(p => createDirectory(file(dir, p)))
           RenderOps(mkDirOps, renderOps ++ copyOps)
@@ -188,15 +186,15 @@ object RendererRuntime {
       case StyleResult (doc, format, _) if format == op.renderer.format.fileSuffix => doc
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
     
-    def generateVersionInfo (lookup: TargetLookup, config: TranslatorConfig, staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
-      (config.versions, context.finalFormat) match {
+    def generateVersionInfo (finalRoot: DocumentTreeRoot, pathTranslator: PathTranslator, versions: Option[Versions], staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
+      (versions, context.finalFormat) match {
         case (Some(versions), "html") if versions.renderUnversioned =>
           VersionedLinkTargets
             .gatherTargets[F](versions, staticDocs)
             .map { existing =>
-              val pathTranslator = createPathTranslator(config.copy(versions = None), Root / "dummy", lookup)
-              val targets = VersionedLinkTargets
-                .groupLinkTargets(versions, lookup.versionedDocuments.map(pathTranslator.translate), existing)
+              val versionedDocuments = finalRoot.allDocuments.filter(_.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)).map(_.path)
+              val unversionedTranslator = PathTranslator.ignoreVersions(pathTranslator)
+              val targets = VersionedLinkTargets.groupLinkTargets(versions, versionedDocuments.map(unversionedTranslator.translate), existing)
               val versionInfoString = VersionInfoGenerator.generate(versions, targets)
               Some(BinaryInput.fromString[F](versionInfoString, VersionInfoGenerator.path, TargetFormats.Selected("html")))
             }
@@ -210,22 +208,29 @@ object RendererRuntime {
     
     def mapError[A] (result: Either[ConfigError, A]): Either[RendererErrors, A] =
       result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
-    
+
+    def createPathTranslator (finalRoot: DocumentTreeRoot): ConfigResult[PathTranslator] = for {
+      cursor  <- RootCursor(finalRoot, Some(context.finalFormat))
+      tConfig <- TranslatorConfig.readFrom(finalRoot.config)
+    } yield 
+      ConfigurablePathTranslator(tConfig, fileSuffix, context.finalFormat, Root / "refPath", new TargetLookup(cursor))
+      
+
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
     val tree = ParsedTree(op.input, staticDocs)
     
     for {
-      mappedTree <- op.theme.treeProcessor(op.renderer.format).run(tree)
-      finalRoot  <- Sync[F].fromEither(applyTemplate(mappedTree.root))
-      tConfig    <- Sync[F].fromEither(mapError(TranslatorConfig.readFrom(finalRoot.config)))
-      lookup     <- Sync[F].fromEither(mapError(RootCursor(finalRoot, Some(context.finalFormat)))).map(new TargetLookup(_))
-      vInfo      <- generateVersionInfo(lookup, tConfig, mappedTree.staticDocuments)
-      static     <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, lookup, tConfig).map(replaceVersionInfo(vInfo))
-      _          <- validatePaths(static)
-      ops        =  renderOps(finalRoot, lookup, tConfig, static)
-      _          <- ops.mkDirOps.toVector.sequence
-      res        <- processBatch(finalRoot, ops.renderOps)
+      mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
+      finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
+      versions    = finalRoot.config.get[Versions].toOption
+      pTranslator <- Sync[F].fromEither(mapError(createPathTranslator(finalRoot)))
+      vInfo       <- generateVersionInfo(finalRoot, pTranslator, versions, mappedTree.staticDocuments)
+      static      <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, pTranslator, versions).map(replaceVersionInfo(vInfo))
+      _           <- validatePaths(static)
+      ops         =  renderOps(finalRoot, pTranslator, versions, static)
+      _           <- ops.mkDirOps.toVector.sequence
+      res         <- processBatch(finalRoot, ops.renderOps)
     } yield res
   }
 

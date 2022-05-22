@@ -74,6 +74,16 @@ trait PathTranslator {
   
 }
 
+object PathTranslator {
+  
+  def ignoreVersions (translator: PathTranslator): PathTranslator = translator match {
+    case cpt: ConfigurablePathTranslator => 
+      cpt.copy(targetLookup = cpt.targetLookup.andThen(_.map(_.copy(isVersioned = false))))
+    case other => other
+  }
+  
+}
+
 /** Translates paths of input documents to the corresponding output path, based on a configuration instance.
   * 
   * @author Jens Halm
@@ -92,7 +102,7 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
   def translate (input: Path): Path = translate(input, outputFormat == "html")
   
   private def translate (input: Path, isHTMLTarget: Boolean): Path = {
-    targetLookup(input).fold(input) { spec =>
+    getAttributes(input).fold(input) { spec =>
       val shifted = if (spec.isVersioned && isHTMLTarget) currentVersion.fold(input) { version =>
         Root / version / input.relative
       } else input
@@ -140,7 +150,7 @@ private[laika] object TranslatorConfig {
 
 private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[PathAttributes]) {
 
-  def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+  private def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
   
   private val lookup: Map[Path, PathAttributes] = {
 
