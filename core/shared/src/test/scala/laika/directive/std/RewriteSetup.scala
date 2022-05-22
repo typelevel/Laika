@@ -21,7 +21,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees}
 import laika.ast._
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import munit.Assertions
 import Path.Root
 
@@ -62,7 +62,7 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
       .leftMap(_.message)
       .flatMap { tree =>
         TemplateRewriter
-          .applyTemplates(DocumentTreeRoot(tree), TemplateContext("html"))
+          .applyTemplates(DocumentTreeRoot(tree), OutputContext("html"))
           .leftMap(_.message)
           .flatMap { res =>
             res.tree

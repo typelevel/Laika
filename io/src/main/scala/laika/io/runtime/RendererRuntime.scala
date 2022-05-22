@@ -29,7 +29,7 @@ import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter, Versions}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter, Versions}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -43,9 +43,9 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a character output format.
     */
   def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
-    run(op, op.theme.inputs, TemplateContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
+    run(op, op.theme.inputs, OutputContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
 
-  private def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: TemplateContext): F[RenderedTreeRoot[F]] = {  
+  private def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: OutputContext): F[RenderedTreeRoot[F]] = {  
     
     def validatePaths (staticDocs: Seq[BinaryInput[F]]): F[Unit] = {
       val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
@@ -76,11 +76,11 @@ object RendererRuntime {
         
         staticDocs.filter { doc =>
           val treeConfig = cursor.treeConfig(doc.path.parent)
-          doc.formats.contains(context.finalFormat) &&
+          doc.formats.contains(context.formatSelector) &&
             treeConfig
               .get[TargetFormats]
               .getOrElse(TargetFormats.All)
-              .contains(context.finalFormat) &&
+              .contains(context.formatSelector) &&
             (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(_.isVersioned)) // TODO - extract
         }
       }.leftMap(e => RendererErrors(Seq(ConfigException(e)))))
@@ -92,7 +92,7 @@ object RendererRuntime {
                         styles: StyleDeclarationSet)(output: Path => TextOutput[F]): Seq[F[RenderResult]] = {
       val renderUnversioned = versions.fold(true)(_.renderUnversioned)
       finalRoot.allDocuments
-        .filter(doc => doc.targetFormats.contains(context.finalFormat) &&
+        .filter(doc => doc.targetFormats.contains(context.formatSelector) &&
           (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(_.isVersioned))) // TODO - extract
         .map { document =>
           val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
@@ -173,8 +173,8 @@ object RendererRuntime {
     def applyTemplate (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
 
       val treeWithTpl: DocumentTree = 
-        if (root.tree.getDefaultTemplate(context.templateSuffix).isEmpty)
-          root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.templateSuffix), context.templateSuffix)
+        if (root.tree.getDefaultTemplate(context.fileSuffix).isEmpty)
+          root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.fileSuffix), context.fileSuffix)
         else 
           root.tree
       
@@ -187,7 +187,7 @@ object RendererRuntime {
     }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
     
     def generateVersionInfo (finalRoot: DocumentTreeRoot, pathTranslator: PathTranslator, versions: Option[Versions], staticDocs: Seq[BinaryInput[F]]): F[Option[BinaryInput[F]]] = {
-      (versions, context.finalFormat) match {
+      (versions, context.formatSelector) match {
         case (Some(versions), "html") if versions.renderUnversioned =>
           VersionedLinkTargets
             .gatherTargets[F](versions, staticDocs)
@@ -210,10 +210,10 @@ object RendererRuntime {
       result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
 
     def createPathTranslator (finalRoot: DocumentTreeRoot): ConfigResult[PathTranslator] = for {
-      cursor  <- RootCursor(finalRoot, Some(context.finalFormat))
+      cursor  <- RootCursor(finalRoot, Some(context))
       tConfig <- TranslatorConfig.readFrom(finalRoot.config)
     } yield 
-      ConfigurablePathTranslator(tConfig, fileSuffix, context.finalFormat, Root / "refPath", new TargetLookup(cursor))
+      ConfigurablePathTranslator(tConfig, fileSuffix, context.formatSelector, Root / "refPath", new TargetLookup(cursor))
       
 
     val staticPaths = op.staticDocuments.map(_.path).toSet
@@ -242,9 +242,9 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Batch] (op: BinaryTreeRenderer.Op[F]): F[Unit] = {
-    val context = TemplateContext(op.renderer.interimRenderer.format.fileSuffix, op.renderer.description.toLowerCase)
-    val template = op.input.tree.getDefaultTemplate(context.templateSuffix)
-                     .fold(getDefaultTemplate(op.theme.inputs, context.templateSuffix))(_.content)
+    val context = OutputContext(op.renderer.interimRenderer.format.fileSuffix, op.renderer.description.toLowerCase)
+    val template = op.input.tree.getDefaultTemplate(context.fileSuffix)
+                     .fold(getDefaultTemplate(op.theme.inputs, context.fileSuffix))(_.content)
     for {
       preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(TreeRenderer.Op[F](op.renderer.interimRenderer, op.theme, preparedTree, StringTreeOutput, op.staticDocuments), op.theme.inputs, context)

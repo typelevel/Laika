@@ -25,8 +25,8 @@ import laika.config.{Config, ConfigException, LaikaKeys}
 import laika.format.{PDF, XSLFO}
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
-import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.{ConfigurablePathTranslator, TranslatorConfig, PathAttributes}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, TranslatorConfig}
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -77,7 +77,7 @@ object FOConcatenation {
         ConfigurablePathTranslator(translatorConfig, "fo", "pdf", Path.Root / "merged.fo", lookup)
       }
       template
-        .applyTo(finalDoc)
+        .applyTo(finalDoc, OutputContext("fo","pdf"))
         .leftMap(err => ConfigException(err))
         .flatMap(templatedDoc => InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc))
         .map(renderer.render(_, pathTranslator, result.styles))
