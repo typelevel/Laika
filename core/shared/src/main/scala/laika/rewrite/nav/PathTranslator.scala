@@ -43,7 +43,12 @@ trait PathTranslator {
     */
   def translate (input: Path): Path
 
-  /** Translates the specified relative path of an input document to the corresponding output path. 
+  /** Translates the specified relative path of an input document to the corresponding output path.
+    * 
+    * Translator implementations resolve the relative path in relation to a reference path,
+    * which implies that there is a dedicated path translator instance per output document.
+    * Using `forReferencePath` a copy of this translator that uses a different path as reference
+    * can be created cheaply.
     */
   def translate (input: RelativePath): RelativePath
 
@@ -60,6 +65,12 @@ trait PathTranslator {
     case rt: RelativeInternalTarget => rt.copy(path = translate(rt.path))
     case et => et
   }
+
+  /** Creates a copy of this path translator that uses the specified reference path for resolving
+    * relative paths. 
+    * All other aspect of translation logic should behave the same as in this instance.
+    */
+  def forReferencePath (path: Path): PathTranslator
   
 }
 
@@ -104,7 +115,8 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
       ExternalTarget(baseURL + translate(absolutePath.withSuffix("html"), isHTMLTarget = true).relative.toString)
     case _ => super.translate(target)
   }
-  
+
+  def forReferencePath (path: Path): PathTranslator = copy(refPath = path)
 }
 
 case class PathAttributes (isStatic: Boolean, isVersioned: Boolean)
@@ -170,4 +182,5 @@ case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
   def getAttributes (path: Path): Option[PathAttributes] = defaultAttributes
   def translate (input: Path): Path = input.withSuffix(outputSuffix)
   def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
+  def forReferencePath (path: Path): PathTranslator = this
 }
