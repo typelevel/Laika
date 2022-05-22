@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.{AbsoluteInternalTarget, ExternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, RootCursor, Target}
 import laika.config.Config.ConfigResult
 import laika.config.{Config, LaikaKeys}
-import laika.rewrite.Versions
+import laika.rewrite.{OutputContext, Versions}
 
 /** Translates paths of input documents to the corresponding output path. 
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path
@@ -89,8 +89,7 @@ object PathTranslator {
   * @author Jens Halm
   */
 case class ConfigurablePathTranslator (config: TranslatorConfig, 
-                                       outputSuffix: String, 
-                                       outputFormat: String, 
+                                       outputContext: OutputContext, 
                                        refPath: Path, 
                                        targetLookup: Path => Option[PathAttributes]) extends PathTranslator {
 
@@ -99,7 +98,7 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
 
   def getAttributes (path: Path): Option[PathAttributes] = targetLookup(path)
   
-  def translate (input: Path): Path = translate(input, outputFormat == "html")
+  def translate (input: Path): Path = translate(input, outputContext.formatSelector == "html")
   
   private def translate (input: Path, isHTMLTarget: Boolean): Path = {
     getAttributes(input).fold(input) { spec =>
@@ -107,8 +106,10 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
         Root / version / input.relative
       } else input
       if (!spec.isStatic) {
-        if (input.basename == config.titleDocInputName) shifted.withBasename(config.titleDocOutputName).withSuffix(outputSuffix)
-        else shifted.withSuffix(outputSuffix)
+        if (input.basename == config.titleDocInputName) 
+          shifted.withBasename(config.titleDocOutputName).withSuffix(outputContext.fileSuffix)
+        else 
+          shifted.withSuffix(outputContext.fileSuffix)
       }
       else shifted
     }
@@ -121,7 +122,7 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
   }
   
   override def translate (target: Target): Target = (target, config.siteBaseURL) match {
-    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputFormat) =>
+    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputContext.formatSelector) =>
       ExternalTarget(baseURL + translate(absolutePath.withSuffix("html"), isHTMLTarget = true).relative.toString)
     case _ => super.translate(target)
   }

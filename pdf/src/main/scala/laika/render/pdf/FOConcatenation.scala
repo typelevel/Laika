@@ -74,7 +74,7 @@ object FOConcatenation {
           map.get _
         }
         val translatorConfig = TranslatorConfig.readFrom(result.config).getOrElse(TranslatorConfig.empty)
-        ConfigurablePathTranslator(translatorConfig, "fo", "pdf", Path.Root / "merged.fo", lookup)
+        ConfigurablePathTranslator(translatorConfig, OutputContext("fo", "pdf"), Path.Root / "merged.fo", lookup)
       }
       template
         .applyTo(finalDoc, OutputContext("fo","pdf"))

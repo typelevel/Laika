@@ -52,9 +52,9 @@ class PathTranslatorSpec extends FunSuite {
 
   val translatorConfig = TranslatorConfig.readFrom(rootCursor.config).getOrElse(TranslatorConfig.empty)
   val lookup = new TargetLookup(rootCursor)
-  val versionedRef = ConfigurablePathTranslator(translatorConfig, "html", "html", Root / "tree-1" / "doc-3.md", lookup)
-  val unversionedRef = ConfigurablePathTranslator(translatorConfig, "html", "html", Root / "doc-1.md", lookup)
-  val epubRef = ConfigurablePathTranslator(translatorConfig, "epub.xhtml", "epub", Root / "tree-1" / "doc-3.md", lookup)
+  val versionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext("html"), Root / "tree-1" / "doc-3.md", lookup)
+  val unversionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext("html"), Root / "doc-1.md", lookup)
+  val epubRef = ConfigurablePathTranslator(translatorConfig, OutputContext("epub.xhtml", "epub"), Root / "tree-1" / "doc-3.md", lookup)
   
   
   test("between two unversioned documents") {

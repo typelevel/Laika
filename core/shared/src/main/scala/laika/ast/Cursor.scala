@@ -89,7 +89,7 @@ class RootCursor private (val target: DocumentTreeRoot,
   lazy val pathTranslator: Option[PathTranslator] = renderContext.map { case (outputContext, translatorConfig) =>
     val lookup = new laika.rewrite.nav.TargetLookup(this)
     ConfigurablePathTranslator(
-      translatorConfig, outputContext.fileSuffix, outputContext.formatSelector, Root / "refPath", lookup
+      translatorConfig, outputContext, Root / "refPath", lookup
     )
   }
   

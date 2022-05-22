@@ -24,8 +24,8 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.{Version, Versions}
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TranslatorConfig, PathAttributes}
+import laika.rewrite.{OutputContext, Version, Versions}
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, PathTranslator, TargetFormats, TranslatorConfig}
 import munit.FunSuite
 
 class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -36,8 +36,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   
   private def pathTranslator (specs: Map[Path, PathAttributes], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
     TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
-    "html",
-    "html",
+    OutputContext("html"),
     Root / "doc",
     path => specs.get(path.withoutFragment)
   )
