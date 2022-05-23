@@ -26,7 +26,7 @@ import laika.format.{PDF, XSLFO}
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.rewrite.{DefaultTemplatePath, OutputContext}
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, TranslatorConfig}
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, PathTranslator, TranslatorConfig}
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -65,22 +65,11 @@ object FOConcatenation {
         config = finalConfig
       )
       val renderer = Renderer.of(XSLFO).withConfig(opConfig).build
-      val pathTranslator = {
-        val lookup = {
-          def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
-          val map = result.allDocuments.map { doc =>
-            (doc.path.withoutFragment, PathAttributes(isStatic = false, isVersioned = isVersioned(doc.config)))
-          }.toMap
-          map.get _
-        }
-        val translatorConfig = TranslatorConfig.readFrom(result.config).getOrElse(TranslatorConfig.empty)
-        ConfigurablePathTranslator(translatorConfig, OutputContext("fo", "pdf"), Path.Root / "merged.fo", lookup)
-      }
       template
         .applyTo(finalDoc, OutputContext("fo","pdf"))
         .leftMap(err => ConfigException(err))
         .flatMap(templatedDoc => InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc))
-        .map(renderer.render(_, pathTranslator, result.styles))
+        .map(renderer.render(_, result.pathTranslator, result.styles))
     }
 
     val defaultTemplate = TemplateDocument(DefaultTemplatePath.forFO, result.defaultTemplate)
