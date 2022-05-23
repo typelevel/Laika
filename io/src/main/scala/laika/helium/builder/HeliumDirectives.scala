@@ -17,12 +17,11 @@
 package laika.helium.builder
 
 import cats.syntax.all._
-import laika.ast.Path.Root
-import laika.ast.{Path, TemplateSpanSequence, TemplateString}
+import laika.ast.{TemplateSpanSequence, TemplateString}
 import laika.config.LaikaKeys
 import laika.directive.Templates
-import laika.rewrite.{OutputContext, Versions}
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, TranslatorConfig}
+import laika.rewrite.Versions
+import laika.rewrite.nav.PathTranslator
 
 /**
   * @author Jens Halm
@@ -31,20 +30,23 @@ private[helium] object HeliumDirectives {
 
   val initVersions: Templates.Directive = Templates.create("heliumInitVersions") {
     Templates.dsl.cursor.map { cursor =>
+      
       val versions = cursor.config.get[Versions].toOption
-      val html = versions.fold("") { versions =>
+      val pathTranslator = cursor.root.pathTranslator.map(PathTranslator.ignoreVersions)
+      
+      val html = (versions, pathTranslator).tupled.fold("") { case (versions, pathTranslator) =>
+        
         val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
         val localRootPrefix = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
+        
         val (currentPath, currentVersion, siteBaseURL) = if (isVersioned) {
-          val lookup: Path => Option[PathAttributes] = path =>
-            if (path == cursor.path) Some(PathAttributes(isStatic = false, isVersioned = false)) else None
-          val config = TranslatorConfig.readFrom(cursor.root.config).getOrElse(TranslatorConfig.empty)
-          val translator = ConfigurablePathTranslator(config, OutputContext("html"), Root / "doc", lookup)
-          val path = translator.translate(cursor.path).toString
+          val path = pathTranslator.translate(cursor.path).toString
           val version = versions.currentVersion.pathSegment
-          val siteBaseURL = config.siteBaseURL.fold("null")(url => s""""$url"""")
-          (path, version, siteBaseURL)
+          val siteBaseURL = cursor.config.get[String](LaikaKeys.siteBaseURL).toOption
+          val siteBaseURLStr = siteBaseURL.fold("null")(url => s""""$url"""")
+          (path, version, siteBaseURLStr)
         } else ("", "", "null")
+        
         s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion", $siteBaseURL);</script>"""
       }
       TemplateString(html)
