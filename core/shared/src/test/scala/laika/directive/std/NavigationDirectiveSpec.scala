@@ -23,12 +23,8 @@ import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.rewrite.DefaultTemplatePath
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import laika.api.builder.OperationConfig
-import laika.rewrite.TemplateContext
-import laika.rewrite.TemplateRewriter
-import cats.data.NonEmptyList
-import cats.data.NonEmptyChainOps
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
@@ -448,7 +444,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
     val rewritten = NavigationDirectiveSpec.defaultRewrite(tree)
 
     val Right(tree0) = TemplateRewriter
-          .applyTemplates(DocumentTreeRoot(rewritten), TemplateContext("html"))
+          .applyTemplates(DocumentTreeRoot(rewritten), OutputContext("html"))
     // must success
     val Some(Document(_,docContent,_,_,_)) = tree0.allDocuments.collectFirst{case doc @ Document(Root / "dir" / "README",_,_,_,_) => doc }
     val TemplateRoot(TemplateElement(NavigationList(contents,_),_,_)::_,_) :: _ = docContent.content.toList
