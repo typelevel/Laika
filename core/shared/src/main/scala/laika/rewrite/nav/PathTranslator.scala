@@ -84,14 +84,11 @@ object PathTranslator {
   
 }
 
-/** Translates paths of input documents to the corresponding output path, based on a configuration instance.
-  * 
-  * @author Jens Halm
-  */
-case class ConfigurablePathTranslator (config: TranslatorConfig, 
-                                       outputContext: OutputContext, 
-                                       refPath: Path, 
-                                       targetLookup: Path => Option[PathAttributes]) extends PathTranslator {
+private[laika] case class ConfigurablePathTranslator (
+  config: TranslatorConfig, 
+  outputContext: OutputContext, 
+  refPath: Path, 
+  targetLookup: Path => Option[PathAttributes]) extends PathTranslator {
 
   private val currentVersion = config.versions.map(_.currentVersion.pathSegment)
   private val translatedRefPath = translate(refPath)
