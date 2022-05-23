@@ -23,6 +23,8 @@ import laika.ast._
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model._
 import laika.io.helper.InputBuilder
+import laika.rewrite.OutputContext
+import laika.rewrite.nav.BasicPathTranslator
 
 trait InputTreeBuilder extends InputBuilder {
 
@@ -41,7 +43,9 @@ trait InputTreeBuilder extends InputBuilder {
   def configWithTreeTitle (num: Int): Config = ConfigBuilder.empty.withValue(LaikaKeys.title, s"Tree $num").build
   
   def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
-    RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot.empty, Config.empty)
+    val outputContext = OutputContext("ignored")
+    val pathTranslator = BasicPathTranslator(outputContext.fileSuffix)
+    RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot.empty, Config.empty, outputContext, pathTranslator)
   }
 
   def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = {

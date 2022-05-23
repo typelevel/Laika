@@ -35,8 +35,9 @@ import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
-import laika.rewrite.DefaultTemplatePath
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import laika.rewrite.link.SlugBuilder
+import laika.rewrite.nav.BasicPathTranslator
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -133,10 +134,13 @@ class TreeTransformerSpec extends CatsEffectSuite
   def renderedRoot(content: Seq[RenderContent],
                    titleDocument: Option[RenderedDocument] = None,
                    coverDocument: Option[RenderedDocument] = None,
-                   staticDocuments: Seq[Path] = Nil): RenderedTreeRoot[IO] = RenderedTreeRoot(
+                   staticDocuments: Seq[Path] = Nil,
+                   outputContext: OutputContext = OutputContext("txt","ast")): RenderedTreeRoot[IO] = RenderedTreeRoot(
     RenderedTree(Root, None, content, titleDocument),
     TemplateRoot.fallback,
     Config.empty,
+    outputContext,
+    BasicPathTranslator(outputContext.fileSuffix),
     coverDocument = coverDocument,
     staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
@@ -322,7 +326,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       )
     renderResult.assertEquals(renderedRoot(docs(
       (Root / "doc1.fo", result)
-    ), staticDocuments = TestTheme.staticASTPaths))
+    ), staticDocuments = TestTheme.staticASTPaths, outputContext = OutputContext("fo","xsl-fo")))
   }
 
   test("tree with a template directive") {

@@ -146,7 +146,7 @@ object RendererRuntime {
       }
     }
     
-    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]]): F[RenderedTreeRoot[F]] =
+    def processBatch (finalRoot: DocumentTreeRoot, ops: Seq[F[RenderResult]], pathTranslator: PathTranslator): F[RenderedTreeRoot[F]] =
 
       Batch[F].execute(ops.toVector).map { results =>
 
@@ -167,7 +167,8 @@ object RendererRuntime {
         val resultRoot = TreeBuilder.build(renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot[F](resultRoot, template, finalRoot.config, finalRoot.styles(fileSuffix), coverDoc, staticDocs)
+        RenderedTreeRoot[F](resultRoot, template, finalRoot.config, context, pathTranslator, 
+          finalRoot.styles(fileSuffix), coverDoc, staticDocs)
       }
 
     def applyTemplate (root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
@@ -221,14 +222,14 @@ object RendererRuntime {
     for {
       mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
-      versions    = finalRoot.config.get[Versions].toOption
+      versions    <- Sync[F].fromEither(mapError(finalRoot.config.getOpt[Versions]))
       pTranslator <- Sync[F].fromEither(mapError(createPathTranslator(finalRoot)))
       vInfo       <- generateVersionInfo(finalRoot, pTranslator, versions, mappedTree.staticDocuments)
       static      <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, pTranslator, versions).map(replaceVersionInfo(vInfo))
       _           <- validatePaths(static)
       ops         =  renderOps(finalRoot, pTranslator, versions, static)
       _           <- ops.mkDirOps.toVector.sequence
-      res         <- processBatch(finalRoot, ops.renderOps)
+      res         <- processBatch(finalRoot, ops.renderOps, pTranslator)
     } yield res
   }
 

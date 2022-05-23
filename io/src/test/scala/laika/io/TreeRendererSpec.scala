@@ -40,8 +40,8 @@ import laika.render._
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, Version, VersionScannerConfig, Versions}
+import laika.rewrite.nav.{BasicPathTranslator, TargetFormats}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, Version, VersionScannerConfig, Versions}
 import munit.CatsEffectSuite
 
 import scala.io.Codec
@@ -91,18 +91,21 @@ class TreeRendererSpec extends CatsEffectSuite
         |. Paragraph - Spans: 1
         |. . Text - 'Text """.stripMargin + num + "'"
 
-    def rootWithSingleDoc (docPath: Path, content: String, staticPaths: Seq[Path] = Nil): RenderedTreeRoot[IO] = {
-      root(List(doc(docPath, content)), None, staticDocuments = staticPaths)
+    def rootWithSingleDoc (docPath: Path, content: String, outputContext: OutputContext, staticPaths: Seq[Path] = Nil): RenderedTreeRoot[IO] = {
+      root(List(doc(docPath, content)), None, outputContext, staticDocuments = staticPaths)
     }
 
     def root (content: Seq[RenderContent],
               title: Option[SpanSequence],
+              outputContext: OutputContext,
               titleDocument: Option[RenderedDocument] = None,
               coverDocument: Option[RenderedDocument] = None,
               staticDocuments: Seq[Path] = Nil): RenderedTreeRoot[IO] = RenderedTreeRoot(
       RenderedTree(Root, title, content, titleDocument),
       TemplateRoot.fallback,
       Config.empty,
+      outputContext,
+      BasicPathTranslator(outputContext.fileSuffix), // not part of the assertions, so not reflecting actual instance
       coverDocument = coverDocument,
       staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )
@@ -176,6 +179,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
   
   object ASTRenderer extends TreeRendererSetup[TextFormatter] {
+    val outputContext: OutputContext = OutputContext("txt", "ast")
     val staticPaths = Seq( // TODO - why do they differ from TreeTransformerSpec?
       Root / "laika" / "fonts" / "Lato-Regular.ttf",
       Root / "laika" / "fonts" / "Lato-Italic.ttf",
@@ -191,7 +195,8 @@ class TreeRendererSpec extends CatsEffectSuite
 
   object HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     import Results.titleWithId
-    
+
+    val outputContext: OutputContext = OutputContext("html")
     val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).parallel[IO].build
@@ -199,7 +204,8 @@ class TreeRendererSpec extends CatsEffectSuite
 
   object EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     import Results.titleWithId
-    
+
+    val outputContext: OutputContext = OutputContext("epub.xhtml", "epub.xhtml")
     val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(path => path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains("js"))
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).parallel[IO].build
@@ -207,7 +213,8 @@ class TreeRendererSpec extends CatsEffectSuite
 
   object FORenderer extends TreeRendererSetup[FOFormatter] {
     import Results.titleWithId
-    
+
+    val outputContext: OutputContext = OutputContext("fo", "xsl-fo")
     val staticPaths = Seq(
       Root / "laika" / "fonts" / "Lato-Regular.ttf",
       Root / "laika" / "fonts" / "Lato-Italic.ttf",
@@ -240,12 +247,12 @@ class TreeRendererSpec extends CatsEffectSuite
   test("empty tree") {
     val input = DocumentTree(Root, Nil)
     ASTRenderer.render(input)
-      .assertEquals(Results.root(Nil, None, staticDocuments = ASTRenderer.staticPaths))
+      .assertEquals(Results.root(Nil, None, ASTRenderer.outputContext, staticDocuments = ASTRenderer.staticPaths))
   }
 
   test("tree with a single document") {
     val expected = Results
-      .root(List(Results.docNoTitle(Root / "doc.txt")), None, staticDocuments = ASTRenderer.staticPaths)
+      .root(List(Results.docNoTitle(Root / "doc.txt")), None, ASTRenderer.outputContext, staticDocuments = ASTRenderer.staticPaths)
     ASTRenderer
       .render(ASTRenderer.defaultTree)
       .assertEquals(expected)
@@ -255,7 +262,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val html = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
       |<p>bbb</p>""".stripMargin)
     val expected = Results
-      .root(List(Results.doc(Root / "doc.html", html)), None, staticDocuments = HTMLRenderer.staticPaths)
+      .root(List(Results.doc(Root / "doc.html", html)), None, HTMLRenderer.outputContext, staticDocuments = HTMLRenderer.staticPaths)
     HTMLRenderer
       .render(HTMLRenderer.defaultTree)
       .assertEquals(expected)
@@ -317,7 +324,7 @@ class TreeRendererSpec extends CatsEffectSuite
       |<p>bbb</p>]""".stripMargin
     HTMLRenderer
       .render(input)
-      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.staticPaths))
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext, HTMLRenderer.staticPaths))
   }
 
   test("tree with a single document to HTML using a render override in a theme") {
@@ -331,7 +338,7 @@ class TreeRendererSpec extends CatsEffectSuite
                      |<p>bbb!</p>""".stripMargin
     HTMLRenderer
       .render(HTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext))
   }
   
   private def renderOverrideBundle (appendChar: Char, origin: BundleOrigin): ExtensionBundle = BundleProvider.forOverrides(HTML.Overrides {
@@ -350,7 +357,7 @@ class TreeRendererSpec extends CatsEffectSuite
                      |<p>bbb?</p>""".stripMargin
     HTMLRenderer
       .render(HTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext))
   }
 
   test("tree with a single document to HTML with a render override in a theme extension that shadows an override in a base theme") {
@@ -366,7 +373,7 @@ class TreeRendererSpec extends CatsEffectSuite
                      |<p>bbb?</p>""".stripMargin
     HTMLRenderer
       .render(HTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext))
   }
 
   test("tree with a single document to HTML using a custom template in an extension bundle") {
@@ -385,7 +392,7 @@ class TreeRendererSpec extends CatsEffectSuite
                      |<p>bbb</p>]""".stripMargin
     HTMLRenderer
       .render(HTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected))
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext))
   }
 
   test("tree with a cover and title document to HTML") {
@@ -402,6 +409,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .assertEquals(Results.root(
         List(Results.doc(Root / "doc.html", expected)),
         None,
+        HTMLRenderer.outputContext,
         Some(Results.doc(Root / "index.html", expected)),
         Some(Results.doc(Root / "cover.html", expected)),
         staticDocuments = Seq(
@@ -421,7 +429,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = (Root / "doc").withSuffix("epub.xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree)
-      .assertEquals(Results.rootWithSingleDoc(path, html, EPUB_XHTMLRenderer.staticPaths))
+      .assertEquals(Results.rootWithSingleDoc(path, html, EPUB_XHTMLRenderer.outputContext, EPUB_XHTMLRenderer.staticPaths))
   }
 
   test("tree with a single document to EPUB.XHTML using a custom template in the root directory") {
@@ -434,7 +442,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = (Root / "doc").withSuffix("epub.xhtml")
     EPUB_XHTMLRenderer
       .render(input)
-      .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.staticPaths))
+      .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext, EPUB_XHTMLRenderer.staticPaths))
   }
 
   test("tree with a single document to EPUB.XHTML using a custom template in a theme") {
@@ -456,7 +464,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = (Root / "doc").withSuffix("epub.xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(path, expected))
+      .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext))
   }
   
   test("tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme") {
@@ -481,7 +489,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = (Root / "doc").withSuffix("epub.xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
-      .assertEquals(Results.rootWithSingleDoc(path, expected))
+      .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext))
   }
 
   test("tree with a single document to XSL-FO using the default template and default CSS") {
@@ -490,7 +498,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = Root / "doc.fo"
     FORenderer
       .render(FORenderer.defaultTree)
-      .assertEquals(Results.rootWithSingleDoc(path, expected, FORenderer.staticPaths))
+      .assertEquals(Results.rootWithSingleDoc(path, expected, FORenderer.outputContext, FORenderer.staticPaths))
   }
 
   test("tree with a single document to XSL-FO using a custom template") {
@@ -503,7 +511,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val path = Root / "doc.fo"
     FORenderer
       .render(input)
-      .assertEquals(Results.rootWithSingleDoc(path, expected, FORenderer.staticPaths))
+      .assertEquals(Results.rootWithSingleDoc(path, expected, FORenderer.outputContext, FORenderer.staticPaths))
   }
 
   test("tree with two documents to XSL-FO using a custom style sheet in a theme") {
@@ -532,7 +540,7 @@ class TreeRendererSpec extends CatsEffectSuite
         Results.tree(Root / "tree", List(
           Results.doc(Root / "tree" / "subdoc.fo", expectedSub, "Sub Title")
         ))
-      ), None))
+      ), None, FORenderer.outputContext))
   }
 
   test("tree with two documents to XSL-FO using a custom style sheet in the tree root") {
@@ -551,7 +559,7 @@ class TreeRendererSpec extends CatsEffectSuite
         Results.tree(Root / "tree", List(
           Results.doc(Root / "tree" / "subdoc.fo", expectedSub, "Sub Title")
         ))
-      ), None, staticDocuments = staticPaths))
+      ), None, FORenderer.outputContext, staticDocuments = staticPaths))
   }
 
   test("tree with a single static document") {
@@ -566,7 +574,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .toOutput(StringTreeOutput)
         .render
       )
-      .assertEquals(Results.root(Nil, None, staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticASTPaths))
+      .assertEquals(Results.root(Nil, None, ASTRenderer.outputContext, staticDocuments = Seq(Root / "static1.txt") ++ TestTheme.staticASTPaths))
   }
 
   test("tree with a single static document from a theme") {
@@ -588,7 +596,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .toOutput(StringTreeOutput)
         .render
       )
-      .assertEquals(Results.root(Nil, None, staticDocuments = Seq(Root / "static1.txt")))
+      .assertEquals(Results.root(Nil, None, ASTRenderer.outputContext, staticDocuments = Seq(Root / "static1.txt")))
   }
 
   test("tree with all available file types") {
@@ -626,7 +634,7 @@ class TreeRendererSpec extends CatsEffectSuite
       Results.tree(Root / "tree-2", List(
         Results.docNoTitle(Root / "tree-2" / "doc-5.txt", Results.doc(5))
       ))
-    ), None, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths)
+    ), None, outputContext, staticDocuments = expectedStatic ++ TestTheme.staticASTPaths)
 
     defaultRenderer
       .use(_
@@ -673,7 +681,7 @@ class TreeRendererSpec extends CatsEffectSuite
           Results.docNoTitle(Root / "0.4" / "tree-2" / "doc-6.html", docHTML(6))
         ))
       ))
-    ), None, staticDocuments = expectedStatic)
+    ), None, HTMLRenderer.outputContext, staticDocuments = expectedStatic)
 
     HTMLRenderer.defaultRenderer
       .use(_

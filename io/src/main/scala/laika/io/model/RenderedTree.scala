@@ -18,7 +18,8 @@ package laika.io.model
 
 import laika.ast._
 import laika.config.Config
-import laika.rewrite.nav.TargetFormats
+import laika.rewrite.OutputContext
+import laika.rewrite.nav.{PathTranslator, TargetFormats}
 
 /** A titled, positional element in the tree of rendered documents.
   */
@@ -95,7 +96,9 @@ case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: 
   *
   * @param tree the recursive structure of documents, usually obtained from parsing text markup 
   * @param defaultTemplate the default template configured for the output format, which may be used by a post-processor
-  * @param config the root configuration of the rendered tree                       
+  * @param config the root configuration of the rendered tree
+  * @param outputContext the context for the output format used in rendering (file suffix and format selector)
+  * @param pathTranslator the path translator specific to the output format produced by the renderer
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, 
   *                        and will potentially be embedded or copied as is to the final output, depending on the output format
@@ -103,6 +106,8 @@ case class RenderedDocument (path: Path, title: Option[SpanSequence], sections: 
 case class RenderedTreeRoot[F[_]] (tree: RenderedTree,
                                    defaultTemplate: TemplateRoot,
                                    config: Config,
+                                   outputContext: OutputContext,
+                                   pathTranslator: PathTranslator,
                                    styles: StyleDeclarationSet = StyleDeclarationSet.empty,
                                    coverDocument: Option[RenderedDocument] = None,
                                    staticDocuments: Seq[BinaryInput[F]] = Nil) {

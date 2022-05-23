@@ -38,6 +38,11 @@ trait RenderedTreeAssertions extends Assertions { self =>
         expected.staticDocuments.map(_.path),
         s"difference in static documents"
       )
+      self.assertEquals(
+        root.outputContext, 
+        expected.outputContext,
+        s"difference in output context"
+      )
     }
   }
 
