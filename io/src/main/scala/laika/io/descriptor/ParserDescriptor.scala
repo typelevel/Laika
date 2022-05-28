@@ -17,11 +17,9 @@
 package laika.io.descriptor
 
 import cats.data.NonEmptyList
-import cats.effect.{Async, Sync}
+import cats.effect.Sync
 import cats.implicits._
-import fs2.io.file.Files
 import laika.io.api.TreeParser
-import laika.io.model.{FileFilter, FilePath}
 
 /** Provides a description of a parsing operation, including the parsers
   * and extension bundles used, as well as the input sources.
@@ -52,13 +50,8 @@ case class ParserDescriptor (parsers: NonEmptyList[String],
 
 object ParserDescriptor {
   
-  private val fileFilter = new FileFilter {
-    def filter[F[_] : Async] (file: FilePath) = Files[F].exists(file.toFS2Path).map(!_)
-  }
-  
   def create[F[_]: Sync] (op: TreeParser.Op[F]): F[ParserDescriptor] = 
-    TreeInputDescriptor
-      .create(op.input.withFileFilter(fileFilter).build(op.config.docTypeMatcher))
+    op.input.describe(op.config.docTypeMatcher)
       .map { inputDesc =>
         apply(
           op.parsers.map(_.format.description),

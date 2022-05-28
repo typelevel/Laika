@@ -33,29 +33,31 @@ object InputDescriptor {
 
   def create[F[_]] (input: TextInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
-      "In-memory string or stream"
-    )(f => s"File '${f.toString}'")
+      s"${input.path.toString}: in-memory string or stream"
+    )(f => s"${input.path.toString}: file '${f.toString}'")
     apply(desc, input.docType)
   }
 
   def create[F[_]] (input: BinaryInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
-      "In-memory bytes or stream"
-    )(f => s"File '${f.toString}'")
+      s"${input.path.toString}: in-memory bytes or stream"
+    )(f => s"${input.path.toString}: file '${f.toString}'")
     apply(desc, DocumentType.Static())
   }
   
 }
 
-case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[FilePath] = Nil) {
+case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[FilePath] = Nil, missingDirectories: Seq[FilePath] = Nil) {
   
   def formatted: String = {
-    val grouped = (inputs.map(in => (in.docType.productPrefix, in.description)) ++ 
-                    sourceDirectories.map(dir => ("Root Directories", dir.toString)))
-                    .groupBy(_._1).mapValuesStrict(_.map(_._2))
+    val descriptions = inputs.map(in => (in.docType.productPrefix, in.description)) ++
+      sourceDirectories.map(dir => (TreeInputDescriptor.rootDirectoriesText, dir.toString)) ++ 
+      missingDirectories.map(dir => (TreeInputDescriptor.rootDirectoriesText, dir.toString + " (does not exist or is not a directory)"))
+    
+    val grouped = descriptions.groupBy(_._1).mapValuesStrict(_.map(_._2))
     
     TreeInputDescriptor.docTypeMappings.map { case (docType, typeDesc) =>
-      val docs = grouped.get(docType).fold("-"){ _.distinct.mkString("\n    ") }
+      val docs = grouped.get(docType).fold("-"){ _.distinct.sorted.mkString("\n    ") }
       s"""  $typeDesc
          |    $docs""".stripMargin  
     }.mkString("\n").drop(2)
@@ -64,6 +66,8 @@ case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories:
 }
 
 object TreeInputDescriptor {
+
+  private[descriptor] val rootDirectoriesText = "Root Directories"
   
   private[descriptor] val docTypeMappings: Seq[(String, String)] = Seq(
     DocumentType.Markup.productPrefix -> "Markup File(s)",
@@ -71,14 +75,14 @@ object TreeInputDescriptor {
     DocumentType.Config.productPrefix -> "Configuration Files(s)",
     DocumentType.StyleSheet("").productPrefix -> "CSS for PDF",
     DocumentType.Static().productPrefix -> "Copied File(s)",
-    "Root Directories" -> "Root Directories"
+    rootDirectoriesText -> rootDirectoriesText
   )
 
-  def create[F[_]: Sync] (input: F[InputTree[F]]): F[TreeInputDescriptor] = input.map { treeInput =>
+  def create[F[_]] (input: InputTree[F], missingDirectories: Seq[FilePath]): TreeInputDescriptor = 
     TreeInputDescriptor(
-      treeInput.textInputs.map(InputDescriptor.create[F]) ++ treeInput.binaryInputs.map(InputDescriptor.create[F]), 
-      treeInput.sourcePaths
+      input.textInputs.map(InputDescriptor.create[F]) ++ input.binaryInputs.map(InputDescriptor.create[F]),
+      input.sourcePaths,
+      missingDirectories
     )
-  }
   
 }

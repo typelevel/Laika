@@ -137,6 +137,9 @@ object ParserRuntime {
   case class DuplicatePath (path: Path, filePaths: Set[String] = Set.empty) extends
     RuntimeException(s"Duplicate path: $path ${filePathMessage(filePaths)}")
 
+  case class MissingDirectory (path: FilePath) extends
+    RuntimeException(s"Path does not exist or is not a directory: ${path.toString}")
+
   case class ParserErrors (errors: Set[Throwable]) extends
     RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
 
