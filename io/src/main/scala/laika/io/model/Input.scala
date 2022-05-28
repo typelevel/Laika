@@ -25,7 +25,10 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, Precedence}
 import laika.config.Config
+import laika.io.descriptor.TreeInputDescriptor
+import laika.io.model.InputTree.{BuilderContext, BuilderStep}
 import laika.io.runtime.DirectoryScanner
+import laika.io.runtime.ParserRuntime.{MissingDirectory, ParserErrors}
 import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.TargetFormats
@@ -199,6 +202,18 @@ case class InputTree[F[_]](textInputs: Seq[TextInput[F]] = Nil,
 /** Factory methods for creating `InputTreeBuilder` instances.
   */
 object InputTree {
+  
+  private[laika] case class BuilderContext[F[_]](exclude: FileFilter, 
+                                                 docTypeMatcher: Path => DocumentType,
+                                                 input: InputTree[F],
+                                                 missingDirectories: Seq[FilePath] = Nil) {
+    
+    def modifyTree (f: InputTree[F] => InputTree[F]): BuilderContext[F] = copy(input = f(input))
+    
+    def withMissingDirectory (dir: FilePath): BuilderContext[F] = copy(missingDirectories = missingDirectories :+ dir)
+  }
+  
+  private[laika] type BuilderStep[F[_]] = Kleisli[F, BuilderContext[F], BuilderContext[F]]
 
   /** Creates a new, empty InputTreeBuilder will the specified exclusion filter.
     * The filter will only be used for scanning directories when calling `addDirectory` on the builder,
@@ -263,28 +278,28 @@ object InputTree {
   * }}}
   */
 class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter, 
-                             private[model] val steps: Vector[(Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]],
+                             private[model] val steps: Vector[BuilderStep[F]],
                              private[laika] val fileRoots: Vector[FilePath])(implicit F: Async[F]) {
   
   import cats.implicits._
 
-  private def addStep (step: (Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+  private def addStep (step: BuilderStep[F]): InputTreeBuilder[F] =
     addStep(None)(step)
     
-  private def addStep (newFileRoot: Option[FilePath])
-                      (step: (Path => DocumentType, FileFilter) => Kleisli[F, InputTree[F], InputTree[F]]): InputTreeBuilder[F] =
+  private def addStep (newFileRoot: Option[FilePath])(step: BuilderStep[F]): InputTreeBuilder[F] =
     new InputTreeBuilder(exclude, steps = steps :+ step, newFileRoot.fold(fileRoots)(fileRoots :+ _))
   
   private def addStep (path: Path, newFileRoot: Option[FilePath] = None)
                       (f: PartialFunction[DocumentType, InputTree[F] => InputTree[F]]): InputTreeBuilder[F] = 
-    addStep(newFileRoot) { (docTypeFunction, _) =>
-      Kleisli { tree =>
-        f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](docTypeFunction(path), _ => identity)(tree).pure[F]
+    addStep(newFileRoot) {
+      Kleisli { ctx =>
+        val m = f.applyOrElse[DocumentType, InputTree[F] => InputTree[F]](ctx.docTypeMatcher(path), _ => identity)
+        ctx.modifyTree(m).pure[F]
       }
     }
   
-  private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep { (_,_) =>
-    Kleisli(tree => (tree + result).pure[F])
+  private def addParserResult (result: ParserResult): InputTreeBuilder[F] = addStep {
+    Kleisli[F, BuilderContext[F], BuilderContext[F]](_.modifyTree(_ + result).pure[F])
   }
 
   /** Adds the specified directories to the input tree, merging them all into a single virtual root, recursively.
@@ -317,11 +332,13 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
 
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
-  def addDirectory (dir: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) { (docTypeFunction, fileFilter) =>
-    Kleisli { input =>
-      fileFilter.filter(dir).ifM(
-        F.pure(input),
-        DirectoryScanner.scanDirectories[F](new DirectoryInput(Seq(dir), codec, docTypeFunction, fileFilter, mountPoint)).map(input ++ _)
+  def addDirectory (dir: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] = addStep(Some(dir)) {
+    Kleisli { ctx =>
+      Files[F].isDirectory(dir.toFS2Path).ifM(
+        DirectoryScanner
+          .scanDirectories[F](new DirectoryInput(Seq(dir), codec, ctx.docTypeMatcher, ctx.exclude, mountPoint))
+          .map(res => ctx.modifyTree(_ ++ res)),
+        ctx.withMissingDirectory(dir).pure[F]
       )
     }
   }
@@ -497,9 +514,11 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
 
   /** Merges this input tree with the specified tree, recursively.
     */
-  def merge (other: InputTree[F]): InputTreeBuilder[F] = addStep { (_,_) => Kleisli { tree =>
-    (tree ++ other).pure[F]
-  }}
+  def merge (other: InputTree[F]): InputTreeBuilder[F] = addStep { 
+    Kleisli { (ctx: BuilderContext[F]) =>
+      ctx.modifyTree(_ ++ other).pure[F]
+    }
+  }
     
 
   /** Builds the tree based on the inputs added to this instance.
@@ -518,12 +537,35 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
     * This method is normally not called by application code directly, as the parser and transformer APIs
     * expect an `InputTreeBuilder` instance.
     */
-  def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = 
-    steps
-      .map(_(docTypeMatcher, exclude))
-      .reduceLeftOption(_ andThen _)
-      .fold(InputTree.empty[F].pure[F])(_.run(InputTree.empty[F]))
+  def build (docTypeMatcher: Path => DocumentType): F[InputTree[F]] = {
+    val ctx = BuilderContext(exclude, docTypeMatcher, InputTree.empty[F])
+    build(ctx).flatMap { res =>
+      res.missingDirectories match {
+        case Nil => res.input.copy(sourcePaths = fileRoots).pure[F]
+        case missing => F.raiseError(ParserErrors(missing.map(MissingDirectory(_)).toSet))
+      }
+    }
+  }
 
+  /** Provides a description of this input tree.
+    * Input directories will be scanned or reported in case they don't exist.
+    * Documents added to this builder individually will be listed without additional checks.
+    * 
+    * This functionality is mostly intended for tooling support.
+    */
+  def describe (docTypeMatcher: Path => DocumentType): F[TreeInputDescriptor] = {
+    val ctx = BuilderContext(exclude, docTypeMatcher, InputTree.empty[F])
+    build(ctx).map { res =>
+      val validSourcePaths = fileRoots.diff(res.missingDirectories)
+      TreeInputDescriptor.create(res.input.copy(sourcePaths = validSourcePaths), res.missingDirectories)
+    }
+  }
+  
+  private def build (ctx: BuilderContext[F]): F[BuilderContext[F]] =
+    steps
+      .reduceLeftOption(_ andThen _)
+      .fold(ctx.pure[F])(_.run(ctx))
+ 
 }
 
 /** File filter that defines the filter function in `[F[_]]` to allow for effectful filter logic.

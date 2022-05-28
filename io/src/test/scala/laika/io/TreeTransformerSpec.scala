@@ -547,15 +547,21 @@ class TreeTransformerSpec extends CatsEffectSuite
                      |  Render Formatted: true
                      |Sources:
                      |  Markup File(s)
-                     |    In-memory string or stream
+                     |    /dir1/doc3.md: in-memory string or stream
+                     |    /dir1/doc4.md: in-memory string or stream
+                     |    /dir2/doc5.md: in-memory string or stream
+                     |    /dir2/doc6.md: in-memory string or stream
+                     |    /doc1.md: in-memory string or stream
+                     |    /doc2.rst: in-memory string or stream
                      |  Template(s)
-                     |    In-memory string or stream
+                     |    /default.template.txt: in-memory string or stream
+                     |    /dir1/default.template.txt: in-memory string or stream
                      |  Configuration Files(s)
                      |    -
                      |  CSS for PDF
                      |    -
                      |  Copied File(s)
-                     |    In-memory bytes or stream
+                     |    /dir2/omg.js: in-memory bytes or stream
                      |  Root Directories
                      |    -
                      |Target:
