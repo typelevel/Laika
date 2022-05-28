@@ -24,8 +24,8 @@ import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.{Version, Versions}
-import laika.rewrite.nav.{ConfigurablePathTranslator, PathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
+import laika.rewrite.{OutputContext, Version, Versions}
+import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, PathTranslator, TargetFormats, TranslatorConfig}
 import munit.FunSuite
 
 class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -34,10 +34,9 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   
   private val defaultRenderer = Renderer.of(HTML).build
   
-  private def pathTranslator (specs: Map[Path, TranslatorSpec], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
+  private def pathTranslator (specs: Map[Path, PathAttributes], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
     TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
-    "html",
-    "html",
+    OutputContext("html"),
     Root / "doc",
     path => specs.get(path.withoutFragment)
   )
@@ -49,7 +48,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     assertEquals(renderer.render(elem), expected)
   }
 
-  def runWithStaticDocs (elem: Element, specs: Map[Path, TranslatorSpec], expected: String, versioned: Boolean = false): Unit = {
+  def runWithStaticDocs (elem: Element, specs: Map[Path, PathAttributes], expected: String, versioned: Boolean = false): Unit = {
     val res = defaultRenderer.render(elem, Root / "doc", pathTranslator(specs, versioned), StyleDeclarationSet.empty)
     assertEquals(res, expected)
   }
@@ -59,7 +58,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     assertEquals(res, expected)
   }
   
-  private val staticUnversionedSpec = TranslatorSpec(isStatic = true, isVersioned = false)
+  private val staticUnversionedSpec = PathAttributes(isStatic = true, isVersioned = false)
   private val imagePath = Root / "foo.jpg"
   private val imageTarget = InternalTarget(imagePath)
   private val imageTestSpecs = Map(imagePath -> staticUnversionedSpec)
@@ -606,7 +605,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("render a paragraph containing a versioned image") {
     val elem = testPar(Image(imageTarget, alt = Some("img")))
-    val spec = TranslatorSpec(isStatic = true, isVersioned = true)
+    val spec = PathAttributes(isStatic = true, isVersioned = true)
     val expected = """<p>some <img src="0.42/foo.jpg" alt="img"> span</p>"""
     runWithStaticDocs(elem, Map(imagePath -> spec), expected, versioned = true)
   }

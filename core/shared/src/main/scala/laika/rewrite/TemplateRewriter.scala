@@ -37,16 +37,18 @@ trait TemplateRewriter {
   private def defaultTemplate (format: String): TemplateDocument = 
     TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
   
-  private def shouldRender (format: String)(content: Cursor): Boolean = content.target.targetFormats.contains(format) 
+  private def shouldRender (formatSelector: String)(content: Cursor): Boolean = 
+    content.target.targetFormats.contains(formatSelector) 
   
-  /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
+  /** Selects and applies the templates for the specified output format to all documents 
+    * within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, context: TemplateContext): Either[ConfigError, DocumentTreeRoot] = {
+  def applyTemplates (tree: DocumentTreeRoot, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
     
     for {
-      cursor   <- RootCursor(tree, Some(context.finalFormat))
+      cursor   <- RootCursor(tree, Some(context))
       newCover <- cursor.coverDocument
-                    .filter(shouldRender(context.finalFormat))
+                    .filter(shouldRender(context.formatSelector))
                     .traverse(applyTemplate(_, context))
       newTree  <- applyTemplates(cursor.tree, context)
     } yield {
@@ -58,11 +60,11 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTemplates (cursor: TreeCursor, context: TemplateContext): Either[ConfigError, DocumentTree] = {
+  private def applyTemplates (cursor: TreeCursor, context: OutputContext): Either[ConfigError, DocumentTree] = {
 
     for {
-      newTitle   <- cursor.titleDocument.filter(shouldRender(context.finalFormat)).traverse(applyTemplate(_, context))
-      newContent <- cursor.children.filter(shouldRender(context.finalFormat)).toList.traverse {
+      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, context))
+      newContent <- cursor.children.filter(shouldRender(context.formatSelector)).toList.traverse {
                       case doc: DocumentCursor => applyTemplate(doc, context)
                       case tree: TreeCursor    => applyTemplates(tree, context)
                     }
@@ -76,9 +78,9 @@ trait TemplateRewriter {
     
   }
   
-  private def applyTemplate (cursor: DocumentCursor, context: TemplateContext): Either[ConfigError, Document] =
-    selectTemplate(cursor, context.templateSuffix)
-      .map(_.getOrElse(defaultTemplate(context.templateSuffix)))
+  private def applyTemplate (cursor: DocumentCursor, context: OutputContext): Either[ConfigError, Document] =
+    selectTemplate(cursor, context.fileSuffix)
+      .map(_.getOrElse(defaultTemplate(context.fileSuffix)))
       .flatMap(applyTemplate(cursor, _))
 
   /** Applies the specified template to the target of the specified document cursor.
@@ -151,7 +153,7 @@ trait TemplateRewriter {
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
       case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
-      case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.targetFormat.fold(nl)(nl.forFormat))
+      case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
       case unresolved: Unresolved           => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
@@ -200,8 +202,8 @@ trait TemplateRewriter {
 
 object TemplateRewriter extends TemplateRewriter
 
-case class TemplateContext (templateSuffix: String, finalFormat: String)
+case class OutputContext (fileSuffix: String, formatSelector: String)
 
-object TemplateContext {
-  def apply (format: String): TemplateContext = apply(format, format)
+object OutputContext {
+  def apply (format: String): OutputContext = apply(format, format)
 }

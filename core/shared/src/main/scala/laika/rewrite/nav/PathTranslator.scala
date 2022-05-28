@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.{AbsoluteInternalTarget, ExternalTarget, Path, RelativeInternalTarget, RelativePath, ResolvedInternalTarget, RootCursor, Target}
 import laika.config.Config.ConfigResult
 import laika.config.{Config, LaikaKeys}
-import laika.rewrite.Versions
+import laika.rewrite.{OutputContext, Versions}
 
 /** Translates paths of input documents to the corresponding output path. 
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path
@@ -31,11 +31,24 @@ import laika.rewrite.Versions
   */
 trait PathTranslator {
 
+  /** Retrieves the attributes for the specified path in the context of the current virtual tree of documents.
+    * If there is no document or tree associated with the specified path, the result will be empty.
+    * 
+    * Mostly used by implementations of this trait, but accessible publicly for some less common scenarios,
+    * e.g. in directive implementations.
+    */
+  def getAttributes (path: Path): Option[PathAttributes]
+  
   /** Translates the specified path of an input document to the corresponding output path. 
     */
   def translate (input: Path): Path
 
-  /** Translates the specified relative path of an input document to the corresponding output path. 
+  /** Translates the specified relative path of an input document to the corresponding output path.
+    * 
+    * Translator implementations resolve the relative path in relation to a reference path,
+    * which implies that there is a dedicated path translator instance per output document.
+    * Using `forReferencePath` a copy of this translator that uses a different path as reference
+    * can be created cheaply.
     */
   def translate (input: RelativePath): RelativePath
 
@@ -52,32 +65,48 @@ trait PathTranslator {
     case rt: RelativeInternalTarget => rt.copy(path = translate(rt.path))
     case et => et
   }
+
+  /** Creates a copy of this path translator that uses the specified reference path for resolving
+    * relative paths. 
+    * All other aspect of translation logic should behave the same as in this instance.
+    */
+  def forReferencePath (path: Path): PathTranslator
   
 }
 
-/** Translates paths of input documents to the corresponding output path, based on a configuration instance.
-  * 
-  * @author Jens Halm
-  */
-case class ConfigurablePathTranslator (config: TranslatorConfig, 
-                                       outputSuffix: String, 
-                                       outputFormat: String, 
-                                       refPath: Path, 
-                                       targetLookup: Path => Option[TranslatorSpec]) extends PathTranslator {
+object PathTranslator {
+  
+  def ignoreVersions (translator: PathTranslator): PathTranslator = translator match {
+    case cpt: ConfigurablePathTranslator => 
+      cpt.copy(targetLookup = cpt.targetLookup.andThen(_.map(_.copy(isVersioned = false))))
+    case other => other
+  }
+  
+}
+
+private[laika] case class ConfigurablePathTranslator (
+  config: TranslatorConfig, 
+  outputContext: OutputContext, 
+  refPath: Path, 
+  targetLookup: Path => Option[PathAttributes]) extends PathTranslator {
 
   private val currentVersion = config.versions.map(_.currentVersion.pathSegment)
   private val translatedRefPath = translate(refPath)
+
+  def getAttributes (path: Path): Option[PathAttributes] = targetLookup(path)
   
-  def translate (input: Path): Path = translate(input, outputFormat == "html")
+  def translate (input: Path): Path = translate(input, outputContext.formatSelector == "html")
   
   private def translate (input: Path, isHTMLTarget: Boolean): Path = {
-    targetLookup(input).fold(input) { spec =>
+    getAttributes(input).fold(input) { spec =>
       val shifted = if (spec.isVersioned && isHTMLTarget) currentVersion.fold(input) { version =>
         Root / version / input.relative
       } else input
       if (!spec.isStatic) {
-        if (input.basename == config.titleDocInputName) shifted.withBasename(config.titleDocOutputName).withSuffix(outputSuffix)
-        else shifted.withSuffix(outputSuffix)
+        if (input.basename == config.titleDocInputName) 
+          shifted.withBasename(config.titleDocOutputName).withSuffix(outputContext.fileSuffix)
+        else 
+          shifted.withSuffix(outputContext.fileSuffix)
       }
       else shifted
     }
@@ -90,14 +119,15 @@ case class ConfigurablePathTranslator (config: TranslatorConfig,
   }
   
   override def translate (target: Target): Target = (target, config.siteBaseURL) match {
-    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputFormat) =>
+    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL)) if !formats.contains(outputContext.formatSelector) =>
       ExternalTarget(baseURL + translate(absolutePath.withSuffix("html"), isHTMLTarget = true).relative.toString)
     case _ => super.translate(target)
   }
-  
+
+  def forReferencePath (path: Path): PathTranslator = copy(refPath = path)
 }
 
-private[laika] case class TranslatorSpec(isStatic: Boolean, isVersioned: Boolean)
+case class PathAttributes (isStatic: Boolean, isVersioned: Boolean)
 
 private[laika] case class TranslatorConfig(versions: Option[Versions],
                                            titleDocInputName: String, 
@@ -116,34 +146,34 @@ private[laika] object TranslatorConfig {
     TranslatorConfig(None, TitleDocumentConfig.defaultInputName, TitleDocumentConfig.defaultOutputName, None)
 }
 
-private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[TranslatorSpec]) {
+private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[PathAttributes]) {
 
-  def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+  private def isVersioned (config: Config): Boolean = config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
   
-  private val lookup: Map[Path, TranslatorSpec] = {
+  private val lookup: Map[Path, PathAttributes] = {
 
     val treeConfigs = cursor.target.staticDocuments.map(doc => doc.path.parent).toSet[Path].map { path =>
       (path, cursor.treeConfig(path))
     }.toMap
 
     val markupDocs = cursor.target.allDocuments.map { doc =>
-      (doc.path.withoutFragment, TranslatorSpec(isStatic = false, isVersioned = isVersioned(doc.config)))
+      (doc.path.withoutFragment, PathAttributes(isStatic = false, isVersioned = isVersioned(doc.config)))
     }
 
     val staticDocs = cursor.target.staticDocuments.map { doc =>
-      (doc.path.withoutFragment, TranslatorSpec(isStatic = true, isVersioned = isVersioned(treeConfigs(doc.path.parent))))
+      (doc.path.withoutFragment, PathAttributes(isStatic = true, isVersioned = isVersioned(treeConfigs(doc.path.parent))))
     }
 
     (markupDocs ++ staticDocs).toMap
   }
 
   val versionedDocuments: Seq[Path] = lookup.collect {
-    case (path, TranslatorSpec(false, true)) => path
+    case (path, PathAttributes(false, true)) => path
   }.toSeq
 
-  def apply (path: Path): Option[TranslatorSpec] = 
+  def apply (path: Path): Option[PathAttributes] = 
     lookup.get(path.withoutFragment)
-      .orElse(Some(TranslatorSpec(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))))
+      .orElse(Some(PathAttributes(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))))
   // paths which have validation disabled might not appear in the lookup, we treat them as static and
   // pick the versioned flag from its directory config.
 
@@ -156,6 +186,9 @@ private[laika] class TargetLookup (cursor: RootCursor) extends (Path => Option[T
   * cross references or static or versioned documents.
   */
 case class BasicPathTranslator (outputSuffix: String) extends PathTranslator {
+  private val defaultAttributes = Some(PathAttributes(isStatic = false, isVersioned = false))
+  def getAttributes (path: Path): Option[PathAttributes] = defaultAttributes
   def translate (input: Path): Path = input.withSuffix(outputSuffix)
   def translate (input: RelativePath): RelativePath = input.withSuffix(outputSuffix)
+  def forReferencePath (path: Path): PathTranslator = this
 }

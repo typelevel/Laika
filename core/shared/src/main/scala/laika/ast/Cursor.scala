@@ -24,9 +24,9 @@ import laika.collection.TransitionalCollectionOps._
 import laika.config.Config.ConfigResult
 import laika.config.{Config, ConfigEncoder, ConfigValue, DocumentConfigErrors, Key, LaikaKeys, TreeConfigErrors}
 import laika.parse.SourceFragment
-import laika.rewrite.ReferenceResolver
-import laika.rewrite.link.{LinkConfig, LinkValidator, TargetLookup, TargetValidation}
-import laika.rewrite.nav.{AutonumberConfig, NavigationOrder, TargetFormats}
+import laika.rewrite.{OutputContext, ReferenceResolver}
+import laika.rewrite.link.{LinkConfig, LinkValidator, TargetValidation}
+import laika.rewrite.nav.{AutonumberConfig, ConfigurablePathTranslator, NavigationOrder, PathTranslator, TargetFormats, TranslatorConfig}
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -67,14 +67,31 @@ sealed trait Cursor {
   * operations.
   *
   * @param target the root of the document tree this cursor points to
-  * @param targetFormat the format the cursor is applied for, empty in case of the 1st rewrite step which 
-  *                     is applied to all formats.
   */
-case class RootCursor private (target: DocumentTreeRoot, targetFormat: Option[String] = None) {
+class RootCursor private (val target: DocumentTreeRoot, 
+                          renderContext: Option[(OutputContext, TranslatorConfig)] = None) {
   
   type Target = DocumentTreeRoot
   
-  private[ast] lazy val targetLookup = new TargetLookup(this)
+  private[ast] lazy val targetLookup = new laika.rewrite.link.TargetLookup(this)
+
+ /** The context for the output format when the cursor has been created for the final rewrite
+  *  phase for a specific output format or empty in earlier rewrite phases that apply to all formats.
+  */
+  val outputContext: Option[OutputContext] = renderContext.map(_._1)
+
+  /** The path translator to be used for translating internal links and output paths.
+    * 
+    * The translator is specific for each output format and therefore this value is empty
+    * for any cursor that has not been created for the final rewrite phase in the context
+    * of a concrete renderer and its template.
+    */
+  lazy val pathTranslator: Option[PathTranslator] = renderContext.map { case (outputContext, translatorConfig) =>
+    val lookup = new laika.rewrite.nav.TargetLookup(this)
+    ConfigurablePathTranslator(
+      translatorConfig, outputContext, Root / "refPath", lookup
+    )
+  }
   
   val config: Config = target.config
 
@@ -117,7 +134,7 @@ case class RootCursor private (target: DocumentTreeRoot, targetFormat: Option[St
 
 object RootCursor {
   
-  def apply (target: DocumentTreeRoot, targetFormat: Option[String] = None): Either[TreeConfigErrors, RootCursor] = {
+  def apply (target: DocumentTreeRoot, outputContext: Option[OutputContext] = None): Either[TreeConfigErrors, RootCursor] = {
     
     /* Configuration values used by rewrite rules are validated in the respective builders for those rules.
        Here we only validate configuration used by the cursor implementation itself.
@@ -135,11 +152,21 @@ object RootCursor {
       target.config.getOpt[String](LaikaKeys.siteBaseURL).toEitherNec,
       target.config.getOpt[LinkConfig].toEitherNec,
     ).parSequence.fold(errs => Seq(DocumentConfigErrors(Root, errs)), _ => Nil)
-    
-    NonEmptyChain
+
+    val validations = NonEmptyChain
       .fromSeq(target.allDocuments.flatMap(validate) ++ validateRoot)
       .map(TreeConfigErrors.apply)
-      .toLeft(new RootCursor(target, targetFormat))
+      .toLeft(())
+    
+    def translatorConfig = 
+      TranslatorConfig.readFrom(target.config)
+        .leftMap(err => TreeConfigErrors(NonEmptyChain.one(DocumentConfigErrors(Root, NonEmptyChain.one(err)))))
+    
+    for {
+      _             <- validations
+      renderContext <- outputContext.map(ctx => translatorConfig.map(cfg => (ctx, cfg))).sequence
+    } yield 
+      new RootCursor(target, renderContext)
   }
 
 }
@@ -230,8 +257,8 @@ object TreeCursor {
   def apply (root: RootCursor): TreeCursor =
     apply(root.target.tree, None, root, root.config, TreePosition.root)
 
-  def apply (root: DocumentTree, format: Option[String] = None): Either[TreeConfigErrors, TreeCursor] =
-    RootCursor(DocumentTreeRoot(root), format).map(apply)
+  def apply (root: DocumentTree, outputContext: Option[OutputContext] = None): Either[TreeConfigErrors, TreeCursor] =
+    RootCursor(DocumentTreeRoot(root), outputContext).map(apply)
 
 }
 
@@ -381,8 +408,8 @@ object DocumentCursor {
 
   /** Creates a cursor by placing the specified document as a sole node into an otherwise empty document tree.
     */
-  def apply (document: Document, targetFormat: Option[String] = None): Either[TreeConfigErrors, DocumentCursor] =
-    TreeCursor(DocumentTree(Root, Seq(document)), targetFormat)
+  def apply (document: Document, outputContext: Option[OutputContext] = None): Either[TreeConfigErrors, DocumentCursor] =
+    TreeCursor(DocumentTree(Root, Seq(document)), outputContext)
       .map(apply(document, _, document.config, document.position))
 
   /** Creates a cursor for a document and full context information:

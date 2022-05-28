@@ -22,7 +22,7 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.IncludeMap
 import laika.config._
 import laika.rewrite.nav.{AutonumberConfig, TargetFormats}
-import laika.rewrite.{DefaultTemplatePath, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 
 
 /** A navigatable object is anything that has an associated path.
@@ -97,8 +97,8 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
    */
-  def applyTo (document: Document): Either[ConfigError, Document] =
-    DocumentCursor(document, path.suffix.map(_.stripPrefix("template.")))
+  def applyTo (document: Document, outputContext: OutputContext): Either[ConfigError, Document] =
+    DocumentCursor(document, Some(outputContext))
       .flatMap(TemplateRewriter.applyTemplate(_, this))
 
 }

@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, TemplateContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import munit.FunSuite
 import RewriteSetup._
 
@@ -43,7 +43,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     val ctx = {
       val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
       val finalFormat = if (templateSuffix == "html") "html" else "epub"
-      TemplateContext(templateSuffix, finalFormat)
+      OutputContext(templateSuffix, finalFormat)
     }
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {

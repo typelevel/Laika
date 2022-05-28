@@ -26,7 +26,8 @@ import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, TargetFormats, TranslatorConfig, TranslatorSpec}
+import laika.rewrite.OutputContext
+import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, PathAttributes, TargetFormats, TranslatorConfig}
 import munit.FunSuite
 
 
@@ -737,9 +738,9 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val translator = {
       val config = ConfigBuilder.empty.withValue(LaikaKeys.siteBaseURL, "http://external/").build
       val tConfig = TranslatorConfig.readFrom(config).getOrElse(TranslatorConfig.empty)
-      val lookup: Path => Option[TranslatorSpec] = path => 
-        if (path == Root / "doc") Some(TranslatorSpec(isStatic = false, isVersioned = false)) else None
-      ConfigurablePathTranslator(tConfig, "fo", "pdf", Root / "doc", lookup)
+      val lookup: Path => Option[PathAttributes] = path => 
+        if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false)) else None
+      ConfigurablePathTranslator(tConfig, OutputContext("fo", "pdf"), Root / "doc", lookup)
     }
     assertEquals(defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles), fo)
   }

@@ -45,12 +45,12 @@ object HTMLHeadDirectives {
 
     cursor.root.config.get[Path](LaikaKeys.site.apiPath, Root / "api").leftMap(_.message).map { excluded =>
       
-      val format = cursor.root.targetFormat
+      val formatSelector = cursor.root.outputContext.map(_.formatSelector)
       
       val preFiltered = cursor.root.target.staticDocuments.filter { doc =>
         doc.path.suffix.exists(suffixFilter) &&
           !doc.path.isSubPath(excluded) &&
-          format.exists(doc.formats.contains)
+          formatSelector.exists(doc.formats.contains)
       }
   
       val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
@@ -75,7 +75,7 @@ object HTMLHeadDirectives {
     import Templates.dsl._
 
     (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
-      val suffixFilter: String => Boolean = cursor.root.targetFormat match {
+      val suffixFilter: String => Boolean = cursor.root.outputContext.map(_.formatSelector) match {
         case Some("epub") | Some("epub.xhtml") | Some("html") => 
           (suffix: String) => suffix.endsWith(supportedSuffix) && suffix != s"page.$supportedSuffix"
         case _ => _ => false
