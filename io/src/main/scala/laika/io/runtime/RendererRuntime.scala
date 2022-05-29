@@ -210,11 +210,6 @@ object RendererRuntime {
     def mapError[A] (result: Either[ConfigError, A]): Either[RendererErrors, A] =
       result.leftMap(e => RendererErrors(Seq(ConfigException(e))))
 
-    def createPathTranslator (finalRoot: DocumentTreeRoot): ConfigResult[PathTranslator] = for {
-      cursor         <- RootCursor(finalRoot, Some(context))
-      pathTranslator <- cursor.pathTranslator.toRight(ValidationError("Internal error: path translator should not be empty"))
-    } yield pathTranslator
-
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs = op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
     val tree = ParsedTree(op.input, staticDocs)
@@ -223,7 +218,7 @@ object RendererRuntime {
       mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
       versions    <- Sync[F].fromEither(mapError(finalRoot.config.getOpt[Versions]))
-      pTranslator <- Sync[F].fromEither(mapError(createPathTranslator(finalRoot)))
+      pTranslator <- Sync[F].fromEither(mapError(op.config.pathTranslatorFor(finalRoot, context)))
       vInfo       <- generateVersionInfo(finalRoot, pTranslator, versions, mappedTree.staticDocuments)
       static      <- filterStaticDocuments(mappedTree.staticDocuments, mappedTree.root, pTranslator, versions).map(replaceVersionInfo(vInfo))
       _           <- validatePaths(static)

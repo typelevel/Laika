@@ -17,8 +17,9 @@
 package laika.api.builder
 
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key}
+import laika.config.{Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key, ValidationError}
 import laika.ast._
+import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.bundle.{BundleOrigin, ConfigProvider, DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.config.Config.ConfigResult
 import laika.directive.DirectiveSupport
@@ -26,7 +27,9 @@ import laika.directive.std.StandardDirectives
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
+import laika.rewrite.OutputContext
 import laika.rewrite.link.SlugBuilder
+import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec
 
@@ -128,6 +131,26 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   lazy val slugBuilder: String => String = mergedBundle.slugBuilder.getOrElse(SlugBuilder.default)
   
+  /** The path translator for translating all virtual paths before rendering, obtained by combining
+    * the path translators defined in all bundles (if present) with the internal base translator.
+    * 
+    * The internal path translator deals with aspects like applying the suffix for the output format
+    * or modifying the path for versioned documents and more.
+    * 
+    * Theme or user extensions may wrap additional functionality around that internal translator,
+    * or in rare cases even replace it with an entirely custom implementation.
+    * 
+    * A new instance of `PathTranslator` will be created for each render operation.
+    * The output format is described in the `outputContext` parameter.
+    */
+  def pathTranslatorFor (root: DocumentTreeRoot, outputContext: OutputContext): ConfigResult[PathTranslator] = for {
+    cursor         <- RootCursor(root, Some(outputContext))
+    baseTranslator <- cursor.pathTranslator.toRight(ValidationError("Internal error: path translator should not be empty"))
+  } yield { 
+    val context = new PathTranslatorExtensionContext(baseTranslator, outputContext, cursor.config)
+    mergedBundle.extendPathTranslator.applyOrElse[PathTranslatorExtensionContext, PathTranslator](context, _.baseTranslator)
+  }
+
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
