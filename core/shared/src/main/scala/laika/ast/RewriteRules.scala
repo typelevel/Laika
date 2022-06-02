@@ -16,9 +16,8 @@
 
 package laika.ast
 
-import cats.data.NonEmptyChain
 import cats.syntax.all._
-import laika.ast.RewriteRules.ChainedRewriteRules
+import laika.ast.RewriteRules.{ChainedRewriteRules, RewriteRulesBuilder}
 import laika.config.Config.ConfigResult
 import laika.config.ConfigErrors
 import laika.rewrite.link.LinkResolver
@@ -186,6 +185,8 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     }
   }
   
+  def asBuilder: RewriteRulesBuilder = _ => Right(this)
+  
 }
 
 /** Factory methods and utilities for dealing with rewrite rules.
@@ -195,6 +196,8 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
 object RewriteRules {
   
   type RewriteRulesBuilder = DocumentCursor => ConfigResult[RewriteRules]
+  
+  type RewritePhaseBuilder = PartialFunction[RewritePhase, Seq[RewriteRulesBuilder]]
 
   /** Creates a new instance without any rules. Applying an empty instance to an AST will always
     * return the AST unchanged.
@@ -253,8 +256,9 @@ object RewriteRules {
     * These are not installed as part of any default extension bundle as they have specific
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
-  def defaultsFor (root: DocumentTreeRoot, slugBuilder: String => String): Seq[RewriteRulesBuilder] = 
-    Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
+  def defaultsFor (root: DocumentTreeRoot, phase: RewritePhase, slugBuilder: String => String): Seq[RewriteRulesBuilder] = 
+    if (phase == RewritePhase.Resolve) Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
+    else Nil
 
 }
 
@@ -273,3 +277,10 @@ case object Retain extends RewriteAction[Nothing]
 /** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
   */
 case object Remove extends RewriteAction[Nothing]
+
+sealed trait RewritePhase
+case object RewritePhase {
+  case object Build extends RewritePhase
+  case object Resolve extends RewritePhase
+  case object Render extends RewritePhase
+}

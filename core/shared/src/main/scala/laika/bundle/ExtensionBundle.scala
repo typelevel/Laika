@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.ast._
 import laika.config.Config
 import laika.parse.css.CSSParsers
@@ -107,7 +107,7 @@ trait ExtensionBundle { self =>
     * which is a partial function from `Element` to `Option[Element]` that allows
     * to remove or replace elements from the tree.
     */
-  def rewriteRules: Seq[RewriteRulesBuilder] = Seq.empty
+  def rewriteRules: RewritePhaseBuilder = PartialFunction.empty
 
   /** The overrides for renderers defined by this bundle.
     *
@@ -158,7 +158,9 @@ trait ExtensionBundle { self =>
 
     /* flipped on purpose, base rules need to be applied first, so that app rules do not need to deal with potentially
        unknown node types */
-    override lazy val rewriteRules = base.rewriteRules ++ self.rewriteRules
+    override lazy val rewriteRules = {
+      case phase => base.rewriteRules.lift(phase).getOrElse(Nil) ++ self.rewriteRules.lift(phase).getOrElse(Nil)
+    }
 
     override lazy val renderOverrides = self.renderOverrides ++ base.renderOverrides
 

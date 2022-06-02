@@ -535,7 +535,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
 object NavigationDirectiveSpec {
   def defaultRewrite(tree:DocumentTree):DocumentTree = {
     tree.rewrite(
-      OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree))
+      OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve)
     ).getOrElse(throw new Exception("Never"))
   }
 }

@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.ast._
 import laika.bundle.ExtensionBundle
 
@@ -27,6 +27,8 @@ import laika.bundle.ExtensionBundle
   */
 trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOps[FMT] {
 
+  type ThisType <: TransformerBuilderOps[FMT]
+  
   /**  Specifies rewrite rules to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
     *  directly, but if there is no need to otherwise access the document instance
@@ -46,7 +48,14 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  any element container passed to the rule only contains children which have already
     *  been processed.
     */
-  def usingRules (newRules: RewriteRules): ThisType = buildingRule(_ => Right(newRules))
+  def usingRules (newRules: RewriteRules): ThisType = using(new ExtensionBundle {
+    val description: String = "Custom rewrite rules"
+    override val useInStrictMode: Boolean = true
+    override def rewriteRules: RewritePhaseBuilder = { 
+      case RewritePhase.Resolve => Seq(newRules.copy(templateRules = Nil).asBuilder)
+      case RewritePhase.Render  => Seq(RewriteRules(templateRules = newRules.templateRules).asBuilder)
+    }
+  })
 
   /**  Specifies a single block rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
@@ -136,17 +145,10 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  any element container passed to the rule only contains children which have already
     *  been processed.
     */
-  def buildingRule (newRules: RewriteRulesBuilder): ThisType = using(new ExtensionBundle {
+  def buildingRule (phase: RewritePhase)(newRules: RewriteRulesBuilder): ThisType = using(new ExtensionBundle {
     val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(newRules)
-  })
-
-  @deprecated("use buildingRule which includes error handling", "0.18.0")
-  def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
-    val description: String = "Custom rewrite rules"
-    override val useInStrictMode: Boolean = true
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(newRules.andThen(Right(_)))
+    override def rewriteRules: RewritePhaseBuilder = { case p if p == phase => Seq(newRules) }
   })
 
 }

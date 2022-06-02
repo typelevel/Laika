@@ -41,7 +41,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
                  else disableInternalLinkValidation
     val doc = Document(Path.Root / "doc", root, config = config)
     OperationConfig.default
-      .rewriteRulesFor(doc)
+      .rewriteRulesFor(doc, RewritePhase.Resolve)
       .flatMap(doc.rewrite(_).map(_.content))
   }
   
@@ -271,7 +271,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
           .build
       
       val res = root
-        .rewrite(OperationConfig.default.rewriteRulesFor(root))
+        .rewrite(OperationConfig.default.rewriteRulesFor(root, RewritePhase.Resolve))
         .map(_.tree.selectDocument("tree-1/doc-3.md").map(_.content.content.head))
       assertEquals(res, Right(Some(expected)))
     }
@@ -319,7 +319,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
           .build
   
       root
-        .rewrite(OperationConfig.default.rewriteRulesFor(root))
+        .rewrite(OperationConfig.default.rewriteRulesFor(root, RewritePhase.Resolve))
         .map(_.tree.selectDocument(pathUnderTest.relative).map(_.content.content.head))
     }
 

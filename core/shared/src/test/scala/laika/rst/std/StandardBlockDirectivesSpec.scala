@@ -560,7 +560,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       .tree
 
     val result = for {
-      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
       templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), OutputContext("html"))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
 
@@ -645,7 +645,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val result = for {
-      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
       templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), OutputContext("html"))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
     assertEquals(result, Right(expected))

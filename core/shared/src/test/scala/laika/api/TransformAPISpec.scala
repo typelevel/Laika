@@ -77,7 +77,7 @@ class TransformAPISpec extends FunSuite {
   
   test("custom rewrite rule that depends on the document") {
     val modifiedOutput = output.replace("zzz", "2")
-    val transformCustom = builder.buildingRule { cursor => Right(RewriteRules.forSpans { 
+    val transformCustom = builder.buildingRule(RewritePhase.Resolve) { cursor => Right(RewriteRules.forSpans { 
       case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
     })}
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))

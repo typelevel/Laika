@@ -19,7 +19,7 @@ package laika.api
 import cats.syntax.all._
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewriteRules, UnresolvedDocument}
+import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewritePhase, RewriteRules, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
@@ -102,7 +102,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
                           .resolve(Origin(DocumentScope, input.path), config.baseConfig)
                           .left.map(ParserError(_, input.path))
       resolvedDoc    =  resolveDocument(unresolved, resolvedConfig)
-      rules          <- config.rewriteRulesFor(resolvedDoc).left.map(ParserError(_, input.path))
+      rules          <- config.rewriteRulesFor(resolvedDoc, RewritePhase.Resolve).left.map(ParserError(_, input.path))
       result         <- rewriteDocument(resolvedDoc, rules)
     } yield result
   }

@@ -104,8 +104,13 @@ class DocumentAPISpec extends FunSuite
     
     val doc = defaultParser.parseUnresolved(markup).toOption.get.document
 
-    val rewritten1 = OperationConfig.default.rewriteRulesFor(doc).flatMap(doc.rewrite)
-    val rewritten2 = rewritten1.flatMap(doc => OperationConfig.default.rewriteRulesFor(doc).flatMap(doc.rewrite))
+    val rewritten1 = OperationConfig.default
+      .rewriteRulesFor(doc, RewritePhase.Resolve)
+      .flatMap(doc.rewrite)
+    val rewritten2 = rewritten1
+      .flatMap(doc => OperationConfig.default
+        .rewriteRulesFor(doc, RewritePhase.Resolve)
+        .flatMap(doc.rewrite))
     
     assertEquals(
       rewritten1.map(_.content),
@@ -129,7 +134,7 @@ class DocumentAPISpec extends FunSuite
       case Text("Some text",_) => Replace(Text("Swapped"))
     }
     val rewritten = OperationConfig.default
-      .rewriteRulesFor(raw.copy(position = TreePosition.root))
+      .rewriteRulesFor(raw.copy(position = TreePosition.root), RewritePhase.Resolve)
       .flatMap(r => raw.rewrite(testRule ++ r))
 
     assertEquals(

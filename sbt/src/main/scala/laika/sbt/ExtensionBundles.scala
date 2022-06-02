@@ -16,10 +16,10 @@
 
 package laika.sbt
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast._
+import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
+import laika.ast.*
 import laika.bundle.{ExtensionBundle, RenderOverrides}
-import laika.format._
+import laika.format.*
 import laika.render.{FOFormatter, HTMLFormatter}
 
 /** API shortcuts for the most common extension points that create
@@ -66,19 +66,15 @@ trait ExtensionBundles {
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = laikaRewriteRuleBuilder(_ => Right(RewriteRules.forSpans(rule)))
+  def laikaSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = 
+    laikaRewriteRuleBuilder(RewriteRules.forSpans(rule).asBuilder)
 
   /** Create an extension bundle based on the specified rewrite rule for blocks.
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaBlockRewriteRule (rule: RewriteRule[Block]): ExtensionBundle = laikaRewriteRuleBuilder(_ => Right(RewriteRules.forBlocks(rule)))
-
-  @deprecated("use laikaRewriteRuleBuilder which includes error handling", "0.18.0")
-  def laikaRewriteRuleFactory (factory: DocumentCursor => RewriteRules): ExtensionBundle = new ExtensionBundle {
-    val description: String = "Custom rewrite rules"
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(factory.andThen(Right.apply))
-  }
+  def laikaBlockRewriteRule (rule: RewriteRule[Block]): ExtensionBundle = 
+    laikaRewriteRuleBuilder(RewriteRules.forBlocks(rule).asBuilder)
 
   /** Create an extension bundle based on the specified rewrite rule.
     *
@@ -86,10 +82,16 @@ trait ExtensionBundles {
     * The supplied function will get invoked for every document in the transformation, therefore
     * creating a new rule for each document.
     */
-  def laikaRewriteRuleBuilder (builder: RewriteRulesBuilder): ExtensionBundle = new ExtensionBundle {
+  def laikaRewriteRuleBuilder (phase: RewritePhase)(builder: RewriteRulesBuilder): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom rewrite rules"
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(builder)
+    override def rewriteRules: RewritePhaseBuilder = {
+      case p if p == phase => Seq(builder)
+    } 
   }
+
+  @deprecated("use overload with RewritePhase parameter", "0.19.0")
+  def laikaRewriteRuleBuilder (builder: RewriteRulesBuilder): ExtensionBundle =
+    laikaRewriteRuleBuilder(RewritePhase.Resolve)(builder) // TODO - change to Build
 
   /** Create an extension bundle based on the specified document type matcher.
     *
