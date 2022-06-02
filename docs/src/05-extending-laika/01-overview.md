@@ -156,10 +156,16 @@ Two of the most commonly used hooks in the `ExtensionBundle` API are described i
 * [Overriding Renderers], a hook into phase 4 that allows to override the rendered output for specific
   AST nodes.
 
-There are two further hooks that drive more low-level functionality:
+There are three further hooks that drive more low-level functionality:
 
 * The `docTypeMatcher` property in `ExtensionBundle` controls how a virtual path is used to determine the document type
   (e.g. markup document vs. template vs. configuration file).
+
+* The `pathTranslator` property in `ExtensionBundle` controls how a virtual path is translated 
+  to the corresponding output path.
+  The internal path translator deals with aspects like applying the suffix for the output format
+  or modifying the path for versioned documents.
+  An extension can perform additional translations either before or after delegating to the built-in translator. 
 
 * The `slugBuilder` property in `ExtensionBundle` controls how the text from a section headline is translated
   to a slug for element ids. 

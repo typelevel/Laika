@@ -133,6 +133,9 @@ trait ExtensionBundle { self =>
     * 
     * Alternatively a completely custom implementation of the `PathTranslator` trait can be provided,
     * but this will usually not be necessary.
+    * 
+    * `PathTranslator` implementations usually do not deal with the fragment part of the path.
+    * Use the `slugBuilder` extension point for this purpose.
     */
   def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] = PartialFunction.empty
   

@@ -190,7 +190,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</nav>
         |</div>
         |</div>
-        |<a class="icon-link" href="../index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="../"><i class="icofont-laika" title="Home">&#xef47;</i></a>
         |<span class="row links"></span>""".stripMargin
     val config = Root / "directory.conf" -> "laika.versioned = true"
     transformAndExtract(inputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)

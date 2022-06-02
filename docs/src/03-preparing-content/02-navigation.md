@@ -554,6 +554,35 @@ The numbers will be added to the headers of the sections and also appear in tabl
 The default setting for Laika has auto-numbering switched off completely.
 
 
+Pretty URLs
+------------
+
+The library contains an extension for publishing a site with so-called "pretty URLs", 
+where a path like `foo/bar.html` gets translated to `foo/bar/index.html` which in turns means
+that links to that page can be expressed as `foo/bar/`, essentially stripping the `.html` suffix.
+
+The extension changes both, the physical structure of files of the generated site as well as 
+the rendering of internal links. It has no effect on other formats like EPUB or PDF.
+
+In contrast to some other site generators, this extension is disabled by default.
+It can be enabled like any other extension:
+
+@:choice(sbt)
+```scala
+laikaExtensions += PrettyURLs
+```
+
+@:choice(library)
+```scala
+val transformer = Transformer
+  .from(Markdown)
+  .to(HTML)
+  .using(PrettyURLs)
+  .build
+```
+@:@
+
+
 Custom Link Directives
 ----------------------
 
