@@ -85,15 +85,21 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       )
     }
     
-    def rewriteDocument (resolvedDoc: Document, rules: RewriteRules): Either[ParserError, Document] = for {
-      phase1 <- resolvedDoc.rewrite(rules).leftMap(ParserError.apply(_, resolvedDoc.path))
-      phase2 <- DocumentCursor(phase1)
-                  .flatMap(cursor => phase1.rewrite(TemplateRewriter.rewriteRules(cursor)))
+    def rewritePhase (doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {
+      rules <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_, doc.path))
+      result <- doc.rewrite(rules).leftMap(ParserError.apply(_, doc.path))
+    } yield result
+    
+    def rewriteDocument (resolvedDoc: Document): Either[ParserError, Document] = for {
+      phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
+      phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
+      phase3 <- DocumentCursor(phase2)
+                  .flatMap(cursor => phase2.rewrite(TemplateRewriter.rewriteRules(cursor)))
                   .leftMap(ParserError.apply(_, resolvedDoc.path))
       result <- InvalidDocument
-                  .from(phase2, config.failOnMessages)
+                  .from(phase3, config.failOnMessages)
                   .map(ParserError(_))
-                  .toLeft(phase2)
+                  .toLeft(phase3)
     } yield result
     
     for {
@@ -102,8 +108,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
                           .resolve(Origin(DocumentScope, input.path), config.baseConfig)
                           .left.map(ParserError(_, input.path))
       resolvedDoc    =  resolveDocument(unresolved, resolvedConfig)
-      rules          <- config.rewriteRulesFor(resolvedDoc, RewritePhase.Resolve).left.map(ParserError(_, input.path))
-      result         <- rewriteDocument(resolvedDoc, rules)
+      result         <- rewriteDocument(resolvedDoc)
     } yield result
   }
 
