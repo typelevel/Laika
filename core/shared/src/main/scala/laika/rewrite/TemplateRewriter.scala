@@ -135,34 +135,35 @@ trait TemplateRewriter {
     */
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
     
-    // maps selection name to selected choice name
-    val selections: Map[String, String] = cursor.root.config
-      .get[Selections]
-      .getOrElse(Selections.empty)
-      .selections
-      .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
-      .toMap
-    
-    def select (selection: Selection, selectedChoice: String): Block = selection.choices
-      .find(_.name == selectedChoice)
-      .fold[Block](selection)(choice => BlockSequence(choice.content))
-    
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
+          
       case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
-      case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
+      
       case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
+      
       case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
+      
       case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
+      
       case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
+        
     } ++ RewriteRules.forSpans {
+          
       case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
+      
       case unresolved: Unresolved           => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
+      
       case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
+        
     } ++ RewriteRules.forTemplates {
+          
       case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
+      
       case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
+      
       case unresolved: Unresolved           => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
-    }
+    } ++
+      Selections.rewriteRules(cursor).getOrElse(RewriteRules.empty)
     
     def asTemplateSpan (span: Span) = span match {
       case t: TemplateSpan => t
