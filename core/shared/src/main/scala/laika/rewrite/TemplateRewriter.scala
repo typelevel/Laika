@@ -25,7 +25,6 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
 
@@ -136,27 +135,16 @@ trait TemplateRewriter {
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
 
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
-
       case ph: BlockResolver => Replace(rewriteBlock(ph.resolve(cursor)))
-
-      case unresolved: Unresolved => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
-
       case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
-
     } ++ RewriteRules.forSpans {
-
       case ph: SpanResolver => Replace(rewriteSpan(ph.resolve(cursor)))
-
-      case unresolved: Unresolved => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
-
     } ++ RewriteRules.forTemplates {
-
       case ph: SpanResolver => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
-
-      case unresolved: Unresolved => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
     } ++
       Selections.rewriteRules(cursor).getOrElse(RewriteRules.empty) ++
-      TemplateFormatter(cursor).getOrElse(RewriteRules.empty)
+      TemplateFormatter(cursor).getOrElse(RewriteRules.empty) ++
+      UnresolvedNodeDetector(cursor).getOrElse(RewriteRules.empty)
 
     def asTemplateSpan (span: Span) = span match {
       case t: TemplateSpan => t
