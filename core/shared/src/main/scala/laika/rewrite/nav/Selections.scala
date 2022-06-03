@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import cats.data.{Chain, NonEmptyChain}
-import laika.ast.{Block, BlockSequence, DocumentTreeRoot, Replace, RewriteRules, Selection}
+import laika.ast.{Block, BlockSequence, DocumentCursor, DocumentTreeRoot, Replace, RewriteRules, Selection}
 import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.config.Config.ConfigResult
 import laika.config._
@@ -199,24 +199,29 @@ object Selections {
     createCombinations(root.config).map(_.map { case (config, classifiers) => (root.withConfig(config), classifiers) })
   }
   
-  val rewriteRules: RewriteRulesBuilder = cursor => {
-    // maps selection name to selected choice name
-    def extractMap (selectionConfig: Selections): Map[String, String] = selectionConfig.selections
-      .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
-      .toMap
-    
-    val selections: ConfigResult[Map[String, String]] = cursor.root.config
-      .getOpt[Selections]
-      .map(_.getOrElse(Selections.empty))
-      .map(extractMap)
+  object FormatFilter extends RewriteRulesBuilder {
 
-    def select (selection: Selection, selectedChoice: String): Block = selection.choices
-      .find(_.name == selectedChoice)
-      .fold[Block](selection)(choice => BlockSequence(choice.content))
-    
-    selections.map { selections =>
-      RewriteRules.forBlocks {
-        case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
+    def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = {
+
+      // maps selection name to selected choice name
+      def extractMap (selectionConfig: Selections): Map[String, String] = selectionConfig.selections
+        .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
+        .toMap
+
+      val selections: ConfigResult[Map[String, String]] = cursor.root.config
+        .getOpt[Selections]
+        .map(_.getOrElse(Selections.empty))
+        .map(extractMap)
+
+      def select (selection: Selection, selectedChoice: String): Block = selection.choices
+        .find(_.name == selectedChoice)
+        .fold[Block](selection)(choice => BlockSequence(choice.content))
+
+      selections.map { selections =>
+        if (selections.isEmpty) RewriteRules.empty
+        else RewriteRules.forBlocks {
+          case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
+        }
       }
     }
   }

@@ -16,6 +16,8 @@
 
 package laika.ast
 
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.config.Config.ConfigResult
 import laika.rewrite.nav.TargetFormats
 
 /** A bullet list that may contain nested lists.
@@ -241,6 +243,17 @@ case class NavigationList (content: Seq[NavigationItem], options: Options = NoOp
     content = content.map(_.rewriteChildren(rules))
   )
   def withOptions (options: Options): NavigationList = copy(options = options)
+}
+
+object NavigationList {
+  object FormatFilter extends RewriteRulesBuilder {
+    def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
+      RewriteRules.forBlocks {
+        case nl: NavigationList if !nl.hasStyle("breadcrumb") =>
+          Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
+      }
+    }
+  }
 }
 
 /** Represents a navigation entry with an optional target link and optional child items.

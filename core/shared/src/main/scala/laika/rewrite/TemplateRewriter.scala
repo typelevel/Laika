@@ -134,31 +134,13 @@ trait TemplateRewriter {
     */
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
 
-    lazy val rules: RewriteRules = RewriteRules.forBlocks {
-      case ph: BlockResolver => Replace(rewriteBlock(ph.resolve(cursor)))
-      case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
-    } ++ RewriteRules.forSpans {
-      case ph: SpanResolver => Replace(rewriteSpan(ph.resolve(cursor)))
-    } ++ RewriteRules.forTemplates {
-      case ph: SpanResolver => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
-    } ++
-      Selections.rewriteRules(cursor).getOrElse(RewriteRules.empty) ++
+    val renderPhaseRules =
+      Selections.FormatFilter(cursor).getOrElse(RewriteRules.empty) ++
+      NavigationList.FormatFilter(cursor).getOrElse(RewriteRules.empty) ++
       TemplateFormatter(cursor).getOrElse(RewriteRules.empty) ++
       UnresolvedNodeDetector(cursor).getOrElse(RewriteRules.empty)
-
-    def asTemplateSpan (span: Span) = span match {
-      case t: TemplateSpan => t
-      case s => TemplateElement(s)
-    }
-
-    def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
-
-    def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
-
-    def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
-
-    rules
-
+    
+    RecursiveResolverRules.applyTo(cursor, renderPhaseRules)
   }
   
 }
