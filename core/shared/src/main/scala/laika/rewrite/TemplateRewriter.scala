@@ -134,69 +134,43 @@ trait TemplateRewriter {
     * based on the specified document cursor and its configuration.
     */
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
-    
+
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
-          
-      case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
-      
-      case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      
-      case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
-      
-      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
-      
+
+      case ph: BlockResolver => Replace(rewriteBlock(ph.resolve(cursor)))
+
+      case unresolved: Unresolved => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
+
       case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
-        
+
     } ++ RewriteRules.forSpans {
-          
-      case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
-      
-      case unresolved: Unresolved           => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
-      
-      case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
-        
+
+      case ph: SpanResolver => Replace(rewriteSpan(ph.resolve(cursor)))
+
+      case unresolved: Unresolved => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
+
     } ++ RewriteRules.forTemplates {
-          
-      case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
-      
-      case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
-      
-      case unresolved: Unresolved           => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
+
+      case ph: SpanResolver => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
+
+      case unresolved: Unresolved => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
     } ++
-      Selections.rewriteRules(cursor).getOrElse(RewriteRules.empty)
-    
+      Selections.rewriteRules(cursor).getOrElse(RewriteRules.empty) ++
+      TemplateFormatter(cursor).getOrElse(RewriteRules.empty)
+
     def asTemplateSpan (span: Span) = span match {
       case t: TemplateSpan => t
       case s => TemplateElement(s)
-    } 
-    def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
-    def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
-    def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
-    
-    def joinTextSpans (spans: Seq[Span]): Seq[Span] = if (spans.isEmpty) spans
-      else spans.sliding(2).foldLeft(spans.take(1)) {
-        case (acc, Seq(Text(_, NoOpt), Text(txt2, NoOpt))) => 
-          acc.dropRight(1) :+ Text(acc.last.asInstanceOf[Text].content + txt2)
-        case (acc, Seq(_, other)) => acc :+ other
-        case (acc, _) => acc
-      }
-    
-    def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
-      def indentFor(text: String): Int = text.lastIndexOf('\n') match {
-        case -1    => 0
-        case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
-      }
-      if (spans.isEmpty) spans
-      else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
-        case (buffer, Seq(TemplateString(text, NoOpt), TemplateElement(elem, 0, opt))) => 
-          buffer += TemplateElement(elem, indentFor(text), opt)
-        case (buffer, Seq(TemplateString(text, NoOpt), EmbeddedRoot(elem, 0, opt))) =>
-          buffer += EmbeddedRoot(elem, indentFor(text), opt)
-        case (buffer, Seq(_, elem)) => buffer += elem
-        case (buffer, _) => buffer
-      }.toList
     }
+
+    def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
+
+    def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
+
+    def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
+
     rules
+
   }
   
 }
