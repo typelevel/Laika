@@ -36,7 +36,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   
   private def pathTranslator (specs: Map[Path, PathAttributes], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
     TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
-    OutputContext("html"),
+    OutputContext(HTML),
     Root / "doc",
     path => specs.get(path.withoutFragment)
   )

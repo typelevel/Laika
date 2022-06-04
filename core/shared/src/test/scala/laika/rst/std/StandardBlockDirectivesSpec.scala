@@ -24,7 +24,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, SampleTrees}
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
-import laika.format.ReStructuredText
+import laika.format.{HTML, ReStructuredText}
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
@@ -563,7 +563,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
       root              = DocumentTreeRoot(rewrittenTree)
       rules             = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render)
-      templatesApplied <- TemplateRewriter.applyTemplates(root, rules, OutputContext("html"))
+      templatesApplied <- TemplateRewriter.applyTemplates(root, rules, OutputContext(HTML))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
 
     assertEquals(result, Right(RootElement(BlockSequence("text"))))
@@ -650,7 +650,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
       root              = DocumentTreeRoot(rewrittenTree)
       rules             = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render)
-      templatesApplied <- TemplateRewriter.applyTemplates(root, rules, OutputContext("html"))
+      templatesApplied <- TemplateRewriter.applyTemplates(root, rules, OutputContext(HTML))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
     assertEquals(result, Right(expected))
   }

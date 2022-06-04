@@ -25,7 +25,7 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle.BundleProvider
 import laika.config.Origin.{DocumentScope, TreeScope}
 import laika.config._
-import laika.format.{Markdown, ReStructuredText}
+import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.FileIO
 import laika.io.helper.{InputBuilder, TestThemeBuilder}
 import laika.io.implicits._
@@ -131,7 +131,7 @@ class ConfigSpec extends CatsEffectSuite
     resultTree(root).map(_.content.collect { case doc: Document => doc }.head)
 
   def resultTree (root: DocumentTreeRoot): Either[ConfigError, DocumentTree] =
-    TemplateRewriter.applyTemplates(root, OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render), OutputContext("html")).map(_.tree)
+    TemplateRewriter.applyTemplates(root, OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render), OutputContext(HTML)).map(_.tree)
     
   implicit class ConfigResultOps[A] (res: Either[ConfigError, A]) {
     def toIO: IO[A] = IO.fromEither(res.leftMap(e => ConfigException(e)))

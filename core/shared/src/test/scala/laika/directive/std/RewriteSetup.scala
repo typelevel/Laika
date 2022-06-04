@@ -24,6 +24,7 @@ import laika.ast._
 import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import munit.Assertions
 import Path.Root
+import laika.format.HTML
 
 object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {
 
@@ -64,7 +65,7 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
         val root = DocumentTreeRoot(tree)
         val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render)
         TemplateRewriter
-          .applyTemplates(root, rules, OutputContext("html"))
+          .applyTemplates(root, rules, OutputContext(HTML))
           .leftMap(_.message)
           .flatMap { res =>
             res.tree

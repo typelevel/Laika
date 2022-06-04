@@ -21,6 +21,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleTrees}
 import laika.config.LaikaKeys
+import laika.format.HTML
 import laika.rewrite.nav.{ConfigurablePathTranslator, TargetFormats, TargetLookup, TranslatorConfig}
 import munit.FunSuite
 
@@ -52,8 +53,8 @@ class PathTranslatorSpec extends FunSuite {
 
   val translatorConfig = TranslatorConfig.readFrom(rootCursor.config).getOrElse(TranslatorConfig.empty)
   val lookup = new TargetLookup(rootCursor)
-  val versionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext("html"), Root / "tree-1" / "doc-3.md", lookup)
-  val unversionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext("html"), Root / "doc-1.md", lookup)
+  val versionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext(HTML), Root / "tree-1" / "doc-3.md", lookup)
+  val unversionedRef = ConfigurablePathTranslator(translatorConfig, OutputContext(HTML), Root / "doc-1.md", lookup)
   val epubRef = ConfigurablePathTranslator(translatorConfig, OutputContext("epub.xhtml", "epub"), Root / "tree-1" / "doc-3.md", lookup)
   
   

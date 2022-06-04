@@ -68,7 +68,7 @@ object FOConcatenation {
       )
       val renderer = Renderer.of(XSLFO).withConfig(opConfig).build
       val templateApplied = for {
-        rootCursor <- RootCursor(DocumentTreeRoot(DocumentTree(Root, Seq(finalDoc))), Some(OutputContext("fo","pdf")))
+        rootCursor <- RootCursor(DocumentTreeRoot(DocumentTree(Root, Seq(finalDoc))), Some(OutputContext(PDF)))
         docCursor  <- rootCursor.allDocuments.find(_.path == virtualPath).toRight(ValidationError("internal error"))
         rules      <- opConfig.rewriteRulesFor(finalDoc, RewritePhase.Render)
         doc        <- TemplateRewriter.applyTemplate(docCursor, _ => Right(rules), template)

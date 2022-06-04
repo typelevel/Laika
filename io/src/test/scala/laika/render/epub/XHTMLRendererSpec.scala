@@ -95,7 +95,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
       val tConfig = TranslatorConfig.readFrom(config).getOrElse(TranslatorConfig.empty)
       val lookup: Path => Option[PathAttributes] = path => 
         if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false)) else None
-      ConfigurablePathTranslator(tConfig, OutputContext("epub.xhtml", "epub"), Root / "doc", lookup)
+      ConfigurablePathTranslator(tConfig, OutputContext(EPUB), Root / "doc", lookup)
     }
     val html = """<p>some <a href="http://external/foo.html#ref">link</a> span</p>"""
     assertEquals(defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty), html)

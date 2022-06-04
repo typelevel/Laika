@@ -21,9 +21,9 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin, ValidationError}
+import laika.factory.{RenderFormat, TwoPhaseRenderFormat}
 import laika.parse.{LineSource, SourceCursor}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
 
@@ -135,4 +135,7 @@ case class OutputContext (fileSuffix: String, formatSelector: String)
 
 object OutputContext {
   def apply (format: String): OutputContext = apply(format, format)
+  def apply (format: RenderFormat[_]): OutputContext = apply(format.fileSuffix, format.description.toLowerCase)
+  def apply (format: TwoPhaseRenderFormat[_,_]): OutputContext = 
+    apply(format.interimFormat.fileSuffix, format.description.toLowerCase)
 }

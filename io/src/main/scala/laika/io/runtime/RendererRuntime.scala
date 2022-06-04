@@ -43,7 +43,7 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a character output format.
     */
   def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
-    run(op, op.theme.inputs, OutputContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
+    run(op, op.theme.inputs, OutputContext(op.renderer.format))
 
   private def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: OutputContext): F[RenderedTreeRoot[F]] = {  
     

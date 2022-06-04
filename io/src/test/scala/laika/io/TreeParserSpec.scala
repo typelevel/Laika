@@ -27,7 +27,7 @@ import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders}
 import laika.bundle._
 import laika.config.ConfigException
-import laika.format.{Markdown, ReStructuredText}
+import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
@@ -95,7 +95,7 @@ class TreeParserSpec
     
   def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = {
     val rules = OperationConfig.default.rewriteRulesFor(parsed.root, RewritePhase.Render)
-    TemplateRewriter.applyTemplates(parsed.root, rules, OutputContext("html")).toOption.get
+    TemplateRewriter.applyTemplates(parsed.root, rules, OutputContext(HTML)).toOption.get
   }
 
   def parsedTree (inputs: Seq[(Path, String)], f: InputTreeBuilder[IO] => InputTreeBuilder[IO] = identity): IO[DocumentTreeRoot] = defaultParser
