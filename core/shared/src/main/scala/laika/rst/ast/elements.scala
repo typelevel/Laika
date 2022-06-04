@@ -43,7 +43,7 @@ case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt
   override def rewriteChildren (rules: RewriteRules): Field = 
     copy(content = rules.rewriteBlocks(content), name = rules.rewriteSpans(name))
   
-  def withContent (newContent: Seq[Block]): Field = copy(content = content)
+  def withContent (newContent: Seq[Block]): Field = copy(content = newContent)
   def withOptions (options: Options): Field = copy(options = options)
 }
 
@@ -72,7 +72,7 @@ case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) e
 case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                               with BlockContainer {
   type Self = OptionListItem
-  def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
+  def withContent (newContent: Seq[Block]): OptionListItem = copy(content = newContent)
   def withOptions (options: Options): OptionListItem = copy(options = options)
 }
 
