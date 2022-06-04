@@ -16,11 +16,9 @@
 
 package laika.ast
 
-import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
@@ -58,16 +56,6 @@ trait BlockResolver extends Block with Unresolved {
  */
 abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) extends SpanResolver {
 
-  def result (value: ConfigResult[Option[ConfigValue]]): T
-
-  def resolve (cursor: DocumentCursor): Span = {
-    
-    cursor.resolveReference(ref) match {
-      case Right(Some(ASTValue(element: Element))) => result(Right(Some(ASTValue(TemplateRewriter.rewriteRules(cursor).rewriteElement(element)))))
-      case other                                   => result(other)
-    }
-  }
-
   protected def missing: InvalidSpan = InvalidSpan(s"Missing required reference: '$ref'", source)
   
   protected def invalid(cError: ConfigError): InvalidSpan = 
@@ -82,8 +70,8 @@ abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) ex
 case class TemplateContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) 
     extends ContextReference[TemplateSpan](ref, source) with TemplateSpan {
   type Self = TemplateContextReference
-  
-  def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
+
+  def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
     case Right(Some(ASTValue(s: TemplateSpan)))        => s
     case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
@@ -103,7 +91,7 @@ case class TemplateContextReference (ref: Key, required: Boolean, source: Source
 case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) extends ContextReference[Span](ref, source) {
   type Self = MarkupContextReference
 
-  def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
+  def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
     case Right(Some(ASTValue(s: Span)))         => s
     case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
@@ -222,7 +210,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
  */
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot
-  def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
+  def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = newContent)
   def withOptions (options: Options): EmbeddedRoot = copy(options = options)
 }
 object EmbeddedRoot extends BlockContainerCompanion {

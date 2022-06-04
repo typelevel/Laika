@@ -16,11 +16,11 @@
 
 package laika.rewrite
 
-import laika.ast.{BlockResolver, DocumentCursor, NavigationList, Replace, RewriteRules, Span, SpanResolver, TemplateElement, TemplateSpan}
+import laika.ast.{BlockResolver, DocumentCursor, Replace, RewriteRules, Span, SpanResolver, TemplateElement, TemplateSpan}
 
 object RecursiveResolverRules {
   
-  private def asTemplateSpan (span: Span) = span match {
+  private def asTemplateSpan (span: Span): TemplateSpan = span match {
     case t: TemplateSpan => t
     case s => TemplateElement(s)
   }
