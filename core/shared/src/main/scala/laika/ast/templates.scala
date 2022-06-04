@@ -214,7 +214,7 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 
 /** The root element of a template document tree.
  */
-case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer {
+case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpan with TemplateSpanContainer {
   type Self = TemplateRoot
   def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
   def withOptions (options: Options): TemplateRoot = copy(options = options)

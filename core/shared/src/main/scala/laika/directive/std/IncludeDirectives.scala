@@ -17,9 +17,10 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{Block, BlockSequence, DocumentCursor, Element, Path, TemplateSpan, TemplateSpanSequence}
+import laika.ast.{Block, BlockScope, BlockSequence, DocumentCursor, Element, Path, TemplateScope, TemplateSpan, TemplateSpanSequence}
 import laika.config.{ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin}
 import laika.directive.{Blocks, Templates}
+import laika.parse.SourceFragment
 import laika.rewrite.TemplateRewriter
 
 /** Provides the implementation for the standard include and embed directives.
@@ -46,26 +47,26 @@ object IncludeDirectives {
   
   private def resolveTemplateReference (path: Path, 
                                         attributes: Config, 
-                                        cursor: DocumentCursor, 
+                                        cursor: DocumentCursor,
+                                        source: SourceFragment,
                                         body: Option[Seq[TemplateSpan]] = None): Either[String, TemplateSpan] = {
     cursor.root.target.tree.selectTemplate(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(TemplateSpanSequence(_)), cursor.templatePath.getOrElse(cursor.path))
-        val rules = TemplateRewriter.rewriteRules(cursor.withReferenceContext(context))
-        TemplateSpanSequence(doc.content.rewriteChildren(rules).content)
+        TemplateScope(doc.content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
 
   private def resolveDocumentReference (path: Path, 
                                         attributes: Config, 
-                                        cursor: DocumentCursor, 
+                                        cursor: DocumentCursor,
+                                        source: SourceFragment,
                                         body: Option[Seq[Block]] = None): Either[String, Block] = {
     cursor.root.target.tree.selectDocument(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(BlockSequence(_)), cursor.path)
-        val rules = TemplateRewriter.rewriteRules(cursor.withReferenceContext(context))
-        BlockSequence(doc.content.rewriteChildren(rules).content)
+        BlockScope(doc.content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
@@ -76,8 +77,8 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], allAttributes, cursor).mapN { case (path, attributes, cursor) =>
-      resolveTemplateReference(path, attributes, cursor)
+    (attribute(0).as[Path], allAttributes, cursor, source).mapN { case (path, attributes, cursor, source) =>
+      resolveTemplateReference(path, attributes, cursor, source)
     }
   }
 
@@ -87,8 +88,9 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], allAttributes, parsedBody, cursor).mapN { case (path, attributes, body, cursor) =>
-      resolveTemplateReference(path, attributes, cursor, Some(body))
+    (attribute(0).as[Path], allAttributes, parsedBody, cursor, source).mapN { 
+      case (path, attributes, body, cursor, source) =>
+        resolveTemplateReference(path, attributes, cursor, source, Some(body))
     }
   }
 
@@ -98,8 +100,8 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], allAttributes, cursor).mapN { case (path, attributes, cursor) =>
-      resolveDocumentReference(path, attributes, cursor)
+    (attribute(0).as[Path], allAttributes, cursor, source).mapN { case (path, attributes, cursor, source) =>
+      resolveDocumentReference(path, attributes, cursor, source)
     }
   }
 
@@ -109,8 +111,9 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], allAttributes, parsedBody, cursor).mapN { case (path, attributes, body, cursor) =>
-      resolveDocumentReference(path, attributes, cursor, Some(body))
+    (attribute(0).as[Path], allAttributes, parsedBody, cursor, source).mapN { 
+      case (path, attributes, body, cursor, source) =>
+        resolveDocumentReference(path, attributes, cursor, source, Some(body))
     }
   }
   
