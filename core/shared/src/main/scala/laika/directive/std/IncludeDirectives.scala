@@ -53,7 +53,8 @@ object IncludeDirectives {
     cursor.root.target.tree.selectTemplate(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(TemplateSpanSequence(_)), cursor.templatePath.getOrElse(cursor.path))
-        TemplateScope(doc.content, context, source)
+        val content = TemplateSpanSequence(doc.content.content)
+        TemplateScope(content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
@@ -66,7 +67,8 @@ object IncludeDirectives {
     cursor.root.target.tree.selectDocument(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(BlockSequence(_)), cursor.path)
-        BlockScope(doc.content, context, source)
+        val content = BlockSequence(doc.content.content)
+        BlockScope(content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }

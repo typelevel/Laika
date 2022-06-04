@@ -17,6 +17,7 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
@@ -140,9 +141,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
     
     val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans.evalMap { spans =>
       val root = TemplateRoot(spans)
-      DocumentCursor(Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref", "value").build))
-        .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[TemplateRoot])
-        .left.map(_.message)
+      val doc = Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref", "value").build)
+      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render)
+        .map(_.rewriteBlock(root).asInstanceOf[TemplateRoot])
+        .leftMap(_.message)
     }
 
     def run (input: String, result: TemplateSpan)(implicit loc: munit.Location): Unit =

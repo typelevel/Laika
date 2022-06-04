@@ -17,6 +17,7 @@
 package laika.rewrite
 
 import cats.implicits._
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin, ValidationError}
@@ -42,30 +43,27 @@ trait TemplateRewriter {
   /** Selects and applies the templates for the specified output format to all documents 
     * within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
-    
+  def applyTemplates (tree: DocumentTreeRoot, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
     for {
       cursor   <- RootCursor(tree, Some(context))
       newCover <- cursor.coverDocument
                     .filter(shouldRender(context.formatSelector))
-                    .traverse(applyTemplate(_, context))
-      newTree  <- applyTemplates(cursor.tree, context)
+                    .traverse(applyTemplate(_, rules, context))
+      newTree  <- applyTemplates(cursor.tree, rules, context)
     } yield {
       cursor.target.copy(
         coverDocument = newCover,
         tree = newTree
       )
     }
-    
   }
   
-  private def applyTemplates (cursor: TreeCursor, context: OutputContext): Either[ConfigError, DocumentTree] = {
-
+  private def applyTemplates (cursor: TreeCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTree] = {
     for {
-      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, context))
+      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, rules, context))
       newContent <- cursor.children.filter(shouldRender(context.formatSelector)).toList.traverse {
-                      case doc: DocumentCursor => applyTemplate(doc, context)
-                      case tree: TreeCursor    => applyTemplates(tree, context)
+                      case doc: DocumentCursor => applyTemplate(doc, rules, context)
+                      case tree: TreeCursor    => applyTemplates(tree, rules, context)
                     }
     } yield {
       cursor.target.copy(
@@ -74,30 +72,31 @@ trait TemplateRewriter {
         templates = Nil
       )
     }
-    
   }
   
-  private def applyTemplate (cursor: DocumentCursor, context: OutputContext): Either[ConfigError, Document] =
-    selectTemplate(cursor, context.fileSuffix)
-      .map(_.getOrElse(defaultTemplate(context.fileSuffix)))
-      .flatMap(applyTemplate(cursor, _))
+  private def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, Document] = for {
+    template <- selectTemplate(cursor, context.fileSuffix).map(_.getOrElse(defaultTemplate(context.fileSuffix)))
+    doc      <- applyTemplate(cursor, rules, template)
+  } yield doc
 
   /** Applies the specified template to the target of the specified document cursor.
     */
-  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Either[ConfigError, Document] = {
-    template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).map { mergedConfig =>
+  def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, template: TemplateDocument): Either[ConfigError, Document] = {
+    template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).flatMap { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
         resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position),
         templatePath = Some(template.path)
       )
-      val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
-      val newRoot = newContent match {
-        case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
-        case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-        case other => RootElement(other)
-      }
-      cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
+      rules(cursorWithMergedConfig).map { docRules =>
+        val newContent = docRules.rewriteBlock(template.content)
+        val newRoot = newContent match {
+          case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
+          case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
+          case other => RootElement(other)
+        }
+        cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
+      } 
     }
   }
   
@@ -126,21 +125,6 @@ trait TemplateRewriter {
 
         Right(templateForTree(cursor.parent))
     }
-  }
-  
-  /** The default rewrite rules for template documents,
-    * responsible for replacing all span and block resolvers with the final resolved element they produce 
-    * based on the specified document cursor and its configuration.
-    */
-  def rewriteRules (cursor: DocumentCursor): RewriteRules = {
-
-    val renderPhaseRules =
-      Selections.FormatFilter(cursor).getOrElse(RewriteRules.empty) ++
-      NavigationList.FormatFilter(cursor).getOrElse(RewriteRules.empty) ++
-      TemplateFormatter(cursor).getOrElse(RewriteRules.empty) ++
-      UnresolvedNodeDetector(cursor).getOrElse(RewriteRules.empty)
-    
-    RecursiveResolverRules.applyTo(cursor, renderPhaseRules)
   }
   
 }

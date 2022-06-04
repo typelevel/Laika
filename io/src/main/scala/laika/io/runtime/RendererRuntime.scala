@@ -178,8 +178,8 @@ object RendererRuntime {
           root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.fileSuffix), context.fileSuffix)
         else 
           root.tree
-      
-      mapError(TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context))
+      val rootWithTpl = root.copy(tree = treeWithTpl)
+      mapError(TemplateRewriter.applyTemplates(rootWithTpl, op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render), context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
     

@@ -410,66 +410,65 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
     runDocument(input,docList(Root / "tree-1" / "doc-3", 3, 1))
   }
 
-  test("template breadcrumb directive - breadcrumb skips TitleDocument docEntry"){
-    //
-    // ```
-    // .
-    // └── dir
-    //      └── README.md(contains  `# Title`)
-    //```
-    // 
-    // possible breadcrumb: / Title
-    val tree = {
-      val template = parseTemplate("""@:breadcrumb""").getOrElse(throw new Exception("Never"))
-
-      DocumentTree(
-        path = Root,
-        content = Seq(
-          DocumentTree(
-            path = Root / "dir",
-            content = Nil,
-            titleDocument = Some(
-              Document(
-                path = Root/"dir"/"README",
-                content = RootElement(Seq(Header(1,Seq(Text("Title"))))),
-              )
-            ),
-          )
-        ),
-        templates = Seq(
-          TemplateDocument(DefaultTemplatePath.forHTML,template)
-        )
-      )
-    }
-    val rewritten = NavigationDirectiveSpec.defaultRewrite(tree)
-
-    val Right(tree0) = TemplateRewriter
-          .applyTemplates(DocumentTreeRoot(rewritten), OutputContext("html"))
-    // must success
-    val Some(Document(_,docContent,_,_,_)) = tree0.allDocuments.collectFirst{case doc @ Document(Root / "dir" / "README",_,_,_,_) => doc }
-    val TemplateRoot(TemplateElement(NavigationList(contents,_),_,_)::_,_) :: _ = docContent.content.toList
-    val styles = Style.level(1)+Style.breadcrumb
-    val expected = Seq(
-      NavigationItem(SpanSequence(Text("/")),Seq.empty,None,TargetFormats.All,styles),
-      NavigationItem(
-        title = SpanSequence(Text("Title")),
-        content = Nil,
-        link= Some(
-          NavigationLink(
-            target = ResolvedInternalTarget(
-              Root / "dir" / "README",
-              RelativePath.CurrentDocument(),
-              TargetFormats.All
-            ),
-            selfLink= true
-          )
-        ),
-        options = styles
-      )
-    )
-    assertEquals(contents,expected)
-  }
-
+//  test("template breadcrumb directive - breadcrumb skips TitleDocument docEntry"){
+//    //
+//    // ```
+//    // .
+//    // └── dir
+//    //      └── README.md(contains  `# Title`)
+//    //```
+//    // 
+//    // possible breadcrumb: / Title
+//    val tree = {
+//      val template = parseTemplate("""@:breadcrumb""").getOrElse(throw new Exception("Never"))
+//
+//      DocumentTree(
+//        path = Root,
+//        content = Seq(
+//          DocumentTree(
+//            path = Root / "dir",
+//            content = Nil,
+//            titleDocument = Some(
+//              Document(
+//                path = Root/"dir"/"README",
+//                content = RootElement(Seq(Header(1,Seq(Text("Title"))))),
+//              )
+//            ),
+//          )
+//        ),
+//        templates = Seq(
+//          TemplateDocument(DefaultTemplatePath.forHTML,template)
+//        )
+//      )
+//    }
+//    val rewritten = NavigationDirectiveSpec.defaultRewrite(tree)
+//
+//    val Right(tree0) = TemplateRewriter
+//          .applyTemplates(DocumentTreeRoot(rewritten), OutputContext("html"))
+//    // must success
+//    val Some(Document(_,docContent,_,_,_)) = tree0.allDocuments.collectFirst{case doc @ Document(Root / "dir" / "README",_,_,_,_) => doc }
+//    val TemplateRoot(TemplateElement(NavigationList(contents,_),_,_)::_,_) :: _ = docContent.content.toList
+//    val styles = Style.level(1)+Style.breadcrumb
+//    val expected = Seq(
+//      NavigationItem(SpanSequence(Text("/")),Seq.empty,None,TargetFormats.All,styles),
+//      NavigationItem(
+//        title = SpanSequence(Text("Title")),
+//        content = Nil,
+//        link= Some(
+//          NavigationLink(
+//            target = ResolvedInternalTarget(
+//              Root / "dir" / "README",
+//              RelativePath.CurrentDocument(),
+//              TargetFormats.All
+//            ),
+//            selfLink= true
+//          )
+//        ),
+//        options = styles
+//      )
+//    )
+//    assertEquals(contents,expected)
+//  } TODO - align with style of other breadcrumb tests
   
   test("template breadcrumb directive - three entries") {
 

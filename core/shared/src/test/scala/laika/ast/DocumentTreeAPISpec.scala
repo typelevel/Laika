@@ -17,6 +17,7 @@
 package laika.ast
 
 import cats.data.NonEmptyChain
+import laika.api.builder.OperationConfig
 import laika.config.{ArrayValue, Config, ConfigParser, DocumentConfigErrors, InvalidType, Key, LongValue, Origin, TreeConfigErrors, ValidationError}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
@@ -24,7 +25,7 @@ import laika.ast.sample.{BuilderKey, MunitDocumentTreeAssertions, ParagraphCompa
 import laika.config.Config.ConfigResult
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
 import laika.parse.GeneratedSource
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.{RecursiveResolverRules, TemplateRewriter}
 import munit.FunSuite
 
 
@@ -72,6 +73,12 @@ class DocumentTreeAPISpec extends FunSuite
   def firstDocCursor (tree: DocumentTree): ConfigResult[DocumentCursor] =
     TreeCursor(tree)
       .map(_.children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor])
+
+  def rulesFor (cursor: DocumentCursor): RewriteRules =
+    OperationConfig.default
+      .rewriteRulesFor(cursor.root.target, RewritePhase.Render)
+      .apply(cursor)
+      .getOrElse(RewriteRules.empty)
   
   
   test("access to the root tree when rewriting a document in the root tree") {
@@ -240,7 +247,7 @@ class DocumentTreeAPISpec extends FunSuite
   test("resolve a substitution reference to the source path of the previous document") { 
     val cursor = leafDocCursor(Some("cursor.previousDocument.sourcePath"))
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(p("/tree-2/doc-5")))
     )
   }
@@ -248,7 +255,7 @@ class DocumentTreeAPISpec extends FunSuite
   test("resolve a substitution reference to the output path of the previous document") {
     val cursor = leafDocCursor(Some("cursor.previousDocument.path"))
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(RawLink.internal(Root / "tree-2" / "doc-5")))
     )
   }
@@ -256,7 +263,7 @@ class DocumentTreeAPISpec extends FunSuite
   test("be empty for the next document in the final leaf node of the tree") { 
     val cursor = leafDocCursor(Some("cursor.nextDocument.path"))
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(p("")))
     )
   }
@@ -264,7 +271,7 @@ class DocumentTreeAPISpec extends FunSuite
   test("resolve a substitution reference to the source path of the parent document") { 
     val cursor = leafDocCursor(Some("cursor.parentDocument.sourcePath"))
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(p("/tree-2/README")))
     )
   }
@@ -272,7 +279,7 @@ class DocumentTreeAPISpec extends FunSuite
   test("resolve a substitution reference to the output path of the parent document") {
     val cursor = leafDocCursor(Some("cursor.parentDocument.path"))
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(RawLink.internal(Root / "tree-2" / "README")))
     )
   }
@@ -284,7 +291,7 @@ class DocumentTreeAPISpec extends FunSuite
       .get
     )
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(p("/tree-1/doc-4")))
     )
   }
@@ -296,7 +303,7 @@ class DocumentTreeAPISpec extends FunSuite
       .get
     )
     assertEquals(
-      cursor.flatMap(c => c.target.rewrite(TemplateRewriter.rewriteRules(c)).map(_.content)),
+      cursor.flatMap(c => c.target.rewrite(rulesFor(c)).map(_.content)),
       Right(RootElement(RawLink.internal(Root / "tree-1" / "doc-4")))
     )
   }

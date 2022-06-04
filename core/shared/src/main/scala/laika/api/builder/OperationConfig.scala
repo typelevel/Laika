@@ -26,6 +26,7 @@ import laika.directive.std.StandardDirectives
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
+import laika.rewrite.{RecursiveResolverRules, TemplateRewriter}
 import laika.rewrite.link.SlugBuilder
 
 import scala.annotation.tailrec
@@ -131,11 +132,14 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRulesFor (root: DocumentTreeRoot, phase: RewritePhase): RewriteRulesBuilder =
-    RewriteRules.chainFactories(
+  def rewriteRulesFor (root: DocumentTreeRoot, phase: RewritePhase): RewriteRulesBuilder = {
+    val baseRules = RewriteRules.chainFactories(
       mergedBundle.rewriteRules.lift(phase).getOrElse(Nil) ++ 
         RewriteRules.defaultsFor(root, phase, slugBuilder)
     )
+    if (phase == RewritePhase.Render) cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _)) // TODO - do this for all phases
+    else baseRules
+  }
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.

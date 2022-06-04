@@ -17,6 +17,7 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
@@ -159,9 +160,10 @@ class BlockDirectiveAPISpec extends FunSuite
       blockParsers = Seq(paragraphParser),
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement.evalMap { root =>
-      DocumentCursor(Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build))
-        .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[RootElement])
-        .left.map(_.message)
+      val doc = Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
+      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render) // TODO - use Resolve here
+        .map(_.rewriteBlock(root).asInstanceOf[RootElement])
+        .leftMap(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))

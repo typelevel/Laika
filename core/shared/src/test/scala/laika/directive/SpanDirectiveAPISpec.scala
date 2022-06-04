@@ -18,6 +18,7 @@ package laika.directive
 
 import cats.implicits._
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
@@ -176,9 +177,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
       markupExtensions = directiveSupport.markupExtensions
     ).standaloneSpanParser.evalMap { spans =>
       val seq = SpanSequence(spans)
-      DocumentCursor(Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref", "value").build))
-        .map(c => TemplateRewriter.rewriteRules(c).rewriteSpan(seq))
-        .left.map(_.message)
+      val doc = Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref", "value").build)
+      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render) // TODO - use Resolve here
+        .map(_.rewriteSpan(seq))
+        .leftMap(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidSpan = InvalidSpan(error, source(fragment, input))

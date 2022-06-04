@@ -16,12 +16,12 @@
 
 package laika.api
 
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
 
@@ -94,9 +94,10 @@ class ParseAPISpec extends FunSuite
                   |
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    val res = DocumentCursor(doc)
-      .flatMap(cursor => doc.rewrite(TemplateRewriter.rewriteRules(cursor)))
-      .map(_.content)
+    val res = for {
+      rules <- OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render)
+      rewritten <- doc.rewrite(rules)
+    } yield rewritten.content
     assertEquals(res, Right(RootElement(
       p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
       p("Text"),

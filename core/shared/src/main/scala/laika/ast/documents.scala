@@ -97,9 +97,9 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
    */
-  def applyTo (document: Document, outputContext: OutputContext): Either[ConfigError, Document] =
-    DocumentCursor(document, Some(outputContext))
-      .flatMap(TemplateRewriter.applyTemplate(_, this))
+//  def applyTo (document: Document, rules: RewriteRules, outputContext: OutputContext): Either[ConfigError, Document] =
+//    DocumentCursor(document, Some(outputContext))
+//      .flatMap(TemplateRewriter.applyTemplate(_, rules, this))
 
 }
 

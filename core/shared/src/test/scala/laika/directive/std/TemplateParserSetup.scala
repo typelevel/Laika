@@ -16,8 +16,11 @@
 
 package laika.directive.std
 
+import cats.syntax.all._
+import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{Config, ConfigParser}
+import laika.config.{Config, ConfigParser, ValidationError}
 import laika.directive.DirectiveSupport
 import laika.parse.SourceCursor
 import laika.parse.combinator.Parsers
@@ -39,19 +42,21 @@ trait TemplateParserSetup {
   def parseAndRewriteTemplate (input: String): Either[String, RootElement] = parseTemplateWithConfig(input, Config.empty)
   
   def parseTemplateWithConfig (input: String, config: String): Either[String, RootElement] =
-    ConfigParser.parse(config).resolve().left.map(_.message).flatMap(parseTemplateWithConfig(input, _))
+    ConfigParser.parse(config).resolve().leftMap(_.message).flatMap(parseTemplateWithConfig(input, _))
   
   def parseTemplateWithConfig (input: String, config: Config): Either[String, RootElement] = {
     
     def rewriteTemplate (tRoot: TemplateRoot, config: Config): Either[String, RootElement] = {
+      val docPath = Root / "docs" / "doc1.md"
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
-      val doc = Document(Path.Root / "docs" / "doc1.md", RootElement.empty, config = config)
-      DocumentCursor(doc).flatMap { cursor =>
-        TemplateRewriter
-          .applyTemplate(cursor, template)
-          .map(_.content)
-      }
-      .left.map(_.message)
+      val doc = Document(docPath, RootElement.empty, config = config)
+      val root = DocumentTreeRoot(DocumentTree(Root, Seq(DocumentTree(Root / "docs", Seq(doc)))))
+      val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render)
+      val res = for {
+        cursor <- RootCursor(root).flatMap(_.allDocuments.find(_.path == docPath).toRight(ValidationError("cursor under test missing")))
+        result <- TemplateRewriter.applyTemplate(cursor, rules, template)
+      } yield result.content
+      res.leftMap(_.message)
     }
     
     for {

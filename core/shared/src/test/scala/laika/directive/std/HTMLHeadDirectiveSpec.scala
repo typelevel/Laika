@@ -48,10 +48,12 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
       val inputTree = buildTree(Some(templatePath.name, root.content))
+      val resolveRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)
+      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Render)
       for {
-        tree     <- inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)).leftMap(_.message)
+        tree     <- inputTree.rewrite(resolveRules).leftMap(_.message)
         treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)
-        result   <- TemplateRewriter.applyTemplates(treeRoot, ctx).leftMap(_.message)
+        result   <- TemplateRewriter.applyTemplates(treeRoot, renderRules, ctx).leftMap(_.message)
       } yield result
     }
     

@@ -16,9 +16,11 @@
 
 package laika.directive.std
 
+import cats.instances.map
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{RootCursor, TreePosition, _}
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
 import laika.format.Markdown
@@ -152,8 +154,11 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     )
     val doc = Document(Root / "doc", RootElement(group))
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
-    val cursor = RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
-    val rewritten = cursor.flatMap(c => TemplateRewriter.applyTemplate(c, TemplateDocument(Root, TemplateRoot.fallback)))
+    val rewritten = for {
+      cursor <- RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
+      rules   = OperationConfig.default.rewriteRulesFor(tree, RewritePhase.Render)
+      doc    <- TemplateRewriter.applyTemplate(cursor, rules, TemplateDocument(Root, TemplateRoot.fallback))
+    } yield doc
     assertEquals(
       rewritten.map(_.content),
       Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))

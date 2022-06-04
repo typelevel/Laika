@@ -20,8 +20,9 @@ import cats.syntax.all._
 import laika.ast.RewriteRules.{ChainedRewriteRules, RewriteRulesBuilder}
 import laika.config.Config.ConfigResult
 import laika.config.ConfigErrors
+import laika.rewrite.{TemplateFormatter, UnresolvedNodeDetector}
 import laika.rewrite.link.LinkResolver
-import laika.rewrite.nav.SectionBuilder
+import laika.rewrite.nav.{SectionBuilder, Selections}
 
 import scala.annotation.tailrec
 
@@ -256,10 +257,11 @@ object RewriteRules {
     * These are not installed as part of any default extension bundle as they have specific
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
-  def defaultsFor (root: DocumentTreeRoot, phase: RewritePhase, slugBuilder: String => String): Seq[RewriteRulesBuilder] = 
-    if (phase == RewritePhase.Resolve) Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
-    else Nil
-
+  def defaultsFor (root: DocumentTreeRoot, phase: RewritePhase, slugBuilder: String => String): Seq[RewriteRulesBuilder] = phase match {
+    case RewritePhase.Build   => Nil
+    case RewritePhase.Resolve => Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
+    case RewritePhase.Render  => Seq(Selections.FormatFilter, NavigationList.FormatFilter, TemplateFormatter, UnresolvedNodeDetector)
+  }
 }
 
 /** Describes the action to be performed for a particular node in the document AST.
