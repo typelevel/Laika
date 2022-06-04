@@ -40,6 +40,32 @@ trait BlockResolver extends Block with Unresolved {
   def resolve (cursor: DocumentCursor): Block
 }
 
+trait ElementScope[E <: Element] extends Unresolved {
+  def content: E
+  def context: ConfigValue
+}
+
+case class BlockScope (content: Block, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
+  extends ElementScope[Block] with Block {
+  type Self = BlockScope
+  def withOptions (options: Options): BlockScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved block scope"
+}
+
+case class SpanScope (content: Span, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
+  extends ElementScope[Span] with Span {
+  type Self = SpanScope
+  def withOptions (options: Options): SpanScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved span scope"
+}
+
+case class TemplateScope (content: TemplateSpan, context: ConfigValue, source: SourceFragment, options: Options = NoOpt)
+  extends ElementScope[TemplateSpan] with TemplateSpan {
+  type Self = TemplateScope
+  def withOptions (options: Options): TemplateScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved template scope"
+}
+
 /** Represents a reference to a value from the context
  *  of the current document. The `ref` attribute
  *  is a simple path expression in dot notation

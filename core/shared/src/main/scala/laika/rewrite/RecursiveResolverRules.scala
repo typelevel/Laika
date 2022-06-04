@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.ast.{BlockResolver, DocumentCursor, Replace, RewriteRules, Span, SpanResolver, TemplateElement, TemplateSpan}
+import laika.ast._
 
 object RecursiveResolverRules {
   
@@ -26,12 +26,18 @@ object RecursiveResolverRules {
   }
   
   def applyTo (cursor: DocumentCursor, baseRules: RewriteRules): RewriteRules = {
+
+    def rulesForScope (scope: ElementScope[_]): RewriteRules = applyTo(cursor.withReferenceContext(scope.context), baseRules)
+    
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver => Replace(rules.rewriteBlock(ph.resolve(cursor)))
+      case scope: BlockScope => Replace(rulesForScope(scope).rewriteBlock(scope.content))
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver => Replace(rules.rewriteSpan(ph.resolve(cursor)))
+      case scope: SpanScope => Replace(rulesForScope(scope).rewriteSpan(scope.content))
     } ++ RewriteRules.forTemplates {
-      case ph: SpanResolver => Replace(rules.rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
+      case ph: SpanResolver     => Replace(rules.rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
+      case scope: TemplateScope => Replace(rulesForScope(scope).rewriteTemplateSpan(scope.content))
     } ++ baseRules
 
     rules
