@@ -20,7 +20,8 @@ import cats.syntax.all._
 import laika.ast.RewriteRules.{ChainedRewriteRules, RewriteRulesBuilder}
 import laika.config.Config.ConfigResult
 import laika.config.ConfigErrors
-import laika.rewrite.{TemplateFormatter, UnresolvedNodeDetector}
+import laika.factory.{RenderFormat, TwoPhaseRenderFormat}
+import laika.rewrite.{OutputContext, TemplateFormatter, UnresolvedNodeDetector}
 import laika.rewrite.link.LinkResolver
 import laika.rewrite.nav.{SectionBuilder, Selections}
 
@@ -258,9 +259,9 @@ object RewriteRules {
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
   def defaultsFor (root: DocumentTreeRoot, phase: RewritePhase, slugBuilder: String => String): Seq[RewriteRulesBuilder] = phase match {
-    case RewritePhase.Build   => Nil
-    case RewritePhase.Resolve => Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
-    case RewritePhase.Render  => Seq(Selections.FormatFilter, NavigationList.FormatFilter, TemplateFormatter, UnresolvedNodeDetector)
+    case RewritePhase.Build     => Nil
+    case RewritePhase.Resolve   => Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
+    case RewritePhase.Render(_) => Seq(Selections.FormatFilter, NavigationList.FormatFilter, TemplateFormatter, UnresolvedNodeDetector)
   }
 }
 
@@ -284,5 +285,9 @@ sealed trait RewritePhase
 case object RewritePhase {
   case object Build extends RewritePhase
   case object Resolve extends RewritePhase
-  case object Render extends RewritePhase
+  case class Render(context: OutputContext) extends RewritePhase
+  object Render {
+    def apply(format: RenderFormat[_]): Render = apply(OutputContext(format))
+    def apply(format: TwoPhaseRenderFormat[_,_]): Render = apply(OutputContext(format))
+  }
 }

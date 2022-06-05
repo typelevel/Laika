@@ -25,6 +25,7 @@ import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import munit.FunSuite
 import RewriteSetup._
+import laika.format.HTML
 
 class HTMLHeadDirectiveSpec extends FunSuite {
 
@@ -49,7 +50,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
       val inputTree = buildTree(Some(templatePath.name, root.content))
       val resolveRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)
-      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Render)
+      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Render(HTML))
       for {
         tree     <- inputTree.rewrite(resolveRules).leftMap(_.message)
         treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)

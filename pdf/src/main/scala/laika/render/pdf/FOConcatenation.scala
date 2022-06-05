@@ -70,7 +70,7 @@ object FOConcatenation {
       val templateApplied = for {
         rootCursor <- RootCursor(DocumentTreeRoot(DocumentTree(Root, Seq(finalDoc))), Some(OutputContext(PDF)))
         docCursor  <- rootCursor.allDocuments.find(_.path == virtualPath).toRight(ValidationError("internal error"))
-        rules      <- opConfig.rewriteRulesFor(finalDoc, RewritePhase.Render)
+        rules      <- opConfig.rewriteRulesFor(finalDoc, RewritePhase.Render(PDF))
         doc        <- TemplateRewriter.applyTemplate(docCursor, _ => Right(rules), template)
       } yield doc
       templateApplied

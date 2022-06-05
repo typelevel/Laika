@@ -94,7 +94,7 @@ class TreeParserSpec
     Document(path / name, RootElement(content))
     
   def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = {
-    val rules = OperationConfig.default.rewriteRulesFor(parsed.root, RewritePhase.Render)
+    val rules = OperationConfig.default.rewriteRulesFor(parsed.root, RewritePhase.Render(HTML))
     TemplateRewriter.applyTemplates(parsed.root, rules, OutputContext(HTML)).toOption.get
   }
 
@@ -122,7 +122,7 @@ class TreeParserSpec
       .use(_.fromInput(build(inputs)).parse)
       .flatMap { parsed =>
         val emptyDoc = Document(Root, RootElement.empty)
-        val rules = OperationConfig.default.rewriteRulesFor(emptyDoc, RewritePhase.Render)
+        val rules = OperationConfig.default.rewriteRulesFor(emptyDoc, RewritePhase.Render(HTML))
         IO.fromEither(rules.map(rules => 
           parsed.root.tree.templates.map { tpl =>
             tpl.content.rewriteChildren(rules)

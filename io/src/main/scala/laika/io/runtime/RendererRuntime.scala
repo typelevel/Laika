@@ -179,7 +179,8 @@ object RendererRuntime {
         else 
           root.tree
       val rootWithTpl = root.copy(tree = treeWithTpl)
-      mapError(TemplateRewriter.applyTemplates(rootWithTpl, op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render), context))
+      val rules = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
+      mapError(TemplateRewriter.applyTemplates(rootWithTpl, rules, context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
     

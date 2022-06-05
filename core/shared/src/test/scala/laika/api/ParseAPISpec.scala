@@ -20,8 +20,9 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import laika.parse.markup.DocumentParser.ParserError
+import laika.rewrite.OutputContext
 import munit.FunSuite
 
 
@@ -95,7 +96,7 @@ class ParseAPISpec extends FunSuite
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
     val res = for {
-      rules <- OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render)
+      rules <- OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(OutputContext(HTML)))
       rewritten <- doc.rewrite(rules)
     } yield rewritten.content
     assertEquals(res, Right(RootElement(

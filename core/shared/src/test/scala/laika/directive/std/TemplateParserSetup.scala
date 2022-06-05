@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{Config, ConfigParser, ValidationError}
 import laika.directive.DirectiveSupport
+import laika.format.HTML
 import laika.parse.SourceCursor
 import laika.parse.combinator.Parsers
 import laika.rewrite.TemplateRewriter
@@ -51,7 +52,7 @@ trait TemplateParserSetup {
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
       val doc = Document(docPath, RootElement.empty, config = config)
       val root = DocumentTreeRoot(DocumentTree(Root, Seq(DocumentTree(Root / "docs", Seq(doc)))))
-      val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render)
+      val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
       val res = for {
         cursor <- RootCursor(root).flatMap(_.allDocuments.find(_.path == docPath).toRight(ValidationError("cursor under test missing")))
         result <- TemplateRewriter.applyTemplate(cursor, rules, template)

@@ -80,7 +80,7 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     }
     .flatMap { tree =>
       IO.fromEither {
-        TemplateRewriter.applyTemplates(tree.root, OperationConfig.default.rewriteRulesFor(tree.root, RewritePhase.Render), OutputContext(HTML))
+        TemplateRewriter.applyTemplates(tree.root, OperationConfig.default.rewriteRulesFor(tree.root, RewritePhase.Render(HTML)), OutputContext(HTML))
           .left.map(ConfigException.apply)
           .flatMap { root =>
             root.tree.selectDocument("dir2/doc-4.md")

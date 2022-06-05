@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.config.ConfigBuilder
+import laika.format.HTML
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
 import laika.rewrite.TemplateRewriter
@@ -142,7 +143,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
     val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans.evalMap { spans =>
       val root = TemplateRoot(spans)
       val doc = Document(Root, RootElement(root), config = ConfigBuilder.empty.withValue("ref", "value").build)
-      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render)
+      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(HTML))
         .map(_.rewriteBlock(root).asInstanceOf[TemplateRoot])
         .leftMap(_.message)
     }

@@ -19,14 +19,14 @@ package laika.api
 import cats.syntax.all._
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewritePhase, RewriteRules, UnresolvedDocument}
+import laika.ast.{Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocument, ParserError}
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.OutputContext
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation. 
@@ -93,7 +93,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     def rewriteDocument (resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
-      phase3 <- rewritePhase(phase2, RewritePhase.Render) // TODO - remove this step from MarkupParser
+      phase3 <- rewritePhase(phase2, RewritePhase.Render(OutputContext("unknown"))) // TODO - remove this step from MarkupParser
       result <- InvalidDocument
                   .from(phase3, config.failOnMessages)
                   .map(ParserError(_))

@@ -26,7 +26,7 @@ import laika.directive.std.StandardDirectives
 import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.{RecursiveResolverRules, TemplateRewriter}
+import laika.rewrite.RecursiveResolverRules
 import laika.rewrite.link.SlugBuilder
 
 import scala.annotation.tailrec
@@ -137,7 +137,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
       mergedBundle.rewriteRules.lift(phase).getOrElse(Nil) ++ 
         RewriteRules.defaultsFor(root, phase, slugBuilder)
     )
-    if (phase == RewritePhase.Render) cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _)) // TODO - do this for all phases
+    if (phase.isInstanceOf[RewritePhase.Render]) cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _)) // TODO - do this for all phases
     else baseRules
   }
 

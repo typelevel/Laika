@@ -16,14 +16,13 @@
 
 package laika.directive.std
 
-import cats.instances.map
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.{RootCursor, TreePosition, _}
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import munit.FunSuite
@@ -156,7 +155,7 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
     val rewritten = for {
       cursor <- RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
-      rules   = OperationConfig.default.rewriteRulesFor(tree, RewritePhase.Render)
+      rules   = OperationConfig.default.rewriteRulesFor(tree, RewritePhase.Render(HTML))
       doc    <- TemplateRewriter.applyTemplate(cursor, rules, TemplateDocument(Root, TemplateRoot.fallback))
     } yield doc
     assertEquals(

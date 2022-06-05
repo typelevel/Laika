@@ -24,8 +24,9 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, MunitDocumentTreeAssertions, ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders}
 import laika.config.Config.ConfigResult
 import laika.config.Origin.{DocumentScope, Scope, TreeScope}
+import laika.format.HTML
 import laika.parse.GeneratedSource
-import laika.rewrite.{RecursiveResolverRules, TemplateRewriter}
+import laika.rewrite.{OutputContext, TemplateRewriter}
 import munit.FunSuite
 
 
@@ -76,7 +77,7 @@ class DocumentTreeAPISpec extends FunSuite
 
   def rulesFor (cursor: DocumentCursor): RewriteRules =
     OperationConfig.default
-      .rewriteRulesFor(cursor.root.target, RewritePhase.Render)
+      .rewriteRulesFor(cursor.root.target, RewritePhase.Render(OutputContext(HTML)))
       .apply(cursor)
       .getOrElse(RewriteRules.empty)
   
