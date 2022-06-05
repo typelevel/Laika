@@ -27,6 +27,8 @@ import laika.io.implicits._
 import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
 import laika.format.{HTML, Markdown}
 import laika.io.helper.TestThemeBuilder
+import laika.rewrite.OutputContext
+import laika.rewrite.nav.BasicPathTranslator
 import munit.FunSuite
 
 /**
@@ -97,7 +99,20 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(docTypeMatcher(Root / "bar"), Static())
   }
 
-
+  test("path translator - translator from app config is applied after translator from theme config") {
+    val themeBundles = Seq(BundleProvider.forPathTranslator(BundleOrigin.Theme) { p => 
+      p.parent / p.withBasename(p.basename + "-theme").relative
+    })
+    val appBundles = Seq(BundleProvider.forPathTranslator() { p =>
+      p.parent / p.withBasename(p.basename + "-app").relative
+    })
+    val testTree = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
+    val compoundTranslator = config(themeBundles, appBundles)
+      .pathTranslatorFor(testTree, OutputContext("html"))
+      .getOrElse(BasicPathTranslator("html"))
+    assertEquals(compoundTranslator.translate(Root / "doc.md"), Root / "doc-theme-app.html")
+  }
+  
   test("rewrite rules - merged from a markup extension and an app extension") {
     val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong => Replace(Literal(s.extractText)) })
     val appBundles =   Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) { case s: Emphasized => Replace(Literal(s.extractText)) })

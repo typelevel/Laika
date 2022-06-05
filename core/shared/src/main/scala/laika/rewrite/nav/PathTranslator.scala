@@ -74,12 +74,55 @@ trait PathTranslator {
   
 }
 
+/** Builders that apply additional functionality to existing path translator instances.
+  */
 object PathTranslator {
-  
+
+  /** Creates a new translator instance that behaves exactly like the specified translator
+    * except for ignoring all version configuration.
+    */
   def ignoreVersions (translator: PathTranslator): PathTranslator = translator match {
     case cpt: ConfigurablePathTranslator => 
       cpt.copy(targetLookup = cpt.targetLookup.andThen(_.map(_.copy(isVersioned = false))))
     case other => other
+  }
+
+  /** Creates a new translator instance that applies the specified path translator function
+    * before invoking the base translator.
+    */
+  def preTranslate (baseTranslator: PathTranslator)(f: Path => Path) =
+    new PathTranslatorExtension(baseTranslator, preTranslate = f)
+
+  /** Creates a new translator instance that applies the specified path translator function
+    * after invoking the base translator.
+    */
+  def postTranslate (baseTranslator: PathTranslator)(f: Path => Path) =
+    new PathTranslatorExtension(baseTranslator, postTranslate = f)
+  
+}
+
+private[laika] class PathTranslatorExtension (baseTranslator: PathTranslator,
+                                              preTranslate: Path => Path = identity,
+                                              postTranslate: Path => Path = identity,
+                                              refPath: Path = Root / "refPath") extends PathTranslator {
+
+  private val translatedRefPath = translate(refPath)
+
+  def getAttributes (path: Path): Option[PathAttributes] = baseTranslator.getAttributes(path)
+
+  def translate (input: Path): Path = postTranslate(baseTranslator.translate(preTranslate(input)))
+
+  def forReferencePath (path: Path): PathTranslator = new PathTranslatorExtension(
+    baseTranslator.forReferencePath(path),
+    preTranslate,
+    postTranslate,
+    path
+  )
+
+  def translate (input: RelativePath): RelativePath = {
+    val absolute = RelativeInternalTarget(input).relativeTo(refPath).absolutePath
+    val translated = translate(absolute)
+    translated.relativeTo(translatedRefPath)
   }
   
 }

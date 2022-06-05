@@ -340,6 +340,20 @@ class TreeRendererSpec extends CatsEffectSuite
       .render(HTMLRenderer.defaultTree, renderer)
       .assertEquals(Results.rootWithSingleDoc(Root / "doc.html", expected, HTMLRenderer.outputContext))
   }
+
+  test("tree with a single document to HTML using a path translator in a theme") {
+    val renderer = Renderer
+      .of(HTML)
+      .parallel[IO]
+      .withTheme(TestThemeBuilder.forBundle(BundleProvider.forPathTranslator()(_.withSuffix("xhtml"))))
+      .build
+
+    val expected = """<h1 id="title" class="title">Title</h1>
+                     |<p>bbb</p>""".stripMargin
+    HTMLRenderer
+      .render(HTMLRenderer.defaultTree, renderer)
+      .assertEquals(Results.rootWithSingleDoc(Root / "doc.xhtml", expected, HTMLRenderer.outputContext))
+  }
   
   private def renderOverrideBundle (appendChar: Char, origin: BundleOrigin): ExtensionBundle = BundleProvider.forOverrides(HTML.Overrides {
     case (fmt, Text(txt, _)) => fmt.text(txt + appendChar)

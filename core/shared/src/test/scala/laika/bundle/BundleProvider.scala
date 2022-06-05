@@ -22,6 +22,7 @@ import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.DocumentInput
+import laika.rewrite.nav.PathTranslator
 
 /**
   * @author Jens Halm
@@ -88,6 +89,14 @@ object BundleProvider {
 
     override def slugBuilder: Option[String => String] = Some(f)
 
+  }
+  
+  def forPathTranslator (origin: BundleOrigin = BundleOrigin.User)(f: Path => Path): ExtensionBundle = new TestExtensionBundle(origin) {
+    
+    override def extendPathTranslator: PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
+      case context => PathTranslator.postTranslate(context.baseTranslator)(f)
+    }
+    
   }
 
   def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle() {
