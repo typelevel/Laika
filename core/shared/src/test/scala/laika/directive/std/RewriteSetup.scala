@@ -59,7 +59,8 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
   
   private def rewriteTree (inputTree: DocumentTree): Either[String, RootElement] = {
     inputTree
-      .rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve))
+      .rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Build))
+      .flatMap(_.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)))
       .leftMap(_.message)
       .flatMap { tree =>
         val root = DocumentTreeRoot(tree)

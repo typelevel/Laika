@@ -23,8 +23,6 @@ import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
-import laika.api.builder.OperationConfig
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
@@ -531,10 +529,10 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
 
 }
 
-object NavigationDirectiveSpec {
-  def defaultRewrite(tree:DocumentTree):DocumentTree = {
-    tree.rewrite(
-      OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve)
-    ).getOrElse(throw new Exception("Never"))
-  }
-}
+//object NavigationDirectiveSpec {
+//  def defaultRewrite(tree:DocumentTree):DocumentTree = {
+//    tree.rewrite(
+//      OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve)
+//    ).getOrElse(throw new Exception("Never"))
+//  }
+//}
