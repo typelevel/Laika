@@ -137,6 +137,7 @@ class BlockDirectiveAPISpec extends FunSuite
         val source: SourceFragment = generatedSource("@:dir")
         val unresolvedMessage = "broken"
         def withOptions (options: Options): Self = copy(options = options)
+        def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
       }
       val directive = Blocks.create("dir") {
         Blocks.dsl.empty(DummyResolver())

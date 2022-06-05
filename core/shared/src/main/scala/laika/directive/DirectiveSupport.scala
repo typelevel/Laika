@@ -77,6 +77,8 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
 
     def withOptions(options: Options): LinkDirectiveResolver = copy(options = options)
 
+    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
     def unresolvedMessage: String = s"unresolved api directive for type $typeName"
   }
   

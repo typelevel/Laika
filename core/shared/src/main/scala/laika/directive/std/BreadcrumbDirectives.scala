@@ -77,6 +77,8 @@ object BreadcrumbDirectives {
 
     def withOptions (options: Options): BreadcrumbBuilder = copy(options = options)
 
+    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+    
     lazy val unresolvedMessage: String = "Unresolved breadcrumb builder"
   }
 

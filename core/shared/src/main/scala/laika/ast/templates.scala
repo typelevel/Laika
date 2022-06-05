@@ -28,6 +28,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
  */
 trait SpanResolver extends Span with Unresolved {
   def resolve (cursor: DocumentCursor): Span
+  def runsIn (phase: RewritePhase): Boolean
 }
 
 /** Represents a placeholder block element that needs
@@ -38,6 +39,7 @@ trait SpanResolver extends Span with Unresolved {
  */
 trait BlockResolver extends Block with Unresolved {
   def resolve (cursor: DocumentCursor): Block
+  def runsIn (phase: RewritePhase): Boolean
 }
 
 trait ElementScope[E <: Element] extends Unresolved {
@@ -108,7 +110,8 @@ case class TemplateContextReference (ref: Key, required: Boolean, source: Source
     case Left(configError)                             => TemplateElement(invalid(configError))
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
-
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+  
   lazy val unresolvedMessage: String = s"Unresolved template context reference with key '${ref.toString}'"
 }
 
@@ -127,6 +130,8 @@ case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFr
     case Left(configError)                      => invalid(configError)
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render] // TODO - test earlier phases
+  
   lazy val unresolvedMessage: String = s"Unresolved markup context reference with key '${ref.toString}'"
 }
 

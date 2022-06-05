@@ -305,6 +305,7 @@ case class IconReference (key: String, source: SourceFragment, options: Options 
   }
 
   def withOptions (options: ast.Options): IconReference = copy(options = options)
+  def runsIn (phase: RewritePhase): Boolean = true
   lazy val unresolvedMessage: String = s"Unresolved icon reference with key '$key'"
 } 
 
