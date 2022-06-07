@@ -49,13 +49,11 @@ class SelectionConfigSpec extends FunSuite {
 
   def run (config: Config): ConfigResult[NonEmptyVector[Selections]] = Selections
     .createCombinations(config)
-    .map(_.toNonEmptyVector.map(_._1.get[Selections]).sequence)
-    .flatten
+    .flatMap(_.toNonEmptyVector.traverse(_._1.get[Selections]))
 
   def runAndGetCoverImage (config: Config): ConfigResult[NonEmptyVector[Path]] = Selections
     .createCombinations(config)
-    .map(_.toNonEmptyVector.map(_._1.get[Path](epubCoverImgKey)).sequence)
-    .flatten
+    .flatMap(_.toNonEmptyVector.traverse(_._1.get[Path](epubCoverImgKey)))
 
 
   test("succeed with an empty config") {

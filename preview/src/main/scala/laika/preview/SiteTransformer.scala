@@ -155,7 +155,7 @@ private [preview] object SiteTransformer {
     for {
       p        <- parser.map(adjustConfig)
       html     <- htmlRenderer(p.config, p.theme)
-      bin      <- renderFormats.map(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))).sequence
+      bin      <- renderFormats.traverse(f => binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase)))
       vFiles   <- Resource.eval(StaticFileScanner.collectVersionedFiles(p.config))
       apiFiles <- collectAPIFiles(p.config)
     } yield {

@@ -61,7 +61,7 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
         }
     }
     
-    if (children.isEmpty) scanDirectory(file).flatMap(_.map(registerDirectory(_)).sequence)
+    if (children.isEmpty) scanDirectory(file).flatMap(_.traverse(registerDirectory(_)))
     else registerDirectory(file, children).map(List(_))
   }
   
@@ -150,8 +150,7 @@ private [preview] class SourceChangeWatcher[F[_]: Async] (service: WatchService,
             val newDirectories = processedEvents.flatMap(_.newDirectory)
             val updateF = if (needsUpdate) update else Async[F].unit
             val registrations = newDirectories
-              .map(registerRoot(_))
-              .sequence
+              .traverse(registerRoot(_))
               .flatMap(updateTargetMap)
             
             updateF <* registrations
