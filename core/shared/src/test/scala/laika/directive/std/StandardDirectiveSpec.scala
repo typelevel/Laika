@@ -248,6 +248,25 @@ class StandardDirectiveSpec extends FunSuite
     )
   }
 
+  test("style directive - body containing a header") {
+    val input = """aa
+                  |
+                  |@:style(foo)
+                  |
+                  |# Headline
+                  |
+                  |Text
+                  |
+                  |@:@
+                  |
+                  |bb""".stripMargin
+    run(input,
+      p("aa"),
+      BlockSequence(Header(1, "Headline").withId("headline"), p("Text")).withStyles("foo"),
+      p("bb")
+    )
+  }
+
   test("style directive - multiple styles") {
     val input = """aa
                   |

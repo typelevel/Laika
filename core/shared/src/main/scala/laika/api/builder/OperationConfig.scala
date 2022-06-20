@@ -137,8 +137,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
       mergedBundle.rewriteRules.lift(phase).getOrElse(Nil) ++ 
         RewriteRules.defaultsFor(root, phase, slugBuilder)
     )
-    if (phase.isInstanceOf[RewritePhase.Render]) cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _)) // TODO - do this for all phases
-    else baseRules
+    cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _, phase))
   }
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
