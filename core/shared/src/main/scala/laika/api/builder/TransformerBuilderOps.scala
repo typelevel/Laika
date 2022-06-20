@@ -52,7 +52,7 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
     override def rewriteRules: RewritePhaseBuilder = { 
-      case RewritePhase.Resolve   => Seq(newRules.copy(templateRules = Nil).asBuilder) // TODO - move to Build
+      case RewritePhase.Build     => Seq(newRules.copy(templateRules = Nil).asBuilder)
       case RewritePhase.Render(_) => Seq(RewriteRules(templateRules = newRules.templateRules).asBuilder)
     }
   })
