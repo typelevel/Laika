@@ -29,7 +29,8 @@ import laika.factory.RenderFormat
   * @author Jens Halm
   */
 class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
-                            val config: OperationConfig) extends RendererBuilderOps[FMT] {
+                            val config: OperationConfig,
+                            skipRewritePhase: Boolean = false) extends RendererBuilderOps[FMT] {
 
   type ThisType = RendererBuilder[FMT]
 
@@ -38,7 +39,7 @@ class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
   /** Applies all configuration specified with this builder
     * and returns a new Renderer instance.
     */
-  def build: Renderer = new Renderer(config) {
+  def build: Renderer = new Renderer(config, skipRewritePhase) {
     override type Formatter = FMT
     override def format: RenderFormat[FMT] = renderFormat
   }

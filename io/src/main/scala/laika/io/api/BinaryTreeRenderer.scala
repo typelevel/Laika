@@ -77,7 +77,7 @@ object BinaryTreeRenderer {
                                                 theme: Theme[F]): Resource[F, BinaryRenderer[F]] = {
     val combinedConfig = config.withBundles(theme.extensions)
     format.postProcessor.build(combinedConfig.baseConfig, theme).map { pp =>
-      val targetRenderer = new RendererBuilder(format.interimFormat, combinedConfig).build
+      val targetRenderer = new RendererBuilder(format.interimFormat, combinedConfig).build.skipRewritePhase
       BinaryRenderer(targetRenderer, format.prepareTree, pp, format.description)
     }
   }

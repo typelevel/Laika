@@ -20,22 +20,24 @@ import laika.api.Renderer
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{HTML, ReStructuredText}
+import laika.parse.markup.DocumentParser.RendererError
 import laika.rst.ast._
 import munit.FunSuite
 
 class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts {
  
   
-  def render (elem: Element): String = Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
+  def render (elem: Element): Either[RendererError, String] = 
+    Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
   
-  def render (elem: Element, messageFilter: MessageFilter): String = 
+  def render (elem: Element, messageFilter: MessageFilter): Either[RendererError, String] = 
     Renderer.of(HTML).renderMessages(messageFilter).using(ReStructuredText.extensions:_*).build.render(elem)
   
   
   test("render a doctest block") {
     val elem = DoctestBlock("some text")
     val html = """<pre class="doctest-block">&gt;&gt;&gt; some text</pre>"""
-    assertEquals(render(elem), html)
+    assertEquals(render(elem), Right(html))
   }
   
   test("render a field list") {
@@ -59,7 +61,7 @@ class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    assertEquals(render(elem), html)
+    assertEquals(render(elem), Right(html))
   }
   
   test("render a list of program options") {
@@ -86,7 +88,7 @@ class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
-    assertEquals(render(elem), html)
+    assertEquals(render(elem), Right(html))
   }
 
   test("render nested line blocks") {
@@ -98,7 +100,7 @@ class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts
                  |  </div>
                  |  <div class="line">3</div>
                  |</div>""".stripMargin
-    assertEquals(render(elem), html)
+    assertEquals(render(elem), Right(html))
   }
   
 }

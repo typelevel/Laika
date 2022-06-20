@@ -152,6 +152,6 @@ trait BlockContainerCompanion extends SpanContainerCompanion {
 }
 
 private[ast] object FormattedElementString {
-  private lazy val renderer: Renderer = Renderer.of(AST).build
+  private lazy val renderer: Renderer = Renderer.of(AST).build.skipRewritePhase
   def render (elem: Element): String = "\n" + renderer.render(elem) + "\n"
 }

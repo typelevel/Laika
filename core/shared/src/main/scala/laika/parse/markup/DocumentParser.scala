@@ -39,9 +39,19 @@ object DocumentParser {
   object DocumentInput {
     def apply(path: Path, input: String): DocumentInput = new DocumentInput(path, SourceCursor(input, path))
   }
+
+  sealed trait TransformationError
+  
+  case class RendererError (message: String, path: Path) extends
+    RuntimeException(s"Error rendering document '$path': $message") with TransformationError
+
+  object RendererError {
+    def apply(configError: ConfigError, path: Path): RendererError =
+      RendererError(s"Configuration Error: ${configError.message}", path)
+  }
   
   case class ParserError (message: String, path: Path) extends 
-    RuntimeException(s"Error parsing document '$path': $message")
+    RuntimeException(s"Error parsing document '$path': $message") with TransformationError
   
   object ParserError {
     

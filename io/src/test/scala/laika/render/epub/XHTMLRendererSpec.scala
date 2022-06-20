@@ -42,13 +42,13 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
   test("paragraph containing a citation link with an epub:type attribute") {
     val elem = p(Text("some "), CitationLink("ref", "label"), Text(" span"))
     val html = """<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>"""
-    assertEquals(defaultRenderer.render(elem), html)
+    assertEquals(defaultRenderer.render(elem), Right(html))
   }
 
   test("paragraph containing a footnote link with an epub:type attribute") {
     val elem = p(Text("some "), FootnoteLink("id", "label"), Text(" span"))
     val html = """<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>"""
-    assertEquals(defaultRenderer.render(elem), html)
+    assertEquals(defaultRenderer.render(elem), Right(html))
   }
 
   test("footnote with an epub:type attribute") {
@@ -58,7 +58,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
         |  <p>a</p>
         |  <p>b</p>
         |</aside>""".stripMargin
-    assertEquals(defaultRenderer.render(elem), html)
+    assertEquals(defaultRenderer.render(elem), Right(html))
   }
 
   test("citation with an epub:type attribute") {
@@ -68,7 +68,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
         |  <p>a</p>
         |  <p>b</p>
         |</aside>""".stripMargin
-    assertEquals(defaultRenderer.render(elem), html)
+    assertEquals(defaultRenderer.render(elem), Right(html))
   }
 
   test("choice group without selections") {
@@ -84,7 +84,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
       |<p>common</p>
       |<p>33
       |44</p>""".stripMargin
-    assertEquals(defaultRenderer.render(elem), html)
+    assertEquals(defaultRenderer.render(elem), Right(html))
   }
 
   test("translate to external URL when an internal link is not defined for EPUB as a target") {
@@ -98,7 +98,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
       ConfigurablePathTranslator(tConfig, OutputContext(EPUB), Root / "doc", lookup)
     }
     val html = """<p>some <a href="http://external/foo.html#ref">link</a> span</p>"""
-    assertEquals(defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty), html)
+    assertEquals(defaultRenderer.render(elem, Root / "doc", translator, StyleDeclarationSet.empty), Right(html))
   }
     
 }

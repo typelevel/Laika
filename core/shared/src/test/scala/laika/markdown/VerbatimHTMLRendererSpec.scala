@@ -34,7 +34,7 @@ class VerbatimHTMLRendererSpec extends FunSuite
   }
    
   def run (elem: Element, expected: String)(implicit loc: munit.Location): Unit =
-    assertEquals(renderer.render(elem), expected)
+    assertEquals(renderer.render(elem), Right(expected))
   
   
   test("render an HTML character reference unescaped") {

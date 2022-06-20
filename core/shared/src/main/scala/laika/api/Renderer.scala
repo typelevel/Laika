@@ -16,10 +16,13 @@
 
 package laika.api
 
+import cats.syntax.all._
 import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.factory.{MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.parse.markup.DocumentParser.RendererError
+import laika.rewrite.OutputContext
 import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
 
 /** Performs a render operation from a document AST to a target format
@@ -48,14 +51,14 @@ import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
   *
   * @author Jens Halm
   */
-abstract class Renderer (val config: OperationConfig) {
+abstract class Renderer (val config: OperationConfig, skipRewritePhase: Boolean = false) { self =>
 
   type Formatter
 
   def format: RenderFormat[Formatter]
   
   def forInputFormat (markupFormat: MarkupFormat): Renderer = 
-    new RendererBuilder(format, config.withBundlesFor(markupFormat)).build
+    new RendererBuilder(format, config.withBundlesFor(markupFormat), skipRewritePhase).build
 
   private lazy val renderFunction: (Formatter, Element) => String = (fmt, element) =>
     config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String]((fmt, element), {
@@ -66,42 +69,65 @@ abstract class Renderer (val config: OperationConfig) {
 
   /** Renders the specified document as a String.
     */
-  def render (doc: Document): String = render(doc.content, doc.path)
+  def render (doc: Document): Either[RendererError, String] = render(doc.content, doc.path)
 
   /** Renders the specified document as a String, using the given path translator and styles.
     * 
-    * Currently only PDF/XSL-FO output processes styles, all other formats
-    * will ignore them.
+    * Currently only PDF/XSL-FO output processes styles, all other formats will ignore them.
     */
-  def render (doc: Document, pathTranslator: PathTranslator, styles: StyleDeclarationSet): String = 
+  def render (doc: Document, pathTranslator: PathTranslator, styles: StyleDeclarationSet): Either[RendererError, String] = 
     render(doc.content, doc.path, pathTranslator, styles)
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): String = render(element, (Root / "doc").withSuffix(format.fileSuffix))
+  def render (element: Element): Either[RendererError, String] = 
+    render(element, (Root / "doc").withSuffix(format.fileSuffix))
 
   /** Renders the specified element as a String.
     * 
-    * The provided (virtual) path may be used by renderers for cross-linking between
-    * documents.
+    * The provided (virtual) path may be used by renderers for cross-linking between documents.
     */
-  def render (element: Element, path: Path): String = render(element, path, defaultPathTranslator, StyleDeclarationSet.empty)
+  def render (element: Element, path: Path): Either[RendererError, String] = 
+    render(element, path, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified element as a String, using the given path translator and styles.
     * 
-    * Currently only PDF/XSL-FO output processes styles, all other formats
-    * will ignore them.
+    * Currently only PDF/XSL-FO output processes styles, all other formats will ignore them.
     *
-    * The provided (virtual) path may be used by renderers for cross-linking between
-    * documents.
+    * The provided (virtual) path may be used by renderers for cross-linking between documents.
     */
-  def render (element: Element, path: Path, pathTranslator: PathTranslator, styles: StyleDeclarationSet): String = {
+  def render (element: Element, path: Path, pathTranslator: PathTranslator, styles: StyleDeclarationSet): Either[RendererError, String] = {
 
-    val renderContext = RenderContext(renderFunction, element, styles, path, pathTranslator, config)
+    def rewrite: Either[RendererError, Element] = {
+      val rootElement = element match {
+        case root: RootElement => root
+        case block: Block => RootElement(block)
+        case span: Span => RootElement(Paragraph(span))
+        case other => RootElement(Paragraph(TemplateElement(other)))
+      }
+      config
+        .rewriteRulesFor(Document(path, rootElement), RewritePhase.Render(OutputContext(format)))
+        .map(_.rewriteElement(element))
+        .leftMap(RendererError(_, path))
+    }
 
-    val formatter = format.formatterFactory(renderContext)
+    (if (skipRewritePhase) Right(element) else rewrite).map { elementToRender =>
+      
+      val renderContext = RenderContext(renderFunction, elementToRender, styles, path, pathTranslator, config)
+  
+      val formatter = format.formatterFactory(renderContext)
+  
+      renderFunction(formatter, elementToRender)
+    }
+  }
 
-    renderFunction(formatter, element)
+  /** Creates a new instance that will skip the rewrite phase when rendering elements.
+    * 
+    * Useful when rewriting has already been performed by a processing step external to the the library's core APIs.
+    */
+  def skipRewritePhase: Renderer = new Renderer(config, skipRewritePhase = true) {
+    type Formatter = self.Formatter
+    def format = self.format
   }
 
 }

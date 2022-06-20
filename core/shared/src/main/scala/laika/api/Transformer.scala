@@ -20,7 +20,7 @@ import laika.api.builder.{OperationConfig, TransformerBuilder, TwoPhaseTransform
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.factory.{MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
-import laika.parse.markup.DocumentParser.ParserError
+import laika.parse.markup.DocumentParser.TransformationError
 
 /** Performs a transformation from text markup like Markdown or reStructuredText 
   * to a target format like HTML as a String. 
@@ -45,10 +45,10 @@ import laika.parse.markup.DocumentParser.ParserError
   */
 class Transformer (val parser: MarkupParser, val renderer: Renderer) {
 
-  def transform (input: String): Either[ParserError, String] = transform(input, Root)
+  def transform (input: String): Either[TransformationError, String] = transform(input, Root)
 
-  def transform (input: String, path: Path): Either[ParserError, String] =
-    parser.parse(input, path).map(renderer.render)
+  def transform (input: String, path: Path): Either[TransformationError, String] =
+    parser.parse(input, path).flatMap(renderer.render)
 
 }
 

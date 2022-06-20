@@ -208,7 +208,7 @@ object Selections {
         .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
         .toMap
 
-      val selections: ConfigResult[Map[String, String]] = cursor.root.config
+      val selections: ConfigResult[Map[String, String]] = cursor.config
         .getOpt[Selections]
         .map(_.getOrElse(Selections.empty))
         .map(extractMap)

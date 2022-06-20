@@ -93,11 +93,10 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
     def rewriteDocument (resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
-      phase3 <- rewritePhase(phase2, RewritePhase.Render(OutputContext("unknown"))) // TODO - remove this step from MarkupParser
       result <- InvalidDocument
-                  .from(phase3, config.failOnMessages)
+                  .from(phase2, config.failOnMessages)
                   .map(ParserError(_))
-                  .toLeft(phase3)
+                  .toLeft(phase2)
     } yield result
     
     for {

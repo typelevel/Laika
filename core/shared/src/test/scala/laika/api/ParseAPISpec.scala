@@ -28,7 +28,8 @@ import munit.FunSuite
 
 class ParseAPISpec extends FunSuite
                    with ParagraphCompanionShortcuts
-                   with TestSourceBuilders {
+                   with TestSourceBuilders 
+                   with RenderPhaseRewrite {
   
   
   val parser: MarkupParser = MarkupParser.of(Markdown).build
@@ -53,7 +54,8 @@ class ParseAPISpec extends FunSuite
   test("set a config value programmatically") {
     val input = "aa ${prop} bb"
     val parser = MarkupParser.of(Markdown).withConfigValue("prop", "foo").build
-    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(
+    val result = parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content)
+    assertEquals(result, Right(RootElement(p(
       Text("aa foo bb")
     ))))
   }

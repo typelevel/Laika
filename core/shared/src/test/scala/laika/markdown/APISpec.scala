@@ -17,14 +17,14 @@
 package laika.markdown
 
 import cats.implicits._
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{Block, RootElement, Text}
 import laika.directive.DirectiveRegistry
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import munit.FunSuite
 
-class APISpec extends FunSuite with ParagraphCompanionShortcuts {
+class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
   
   
   object BlockDirectives {
@@ -54,7 +54,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
     private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
 
     def runWith (input: String, parser: MarkupParser, expected: RootElement)(implicit loc: munit.Location): Unit = {
-      val res = parser.parse(input).map(_.content)
+      val res = parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content)
       assertEquals(res, Right(expected))
     }
     def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, parser, RootElement(expected))
@@ -84,7 +84,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
     private lazy val strictParser = MarkupParser.of(Markdown).using(Registry).strict.build
 
     def runWith (input: String, parser: MarkupParser, expected: RootElement)(implicit loc: munit.Location): Unit = {
-      val res = parser.parse(input).map(_.content)
+      val res = parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content)
       assertEquals(res, Right(expected))
     }
     def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit = runWith(input, parser, RootElement(expected))
