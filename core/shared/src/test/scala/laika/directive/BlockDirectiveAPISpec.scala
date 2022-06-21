@@ -17,6 +17,7 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.RenderPhaseRewrite
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
@@ -146,7 +147,7 @@ class BlockDirectiveAPISpec extends FunSuite
     
   }
   
-  trait BlockParser {
+  trait BlockParser extends RenderPhaseRewrite {
 
     def directive: Blocks.Directive
     
@@ -163,9 +164,7 @@ class BlockDirectiveAPISpec extends FunSuite
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement.evalMap { root =>
       val doc = Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
-      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(HTML)) // TODO - use Resolve here
-        .map(_.rewriteBlock(root).asInstanceOf[RootElement])
-        .leftMap(_.message)
+      rewrite(HTML)(doc).map(_.content).leftMap(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))

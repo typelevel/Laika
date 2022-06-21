@@ -18,7 +18,6 @@ package laika.directive.std
 
 import cats.syntax.all._
 import laika.api.builder.OperationConfig
-import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees}
 import laika.ast._
 import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
@@ -38,16 +37,22 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
   def buildTree (template: Option[(String, Seq[TemplateSpan])] = None, 
                  docUnderTest: Option[Seq[Block]] = None, 
                  hasTitleDocs: Boolean = false,
-                 includeTargetFormatConfig: Boolean = false): DocumentTree = {
+                 includeTargetFormatConfig: Boolean = false,
+                 docUnderTestIsTitle: Boolean = false): DocumentTree = {
     
     def templateF = template.fold[SampleSixDocuments => SampleSixDocuments](identity) { 
       case (name, spans) => _.root.template(name, spans) 
     }
     val titleDocs: SampleSixDocuments => SampleSixDocuments = if (hasTitleDocs) _.titleDocuments(includeRoot = false) else identity // TODO - cleanup
     
+    val docContent = docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6)))
+    val docContentF: SampleSixDocuments => SampleSixDocuments = 
+      if (docUnderTestIsTitle) _.tree2.titleDoc.content(docContent)
+      else _.doc6.content(docContent)
+    
     SampleTrees.sixDocuments
       .docContent(SampleContent.fourSections)
-      .doc6.content(docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6))))
+      .apply(docContentF)
       .tree1.config(SampleConfig.title("Tree 1"))
       .tree2.config(SampleConfig.title("Tree 2")) // TODO - generalize
       .apply(titleDocs)
@@ -57,7 +62,7 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
       .tree
   }
   
-  private def rewriteTree (inputTree: DocumentTree): Either[String, RootElement] = {
+  private def rewriteTree (inputTree: DocumentTree, pathUnderTest: Path = Root / "tree-2" / "doc-6"): Either[String, RootElement] = {
     inputTree
       .rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Build))
       .flatMap(_.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)))
@@ -70,7 +75,7 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
           .leftMap(_.message)
           .flatMap { res =>
             res.tree
-              .selectDocument(CurrentTree / "tree-2" / "doc-6")
+              .selectDocument(pathUnderTest.relative)
               .map(_.content)
               .toRight("document under test missing")
           }
@@ -88,12 +93,19 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
 
   def parseDocumentAndRewrite (markup: String, 
                                hasTitleDocs: Boolean = false, 
-                               includeTargetFormatConfig: Boolean = false): Either[String, RootElement] = {
-    parseUnresolved(markup, Root / "sub2" / "doc6")
+                               includeTargetFormatConfig: Boolean = false,
+                               docUnderTestIsTitle: Boolean = false): Either[String, RootElement] = {
+    val pathUnderTest = if (docUnderTestIsTitle) Root / "tree-2" / "README" else Root / "tree-2" / "doc-6"
+    parseUnresolved(markup, pathUnderTest)
       .left.map(_.message)
       .flatMap { markupDoc => 
-        rewriteTree(buildTree(None, Some(markupDoc.content.content), 
-          hasTitleDocs = hasTitleDocs, includeTargetFormatConfig = includeTargetFormatConfig))
+        val tree = buildTree(None, 
+          Some(markupDoc.content.content),
+          hasTitleDocs = hasTitleDocs, 
+          includeTargetFormatConfig = includeTargetFormatConfig, 
+          docUnderTestIsTitle = docUnderTestIsTitle
+        )
+        rewriteTree(tree, pathUnderTest)
       }
   }
 

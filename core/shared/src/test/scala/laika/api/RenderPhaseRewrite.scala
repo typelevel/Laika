@@ -2,8 +2,7 @@ package laika.api
 
 import cats.syntax.all._
 import laika.api.builder.OperationConfig
-import laika.ast.{Document, DocumentTreeRoot, RewritePhase}
-import laika.config.TreeConfigErrors
+import laika.ast.{Document, RewritePhase}
 import laika.factory.RenderFormat
 import laika.parse.markup.DocumentParser.RendererError
 

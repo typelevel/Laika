@@ -89,9 +89,6 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
           err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
           res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
         )
-        // In the current design for rewrite rules which does not allow to specify a phase to be executed in,
-        // we need to insert a span resolver to get into a later phase where target ids have all been resolved.
-        // TODO - the interim resolver is no longer necessary once the phase migration is complete
       }.asBuilder)
     }
 

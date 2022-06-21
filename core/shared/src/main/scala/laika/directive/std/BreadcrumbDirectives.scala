@@ -21,7 +21,6 @@ import laika.ast._
 import laika.directive.{Blocks, Templates}
 import laika.parse.SourceFragment
 import scala.annotation.tailrec
-import laika.rewrite.nav.TitleDocumentConfig
 
 /** Provides the implementation for the standard breadcrumb directives.
   *
