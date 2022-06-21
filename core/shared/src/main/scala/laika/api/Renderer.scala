@@ -51,14 +51,14 @@ import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
   *
   * @author Jens Halm
   */
-abstract class Renderer (val config: OperationConfig, skipRewritePhase: Boolean = false) { self =>
+abstract class Renderer (val config: OperationConfig, skipRewrite: Boolean = false) { self =>
 
   type Formatter
 
   def format: RenderFormat[Formatter]
   
   def forInputFormat (markupFormat: MarkupFormat): Renderer = 
-    new RendererBuilder(format, config.withBundlesFor(markupFormat), skipRewritePhase).build
+    new RendererBuilder(format, config.withBundlesFor(markupFormat), skipRewrite).build
 
   private lazy val renderFunction: (Formatter, Element) => String = (fmt, element) =>
     config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String]((fmt, element), {
@@ -111,7 +111,7 @@ abstract class Renderer (val config: OperationConfig, skipRewritePhase: Boolean 
         .leftMap(RendererError(_, path))
     }
 
-    (if (skipRewritePhase) Right(element) else rewrite).map { elementToRender =>
+    (if (skipRewrite) Right(element) else rewrite).map { elementToRender =>
       
       val renderContext = RenderContext(renderFunction, elementToRender, styles, path, pathTranslator, config)
   
@@ -125,7 +125,7 @@ abstract class Renderer (val config: OperationConfig, skipRewritePhase: Boolean 
     * 
     * Useful when rewriting has already been performed by a processing step external to the the library's core APIs.
     */
-  def skipRewritePhase: Renderer = new Renderer(config, skipRewritePhase = true) {
+  def skipRewritePhase: Renderer = new Renderer(config, skipRewrite = true) {
     type Formatter = self.Formatter
     def format = self.format
   }
