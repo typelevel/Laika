@@ -128,6 +128,11 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  To replace all link reference elements with actual link elements, 
     *  the rewrite rule needs to know all LinkDefinitions the document tree contains.
     *  
+    *  For being able to perform inspection tasks like this, the rule is executed in a later
+    *  phase than rules added via `usingRules`.
+    *  This means that such a rule is not able to insert any link targets itself, 
+    *  as the processing for those has already happened when this rule is run.
+    *  
     *  The builder function returns an `Either[ConfigError, RewriteRules]` which allows for validation of
     *  document configuration before creating the rule.
     *
@@ -145,10 +150,15 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  any element container passed to the rule only contains children which have already
     *  been processed.
     */
-  def buildingRule (phase: RewritePhase)(newRules: RewriteRulesBuilder): ThisType = using(new ExtensionBundle {
+  def buildingRules (newRules: RewriteRulesBuilder): ThisType = using(new ExtensionBundle {
     val description: String = "Custom rewrite rules"
     override val useInStrictMode: Boolean = true
-    override def rewriteRules: RewritePhaseBuilder = { case p if p == phase => Seq(newRules) }
+    override def rewriteRules: RewritePhaseBuilder = { 
+      case RewritePhase.Render(_) => Seq(newRules) 
+    }
   })
+
+  @deprecated("use buildingRules", "0.19.0")
+  def buildingRule (newRules: RewriteRulesBuilder): ThisType = buildingRules(newRules)
 
 }
