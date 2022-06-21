@@ -36,7 +36,7 @@ import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -95,7 +95,7 @@ class TreeParserSpec
     
   def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = {
     val rules = OperationConfig.default.rewriteRulesFor(parsed.root, RewritePhase.Render(HTML))
-    TemplateRewriter.applyTemplates(parsed.root, rules, OutputContext(HTML)).toOption.get
+    parsed.root.applyTemplates(rules, OutputContext(HTML)).toOption.get
   }
 
   def parsedTree (inputs: Seq[(Path, String)], f: InputTreeBuilder[IO] => InputTreeBuilder[IO] = identity): IO[DocumentTreeRoot] = defaultParser

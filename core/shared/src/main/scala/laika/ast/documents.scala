@@ -97,9 +97,9 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: ConfigPa
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
    */
-//  def applyTo (document: Document, rules: RewriteRules, outputContext: OutputContext): Either[ConfigError, Document] =
-//    DocumentCursor(document, Some(outputContext))
-//      .flatMap(TemplateRewriter.applyTemplate(_, rules, this))
+  def applyTo (document: Document, rules: RewriteRules, outputContext: OutputContext): Either[ConfigError, Document] =
+    DocumentCursor(document, Some(outputContext))
+      .flatMap(TemplateRewriter.applyTemplate(_, _ => Right(rules), this))
 
 }
 
@@ -552,5 +552,11 @@ case class DocumentTreeRoot (tree: DocumentTree,
     */
   def rewrite (rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = 
     RootCursor(this).flatMap(_.rewriteTarget(rules))
+
+  /** Selects and applies the templates contained in this document tree for the specified output format to all documents 
+    * within this tree recursively.
+    */
+  def applyTemplates (rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTreeRoot] =
+    TemplateRewriter.applyTemplates(this, rules, context)
 
 }

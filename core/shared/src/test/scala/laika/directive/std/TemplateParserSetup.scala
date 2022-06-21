@@ -47,7 +47,7 @@ trait TemplateParserSetup {
   
   def parseTemplateWithConfig (input: String, config: Config): Either[String, RootElement] = {
     
-    def rewriteTemplate (tRoot: TemplateRoot, config: Config): Either[String, RootElement] = {
+    def rewriteTemplate (tRoot: TemplateRoot): Either[String, RootElement] = {
       val docPath = Root / "docs" / "doc1.md"
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
       val doc = Document(docPath, RootElement.empty, config = config)
@@ -62,7 +62,7 @@ trait TemplateParserSetup {
     
     for {
       tRoot  <- parseTemplate(input)
-      res    <- rewriteTemplate(tRoot, config)
+      res    <- rewriteTemplate(tRoot)
     } yield res
   }
   

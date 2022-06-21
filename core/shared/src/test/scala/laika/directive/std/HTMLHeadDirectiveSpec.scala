@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import munit.FunSuite
 import RewriteSetup._
 import laika.format.HTML
@@ -54,7 +54,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
       for {
         tree     <- inputTree.rewrite(resolveRules).leftMap(_.message)
         treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)
-        result   <- TemplateRewriter.applyTemplates(treeRoot, renderRules, ctx).leftMap(_.message)
+        result   <- treeRoot.applyTemplates(renderRules, ctx).leftMap(_.message)
       } yield result
     }
     

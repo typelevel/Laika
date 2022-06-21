@@ -29,7 +29,7 @@ import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter, Versions}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, Versions}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -182,7 +182,7 @@ object RendererRuntime {
           root.tree
       val rootWithTpl = root.copy(tree = treeWithTpl)
       val rules = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
-      mapError(TemplateRewriter.applyTemplates(rootWithTpl, rules, context))
+      mapError(rootWithTpl.applyTemplates(rules, context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
     

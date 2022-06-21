@@ -27,7 +27,7 @@ import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.annotation.tailrec
 
-trait TemplateRewriter {
+private[laika] trait TemplateRewriter {
 
   private val defaultTemplateRoot: TemplateRoot = {
     val src = s"$${${CursorKeys.documentContent}}"
@@ -129,7 +129,7 @@ trait TemplateRewriter {
   
 }
 
-object TemplateRewriter extends TemplateRewriter
+private[laika] object TemplateRewriter extends TemplateRewriter
 
 case class OutputContext (fileSuffix: String, formatSelector: String)
 

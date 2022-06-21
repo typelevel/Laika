@@ -70,8 +70,8 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
       .flatMap { tree =>
         val root = DocumentTreeRoot(tree)
         val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
-        TemplateRewriter
-          .applyTemplates(root, rules, OutputContext(HTML))
+        root
+          .applyTemplates(rules, OutputContext(HTML))
           .leftMap(_.message)
           .flatMap { res =>
             res.tree
