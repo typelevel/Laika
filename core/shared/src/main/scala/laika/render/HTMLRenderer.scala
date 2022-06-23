@@ -108,7 +108,12 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
     
     def renderTarget (target: Target): String = fmt.pathTranslator.translate(target) match {
       case ext: ExternalTarget => ext.url
-      case int: InternalTarget => int.relativeTo(fmt.path).relativePath.toString
+      case int: InternalTarget =>
+        val relPath = int.relativeTo(fmt.path).relativePath
+        if (relPath.withoutFragment.toString.endsWith("/index.html"))
+          relPath.withBasename("").withoutSuffix.toString
+        else 
+          relPath.toString
     }
 
     def renderSpanContainer (con: SpanContainer): String = {

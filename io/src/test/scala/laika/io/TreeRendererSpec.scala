@@ -40,7 +40,7 @@ import laika.render._
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{BasicPathTranslator, TargetFormats}
+import laika.rewrite.nav.{BasicPathTranslator, PrettyURLs, TargetFormats}
 import laika.rewrite.{DefaultTemplatePath, OutputContext, Version, VersionScannerConfig, Versions}
 import munit.CatsEffectSuite
 
@@ -426,6 +426,52 @@ class TreeRendererSpec extends CatsEffectSuite
         HTMLRenderer.outputContext,
         Some(Results.doc(Root / "index.html", expected)),
         Some(Results.doc(Root / "cover.html", expected)),
+        staticDocuments = Seq(
+          Root / "helium" / "laika-helium.js",
+          Root / "helium" / "landing.page.css",
+          Root / "helium" / "icofont.min.css",
+          Root / "helium" / "fonts"/ "icofont.woff",
+          Root / "helium" / "fonts"/ "icofont.woff2",
+          Root / "helium" / "laika-helium.css"
+        )
+      ))
+  }
+
+  test("tree with several documents to HTML using PrettyURLs extension") {
+    val renderer = Renderer
+      .of(HTML)
+      .using(PrettyURLs)
+      .parallel[IO]
+      .build
+
+    val contentWithLink: RootElement = RootElement(
+      Results.titleWithId("Title"), 
+      p(SpanLink.internal("doc-2.md")("Link Text"))
+    )
+    val input = DocumentTree(
+      Root,
+      List(
+        Document(Root / "doc-1.md", contentWithLink), HTMLRenderer.fontConfigTree,
+        Document(Root / "doc-2.md", HTMLRenderer.defaultContent), HTMLRenderer.fontConfigTree
+      ),
+      Some(Document(Root / "README.md", HTMLRenderer.defaultContent))
+    )
+    val treeRoot = DocumentTreeRoot(input)
+    val expectedDefault = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+                                                                           |<p>bbb</p>""".stripMargin)
+    val expectedContentWithLink = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+                                                                                   |<p><a href="../doc-2/">Link Text</a></p>""".stripMargin)
+    HTMLRenderer
+      .render(treeRoot, renderer)
+      .assertEquals(Results.root(
+        List(
+          Results.doc(Root / "doc-1" / "index.html", expectedContentWithLink),
+          Results.doc(Root / "doc-2" / "index.html", expectedDefault)
+        ),
+        None,
+        HTMLRenderer.outputContext,
+        Some(Results.doc(Root / "index.html", expectedDefault)),
+        None,
         staticDocuments = Seq(
           Root / "helium" / "laika-helium.js",
           Root / "helium" / "landing.page.css",
