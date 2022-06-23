@@ -49,7 +49,7 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
     ThemeBuilder("Helium")
       .addInputs(HeliumInputBuilder.build(helium))
       .addBaseConfig(ConfigGenerator.populateConfig(helium))
-      .addRewriteRules(RewritePhase.Resolve, HeliumRewriteRules.build(helium))
+      .addRewriteRules(HeliumRewriteRules.build(helium))
       .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement)))
       .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))

@@ -92,15 +92,20 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * This is an overload that allows to construct the rules based on looking at the corresponding
     * `DocumentCursor` first.
     */
-  def addRewriteRules (phase: RewritePhase)(rules: RewriteRulesBuilder): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules { case p if p == phase => Seq(rules)}, treeProcessors)
+  def addRewriteRules (rules: RewriteRulesBuilder): ThemeBuilder[F] =
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules { 
+      case RewritePhase.Render(_) => Seq(rules)
+    }, treeProcessors)
 
   /** Adds a custom rewrite rule that can swap or remove individual nodes from the document AST.
     * In contrast to the `processTree` hook which looks at the entire tree of documents,
     * a rewrite rule looks at the individual AST nodes within a document.
     */
-  def addRewriteRules (phase: RewritePhase, rules: RewriteRules): ThemeBuilder[F] =
-    addRewriteRules(phase)(rules.asBuilder)
+  def addRewriteRules (rules: RewriteRules): ThemeBuilder[F] =
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules {
+      case RewritePhase.Build     => Seq(rules.copy(templateRules = Nil).asBuilder)
+      case RewritePhase.Render(_) => Seq(RewriteRules(templateRules = rules.templateRules).asBuilder)
+    }, treeProcessors)
 
   /** Adds a function that processes the document tree between parsing and rendering.
     * In contrast to the `addRewriteRule` hook which looks at AST nodes within a document,
