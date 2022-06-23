@@ -18,9 +18,12 @@ package laika.bundle
 
 import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.ast._
+import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.config.Config
 import laika.parse.css.CSSParsers
+import laika.rewrite.OutputContext
 import laika.rewrite.link.SlugBuilder
+import laika.rewrite.nav.PathTranslator
 
 /** An extension bundle is a collection of parser extensions, rewrite rules, render overrides
   * and other features to be applied to parse, render and transform operations. It serves
@@ -116,6 +119,23 @@ trait ExtensionBundle { self =>
     */
   def renderOverrides: Seq[RenderOverrides] = Seq.empty
 
+  /** Extends the built-in path translator with additional functionality.
+    * 
+    * The internal path translator deals with aspects like applying the suffix for the output format
+    * or modifying the path for versioned documents and more.
+    * 
+    * The `PathTranslatorExtensionContext` provides access to this internal path translator, to the output
+    * format it is going to be used for and the complete user configuration.
+    * 
+    * In most cases, extensions can simply be created by using either `PathTranslator.preTranslate`
+    * or `PathTranslator.postTranslate` to apply additional translation steps either before or after 
+    * applying the internal translator.
+    * 
+    * Alternatively a completely custom implementation of the `PathTranslator` trait can be provided,
+    * but this will usually not be necessary.
+    */
+  def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] = PartialFunction.empty
+  
   /** Internal API usually only called by other extension bundles.
     *
     * In some cases a bundle might be an extension of another bundle and needs the opportunity
@@ -164,6 +184,21 @@ trait ExtensionBundle { self =>
 
     override lazy val renderOverrides = self.renderOverrides ++ base.renderOverrides
 
+    override def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] =
+      new PartialFunction[PathTranslatorExtensionContext, PathTranslator] {
+
+        def isDefinedAt (ctx: PathTranslatorExtensionContext): Boolean =
+          self.extendPathTranslator.isDefinedAt(ctx) || base.extendPathTranslator.isDefinedAt(ctx)
+
+        def apply (ctx: PathTranslatorExtensionContext): PathTranslator = {
+          val newPathTranslator = base.extendPathTranslator
+            .applyOrElse[PathTranslatorExtensionContext, PathTranslator](ctx, _.baseTranslator)
+          val newCtx = new PathTranslatorExtensionContext(newPathTranslator, ctx.outputContext, ctx.config)
+          self.extendPathTranslator
+            .applyOrElse[PathTranslatorExtensionContext, PathTranslator](newCtx, _.baseTranslator)
+        }
+      }
+
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(base.processExtension)
   }
@@ -195,6 +230,15 @@ trait ExtensionBundle { self =>
 /** Provides default ExtensionBundle instances.
   */
 object ExtensionBundle {
+
+  /** The context that is provided to builders for path translator extensions.
+    * 
+    * @param baseTranslator the internal path translator that can be used for delegating most translation steps to
+    * @param outputContext  the context for the output format the translator is used for 
+    *                       (since translators are different per render format)
+    * @param config         the complete user configuration for the current transformation
+    */
+  class PathTranslatorExtensionContext (val baseTranslator: PathTranslator, val outputContext: OutputContext, val config: Config)
 
   /** An empty bundle */
   object Empty extends ExtensionBundle {
