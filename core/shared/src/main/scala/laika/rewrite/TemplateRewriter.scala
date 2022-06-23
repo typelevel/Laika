@@ -131,6 +131,12 @@ private[laika] trait TemplateRewriter {
 
 private[laika] object TemplateRewriter extends TemplateRewriter
 
+/** Describes the output for a render operation.
+  * 
+  * The format selector is used by any configuration elements that allows to restrict
+  * the output of documents to certain target formats.
+  * It is not always identical to the fileSuffix used for the specific format.
+  */
 case class OutputContext (fileSuffix: String, formatSelector: String)
 
 object OutputContext {

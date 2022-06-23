@@ -31,22 +31,30 @@ trait SpanResolver extends Span with Unresolved {
   def runsIn (phase: RewritePhase): Boolean
 }
 
-/** Represents a placeholder block element that needs
- *  to be resolved in a rewrite step.
- *  Useful for elements that need access to the
- *  document, structure, title or configuration before
- *  being fully resolved.
+/** Represents a placeholder block element that needs to be resolved in a rewrite step.
+ *  Useful for elements that need access to the document, structure, title
+ *  or configuration before being fully resolved.
  */
 trait BlockResolver extends Block with Unresolved {
   def resolve (cursor: DocumentCursor): Block
   def runsIn (phase: RewritePhase): Boolean
 }
 
+/** Represents an element that introduces new context that can be used in substitution references
+  * in any child element.
+  * 
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
 trait ElementScope[E <: Element] extends Unresolved {
   def content: E
   def context: ConfigValue
 }
 
+/** Represents a block element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
 case class BlockScope (content: Block, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
   extends ElementScope[Block] with Block {
   type Self = BlockScope
@@ -54,6 +62,11 @@ case class BlockScope (content: Block, context: ConfigValue, source: SourceFragm
   lazy val unresolvedMessage: String = s"Unresolved block scope"
 }
 
+/** Represents a span element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
 case class SpanScope (content: Span, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
   extends ElementScope[Span] with Span {
   type Self = SpanScope
@@ -61,6 +74,11 @@ case class SpanScope (content: Span, context: ConfigValue, source: SourceFragmen
   lazy val unresolvedMessage: String = s"Unresolved span scope"
 }
 
+/** Represents a template span element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
 case class TemplateScope (content: TemplateSpan, context: ConfigValue, source: SourceFragment, options: Options = NoOpt)
   extends ElementScope[TemplateSpan] with TemplateSpan {
   type Self = TemplateScope

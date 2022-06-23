@@ -281,11 +281,44 @@ case object Retain extends RewriteAction[Nothing]
   */
 case object Remove extends RewriteAction[Nothing]
 
+/** Represents one of the rewrite phases for document AST transformations.
+  * 
+  * These transformations are performed between parsing and rendering and deal with tasks like
+  * link validation, resolving substitution variables, directive processing or other tasks. 
+  * 
+  * A phased model allows to separate rules that contribute new nodes to the AST from nodes
+  * that analyze the existing AST, e.g. for producing navigation artifacts.
+  * Running them all in one phase would create a chicken-and-egg scenario that would usually
+  * lead to undesired or unexpected results.
+  */
 sealed trait RewritePhase
+
 case object RewritePhase {
+  
+  /** Represents the first rewrite phase after parsing.
+    * 
+    * This is the only phase where the introduction of new link targets is still allowed.
+    * By default all directives and all rewrite rules that do *not* have access to a document cursor
+    * run in this phase.
+    */
   case object Build extends RewritePhase
+
+  /** Represents the second rewrite phase between parsing and rendering.
+    * 
+    * By default no user rules or directives run in this phase,
+    * it is mostly reserved for the internal rules for link resolvers and similar tasks.
+    */
   case object Resolve extends RewritePhase
+
+  /** Represents the final rewrite phase before rendering.
+    * 
+    * This phase is specific to the output format and therefore the only phase type that is parameterized.
+    * By default all directives and all rewrite rules that do have access to a document cursor
+    * run in this phase to ensure that their cursor represents a state that is close to the final AST
+    * passed to the renderer.
+    */
   case class Render(context: OutputContext) extends RewritePhase
+  
   object Render {
     def apply(format: RenderFormat[_]): Render = apply(OutputContext(format))
     def apply(format: TwoPhaseRenderFormat[_,_]): Render = apply(OutputContext(format))
