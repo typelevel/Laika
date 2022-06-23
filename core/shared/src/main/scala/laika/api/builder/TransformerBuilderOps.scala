@@ -130,7 +130,7 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  
     *  For being able to perform inspection tasks like this, the rule is executed in a later
     *  phase than rules added via `usingRules`.
-    *  This means that such a rule is not able to insert any link targets itself, 
+    *  This means that such a rule is not supposed to insert any link targets itself, 
     *  as the processing for those has already happened when this rule is run.
     *  
     *  The builder function returns an `Either[ConfigError, RewriteRules]` which allows for validation of
