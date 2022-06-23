@@ -20,7 +20,7 @@ import laika.ast.{DocumentCursor, InvalidBlock, InvalidSpan, Replace, RewriteRul
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.ConfigResult
 
-object UnresolvedNodeDetector extends RewriteRulesBuilder {
+private[laika] object UnresolvedNodeDetector extends RewriteRulesBuilder {
   
   def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
     RewriteRules.forBlocks {

@@ -22,7 +22,7 @@ import laika.config.Config.ConfigResult
 
 import scala.collection.mutable.ListBuffer
 
-object TemplateFormatter extends RewriteRulesBuilder {
+private[laika] object TemplateFormatter extends RewriteRulesBuilder {
 
   private def joinTextSpans (spans: Seq[Span]): Seq[Span] = 
     if (spans.isEmpty) spans

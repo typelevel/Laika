@@ -246,7 +246,7 @@ case class NavigationList (content: Seq[NavigationItem], options: Options = NoOp
 }
 
 object NavigationList {
-  object FormatFilter extends RewriteRulesBuilder {
+  private[laika] object FormatFilter extends RewriteRulesBuilder {
     def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
       RewriteRules.forBlocks {
         case nl: NavigationList if !nl.hasStyle("breadcrumb") =>

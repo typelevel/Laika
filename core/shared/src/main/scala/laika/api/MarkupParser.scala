@@ -26,7 +26,6 @@ import laika.factory.MarkupFormat
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocument, ParserError}
-import laika.rewrite.OutputContext
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation. 

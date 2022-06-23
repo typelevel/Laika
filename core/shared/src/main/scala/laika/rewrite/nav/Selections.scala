@@ -198,8 +198,8 @@ object Selections {
   def createCombinations (root: DocumentTreeRoot): ConfigResult[NonEmptyChain[(DocumentTreeRoot, Classifiers)]] = {
     createCombinations(root.config).map(_.map { case (config, classifiers) => (root.withConfig(config), classifiers) })
   }
-  
-  object FormatFilter extends RewriteRulesBuilder {
+
+  private[laika] object FormatFilter extends RewriteRulesBuilder {
 
     def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = {
 

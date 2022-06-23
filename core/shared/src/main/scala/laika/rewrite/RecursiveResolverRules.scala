@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.ast._
 
-object RecursiveResolverRules {
+private[laika] object RecursiveResolverRules {
   
   private def asTemplateSpan (span: Span): TemplateSpan = span match {
     case t: TemplateSpan => t
