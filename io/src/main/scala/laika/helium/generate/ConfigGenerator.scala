@@ -102,6 +102,12 @@ private[laika] object ConfigGenerator {
       .withValue("type", icon.mediaType)
       .build
   }
+  
+  private val templatePaths: Map[String, Path] = {
+    Seq("head", "topNav", "leftNav", "pageNav", "footer").map { name =>
+      name -> Root / "helium" / "templates" / s"$name.template.html"
+    }.toMap
+  }
 
   def populateConfig (helium: Helium): Config =
     ConfigBuilder.empty
@@ -109,6 +115,7 @@ private[laika] object ConfigGenerator {
       .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
       .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
       .withValue("helium.markupEditLinks", helium.siteSettings.layout.markupEditLinks)
+      .withValue("helium.site.templates", templatePaths)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
       .withValue("laika.epub", helium.epubSettings.bookConfig)
       .withValue("laika.pdf", helium.pdfSettings.bookConfig)

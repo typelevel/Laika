@@ -1,0 +1,11 @@
+<nav id="page-nav">
+  <p class="header"><a href="#">${cursor.currentDocument.title}</a></p>
+
+  @:navigationTree {
+    entries = [
+      { target = "#", excludeRoot = true, depth = 2 }
+    ]
+  }
+
+  <p class="footer">@:for(helium.markupEditLinks)<a href="${_.baseURL}${cursor.currentDocument.path}">${_.icon}${_.text}</a>@:@</p>
+</nav>

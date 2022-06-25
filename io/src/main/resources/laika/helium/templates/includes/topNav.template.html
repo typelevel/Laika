@@ -1,0 +1,30 @@
+<header id="top-bar">
+
+  <div class="row">
+    <a id="nav-icon">
+      @:icon(navigationMenu)
+    </a>
+    
+    @:for(laika.versions)
+    <div id="version-menu-container">
+      <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
+        @:if(laika.versioned)
+        ${helium.topBar.versionPrefix} ${laika.versions.currentVersion.displayValue}
+        @:else
+        Documentation
+        @:@
+      </a>
+      <nav id="version-menu">
+        <ul id="version-list" class="nav-list">
+        </ul>
+      </nav>
+    </div>
+    @:@
+    
+  </div>
+
+  ${?helium.topBar.home}
+
+  ${?helium.topBar.links}
+
+</header>
