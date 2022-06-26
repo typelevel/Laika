@@ -250,7 +250,7 @@ import cats.effect.unsafe.implicits.global
 ```
 
 Alternatively you can manually construct an `IORuntime` if you need precise control over the `ExecutionContext` used
-in your application.
+in your application.]
 
 One common scenario is a toolkit like Akka HTTP or Play where you execute a route that is expected to return a `Future`.
 This can achieved by a simple translation:
@@ -274,7 +274,7 @@ result.unsafeRunAsync {
 }
 ```
 
-Do not get too hung up on the scary sound of all these `unsync...` methods. The one kind of safety you are loosing
+Do not get too hung up on the scary sound of all these `unsafe...` methods. The one kind of safety you are loosing
 when using them is referential transparency. But if you are using a `Future`-based API for example, 
 your program is not referentially transparent anyway.
 
