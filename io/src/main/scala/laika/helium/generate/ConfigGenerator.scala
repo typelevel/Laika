@@ -104,7 +104,7 @@ private[laika] object ConfigGenerator {
   }
   
   private val templatePaths: Map[String, Path] = {
-    Seq("head", "topNav", "leftNav", "pageNav", "footer").map { name =>
+    Seq("head", "topNav", "mainNav", "pageNav", "footer").map { name =>
       name -> Root / "helium" / "templates" / s"$name.template.html"
     }.toMap
   }

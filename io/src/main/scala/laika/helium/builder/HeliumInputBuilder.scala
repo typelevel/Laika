@@ -56,7 +56,7 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
       .addClasspathResource("laika/helium/templates/includes/head.template.html", templatesPath / "head.template.html")
       .addClasspathResource("laika/helium/templates/includes/topNav.template.html", templatesPath / "topNav.template.html")
-      .addClasspathResource("laika/helium/templates/includes/leftNav.template.html", templatesPath / "leftNav.template.html")
+      .addClasspathResource("laika/helium/templates/includes/mainNav.template.html", templatesPath / "mainNav.template.html")
       .addClasspathResource("laika/helium/templates/includes/pageNav.template.html", templatesPath / "pageNav.template.html")
       .addClasspathResource("laika/helium/templates/includes/footer.template.html", templatesPath / "footer.template.html")
       .addClasspathResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
