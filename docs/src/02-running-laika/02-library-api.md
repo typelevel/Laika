@@ -250,7 +250,7 @@ import cats.effect.unsafe.implicits.global
 ```
 
 Alternatively you can manually construct an `IORuntime` if you need precise control over the `ExecutionContext` used
-in your application.]
+in your application.
 
 One common scenario is a toolkit like Akka HTTP or Play where you execute a route that is expected to return a `Future`.
 This can achieved by a simple translation:
