@@ -104,6 +104,10 @@ They can stem from any of the supported input types, files, streams or content g
 
 Can be used as a block-level directive in markup documents and as a template directive.
 
+The main attribute can either be a literal, relative or absolute path or the key of a config value of type string.
+Like all internal path references it represents a virtual path within the transformation inputs specified
+by the user and does not have to match a physical file path.
+
 The following example shows a simple HTML template where a header section is added via an include directive:
 
 ```laika-html
@@ -115,7 +119,7 @@ The following example shows a simple HTML template where a header section is add
 </html>
 ```
 
-The attributes specified for the directive, in the example just `css` can be referenced in the included template
+The optional, named attributes specified for the directive, in the example just `css` can be referenced in the included template
 with Laika's common `_` prefix for directive scopes:
 
 ```laika-html
