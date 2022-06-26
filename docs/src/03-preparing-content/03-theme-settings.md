@@ -769,3 +769,41 @@ with the same path from a theme.
 This way you can always customize just one of the templates, while keeping the rest as provided by the theme.
 
 For an introduction to the template syntax, template file names and more details see [Creating Templates].
+
+
+### Customizing Template Fragments
+
+If you only want to adjust a small aspect of the theme and otherwise stick to the default Helium look and feel,
+you can alternatively just override one or more template fragments.
+
+
+#### Global Overrides
+
+If you want to replace one or more fragments globally, you can place them at `/helium/templates/<fragment>.template.html`
+inside one of your input directories,
+where `<fragment>` is one of `head`, `topNav`, `mainNav`, `pageNav` or `footer`.
+The names should be self-explanatory.
+
+
+#### Overrides per Document
+
+Finally, when you want to apply a custom fragment to individual markup documents,
+you can explicitly refer to it in the configuration header of the markup document:
+
+```laika-html
+{%
+  helium.templates.head = ../my-custom-head.template.html
+%}
+```
+
+The path is interpreted relative to the markup document,
+but has to be somewhere within one of the specified input directories,
+as templates are parsed and cached upfront before getting applied to documents.
+
+All HTML templates must have a name with the pattern `<name>.template.html`.
+The configuration key to assign them to has the format `helium.templates.<fragment>`
+where `<fragment>` is again one of `head`, `topNav`, `mainNav`, `pageNav` or `footer`.
+
+Finally, like with all Laika configuration, you can also use different scopes than just the current document.
+Using these config keys in a file `directory.conf` sets the override for all document in that directory
+and all its sub-directories.

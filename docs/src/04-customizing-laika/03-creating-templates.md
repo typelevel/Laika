@@ -70,6 +70,20 @@ All non-default templates must have a name with the pattern `<name>.template.<su
 where `<name>` is anything other than `default` and `<suffix>` is the same matching suffix as for default templates.
 
 
+### Overriding Template Fragments in the Helium Theme
+
+The sections above dealt with the core feature set of replacing the entire template, either globally 
+or for an individual page.
+When using the Helium theme there is an alternative option of just replacing a specific fragment of the main template,
+e.g. only the part that defines the left navigation pane.
+
+More fine-grained template replacements avoid the problems arising from replacing a template in its entirety:
+when the library enhances or fixes an aspect of the built-in template, these changes would need to be carefully merged
+back into your local copy of the template, or you'd miss out on all future enhancements.
+
+For details about replacing Helium template fragments see [Customizing Template Fragments]. 
+
+
 Template Syntax
 ---------------
 
