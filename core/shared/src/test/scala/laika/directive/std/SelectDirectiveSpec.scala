@@ -16,18 +16,19 @@
 
 package laika.directive.std
 
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.{RootCursor, TreePosition, _}
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.config.ConfigBuilder
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
 import munit.FunSuite
 
 class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
-  with TestSourceBuilders {
+  with TestSourceBuilders with RenderPhaseRewrite {
 
 
   private val parser = MarkupParser
@@ -45,7 +46,7 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
   
   def run (input: String, expected: Block)(implicit loc: munit.Location): Unit = {
     assertEquals(
-      parser.parse(input).map(_.content.content),
+      parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content.content),
       Right(Seq(p("aa"), expected, p("bb")))
     )
   }
@@ -150,12 +151,9 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     val config = Selections(
       SelectionConfig("config", ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true))
     )
-    val doc = Document(Root / "doc", RootElement(group))
-    val tree = DocumentTreeRoot(DocumentTree(Root, Seq(doc), config = ConfigBuilder.empty.withValue(config).build))
-    val cursor = RootCursor(tree).map(TreeCursor.apply).map(DocumentCursor(doc, _, tree.config, TreePosition(Nil)))
-    val rewritten = cursor.flatMap(c => TemplateRewriter.applyTemplate(c, TemplateDocument(Root, TemplateRoot.fallback)))
+    val doc = Document(Root / "doc", RootElement(group), config = ConfigBuilder.empty.withValue(config).build)
     assertEquals(
-      rewritten.map(_.content),
+      rewrite(HTML)(doc).map(_.content),
       Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
     )
   }

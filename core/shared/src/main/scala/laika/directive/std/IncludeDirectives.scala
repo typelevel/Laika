@@ -17,9 +17,10 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{Block, BlockSequence, DocumentCursor, Element, Path, TemplateSpan, TemplateSpanSequence}
+import laika.ast.{Block, BlockScope, BlockSequence, DocumentCursor, Element, Path, TemplateScope, TemplateSpan, TemplateSpanSequence}
 import laika.config.{ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin}
 import laika.directive.{Blocks, Templates}
+import laika.parse.SourceFragment
 import laika.rewrite.TemplateRewriter
 
 /** Provides the implementation for the standard include and embed directives.
@@ -52,26 +53,28 @@ object IncludeDirectives {
   
   private def resolveTemplateReference (path: Path, 
                                         attributes: Config, 
-                                        cursor: DocumentCursor, 
+                                        cursor: DocumentCursor,
+                                        source: SourceFragment,
                                         body: Option[Seq[TemplateSpan]] = None): Either[String, TemplateSpan] = {
     cursor.root.target.tree.selectTemplate(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(TemplateSpanSequence(_)), cursor.templatePath.getOrElse(cursor.path))
-        val rules = TemplateRewriter.rewriteRules(cursor.withReferenceContext(context))
-        TemplateSpanSequence(doc.content.rewriteChildren(rules).content)
+        val content = TemplateSpanSequence(doc.content.content)
+        TemplateScope(content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
 
   private def resolveDocumentReference (path: Path, 
                                         attributes: Config, 
-                                        cursor: DocumentCursor, 
+                                        cursor: DocumentCursor,
+                                        source: SourceFragment,
                                         body: Option[Seq[Block]] = None): Either[String, Block] = {
     cursor.root.target.tree.selectDocument(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(BlockSequence(_)), cursor.path)
-        val rules = TemplateRewriter.rewriteRules(cursor.withReferenceContext(context))
-        BlockSequence(doc.content.rewriteChildren(rules).content)
+        val content = BlockSequence(doc.content.content)
+        BlockScope(content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
@@ -82,10 +85,10 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor).mapN { 
-      case (literalPath, pathKey, attributes, cursor) =>
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveTemplateReference(_, attributes, cursor))
+          .flatMap(resolveTemplateReference(_, attributes, cursor, source))
     }
   }
 
@@ -95,10 +98,10 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor).mapN { 
-      case (literalPath, pathKey, attributes, body, cursor) =>
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, body, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveTemplateReference(_, attributes, cursor, Some(body)))
+          .flatMap(resolveTemplateReference(_, attributes, cursor, source, Some(body)))
     }
   }
 
@@ -108,10 +111,10 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor).mapN { 
-      case (literalPath, pathKey, attributes, cursor) =>
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveDocumentReference(_, attributes, cursor))
+          .flatMap(resolveDocumentReference(_, attributes, cursor, source))
     }
   }
 
@@ -121,10 +124,10 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor).mapN { 
-      case (literalPath, pathKey, attributes, body, cursor) =>
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, body, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveDocumentReference(_, attributes, cursor, Some(body)))
+          .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
     }
   }
   

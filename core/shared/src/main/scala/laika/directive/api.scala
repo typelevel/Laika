@@ -123,12 +123,14 @@ trait BuilderContext[E <: Element] {
     def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p) map f
       def hasBody: Boolean = self.hasBody
+      def needsCursor: Boolean = self.needsCursor
       def separators: Set[String] = self.separators
     }
 
     def evalMap [B](f: A => Either[String, B]): DirectivePart[B] = new DirectivePart[B] {
       def apply (p: DirectiveContext) = self(p).flatMap(f(_).left.map(Seq(_)))
       def hasBody: Boolean = self.hasBody
+      def needsCursor: Boolean = self.needsCursor
       def separators: Set[String] = self.separators
     }
 
@@ -136,6 +138,13 @@ trait BuilderContext[E <: Element] {
       * after the directive name and attribute section.
       */
     def hasBody: Boolean
+
+    /** Indicates whether this part or any of its sub-parts requests access
+      * to a cursor.
+      * This information is used to determine the default phase a directive 
+      * should be resolved in.
+      */    
+    def needsCursor: Boolean
 
     /** The names of the separator directives accepted by this directive part.
       */
@@ -156,6 +165,7 @@ trait BuilderContext[E <: Element] {
             case (_, Left(msg)) => Left(msg)
           }
           def hasBody: Boolean = fa.hasBody || fb.hasBody
+          def needsCursor: Boolean = fa.needsCursor || fb.needsCursor
           def separators: Set[String] = fa.separators ++ fb.separators
         }
       }
@@ -220,6 +230,7 @@ trait BuilderContext[E <: Element] {
         .asInstanceOf[E]
     }
 
+    def runsIn (phase: RewritePhase): Boolean = directive.fold(true)(_.runsIn(phase))
   }
 
   private[laika] trait SeparatorInstanceBase extends DirectiveProcessor {
@@ -235,7 +246,8 @@ trait BuilderContext[E <: Element] {
       process(context.cursor, factory)
       
     }
-    
+
+    def runsIn (phase: RewritePhase): Boolean = true
   }
 
   /** Provides combinators to describe the expected structure of a specific directive.
@@ -263,6 +275,7 @@ trait BuilderContext[E <: Element] {
     private def bodyPart[T] (accessor: DirectiveContext => Option[Result[T]]) = new DirectivePart[T] {
       def apply (context: DirectiveContext): Result[T] = accessor(context).getOrElse(Left(Seq(s"required body is missing")))
       def hasBody: Boolean = true
+      def needsCursor: Boolean = false
       def separators: Set[String] = Set.empty
     }
 
@@ -274,6 +287,7 @@ trait BuilderContext[E <: Element] {
       def as[U](implicit decoder: ConfigDecoder[U]): PositionalAttributes[U] = new PositionalAttributes(decoder)
 
       def hasBody: Boolean = false
+      def needsCursor: Boolean = false
       def separators: Set[String] = Set.empty
       def widen: DirectivePart[Seq[T]] = this
     }
@@ -290,10 +304,12 @@ trait BuilderContext[E <: Element] {
       def optional: DirectivePart[Option[T]] = new DirectivePart[Option[T]] {
         def apply (context: DirectiveContext): Result[Option[T]] = context.attribute(key, decoder, isInherited)
         def hasBody: Boolean = false
+        def needsCursor: Boolean = false
         def separators: Set[String] = Set.empty
       }
       
       def hasBody: Boolean = false
+      def needsCursor: Boolean = false
       def separators: Set[String] = Set.empty
       def widen: DirectivePart[T] = this
     }
@@ -304,6 +320,7 @@ trait BuilderContext[E <: Element] {
         getParsedBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(toMultipart(context))
       
       def hasBody: Boolean = true
+      def needsCursor: Boolean = false
       
       override def separators: Set[String] = directives.map(_.name).toSet
       
@@ -342,6 +359,7 @@ trait BuilderContext[E <: Element] {
     private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
       def apply (p: DirectiveContext) = f(p)
       def hasBody: Boolean = false
+      def needsCursor: Boolean = false
       def separators: Set[String] = Set.empty
     }
 
@@ -428,7 +446,12 @@ trait BuilderContext[E <: Element] {
       * This may be required if the directive relies on information from the document structure, 
       * its title or the parent tree it is contained in.
       */
-    def cursor: DirectivePart[DocumentCursor] = part(c => Right(c.cursor))
+    def cursor: DirectivePart[DocumentCursor] = new DirectivePart[DocumentCursor] {
+      def apply (p: DirectiveContext) = Right(p.cursor)
+      def hasBody: Boolean = false
+      def needsCursor: Boolean = true
+      def separators: Set[String] = Set.empty
+    }
 
     /** Indicates that access to the source of the directive is required.
       * This may be required if the directive needs to produce instances of `InvalidElement` for error scenarios,
@@ -447,6 +470,10 @@ trait BuilderContext[E <: Element] {
     def apply (context: DirectiveContext): Result[E] = part(context)
     def hasBody: Boolean = part.hasBody
     def separators: Set[String] = part.separators
+    def runsIn (phase: RewritePhase): Boolean = phase match {
+      case RewritePhase.Render(_) => true
+      case _ => !part.needsCursor
+    }
   }
 
   /** Represents a separator directive, its name and its (combined) parts.

@@ -20,12 +20,13 @@ import cats.data.NonEmptySet
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
+import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{Config, ConfigException, LaikaKeys}
+import laika.config.{Config, ConfigException, LaikaKeys, ValidationError}
 import laika.format.{PDF, XSLFO}
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
-import laika.rewrite.{DefaultTemplatePath, OutputContext}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
 import laika.rewrite.nav.{ConfigurablePathTranslator, PathAttributes, PathTranslator, TranslatorConfig}
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
@@ -58,18 +59,22 @@ object FOConcatenation {
     def applyTemplate(foString: String, template: TemplateDocument): Either[Throwable, String] = {
       val foElement = RawContent(NonEmptySet.one("fo"), foString)
       val finalConfig = ensureAbsoluteCoverImagePath
+      val virtualPath = Path.Root / "merged.fo"
       val finalDoc = Document(
-        Path.Root / "merged.fo",
+        virtualPath,
         RootElement(foElement),
         fragments = PDFNavigation.generateBookmarks(result, config.navigationDepth),
         config = finalConfig
       )
       val renderer = Renderer.of(XSLFO).withConfig(opConfig).build
-      template
-        .applyTo(finalDoc, OutputContext("fo","pdf"))
+      val templateApplied = for {
+        rules      <- opConfig.rewriteRulesFor(finalDoc, RewritePhase.Render(PDF))
+        doc        <- template.applyTo(finalDoc, rules, OutputContext(PDF))
+      } yield doc
+      templateApplied
         .leftMap(err => ConfigException(err))
         .flatMap(templatedDoc => InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc))
-        .map(renderer.render(_, result.pathTranslator, result.styles))
+        .flatMap(renderer.render(_, result.pathTranslator, result.styles))
     }
 
     val defaultTemplate = TemplateDocument(DefaultTemplatePath.forFO, result.defaultTemplate)

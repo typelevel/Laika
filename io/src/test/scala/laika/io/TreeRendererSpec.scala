@@ -179,7 +179,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
   
   object ASTRenderer extends TreeRendererSetup[TextFormatter] {
-    val outputContext: OutputContext = OutputContext("txt", "ast")
+    val outputContext: OutputContext = OutputContext(AST)
     val staticPaths = Seq( // TODO - why do they differ from TreeTransformerSpec?
       Root / "laika" / "fonts" / "Lato-Regular.ttf",
       Root / "laika" / "fonts" / "Lato-Italic.ttf",
@@ -196,7 +196,7 @@ class TreeRendererSpec extends CatsEffectSuite
   object HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     import Results.titleWithId
 
-    val outputContext: OutputContext = OutputContext("html")
+    val outputContext: OutputContext = OutputContext(HTML)
     val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).parallel[IO].build
@@ -205,7 +205,7 @@ class TreeRendererSpec extends CatsEffectSuite
   object EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
     import Results.titleWithId
 
-    val outputContext: OutputContext = OutputContext("epub.xhtml", "epub.xhtml")
+    val outputContext: OutputContext = OutputContext(EPUB.XHTML)
     val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(path => path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains("js"))
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(EPUB.XHTML).parallel[IO].build
@@ -214,7 +214,7 @@ class TreeRendererSpec extends CatsEffectSuite
   object FORenderer extends TreeRendererSetup[FOFormatter] {
     import Results.titleWithId
 
-    val outputContext: OutputContext = OutputContext("fo", "xsl-fo")
+    val outputContext: OutputContext = OutputContext(XSLFO)
     val staticPaths = Seq(
       Root / "laika" / "fonts" / "Lato-Regular.ttf",
       Root / "laika" / "fonts" / "Lato-Italic.ttf",

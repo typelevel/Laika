@@ -274,7 +274,7 @@ result.unsafeRunAsync {
 }
 ```
 
-Do not get too hung up on the scary sound of all these `unsync...` methods. The one kind of safety you are loosing
+Do not get too hung up on the scary sound of all these `unsafe...` methods. The one kind of safety you are loosing
 when using them is referential transparency. But if you are using a `Future`-based API for example, 
 your program is not referentially transparent anyway.
 

@@ -16,13 +16,13 @@
 
 package laika.rst.std
 
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.format.ReStructuredText
-import laika.parse.markup.DocumentParser.ParserError
+import laika.format.{AST, ReStructuredText}
+import laika.parse.markup.DocumentParser.TransformationError
 import laika.rewrite.link.LinkConfig
 import laika.time.PlatformDateTime
 import munit.FunSuite
@@ -30,7 +30,7 @@ import munit.FunSuite
 /**
  * @author Jens Halm
  */
-class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts {
+class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
 
   private val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
   
@@ -39,8 +39,11 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
     .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
 
-  def parse (input: String): Either[ParserError, RootElement] = 
-    parser.parse(input, Root / "test.rst").map(_.content)
+  def parse (input: String): Either[TransformationError, RootElement] = 
+    parser
+      .parse(input, Root / "test.rst")
+      .flatMap(rewrite(parser, AST))
+      .map(_.content)
   
   def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(parse(input), Right(RootElement(expected)))

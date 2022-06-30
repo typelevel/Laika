@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.config.Config
-import laika.format.PDF
+import laika.format.{PDF, XSLFO}
 import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.fo.TestTheme
@@ -42,7 +42,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
     tree = RenderedTree(Root, None, Seq(RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
-    outputContext = OutputContext("fo", "xsl-fo"),
+    outputContext = OutputContext(XSLFO),
     pathTranslator = BasicPathTranslator("fo"),
     styles = TestTheme.foStyles
   )

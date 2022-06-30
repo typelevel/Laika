@@ -17,22 +17,24 @@
 package laika.directive
 
 import cats.implicits._
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.config.ConfigBuilder
-import laika.format.Markdown
-import laika.parse.markup.DocumentParser.ParserError
+import laika.format.{HTML, Markdown}
+import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
 import laika.parse.markup.RootParserProvider
 import laika.parse.{Parser, SourceFragment}
 import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
+import scala.concurrent.duration.span
 import scala.util.Try
 
-class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
+class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderPhaseRewrite {
 
   
   object DirectiveSetup {
@@ -132,6 +134,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
         val source: SourceFragment = generatedSource("@:dir")
         val unresolvedMessage = "broken"
         def withOptions (options: Options): Self = copy(options = options)
+        def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
       }
       val directive = Spans.create("dir") {
         Spans.dsl.empty(DummyResolver())
@@ -154,12 +157,13 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
         override def linkDirectives: Seq[Links.Directive] = Seq(directive)
       }
 
-      def parseAsMarkdown (input: String): Either[ParserError, Block] = MarkupParser
+      def parseAsMarkdown (input: String): Either[TransformationError, Block] = MarkupParser
         .of(Markdown)
         .using(bundle)
         .failOnMessages(MessageFilter.None)
         .build
         .parse(input)
+        .flatMap(rewrite(HTML))
         .map(_.content.content.head)
     }
     
@@ -176,9 +180,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders {
       markupExtensions = directiveSupport.markupExtensions
     ).standaloneSpanParser.evalMap { spans =>
       val seq = SpanSequence(spans)
-      DocumentCursor(Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref", "value").build))
-        .map(c => TemplateRewriter.rewriteRules(c).rewriteSpan(seq))
-        .left.map(_.message)
+      val doc = Document(Root, RootElement(seq), config = ConfigBuilder.empty.withValue("ref", "value").build)
+      OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(HTML))
+        .map(_.rewriteSpan(seq))
+        .leftMap(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidSpan = InvalidSpan(error, source(fragment, input))

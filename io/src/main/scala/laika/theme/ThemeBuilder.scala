@@ -20,8 +20,8 @@ import cats.Monad
 import cats.data.Kleisli
 import cats.effect.{Async, Resource}
 import cats.implicits._
-import laika.ast.RewriteRules
-import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.ast.{RewritePhase, RewriteRules}
+import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.bundle.{BundleOrigin, ExtensionBundle, RenderOverrides}
 import laika.config.Config
 import laika.factory.Format
@@ -93,14 +93,19 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
     * `DocumentCursor` first.
     */
   def addRewriteRules (rules: RewriteRulesBuilder): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(rules), treeProcessors)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules { 
+      case RewritePhase.Render(_) => Seq(rules)
+    }, treeProcessors)
 
   /** Adds a custom rewrite rule that can swap or remove individual nodes from the document AST.
     * In contrast to the `processTree` hook which looks at the entire tree of documents,
     * a rewrite rule looks at the individual AST nodes within a document.
     */
   def addRewriteRules (rules: RewriteRules): ThemeBuilder[F] =
-    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules(_ => Right(rules)), treeProcessors)
+    new ThemeBuilder(themeName, inputs, extensions, bundleBuilder.addRewriteRules {
+      case RewritePhase.Build     => Seq(rules.copy(templateRules = Nil).asBuilder)
+      case RewritePhase.Render(_) => Seq(RewriteRules(templateRules = rules.templateRules).asBuilder)
+    }, treeProcessors)
 
   /** Adds a function that processes the document tree between parsing and rendering.
     * In contrast to the `addRewriteRule` hook which looks at AST nodes within a document,
@@ -150,11 +155,11 @@ object ThemeBuilder {
   private[theme] case class BundleBuilder (themeName: String,
                                            baseConfig: Config = Config.empty,
                                            renderOverrides: Seq[RenderOverrides] = Nil,
-                                           rewriteRules: Seq[RewriteRulesBuilder] = Nil) { self =>
+                                           rewriteRules: Seq[RewritePhaseBuilder] = Nil) { self =>
     def addConfig (config: Config): BundleBuilder = copy(baseConfig = config.withFallback(baseConfig))
     def addRenderOverrides (overrides: RenderOverrides): BundleBuilder =
       copy(renderOverrides = renderOverrides :+ overrides)
-    def addRewriteRules (rules: RewriteRulesBuilder): BundleBuilder =
+    def addRewriteRules (rules: RewritePhaseBuilder): BundleBuilder =
       copy(rewriteRules = rewriteRules :+ rules)
     def build: Option[ExtensionBundle] = 
       if (baseConfig == Config.empty && renderOverrides.isEmpty && rewriteRules.isEmpty) None else Some(new ExtensionBundle {
@@ -162,7 +167,9 @@ object ThemeBuilder {
         override def origin = BundleOrigin.Theme
         override def baseConfig = self.baseConfig
         override def renderOverrides = self.renderOverrides
-        override def rewriteRules = self.rewriteRules
+        override def rewriteRules = {
+          case phase => self.rewriteRules.flatMap(_.lift(phase)).flatten
+        }
       })
   }
 

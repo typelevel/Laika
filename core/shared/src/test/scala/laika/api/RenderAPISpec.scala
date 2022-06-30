@@ -34,13 +34,13 @@ class RenderAPISpec extends FunSuite
       |. . Text - 'bbb'""".stripMargin
 
   test("document to string") {
-    assertEquals(Renderer.of(AST).build.render(rootElem), expected)
+    assertEquals(Renderer.of(AST).build.render(rootElem), Right(expected))
   }
 
   test("override default renderer for specific element types") {
     val renderer = Renderer.of(AST).rendering { case (_, Text(content,_)) => s"String - '$content'" }.build
     val modifiedResult = expected.replace("Text", "String")
-    assertEquals(renderer.render(rootElem), modifiedResult)
+    assertEquals(renderer.render(rootElem), Right(modifiedResult))
   }
 
 }

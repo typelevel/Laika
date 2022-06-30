@@ -93,7 +93,10 @@ object ParserRuntime {
         val rootToRewrite = root.copy(
           staticDocuments = inputs.binaryInputs.map(doc => StaticDocument(doc.path, doc.formats)) ++ inputs.providedPaths
         )
-        val finalTree = rootToRewrite.rewrite(op.config.rewriteRulesFor(rootToRewrite))
+        val finalTree = for {
+          phase1 <- rootToRewrite.rewrite(op.config.rewriteRulesFor(rootToRewrite, RewritePhase.Build))
+          result <- phase1.rewrite(op.config.rewriteRulesFor(phase1, RewritePhase.Resolve))
+        } yield result
         InvalidDocuments
           .from(finalTree, op.config.failOnMessages)
           .map(ParsedTree(_, inputs.binaryInputs))

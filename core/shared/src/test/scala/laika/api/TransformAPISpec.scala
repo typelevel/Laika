@@ -62,8 +62,9 @@ class TransformAPISpec extends FunSuite {
   
   test("multiple rewrite rules") {
     val modifiedOutput = output.replace("zzz", "new").replace("foo", "bar")
-    val transformCustom = builder.usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } usingSpanRule
-                                                { case Text("text zzz ",_)    => Replace(Text("text new ")) }
+    val transformCustom = builder
+      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } 
+      .usingSpanRule { case Text("text zzz ",_)    => Replace(Text("text new ")) }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
@@ -77,9 +78,19 @@ class TransformAPISpec extends FunSuite {
   
   test("custom rewrite rule that depends on the document") {
     val modifiedOutput = output.replace("zzz", "2")
-    val transformCustom = builder.buildingRule { cursor => Right(RewriteRules.forSpans { 
+    val transformCustom = builder.buildingRules { cursor => Right(RewriteRules.forSpans { 
       case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
     })}
+    assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
+  }
+
+  test("process rules with access to a document cursor in a later phase") {
+    val modifiedOutput = output.replace("foo", "baz")
+    val transformCustom = builder
+      .buildingRules { _ => Right(RewriteRules.forSpans {
+        case Text("bar",_) => Replace(Text("baz"))
+      })}
+      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 

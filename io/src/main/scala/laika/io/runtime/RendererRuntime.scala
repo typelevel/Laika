@@ -29,7 +29,7 @@ import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ParserResult, StyleResult, TemplateResult}
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter, Versions}
+import laika.rewrite.{DefaultTemplatePath, OutputContext, Versions}
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 
@@ -43,7 +43,7 @@ object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a character output format.
     */
   def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F]): F[RenderedTreeRoot[F]] = 
-    run(op, op.theme.inputs, OutputContext(op.renderer.format.fileSuffix, op.renderer.format.description.toLowerCase))
+    run(op, op.theme.inputs, OutputContext(op.renderer.format))
 
   private def run[F[_]: Async: Batch] (op: TreeRenderer.Op[F], themeInputs: InputTree[F], context: OutputContext): F[RenderedTreeRoot[F]] = {  
     
@@ -98,8 +98,10 @@ object RendererRuntime {
           val renderer = Renderer.of(op.renderer.format).withConfig(op.config).build
           val docPathTranslator = pathTranslator.forReferencePath(document.path)
           val outputPath = docPathTranslator.translate(document.path)
-          val renderResult = renderer.render(document.content, outputPath, docPathTranslator, styles)
-          output(outputPath).writer(renderResult).as {
+          for {
+            renderResult <- Async[F].fromEither(renderer.render(document.content, outputPath, docPathTranslator, styles))
+            _            <- output(outputPath).writer(renderResult)
+          } yield {
             val result = RenderedDocument(outputPath, document.title, document.sections, renderResult, document.config)
             Right(result): RenderResult
           }
@@ -178,8 +180,9 @@ object RendererRuntime {
           root.tree.withDefaultTemplate(getDefaultTemplate(themeInputs, context.fileSuffix), context.fileSuffix)
         else 
           root.tree
-      
-      mapError(TemplateRewriter.applyTemplates(root.copy(tree = treeWithTpl), context))
+      val rootWithTpl = root.copy(tree = treeWithTpl)
+      val rules = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
+      mapError(rootWithTpl.applyTemplates(rules, context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
     

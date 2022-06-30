@@ -135,7 +135,7 @@ class TreeTransformerSpec extends CatsEffectSuite
                    titleDocument: Option[RenderedDocument] = None,
                    coverDocument: Option[RenderedDocument] = None,
                    staticDocuments: Seq[Path] = Nil,
-                   outputContext: OutputContext = OutputContext("txt","ast")): RenderedTreeRoot[IO] = RenderedTreeRoot(
+                   outputContext: OutputContext = OutputContext(AST)): RenderedTreeRoot[IO] = RenderedTreeRoot(
     RenderedTree(Root, None, content, titleDocument),
     TemplateRoot.fallback,
     Config.empty,
@@ -326,7 +326,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       )
     renderResult.assertEquals(renderedRoot(docs(
       (Root / "doc1.fo", result)
-    ), staticDocuments = TestTheme.staticASTPaths, outputContext = OutputContext("fo","xsl-fo")))
+    ), staticDocuments = TestTheme.staticASTPaths, outputContext = OutputContext(XSLFO)))
   }
 
   test("tree with a template directive") {

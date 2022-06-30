@@ -19,14 +19,13 @@ package laika.api
 import cats.syntax.all._
 import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.ast.Path.Root
-import laika.ast.{Document, DocumentCursor, EmbeddedConfigValue, Path, RewriteRules, UnresolvedDocument}
+import laika.ast.{Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument}
 import laika.config.Origin.DocumentScope
 import laika.config.{Config, Origin}
 import laika.factory.MarkupFormat
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{DocumentInput, InvalidDocument, ParserError}
-import laika.rewrite.TemplateRewriter
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation. 
@@ -85,11 +84,14 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
       )
     }
     
-    def rewriteDocument (resolvedDoc: Document, rules: RewriteRules): Either[ParserError, Document] = for {
-      phase1 <- resolvedDoc.rewrite(rules).leftMap(ParserError.apply(_, resolvedDoc.path))
-      phase2 <- DocumentCursor(phase1)
-                  .flatMap(cursor => phase1.rewrite(TemplateRewriter.rewriteRules(cursor)))
-                  .leftMap(ParserError.apply(_, resolvedDoc.path))
+    def rewritePhase (doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {
+      rules <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_, doc.path))
+      result <- doc.rewrite(rules).leftMap(ParserError.apply(_, doc.path))
+    } yield result
+    
+    def rewriteDocument (resolvedDoc: Document): Either[ParserError, Document] = for {
+      phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
+      phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
                   .from(phase2, config.failOnMessages)
                   .map(ParserError(_))
@@ -102,8 +104,7 @@ class MarkupParser (val format: MarkupFormat, val config: OperationConfig) {
                           .resolve(Origin(DocumentScope, input.path), config.baseConfig)
                           .left.map(ParserError(_, input.path))
       resolvedDoc    =  resolveDocument(unresolved, resolvedConfig)
-      rules          <- config.rewriteRulesFor(resolvedDoc).left.map(ParserError(_, input.path))
-      result         <- rewriteDocument(resolvedDoc, rules)
+      result         <- rewriteDocument(resolvedDoc)
     } yield result
   }
 

@@ -21,14 +21,14 @@ import laika.api._
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.directive.{Blocks, DirectiveRegistry, Spans}
-import laika.format.ReStructuredText
+import laika.format.{AST, ReStructuredText}
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionProvider
 import laika.rst.ext.TextRoles._
 import munit.FunSuite
 
-class APISpec extends FunSuite with ParagraphCompanionShortcuts {
+class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
   
   
   test("registration of native block directives") {
@@ -39,11 +39,13 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
     val input = """.. oneArg:: arg
       |
       |.. twoArgs:: arg arg""".stripMargin
-    val res = MarkupParser
+    val parser = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(blocks = directives))
       .build
+    val res = parser
       .parse(input)
+      .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p("arg"), p("argarg"))))
   }
@@ -58,11 +60,13 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
       |.. |one| oneArg:: arg
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
-    val res = MarkupParser
+    val parser = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(spans = directives))
       .build
+    val res = parser
       .parse(input)
+      .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p(Text("foo arg foo argarg")))))
   }
@@ -85,11 +89,13 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
       |.. role::two(twoArgs)
       | :name1: val1
       | :name2: val2""".stripMargin
-    val res = MarkupParser
+    val parser = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(roles = roles))
       .build
+    val res = parser
       .parse(input)
+      .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p(Text("foo valone foo val1val2two")))))
   }
@@ -161,11 +167,13 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts {
   
   test("registration of Laika span directives") {
     val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-    val res = MarkupParser
+    val parser = MarkupParser
       .of(ReStructuredText)
       .using(SpanDirectives.Registry)
       .build
+    val res = parser
       .parse(input)
+      .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p("one arg two arg1arg2 three"))))
   }

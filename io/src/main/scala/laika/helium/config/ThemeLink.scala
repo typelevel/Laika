@@ -37,6 +37,8 @@ sealed trait ThemeLink extends SpanResolver {
 
   def unresolvedMessage: String = s"Unresolved theme link: $this"
 
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
   protected def createLink (target: Target): Link
   
 }

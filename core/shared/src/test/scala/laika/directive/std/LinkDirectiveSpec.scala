@@ -16,20 +16,21 @@
 
 package laika.directive.std
 
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
 import laika.ast.Path.Root
-import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.ast._
-import laika.format.Markdown
-import laika.parse.markup.DocumentParser.ParserError
+import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.format.{HTML, Markdown}
+import laika.parse.markup.DocumentParser.TransformationError
 import munit.FunSuite
 
-class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
+class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders with RenderPhaseRewrite {
 
 
   private lazy val markupParser = MarkupParser.of(Markdown).failOnMessages(MessageFilter.None).build
 
-  def parse (input: String, path: Path = Root / "doc"): Either[ParserError, Document] = markupParser.parse(input, path)
+  def parse (input: String, path: Path = Root / "doc"): Either[TransformationError, Document] = 
+    markupParser.parse(input, path).flatMap(rewrite(markupParser, HTML))
   
 
   object Api {

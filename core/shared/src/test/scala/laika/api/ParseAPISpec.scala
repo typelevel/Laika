@@ -16,18 +16,20 @@
 
 package laika.api
 
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import laika.parse.markup.DocumentParser.ParserError
-import laika.rewrite.TemplateRewriter
+import laika.rewrite.OutputContext
 import munit.FunSuite
 
 
 class ParseAPISpec extends FunSuite
                    with ParagraphCompanionShortcuts
-                   with TestSourceBuilders {
+                   with TestSourceBuilders 
+                   with RenderPhaseRewrite {
   
   
   val parser: MarkupParser = MarkupParser.of(Markdown).build
@@ -52,7 +54,8 @@ class ParseAPISpec extends FunSuite
   test("set a config value programmatically") {
     val input = "aa ${prop} bb"
     val parser = MarkupParser.of(Markdown).withConfigValue("prop", "foo").build
-    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(
+    val result = parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content)
+    assertEquals(result, Right(RootElement(p(
       Text("aa foo bb")
     ))))
   }
@@ -94,9 +97,10 @@ class ParseAPISpec extends FunSuite
                   |
                   |[invalid2]""".stripMargin
     val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    val res = DocumentCursor(doc)
-      .flatMap(cursor => doc.rewrite(TemplateRewriter.rewriteRules(cursor)))
-      .map(_.content)
+    val res = for {
+      rules <- OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(OutputContext(HTML)))
+      rewritten <- doc.rewrite(rules)
+    } yield rewritten.content
     assertEquals(res, Right(RootElement(
       p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
       p("Text"),

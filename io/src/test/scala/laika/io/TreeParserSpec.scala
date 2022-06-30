@@ -16,16 +16,18 @@
 
 package laika.io
 
+import cats.syntax.all._
 import cats.data.{Chain, NonEmptyChain}
 import cats.effect.IO
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders}
 import laika.bundle._
 import laika.config.ConfigException
-import laika.format.{Markdown, ReStructuredText}
+import laika.format.{HTML, Markdown, ReStructuredText}
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
@@ -34,7 +36,7 @@ import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{InvalidDocument, InvalidDocuments}
 import laika.parse.text.TextParsers
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -90,10 +92,12 @@ class TreeParserSpec
   def docResult (name: String): Document = Document(Root / name, RootElement(defaultContent))
   def customDocResult(name: String, content: Seq[Block], path: Path = Root): Document = 
     Document(path / name, RootElement(content))
-
-  def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = 
-    TemplateRewriter.applyTemplates(parsed.root, OutputContext("html")).toOption.get
     
+  def applyTemplates (parsed: ParsedTree[IO]): DocumentTreeRoot = {
+    val rules = OperationConfig.default.rewriteRulesFor(parsed.root, RewritePhase.Render(HTML))
+    parsed.root.applyTemplates(rules, OutputContext(HTML)).toOption.get
+  }
+
   def parsedTree (inputs: Seq[(Path, String)], f: InputTreeBuilder[IO] => InputTreeBuilder[IO] = identity): IO[DocumentTreeRoot] = defaultParser
     .use(_.fromInput(f(build(inputs))).parse)
     .map(applyTemplates)
@@ -117,11 +121,13 @@ class TreeParserSpec
     parserWithBundle(bundle)
       .use(_.fromInput(build(inputs)).parse)
       .flatMap { parsed =>
-        IO.fromEither(DocumentCursor(Document(Root, RootElement.empty)).map(cursor => 
+        val emptyDoc = Document(Root, RootElement.empty)
+        val rules = OperationConfig.default.rewriteRulesFor(emptyDoc, RewritePhase.Render(HTML))
+        IO.fromEither(rules.map(rules => 
           parsed.root.tree.templates.map { tpl =>
-            tpl.content.rewriteChildren(TemplateRewriter.rewriteRules(cursor))
+            tpl.content.rewriteChildren(rules)
           }
-        ).left.map(ConfigException.apply))
+        ).leftMap(ConfigException.apply))
       }
   }
   

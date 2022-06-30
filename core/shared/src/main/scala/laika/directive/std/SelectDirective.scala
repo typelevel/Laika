@@ -55,13 +55,12 @@ object SelectDirective {
           config.getSelection(name).toRight(s"Not found: selection '$name'").flatMap { selection =>
             multiPart
               .children.toList
-              .map { choice =>
+              .traverse { choice =>
                 selection
                   .getLabel(choice.name)
                   .map(label => choice.copy(content = multiPart.mainBody ++ choice.content, label = label))
                   .toValidNec(s"No label defined for choice '${choice.name}' in selection '$name'")
               }
-              .sequence
               .map(Selection(name, _))
               .toEither
               .leftMap(_.mkString_(", "))

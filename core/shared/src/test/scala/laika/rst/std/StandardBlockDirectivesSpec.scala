@@ -17,17 +17,17 @@
 package laika.rst.std
 
 import cats.data.NonEmptySet
-import laika.api.MarkupParser
+import laika.api.{MarkupParser, RenderPhaseRewrite}
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, SampleTrees}
 import laika.config.{ConfigValue, Field, LaikaKeys, ObjectValue, StringValue}
-import laika.format.ReStructuredText
+import laika.format.{AST, HTML, ReStructuredText}
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import laika.rewrite.link.LinkConfig
 import laika.rst.ast.{Contents, Include, RstStyle}
 import munit.FunSuite
@@ -35,7 +35,7 @@ import munit.FunSuite
 /**
  * @author Jens Halm
  */
-class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts {
+class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
 
   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
 
@@ -48,8 +48,13 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
     .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
   
-  def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit =
-    assertEquals(docParser.parse(input).map(_.content), Right(RootElement(expected)))
+  def run (input: String, expected: Block*)(implicit loc: munit.Location): Unit = {
+    val res = docParser
+      .parse(input)
+      .flatMap(rewrite(docParser, AST))
+      .map(_.content)
+    assertEquals(res, Right(RootElement(expected)))
+  }
 
   def runRaw (input: String, expected: Block*): Unit = {
     val res = parser
@@ -560,8 +565,10 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       .tree
 
     val result = for {
-      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-      templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), OutputContext("html"))
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
+      root              = DocumentTreeRoot(rewrittenTree)
+      rules             = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
+      templatesApplied <- root.applyTemplates(rules, OutputContext(HTML))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
 
     assertEquals(result, Right(RootElement(BlockSequence("text"))))
@@ -645,8 +652,10 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val result = for {
-      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree)))
-      templatesApplied <- TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), OutputContext("html"))
+      rewrittenTree    <- tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(DocumentTreeRoot(tree), RewritePhase.Resolve))
+      root              = DocumentTreeRoot(rewrittenTree)
+      rules             = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
+      templatesApplied <- root.applyTemplates(rules, OutputContext(HTML))
     } yield templatesApplied.tree.content.collect { case doc: Document => doc }.head.content
     assertEquals(result, Right(expected))
   }

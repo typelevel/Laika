@@ -16,13 +16,14 @@
 
 package laika.ast
 
-import cats.data.NonEmptyChain
 import cats.syntax.all._
-import laika.ast.RewriteRules.ChainedRewriteRules
+import laika.ast.RewriteRules.{ChainedRewriteRules, RewriteRulesBuilder}
 import laika.config.Config.ConfigResult
 import laika.config.ConfigErrors
+import laika.factory.{RenderFormat, TwoPhaseRenderFormat}
+import laika.rewrite.{OutputContext, TemplateFormatter, UnresolvedNodeDetector}
 import laika.rewrite.link.LinkResolver
-import laika.rewrite.nav.SectionBuilder
+import laika.rewrite.nav.{SectionBuilder, Selections}
 
 import scala.annotation.tailrec
 
@@ -186,6 +187,8 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     }
   }
   
+  def asBuilder: RewriteRulesBuilder = _ => Right(this)
+  
 }
 
 /** Factory methods and utilities for dealing with rewrite rules.
@@ -195,6 +198,8 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
 object RewriteRules {
   
   type RewriteRulesBuilder = DocumentCursor => ConfigResult[RewriteRules]
+  
+  type RewritePhaseBuilder = PartialFunction[RewritePhase, Seq[RewriteRulesBuilder]]
 
   /** Creates a new instance without any rules. Applying an empty instance to an AST will always
     * return the AST unchanged.
@@ -253,9 +258,11 @@ object RewriteRules {
     * These are not installed as part of any default extension bundle as they have specific
     * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
     */
-  def defaultsFor (root: DocumentTreeRoot, slugBuilder: String => String): Seq[RewriteRulesBuilder] = 
-    Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
-
+  def defaultsFor (root: DocumentTreeRoot, phase: RewritePhase, slugBuilder: String => String): Seq[RewriteRulesBuilder] = phase match {
+    case RewritePhase.Build     => Nil
+    case RewritePhase.Resolve   => Seq(new LinkResolver(root, slugBuilder), SectionBuilder)
+    case RewritePhase.Render(_) => Seq(Selections.FormatFilter, NavigationList.FormatFilter, TemplateFormatter, UnresolvedNodeDetector)
+  }
 }
 
 /** Describes the action to be performed for a particular node in the document AST.
@@ -273,3 +280,47 @@ case object Retain extends RewriteAction[Nothing]
 /** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
   */
 case object Remove extends RewriteAction[Nothing]
+
+/** Represents one of the rewrite phases for document AST transformations.
+  * 
+  * These transformations are performed between parsing and rendering and deal with tasks like
+  * link validation, resolving substitution variables, directive processing or other tasks. 
+  * 
+  * A phased model allows to separate rules that contribute new nodes to the AST from nodes
+  * that analyze the existing AST, e.g. for producing navigation artifacts.
+  * Running them all in one phase would create a chicken-and-egg scenario that would usually
+  * lead to undesired or unexpected results.
+  */
+sealed trait RewritePhase
+
+case object RewritePhase {
+  
+  /** Represents the first rewrite phase after parsing.
+    * 
+    * This is the only phase where the introduction of new link targets is still allowed.
+    * By default all directives and all rewrite rules that do *not* have access to a document cursor
+    * run in this phase.
+    */
+  case object Build extends RewritePhase
+
+  /** Represents the second rewrite phase between parsing and rendering.
+    * 
+    * By default no user rules or directives run in this phase,
+    * it is mostly reserved for the internal rules for link resolvers and similar tasks.
+    */
+  case object Resolve extends RewritePhase
+
+  /** Represents the final rewrite phase before rendering.
+    * 
+    * This phase is specific to the output format and therefore the only phase type that is parameterized.
+    * By default all directives and all rewrite rules that do have access to a document cursor
+    * run in this phase to ensure that their cursor represents a state that is close to the final AST
+    * passed to the renderer.
+    */
+  case class Render(context: OutputContext) extends RewritePhase
+  
+  object Render {
+    def apply(format: RenderFormat[_]): Render = apply(OutputContext(format))
+    def apply(format: TwoPhaseRenderFormat[_,_]): Render = apply(OutputContext(format))
+  }
+}

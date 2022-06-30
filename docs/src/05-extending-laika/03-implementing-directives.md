@@ -496,14 +496,19 @@ this combinator may come in handy.
 Access to the Document Cursor
 -----------------------------
 
-Finally you can also request access to the document cursor with the `cursor` combinator. 
+Finally, you can also request access to the document cursor with the `cursor` combinator. 
 
 A `DocumentCursor` instance provides access to the project configuration and to all ASTs of the input tree, 
 including those from other documents. 
 It can therefore be used for advanced functionality like producing a table of contents.
 
+For being able to perform inspection tasks like this, directives requesting access to the cursor
+are executed in a later phase than other directives so that they can inspect a fully resolved document AST.
+This means that such a directive is not supposed to insert any link targets itself,
+as the processing and validation for them has already happened when this directive is run.
+
 Our sample directive implementation showed a complete example of using this combinator
-in [Access to Configuration]
+in [Access to Configuration].
 
 
 Link Directives
