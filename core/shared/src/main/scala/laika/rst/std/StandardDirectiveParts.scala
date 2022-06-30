@@ -21,7 +21,6 @@ import laika.parse.implicits._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{CharGroup, TextParsers}
 import laika.parse.{GeneratedSource, SourceFragment}
-import laika.rewrite.link.LinkConfig
 import laika.rst.BaseParsers.sizeAndUnit
 import laika.rst.ext.Directives.DirectivePartBuilder
 import laika.rst.ext.Directives.Parts._
@@ -93,6 +92,7 @@ object StandardDirectiveParts {
     val options: Options = image.options
     override def resolve (cursor: DocumentCursor): Span = cursor.validateAndRecover(image, source)
     override def withOptions (options: Options): ImageResolver = copy(image = image.withOptions(options))
+    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
     lazy val unresolvedMessage: String = s"Unresolved image resolver for target '${image.target}'"
   }
 

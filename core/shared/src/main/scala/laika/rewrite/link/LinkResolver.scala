@@ -21,6 +21,7 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Config.ConfigResult
 import laika.directive.Blocks
+import laika.parse.GeneratedSource
 
 import scala.annotation.tailrec
 
@@ -53,17 +54,23 @@ class LinkResolver (root: DocumentTreeRoot, slugBuilder: String => String) exten
     def replace (element: Element, selector: Selector): Option[Element] = 
       targets.select(cursor.path, selector)
         .flatMap(_.replaceTarget(element))
+        
+    def describeUnknownTarget (target: Element): String = {
+      val id = target.options.id.fold("<no id>")(id => s"id $id")
+      val tpe = target.productPrefix
+      s"link target of type $tpe with $id can only be inserted in RewritePhase.Build"
+    }
 
-    def replaceBlock (element: Block, selector: Selector): RewriteAction[Block] =
-      replace(element, selector) match {
+    def replaceBlock (block: Block, selector: Selector): RewriteAction[Block] =
+      replace(block, selector) match {
         case Some(b: Block) => Replace(b)
-        case _              => Remove
+        case _              => Replace(InvalidBlock(describeUnknownTarget(block), GeneratedSource).copy(fallback = block.withoutId))
       }
 
-    def replaceSpan (element: Span, selector: Selector): RewriteAction[Span] =
-      replace(element, selector) match {
+    def replaceSpan (span: Span, selector: Selector): RewriteAction[Span] =
+      replace(span, selector) match {
         case Some(b: Span) => Replace(b)
-        case _             => Remove
+        case _             => Replace(InvalidSpan(describeUnknownTarget(span), GeneratedSource).copy(fallback = span.withoutId))
       }
 
     def resolveWith (ref: Reference, target: Option[TargetResolver], msg: => String): RewriteAction[Span] = {

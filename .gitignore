@@ -21,6 +21,7 @@ project/plugins/project/
 *.ipr
 *.iws
 out/
+/.run/
 
 # Scala-IDE
 .scala_dependencies

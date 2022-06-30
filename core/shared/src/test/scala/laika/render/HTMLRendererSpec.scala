@@ -36,26 +36,27 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   
   private def pathTranslator (specs: Map[Path, PathAttributes], versioned: Boolean = false): PathTranslator = ConfigurablePathTranslator(
     TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
-    OutputContext("html"),
+    OutputContext(HTML),
     Root / "doc",
     path => specs.get(path.withoutFragment)
   )
 
-  def run (elem: Element, expected: String): Unit = assertEquals(defaultRenderer.render(elem), expected)
+  def run (elem: Element, expected: String): Unit = 
+    assertEquals(defaultRenderer.render(elem), Right(expected))
   
   def runWithFilter (elem: Element, filter: MessageFilter, expected: String): Unit = {
     val renderer = Renderer.of(HTML).renderMessages(filter).build
-    assertEquals(renderer.render(elem), expected)
+    assertEquals(renderer.render(elem), Right(expected))
   }
 
   def runWithStaticDocs (elem: Element, specs: Map[Path, PathAttributes], expected: String, versioned: Boolean = false): Unit = {
     val res = defaultRenderer.render(elem, Root / "doc", pathTranslator(specs, versioned), StyleDeclarationSet.empty)
-    assertEquals(res, expected)
+    assertEquals(res, Right(expected))
   }
     
   def runUnformatted (elem: Element, expected: String): Unit = {
     val res = Renderer.of(HTML).unformatted.build.render(elem)
-    assertEquals(res, expected)
+    assertEquals(res, Right(expected))
   }
   
   private val staticUnversionedSpec = PathAttributes(isStatic = true, isVersioned = false)

@@ -17,17 +17,17 @@
 package laika.rewrite
 
 import cats.implicits._
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Origin.TemplateScope
 import laika.config.{ConfigError, LaikaKeys, Origin, ValidationError}
+import laika.factory.{RenderFormat, TwoPhaseRenderFormat}
 import laika.parse.{LineSource, SourceCursor}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.Selections
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 
-trait TemplateRewriter {
+private[laika] trait TemplateRewriter {
 
   private val defaultTemplateRoot: TemplateRoot = {
     val src = s"$${${CursorKeys.documentContent}}"
@@ -43,30 +43,27 @@ trait TemplateRewriter {
   /** Selects and applies the templates for the specified output format to all documents 
     * within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTreeRoot, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
-    
+  def applyTemplates (tree: DocumentTreeRoot, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
     for {
       cursor   <- RootCursor(tree, Some(context))
       newCover <- cursor.coverDocument
                     .filter(shouldRender(context.formatSelector))
-                    .traverse(applyTemplate(_, context))
-      newTree  <- applyTemplates(cursor.tree, context)
+                    .traverse(applyTemplate(_, rules, context))
+      newTree  <- applyTemplates(cursor.tree, rules, context)
     } yield {
       cursor.target.copy(
         coverDocument = newCover,
         tree = newTree
       )
     }
-    
   }
   
-  private def applyTemplates (cursor: TreeCursor, context: OutputContext): Either[ConfigError, DocumentTree] = {
-
+  private def applyTemplates (cursor: TreeCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTree] = {
     for {
-      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, context))
+      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, rules, context))
       newContent <- cursor.children.filter(shouldRender(context.formatSelector)).toList.traverse {
-                      case doc: DocumentCursor => applyTemplate(doc, context)
-                      case tree: TreeCursor    => applyTemplates(tree, context)
+                      case doc: DocumentCursor => applyTemplate(doc, rules, context)
+                      case tree: TreeCursor    => applyTemplates(tree, rules, context)
                     }
     } yield {
       cursor.target.copy(
@@ -75,30 +72,31 @@ trait TemplateRewriter {
         templates = Nil
       )
     }
-    
   }
   
-  private def applyTemplate (cursor: DocumentCursor, context: OutputContext): Either[ConfigError, Document] =
-    selectTemplate(cursor, context.fileSuffix)
-      .map(_.getOrElse(defaultTemplate(context.fileSuffix)))
-      .flatMap(applyTemplate(cursor, _))
+  private def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, Document] = for {
+    template <- selectTemplate(cursor, context.fileSuffix).map(_.getOrElse(defaultTemplate(context.fileSuffix)))
+    doc      <- applyTemplate(cursor, rules, template)
+  } yield doc
 
   /** Applies the specified template to the target of the specified document cursor.
     */
-  def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Either[ConfigError, Document] = {
-    template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).map { mergedConfig =>
+  def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, template: TemplateDocument): Either[ConfigError, Document] = {
+    template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).flatMap { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
         resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position),
         templatePath = Some(template.path)
       )
-      val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
-      val newRoot = newContent match {
-        case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
-        case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-        case other => RootElement(other)
-      }
-      cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
+      rules(cursorWithMergedConfig).map { docRules =>
+        val newContent = docRules.rewriteBlock(template.content)
+        val newRoot = newContent match {
+          case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
+          case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
+          case other => RootElement(other)
+        }
+        cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
+      } 
     }
   }
   
@@ -129,81 +127,21 @@ trait TemplateRewriter {
     }
   }
   
-  /** The default rewrite rules for template documents,
-    * responsible for replacing all span and block resolvers with the final resolved element they produce 
-    * based on the specified document cursor and its configuration.
-    */
-  def rewriteRules (cursor: DocumentCursor): RewriteRules = {
-    
-    // maps selection name to selected choice name
-    val selections: Map[String, String] = cursor.root.config
-      .get[Selections]
-      .getOrElse(Selections.empty)
-      .selections
-      .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
-      .toMap
-    
-    def select (selection: Selection, selectedChoice: String): Block = selection.choices
-      .find(_.name == selectedChoice)
-      .fold[Block](selection)(choice => BlockSequence(choice.content))
-    
-    lazy val rules: RewriteRules = RewriteRules.forBlocks {
-      case ph: BlockResolver                => Replace(rewriteBlock(ph.resolve(cursor)))
-      case sel: Selection if selections.contains(sel.name) => Replace(select(sel, selections(sel.name)))
-      case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
-      case unresolved: Unresolved           => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
-      case sc: SpanContainer with Block     => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Block])
-      case nl: NavigationList if !nl.hasStyle("breadcrumb") => Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
-    } ++ RewriteRules.forSpans {
-      case ph: SpanResolver                 => Replace(rewriteSpan(ph.resolve(cursor)))
-      case unresolved: Unresolved           => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
-      case sc: SpanContainer with Span      => Replace(sc.withContent(joinTextSpans(sc.content)).asInstanceOf[Span])
-    } ++ RewriteRules.forTemplates {
-      case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
-      case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
-      case unresolved: Unresolved           => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
-    }
-    
-    def asTemplateSpan (span: Span) = span match {
-      case t: TemplateSpan => t
-      case s => TemplateElement(s)
-    } 
-    def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
-    def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
-    def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
-    
-    def joinTextSpans (spans: Seq[Span]): Seq[Span] = if (spans.isEmpty) spans
-      else spans.sliding(2).foldLeft(spans.take(1)) {
-        case (acc, Seq(Text(_, NoOpt), Text(txt2, NoOpt))) => 
-          acc.dropRight(1) :+ Text(acc.last.asInstanceOf[Text].content + txt2)
-        case (acc, Seq(_, other)) => acc :+ other
-        case (acc, _) => acc
-      }
-    
-    def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
-      def indentFor(text: String): Int = text.lastIndexOf('\n') match {
-        case -1    => 0
-        case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
-      }
-      if (spans.isEmpty) spans
-      else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
-        case (buffer, Seq(TemplateString(text, NoOpt), TemplateElement(elem, 0, opt))) => 
-          buffer += TemplateElement(elem, indentFor(text), opt)
-        case (buffer, Seq(TemplateString(text, NoOpt), EmbeddedRoot(elem, 0, opt))) =>
-          buffer += EmbeddedRoot(elem, indentFor(text), opt)
-        case (buffer, Seq(_, elem)) => buffer += elem
-        case (buffer, _) => buffer
-      }.toList
-    }
-    rules
-  }
-  
 }
 
-object TemplateRewriter extends TemplateRewriter
+private[laika] object TemplateRewriter extends TemplateRewriter
 
+/** Describes the output for a render operation.
+  * 
+  * The format selector is used by any configuration elements that allows to restrict
+  * the output of documents to certain target formats.
+  * It is not always identical to the fileSuffix used for the specific format.
+  */
 case class OutputContext (fileSuffix: String, formatSelector: String)
 
 object OutputContext {
   def apply (format: String): OutputContext = apply(format, format)
+  def apply (format: RenderFormat[_]): OutputContext = apply(format.fileSuffix, format.description.toLowerCase)
+  def apply (format: TwoPhaseRenderFormat[_,_]): OutputContext = 
+    apply(format.interimFormat.fileSuffix, format.description.toLowerCase)
 }

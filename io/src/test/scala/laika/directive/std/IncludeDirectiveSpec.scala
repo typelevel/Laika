@@ -18,14 +18,15 @@ package laika.directive.std
 
 import cats.effect.{IO, Resource}
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.ConfigException
-import laika.format.Markdown
+import laika.format.{HTML, Markdown}
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -79,7 +80,7 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     }
     .flatMap { tree =>
       IO.fromEither {
-        TemplateRewriter.applyTemplates(tree.root, OutputContext("html", "html"))
+        tree.root.applyTemplates(OperationConfig.default.rewriteRulesFor(tree.root, RewritePhase.Render(HTML)), OutputContext(HTML))
           .left.map(ConfigException.apply)
           .flatMap { root =>
             root.tree.selectDocument("dir2/doc-4.md")

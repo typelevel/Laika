@@ -16,8 +16,8 @@
 
 package laika.directive
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, NoOpt, Options, Replace, RewriteRules, Span, SpanResolver}
+import laika.ast.RewriteRules.RewritePhaseBuilder
+import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, NoOpt, Options, Replace, RewritePhase, RewriteRules, Span, SpanResolver}
 import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
 import laika.config.ConfigParser
 import laika.parse.{Parser, SourceFragment}
@@ -77,20 +77,20 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
 
     def withOptions(options: Options): LinkDirectiveResolver = copy(options = options)
 
+    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
     def unresolvedMessage: String = s"unresolved api directive for type $typeName"
   }
   
-  override lazy val rewriteRules: Seq[RewriteRulesBuilder] = Seq(
-    _ => Right(RewriteRules.forSpans {
-      case ref: LinkIdReference if ref.ref.startsWith("@:") => 
+  override lazy val rewriteRules: RewritePhaseBuilder = { 
+    case RewritePhase.Resolve => Seq(RewriteRules.forSpans {
+      case ref: LinkIdReference if ref.ref.startsWith("@:") =>
         linkParser.parse(ref.ref.drop(2)).toEither.fold(
           err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
           res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
         )
-        // In the current design for rewrite rules which does not allow to specify a phase to be executed in,
-        // we need to insert a span resolver to get into a later phase where target ids have all been resolved.
-    })
-  )
+      }.asBuilder)
+    }
 
   /** Hook for extension registries for adding block, span and template directives.
     */

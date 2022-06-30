@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
-import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, VirtualPath, SpanSequence, TemplateElement}
+import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, RewritePhase, SpanSequence, TemplateElement, VirtualPath}
 import laika.config.{ConfigDecoder, ConfigError, Key}
 import laika.directive.{Blocks, Templates}
 import laika.parse.{GeneratedSource, SourceFragment}
@@ -112,6 +112,8 @@ object NavigationTreeDirectives {
 
     def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
 
+    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+    
     lazy val unresolvedMessage: String = "Unresolved navigation builder"
   }
 

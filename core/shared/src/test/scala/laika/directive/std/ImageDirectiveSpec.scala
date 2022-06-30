@@ -16,13 +16,15 @@
 
 package laika.directive.std
 
+import laika.api.RenderPhaseRewrite
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, Options, RootElement, SpanSequence, Styles, Text}
+import laika.format.HTML
 import munit.FunSuite
 
-class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with MarkupParserSetup {
+class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with MarkupParserSetup with RenderPhaseRewrite {
 
 
   val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
@@ -40,7 +42,7 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
 
   def runBlocks (input: String, expected: Image, options: Options = defaultBlockStyle): Unit = 
     assertEquals(
-      parse(blocks(input)).map(_.content), 
+      parse(blocks(input)).flatMap(rewrite(markupParser, HTML)).map(_.content), 
       Right(RootElement(
         p("aaa"),
         BlockSequence(Seq(SpanSequence(expected)), options),
@@ -50,7 +52,7 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
     
   def runSpans (input: String, expected: Image): Unit =
     assertEquals(
-      parse(input).map(_.content),
+      parse(input).flatMap(rewrite(markupParser, HTML)).map(_.content),
       Right(RootElement(p(Text("aaa "), expected, Text(" bbb"))))
     )
   

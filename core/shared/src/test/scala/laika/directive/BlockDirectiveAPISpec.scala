@@ -17,12 +17,15 @@
 package laika.directive
 
 import cats.implicits._
+import laika.api.RenderPhaseRewrite
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
 import laika.config.ConfigBuilder
 import laika.directive.std.StandardDirectives
+import laika.format.HTML
 import laika.parse.builders._
 import laika.parse.combinator.Parsers
 import laika.parse.implicits._
@@ -135,6 +138,7 @@ class BlockDirectiveAPISpec extends FunSuite
         val source: SourceFragment = generatedSource("@:dir")
         val unresolvedMessage = "broken"
         def withOptions (options: Options): Self = copy(options = options)
+        def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
       }
       val directive = Blocks.create("dir") {
         Blocks.dsl.empty(DummyResolver())
@@ -143,7 +147,7 @@ class BlockDirectiveAPISpec extends FunSuite
     
   }
   
-  trait BlockParser {
+  trait BlockParser extends RenderPhaseRewrite {
 
     def directive: Blocks.Directive
     
@@ -159,9 +163,8 @@ class BlockDirectiveAPISpec extends FunSuite
       blockParsers = Seq(paragraphParser),
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement.evalMap { root =>
-      DocumentCursor(Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build))
-        .map(c => TemplateRewriter.rewriteRules(c).rewriteBlock(root).asInstanceOf[RootElement])
-        .left.map(_.message)
+      val doc = Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
+      rewrite(HTML)(doc).map(_.content).leftMap(_.message)
     }
 
     def invalid (fragment: String, error: String): InvalidBlock = InvalidBlock(error, source(fragment, input))

@@ -28,6 +28,7 @@ import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.rewrite.OutputContext
+import laika.rewrite.RecursiveResolverRules
 import laika.rewrite.link.SlugBuilder
 import laika.rewrite.nav.PathTranslator
 
@@ -154,14 +155,21 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRulesFor (root: DocumentTreeRoot): RewriteRulesBuilder =
-    RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaultsFor(root, slugBuilder))
+  def rewriteRulesFor (root: DocumentTreeRoot, phase: RewritePhase): RewriteRulesBuilder = {
+    val baseRules = RewriteRules.chainFactories(
+      mergedBundle.rewriteRules.lift(phase).getOrElse(Nil) ++ 
+        RewriteRules.defaultsFor(root, phase, slugBuilder)
+    )
+    cursor => baseRules(cursor).map(RecursiveResolverRules.applyTo(cursor, _, phase))
+  }
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRulesFor (doc: Document): ConfigResult[RewriteRules] =
-    DocumentCursor(doc).flatMap(cursor => rewriteRulesFor(cursor.root.target)(cursor))
+  def rewriteRulesFor (doc: Document, phase: RewritePhase): ConfigResult[RewriteRules] =
+    DocumentCursor(doc).flatMap { cursor => 
+      rewriteRulesFor(cursor.root.target, phase).apply(cursor)
+    }
 
   /** Provides the overrides for the specified render format.
     */

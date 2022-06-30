@@ -289,7 +289,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     */
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
     type Self = ListItemBody
-    def withContent (newContent: Seq[Block]): ListItemBody = copy(content = content)
+    def withContent (newContent: Seq[Block]): ListItemBody = copy(content = newContent)
     def withOptions (options: Options): ListItemBody = copy(options = options)
   }
 
@@ -297,7 +297,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     */
   case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
     type Self = FootnoteBody
-    def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = content)
+    def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = newContent)
     def withOptions (options: Options): FootnoteBody = copy(options = options)
   }
 

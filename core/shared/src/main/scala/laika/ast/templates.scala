@@ -16,11 +16,9 @@
 
 package laika.ast
 
-import laika.config.Config.ConfigResult
 import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue}
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.TemplateRewriter
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
@@ -30,16 +28,62 @@ import laika.rewrite.TemplateRewriter
  */
 trait SpanResolver extends Span with Unresolved {
   def resolve (cursor: DocumentCursor): Span
+  def runsIn (phase: RewritePhase): Boolean
 }
 
-/** Represents a placeholder block element that needs
- *  to be resolved in a rewrite step.
- *  Useful for elements that need access to the
- *  document, structure, title or configuration before
- *  being fully resolved.
+/** Represents a placeholder block element that needs to be resolved in a rewrite step.
+ *  Useful for elements that need access to the document, structure, title
+ *  or configuration before being fully resolved.
  */
 trait BlockResolver extends Block with Unresolved {
   def resolve (cursor: DocumentCursor): Block
+  def runsIn (phase: RewritePhase): Boolean
+}
+
+/** Represents an element that introduces new context that can be used in substitution references
+  * in any child element.
+  * 
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
+trait ElementScope[E <: Element] extends Unresolved {
+  def content: E
+  def context: ConfigValue
+}
+
+/** Represents a block element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
+case class BlockScope (content: Block, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
+  extends ElementScope[Block] with Block {
+  type Self = BlockScope
+  def withOptions (options: Options): BlockScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved block scope"
+}
+
+/** Represents a span element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
+case class SpanScope (content: Span, context: ConfigValue, source: SourceFragment, options: Options = NoOpt) 
+  extends ElementScope[Span] with Span {
+  type Self = SpanScope
+  def withOptions (options: Options): SpanScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved span scope"
+}
+
+/** Represents a template span element that introduces new context that can be used in substitution references
+  * in any child element.
+  *
+  * Usually used in directive implementations and not contributing to the rendered output itself.
+  */
+case class TemplateScope (content: TemplateSpan, context: ConfigValue, source: SourceFragment, options: Options = NoOpt)
+  extends ElementScope[TemplateSpan] with TemplateSpan {
+  type Self = TemplateScope
+  def withOptions (options: Options): TemplateScope = copy(options = options)
+  lazy val unresolvedMessage: String = s"Unresolved template scope"
 }
 
 /** Represents a reference to a value from the context
@@ -58,16 +102,6 @@ trait BlockResolver extends Block with Unresolved {
  */
 abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) extends SpanResolver {
 
-  def result (value: ConfigResult[Option[ConfigValue]]): T
-
-  def resolve (cursor: DocumentCursor): Span = {
-    
-    cursor.resolveReference(ref) match {
-      case Right(Some(ASTValue(element: Element))) => result(Right(Some(ASTValue(TemplateRewriter.rewriteRules(cursor).rewriteElement(element)))))
-      case other                                   => result(other)
-    }
-  }
-
   protected def missing: InvalidSpan = InvalidSpan(s"Missing required reference: '$ref'", source)
   
   protected def invalid(cError: ConfigError): InvalidSpan = 
@@ -82,8 +116,8 @@ abstract class ContextReference[T <: Span] (ref: Key, source: SourceFragment) ex
 case class TemplateContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) 
     extends ContextReference[TemplateSpan](ref, source) with TemplateSpan {
   type Self = TemplateContextReference
-  
-  def result (value: ConfigResult[Option[ConfigValue]]): TemplateSpan = value match {
+
+  def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
     case Right(Some(ASTValue(s: TemplateSpan)))        => s
     case Right(Some(ASTValue(RootElement(content,_)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))             => TemplateElement(e)
@@ -94,7 +128,8 @@ case class TemplateContextReference (ref: Key, required: Boolean, source: Source
     case Left(configError)                             => TemplateElement(invalid(configError))
   }
   def withOptions (options: Options): TemplateContextReference = copy(options = options)
-
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+  
   lazy val unresolvedMessage: String = s"Unresolved template context reference with key '${ref.toString}'"
 }
 
@@ -103,7 +138,7 @@ case class TemplateContextReference (ref: Key, required: Boolean, source: Source
 case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFragment, options: Options = NoOpt) extends ContextReference[Span](ref, source) {
   type Self = MarkupContextReference
 
-  def result (value: ConfigResult[Option[ConfigValue]]): Span = value match {
+  def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
     case Right(Some(ASTValue(s: Span)))         => s
     case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
     case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
@@ -113,6 +148,8 @@ case class MarkupContextReference (ref: Key, required: Boolean, source: SourceFr
     case Left(configError)                      => invalid(configError)
   }
   def withOptions (options: Options): MarkupContextReference = copy(options = options)
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render] // TODO - test earlier phases
+  
   lazy val unresolvedMessage: String = s"Unresolved markup context reference with key '${ref.toString}'"
 }
 
@@ -200,7 +237,7 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 
 /** The root element of a template document tree.
  */
-case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer {
+case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpan with TemplateSpanContainer {
   type Self = TemplateRoot
   def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
   def withOptions (options: Options): TemplateRoot = copy(options = options)
@@ -222,7 +259,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
  */
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot
-  def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
+  def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = newContent)
   def withOptions (options: Options): EmbeddedRoot = copy(options = options)
 }
 object EmbeddedRoot extends BlockContainerCompanion {

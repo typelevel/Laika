@@ -26,6 +26,7 @@ import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
+import laika.parse.markup.DocumentParser.RendererError
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{BasicPathTranslator, ConfigurablePathTranslator, PathAttributes, TargetFormats, TranslatorConfig}
 import munit.FunSuite
@@ -40,26 +41,26 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   private val defaultParagraphStyles = """font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify""""
   private val ruleBlock = """<fo:block space-after="3mm"><fo:leader leader-length="100%" leader-pattern="rule" rule-style="solid" rule-thickness="2pt"></fo:leader></fo:block>""" 
   
-  def render (elem: Element, style: StyleDeclarationSet): String = 
+  def render (elem: Element, style: StyleDeclarationSet): Either[RendererError, String] = 
     defaultRenderer.render(elem, Root / "doc", pathTranslator, style)
   
   def run (input: Element, expectedFO: String)(implicit loc: munit.Location): Unit =
-    assertEquals(render(input, TestTheme.foStyles), expectedFO)
+    assertEquals(render(input, TestTheme.foStyles), Right(expectedFO))
 
   def run (input: Element, style: StyleDeclaration, expectedFO: String)(implicit loc: munit.Location): Unit =
     run(input, TestTheme.foStyles ++ StyleDeclarationSet(Path.Root, style), expectedFO)
 
   def run (input: Element, style: StyleDeclarationSet, expectedFO: String)(implicit loc: munit.Location): Unit =
-    assertEquals(defaultRenderer.render(input, Root / "doc", pathTranslator, style), expectedFO)
+    assertEquals(defaultRenderer.render(input, Root / "doc", pathTranslator, style), Right(expectedFO))
 
   def run (elem: Element, messageFilter: MessageFilter, expectedFO: String)(implicit loc: munit.Location): Unit = {
     val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(elem, Root / "doc", pathTranslator, TestTheme.foStyles)
-    assertEquals(res, expectedFO)
+    assertEquals(res, Right(expectedFO))
   }
 
   def runUnformatted (input: Element, expectedFO: String): Unit = {
     val res = Renderer.of(XSLFO).unformatted.build.render(input, Root / "doc", pathTranslator, TestTheme.foStyles)
-    assertEquals(res, expectedFO)
+    assertEquals(res, Right(expectedFO))
   }
 
   private val imageTarget = InternalTarget(CurrentTree / "foo.jpg")
@@ -742,7 +743,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
         if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false)) else None
       ConfigurablePathTranslator(tConfig, OutputContext("fo", "pdf"), Root / "doc", lookup)
     }
-    assertEquals(defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles), fo)
+    assertEquals(defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles), Right(fo))
   }
 
   test("render a paragraph containing a raw internal link") {

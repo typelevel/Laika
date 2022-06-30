@@ -23,8 +23,6 @@ import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
-import laika.api.builder.OperationConfig
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
@@ -56,19 +54,26 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
       styles(level)
     )
 
-    def treeList (tree: Int, docStartNum: Int, level: Int, excludeSelf: Boolean = false)(implicit options: NavOptions): NavigationItem = {
+    def treeList (tree: Int, docStartNum: Int, level: Int, 
+                  excludeSelf: Boolean = false, 
+                  selfLink: Boolean = false)(implicit options: NavOptions): NavigationItem = {
+      
+      val titleDocPath    = Root / s"tree-$tree" / "README"
+      val titleDocRefPath = if (selfLink) titleDocPath else refPath
+      val title           = if (selfLink) "Title 6" else s"Tree $tree"
+      
       val children = if (level == options.maxLevels) Nil else List(
         docList(Root / s"tree-$tree" / s"doc-$docStartNum", docStartNum, level + 1),
         docList(Root / s"tree-$tree" / s"doc-${docStartNum + 1}", docStartNum + 1, level + 1),
       )
       if (options.hasTitleDocs) NavigationItem(
-        SpanSequence(s"Tree $tree"),
+        SpanSequence(title),
         children,
-        Some(NavigationLink(InternalTarget(Root / s"tree-$tree" / "README").relativeTo(refPath))),
+        Some(NavigationLink(InternalTarget(titleDocPath).relativeTo(titleDocRefPath), selfLink = selfLink)),
         options = styles(level)
       )
       else NavigationItem(
-        SpanSequence(s"Tree $tree"),
+        SpanSequence(title),
         if (excludeSelf) children.take(1) else children,
         options = styles(level)
       )
@@ -117,13 +122,22 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
   val defaultNavOptions: NavOptions = NavOptions()
 
   def runDocument (input: String, expectedNav: NavigationItem*)(implicit options: NavOptions): Unit =
+    runDocument(input, docUnderTestIsTitle = false, expectedNav)
+
+  def runTitleDocument (input: String, expectedNav: NavigationItem*)(implicit options: NavOptions): Unit =
+    runDocument(input, docUnderTestIsTitle = true, expectedNav)
+
+  private def runDocument (input: String, docUnderTestIsTitle: Boolean, expectedNav: Seq[NavigationItem])(implicit options: NavOptions): Unit = {
+    val res = parseDocumentAndRewrite(input,
+      hasTitleDocs = options.hasTitleDocs,
+      includeTargetFormatConfig = options.includeTargetFormatConfig,
+      docUnderTestIsTitle = docUnderTestIsTitle
+    )
     assertEquals(
-      parseDocumentAndRewrite(input,
-        hasTitleDocs = options.hasTitleDocs,
-        includeTargetFormatConfig = options.includeTargetFormatConfig
-      ),
+      res,
       Right(NavModel.blockResult(expectedNav:_*)(options))
     )
+  }
   
   def runTemplate (input: String, expectedNav: NavigationItem*)(implicit options: NavOptions): Unit =
     assertEquals(
@@ -410,71 +424,23 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
     runDocument(input,docList(Root / "tree-1" / "doc-3", 3, 1))
   }
 
-  test("template breadcrumb directive - breadcrumb skips TitleDocument docEntry"){
-    //
-    // ```
-    // .
-    // └── dir
-    //      └── README.md(contains  `# Title`)
-    //```
-    // 
-    // possible breadcrumb: / Title
-    val tree = {
-      val template = parseTemplate("""@:breadcrumb""").getOrElse(throw new Exception("Never"))
-
-      DocumentTree(
-        path = Root,
-        content = Seq(
-          DocumentTree(
-            path = Root / "dir",
-            content = Nil,
-            titleDocument = Some(
-              Document(
-                path = Root/"dir"/"README",
-                content = RootElement(Seq(Header(1,Seq(Text("Title"))))),
-              )
-            ),
-          )
-        ),
-        templates = Seq(
-          TemplateDocument(DefaultTemplatePath.forHTML,template)
-        )
-      )
-    }
-    val rewritten = NavigationDirectiveSpec.defaultRewrite(tree)
-
-    val Right(tree0) = TemplateRewriter
-          .applyTemplates(DocumentTreeRoot(rewritten), OutputContext("html"))
-    // must success
-    val Some(Document(_,docContent,_,_,_)) = tree0.allDocuments.collectFirst{case doc @ Document(Root / "dir" / "README",_,_,_,_) => doc }
-    val TemplateRoot(TemplateElement(NavigationList(contents,_),_,_)::_,_) :: _ = docContent.content.toList
-    val styles = Style.level(1)+Style.breadcrumb
-    val expected = Seq(
-      NavigationItem(SpanSequence(Text("/")),Seq.empty,None,TargetFormats.All,styles),
-      NavigationItem(
-        title = SpanSequence(Text("Title")),
-        content = Nil,
-        link= Some(
-          NavigationLink(
-            target = ResolvedInternalTarget(
-              Root / "dir" / "README",
-              RelativePath.CurrentDocument(),
-              TargetFormats.All
-            ),
-            selfLink= true
-          )
-        ),
-        options = styles
-      )
-    )
-    assertEquals(contents,expected)
-  }
-
-  
   test("template breadcrumb directive - three entries") {
 
     implicit val options: NavOptions = NavOptions(maxLevels = 1, itemStyles = Style.breadcrumb)
     
+    val input = "aaa @:breadcrumb bbb ${cursor.currentDocument.content}"
+
+    runTemplate(input,
+      rootEntry,
+      treeList(2, 0, 1),
+      docList(Root / "tree-2" / "doc-6", 6, 1)
+    )
+  }
+
+  test("template breadcrumb directive - avoid duplicate entries when title documents are present") {
+
+    implicit val options: NavOptions = NavOptions(maxLevels = 1, itemStyles = Style.breadcrumb, hasTitleDocs = true)
+
     val input = "aaa @:breadcrumb bbb ${cursor.currentDocument.content}"
 
     runTemplate(input,
@@ -507,11 +473,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
 
   test("block breadcrumb directive - three entries with title documents") {
 
-    implicit val options: NavOptions = NavOptions(
-      maxLevels = 1,
-      itemStyles = Style.breadcrumb,
-      hasTitleDocs = true
-    )
+    implicit val options: NavOptions = NavOptions(maxLevels = 1, itemStyles = Style.breadcrumb, hasTitleDocs = true)
 
     val input =
       """Title 6
@@ -523,19 +485,10 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |
         |bbb""".stripMargin
 
-    runDocument(input,
+    runTitleDocument(input,
       rootEntry,
-      treeList(2, 0, 1),
-      docList(Root / "tree-2" / "doc-6", 6, 1)
+      treeList(2, 0, 1, selfLink = true)
     )
   }
 
-}
-
-object NavigationDirectiveSpec {
-  def defaultRewrite(tree:DocumentTree):DocumentTree = {
-    tree.rewrite(
-      OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(tree))
-    ).getOrElse(throw new Exception("Never"))
-  }
 }

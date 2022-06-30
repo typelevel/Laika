@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{DocumentCursor, InvalidSpan, TemplateElement, TemplateSpan, TemplateSpanSequence}
+import laika.ast.{InvalidSpan, TemplateElement, TemplateScope, TemplateSpan, TemplateSpanSequence}
 import laika.config.{ArrayValue, BooleanValue, ConfigValue, Key, NullValue, ObjectValue, StringValue}
 import laika.directive.Templates
 import laika.rewrite.TemplateRewriter
@@ -54,20 +54,21 @@ object ControlFlowDirectives {
 
     (attribute(0).as[String], separatedBody(Seq(emptySeparator)), cursor, Templates.dsl.source).mapN { (ref, multipart, cursor, source) =>
 
-      def rewrite (spans: Seq[TemplateSpan], childCursor: DocumentCursor): TemplateSpanSequence =
-        TemplateSpanSequence(spans).rewriteChildren(TemplateRewriter.rewriteRules(childCursor))
+      def contentScope (value: ConfigValue): TemplateSpan =
+        TemplateScope(TemplateSpanSequence(multipart.mainBody), value, source)
 
-      def rewriteContent (value: ConfigValue): TemplateSpanSequence = rewrite(multipart.mainBody, cursor.withReferenceContext(value))
-
-      def rewriteFallback = multipart.children.headOption.map(_.spans).map(rewrite(_, cursor)).getOrElse(TemplateSpanSequence.empty)
+      def fallback = multipart.children
+        .headOption
+        .map(e => TemplateSpanSequence(e.spans))
+        .getOrElse(TemplateSpanSequence.empty)
 
       cursor.resolveReference(Key.parse(ref)) match {
-        case Right(Some(o: ObjectValue))             => rewriteContent(o)
-        case Right(Some(a: ArrayValue)) if a.isEmpty => rewriteFallback
-        case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(rewriteContent))
-        case Right(Some(simpleValue)) if emptyValues(simpleValue) => rewriteFallback
-        case Right(Some(simpleValue))                => rewriteContent(simpleValue)
-        case Right(None)                             => rewriteFallback
+        case Right(Some(o: ObjectValue))             => contentScope(o)
+        case Right(Some(a: ArrayValue)) if a.isEmpty => fallback
+        case Right(Some(a: ArrayValue))              => TemplateSpanSequence(a.values.map(contentScope))
+        case Right(Some(simpleValue)) if emptyValues(simpleValue) => fallback
+        case Right(Some(simpleValue))                => contentScope(simpleValue)
+        case Right(None)                             => fallback
         case Left(error)                             => TemplateElement(InvalidSpan(s"Error retrieving reference '$ref': ${error.message}", source))
       }
     }
@@ -95,21 +96,18 @@ object ControlFlowDirectives {
 
     (attribute(0).as[String], multipartBody, cursor).mapN { (path, multipart, cursor) =>
 
-      def rewrite (spans: Seq[TemplateSpan]): TemplateSpanSequence =
-        TemplateSpanSequence(spans).rewriteChildren(TemplateRewriter.rewriteRules(cursor))
-
-      def rewriteFallback = multipart.children
+      def fallback = multipart.children
         .collectFirst { case e: Else => e }
-        .map(_.body).map(rewrite)
+        .map(e => TemplateSpanSequence(e.body))
         .getOrElse(TemplateSpanSequence.empty)
 
       @tailrec
-      def process (parts: Seq[ElseIf]): TemplateSpanSequence =
-        if (parts.isEmpty) rewriteFallback
+      def process (parts: Seq[ElseIf]): TemplateSpan =
+        if (parts.isEmpty) fallback
         else cursor.resolveReference(Key.parse(parts.head.ref)) match {
-          case Right(Some(BooleanValue(true)))               => rewrite(parts.head.body)
-          case Right(Some(StringValue(s))) if trueStrings(s) => rewrite(parts.head.body)
-          case Right(Some(a: ArrayValue)) if !a.isEmpty      => rewrite(parts.head.body)
+          case Right(Some(BooleanValue(true)))               => TemplateSpanSequence(parts.head.body)
+          case Right(Some(StringValue(s))) if trueStrings(s) => TemplateSpanSequence(parts.head.body)
+          case Right(Some(a: ArrayValue)) if !a.isEmpty      => TemplateSpanSequence(parts.head.body)
           case _ => process(parts.tail)
         }
 

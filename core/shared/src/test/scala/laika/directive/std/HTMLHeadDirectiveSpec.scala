@@ -22,9 +22,10 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import munit.FunSuite
 import RewriteSetup._
+import laika.format.HTML
 
 class HTMLHeadDirectiveSpec extends FunSuite {
 
@@ -48,10 +49,12 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
       val inputTree = buildTree(Some(templatePath.name, root.content))
+      val resolveRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)
+      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Render(HTML))
       for {
-        tree     <- inputTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree))).leftMap(_.message)
+        tree     <- inputTree.rewrite(resolveRules).leftMap(_.message)
         treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)
-        result   <- TemplateRewriter.applyTemplates(treeRoot, ctx).leftMap(_.message)
+        result   <- treeRoot.applyTemplates(renderRules, ctx).leftMap(_.message)
       } yield result
     }
     

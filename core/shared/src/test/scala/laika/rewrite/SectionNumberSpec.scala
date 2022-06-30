@@ -87,7 +87,7 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
 
     lazy val result: ConfigResult[DocumentTree] = {
       val docTree = tree(sections)
-      docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree)))
+      docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree), RewritePhase.Resolve))
     }
   }
 

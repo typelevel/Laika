@@ -32,7 +32,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
     val doc = Document(Path.Root, root)
     OperationConfig.default
       .withBundlesFor(ReStructuredText)
-      .rewriteRulesFor(doc)
+      .rewriteRulesFor(doc, RewritePhase.Resolve)
       .flatMap(doc.rewrite)
       .map(_.content)
   }

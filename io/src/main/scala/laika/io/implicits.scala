@@ -77,7 +77,7 @@ object implicits {
   implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends IOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
-      new TreeRenderer.Builder[F](builder.build, Helium.defaults.build.build)
+      new TreeRenderer.Builder[F](builder.build.skipRewritePhase, Helium.defaults.build.build)
   }
 
   implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends IOBuilderOps[TreeTransformer.Builder] {

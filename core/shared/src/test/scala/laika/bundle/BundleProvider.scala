@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.config.{Config, ConfigParser}
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
@@ -101,13 +101,17 @@ object BundleProvider {
 
   def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle() {
 
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(_ => Right(laika.ast.RewriteRules.forSpans(rule)))
+    override def rewriteRules: RewritePhaseBuilder = {
+      case RewritePhase.Resolve => Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
+    }
 
   }
 
   def forSpanRewriteRule (origin: BundleOrigin)(rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def rewriteRules: Seq[RewriteRulesBuilder] = Seq(_ => Right(laika.ast.RewriteRules.forSpans(rule)))
+    override def rewriteRules: RewritePhaseBuilder = {
+      case RewritePhase.Resolve => Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
+    }
 
   }
 

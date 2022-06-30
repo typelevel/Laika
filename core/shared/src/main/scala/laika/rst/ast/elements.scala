@@ -43,7 +43,7 @@ case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt
   override def rewriteChildren (rules: RewriteRules): Field = 
     copy(content = rules.rewriteBlocks(content), name = rules.rewriteSpans(name))
   
-  def withContent (newContent: Seq[Block]): Field = copy(content = content)
+  def withContent (newContent: Seq[Block]): Field = copy(content = newContent)
   def withOptions (options: Options): Field = copy(options = options)
 }
 
@@ -72,7 +72,7 @@ case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) e
 case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                               with BlockContainer {
   type Self = OptionListItem
-  def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
+  def withContent (newContent: Seq[Block]): OptionListItem = copy(content = newContent)
   def withOptions (options: Options): OptionListItem = copy(options = options)
 }
 
@@ -159,6 +159,7 @@ case class Include (path: String, source: SourceFragment, options: Options = NoO
       case None         => InvalidBlock(s"Unresolvable path reference: $path", source)
     }
 
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
   lazy val unresolvedMessage: String = s"Unresolved file inclusion with path '$path'"
 }
 
@@ -177,6 +178,7 @@ case class Contents (title: String, source: SourceFragment, depth: Int = Int.Max
     )).content
     TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Style.nav)
   }
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
   lazy val unresolvedMessage: String = s"Unresolved table of contents generator with title '$title'"
 }
 
