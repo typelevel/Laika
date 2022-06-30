@@ -132,7 +132,7 @@ object TreeResultBuilder {
     
     for {
       resolvedTree  <- resolveConfig(tree, baseConfig, includes)
-      resolvedCover <- coverDoc.map(resolveConfig(_, resolvedTree.config, includes)).sequence: Either[ConfigError, Option[Document]]
+      resolvedCover <- coverDoc.traverse(resolveConfig(_, resolvedTree.config, includes)): Either[ConfigError, Option[Document]]
     } yield
       DocumentTreeRoot(resolvedTree, resolvedCover, styles, includes = includes)
   }

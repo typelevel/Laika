@@ -140,7 +140,7 @@ object Tasks {
         .build 
         .use { renderer =>
           val roots = validated(Selections.createCombinations(tree.root))
-          roots.map { case (root, classifiers) =>
+          roots.traverse { case (root, classifiers) =>
             val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
             val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
             val file = downloadPath / docName
@@ -150,7 +150,7 @@ object Tasks {
               .toFile(FilePath.fromJavaFile(file))
               .render
               .as(file)
-          }.sequence
+          }
         }
       
       val res = ops.unsafeRunSync()

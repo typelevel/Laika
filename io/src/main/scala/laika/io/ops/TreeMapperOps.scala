@@ -48,16 +48,16 @@ abstract class TreeMapperOps[F[_]: Sync] {
   def evalMapDocuments (f: Document => F[Document]): MapRes = evalMapTree { parsed =>
 
     def mapTree(tree: DocumentTree): F[DocumentTree] = for {
-      newContent <- tree.content.toList.map {
+      newContent <- tree.content.toList.traverse {
         case doc: Document      => f(doc).widen[TreeContent]
         case tree: DocumentTree => mapTree(tree).widen[TreeContent]
-      }.sequence
-      newTitle   <- tree.titleDocument.map(f).sequence
+      }
+      newTitle   <- tree.titleDocument.traverse(f)
     } yield tree.copy(content = newContent, titleDocument = newTitle)
 
     for {
       mappedTree  <- mapTree(parsed.root.tree)
-      mappedCover <- parsed.root.coverDocument.map(f).sequence
+      mappedCover <- parsed.root.coverDocument.traverse(f)
     } yield parsed.modifyRoot(_.copy(tree = mappedTree, coverDocument = mappedCover))
 
   }
