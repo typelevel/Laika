@@ -171,7 +171,7 @@ private[helium] trait CommonConfigOps {
     * @param authors       one or more author names
     * @param language      the language of the site and/or e-book, should always be defined
     * @param datePublished the publication date as a UTC date-time
-    * @param dateModfieid  the modification date as a UTC date-time
+    * @param dateModified  the modification date as a UTC date-time
     * @param version       the version string for the output
     */
   def metadata (title: Option[String] = None,

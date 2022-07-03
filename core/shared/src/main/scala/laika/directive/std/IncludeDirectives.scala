@@ -44,6 +44,12 @@ object IncludeDirectives {
     val bodyValue = body.map(b => Field("embeddedBody", ASTValue(b), Origin(Origin.DirectiveScope, path)))
     ObjectValue(attributeValues ++ bodyValue.toSeq)
   }
+
+  private def resolvePath (literalPath: Path,
+                           pathConfigKey: String,
+                           config: Config): Either[String, Path] =
+    if (config.hasKey(pathConfigKey)) config.get[Path](pathConfigKey).leftMap(_.message)
+    else Right(literalPath)
   
   private def resolveTemplateReference (path: Path, 
                                         attributes: Config, 
@@ -79,8 +85,10 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], allAttributes, cursor, source).mapN { case (path, attributes, cursor, source) =>
-      resolveTemplateReference(path, attributes, cursor, source)
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, cursor, source) =>
+        resolvePath(literalPath, pathKey, cursor.resolver.config)
+          .flatMap(resolveTemplateReference(_, attributes, cursor, source))
     }
   }
 
@@ -90,9 +98,10 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], allAttributes, parsedBody, cursor, source).mapN { 
-      case (path, attributes, body, cursor, source) =>
-        resolveTemplateReference(path, attributes, cursor, source, Some(body))
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, body, cursor, source) =>
+        resolvePath(literalPath, pathKey, cursor.resolver.config)
+          .flatMap(resolveTemplateReference(_, attributes, cursor, source, Some(body)))
     }
   }
 
@@ -102,8 +111,10 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], allAttributes, cursor, source).mapN { case (path, attributes, cursor, source) =>
-      resolveDocumentReference(path, attributes, cursor, source)
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, cursor, source) =>
+        resolvePath(literalPath, pathKey, cursor.resolver.config)
+          .flatMap(resolveDocumentReference(_, attributes, cursor, source))
     }
   }
 
@@ -113,9 +124,10 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], allAttributes, parsedBody, cursor, source).mapN { 
-      case (path, attributes, body, cursor, source) =>
-        resolveDocumentReference(path, attributes, cursor, source, Some(body))
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
+      case (literalPath, pathKey, attributes, body, cursor, source) =>
+        resolvePath(literalPath, pathKey, cursor.resolver.config)
+          .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
     }
   }
   

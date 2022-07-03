@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.{IO, Resource}
 import laika.api.{MarkupParser, Renderer, Transformer}
-import laika.ast.Path
+import laika.ast.{/, Path}
 import laika.ast.Path.Root
 import laika.config.LaikaKeys
 import laika.format.{HTML, Markdown}
@@ -358,6 +358,42 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> markup
     )
     transformAndExtractHead(inputs).map(_.extractTag("title")).assertEquals(Some("Title"))
+  }
+
+  test("override head template fragment per page") {
+    val markup =
+      """
+        |{%
+        |  helium.site.templates.head = "/head.template.html"
+        |%}
+        |
+        |Title
+        |=====
+        |
+        |Text
+      """.stripMargin
+    val inputs = Seq(
+      Root / "name.md" -> markup,
+      Root / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>" 
+    )
+    val expected = "<title>XX Title</title>"
+    transformAndExtractHead(inputs).assertEquals(expected)
+  }
+
+  test("override head template fragment globally") {
+    val markup =
+      """
+        |Title
+        |=====
+        |
+        |Text
+      """.stripMargin
+    val inputs = Seq(
+      Root / "name.md" -> markup,
+      Root / "helium" / "templates" / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
+    )
+    val expected = "<title>XX Title</title>"
+    transformAndExtractHead(inputs).assertEquals(expected)
   }
   
 }

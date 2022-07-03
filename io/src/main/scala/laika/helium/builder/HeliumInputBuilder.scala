@@ -46,6 +46,7 @@ private[helium] object HeliumInputBuilder {
     }
     
     val heliumPath = Root / "helium"
+    val templatesPath = heliumPath / "templates"
     val unversioned = ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build
   
     val themeInputs = fontInputs
@@ -53,6 +54,11 @@ private[helium] object HeliumInputBuilder {
       .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
       .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
       .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
+      .addClasspathResource("laika/helium/templates/includes/head.template.html", templatesPath / "head.template.html")
+      .addClasspathResource("laika/helium/templates/includes/topNav.template.html", templatesPath / "topNav.template.html")
+      .addClasspathResource("laika/helium/templates/includes/mainNav.template.html", templatesPath / "mainNav.template.html")
+      .addClasspathResource("laika/helium/templates/includes/pageNav.template.html", templatesPath / "pageNav.template.html")
+      .addClasspathResource("laika/helium/templates/includes/footer.template.html", templatesPath / "footer.template.html")
       .addClasspathResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
       .addClasspathResource("laika/helium/js/preview.js", heliumPath / "laika-preview.js")
       .addClasspathResource("laika/helium/css/landing.css", heliumPath / "landing.page.css")
