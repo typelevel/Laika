@@ -34,11 +34,9 @@ object Main extends IOApp {
     app.use(_ => IO.never).as(ExitCode.Success)
 
   val app: Resource[IO, Server] =
-    for {
-      ctx    <- Resource.eval(IO.executionContext)
-      server <- BlazeServerBuilder[IO](ctx)
-        .bindHttp(8080, "0.0.0.0")
-        .withHttpApp(service)
-        .resource
-    } yield server
+    BlazeServerBuilder[IO]
+      .bindHttp(8080, "0.0.0.0")
+      .withHttpApp(service)
+      .resource
+    
 }

@@ -11,6 +11,7 @@ object Dependencies {
     val catsEffect = "3.3.5"
     val fs2        = "3.2.7"
     val http4s     = "0.23.14"
+    val blaze      = "0.23.12"
     
     val munit      = "0.7.29"
     val munitCE3   = "1.0.7"
