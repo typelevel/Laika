@@ -494,6 +494,23 @@ Finally you can also include hard-coded link targets in addition to the auto-gen
 In this example an auto-generated navigation tree with depth 3 will be inserted, but an additional element
 with an external link target will be added as the final node.
 
+Manual nodes can also form a nested structure like this:
+
+```laika-md
+@:navigationTree { 
+  entries = [
+    { title = Link 1, target = "http://domain-1.com/"}
+    { title = Section, entries = [
+      { title = Link 2, target = "http://domain-2.com/"}
+      { title = Link 3, target = "http://domain-3.com/"}
+    ]}   
+  ] 
+}
+```
+
+In this case the entry with the title 'Section' does not have a target defined and only serves as a section
+header without a link.
+
 
 Breadcrumbs
 -----------
