@@ -232,7 +232,7 @@ object Tasks {
       System.in.read
     }
     finally {
-      streams.value.log.info(s"Shutting down preview server.")
+      streams.value.log.info(s"Shutting down preview server...")
       cancel.unsafeRunSync()
     }
   }

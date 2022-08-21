@@ -82,6 +82,7 @@ class ServerBuilder[F[_]: Async] (parser: Resource[F, TreeParser[F]],
     
   private def createServer (httpApp: HttpApp[F]): Resource[F, Server] =
     EmberServerBuilder.default[F]
+      .withShutdownTimeout(2.seconds)
       .withPort(config.port)
       .withHost(config.host)
       .withHttpApp(httpApp)
