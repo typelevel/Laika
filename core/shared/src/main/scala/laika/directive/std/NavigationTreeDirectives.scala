@@ -71,8 +71,8 @@ object NavigationTreeDirectives {
 
       def generate (node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
 
-        case ManualNavigationNode(title, target, children) =>
-          children.toList.map(generate).combineAll.map { childNodes =>
+        case ManualNavigationNode(title, target, entries) =>
+          entries.toList.map(generate).combineAll.map { childNodes =>
             val link = target.map(NavigationLink(_))
             List(NavigationItem(title, childNodes, link))
           }
@@ -150,7 +150,7 @@ object NavigationTreeDirectives {
 
         def createManualNode (externalTarget: Option[ExternalTarget]): Either[ConfigError, NavigationNodeConfig] = for {
           title    <- config.get[String]("title")
-          children <- config.get[Seq[NavigationNodeConfig]]("children", Nil)(ConfigDecoder.seq(decoder))
+          children <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)(ConfigDecoder.seq(decoder))
         } yield {
           ManualNavigationNode(SpanSequence(title), externalTarget, children)
         }
@@ -195,11 +195,11 @@ object NavigationTreeDirectives {
     *
     * @param title    the title for this entry when getting rendered as a link
     * @param target   the external link for this node (if missing this node just generates a navigation header as a separator within the tree)
-    * @param children the children of this node, either manual or automatically generated
+    * @param entries  the children of this node, either manual or automatically generated
     */
   case class ManualNavigationNode (title: SpanSequence,
                                    target: Option[ExternalTarget] = None,
-                                   children: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
+                                   entries: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
 
   /** Implementation of the `navigationTree` directive for templates.
     */

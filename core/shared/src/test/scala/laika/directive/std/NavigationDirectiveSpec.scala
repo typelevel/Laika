@@ -115,6 +115,12 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
       Nil,
       Some(NavigationLink(ExternalTarget(s"http://domain-$num.com/")))
     )
+    
+    def section (title: String, entries: NavigationItem*): NavigationItem = NavigationItem(
+      SpanSequence(title),
+      entries,
+      None
+    )
   }
   
   import NavModel._
@@ -172,6 +178,22 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
     runTemplate(template, extLink(1), extLink(2))
+  }
+
+  test("template nav - one manual entry and a section with two manual entries") {
+
+    val template =
+      """aaa @:navigationTree { 
+        |  entries = [
+        |    { title = Link 1, target = "http://domain-1.com/"}
+        |    { title = Section, entries = [
+        |      { title = Link 2, target = "http://domain-2.com/"}
+        |      { title = Link 3, target = "http://domain-3.com/"}
+        |    ]}   
+        |  ] 
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
+
+    runTemplate(template, extLink(1), section("Section", extLink(2), extLink(3)))
   }
 
   test("template nav - a manual entry and a generated entry") {
@@ -402,7 +424,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |
         |bbb""".stripMargin
 
-    runDocument(input,extLink(1), extLink(2))
+    runDocument(input, extLink(1), extLink(2))
   }
 
   test("block nav - entry generated from a document referred to with a relative path") {
@@ -421,7 +443,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |
         |bbb""".stripMargin
 
-    runDocument(input,docList(Root / "tree-1" / "doc-3", 3, 1))
+    runDocument(input, docList(Root / "tree-1" / "doc-3", 3, 1))
   }
 
   test("template breadcrumb directive - three entries") {
