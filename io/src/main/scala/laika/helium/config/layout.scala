@@ -140,6 +140,7 @@ private[helium] case class HTMLIncludes (includeCSS: Seq[Path] = Seq(Root), incl
 
 private[helium] object HeliumStyles {
   val row: Options = Styles("row")
+  val linkRow: Options = Styles("row", "links")
   val buttonLink: Options = Styles("button-link")
   val textLink: Options = Styles("text-link")
   val iconLink: Options = Styles("icon-link")

@@ -27,17 +27,21 @@ sealed trait ThemeLink extends SpanResolver {
 
   type Self <: ThemeLink
   
+  def unresolvedMessage: String = s"Unresolved theme link: $this"
+
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
+}
+
+sealed trait SingleTargetLink extends ThemeLink {
+
   /** The target of the link, either internal or external. */
   def target: Target
-  
+
   def resolve (cursor: DocumentCursor): Span = target match {
     case et: ExternalTarget => createLink(et)
     case it: InternalTarget => cursor.validateAndRecover(createLink(it), source)
   }
-
-  def unresolvedMessage: String = s"Unresolved theme link: $this"
-
-  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
 
   protected def createLink (target: Target): Link
   
@@ -45,7 +49,7 @@ sealed trait ThemeLink extends SpanResolver {
 
 /** A link consisting of an icon and optional text.
   */
-sealed abstract case class IconLink (target: Target, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class IconLink (target: Target, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends SingleTargetLink {
   type Self = IconLink
   protected def createLink (target: Target): Link = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = HeliumStyles.iconLink + options)
   def withOptions(newOptions: Options): IconLink = new IconLink(target, icon, text, newOptions) {}
@@ -62,7 +66,7 @@ object IconLink {
 
 /** A link consisting of text and an optional icon, by default rendered in a rounded rectangle.
   */
-sealed abstract case class ButtonLink (target: Target, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class ButtonLink (target: Target, text: String, icon: Option[Icon] = None, options: Options = NoOpt) extends SingleTargetLink {
   type Self = ButtonLink
   protected def createLink (target: Target): Link = SpanLink(icon.toSeq :+ Text(text), target, options = HeliumStyles.buttonLink + options)
   def withOptions(newOptions: Options): ButtonLink = new ButtonLink(target, text, icon, newOptions) {}
@@ -79,7 +83,7 @@ object ButtonLink {
 
 /** A simple text link.
   */
-sealed abstract case class TextLink (target: Target, text: String, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class TextLink (target: Target, text: String, options: Options = NoOpt) extends SingleTargetLink {
   type Self = TextLink
   protected def createLink (target: Target): Link = SpanLink(Seq(Text(text)), target, options = HeliumStyles.textLink + options)
   def withOptions(newOptions: Options): TextLink = new TextLink(target, text, newOptions) {}
@@ -96,7 +100,7 @@ object TextLink {
 
 /** A simple image link.
   */
-sealed abstract case class ImageLink (target: Target, image: Image, options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class ImageLink (target: Target, image: Image, options: Options = NoOpt) extends SingleTargetLink {
   type Self = ImageLink
   protected def createLink (target: Target): Link = SpanLink(Seq(image), target, options = HeliumStyles.imageLink + options)
   def withOptions(newOptions: Options): ImageLink =
@@ -110,4 +114,18 @@ object ImageLink {
   /** Creates a simple image link to an internal target. */
   def internal (path: Path, image: Image, options: Options = NoOpt): ImageLink =
     new ImageLink(InternalTarget(path), image, options) {}
+}
+
+/** A generic group of theme links.
+  *
+  * Can be used to create structures like a row of icon links in a vertical column of text links. 
+  */
+sealed abstract case class LinkGroup (links: Seq[ThemeLink], options: Options = NoOpt) extends ThemeLink {
+  type Self = LinkGroup
+  def resolve (cursor: DocumentCursor): Span = SpanSequence(links.map(_.resolve(cursor)), HeliumStyles.linkRow + options)
+  def withOptions(newOptions: Options): LinkGroup = new LinkGroup(links, newOptions) {}
+}
+
+object LinkGroup {
+  def create (link: ThemeLink, links: ThemeLink*): LinkGroup = new LinkGroup(link +: links) {}
 }
