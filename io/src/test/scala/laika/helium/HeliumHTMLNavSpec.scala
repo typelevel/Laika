@@ -149,7 +149,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</a>
         |</div>
         |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
@@ -161,7 +162,10 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</a>
         |</div>
         |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
-        |<span class="row links"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
+        |<div class="row links">
+        |<a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a>
+        |<a class="button-link" href="http://somewhere.com/">Somewhere</a>
+        |</div>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage()
       .site.topNavigationBar(
@@ -191,7 +195,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</div>
         |</div>
         |<a class="icon-link" href="../"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     val config = Root / "directory.conf" -> "laika.versioned = true"
     transformAndExtract(inputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)
   }
@@ -214,7 +219,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</div>
         |</div>
         |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
