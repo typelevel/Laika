@@ -515,11 +515,15 @@ The left corner of the top bar is always reserved for the button to open or clos
 ```scala
 Helium.defaults.site
   .topNavigationBar(
-    homeLink = IconLink.internal(Root / "README.md", HeliumIcon.hone),
+    homeLink = IconLink.internal(Root / "README.md", HeliumIcon.home),
     navLinks = Seq(
       IconLink.internal(Root / "doc-2.md", HeliumIcon.download),
       TextLink.external("http://somewhere.com/", "Text Link"),
       ButtonLink.external("http://somewhere.com/", "Button Link")
+    ),
+    versionMenu = VersionMenu.create(
+      versionedLabelPrefix = "Version:", 
+      unversionedLabel = "Choose Version"
     ),
     highContrast = true
   )
@@ -527,10 +531,17 @@ Helium.defaults.site
 
 All the properties shown above have default values, so you don't have to specify them all.
 The link to the homepage can be customized, by default it is pointing to `index.html` and using the Helium home icon.
+
 The links for the right navigation bar (`navLinks`, by default empty) can be an `IconLink` with optional text,
 a `ButtonLink` with an optional icon, a plain `TextLink`, an `ImageLink` or a drop-down `Menu`.
 All links can be external or internal, in case of the latter, it is always a path from the perspective 
 of Laika's virtual root, not a file system path, and will be validated (dead links will cause the transformation to fail).
+
+The `versionMenu` property allows to override the defaults for the version dropdown. 
+You can specify the label prefix for versioned pages (the actual current version number will be appended),
+the label for the menu on unversioned pages (in the example "Choose Version") and optionally additional links
+like "Help me choose..." that point to static pages instead of a versioned sub-site.
+
 Finally, the `highContrast` option indicates whether the background color should have a high contrast to the background
 of the page (darker in light mode and lighter in dark mode).
 

@@ -6,10 +6,11 @@ function logError (req) {
 }
 
 function populateMenu (data, localRootPrefix, currentPath, currentVersion, siteBaseURL) {
+  
   const currentTarget = data.linkTargets.find(target => target.path === currentPath);
-  const menuList = document.getElementById("version-list");
   let canonicalLink;
-  data.versions.forEach(version => {
+  
+  const listItems = data.versions.map(version => {
     const pathPrefix = localRootPrefix + version.pathSegment;
     const hasMatchingLink = currentTarget && currentTarget.versions.includes(version.pathSegment);
     const href = (hasMatchingLink) ? pathPrefix + currentPath : pathPrefix + version.fallbackLink;
@@ -37,8 +38,18 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion, siteB
     if (version.pathSegment === currentVersion) listItem.classList.add("active");
     listItem.appendChild(link);
 
-    menuList.appendChild(listItem);
+    return listItem;
   });
+
+  const versionMenus = document.querySelectorAll(".version-menu");
+  versionMenus.forEach((container, index) => {
+    const list = container.querySelector(".nav-list")
+    if (list) {
+      const children = index === 0 ? listItems : listItems.map((item) => item.cloneNode(true));
+      list.prepend(...children);
+    }
+  });
+  
   return canonicalLink;
 }
 
@@ -50,7 +61,6 @@ function loadVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL
   req.onload = () => {
     if (req.status === 200) {
       const canonicalLink = populateMenu(req.response, localRootPrefix, currentPath, currentVersion, siteBaseURL);
-      initMenuToggle();
       if (canonicalLink) insertCanonicalLink(canonicalLink);
     }
     else logError(req)
@@ -61,17 +71,8 @@ function loadVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL
   req.send();
 }
 
-function initMenuToggle () {
-  document.addEventListener("click", (evt) => {
-    const menuClicked = evt.target.closest("#version-menu");
-    const buttonClicked = evt.target.closest("#version-menu-toggle");
-    if (!menuClicked && !buttonClicked) {
-      document.getElementById("version-menu").classList.remove("versions-open")
-    }
-  });
-  document.getElementById("version-menu-toggle").onclick = () => {
-    document.getElementById("version-menu").classList.toggle("versions-open");
-  };
+function initMenuToggles () {
+  // this functionality applies to all types of menus, including the version menu
   document.querySelectorAll(".menu-container").forEach((container) => {
     const toggle = container.querySelector(".menu-toggle");
     const content = container.querySelector(".menu-content");
@@ -106,5 +107,6 @@ function insertCanonicalLink (linkHref) {
 function initVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL) {
   document.addEventListener('DOMContentLoaded', () => {
     loadVersions(localRootPrefix, currentPath, currentVersion, siteBaseURL);
+    initMenuToggles();
   });
 }

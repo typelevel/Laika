@@ -400,11 +400,16 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param homeLink the link to the homepage, by default pointing to `index.html` and using the Helium home icon.
     * @param navLinks an optional set of links to be placed at the right side of the bar, supported link
     *                 types are `IconLink`, `ButtonLink`, `ImageLink` and a plain `TextLink`
+    * @param versionMenu defines labels and optionally additional links for the version switcher menu
     * @param highContrast indicates whether the background color should have a high contrast to the background
     *                     of the page (darker in light mode and lighter in dark mode).
     */
-  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, navLinks: Seq[ThemeLink] = Nil, highContrast: Boolean = false): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = TopNavigationBar(homeLink, navLinks, highContrast))
+  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, 
+                        navLinks: Seq[ThemeLink] = Nil,
+                        versionMenu: VersionMenu = VersionMenu.default,
+                        highContrast: Boolean = false): Helium = {
+    val newLayout = helium.siteSettings.layout
+      .copy(topNavigationBar = TopNavigationBar(homeLink, navLinks, versionMenu, highContrast))
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 
@@ -490,7 +495,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(landingPage = Some(page), layout = newLayout))
   }
 
-  /** Adds a version dropdown to the top navigation bar.
+  /** Specify the configuration for versioned documentation, a core Laika feature simply exposed via the Helium Config API.
     * 
     * The specified configuration allows to define the current version as well as any older or newer versions.
     * For each version the `pathSegment` property holds the value that should use as part of URLs 
@@ -500,13 +505,13 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * those will be scanned to produce additional version information in the JSON loaded by the site.
     * This will be used for "smart linking" where the drop-down will link to the same page of a different version
     * if it exists.
+    * 
+    * The corresponding version switcher component of the theme can be configured with `topNavigationBar.versionMenu`.
+    * That setting allows to specify the labels and optionally additional link entries for the menu.
+    * Additional version switcher components can be added using the `VersionMenu` class, for example for
+    * adding the menu to the landing page where it is not included by default.
     */
-  def versions (versions: Versions, dropDownPrefix: String = "Version"): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(topNavigationBar = 
-      helium.siteSettings.layout.topNavigationBar.copy(versionPrefix = dropDownPrefix)
-    ) 
-    copyWith(helium.siteSettings.copy(versions = Some(versions), layout = newLayout))
-  }
+  def versions (versions: Versions): Helium = copyWith(helium.siteSettings.copy(versions = Some(versions)))
 
   /** Specifies the base URL where the rendered site will be hosted.
     * This configuration option allows to turn internal links into external ones for documents which will be

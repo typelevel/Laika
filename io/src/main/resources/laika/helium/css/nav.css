@@ -77,34 +77,30 @@ nav .row {
   color: var(--top-bg);
 }
 
-/* version dropdown ============================================== */
+/* menus =================================================== */
 
-.drop-down-toggle:after, .menu-toggle:after {
+.menu-toggle:after {
   display: inline-block;
   width: 0;
   height: 0;
   content: "";
-  margin-left: 0.2em;
+  margin-left: 0.5em;
   margin-bottom: 0.1em;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-top: 8px solid var(--primary-color);
 }
 
-.menu-toggle:after {
-  margin-left: 0.5em;
-}
-
-.drop-down-toggle:hover:after, .menu-toggle:hover:after {
+.menu-toggle:hover:after {
   border-top: 8px solid var(--secondary-color);
 }
 
-#version-menu-container, .menu-container {
+.menu-container {
   position: relative;
   display: inline-block;
 }
 
-#version-menu, .menu-content {
+.menu-content {
   display: none;
   position: absolute;
   z-index: 5000;
@@ -116,22 +112,25 @@ nav .row {
   white-space: nowrap;
 }
 
-#version-menu ul.nav-list, .menu-content ul.nav-list {
+.menu-content ul.nav-list {
   padding-top: 5px;
   padding-bottom: 5px;
   margin: 0;
 }
-#version-menu .nav-list li, .menu-content .nav-list li {
+.menu-content .nav-list li {
   margin-left: 0;
   margin-bottom: 2px;
 }
-#version-menu .nav-list li a, .menu-content .nav-list li a {
+.menu-content .nav-list li a {
   margin: 0;
   line-height: 1.2;
 }
-#version-menu.versions-open, .menu-content.menu-open {
+.menu-content.menu-open {
   display: block;
 }
+
+/* version menu =================================================== */
+
 .left-column {
   display: inline-block;
   width: 3.5em;

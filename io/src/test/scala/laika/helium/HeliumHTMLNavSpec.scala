@@ -210,18 +210,20 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("top navigation - with version dropdown on a versioned page") {
-    val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
+    val versionMenu = VersionMenu.create("Version:", "Choose Version")
+    val helium = Helium.defaults
+      .site.versions(versions)
+      .site.topNavigationBar(versionMenu = versionMenu)
+      .site.landingPage()
     val expected =
       """<div class="row">
         |<a id="nav-icon">
         |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
-        |<div id="version-menu-container">
-        |<a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
-        |Version: 0.42.x
-        |</a>
-        |<nav id="version-menu">
-        |<ul id="version-list" class="nav-list">
+        |<div class="menu-container version-menu">
+        |<a class="text-link menu-toggle" href="#">Version: 0.42.x</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
         |</ul>
         |</nav>
         |</div>
@@ -234,18 +236,21 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("top navigation - with version dropdown on an unversioned page") {
-    val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
+    val versionMenu = VersionMenu.create("Version:", "Choose Version", Seq(TextLink.internal(Root / "doc-2.md", "Extra-Link")))
+    val helium = Helium.defaults
+      .site.versions(versions)
+      .site.topNavigationBar(versionMenu = versionMenu)
+      .site.landingPage()
     val expected =
       """<div class="row">
         |<a id="nav-icon">
         |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
         |</a>
-        |<div id="version-menu-container">
-        |<a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
-        |Documentation
-        |</a>
-        |<nav id="version-menu">
-        |<ul id="version-list" class="nav-list">
+        |<div class="menu-container version-menu">
+        |<a class="text-link menu-toggle" href="#">Choose Version</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
+        |<li class="level1"><a href="doc-2.html">Extra-Link</a></li>
         |</ul>
         |</nav>
         |</div>
