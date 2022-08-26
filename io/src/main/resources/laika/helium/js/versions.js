@@ -72,6 +72,25 @@ function initMenuToggle () {
   document.getElementById("version-menu-toggle").onclick = () => {
     document.getElementById("version-menu").classList.toggle("versions-open");
   };
+  document.querySelectorAll(".menu-container").forEach((container) => {
+    const toggle = container.querySelector(".menu-toggle");
+    const content = container.querySelector(".menu-content");
+    if (toggle && content) {
+      const closeHandler = (evt) => {
+        const contentClicked = evt.target.closest(".menu-content");
+        const toggleClicked = evt.target.closest(".menu-toggle");
+        if ((!toggleClicked || toggleClicked !== toggle) && (!contentClicked || contentClicked !== content)) {
+          content.classList.remove("menu-open");
+          document.removeEventListener("click", closeHandler)
+        }
+      }
+      toggle.onclick = () => {
+        if (content.classList.toggle("menu-open")) {
+          document.addEventListener("click", closeHandler);
+        }
+      };
+    }
+  });
 }
 
 function insertCanonicalLink (linkHref) {
