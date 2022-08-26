@@ -70,7 +70,7 @@ private[helium] case class LandingPage (logo: Option[Image] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,
                                         license: Option[String] = None,
                                         documentationLinks: Seq[TextLink] = Nil,
-                                        projectLinks: Seq[ThemeLink] = Nil,
+                                        projectLinks: Seq[ThemeLinkSpan] = Nil,
                                         teasers: Seq[Teaser] = Nil)
 
 private[helium] case class MarkupEditLinks (text: String, baseURL: String)
@@ -145,6 +145,9 @@ private[helium] object HeliumStyles {
   val textLink: Options = Styles("text-link")
   val iconLink: Options = Styles("icon-link")
   val imageLink: Options = Styles("image-link")
+  val menuToggle: Options = Styles("menu-toggle")
+  val menuContainer: Options = Styles("menu-container")
+  val menuContent: Options = Styles("menu-content")
 }
 
 private[helium] case class ThemeFonts (body: String, headlines: String, code: String)

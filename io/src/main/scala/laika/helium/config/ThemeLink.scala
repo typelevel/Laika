@@ -16,12 +16,13 @@
 
 package laika.helium.config
 
+import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
 import laika.parse.{GeneratedSource, SourceFragment}
 
 /** A Helium link type available for navigation bars and the landing page.
   */
-sealed trait ThemeLink extends SpanResolver {
+sealed trait ThemeLink extends Unresolved {
   
   val source: SourceFragment = GeneratedSource
 
@@ -33,7 +34,14 @@ sealed trait ThemeLink extends SpanResolver {
 
 }
 
-sealed trait SingleTargetLink extends ThemeLink {
+sealed trait ThemeLinkSpan extends ThemeLink with SpanResolver {
+  type Self <: ThemeLinkSpan
+}
+sealed trait ThemeLinkBlock extends ThemeLink with BlockResolver {
+  type Self <: ThemeLinkBlock
+}
+
+sealed trait SingleTargetLink extends ThemeLinkSpan {
 
   /** The target of the link, either internal or external. */
   def target: Target
@@ -46,6 +54,13 @@ sealed trait SingleTargetLink extends ThemeLink {
   protected def createLink (target: Target): Link
   
 }
+
+sealed trait MultiTargetLink extends ThemeLink {
+  
+  def links: Seq[SingleTargetLink]
+  
+}
+
 
 /** A link consisting of an icon and optional text.
   */
@@ -120,12 +135,42 @@ object ImageLink {
   *
   * Can be used to create structures like a row of icon links in a vertical column of text links. 
   */
-sealed abstract case class LinkGroup (links: Seq[ThemeLink], options: Options = NoOpt) extends ThemeLink {
+sealed abstract case class LinkGroup (links: Seq[SingleTargetLink], options: Options = NoOpt) extends ThemeLinkSpan with MultiTargetLink {
   type Self = LinkGroup
   def resolve (cursor: DocumentCursor): Span = SpanSequence(links.map(_.resolve(cursor)), HeliumStyles.linkRow + options)
   def withOptions(newOptions: Options): LinkGroup = new LinkGroup(links, newOptions) {}
 }
 
 object LinkGroup {
-  def create (link: ThemeLink, links: ThemeLink*): LinkGroup = new LinkGroup(link +: links) {}
+  def create (link: SingleTargetLink, links: SingleTargetLink*): LinkGroup = new LinkGroup(link +: links) {}
+}
+
+/** A menu for the top navigation bar or the landing page.
+  */
+sealed abstract case class Menu (label: Seq[Span], links: Seq[SingleTargetLink], options: Options = NoOpt) extends ThemeLinkBlock with MultiTargetLink {
+  type Self = Menu
+  
+  def resolve (cursor: DocumentCursor): Block = {
+    
+    val toggle = SpanLink(label, InternalTarget(CurrentDocument()))
+      .withOptions(HeliumStyles.textLink + HeliumStyles.menuToggle)
+    
+    val navLinks = links.map(_.resolve(cursor)).collect {
+      case sl: SpanLink => 
+        NavigationItem(SpanSequence(sl.content), Nil, Some(NavigationLink(sl.target)))
+          .withOptions(Style.level(1))
+    }
+    
+    val content = BlockSequence(NavigationList(navLinks)).withOptions(HeliumStyles.menuContent)
+      
+    BlockSequence(SpanSequence(toggle), content).withOptions(HeliumStyles.menuContainer)
+  }
+  def withOptions(newOptions: Options): Menu = new Menu(label, links, newOptions) {}
+}
+
+object Menu {
+  def create (label: String, link: SingleTargetLink, links: SingleTargetLink*): Menu = 
+    new Menu(Seq(Text(label)), link +: links) {}
+  def create (label: Seq[Span], link: SingleTargetLink, links: SingleTargetLink*): Menu = 
+    new Menu(label, link +: links) {}
 }

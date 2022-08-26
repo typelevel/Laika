@@ -63,7 +63,7 @@ private[laika] object ConfigGenerator {
     ConfigEncoder.ObjectBuilder.empty
       .withValue("home", navBar.homeLink)
       .withValue("links", navBar.navLinks)
-      .withValue("phoneLinks", navBar.navLinks)
+      .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
       .withValue("versionPrefix", navBar.versionPrefix)
       .build
   }

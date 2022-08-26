@@ -177,6 +177,38 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
+  test("top navigation - with menu") {
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |</a>
+        |</div>
+        |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
+        |<div class="row links">
+        |<div class="menu-container">
+        |<a class="text-link menu-toggle" href="#">Menu Label</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
+        |<li class="level1"><a href="doc-2.html">Link 1</a></li>
+        |<li class="level1"><a href="doc-3.html">Link 2</a></li>
+        |</ul>
+        |</nav>
+        |</div>
+        |</div>""".stripMargin
+    val imagePath = Root / "home.png"
+    val helium = Helium.defaults.site.landingPage()
+      .site.topNavigationBar(
+      homeLink = ImageLink.internal(Root / "README", Image.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))),
+      navLinks = Seq(
+        Menu.create("Menu Label",
+          TextLink.internal(Root / "doc-2.md", "Link 1"),  
+          TextLink.internal(Root / "doc-3.md", "Link 2")  
+        )
+      ))
+    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+  }
+
   test("top navigation - with version dropdown on a versioned page") {
     val helium = Helium.defaults.site.landingPage().site.versions(versions, "Version:")
     val expected =
