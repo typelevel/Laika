@@ -660,8 +660,12 @@ Helium.defaults
       TextLink.internal(Root / "doc-2.md", "Doc 2")
     ),
     projectLinks = Seq(
-      IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-      ButtonLink.external("http://somewhere.com/", "Somewhere")
+      TextLink.internal(Root / "doc-1.md", "Text Link"),
+      ButtonLink.external("http://somewhere.com/", "Button Label"),
+      LinkGroup.create(
+        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+        IconLink.internal(Root / "doc-3.md", HeliumIcon.info)
+      )  
     ),
     teasers = Seq(
       Teaser("Teaser 1", "Description 1"),
@@ -691,7 +695,8 @@ tables of contents, and hopefully also a link to the API documentation.
 
 The project links below can be any set of additional links, like to GitHub, Twitter or your chat.
 Like with the top navigation bar of the main page, you can choose between an `IconLink` with optional text,
-a `ButtonLink` with an optional icon, or a plain `TextLink`.
+a `ButtonLink` with an optional icon, a plain `TextLink` or a horizontal group of links (`LinkGroup`) which
+are usually a row of icon links placed into a column of text links.
 Internal targets are again within the virtual path and will be validated.
 
 @:callout(info)

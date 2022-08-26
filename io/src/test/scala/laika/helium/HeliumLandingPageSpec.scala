@@ -111,8 +111,9 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<li><a class="text-link" href="doc-2.html">Doc 2</a></li>
                      |</ul>
                      |</div>
-                     |<p class="medium"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="text-link" href="doc-1.html">Text Link</a></p>
                      |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
+                     |<p class="medium"><span class="row links"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="icon-link" href="doc-3.md"><i class="icofont-laika">&#xef4e;</i></a></span></p>
                      |</div>
                      |</div>
                      |$teaserHTML
@@ -132,8 +133,12 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
         TextLink.internal(Root / "doc-2.md", "Doc 2")
       ),
       projectLinks = Seq(
-        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-        ButtonLink.external("http://somewhere.com/", "Somewhere")
+        TextLink.internal(Root / "doc-1.md", "Text Link"),
+        ButtonLink.external("http://somewhere.com/", "Somewhere"),
+        LinkGroup.create(
+          IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+          IconLink.internal(Root / "doc-3.md", HeliumIcon.info)
+        )
       ),
       teasers = Seq(
         Teaser("Teaser 1", "Description 1"),
