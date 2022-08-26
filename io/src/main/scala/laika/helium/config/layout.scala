@@ -58,7 +58,7 @@ private[helium] case class TopNavigationBar (homeLink: ThemeLink,
 
 private[helium] object TopNavigationBar {
   def withHomeLink (path: Path): TopNavigationBar = TopNavigationBar(IconLink.internal(path, HeliumIcon.home), Nil)
-  val default: TopNavigationBar = withHomeLink(Root / "README.md")
+  val default: TopNavigationBar = TopNavigationBar(DynamicHomeLink.default, Nil)
 }
 
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 

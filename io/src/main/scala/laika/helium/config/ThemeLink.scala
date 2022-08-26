@@ -133,6 +133,29 @@ object ImageLink {
     new ImageLink(InternalTarget(path), image, options) {}
 }
 
+/** A home link that inserts a link to the title page of the root document tree (if available)
+  * or otherwise an invalid element.
+  */
+final case class DynamicHomeLink (options: Options = NoOpt) extends ThemeLinkSpan {
+  type Self = DynamicHomeLink
+
+  def resolve (cursor: DocumentCursor): Span = {
+    cursor.root.tree.titleDocument match {
+      case Some(homePage) => 
+        IconLink.internal(homePage.path, HeliumIcon.home).resolve(cursor)
+      case None => 
+        val message = "No target for home link found - for options see 'Theme Settings / Top Navigation Bar' in the manual" 
+        InvalidSpan(message, GeneratedSource)
+    }
+  }
+  
+  def withOptions(newOptions: Options): DynamicHomeLink = copy(options = newOptions)
+}
+
+object DynamicHomeLink {
+  val default: DynamicHomeLink = DynamicHomeLink()
+}
+
 /** A generic group of theme links.
   *
   * Can be used to create structures like a row of icon links in a vertical column of text links. 

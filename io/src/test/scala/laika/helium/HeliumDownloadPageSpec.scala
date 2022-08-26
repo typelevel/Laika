@@ -61,7 +61,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
     }
     
   test("no download page configured") {
-    transformAndExtract(singleDoc, Helium.defaults, "", "")
+    transformAndExtract(singleDoc, Helium.defaults.site.landingPage(), "", "")
       .interceptMessage[RuntimeException]("Missing document under test")
   }
   
@@ -153,12 +153,14 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
   }
 
   test("include only EPUB") {
-    val heliumWithEPUBDownloads = Helium.defaults.site.downloadPage(
-      title = "Downloads",
-      description = Some("EPUB & PDF"),
-      downloadPath = Root / "documents",
-      includePDF = false,
-    )
+    val heliumWithEPUBDownloads = Helium.defaults
+      .site.downloadPage(
+        title = "Downloads",
+        description = Some("EPUB & PDF"),
+        downloadPath = Root / "documents",
+        includePDF = false,
+      )
+      .site.landingPage()
     val expected = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>
                      |<div class="downloads">
@@ -178,6 +180,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
         description = Some("EPUB & PDF"),
         downloadPath = Root / "documents"
       )
+      .site.landingPage()
       .pdf.coverImages(CoverImage(Root / "cover.png"))
       .epub.coverImages(CoverImage(Root / "cover.png"))
     val expected = """<h1 class="title">Downloads</h1>
@@ -205,6 +208,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
         description = Some("EPUB & PDF"),
         downloadPath = Root / "documents"
       )
+      .site.landingPage()
       .pdf.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
       .epub.coverImages(CoverImage(Root / "cover-sbt.png", Some("sbt")), CoverImage(Root / "cover-library.png", Some("library")))
     val expected = """<h1 class="title">Downloads</h1>
