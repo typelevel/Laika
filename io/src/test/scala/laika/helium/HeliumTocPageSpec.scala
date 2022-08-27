@@ -87,11 +87,11 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |<div class="row">
                      |</div>
                      |<ul class="nav-list">
-                     |<li class="level1 active"><a href="#">Contents</a></li>
-                     |<li class="level1"><a href="doc-1.html">doc-1.md</a></li>
-                     |<li class="level1"><a href="doc-2.html">doc-2.md</a></li>
-                     |<li class="level1 nav-header">dir-1</li>
-                     |<li class="level2"><a href="dir-1/doc-3.html">doc-3.md</a></li>
+                     |<li class="level1 active nav-leaf-entry"><a href="#">Contents</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-1.html">doc-1.md</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-2.html">doc-2.md</a></li>
+                     |<li class="level1 nav-section-header">dir-1</li>
+                     |<li class="level2 nav-leaf-entry"><a href="dir-1/doc-3.html">doc-3.md</a></li>
                      |</ul>
                      |</nav>
                      |<div id="container">
@@ -104,10 +104,10 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |<main class="content">
                      |<h1 class="title">Contents</h1>
                      |<ul class="toc nav-list">
-                     |<li class="level1 toc"><a href="doc-1.html">doc-1.md</a></li>
-                     |<li class="level1 toc"><a href="doc-2.html">doc-2.md</a></li>
-                     |<li class="level1 toc nav-header">dir-1</li>
-                     |<li class="level2 toc"><a href="dir-1/doc-3.html">doc-3.md</a></li>
+                     |<li class="level1 toc nav-leaf-entry"><a href="doc-1.html">doc-1.md</a></li>
+                     |<li class="level1 toc nav-leaf-entry"><a href="doc-2.html">doc-2.md</a></li>
+                     |<li class="level1 toc nav-section-header">dir-1</li>
+                     |<li class="level2 toc nav-leaf-entry"><a href="dir-1/doc-3.html">doc-3.md</a></li>
                      |</ul>
                      |</main>
                      |</div>

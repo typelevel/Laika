@@ -154,6 +154,25 @@ nav .row {
   color: black;
 }
 
+/* navigation lists - common styles (menus, main nav, page nav) ==== */
+
+.nav-list {
+  font-size: var(--body-font-size);
+}
+
+.nav-list li {
+  margin-left: 10px;
+  margin-bottom: 2px;
+  line-height: 1.1;
+}
+
+.nav-list li a {
+  display: block;
+  padding: 3px 15px 4px 15px;
+  color: var(--primary-color);
+  font-weight: normal;
+}
+
 /* left navigation bar =========================================== */
 
 #sidebar {
@@ -185,14 +204,51 @@ nav .row {
   margin-bottom: 15px;
 }
 
-.nav-list li.nav-header {
-  font-size: var(--body-font-size);
+#sidebar ul.nav-list {
+  padding-top: 10px;
+  padding-bottom: 15px;
+  margin: 0 0 0 15px;
+}
+
+#sidebar .nav-list li.level1 {
+  margin-left: 0;
+  padding: 3px 15px;
+  font-size: 1.1em;
+}
+
+#sidebar .nav-list li.level1.nav-title-page {
+  margin-bottom: 5px;
+  border-bottom: 2px solid var(--secondary-color);
+}
+
+#sidebar .nav-list li.level1 a {
+  margin-left: -5px;
+  padding-left: 0;
+}
+
+#sidebar .nav-list li.level1.nav-title-page a {
+  padding-bottom: 1px;
+}
+
+#sidebar .nav-list li.nav-section-header {
   color: var(--secondary-color);
   display: block;
   padding: 3px 15px;
   font-weight: bold;
   text-transform: uppercase;
   margin-left: -5px;
+  font-size: 1em;
+}
+
+#sidebar .nav-list li.nav-section-header.level2 {
+  margin-left: 10px;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+#sidebar .nav-list .level3 {
+  margin-left: 18px;
+  font-size: 0.9em;
 }
 
 /* right page navigation =========================================== */
@@ -229,11 +285,6 @@ ul.nav-list, #page-nav ul {
   border-top: 1px solid var(--primary-medium);
 }
 
-ul.nav-list {
-  padding-top: 10px;
-  padding-bottom: 15px;
-  margin: 0 0 0 15px;
-}
 #page-nav ul.nav-list {
   padding: 0;
   margin: 12px;
@@ -252,24 +303,13 @@ ul.nav-list {
 #page-nav .nav-list li a {
   padding: 0;
 }
-.nav-list li {
-  margin-left: 10px;
-  margin-bottom: 2px;
-  line-height: 1.1;
-  font-size: var(--body-font-size);
-}
 
 #page-nav li a:hover,
 .nav-list li a:hover {
   background-color: rgba(0, 0, 0, 0.03);
   text-decoration: none;
 }
-.nav-list li a {
-  display: block;
-  padding: 3px 15px 4px 15px;
-  color: var(--primary-color);
-  font-weight: normal;
-}
+
 .nav-list .active a,
 .nav-list .active a:hover,
 #page-nav .header a,
@@ -284,7 +324,7 @@ ul.nav-list {
   text-decoration: none;
 }
 
-.nav-list li + .nav-header {
+.nav-list li + .nav-section-header {
   margin-top: 9px;
 }
 

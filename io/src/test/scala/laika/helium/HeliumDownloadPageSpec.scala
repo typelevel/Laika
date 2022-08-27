@@ -100,8 +100,8 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |<div class="row">
                      |</div>
                      |<ul class="nav-list">
-                     |<li class="level1 active"><a href="#">Downloads</a></li>
-                     |<li class="level1"><a href="doc.html">doc.md</a></li>
+                     |<li class="level1 active nav-leaf-entry"><a href="#">Downloads</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc.html">doc.md</a></li>
                      |</ul>
                      |</nav>
                      |<div id="container">
