@@ -528,7 +528,7 @@ Helium.defaults.site
 All the properties shown above have default values, so you don't have to specify them all.
 The link to the homepage can be customized, by default it is pointing to `index.html` and using the Helium home icon.
 The links for the right navigation bar (`navLinks`, by default empty) can be an `IconLink` with optional text,
-a `ButtonLink` with an optional icon, or a plain `TextLink` or `ImageLink`.
+a `ButtonLink` with an optional icon, a plain `TextLink`, an `ImageLink` or a drop-down `Menu`.
 All links can be external or internal, in case of the latter, it is always a path from the perspective 
 of Laika's virtual root, not a file system path, and will be validated (dead links will cause the transformation to fail).
 Finally, the `highContrast` option indicates whether the background color should have a high contrast to the background

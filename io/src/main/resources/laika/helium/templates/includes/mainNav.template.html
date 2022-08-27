@@ -1,6 +1,10 @@
 <nav id="sidebar">
 
-  ${?helium.topBar.phoneLinks}
+  <div class="row">
+    @:for(helium.topBar.phoneLinks)
+    ${_}
+    @:@
+  </div>
 
   @:navigationTree {
     entries = [

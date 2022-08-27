@@ -25,6 +25,10 @@
 
   ${?helium.topBar.home}
 
-  ${?helium.topBar.links}
+  <div class="row links">
+    @:for(helium.topBar.links)
+    ${_}
+    @:@
+  </div>  
 
 </header>

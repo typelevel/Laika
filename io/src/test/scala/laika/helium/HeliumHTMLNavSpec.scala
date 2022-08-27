@@ -149,7 +149,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</a>
         |</div>
         |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
@@ -161,7 +162,10 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</a>
         |</div>
         |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
-        |<span class="row links"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="button-link" href="http://somewhere.com/">Somewhere</a></span>""".stripMargin
+        |<div class="row links">
+        |<a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a>
+        |<a class="button-link" href="http://somewhere.com/">Somewhere</a>
+        |</div>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage()
       .site.topNavigationBar(
@@ -170,6 +174,38 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
           IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
           ButtonLink.external("http://somewhere.com/", "Somewhere")
         ))
+    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+  }
+
+  test("top navigation - with menu") {
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |</a>
+        |</div>
+        |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
+        |<div class="row links">
+        |<div class="menu-container">
+        |<a class="text-link menu-toggle" href="#">Menu Label</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
+        |<li class="level1"><a href="doc-2.html">Link 1</a></li>
+        |<li class="level1"><a href="doc-3.html">Link 2</a></li>
+        |</ul>
+        |</nav>
+        |</div>
+        |</div>""".stripMargin
+    val imagePath = Root / "home.png"
+    val helium = Helium.defaults.site.landingPage()
+      .site.topNavigationBar(
+      homeLink = ImageLink.internal(Root / "README", Image.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))),
+      navLinks = Seq(
+        Menu.create("Menu Label",
+          TextLink.internal(Root / "doc-2.md", "Link 1"),  
+          TextLink.internal(Root / "doc-3.md", "Link 2")  
+        )
+      ))
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
@@ -191,7 +227,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</div>
         |</div>
         |<a class="icon-link" href="../"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     val config = Root / "directory.conf" -> "laika.versioned = true"
     transformAndExtract(inputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)
   }
@@ -214,7 +251,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</div>
         |</div>
         |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
-        |<span class="row links"></span>""".stripMargin
+        |<div class="row links">
+        |</div>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 

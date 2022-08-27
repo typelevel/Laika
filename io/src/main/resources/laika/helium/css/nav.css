@@ -79,7 +79,7 @@ nav .row {
 
 /* version dropdown ============================================== */
 
-.drop-down-toggle:after {
+.drop-down-toggle:after, .menu-toggle:after {
   display: inline-block;
   width: 0;
   height: 0;
@@ -91,16 +91,20 @@ nav .row {
   border-top: 8px solid var(--primary-color);
 }
 
-.drop-down-toggle:hover:after {
+.menu-toggle:after {
+  margin-left: 0.5em;
+}
+
+.drop-down-toggle:hover:after, .menu-toggle:hover:after {
   border-top: 8px solid var(--secondary-color);
 }
 
-#version-menu-container {
+#version-menu-container, .menu-container {
   position: relative;
   display: inline-block;
 }
 
-#version-menu {
+#version-menu, .menu-content {
   display: none;
   position: absolute;
   z-index: 5000;
@@ -112,20 +116,20 @@ nav .row {
   white-space: nowrap;
 }
 
-#version-menu ul.nav-list {
+#version-menu ul.nav-list, .menu-content ul.nav-list {
   padding-top: 5px;
   padding-bottom: 5px;
   margin: 0;
 }
-#version-menu .nav-list li {
+#version-menu .nav-list li, .menu-content .nav-list li {
   margin-left: 0;
   margin-bottom: 2px;
 }
-#version-menu .nav-list li a {
+#version-menu .nav-list li a, .menu-content .nav-list li a {
   margin: 0;
   line-height: 1.2;
 }
-#version-menu.versions-open {
+#version-menu.versions-open, .menu-content.menu-open {
   display: block;
 }
 .left-column {

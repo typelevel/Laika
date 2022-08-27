@@ -18,7 +18,7 @@ package laika.helium.builder
 
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
-import laika.helium.config.{AnchorPlacement, HeliumIcon}
+import laika.helium.config.{AnchorPlacement, HeliumIcon, HeliumStyles}
 import laika.render.{FOFormatter, HTMLFormatter}
 
 /**
@@ -79,8 +79,9 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, InvalidBlock(msg, _, fallback, opt)) =>
       fmt.forMessage(msg)(renderCallout(fmt, opt + Styles("callout", msg.level.toString), Seq(Paragraph(msg), fallback)))
     
-    case (fmt, b: BlockSequence) if b.hasStyle("callout") => renderCallout(fmt, htmlCalloutOptions(b), b.content)
-    case (fmt, Selection(name, choices, opt))             => renderChoices(fmt, name, choices, opt)
+    case (fmt, b: BlockSequence) if b.hasStyle("callout")      => renderCallout(fmt, htmlCalloutOptions(b), b.content)
+    case (fmt, b: BlockSequence) if b.hasStyle("menu-content") => fmt.indentedElement("nav", b.options, b.content)
+    case (fmt, Selection(name, choices, opt))                  => renderChoices(fmt, name, choices, opt)
       
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) => fmt.indentedElement("div", Styles("tab-content") + tab.options, tab.content, "data-choice-name" -> tab.name)

@@ -477,7 +477,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
                    latestReleases: Seq[ReleaseInfo] = Nil,
                    license: Option[String] = None,
                    documentationLinks: Seq[TextLink] = Nil,
-                   projectLinks: Seq[ThemeLink] = Nil,
+                   projectLinks: Seq[ThemeLinkSpan] = Nil,
                    teasers: Seq[Teaser] = Nil): Helium = {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
     val oldTopBar = helium.siteSettings.layout.topNavigationBar
