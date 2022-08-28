@@ -444,6 +444,15 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       .copy(topNavigationBar = TopNavigationBar(homeLink, navLinks, versionMenu, highContrast))
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
+  
+  def pageNavigation (enabled: Boolean = helium.siteSettings.layout.pageNavigation.enabled, 
+                      depth: Int = helium.siteSettings.layout.pageNavigation.depth,
+                      sourceBaseURL: Option[String] = helium.siteSettings.layout.pageNavigation.sourceBaseURL,
+                      sourceLinkText: String = helium.siteSettings.layout.pageNavigation.sourceLinkText): Helium = {
+    val newLayout = helium.siteSettings.layout
+      .copy(pageNavigation = PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
+  }
 
   /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
     * 
@@ -474,15 +483,11 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 
-  /** Adds a link to the markup source of each page on the bottom of the page navigation pane on the right side.
-    *
-    * @param text    the text of the link
-    * @param baseURL the base URL to prepend to the local path of the rendered document
-    */
-  def markupEditLinks (text: String, baseURL: String): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(markupEditLinks = Some(MarkupEditLinks(text, baseURL)))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
-  }
+  @deprecated("0.19.0", "use the corresponding properties of the new pageNavigation method")
+  def markupEditLinks (text: String, baseURL: String): Helium = pageNavigation(
+    sourceLinkText = text,
+    sourceBaseURL = Some(baseURL)
+  )
 
   /** Adds a dedicated landing page to the site that is tailored for software documentation sites.
     * By default no landing page will be included and the site will render the homepage (if present)

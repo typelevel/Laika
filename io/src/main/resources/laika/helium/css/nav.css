@@ -265,8 +265,8 @@ ul.nav-list, #page-nav ul {
   margin: 12px;
 }
 #page-nav .level3 {
-  margin-left: 18px;
-  font-size: var(--code-font-size);
+  margin-left: 24px;
+  font-size: 0.9em;
 }
 #page-nav a {
   display: block;
@@ -293,11 +293,11 @@ ul.nav-list, #page-nav ul {
   line-height: 1.5;
 }
 #page-nav .nav-list .level1 {
-  font-size: var(--body-font-size);
+  font-size: 1em;
 }
 #page-nav .nav-list .level2 {
   margin-left: 18px;
-  font-size: var(--code-font-size);
+  font-size: 0.9em;
 }
 #page-nav .nav-list li a {
   padding: 0;

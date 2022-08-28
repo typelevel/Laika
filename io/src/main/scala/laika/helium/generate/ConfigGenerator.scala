@@ -84,11 +84,13 @@ private[laika] object ConfigGenerator {
       .build
   }
 
-  implicit val markupEditsEncoder: ConfigEncoder[MarkupEditLinks] = ConfigEncoder[MarkupEditLinks] { links =>
+  implicit val pageNavEncoder: ConfigEncoder[PageNavigation] = ConfigEncoder[PageNavigation] { pageNav =>
     ConfigEncoder.ObjectBuilder.empty
-      .withValue("text", links.text)
-      .withValue("baseURL", links.baseURL.stripSuffix("/"))
-      .withValue("icon", HeliumIcon.edit)
+      .withValue("enabled", pageNav.enabled)
+      .withValue("depth", pageNav.depth)
+      .withValue("sourceBaseURL", pageNav.sourceBaseURL.map(_.stripSuffix("/")))
+      .withValue("sourceLinkText", pageNav.sourceLinkText)
+      .withValue("sourceLinkIcon", HeliumIcon.edit)
       .build
   }
 
@@ -130,8 +132,8 @@ private[laika] object ConfigGenerator {
       .withValue("helium.landingPage", helium.siteSettings.landingPage)
       .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
       .withValue("helium.site.mainNavigation", helium.siteSettings.layout.mainNavigation)
+      .withValue("helium.site.pageNavigation", helium.siteSettings.layout.pageNavigation)
       .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
-      .withValue("helium.markupEditLinks", helium.siteSettings.layout.markupEditLinks)
       .withValue("helium.site.templates", templatePaths)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
       .withValue("laika.epub", helium.epubSettings.bookConfig)
