@@ -9,7 +9,7 @@ ul.toc, .toc ul {
   font-weight: bold;
   color: var(--primary-color);
 }
-.toc.nav-list li.nav-header {
+.toc.nav-list li.nav-section-header {
   font-size: var(--title-font-size);
   margin-bottom: 20px;
   margin-top: 36px;

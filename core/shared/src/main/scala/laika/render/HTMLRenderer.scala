@@ -47,7 +47,10 @@ class HTMLRenderer (fileSuffix: String, format: String) extends ((HTMLFormatter,
         items.flatMap { item =>
           val target: BulletListItem = {
             val linkStyles = if (item.link.exists(_.selfLink)) Style.active else NoOpt
-            val typeStyles = if (item.link.isEmpty) Style.navHeader else NoOpt
+            val typeStyles = 
+              if (item.link.isEmpty) Style.navSectionHeader
+              else if (item.content.nonEmpty) Style.navTitlePage
+              else Style.navLeafEntry
             val content = item.link.fold(item.title) { link =>
               SpanSequence(SpanLink(item.title.content, link.target))
             }

@@ -70,10 +70,10 @@ class HeliumEPUBTocPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<main class="content">
                      |<h1 class="title">Contents</h1>
                      |<ul class="toc nav-list">
-                     |<li class="level1 toc"><a href="doc-1.epub.xhtml">doc-1.md</a></li>
-                     |<li class="level1 toc"><a href="doc-2.epub.xhtml">doc-2.md</a></li>
-                     |<li class="level1 toc nav-header">dir-1</li>
-                     |<li class="level2 toc"><a href="dir-1/doc-3.epub.xhtml">doc-3.md</a></li>
+                     |<li class="level1 toc nav-leaf-entry"><a href="doc-1.epub.xhtml">doc-1.md</a></li>
+                     |<li class="level1 toc nav-leaf-entry"><a href="doc-2.epub.xhtml">doc-2.md</a></li>
+                     |<li class="level1 toc nav-section-header">dir-1</li>
+                     |<li class="level2 toc nav-leaf-entry"><a href="dir-1/doc-3.epub.xhtml">doc-3.md</a></li>
                      |</ul>
                      |</main>
                      |</body>""".stripMargin
