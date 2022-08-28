@@ -17,13 +17,11 @@
 package laika.helium.generate
 
 import laika.ast.Path.Root
-import laika.ast.{InternalTarget, _}
+import laika.ast._
 import laika.config.ConfigEncoder.ObjectBuilder
 import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
-import laika.parse.{GeneratedSource, SourceFragment}
-import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
 private[laika] object ConfigGenerator {
 
@@ -65,6 +63,24 @@ private[laika] object ConfigGenerator {
       .withValue("links", navBar.navLinks)
       .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
       .withValue("versionMenu", navBar.versionMenu)
+      .build
+  }
+
+  implicit val mainNavEncoder: ConfigEncoder[MainNavigation] = ConfigEncoder[MainNavigation] { mainNav =>
+    def encodeLink (link: TextLink): ConfigValue = ConfigEncoder.ObjectBuilder.empty
+      .withValue("target", link.target.render())
+      .withValue("title", link.text)
+      .withValue("depth", 1)
+      .build
+    def encodeSection (section: ThemeNavigationSection): ConfigValue = ConfigEncoder.ObjectBuilder.empty
+      .withValue("title", section.title)
+      .withValue("entries", section.links.map(encodeLink).toList)
+      .build
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("depth", mainNav.depth)
+      .withValue("excludeSections", !mainNav.includePageSections)
+      .withValue("prependLinks", mainNav.prependLinks.map(encodeSection))
+      .withValue("appendLinks", mainNav.appendLinks.map(encodeSection))
       .build
   }
 
@@ -113,6 +129,7 @@ private[laika] object ConfigGenerator {
     ConfigBuilder.empty
       .withValue("helium.landingPage", helium.siteSettings.landingPage)
       .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
+      .withValue("helium.site.mainNavigation", helium.siteSettings.layout.mainNavigation)
       .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
       .withValue("helium.markupEditLinks", helium.siteSettings.layout.markupEditLinks)
       .withValue("helium.site.templates", templatePaths)
