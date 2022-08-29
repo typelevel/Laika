@@ -52,9 +52,9 @@ private[helium] case class EPUBLayout (defaultBlockSpacing: Length,
 private[helium] case class TableOfContent (title: String, depth: Int)
 
 private[helium] case class TopNavigationBar (homeLink: ThemeLink, 
-                                             navLinks: Seq[ThemeLink], 
-                                             highContrast: Boolean = false, 
-                                             versionPrefix: String = "Version")
+                                             navLinks: Seq[ThemeLink],
+                                             versionMenu: VersionMenu = VersionMenu.default,
+                                             highContrast: Boolean = false)
 
 private[helium] object TopNavigationBar {
   def withHomeLink (path: Path): TopNavigationBar = TopNavigationBar(IconLink.internal(path, HeliumIcon.home), Nil)
@@ -148,6 +148,7 @@ private[helium] object HeliumStyles {
   val menuToggle: Options = Styles("menu-toggle")
   val menuContainer: Options = Styles("menu-container")
   val menuContent: Options = Styles("menu-content")
+  val versionMenu: Options = Styles("version-menu")
 }
 
 private[helium] case class ThemeFonts (body: String, headlines: String, code: String)

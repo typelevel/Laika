@@ -64,7 +64,7 @@ private[laika] object ConfigGenerator {
       .withValue("home", navBar.homeLink)
       .withValue("links", navBar.navLinks)
       .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
-      .withValue("versionPrefix", navBar.versionPrefix)
+      .withValue("versionMenu", navBar.versionMenu)
       .build
   }
 

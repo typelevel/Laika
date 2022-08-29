@@ -18,7 +18,9 @@ package laika.helium.config
 
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
+import laika.config.LaikaKeys
 import laika.parse.{GeneratedSource, SourceFragment}
+import laika.rewrite.Versions
 
 /** A Helium link type available for navigation bars and the landing page.
   */
@@ -163,7 +165,7 @@ sealed abstract case class Menu (label: Seq[Span], links: Seq[SingleTargetLink],
     
     val content = BlockSequence(NavigationList(navLinks)).withOptions(HeliumStyles.menuContent)
       
-    BlockSequence(SpanSequence(toggle), content).withOptions(HeliumStyles.menuContainer)
+    BlockSequence(SpanSequence(toggle), content).withOptions(HeliumStyles.menuContainer + options)
   }
   def withOptions(newOptions: Options): Menu = new Menu(label, links, newOptions) {}
 }
@@ -173,4 +175,36 @@ object Menu {
     new Menu(Seq(Text(label)), link +: links) {}
   def create (label: Seq[Span], link: SingleTargetLink, links: SingleTargetLink*): Menu = 
     new Menu(label, link +: links) {}
+}
+
+sealed abstract case class VersionMenu (versionedLabelPrefix: String, 
+                                        unversionedLabel: String,
+                                        links: Seq[SingleTargetLink], 
+                                        options: Options = NoOpt) extends ThemeLinkBlock with MultiTargetLink {
+  type Self = VersionMenu
+
+  def resolve (cursor: DocumentCursor): Block = {
+    cursor.config.get[Versions].toOption.fold[Block](BlockSequence.empty) { versions =>
+      val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+      val labelText = 
+        if (isVersioned) s"$versionedLabelPrefix ${versions.currentVersion.displayValue}"
+        else unversionedLabel
+      val menu = new Menu(Seq(Text(labelText)), links, HeliumStyles.versionMenu) {}
+      menu.resolve(cursor)
+    }
+  }
+  
+  def withOptions(newOptions: Options): VersionMenu = 
+    new VersionMenu(versionedLabelPrefix, unversionedLabel, links, newOptions) {}
+}
+
+object VersionMenu {
+  
+  def create (versionedLabelPrefix: String = default.versionedLabelPrefix, 
+              unversionedLabel: String = default.unversionedLabel, 
+              additionalLinks: Seq[SingleTargetLink] = Nil): VersionMenu = 
+    new VersionMenu(versionedLabelPrefix, unversionedLabel, additionalLinks) {}
+    
+  val default: VersionMenu = create("Version", "Choose Version")
+  
 }
