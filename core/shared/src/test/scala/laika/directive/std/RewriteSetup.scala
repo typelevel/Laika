@@ -20,9 +20,10 @@ import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.sample.{BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees}
 import laika.ast._
-import laika.rewrite.{DefaultTemplatePath, OutputContext, TemplateRewriter}
+import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import munit.Assertions
 import Path.Root
+import laika.config.ConfigBuilder
 import laika.format.HTML
 
 object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {
@@ -35,7 +36,8 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
       .doc4.config(SampleConfig.targetFormats("epub", "pdf"))
 
   def buildTree (template: Option[(String, Seq[TemplateSpan])] = None, 
-                 docUnderTest: Option[Seq[Block]] = None, 
+                 docUnderTest: Option[Seq[Block]] = None,
+                 docConfigUnderTest: ConfigBuilder => ConfigBuilder = identity,
                  hasTitleDocs: Boolean = false,
                  includeTargetFormatConfig: Boolean = false,
                  docUnderTestIsTitle: Boolean = false): DocumentTree = {
@@ -47,8 +49,9 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
     
     val docContent = docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6)))
     val docContentF: SampleSixDocuments => SampleSixDocuments = 
-      if (docUnderTestIsTitle) _.tree2.titleDoc.content(docContent)
-      else _.doc6.content(docContent)
+      if (docUnderTestIsTitle) 
+        _.tree2.titleDoc.content(docContent).tree2.titleDoc.config(docConfigUnderTest)
+      else _.doc6.content(docContent).doc6.config(docConfigUnderTest)
     
     SampleTrees.sixDocuments
       .docContent(SampleContent.fourSections)

@@ -763,6 +763,23 @@ Helium.defaults
   .site.autoLinkJS(Root / "my-js")
 ```
 
+If you use these methods with an empty parameter list, scanning for files will effectively be disabled
+and only Helium's own CSS and JavaScript will be included.
+
+The global scanning will skip files which have the suffix `.page.css` or `.page.js`.
+With this naming scheme you can add files which are not meant to be included in every generated page.
+If you want to explicitly add one of these files to an individual document,
+you can do that with a HOCON configuration header in the corresponding markup document:
+
+```laika-md
+{%
+  laika.site.css.searchPaths = ["/styles/custom.page.css"]
+%}
+```
+
+You can also use paths of directories, in which case those will be scanned in the same way
+as with the global search paths configured via the Helium API. 
+
 Like everything in Laika, the paths are virtual and not file system paths, so they must point to somewhere
 within the configured inputs. @:todo(maybe better to include just one section at the top about virtual paths).
 

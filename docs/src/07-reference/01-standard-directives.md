@@ -470,20 +470,13 @@ Causes the automatic inclusion of `<link>` tags for CSS files found in the input
 @:linkCSS
 ```
 
-When used without attributes as in the example above it will simply link any CSS file found in the input tree.
+It will simply link any CSS file found in the input tree, unless the suffix is `.page.css`.
+Those files are excluded from global scanning so that they can be explicitly included for individual pages.
 
-If you only want to pick files from specific locations, you can use the `paths` attribute:
+The search paths can be constrained via the Helium config API - see [Auto-Linking CSS & JS Files].
 
-```laika-html
-@:linkCSS {
-  paths = [ /shared, /css ]
-}
-```
-
-The order of the link tags will reflect the order of paths specified.
-You can point to individual files or directories. 
-In the latter case all files found in that directory or any sub-directory will be included.
-
+When not using Helium the paths can be controlled via the configuration key `laika.site.css.searchPaths`
+and `laika.epub.css.searchPaths` which are both arrays of path strings.
 Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
 See [Virtual Tree Abstraction] for details.
 
@@ -496,20 +489,13 @@ Causes the automatic inclusion of `<script>` tags for JavaScript files found in 
 @:linkJS
 ```
 
-When used without attributes as in the example above it will simply link any JavaScript file found in the input tree.
+It will simply link any JavaScript file found in the input tree, unless the suffix is `.page.js`.
+Those files are excluded from global scanning so that they can be explicitly included for individual pages.
 
-If you only want to pick files from specific locations, you can use the `paths` attribute:
+The search paths can be constrained via the Helium config API - see [Auto-Linking CSS & JS Files].
 
-```laika-html
-@:linkJS {
-  paths = [ /shared, /js ]
-}
-```
-
-The order of the script tags will reflect the order of paths specified.
-You can point to individual files or directories. 
-In the latter case all files found in that directory or any sub-directory will be included.
-
+When not using Helium the paths can be controlled via the configuration key `laika.site.js.searchPaths`
+and `laika.epub.js.searchPaths` which are both arrays of path strings.
 Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
 See [Virtual Tree Abstraction] for details.
 

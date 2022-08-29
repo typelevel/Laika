@@ -25,6 +25,7 @@ import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{DefaultTemplatePath, OutputContext}
 import munit.FunSuite
 import RewriteSetup._
+import laika.config.{ConfigBuilder, LaikaKeys}
 import laika.format.HTML
 
 class HTMLHeadDirectiveSpec extends FunSuite {
@@ -34,12 +35,15 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     StaticDocument(Root / "doc-1.css", TargetFormats.Selected("html")),
     StaticDocument(Root / "doc-2.epub.css", TargetFormats.Selected("epub", "epub.xhtml")),
     StaticDocument(Root / "doc-3.shared.css", TargetFormats.Selected("epub", "epub.xhtml", "html")),
+    StaticDocument(Root / "doc-4.page.css", TargetFormats.Selected("html")),
     StaticDocument(Root / "tree-2" / "doc-4.css", TargetFormats.Selected("html")),
   )
   
   def parseAndRewrite(template: String, 
                       templatePath: Path = DefaultTemplatePath.forHTML, 
-                      static: Seq[StaticDocument] = staticDocs): Either[String, RootElement] = {
+                      static: Seq[StaticDocument] = staticDocs,
+                      rootConfig: ConfigBuilder => ConfigBuilder = identity,
+                      docConfig: ConfigBuilder => ConfigBuilder = identity): Either[String, RootElement] = {
 
     val ctx = {
       val templateSuffix = templatePath.suffix.get.stripPrefix("template.")
@@ -48,11 +52,12 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     }
     
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
-      val inputTree = buildTree(Some(templatePath.name, root.content))
-      val resolveRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Resolve)
-      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(inputTree), RewritePhase.Render(HTML))
+      val inputTree = buildTree(Some((templatePath.name, root.content)), docConfigUnderTest = docConfig)
+      val treeWithConfig = inputTree.copy(config = rootConfig(ConfigBuilder.empty).build)
+      val resolveRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(treeWithConfig), RewritePhase.Resolve)
+      val renderRules = OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(treeWithConfig), RewritePhase.Render(HTML))
       for {
-        tree     <- inputTree.rewrite(resolveRules).leftMap(_.message)
+        tree     <- treeWithConfig.rewrite(resolveRules).leftMap(_.message)
         treeRoot =  DocumentTreeRoot(tree, staticDocuments = static)
         result   <- treeRoot.applyTemplates(renderRules, ctx).leftMap(_.message)
       } yield result
@@ -76,6 +81,9 @@ class HTMLHeadDirectiveSpec extends FunSuite {
   def run (input: String, expectedResult: Seq[TemplateSpan])(implicit loc: munit.Location): Unit = {
     assertEquals(parseAndRewrite(input), buildResult(expectedResult))
   }
+  def runWithDocConfig (input: String, config: ConfigBuilder => ConfigBuilder, expectedResult: Seq[TemplateSpan])(implicit loc: munit.Location): Unit = {
+    assertEquals(parseAndRewrite(input, docConfig = config), buildResult(expectedResult))
+  }
   
   private val cssStart = TemplateString("""<link rel="stylesheet" type="text/css" href="""")
   private val cssEnd = TemplateString("""" />""")
@@ -84,50 +92,41 @@ class HTMLHeadDirectiveSpec extends FunSuite {
   private val separator = TemplateString("\n    ")
   private def rawLink (url: String): TemplateElement = TemplateElement(RawLink.internal(url))
   
-  test("linkCSS - pick all CSS documents apart from those for EPUB when used without attributes") {
-    val input =
-      """aaa
-        |
-        |@:linkCSS
-        |
-        |bbb""".stripMargin
-
-    run(input, Seq(
+  private val globalSearchPathsKey = LaikaKeys.site.css.child("globalSearchPaths")
+  private val localSearchPathsKey = LaikaKeys.site.css.child("searchPaths")
+  
+  private val linkCSSInput =
+    """aaa
+      |
+      |@:linkCSS
+      |
+      |bbb""".stripMargin
+      
+  test("linkCSS - HTML - defaults") {
+    run(linkCSSInput, Seq(
       cssStart, rawLink("/doc-1.css"), cssEnd, separator,
       cssStart, rawLink("/doc-3.shared.css"), cssEnd, separator,
       cssStart, rawLink("/tree-2/doc-4.css"), cssEnd
     ))
   }
 
-  test("linkCSS - pick matching CSS documents apart from those for EPUB when used with an paths filter") {
-    val input =
-      """aaa
-        |
-        |@:linkCSS { paths = [ /tree-2 ] }
-        |
-        |bbb""".stripMargin
-
-    run(input, Seq(
+  test("linkCSS - HTML - restrict inputs via global config") {
+    runWithDocConfig(linkCSSInput, _.withValue(globalSearchPathsKey, Seq(Root / "tree-2")), Seq(
       cssStart, rawLink("/tree-2/doc-4.css"), cssEnd
     ))
   }
 
-  test("linkCSS - pick matching CSS documents apart from those for EPUB and respect the order of the specified filters") {
-    val input =
-      """aaa
-        |
-        |@:linkCSS { paths = [ /tree-2, / ] }
-        |
-        |bbb""".stripMargin
-
-    run(input, Seq(
-      cssStart, rawLink("/tree-2/doc-4.css"), cssEnd, separator,
+  test("linkCSS - HTML - expand inputs via document config") {
+    runWithDocConfig(linkCSSInput, _.withValue(localSearchPathsKey, Seq(Root / "doc-4.page.css")), Seq(
       cssStart, rawLink("/doc-1.css"), cssEnd, separator,
-      cssStart, rawLink("/doc-3.shared.css"), cssEnd
+      cssStart, rawLink("/doc-3.shared.css"), cssEnd, separator,
+      cssStart, rawLink("/tree-2/doc-4.css"), cssEnd, separator,
+      cssStart, rawLink("/doc-4.page.css"), cssEnd
     ))
   }
 
-  test("linkCSS - pick all CSS documents for EPUB when used without attributes") {
+
+  test("linkCSS - EPUB - defaults") {
     val input =
       """aaa
         |

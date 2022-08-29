@@ -16,11 +16,10 @@
 
 package laika.directive.std
 
-import cats.data.NonEmptyChain
 import cats.syntax.all._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.LaikaKeys
+import laika.config.{ConfigDecoder, Key, LaikaKeys}
 import laika.directive.Templates
 
 /** Provides the implementation for the standard directives for the head section in HTML templates.
@@ -37,52 +36,81 @@ import laika.directive.Templates
   * @author Jens Halm
   */
 object HTMLHeadDirectives {
+  
+  private[std] case class SearchPaths (globalPaths: Seq[Path], localPaths: Seq[Path])
 
-  private def renderLinks (cursor: DocumentCursor,
-                           suffixFilter: String => Boolean,
-                           includes: NonEmptyChain[Path],
-                           embedIn: (TemplateSpan, TemplateSpan)): Either[String, TemplateSpan] = {
+  private implicit val searchPathsDecoder: ConfigDecoder[SearchPaths] = ConfigDecoder.config.flatMap { config =>
+    for {
+      globalPaths <- config.get[Seq[Path]]("globalSearchPaths", Seq(Root))
+      localPaths  <- config.get[Seq[Path]]("searchPaths", Nil)
+    } yield {
+      SearchPaths(globalPaths, localPaths)
+    }
+  }
+  
+  private def findDocuments (cursor: DocumentCursor,
+                             configKey: Key,
+                             supportedSuffix: String): Either[String, Seq[Path]] = {
 
-    cursor.root.config.get[Path](LaikaKeys.site.apiPath, Root / "api").leftMap(_.message).map { excluded =>
-      
+    cursor.config.get[Path](LaikaKeys.site.apiPath, Root / "api").leftMap(_.message).flatMap { excluded =>
+
       val formatSelector = cursor.root.outputContext.map(_.formatSelector)
-      
       val preFiltered = cursor.root.target.staticDocuments.filter { doc =>
-        doc.path.suffix.exists(suffixFilter) &&
+        doc.path.suffix.exists(_.endsWith(supportedSuffix)) &&
           !doc.path.isSubPath(excluded) &&
           formatSelector.exists(doc.formats.contains)
       }
   
-      val included = includes.foldLeft((preFiltered, Seq.empty[Path])) { case ((candidates, acc), include) =>
-        val (newIncludes, remaining) = candidates.partition(_.path.isSubPath(include))
-        (remaining, acc ++ newIncludes.map(_.path))
-      }._2
-  
-      val allLinks: Seq[TemplateSpan] = included
-        .map { path =>
-          Seq(embedIn._1, TemplateElement(RawLink.internal(path)), embedIn._2)
-        }
-        .reduceOption((s1, s2) => s1 ++: TemplateString("\n    ") +: s2)
-        .getOrElse(Seq())
+      cursor.config.get[SearchPaths](configKey, SearchPaths(Seq(Root), Nil)).leftMap(_.message).map { searchPaths =>
+
+        def filter (docs: Seq[StaticDocument], paths: Seq[Path], suffixCheck: String => Boolean): (Seq[StaticDocument], Seq[Path]) = 
+          paths.foldLeft((docs, Seq.empty[Path])) { case ((candidates, acc), include) =>
+            val (newIncludes, remaining) = 
+              candidates.partition(doc => doc.path.isSubPath(include) && doc.path.suffix.exists(suffixCheck))
+            (remaining, acc ++ newIncludes.map(_.path))
+          }
       
-      TemplateSpanSequence(allLinks)
+        val (remaining, globalIncludes) = filter(preFiltered, searchPaths.globalPaths, _ != s"page.$supportedSuffix")      
+        val (_, localIncludes)          = filter(remaining, searchPaths.localPaths, _ => true)
+
+        val (themeFiles, userFiles) = (globalIncludes ++ localIncludes).partition(_.isSubPath(Root / "helium")) // TODO - generalize
+        
+        themeFiles ++ userFiles
+      }
+      
     }
   }
   
-  private def linkDirective (supportedSuffix: String, 
+  private def renderLinks (documents: Seq[Path],
+                           templateStart: String,
+                           templateEnd: String): TemplateSpan = {
+    val allLinks: Seq[TemplateSpan] = documents
+      .map { path => Seq(
+        TemplateString(templateStart), 
+        TemplateElement(RawLink.internal(path)),
+        TemplateString(templateEnd))
+      }
+      .reduceOption((s1, s2) => s1 ++: TemplateString("\n    ") +: s2)
+      .getOrElse(Seq())
+
+    TemplateSpanSequence(allLinks)
+  }
+  
+  private def linkDirective (supportedSuffix: String,
                              templateStart: String, 
                              templateEnd: String): Templates.DirectivePart[Either[String, TemplateSpan]] = {
     import Templates.dsl._
 
-    (attribute("paths").as[Seq[Path]].optional.widen, cursor).mapN { (includes, cursor) =>
-      val suffixFilter: String => Boolean = cursor.root.outputContext.map(_.formatSelector) match {
-        case Some("epub") | Some("epub.xhtml") | Some("html") => 
-          (suffix: String) => suffix.endsWith(supportedSuffix) && suffix != s"page.$supportedSuffix"
-        case _ => _ => false
+    cursor.map { cursor =>
+      val configKey = cursor.root.outputContext.map(_.formatSelector) match {
+        case Some("epub") | Some("epub.xhtml") => Key("laika", "epub", supportedSuffix).some
+        case Some("html")                      => Key("laika", "site", supportedSuffix).some
+        case _                                 => None
       }
-      val includePaths: NonEmptyChain[Path] = NonEmptyChain.fromSeq(includes.getOrElse(Nil)).getOrElse(NonEmptyChain.one(Root))
-      val embedIn = (TemplateString(templateStart), TemplateString(templateEnd))
-      renderLinks(cursor, suffixFilter, includePaths, embedIn)
+      configKey match {
+        case Some(key) => findDocuments(cursor, key, supportedSuffix).map(renderLinks(_, templateStart, templateEnd))
+        case None      => TemplateSpanSequence.empty.asRight
+      }
     }
   }
   
