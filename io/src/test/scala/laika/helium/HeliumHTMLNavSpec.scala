@@ -250,7 +250,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<a class="text-link menu-toggle" href="#">Choose Version</a>
         |<nav class="menu-content">
         |<ul class="nav-list">
-        |<li class="level1"><a href="doc-2.html">Extra-Link</a></li>
+        |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Extra-Link</a></li>
         |</ul>
         |</nav>
         |</div>
