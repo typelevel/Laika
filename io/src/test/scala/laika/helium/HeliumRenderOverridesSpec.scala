@@ -113,7 +113,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       """.stripMargin
     val expected = 
       s"""<div class="callout warning">
-         |<i class="icofont-laika">${entity(HeliumIcon.warning)}</i>
+         |<i class="icofont-laika warning">${entity(HeliumIcon.warning)}</i>
          |<p>You really should not do this.</p>
          |</div>""".stripMargin
     transformAndExtract(input).assertEquals(expected)
@@ -132,14 +132,14 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
   test("anchors for headers - left placement (default)") {
     val expected = 
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika">${entity(HeliumIcon.link)}</i></a>Some Headline</h2>""".stripMargin
+         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika link">${entity(HeliumIcon.link)}</i></a>Some Headline</h2>""".stripMargin
     transformAndExtract(headlineInput).assertEquals(expected)
   }
 
   test("anchors for headers - right placement") {
     val expected =
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
+         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika link">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
     val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.Right)

@@ -113,7 +113,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |</div>
                      |<p class="medium"><a class="text-link" href="doc-1.html">Text Link</a></p>
                      |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
-                     |<p class="medium"><span class="row links"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a><a class="icon-link" href="doc-3.md"><i class="icofont-laika">&#xef4e;</i></a></span></p>
+                     |<p class="medium"><span class="row links"><a class="icon-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a><a class="icon-link" href="doc-3.md"><i class="icofont-laika info">&#xef4e;</i></a></span></p>
                      |</div>
                      |</div>
                      |$teaserHTML
@@ -174,7 +174,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<div id="header-right">
                      |<p>Latest Release</p>
                      |<p class="large">2.3.5</p>
-                     |<p class="medium"><a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a></p>
+                     |<p class="medium"><a class="icon-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a></p>
                      |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
                      |</div>
                      |</div>

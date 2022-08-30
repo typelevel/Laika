@@ -77,30 +77,30 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   test("api directive - span link based on the default base URI") {
-    Api.runType("def.bar.Baz", SpanLink.external("https://default.api/def/bar/Baz.html")("Baz"))
+    Api.runType("def.bar.Baz", SpanLink.external("https://default.api/def/bar/Baz.html")("Baz").withStyles("api"))
   }
 
   test("api directive - strip the $ postfix from the link text") {
-    Api.runType("def.bar.Baz$", SpanLink.external("https://default.api/def/bar/Baz$.html")("Baz"))
+    Api.runType("def.bar.Baz$", SpanLink.external("https://default.api/def/bar/Baz$.html")("Baz").withStyles("api"))
   }
 
   test("api directive - span link based on the longest prefix match") {
-    Api.runType("foo.bar.Baz", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"))
+    Api.runType("foo.bar.Baz", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz").withStyles("api"))
   }
 
   test("api directive - span link based on the shorter prefix match") {
-    Api.runType("foo.baz.Baz", SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz"))
+    Api.runType("foo.baz.Baz", SpanLink.external("https://foo.api/foo/baz/Baz.html")("Baz").withStyles("api"))
   }
 
   test("api directive - span link to a method") {
     Api.runType(
       "foo.baz.Baz#canEqual(that:Any\\):Boolean", 
-      SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual")
+      SpanLink.external("https://foo.api/foo/baz/Baz.html#canEqual(that:Any):Boolean")("Baz.canEqual").withStyles("api")
     )
   }
 
   test("api directive - span link for a package") {
-    Api.runType("foo.bar.package", SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar"))
+    Api.runType("foo.bar.package", SpanLink.external("https://bar.api/foo/bar/index.html")("foo.bar").withStyles("api"))
   }
 
   test("api directive - fail for an internal link to a missing target") {
@@ -120,15 +120,15 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
 
   test("api directive - as the only element of a block".ignore) {
     // TODO - this fails right now, might need auto-promotion of span directives without body to block directives
-    Api.runTypeBlock("@:api(foo.bar.Baz)", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"))
+    Api.runTypeBlock("@:api(foo.bar.Baz)", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz").withStyles("api"))
   }
 
   test("api directive - as the first element of a block") {
-    Api.runTypeBlock("@:api(foo.bar.Baz) bb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb"))
+    Api.runTypeBlock("@:api(foo.bar.Baz) bb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz").withStyles("api"), Text(" bb"))
   }
 
   test("api directive - as the first line of a block".ignore) {
-    Api.runTypeBlock("@:api(foo.bar.Baz)\nbb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz"), Text(" bb"))
+    Api.runTypeBlock("@:api(foo.bar.Baz)\nbb", SpanLink.external("https://bar.api/foo/bar/Baz.html")("Baz").withStyles("api"), Text(" bb"))
   }
 
   object Source {
@@ -161,15 +161,15 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   test("source directive - span link based on the default base URI") {
-    Source.runType("def.bar.Baz", SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz"))
+    Source.runType("def.bar.Baz", SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz").withStyles("source"))
   }
 
   test("source directive - span link based on the longest prefix match") {
-    Source.runType("foo.bar.Baz", SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz"))
+    Source.runType("foo.bar.Baz", SpanLink.external("https://bar.source/foo/bar/Baz.java")("Baz").withStyles("source"))
   }
 
   test("source directive - span link based on the shorter prefix match") {
-    Source.runType("foo.baz.Baz", SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz"))
+    Source.runType("foo.baz.Baz", SpanLink.external("https://foo.source/foo/baz/Baz.scala")("Baz").withStyles("source"))
   }
 
   test("source directive - fail when there is no matching base URI defined") {

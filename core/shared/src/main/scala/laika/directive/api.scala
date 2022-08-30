@@ -777,7 +777,8 @@ object Links {
     */
   def eval (directiveName: String)(f: (String, DocumentCursor) => Either[String, SpanLink]): Directive = new Directive {
     override def name = directiveName
-    override def apply (linkId: String, cursor: DocumentCursor): Either[String, SpanLink] = f(linkId, cursor)
+    override def apply (linkId: String, cursor: DocumentCursor): Either[String, SpanLink] = 
+      f(linkId, cursor).map(_.withStyles(directiveName))
   }
   
 }

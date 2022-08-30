@@ -350,7 +350,7 @@ class StandardDirectiveSpec extends FunSuite
   
   
   test("icon directive - success") {
-    val icon = IconStyle("open")
+    val icon = IconStyle("open").withStyles("foo")
     val config = ConfigBuilder.empty.withValue(IconRegistry("foo"->icon)).build
     val input = """aa @:icon(foo) bb"""
     runTemplate(input, config,
