@@ -71,7 +71,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                              |</div>""".stripMargin
     
   test("no landing page configured") {
-    transformAndExtract(inputs, Helium.defaults, "", "")
+    transformAndExtract(inputs, Helium.defaults.site.topNavigationBar(homeLink = IconLink.external("http://foo.com", HeliumIcon.home)), "", "")
       .interceptMessage[RuntimeException]("Missing document under test")
   }
   

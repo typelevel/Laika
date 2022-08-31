@@ -404,7 +404,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param highContrast indicates whether the background color should have a high contrast to the background
     *                     of the page (darker in light mode and lighter in dark mode).
     */
-  def topNavigationBar (homeLink: ThemeLink = TopNavigationBar.default.homeLink, 
+  def topNavigationBar (homeLink: ThemeLink = DynamicHomeLink.default, 
                         navLinks: Seq[ThemeLink] = Nil,
                         versionMenu: VersionMenu = VersionMenu.default,
                         highContrast: Boolean = false): Helium = {
@@ -485,14 +485,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
                    projectLinks: Seq[ThemeLinkSpan] = Nil,
                    teasers: Seq[Teaser] = Nil): Helium = {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
-    val oldTopBar = helium.siteSettings.layout.topNavigationBar
-    val newLayout = 
-      if (oldTopBar.homeLink != TopNavigationBar.default.homeLink) helium.siteSettings.layout
-      else helium.siteSettings.layout.copy(
-        topNavigationBar = oldTopBar.copy(homeLink = IconLink.internal(Root / "README", HeliumIcon.home))
-      )
-      
-    copyWith(helium.siteSettings.copy(landingPage = Some(page), layout = newLayout))
+    copyWith(helium.siteSettings.copy(landingPage = Some(page)))
   }
 
   /** Specify the configuration for versioned documentation, a core Laika feature simply exposed via the Helium Config API.
