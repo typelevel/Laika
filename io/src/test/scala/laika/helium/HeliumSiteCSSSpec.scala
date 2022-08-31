@@ -100,12 +100,14 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   
   private val colorScheme = "color-scheme: light dark;"
     
+  private val heliumBase = Helium.defaults.site.landingPage()
+  
   test("defaults") {
     val expected = s"""$defaultColors
                       |$defaultFonts
                       |$defaultLayout
                       |$colorScheme""".stripMargin
-    transformAndExtract(singleDoc, Helium.defaults, ":root {", "}").assertEquals(expected)
+    transformAndExtract(singleDoc, heliumBase, ":root {", "}").assertEquals(expected)
   }
   
   private val customFonts = s"""$defaultColors
@@ -123,7 +125,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                               |$colorScheme""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.fontFamilies(body = "Custom-Body", headlines = "Custom-Header", code = "Custom-Code")
       .site.fontSizes(body = px(14), code = px(13), title = px(33), 
         header2 = px(27), header3 = px(19), header4 = px(14), small = px(11))
@@ -131,7 +133,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("custom font families and font sizes - via 'all' selector") {
-    val helium = Helium.defaults
+    val helium = heliumBase
       .all.fontFamilies(body = "Custom-Body", headlines = "Custom-Header", code = "Custom-Code")
       .all.fontSizes(body = px(14), code = px(13), title = px(33),
       header2 = px(27), header3 = px(19), header4 = px(14), small = px(11))
@@ -204,7 +206,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   
   test("custom colors - via 'site' selector") {
     import laika.theme.config.Color._
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.themeColors(primary = rgb(1,1,1), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
         secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11), bgGradient = (rgb(0,0,0), rgb(9,9,9)))
       .site.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
@@ -220,7 +222,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   test("custom colors - via 'all' selector") {
     import laika.theme.config.Color._
-    val helium = Helium.defaults
+    val helium = heliumBase
       .all.themeColors(primary = rgb(1,1,1), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
         secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11), bgGradient = (rgb(0,0,0), rgb(9,9,9)))
       .all.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
@@ -236,7 +238,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   test("custom colors in dark mode") {
     import laika.theme.config.Color._
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.themeColors(primary = rgb(1,1,1), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
         secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11), bgGradient = (rgb(0,0,0), rgb(9,9,9)))
       .site.messageColors(
@@ -263,7 +265,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
   
   test("dark mode disabled") {
-    val helium = Helium.defaults.site.darkMode.disabled
+    val helium = heliumBase.site.darkMode.disabled
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(defaultColors + "\n" + defaultFonts  + "\n" + defaultLayout)
   }
 
@@ -277,7 +279,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |$colorScheme""".stripMargin
   
   test("layout") {
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.layout(contentWidth = px(1000), navigationWidth = px(300), topBarHeight = px(55),
         defaultBlockSpacing = px(9), defaultLineHeight = 1.2, anchorPlacement = AnchorPlacement.None)
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customLayout)

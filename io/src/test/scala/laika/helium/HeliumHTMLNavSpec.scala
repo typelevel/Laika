@@ -99,7 +99,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
                      |<li class="level1 nav-leaf-entry"><a href="doc-3.html">Doc 3</a></li>
                      |</ul>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - two levels") {
@@ -112,7 +112,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<li class="level2 nav-leaf-entry"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
         |<p class="footer"></p>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - with footer link") {
@@ -125,7 +125,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<li class="level2 nav-leaf-entry"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
         |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
-    val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project")
+    val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project").site.landingPage()
     transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
@@ -138,6 +138,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val helium = Helium.defaults
       .site.markupEditLinks("Source for this page", "https://github.com/my-project")
       .site.tableOfContent("Table of Content", 2)
+      .site.landingPage()
     transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>", Root / "table-of-content.html").assertEquals(expected)
   }
 

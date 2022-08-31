@@ -37,6 +37,8 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
   
+  private val heliumBase = Helium.defaults.site.landingPage()
+  
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
       .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
@@ -56,7 +58,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       } yield res
     }
   
-  def transformAndExtract(input: String, helium: Helium = Helium.defaults, configure: ConfigureTransformer = identity): IO[String] = {
+  def transformAndExtract(input: String, helium: Helium = heliumBase, configure: ConfigureTransformer = identity): IO[String] = {
     transformAndExtract(Seq(Root / "doc.md" -> input), helium, "<main class=\"content\">", "</main>", configure)
   }
   
@@ -141,7 +143,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       s"""<h1 id="title" class="title">Title</h1>
          |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika link">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
-    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
+    val helium = heliumBase.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.Right)
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }
@@ -151,7 +153,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       """<h1 id="title" class="title">Title</h1>
         |<h2 id="some-headline" class="section">Some Headline</h2>""".stripMargin
     val layout = Helium.defaults.siteSettings.layout
-    val helium = Helium.defaults.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
+    val helium = heliumBase.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
       layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.None)
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }

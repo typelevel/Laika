@@ -64,6 +64,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   val singleDoc = Seq(
     Root / "name.md" -> "text"
   )
+  val singleDocPlusHome = Seq(
+    Root / "README.md" -> "text",
+    Root / "name.md" -> "text"
+  )
   val docWithCanonicalLink = Seq(
     Root / "name.md" ->
       """{%
@@ -102,6 +106,8 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
   )
   
+  val heliumBase = Helium.defaults.site.landingPage()
+  
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 
   def transformAndExtractHead(inputs: Seq[(Path, String)], helium: Helium, underTest: Path = Root / "name.html"): IO[String] = transformer(helium.build).use { t =>
@@ -122,7 +128,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     
   test("Helium defaults via separate parser and renderer") {
     parserAndRenderer.use {
-      case (p, r) => p.fromInput(build(singleDoc)).parse.flatMap { tree =>
+      case (p, r) => p.fromInput(build(singleDocPlusHome)).parse.flatMap { tree =>
         r.from(tree.root).toOutput(StringTreeOutput).render
       }
     }
@@ -131,7 +137,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("Helium defaults via transformer") {
-    transformAndExtractHead(singleDoc).assertEquals(defaultResult)
+    transformAndExtractHead(singleDocPlusHome).assertEquals(defaultResult)
   }
   
   test("exclude CSS and JS from API directory") {
@@ -140,7 +146,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "api" / "foo.js" -> "",
       Root / "api" / "foo.css" -> "",
     )
-    transformAndExtractHead(inputs).assertEquals(defaultResult)
+    transformAndExtractHead(inputs, heliumBase).assertEquals(defaultResult)
   }
   
   test("custom CSS and JS files") {
@@ -159,7 +165,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<script src="helium/laika-helium.js"></script>
                    |<script src="web/foo.js"></script>
                    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-    transformAndExtractHead(inputs).assertEquals(expected)
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 
   test("custom configuration for CSS and JS file locations") {
@@ -170,7 +176,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "custom-js" / "foo.js" -> "",
       Root / "custom-css" / "foo.css" -> "",
     )
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.autoLinkCSS(Root / "custom-css")
       .site.autoLinkJS(Root / "custom-js")
     val expected = meta ++ """
@@ -187,7 +193,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
   
   test("metadata (authors, description)") {
-    val helium = Helium.defaults.all.metadata(
+    val helium = heliumBase.all.metadata(
       authors = Seq("Maria Green", "Elena Blue"),
       description = Some("Some description")
     )
@@ -206,14 +212,13 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("metadata (language)") {
-    val helium = Helium.defaults.all.metadata(
+    val helium = heliumBase.all.metadata(
       language = Some("de")
     )
     transformAndExtract(singleDoc, helium, "<html ", ">").assertEquals("""lang="de"""")
   }
 
   test("metadata (canonical link)") {
-    val helium = Helium.defaults
     val expected = meta ++ """
                              |<title></title>
                              |<link rel="canonical" href="http://very.canonical/"/>
@@ -223,7 +228,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                              |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                              |<script src="helium/laika-helium.js"></script>
                              |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-    transformAndExtractHead(docWithCanonicalLink, helium).assertEquals(expected)
+    transformAndExtractHead(docWithCanonicalLink, heliumBase).assertEquals(expected)
   }
 
   test("favicons") {
@@ -232,7 +237,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "icon-1.png" -> "",
       Root / "icon-2.png" -> "",
     )
-    val helium = Helium.defaults.site.favIcons(
+    val helium = heliumBase.site.favIcons(
       Favicon.internal(Root / "icon-1.png", "32x32"),
       Favicon.internal(Root / "icon-2.png", "64x64")
     )
@@ -259,7 +264,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "img" / "icon-1.png"     -> "",
       Root / "img" / "icon-2.png"     -> "",
     )
-    val helium = Helium.defaults
+    val helium = heliumBase
       .site.versions(versions)
       .site.favIcons(
         Favicon.internal(Root / "img" / "icon-1.png", "32x32"),
@@ -281,7 +286,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("custom web fonts") {
-    val helium = Helium.defaults.site.fontResources(
+    val helium = heliumBase.site.fontResources(
       FontDefinition(Font.webCSS("http://fonts.com/font-1.css"), "Font-1", FontWeight.Normal, FontStyle.Normal),
       FontDefinition(Font.webCSS("http://fonts.com/font-2.css"), "Font-2", FontWeight.Normal, FontStyle.Normal)
     )
@@ -307,7 +312,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
         Version("0.43.x", "0.43")
       )
     )
-    val helium = Helium.defaults.site.landingPage().site.versions(versions).site.baseURL("https://foo.org/")
+    val helium = heliumBase.site.versions(versions).site.baseURL("https://foo.org/")
     val expected = meta ++ """
                     |<title></title>
                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
@@ -332,7 +337,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
         Version("0.43.x", "0.43")
       )
     )
-    val helium = Helium.defaults.site.landingPage().site.versions(versions)
+    val helium = heliumBase.site.versions(versions)
     val expected = meta ++ """
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
@@ -357,7 +362,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val inputs = Seq(
       Root / "name.md" -> markup
     )
-    transformAndExtractHead(inputs).map(_.extractTag("title")).assertEquals(Some("Title"))
+    transformAndExtractHead(inputs, heliumBase).map(_.extractTag("title")).assertEquals(Some("Title"))
   }
 
   test("override head template fragment per page") {
@@ -377,7 +382,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>" 
     )
     val expected = "<title>XX Title</title>"
-    transformAndExtractHead(inputs).assertEquals(expected)
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 
   test("override head template fragment globally") {
@@ -393,7 +398,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "helium" / "templates" / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
     )
     val expected = "<title>XX Title</title>"
-    transformAndExtractHead(inputs).assertEquals(expected)
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
   
 }
