@@ -273,6 +273,16 @@ a:hover .svg-shape {
   fill: var(--secondary-color);
 }
 
+/* footer ========================================== */
+
+.footer-rule {
+  margin-top: 30px;
+}
+footer {
+  font-size: 0.9em;
+  text-align: center;
+}
+
 /* other =========================================== */
 
 blockquote {

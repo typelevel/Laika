@@ -496,8 +496,8 @@ In many cases this is desirable anyway, as not every file modification represent
 
 
 
-Navigation, Links & Favicons
-----------------------------
+Navigation, Links, Favicons & Footer
+------------------------------------
 
 This section describes the navigation options specific to the Helium theme.
 There are several other navigation features which are supported independent of the theme in use,
@@ -651,6 +651,37 @@ Helium.defaults
     Favicon.internal(Root / "favicon64x64.png", sizes = "64x64")
   )
 ```
+
+### Footer
+
+By default, the theme includes a footer pointing to the Laika project.
+There is no requirement to keep this footer though, and the API gives you the following options:
+
+Set a raw HTML string as the footer:
+```scala
+Helium.defaults
+  .site.footer("""This is a <a href="https://foo.com/">Foo</a> project under the Bar licence.""")
+```
+
+Set the footer as a sequence of AST nodes:
+```scala
+Helium.defaults
+  .site.footer(
+    TemplateString("This is a "),
+    SpanLink.external("https://foo.com/")("Foo"),
+    TemplateString(" project under the Bar licence.")
+  )
+```
+
+Remove the footer entirely:
+```scala
+Helium.defaults
+  .site.footer()
+```
+
+Note that there is no option to define the footer in markup. 
+Themes are independent of the underlying markup parser and a site can be generated
+with only a reStructuredText parser configured for the runtime, for example.
 
 
 Download Page

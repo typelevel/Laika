@@ -711,7 +711,7 @@ object Templates extends BuilderContext[TemplateSpan] {
       case s: TemplateSpan => s
       case Text(s, opt) => TemplateString(s, opt) // TODO - might get extracted
     }
-  }.toEither.left.map(Seq(_)) // TODO - avoid duplication
+  }.toEither.left.map(Seq(_))
   
   case class DirectiveInstance (directive: Option[Directive],
                                 parsedResult: ParsedDirective,

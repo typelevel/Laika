@@ -20,6 +20,8 @@ import laika.config.{ASTValue, ConfigError, ConfigValue, InvalidType, Key, Simpl
 import laika.parse.{GeneratedSource, SourceFragment}
 import laika.rewrite.ReferenceResolver.CursorKeys
 
+import scala.concurrent.duration.span
+
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.
  *  Useful for elements that need access to the
@@ -224,6 +226,18 @@ case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = 
 }
 object TemplateSpanSequence extends TemplateSpanContainerCompanion {
   type ContainerType = TemplateSpanSequence
+
+  /** Create an instance containing one or more spans, translating them to TemplateSpans */
+  def adapt(spans: Seq[Span]): ContainerType = {
+    val templateSpans = spans.map {
+      case ts: TemplateSpan => ts
+      case span => TemplateElement(span)
+    }
+    createSpanContainer(templateSpans)
+  }
+  /** Create an instance containing one or more spans, translating them to TemplateSpans */
+  def adapt(span: Span, spans: Span*): ContainerType = adapt(span +: spans.toList)
+  
   protected def createSpanContainer (spans: Seq[TemplateSpan]): ContainerType = TemplateSpanSequence(spans)
 }
 
