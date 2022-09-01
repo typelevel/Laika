@@ -229,14 +229,16 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `icon` directive for span elements in markup documents.
     */
   lazy val iconSpan: Spans.Directive  = Spans.create("icon") {
-    (Spans.dsl.attribute(0).as[String], Spans.dsl.source).mapN(IconReference(_, _))
+    (Spans.dsl.attribute(0).as[String], Spans.dsl.source).mapN { (ref, src) =>
+      IconReference(ref, src, Styles(ref))
+    }
   }
 
   /** Implementation of the `icon` directive for span elements in templates.
     */
   lazy val iconTemplate: Templates.Directive  = Templates.create("icon") {
     (Templates.dsl.attribute(0).as[String], Templates.dsl.source).mapN { (ref, src) =>
-      TemplateElement(IconReference(ref, src))
+      TemplateElement(IconReference(ref, src, Styles(ref)))
     }
   }
   

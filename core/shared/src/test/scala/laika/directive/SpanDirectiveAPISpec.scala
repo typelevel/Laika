@@ -467,7 +467,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       val input = "aa @:rfc(222) bb"
       run(
         Text("aa "),
-        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222"),
+        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222").withStyles("rfc"),
         Text(" bb")
       )
     }
@@ -478,7 +478,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       val input = "aa [RFC-222][@:rfc(222)] bb"
       assertEquals(parseAsMarkdown(input), Right(Paragraph(
         Text("aa "),
-        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222"),
+        SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC-222").withStyles("rfc"),
         Text(" bb")
       )))
     }

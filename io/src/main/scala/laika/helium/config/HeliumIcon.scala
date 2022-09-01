@@ -32,24 +32,24 @@ import laika.rewrite.link.IconRegistry
   */
 object HeliumIcon {
   
-  private val iconFontStyle = Styles("icofont-laika")
+  private def glyphStyles (iconRef: String) = Styles("icofont-laika", iconRef)
   
-  val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), iconFontStyle)
-  val home: Icon           = IconGlyph('\uef47', Some("Home"), iconFontStyle)
-  val link: Icon           = IconGlyph('\uef71', None, iconFontStyle)
-  val close: Icon          = IconGlyph('\ueedd', Some("Close"), iconFontStyle)
-  val check: Icon          = IconGlyph('\ueed7', None, iconFontStyle)
-  val chat: Icon           = IconGlyph('\ueed5', Some("Chat"), iconFontStyle)
-  val settings: Icon       = IconGlyph('\uefb0', Some("Settings"), iconFontStyle)
-  val edit: Icon           = IconGlyph('\uef10', Some("Edit"), iconFontStyle)
-  val demo: Icon           = IconGlyph('\ueeea', Some("Demo"), iconFontStyle)
-  val download: Icon       = IconGlyph('\uef08', Some("Download"), iconFontStyle)
-  val info: Icon           = IconGlyph('\uef4e', None, iconFontStyle)
-  val warning: Icon        = IconGlyph('\uf026', None, iconFontStyle)
-  val error: Icon          = IconGlyph('\ueedd', None, iconFontStyle)
-  val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), iconFontStyle)
-  val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"))
-  val github: Icon         = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"))
+  val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), glyphStyles("navigationMenu"))
+  val home: Icon           = IconGlyph('\uef47', Some("Home"), glyphStyles("home"))
+  val link: Icon           = IconGlyph('\uef71', None, glyphStyles("link"))
+  val close: Icon          = IconGlyph('\ueedd', Some("Close"), glyphStyles("close"))
+  val check: Icon          = IconGlyph('\ueed7', None, glyphStyles("check"))
+  val chat: Icon           = IconGlyph('\ueed5', Some("Chat"), glyphStyles("chat"))
+  val settings: Icon       = IconGlyph('\uefb0', Some("Settings"), glyphStyles("settings"))
+  val edit: Icon           = IconGlyph('\uef10', Some("Edit"), glyphStyles("edit"))
+  val demo: Icon           = IconGlyph('\ueeea', Some("Demo"), glyphStyles("demo"))
+  val download: Icon       = IconGlyph('\uef08', Some("Download"), glyphStyles("download"))
+  val info: Icon           = IconGlyph('\uef4e', None, glyphStyles("info"))
+  val warning: Icon        = IconGlyph('\uf026', None, glyphStyles("warning"))
+  val error: Icon          = IconGlyph('\ueedd', None, glyphStyles("error"))
+  val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), glyphStyles("twitter"))
+  val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"), Styles("api"))
+  val github: Icon         = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
   
   val registry: IconRegistry = IconRegistry(
     "navigationMenu" -> navigationMenu,

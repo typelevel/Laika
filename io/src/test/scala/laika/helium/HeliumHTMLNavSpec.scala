@@ -124,7 +124,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<li class="level1 nav-title-page"><a href="#section-2">Section 2</a></li>
         |<li class="level2 nav-leaf-entry"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
-        |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
+        |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
     val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project").site.landingPage()
     transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
@@ -146,10 +146,10 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
-        |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
     transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
@@ -159,12 +159,12 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
         |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<div class="row links">
-        |<a class="icon-link" href="doc-2.html"><i class="icofont-laika" title="Demo">&#xeeea;</i></a>
+        |<a class="icon-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
         |<a class="button-link" href="http://somewhere.com/">Somewhere</a>
         |</div>""".stripMargin
     val imagePath = Root / "home.png"
@@ -182,7 +182,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
         |</div>
         |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
@@ -219,7 +219,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
         |<div class="menu-container version-menu">
         |<a class="text-link menu-toggle" href="#">Version: 0.42.x</a>
@@ -229,7 +229,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</nav>
         |</div>
         |</div>
-        |<a class="icon-link" href="../"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
     val config = Root / "directory.conf" -> "laika.versioned = true"
@@ -245,7 +245,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected =
       """<div class="row">
         |<a id="nav-icon">
-        |<i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
         |<div class="menu-container version-menu">
         |<a class="text-link menu-toggle" href="#">Choose Version</a>
@@ -256,7 +256,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</nav>
         |</div>
         |</div>
-        |<a class="icon-link" href="index.html"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+        |<a class="icon-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
     transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
