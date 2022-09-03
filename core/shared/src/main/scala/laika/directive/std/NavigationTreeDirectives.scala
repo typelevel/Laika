@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
-import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, RewritePhase, SpanSequence, TemplateElement, VirtualPath}
+import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, RewritePhase, SpanSequence, Style, TemplateElement, VirtualPath}
 import laika.config.{ConfigDecoder, ConfigError, Key}
 import laika.directive.{Blocks, Templates}
 import laika.parse.{GeneratedSource, SourceFragment}
@@ -69,13 +69,15 @@ object NavigationTreeDirectives {
       */
     def eval (cursor: DocumentCursor): Either[String, NavigationList] = {
 
-      def generate (node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
+      def generate (currentLevel: Int)(node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
 
         case ManualNavigationNode(title, target, entries) =>
-          entries.toList.map(generate).combineAll.map { childNodes =>
-            val link = target.map(NavigationLink(_))
-            List(NavigationItem(title, childNodes, link))
+          val link = target.map(NavigationLink(_))
+          if (currentLevel < defaultDepth) entries.toList.map(generate(currentLevel + 1)).combineAll.map { childNodes =>
+            List(NavigationItem(title, childNodes, link, options = Style.level(currentLevel)))
           }
+          else if (link.nonEmpty) List(NavigationItem(title, Nil, link)).validNec
+          else Nil.validNec
 
         case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
           val resolvedTarget = InternalTarget(targetPath).relativeTo(cursor.path).absolutePath.relative
@@ -90,7 +92,7 @@ object NavigationTreeDirectives {
               refPath = cursor.path,
               itemStyles = itemStyles,
               maxLevels = depth.getOrElse(defaultDepth),
-              currentLevel = if (noRoot) 0 else 1,
+              currentLevel = if (noRoot) currentLevel - 1 else currentLevel,
               excludeSections = optExcludeSections.getOrElse(excludeSections),
               excludeSelf = excludeSelf
             )
@@ -101,7 +103,7 @@ object NavigationTreeDirectives {
       }
 
       entries.toList
-        .map(generate)
+        .map(generate(1))
         .combineAll
         .toEither
         .map(NavigationList(_))

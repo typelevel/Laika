@@ -33,6 +33,7 @@ private[helium] case class WebLayout(contentWidth: Length,
                                      anchorPlacement: AnchorPlacement,
                                      favIcons: Seq[Favicon] = Nil,
                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
+                                     mainNavigation: MainNavigation = MainNavigation(),
                                      tableOfContent: Option[TableOfContent] = None,
                                      downloadPage: Option[DownloadPage] = None,
                                      markupEditLinks: Option[MarkupEditLinks] = None) extends CommonLayout
@@ -60,6 +61,11 @@ private[helium] object TopNavigationBar {
   def withHomeLink (path: Path): TopNavigationBar = TopNavigationBar(IconLink.internal(path, HeliumIcon.home), Nil)
   val default: TopNavigationBar = TopNavigationBar(DynamicHomeLink.default, Nil)
 }
+
+private[helium] case class MainNavigation (depth: Int = 2,
+                                           includePageSections: Boolean = false,
+                                           prependLinks: Seq[ThemeNavigationSection] = Nil,
+                                           appendLinks: Seq[ThemeNavigationSection] = Nil)
 
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)

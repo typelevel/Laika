@@ -110,17 +110,17 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
       p("bbb")
     )
 
-    def extLink (num: Int): NavigationItem = NavigationItem(
+    def extLink (num: Int, level: Int): NavigationItem = NavigationItem(
       SpanSequence(s"Link $num"),
       Nil,
       Some(NavigationLink(ExternalTarget(s"http://domain-$num.com/")))
-    )
+    ).withOptions(Style.level(level))
     
     def section (title: String, entries: NavigationItem*): NavigationItem = NavigationItem(
       SpanSequence(title),
       entries,
       None
-    )
+    ).withOptions(Style.level(1))
   }
   
   import NavModel._
@@ -177,7 +177,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    runTemplate(template, extLink(1), extLink(2))
+    runTemplate(template, extLink(1, 1), extLink(2, 1))
   }
 
   test("template nav - one manual entry and a section with two manual entries") {
@@ -193,7 +193,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    runTemplate(template, extLink(1), section("Section", extLink(2), extLink(3)))
+    runTemplate(template, extLink(1, 1), section("Section", extLink(2, 2), extLink(3, 2)))
   }
 
   test("template nav - a manual entry and a generated entry") {
@@ -206,7 +206,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    runTemplate(template, extLink(1), docList(Root / "tree-2" / "doc-6", 6, 1))
+    runTemplate(template, extLink(1, 1), docList(Root / "tree-2" / "doc-6", 6, 1))
   }
 
   test("template nav - an entry generated from the root of the tree") {
@@ -424,7 +424,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
         |
         |bbb""".stripMargin
 
-    runDocument(input, extLink(1), extLink(2))
+    runDocument(input, extLink(1, 1), extLink(2, 1))
   }
 
   test("block nav - entry generated from a document referred to with a relative path") {

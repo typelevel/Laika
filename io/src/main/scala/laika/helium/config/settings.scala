@@ -395,6 +395,38 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 
+  /** Configures the main (left) navigation pane.
+    * 
+    * By default the navigation is auto-generated from the available sources to a navigation depth of 2.
+    * This API allows to override some defaults and to prepend or append additional navigation links.
+    * 
+    * If the `includePageSections` parameter is set to true, the navigation structure will not only
+    * reflect the directory structure and the documents within, but also the section headers on individual pages.
+    * This option may be attractive if you only have very few pages in your site and want to make better use
+    * of the space in the left navigation pane. 
+    * Note that sections may still be filtered based on your setting for the overall navigation depth. 
+    * 
+    * You can also append or prepend additional sections of links, each with a section header and one or more
+    * links. Prepending may not be desirable if you also configure a table of content or a download page,
+    * as the prepended links would appear before them.
+    * 
+    * If you increase the depth to a value higher than 3 you might want to include custom CSS for the
+    * levels 4 and higher as Laika comes with styling for three layers out of the box.
+    * 
+    * @param depth               the depth of the navigation structure, two by default
+    * @param includePageSections indicates whether sections on pages should be included (false by default)
+    * @param prependLinks        navigation sections to place above the auto-generated navigation structure
+    * @param appendLinks         navigation sections to place below the auto-generated navigation structure
+    */
+  def mainNavigation (depth: Int = 2, 
+                      includePageSections: Boolean = false, 
+                      prependLinks: Seq[ThemeNavigationSection] = Nil, 
+                      appendLinks: Seq[ThemeNavigationSection] = Nil): Helium = {
+    val newLayout = helium.siteSettings.layout
+      .copy(mainNavigation = MainNavigation(depth, includePageSections, prependLinks, appendLinks))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
+  }
+
   /** Configures the top navigation bar of the main content pages.
     * 
     * @param homeLink the link to the homepage, by default pointing to `index.html` and using the Helium home icon.

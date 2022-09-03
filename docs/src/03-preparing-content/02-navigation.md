@@ -371,7 +371,11 @@ tables of contents and navigation bars.
 The default Helium theme provides a main navigation tree in the left sidebar and page navigation on the 
 right out of the box.
 
-If you include your own templates, either for overriding the Helium templates or when not using a theme at all,
+For minor customizations like changing the depth of the generated navigation tree or manually adding
+entries to the auto-generated ones, you can use the Helium API as documented in [Main Navigation].
+
+If you need more advanced customization and want to include your own templates, 
+either for overriding the Helium templates or when not using a theme at all,
 you can easily generate custom navigation structures with the `@:navigationTree` directive described below. 
 
 For more details on templating, see [Creating Templates].

@@ -16,6 +16,7 @@
 
 package laika.helium.config
 
+import cats.data.NonEmptyList
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
 import laika.config.LaikaKeys
@@ -230,4 +231,11 @@ object VersionMenu {
     
   val default: VersionMenu = create("Version", "Choose Version")
   
+}
+
+final case class ThemeNavigationSection (title: String, links: NonEmptyList[TextLink])
+
+object ThemeNavigationSection {
+  def apply (title: String, link: TextLink, links: TextLink*): ThemeNavigationSection =
+    ThemeNavigationSection(title, NonEmptyList.of(link, links:_*))
 }
