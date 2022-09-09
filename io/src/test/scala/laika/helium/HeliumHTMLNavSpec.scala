@@ -71,9 +71,22 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       |
       |### Section 2.1
     """.stripMargin
+    
+  def configHeader(content: String): String =
+    s"""{%
+       |  $content
+       |%}
+       |""".stripMargin
   
   val flatInputs = Seq(
     Root / "doc-1.md" -> inputWithTitle(1),
+    Root / "doc-2.md" -> inputWithTitle(2),
+    Root / "doc-3.md" -> inputWithTitle(3),
+    Root / "home.png" -> ""
+  )
+  
+  def flatInputsWithConfig (config: String): Seq[(Path, String)] = Seq(
+    Root / "doc-1.md" -> (configHeader(config) + inputWithTitle(1)),
     Root / "doc-2.md" -> inputWithTitle(2),
     Root / "doc-3.md" -> inputWithTitle(3),
     Root / "home.png" -> ""
@@ -110,6 +123,16 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
+  
+  def transformAndAssertNoPageNav(inputs: Seq[(Path, String)],
+                                  helium: Helium,
+                                  docPath: Path = Root / "doc-1.html"): IO[Unit] = {
+    val startElement = "<div id=\"container\">"
+    val endElement = """<main class="content">"""
+    transformAndExtract(inputs, helium, startElement, endElement, docPath)
+      .assertEquals("")
+  }
+    
     
   test("main navigation - one level") {
     val expected = """<div class="row">
@@ -216,6 +239,41 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(flatInputs, Helium.defaults.site.landingPage(), "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
+  test("page navigation - one level only, configured globally") {
+    val expected =
+      """<p class="header"><a href="#">Doc 1</a></p>
+        |<ul class="nav-list">
+        |<li class="level1 nav-leaf-entry"><a href="#section-1">Section 1</a></li>
+        |<li class="level1 nav-leaf-entry"><a href="#section-2">Section 2</a></li>
+        |</ul>
+        |<p class="footer"></p>""".stripMargin
+    val helium = Helium.defaults.site.landingPage().site.pageNavigation(depth = 1)
+    transformAndExtract(flatInputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+  }
+
+  test("page navigation - one level only, configured in configuration header in markup") {
+    val expected =
+      """<p class="header"><a href="#">Doc 1</a></p>
+        |<ul class="nav-list">
+        |<li class="level1 nav-leaf-entry"><a href="#section-1">Section 1</a></li>
+        |<li class="level1 nav-leaf-entry"><a href="#section-2">Section 2</a></li>
+        |</ul>
+        |<p class="footer"></p>""".stripMargin
+    val config = "helium.site.pageNavigation.depth = 1"
+    transformAndExtract(flatInputsWithConfig(config), Helium.defaults.site.landingPage(), "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+  }
+
+  test("page navigation - disabled globally") {
+    val helium = Helium.defaults.site.landingPage().site.pageNavigation(enabled = false)
+    transformAndAssertNoPageNav(flatInputs, helium)
+  }
+
+  test("page navigation - disabled in configuration header in markup") {
+    val helium = Helium.defaults.site.landingPage()
+    val config = "helium.site.pageNavigation.enabled = false"
+    transformAndAssertNoPageNav(flatInputsWithConfig(config), helium)
+  }
+
   test("page navigation - with footer link") {
     val expected =
       """<p class="header"><a href="#">Doc 1</a></p>
@@ -226,21 +284,15 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<li class="level2 nav-leaf-entry"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
         |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
-    val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project").site.landingPage()
+    val helium = Helium.defaults.site.pageNavigation(sourceBaseURL = Some("https://github.com/my-project")).site.landingPage()
     transformAndExtract(flatInputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
-  test("page navigation - without footer link on generated page") {
-    val expected =
-      """<p class="header"><a href="#">Table of Content</a></p>
-        |<ul class="nav-list">
-        |</ul>
-        |<p class="footer"></p>""".stripMargin
+  test("page navigation - disabled in table of content") {
     val helium = Helium.defaults
-      .site.markupEditLinks("Source for this page", "https://github.com/my-project")
       .site.tableOfContent("Table of Content", 2)
       .site.landingPage()
-    transformAndExtract(flatInputs, helium, "<nav id=\"page-nav\">", "</nav>", Root / "table-of-content.html").assertEquals(expected)
+    transformAndAssertNoPageNav(flatInputs, helium, Root / "table-of-content.html")
   }
 
   test("top navigation - defaults") {
