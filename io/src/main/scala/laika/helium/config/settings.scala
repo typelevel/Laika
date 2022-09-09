@@ -18,7 +18,7 @@ package laika.helium.config
 
 import java.time.OffsetDateTime
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, Image, Length, Path}
+import laika.ast.{DocumentMetadata, Image, Length, Path, Span, TemplateElement, TemplateSpan, TemplateSpanSequence, TemplateString}
 import laika.helium.Helium
 import laika.rewrite.Versions
 import laika.rewrite.nav.CoverImage
@@ -388,6 +388,23 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(layout = layout))
   }
 
+  /** Defines a footer as a sequence of AST elements.
+    * 
+    * A horizontal rule will be inserted by the template and should not be part of this sequence.
+    * An empty parameter list will only remove the default Laika footer.
+    */
+  def footer (spans: Span*): Helium = {
+    val footerSpan = if (spans.isEmpty) None else Some(TemplateSpanSequence.adapt(spans))
+    val newLayout = helium.siteSettings.layout.copy(footer = footerSpan)
+    copyWith(helium.siteSettings.copy(layout = newLayout))
+  }
+
+  /** Defines a footer as raw HTML output.
+    * 
+    * A horizontal rule will be inserted by the template and should not be part of this sequence.
+    */
+  def footer (html: String): Helium = footer(TemplateString(html))
+  
   /** Adds one or more favicons which can be an internal resource or an external URL.
     */
   def favIcons (icons: Favicon*): Helium = {

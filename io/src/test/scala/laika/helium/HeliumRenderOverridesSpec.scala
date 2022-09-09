@@ -59,7 +59,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
     }
   
   def transformAndExtract(input: String, helium: Helium = heliumBase, configure: ConfigureTransformer = identity): IO[String] = {
-    transformAndExtract(Seq(Root / "doc.md" -> input), helium, "<main class=\"content\">", "</main>", configure)
+    transformAndExtract(Seq(Root / "doc.md" -> input), helium, "<main class=\"content\">", "<hr class=\"footer-rule\"/>", configure)
   }
   
   def entity (icon: Icon): String = icon match {

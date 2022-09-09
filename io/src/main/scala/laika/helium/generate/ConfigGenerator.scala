@@ -133,6 +133,7 @@ private[laika] object ConfigGenerator {
       .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
       .withValue("helium.site.mainNavigation", helium.siteSettings.layout.mainNavigation)
       .withValue("helium.site.pageNavigation", helium.siteSettings.layout.pageNavigation)
+      .withValue("helium.site.footer", helium.siteSettings.layout.footer)
       .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
       .withValue("helium.site.templates", templatePaths)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
