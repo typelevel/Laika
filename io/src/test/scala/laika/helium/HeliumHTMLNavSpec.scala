@@ -72,12 +72,32 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       |### Section 2.1
     """.stripMargin
   
-  val inputs = Seq(
+  val flatInputs = Seq(
     Root / "doc-1.md" -> inputWithTitle(1),
     Root / "doc-2.md" -> inputWithTitle(2),
     Root / "doc-3.md" -> inputWithTitle(3),
     Root / "home.png" -> ""
   )
+
+  val nestedInputs = Seq(
+    Root / "dir-A" / "doc-1.md" -> inputWithTitle(1),
+    Root / "dir-A" / "doc-2.md" -> inputWithTitle(2),
+    Root / "dir-B" / "doc-3.md" -> inputWithTitle(3),
+    Root / "dir-B" / "doc-4.md" -> inputWithTitle(4),
+    Root / "home.png" -> ""
+  )
+
+  val nestedAndRootInputs = Seq(
+    Root / "doc-1.md" -> inputWithTitle(1),
+    Root / "doc-2.md" -> inputWithTitle(2),
+    Root / "dir-A" / "doc-3.md" -> inputWithTitle(3),
+    Root / "dir-A" / "doc-4.md" -> inputWithTitle(4),
+    Root / "dir-B" / "doc-5.md" -> inputWithTitle(5),
+    Root / "dir-B" / "doc-6.md" -> inputWithTitle(6),
+    Root / "home.png" -> ""
+  )
+  
+  val nestedPathUnderTest = Root / "dir-A" / "doc-1.html"
   
   def transformAndExtract(inputs: Seq[(Path, String)], 
                           helium: Helium, 
@@ -99,7 +119,88 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
                      |<li class="level1 nav-leaf-entry"><a href="doc-3.html">Doc 3</a></li>
                      |</ul>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+    transformAndExtract(flatInputs, Helium.defaults.site.landingPage(), "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+  }
+
+  test("main navigation - two levels") {
+    val expected = """<div class="row">
+                     |</div>
+                     |<ul class="nav-list">
+                     |<li class="level1 nav-section-header">dir-A</li>
+                     |<li class="level2 active nav-leaf-entry"><a href="#">Doc 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
+                     |<li class="level1 nav-section-header">dir-B</li>
+                     |<li class="level2 nav-leaf-entry"><a href="../dir-B/doc-3.html">Doc 3</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="../dir-B/doc-4.html">Doc 4</a></li>
+                     |</ul>""".stripMargin
+    transformAndExtract(nestedInputs, Helium.defaults.site.landingPage(), "<nav id=\"sidebar\">", "</nav>", nestedPathUnderTest).assertEquals(expected)
+  }
+
+  test("main navigation - customized depth") {
+    val expected = """<div class="row">
+                     |</div>
+                     |<ul class="nav-list">
+                     |<li class="level1 active nav-leaf-entry"><a href="#">Doc 1</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
+                     |</ul>""".stripMargin
+    val helium = Helium.defaults.site.landingPage().site.mainNavigation(depth = 1)
+    transformAndExtract(nestedAndRootInputs, helium, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+  }
+
+  test("main navigation - include page sections") {
+    val expected = """<div class="row">
+                     |</div>
+                     |<ul class="nav-list">
+                     |<li class="level1 active nav-title-page"><a href="#">Doc 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="#section-1">Section 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="#section-2">Section 2</a></li>
+                     |<li class="level1 nav-title-page"><a href="doc-2.html">Doc 2</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="doc-2.html#section-1">Section 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="doc-2.html#section-2">Section 2</a></li>
+                     |<li class="level1 nav-title-page"><a href="doc-3.html">Doc 3</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="doc-3.html#section-1">Section 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="doc-3.html#section-2">Section 2</a></li>
+                     |</ul>""".stripMargin
+    val helium = Helium.defaults.site.landingPage().site.mainNavigation(includePageSections = true)
+    transformAndExtract(flatInputs, helium, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+  }
+
+  test("main navigation - append links") {
+    val expected = """<div class="row">
+                     |</div>
+                     |<ul class="nav-list">
+                     |<li class="level1 active nav-leaf-entry"><a href="#">Doc 1</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-3.html">Doc 3</a></li>
+                     |<li class="level1 nav-section-header">Additional Links</li>
+                     |<li class="level2 active nav-leaf-entry"><a href="#">Add Link 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="https://foo.com">Add Link 2</a></li>
+                     |</ul>""".stripMargin
+    val section = ThemeNavigationSection("Additional Links", 
+      TextLink.internal(Root / "doc-1.md", "Add Link 1"),
+      TextLink.external("https://foo.com", "Add Link 2")
+    )
+    val helium = Helium.defaults.site.landingPage().site.mainNavigation(appendLinks = Seq(section))
+    transformAndExtract(flatInputs, helium, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
+  }
+
+  test("main navigation - prepend links") {
+    val expected = """<div class="row">
+                     |</div>
+                     |<ul class="nav-list">
+                     |<li class="level1 nav-section-header">Additional Links</li>
+                     |<li class="level2 active nav-leaf-entry"><a href="#">Add Link 1</a></li>
+                     |<li class="level2 nav-leaf-entry"><a href="https://foo.com">Add Link 2</a></li>
+                     |<li class="level1 active nav-leaf-entry"><a href="#">Doc 1</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-2.html">Doc 2</a></li>
+                     |<li class="level1 nav-leaf-entry"><a href="doc-3.html">Doc 3</a></li>
+                     |</ul>""".stripMargin
+    val section = ThemeNavigationSection("Additional Links",
+      TextLink.internal(Root / "doc-1.md", "Add Link 1"),
+      TextLink.external("https://foo.com", "Add Link 2")
+    )
+    val helium = Helium.defaults.site.landingPage().site.mainNavigation(prependLinks = Seq(section))
+    transformAndExtract(flatInputs, helium, "<nav id=\"sidebar\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - two levels") {
@@ -112,7 +213,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<li class="level2 nav-leaf-entry"><a href="#section-2-1">Section 2.1</a></li>
         |</ul>
         |<p class="footer"></p>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+    transformAndExtract(flatInputs, Helium.defaults.site.landingPage(), "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - with footer link") {
@@ -126,7 +227,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |</ul>
         |<p class="footer"><a href="https://github.com/my-project/doc-1.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>""".stripMargin
     val helium = Helium.defaults.site.markupEditLinks("Source for this page", "https://github.com/my-project").site.landingPage()
-    transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<nav id=\"page-nav\">", "</nav>").assertEquals(expected)
   }
 
   test("page navigation - without footer link on generated page") {
@@ -139,7 +240,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       .site.markupEditLinks("Source for this page", "https://github.com/my-project")
       .site.tableOfContent("Table of Content", 2)
       .site.landingPage()
-    transformAndExtract(inputs, helium, "<nav id=\"page-nav\">", "</nav>", Root / "table-of-content.html").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<nav id=\"page-nav\">", "</nav>", Root / "table-of-content.html").assertEquals(expected)
   }
 
   test("top navigation - defaults") {
@@ -152,7 +253,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<a class="icon-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
-    transformAndExtract(inputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(flatInputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
   test("top navigation - with custom links") {
@@ -175,7 +276,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
           IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
           ButtonLink.external("http://somewhere.com/", "Somewhere")
         ))
-    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
   test("top navigation - with menu") {
@@ -207,7 +308,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
           TextLink.internal(Root / "doc-3.md", "Link 2")  
         )
       ))
-    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
   test("top navigation - with version dropdown on a versioned page") {
@@ -233,7 +334,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<div class="row links">
         |</div>""".stripMargin
     val config = Root / "directory.conf" -> "laika.versioned = true"
-    transformAndExtract(inputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)
+    transformAndExtract(flatInputs :+ config, helium, "<header id=\"top-bar\">", "</header>", Root / "0.42" / "doc-1.html").assertEquals(expected)
   }
 
   test("top navigation - with version dropdown on an unversioned page") {
@@ -259,7 +360,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<a class="icon-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
-    transformAndExtract(inputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
 }

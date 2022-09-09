@@ -52,9 +52,12 @@ private[helium] object LandingPageGenerator {
     }
     
     val result = titleDocument.map { doc =>
-      val titleDocWithTemplate =
-        if (doc.config.hasKey(LaikaKeys.template)) doc
-        else doc.copy(config = doc.config.withValue(LaikaKeys.template, "landing.template.html").build)
+      val configWithTemplate = if (doc.config.hasKey(LaikaKeys.template)) doc.config
+        else doc.config.withValue(LaikaKeys.template, "landing.template.html").build
+      val titleDocWithTemplate = doc.copy(config = configWithTemplate
+        .withValue(LaikaKeys.site.css.child("searchPaths"), Seq(Root / "helium" / "landing.page.css"))
+        .build
+      )
         
       tree.modifyTree { tree => 
         tree.copy(

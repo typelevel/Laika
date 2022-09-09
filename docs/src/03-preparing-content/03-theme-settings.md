@@ -505,6 +505,42 @@ like the option to centralize all definitions of external links.
 They are described in a dedicated [Navigation] chapter.
 
 
+### Main Navigation
+
+By default the Helium theme includes a left navigation pane that is auto-generated based on the structure
+of your input directories and is up to 2 levels deep.
+
+You can override some defaults and add additional menu entries via the configuration API:
+
+```scala
+Helium.defaults.site
+  .mainNavigation(
+    depth = 3,
+    includePageSections = true,
+    appendLinks = Seq(ThemeNavigationSection("Additional Links",
+      TextLink.internal(Root / "doc-1.md", "Link 1"),
+      TextLink.external("https://foo.com", "Link 2")
+    ))
+  )
+```
+
+The theme includes full styling for up to three levels. 
+More than 3 levels will probably lead to confusing UX, 
+but if you do want to use more you need to add additional CSS to your inputs. 
+You can use the classes Helium adds to the `<li>` tags (`level4`, `level5`, etc.) for the custom styles.
+
+If the `includePageSections` parameter is set to true (it's `false` by default), the navigation structure will not only 
+reflect the directory structure and the documents within, but also the section headers on individual pages.
+This option may be attractive if you only have very few pages in your site and want to make better use
+of the space in the left navigation pane.
+Note that sections may still be filtered based on your setting for the overall navigation depth.
+
+Finally, you can also append or prepend additional sections of links, each with a section header and one or more links. 
+Prepending may not be desirable if you also configure a table of content or a download page,
+as the prepended links would appear before them.
+
+
+
 ### Top Navigation Bar
 
 You can replace the home link in the middle of the bar and a row of buttons or icons with links at the right corner.
@@ -824,6 +860,23 @@ Helium.defaults
   .site.autoLinkCSS(Root / "my-css")
   .site.autoLinkJS(Root / "my-js")
 ```
+
+If you use these methods with an empty parameter list, scanning for files will effectively be disabled
+and only Helium's own CSS and JavaScript will be included.
+
+The global scanning will skip files which have the suffix `.page.css` or `.page.js`.
+With this naming scheme you can add files which are not meant to be included in every generated page.
+If you want to explicitly add one of these files to an individual document,
+you can do that with a HOCON configuration header in the corresponding markup document:
+
+```laika-md
+{%
+  laika.site.css.searchPaths = ["/styles/custom.page.css"]
+%}
+```
+
+You can also use paths of directories, in which case those will be scanned in the same way
+as with the global search paths configured via the Helium API. 
 
 Like everything in Laika, the paths are virtual and not file system paths, so they must point to somewhere
 within the configured inputs. @:todo(maybe better to include just one section at the top about virtual paths).

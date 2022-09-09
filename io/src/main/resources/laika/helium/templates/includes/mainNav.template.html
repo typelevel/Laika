@@ -7,9 +7,9 @@
   </div>
 
   @:navigationTree {
-    entries = [
-      { target = "/", excludeRoot = true, excludeSections = true, depth = 2 }
-    ]
+    entries = ${helium.site.mainNavigation.prependLinks} [
+      { target = "/", excludeRoot = true, excludeSections = ${helium.site.mainNavigation.excludeSections}, depth = ${helium.site.mainNavigation.depth} }
+    ] ${helium.site.mainNavigation.appendLinks}
   }
 
 </nav>

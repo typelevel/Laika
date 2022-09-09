@@ -17,13 +17,11 @@
 package laika.helium.generate
 
 import laika.ast.Path.Root
-import laika.ast.{InternalTarget, _}
+import laika.ast._
 import laika.config.ConfigEncoder.ObjectBuilder
 import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
-import laika.parse.{GeneratedSource, SourceFragment}
-import laika.rewrite.link.{InvalidTarget, RecoveredTarget, ValidTarget}
 
 private[laika] object ConfigGenerator {
 
@@ -65,6 +63,24 @@ private[laika] object ConfigGenerator {
       .withValue("links", navBar.navLinks)
       .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
       .withValue("versionMenu", navBar.versionMenu)
+      .build
+  }
+
+  implicit val mainNavEncoder: ConfigEncoder[MainNavigation] = ConfigEncoder[MainNavigation] { mainNav =>
+    def encodeLink (link: TextLink): ConfigValue = ConfigEncoder.ObjectBuilder.empty
+      .withValue("target", link.target.render())
+      .withValue("title", link.text)
+      .withValue("depth", 1)
+      .build
+    def encodeSection (section: ThemeNavigationSection): ConfigValue = ConfigEncoder.ObjectBuilder.empty
+      .withValue("title", section.title)
+      .withValue("entries", section.links.map(encodeLink).toList)
+      .build
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("depth", mainNav.depth)
+      .withValue("excludeSections", !mainNav.includePageSections)
+      .withValue("prependLinks", mainNav.prependLinks.map(encodeSection))
+      .withValue("appendLinks", mainNav.appendLinks.map(encodeSection))
       .build
   }
 
@@ -113,6 +129,7 @@ private[laika] object ConfigGenerator {
     ConfigBuilder.empty
       .withValue("helium.landingPage", helium.siteSettings.landingPage)
       .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
+      .withValue("helium.site.mainNavigation", helium.siteSettings.layout.mainNavigation)
       .withValue("helium.site.footer", helium.siteSettings.layout.footer)
       .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
       .withValue("helium.markupEditLinks", helium.siteSettings.layout.markupEditLinks)
@@ -124,10 +141,10 @@ private[laika] object ConfigGenerator {
       .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
       .withValue("helium.site.includeEPUB", helium.siteSettings.layout.downloadPage.fold(false)(_.includeEPUB))
       .withValue("helium.site.includePDF", helium.siteSettings.layout.downloadPage.fold(false)(_.includePDF))
-      .withValue("helium.site.includeCSS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
-      .withValue("helium.site.includeJS", (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)
-      .withValue("helium.epub.includeCSS", (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
-      .withValue("helium.epub.includeJS", (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS)
+      .withValue(LaikaKeys.site.css.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
+      .withValue(LaikaKeys.site.js.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)
+      .withValue(LaikaKeys.epub.css.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
+      .withValue(LaikaKeys.epub.js.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS)
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)

@@ -34,6 +34,7 @@ private[helium] case class WebLayout(contentWidth: Length,
                                      favIcons: Seq[Favicon] = Nil,
                                      footer: Option[TemplateSpan] = Some(HeliumFooter.default),
                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
+                                     mainNavigation: MainNavigation = MainNavigation(),
                                      tableOfContent: Option[TableOfContent] = None,
                                      downloadPage: Option[DownloadPage] = None,
                                      markupEditLinks: Option[MarkupEditLinks] = None) extends CommonLayout
@@ -69,6 +70,11 @@ object HeliumFooter {
     TemplateString(" with the Helium theme.")
   )
 }
+
+private[helium] case class MainNavigation (depth: Int = 2,
+                                           includePageSections: Boolean = false,
+                                           prependLinks: Seq[ThemeNavigationSection] = Nil,
+                                           appendLinks: Seq[ThemeNavigationSection] = Nil)
 
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)
