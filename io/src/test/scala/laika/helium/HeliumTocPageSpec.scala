@@ -95,12 +95,6 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |</ul>
                      |</nav>
                      |<div id="container">
-                     |<nav id="page-nav">
-                     |<p class="header"><a href="#">Contents</a></p>
-                     |<ul class="nav-list">
-                     |</ul>
-                     |<p class="footer"></p>
-                     |</nav>
                      |<main class="content">
                      |<h1 class="title">Contents</h1>
                      |<ul class="toc nav-list">

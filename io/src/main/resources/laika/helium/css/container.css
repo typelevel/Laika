@@ -53,6 +53,8 @@ main.content {
 @media (min-width: 1450px) {
   main.content {
     max-width: 1125px;
+  }
+  #page-nav + main.content {
     padding: 15px 310px 15px 45px;
   }
 }

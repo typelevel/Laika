@@ -35,9 +35,9 @@ private[helium] case class WebLayout(contentWidth: Length,
                                      footer: Option[TemplateSpan] = Some(HeliumFooter.default),
                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
                                      mainNavigation: MainNavigation = MainNavigation(),
+                                     pageNavigation: PageNavigation = PageNavigation(),
                                      tableOfContent: Option[TableOfContent] = None,
-                                     downloadPage: Option[DownloadPage] = None,
-                                     markupEditLinks: Option[MarkupEditLinks] = None) extends CommonLayout
+                                     downloadPage: Option[DownloadPage] = None) extends CommonLayout
 
 private[helium] case class PDFLayout (pageWidth: Length, pageHeight: Length,
                                       marginTop: Length, marginRight: Length, marginBottom: Length, marginLeft: Length,
@@ -75,6 +75,11 @@ private[helium] case class MainNavigation (depth: Int = 2,
                                            includePageSections: Boolean = false,
                                            prependLinks: Seq[ThemeNavigationSection] = Nil,
                                            appendLinks: Seq[ThemeNavigationSection] = Nil)
+
+private[helium] case class PageNavigation (enabled: Boolean = true,
+                                           depth: Int = 2,
+                                           sourceBaseURL: Option[String] = None,
+                                           sourceLinkText: String = "Source for this page")
 
 private[helium] case class DownloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads", 
                                         includeEPUB: Boolean = true, includePDF: Boolean = true)

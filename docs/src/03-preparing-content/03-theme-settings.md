@@ -624,6 +624,47 @@ of the page (darker in light mode and lighter in dark mode).
 @:todo(show Helium's available icons somewhere)
 
 
+### Page Navigation
+
+A Helium site contains a page navigation pane on the right side on bigger screens.
+When running with the default settings, the pane contains the title of the page and links
+to the two top layers of the sections on that page.
+
+The configuration API allows for some customization:
+
+```scala
+Helium.defaults
+  .site.pageNavigation(
+    enabled = true,
+    depth = 1,
+    sourceBaseURL = "https://github.com/my/project",
+    sourceLinkText = "Source for this Page"
+  )
+```
+
+The `enabled` property is true by default. Setting it to false completely removes it from the rendered pages.
+In this case all other properties won't have any effect unless the flag is set to true on individual pages as shown below.
+
+The `depth` property allows to change the navigation depth.
+The default is 2, meaning it will link to all level 1 and level 2 headers of the page.
+
+Finally, the bottom of the pane can contain a link to the markup sources (e.g. on GitHub)
+if you provide a `sourceBaseURL`.
+The `sourceLinkText` can be overridden, too. The example above shows the default value.
+
+The same properties can also be set on individual pages via a HOCON configuration header:
+
+```laika-md
+{%
+  helium.site.pageNavigation.depth = 3
+%}
+```
+
+Note that setting the depth to 0 will not remove the page navigation box as it will still render
+the title and the link to the source if configured.
+To remove the pane entirely, the `enabled` flag has to be set to false instead.
+
+
 ### Table of Contents
 
 All three formats support an additional table of contents. 
@@ -661,20 +702,6 @@ If you increase this setting make sure you verify it's looking good in the targe
 
 @:@
 
-
-### Links to Markup Sources
-
-A Helium site contains a page navigation pane on the right side on bigger screens.
-At the bottom of that pane a link to the source of the current page will be inserted
-if you provide the base URL to link to:
-
-```scala
-Helium.defaults
-  .site.markupEditLinks(
-    text = "Source for this Page", 
-    baseURL = "https://github.com/my/project"
-  )
-```
 
 ### Favicons
 
