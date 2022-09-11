@@ -17,7 +17,8 @@
 package laika.helium.config
 
 import laika.ast.Path.Root
-import laika.ast.{ExternalTarget, Image, InternalTarget, Length, Options, Path, SpanLink, SpanSequence, Styles, Target, TemplateSpan, TemplateSpanSequence, TemplateString}
+import laika.ast._
+import laika.parse.{GeneratedSource, SourceFragment}
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -89,9 +90,27 @@ private[helium] case class LandingPage (logo: Option[Image] = None,
                                         subtitle: Option[String] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,
                                         license: Option[String] = None,
+                                        subtitleLinks: Seq[ThemeLink] = Nil,
                                         documentationLinks: Seq[TextLink] = Nil,
                                         projectLinks: Seq[ThemeLinkSpan] = Nil,
                                         teasers: Seq[Teaser] = Nil)
+
+/** In contrast to the public `LinkGroup` this UI component allows all types of links as children, including menus.
+  */
+private[helium] case class GenericLinkGroup (links: Seq[ThemeLink], options: Options = NoOpt) extends BlockResolver {
+  type Self = GenericLinkGroup
+  val source: SourceFragment = GeneratedSource
+  def resolve (cursor: DocumentCursor): Block = {
+    val resolvedLinks = links.map {
+      case sr: SpanResolver => SpanSequence(sr.resolve(cursor))
+      case br: BlockResolver => br.resolve(cursor)
+    }
+    BlockSequence(resolvedLinks, HeliumStyles.linkRow + options)
+  } 
+  def withOptions(newOptions: Options): GenericLinkGroup = new GenericLinkGroup(links, newOptions) {}
+  def unresolvedMessage: String = s"Unresolved link group: $this"
+  def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+}
 
 private[helium] case class MarkupEditLinks (text: String, baseURL: String)
 

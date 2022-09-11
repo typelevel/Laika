@@ -45,12 +45,16 @@ private[laika] object ConfigGenerator {
     }
 
   implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
+    val subtitleLinks = 
+      if (landingPage.subtitleLinks.isEmpty) None
+      else Some(GenericLinkGroup(landingPage.subtitleLinks))
     ConfigEncoder.ObjectBuilder.empty
       .withValue("logo", landingPage.logo)
       .withValue("title", landingPage.title)
       .withValue("subtitle", landingPage.subtitle)
       .withValue("latestReleases", landingPage.latestReleases)
       .withValue("license", landingPage.license)
+      .withValue("subtitleLinks", subtitleLinks)
       .withValue("documentationLinks", landingPage.documentationLinks)
       .withValue("projectLinks", landingPage.projectLinks)
       .withValue("teaserRows", buildTeaserRows(landingPage.teasers))

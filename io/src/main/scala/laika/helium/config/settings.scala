@@ -526,6 +526,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param subtitle            a subtitle to be place right under the title
     * @param latestReleases      a set of release versions to display on the right side of the header
     * @param license             the license info to render right under the release info
+    * @param subtitleLinks       a row of links to render beneath the subtitle on the left side of the header
     * @param documentationLinks  a set of documentation links to render in a dedicated panel on the right side of the header
     * @param projectLinks        a set of project links to render at the bottom of the right side of the header
     * @param teasers             a set of teasers containing of headline and description to render below the header
@@ -535,10 +536,11 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
                    subtitle: Option[String] = None,
                    latestReleases: Seq[ReleaseInfo] = Nil,
                    license: Option[String] = None,
+                   subtitleLinks: Seq[ThemeLink] = Nil,
                    documentationLinks: Seq[TextLink] = Nil,
                    projectLinks: Seq[ThemeLinkSpan] = Nil,
                    teasers: Seq[Teaser] = Nil): Helium = {
-    val page = LandingPage(logo, title, subtitle, latestReleases, license, documentationLinks, projectLinks, teasers)
+    val page = LandingPage(logo, title, subtitle, latestReleases, license, subtitleLinks, documentationLinks, projectLinks, teasers)
     copyWith(helium.siteSettings.copy(landingPage = Some(page)))
   }
 
