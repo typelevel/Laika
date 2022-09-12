@@ -791,6 +791,14 @@ Helium.defaults
       ReleaseInfo("Latest Milestone Release", "2.4.0-M2")
     ),
     license = Some("MIT"),
+    subtitleLinks = Seq(
+      VersionMenu.create(unversionedLabel = "Getting Started"),
+      LinkGroup.create(
+        IconLink.external("https://github.com/abcdefg/", HeliumIcon.github),
+        IconLink.external("https://gitter.im/abcdefg/", HeliumIcon.chat),
+        IconLink.external("https://twitter.com/abcdefg/", HeliumIcon.twitter)
+      )
+    ),
     documentationLinks = Seq(
       TextLink.internal(Root / "doc-1.md", "Doc 1"),
       TextLink.internal(Root / "doc-2.md", "Doc 2")
@@ -824,6 +832,10 @@ The diagram below shows the positions of these items on the page:
 The left side of the header introduces the project, ideally you would choose at least one of the three options 
 (logo, title and subtitle). 
 In the case of Laika's site for example, the title is omitted as the project name is already part of the logo.
+
+Below the subtitle you can also add a row of links, which may be a menu, icon links, text links or even a
+version menu.
+This is the most prominent position for links on the landing page.
 
 On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
 The panel for documentation links can be any links right into the content of your site, like Getting Started pages, 
