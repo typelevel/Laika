@@ -19,7 +19,7 @@ package laika.helium
 import java.util.Locale
 import cats.effect.{IO, Resource}
 import laika.api.Transformer
-import laika.ast.{Image, Path}
+import laika.ast.{/, Image, Path}
 import laika.ast.Path.Root
 import laika.format.{HTML, Markdown}
 import laika.helium.config._
@@ -56,7 +56,8 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
   val inputs = Seq(
     Root / "doc-1.md" -> "text",
     Root / "doc-2.md" -> "text",
-    Root / "home.png" -> ""
+    Root / "home.png" -> "",
+    Root / "styles" / "landing-extra.page.css" -> ""
   )
   
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
@@ -99,6 +100,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
+                     |<link rel="stylesheet" type="text/css" href="styles/landing-extra.page.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script src="helium/laika-versions.js"></script>
                      |<script> /* for avoiding page load transitions */ </script>
@@ -157,7 +159,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           ReleaseInfo("Latest Milestone Release", "2.4.0-M2")
         ),
         license = Some("MIT"),
-        subtitleLinks = Seq(
+        titleLinks = Seq(
           VersionMenu.create(unversionedLabel = "Getting Started"),
           LinkGroup.create(
             IconLink.external("https://github.com/abcdefg/", HeliumIcon.github),
@@ -181,7 +183,8 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           Teaser("Teaser 1", "Description 1"),
           Teaser("Teaser 2", "Description 2"),
           Teaser("Teaser 3", "Description 3")
-        )
+        ),
+        styles = Seq(Root / "styles" / "landing-extra.page.css") 
       )
     transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>")
       .assertEquals(expected)

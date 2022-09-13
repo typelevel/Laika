@@ -90,10 +90,11 @@ private[helium] case class LandingPage (logo: Option[Image] = None,
                                         subtitle: Option[String] = None,
                                         latestReleases: Seq[ReleaseInfo] = Nil,
                                         license: Option[String] = None,
-                                        subtitleLinks: Seq[ThemeLink] = Nil,
+                                        titleLinks: Seq[ThemeLink] = Nil,
                                         documentationLinks: Seq[TextLink] = Nil,
                                         projectLinks: Seq[ThemeLinkSpan] = Nil,
-                                        teasers: Seq[Teaser] = Nil)
+                                        teasers: Seq[Teaser] = Nil,
+                                        styles: Seq[Path] = Nil)
 
 /** In contrast to the public `LinkGroup` this UI component allows all types of links as children, including menus.
   */

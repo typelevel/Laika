@@ -55,7 +55,7 @@ private[helium] object LandingPageGenerator {
       val configWithTemplate = if (doc.config.hasKey(LaikaKeys.template)) doc.config
         else doc.config.withValue(LaikaKeys.template, "landing.template.html").build
       val titleDocWithTemplate = doc.copy(config = configWithTemplate
-        .withValue(LaikaKeys.site.css.child("searchPaths"), Seq(Root / "helium" / "landing.page.css"))
+        .withValue(LaikaKeys.site.css.child("searchPaths"), (Root / "helium" / "landing.page.css") +: landingPage.styles)
         .build
       )
         

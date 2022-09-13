@@ -791,7 +791,7 @@ Helium.defaults
       ReleaseInfo("Latest Milestone Release", "2.4.0-M2")
     ),
     license = Some("MIT"),
-    subtitleLinks = Seq(
+    titleLinks = Seq(
       VersionMenu.create(unversionedLabel = "Getting Started"),
       LinkGroup.create(
         IconLink.external("https://github.com/abcdefg/", HeliumIcon.github),
@@ -834,7 +834,7 @@ The left side of the header introduces the project, ideally you would choose at 
 In the case of Laika's site for example, the title is omitted as the project name is already part of the logo.
 
 Below the subtitle you can also add a row of links, which may be a menu, icon links, text links or even a
-version menu.
+version menu, by using the `titleLinks` property.
 This is the most prominent position for links on the landing page.
 
 On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
