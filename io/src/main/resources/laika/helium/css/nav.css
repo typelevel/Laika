@@ -62,7 +62,7 @@ nav .row {
   bottom: 2px;
 }
 
-.button-link {
+.button-link, #header-left .menu-toggle {
   position: relative;
   bottom: 2px;
   display: inline-block;

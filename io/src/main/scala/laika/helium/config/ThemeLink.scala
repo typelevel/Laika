@@ -69,7 +69,16 @@ sealed trait MultiTargetLink extends ThemeLink {
   */
 sealed abstract case class IconLink (target: Target, icon: Icon, text: Option[String] = None, options: Options = NoOpt) extends SingleTargetLink {
   type Self = IconLink
-  protected def createLink (target: Target): Link = SpanLink(icon +: text.map(Text(_)).toSeq, target, options = HeliumStyles.iconLink + options)
+  protected def createLink (target: Target): Link = {
+    val iconTypeStyle = icon match {
+      case _: IconGlyph => "glyph-link"
+      case _: IconStyle => "style-link"
+      case _: InlineSVGIcon => "svg-link"
+      case _: SVGSymbolIcon => "svg-link"
+    }
+    val allOptions = HeliumStyles.iconLink + Styles(iconTypeStyle) + options
+    SpanLink(icon +: text.map(Text(_)).toSeq, target, options = allOptions)
+  }
   def withOptions(newOptions: Options): IconLink = new IconLink(target, icon, text, newOptions) {}
 }
 
