@@ -71,29 +71,6 @@ function loadVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL
   req.send();
 }
 
-function initMenuToggles () {
-  // this functionality applies to all types of menus, including the version menu
-  document.querySelectorAll(".menu-container").forEach((container) => {
-    const toggle = container.querySelector(".menu-toggle");
-    const content = container.querySelector(".menu-content");
-    if (toggle && content) {
-      const closeHandler = (evt) => {
-        const contentClicked = evt.target.closest(".menu-content");
-        const toggleClicked = evt.target.closest(".menu-toggle");
-        if ((!toggleClicked || toggleClicked !== toggle) && (!contentClicked || contentClicked !== content)) {
-          content.classList.remove("menu-open");
-          document.removeEventListener("click", closeHandler)
-        }
-      }
-      toggle.onclick = () => {
-        if (content.classList.toggle("menu-open")) {
-          document.addEventListener("click", closeHandler);
-        }
-      };
-    }
-  });
-}
-
 function insertCanonicalLink (linkHref) {
   if (!document.querySelector("link[rel='canonical']")) {
     const head = document.head;
@@ -106,7 +83,7 @@ function insertCanonicalLink (linkHref) {
 
 function initVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL) {
   document.addEventListener('DOMContentLoaded', () => {
-    loadVersions(localRootPrefix, currentPath, currentVersion, siteBaseURL);
-    initMenuToggles();
+    if (document.querySelectorAll(".version-menu").length > 0)
+      loadVersions(localRootPrefix, currentPath, currentVersion, siteBaseURL);
   });
 }

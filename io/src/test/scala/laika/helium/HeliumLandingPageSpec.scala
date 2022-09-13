@@ -103,6 +103,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<link rel="stylesheet" type="text/css" href="styles/landing-extra.page.css" />
                      |<script src="helium/laika-helium.js"></script>
                      |<script src="helium/laika-versions.js"></script>
+                     |<script>initVersions("", "", "", null);</script>
                      |<script> /* for avoiding page load transitions */ </script>
                      |</head>
                      |<body>
