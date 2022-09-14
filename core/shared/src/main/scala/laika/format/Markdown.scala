@@ -58,7 +58,7 @@ case object Markdown extends MarkupFormat {
   val fileSuffixes: Set[String] = Set("md", "markdown")
 
   val blockParsers: Seq[BlockParserBuilder] = Seq(
-    BlockParsers.atxHeader,
+    BlockParsers.atxHeader.interruptsParagraphWith(TextParsers.oneOf('#')),
     BlockParsers.linkTarget,
     BlockParsers.quotedBlock,
     BlockParsers.rootHeaderOrParagraph,
