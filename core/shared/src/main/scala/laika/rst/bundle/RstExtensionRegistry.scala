@@ -73,8 +73,6 @@ trait RstExtensionRegistry extends ExtensionBundle {
 
   val description: String = "Registry for reStructuredText directives"
   
-  override val useInStrictMode: Boolean = true
-
   /**  Registers the specified span directives.
     *  These span directives can then be referred to by substitution references.
     *
@@ -207,8 +205,9 @@ object RawContentExtensions extends RstExtensionRegistry {
   override val description: String = "Raw content extensions for reStructuredText"
 
   override val origin: BundleOrigin = BundleOrigin.Parser
-  
-  override val acceptRawContent = true
+
+  override def rawContentDisabled: Option[ExtensionBundle] = None
+
   lazy val blockDirectives = Seq((new StandardBlockDirectives).rawDirective)
   lazy val spanDirectives = Seq()
   lazy val textRoles = Seq((new StandardTextRoles).rawTextRole)

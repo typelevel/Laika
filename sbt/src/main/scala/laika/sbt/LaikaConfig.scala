@@ -41,18 +41,14 @@ case class LaikaConfig(encoding: Codec = Codec.UTF8,
   def encoding (codec: Codec): LaikaConfig = copy(encoding = codec)
   
   /**  Turns strict mode on for the target parser, switching off any features not part of the original markup syntax.
-    *  This includes the registration of directives (custom tags), custom templates with directives, 
+    *  This includes the registration of markup directives (custom tags)
     *  as well as configuration sections at the start of the document.
-    *
-    *  Technically it removes all `ExtensionBundle` instances which do not have the `useInStrictMode` flag set to true.
     */
   def strict: LaikaConfig = copy(bundleFilter = bundleFilter.copy(strict = true))
 
   /**  Enables all extensions that process raw content embedded into the host markup language.
     *  These are disabled by default as Laika is designed to render to multiple output formats from a single input document. 
     *  With raw content embedded the markup document is tied to a specific output format.
-    *
-    *  Technically it activates all `ExtensionBundle` instances which have the `acceptRawContent` flag set to true.
     */
   def withRawContent: LaikaConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
 
