@@ -40,7 +40,9 @@ object DocumentParser {
     def apply(path: Path, input: String): DocumentInput = new DocumentInput(path, SourceCursor(input, path))
   }
 
-  sealed trait TransformationError
+  sealed trait TransformationError extends RuntimeException {
+    def message: String
+  }
   
   case class RendererError (message: String, path: Path) extends
     RuntimeException(s"Error rendering document '$path': $message") with TransformationError

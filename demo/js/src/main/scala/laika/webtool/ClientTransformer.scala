@@ -18,7 +18,7 @@ package laika.webtool
 
 import laika.factory.MarkupFormat
 import laika.format.{Markdown, ReStructuredText}
-import laika.parse.markup.DocumentParser.ParserError
+import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
@@ -51,7 +51,7 @@ object ClientTransformer {
   def transformToResolvedAST (format: String, input: String): String =
     wrapError(format, input, delegate.transformToResolvedAST)
 
-  private def wrapError(formatName: String, input: String, f: (MarkupFormat, String) => Either[ParserError, String]): String = 
+  private def wrapError(formatName: String, input: String, f: (MarkupFormat, String) => Either[TransformationError, String]): String = 
     formats.get(formatName).fold(
       s"<p>Invalid Format ($formatName)</p>"
     ){ format => f(format, input).fold(

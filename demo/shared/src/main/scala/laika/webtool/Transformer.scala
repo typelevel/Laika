@@ -17,14 +17,14 @@
 package laika.webtool
 
 import laika.api.{MarkupParser, Renderer}
-import laika.ast.{CodeBlock, Paragraph, Path, Style, Styles}
+import laika.ast.{CodeBlock, Document, Element, Paragraph, Path, Style, Styles}
 import laika.bundle.SyntaxHighlighter
 import laika.factory.MarkupFormat
 import laika.format.{AST, HTML, Markdown, ReStructuredText}
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.code.languages.{HTMLSyntax, LaikaASTSyntax}
-import laika.parse.markup.DocumentParser.ParserError
+import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
 
 /**
   * @author Jens Halm
@@ -50,30 +50,30 @@ object Transformer {
         "<pre>" + fmt.indentedElement("code", codeStyles, content) + "</pre>"
     }.build
 
-  private def highlightAndRender (highlighter: SyntaxHighlighter, src: String): Either[ParserError, String] =
+  private def highlightAndRender (highlighter: SyntaxHighlighter, src: String): Either[TransformationError, String] =
     highlighter.rootParser
       .parse(src).toEither
       .left.map(msg => ParserError(msg, Path.Root))
       .map(CodeBlock(highlighter.language.head, _))
-      .map(htmlRenderer.render)
+      .flatMap(htmlRenderer.render(_: Element))
 
-  private def transformToRenderedHTML (format: MarkupFormat, input: String, renderer: Renderer): Either[ParserError, String] =
-    parsers(format).parse(input).map(renderer.render)
+  private def transformToRenderedHTML (format: MarkupFormat, input: String, renderer: Renderer): Either[TransformationError, String] =
+    parsers(format).parse(input).flatMap(renderer.render(_: Document))
   
-  def transformToRenderedHTML (format: MarkupFormat, input: String): Either[ParserError, String] =
+  def transformToRenderedHTML (format: MarkupFormat, input: String): Either[TransformationError, String] =
     transformToRenderedHTML(format, input, htmlRenderer)
   
-  def transformToHTMLSource (format: MarkupFormat, input: String): Either[ParserError, String] =
+  def transformToHTMLSource (format: MarkupFormat, input: String): Either[TransformationError, String] =
     transformToRenderedHTML(format, input, htmlSourceRenderer).flatMap(highlightAndRender(HTMLSyntax, _))
   
-  def transformToUnresolvedAST (format: MarkupFormat, input: String): Either[ParserError, String] =
+  def transformToUnresolvedAST (format: MarkupFormat, input: String): Either[TransformationError, String] =
     parsers(format).parseUnresolved(input)
-      .map(r => astRenderer.render(r.document.content))
+      .flatMap(r => astRenderer.render(r.document.content))
       .flatMap(highlightAndRender(LaikaASTSyntax, _))
   
-  def transformToResolvedAST (format: MarkupFormat, input: String): Either[ParserError, String] =
+  def transformToResolvedAST (format: MarkupFormat, input: String): Either[TransformationError, String] =
     parsers(format).parse(input)
-      .map(r => astRenderer.render(r.content))
+      .flatMap(r => astRenderer.render(r.content))
       .flatMap(highlightAndRender(LaikaASTSyntax, _))
 
 }

@@ -19,7 +19,7 @@ package laika.webtool
 import cats.effect.IO
 import laika.factory.MarkupFormat
 import laika.format.{Markdown, ReStructuredText}
-import laika.parse.markup.DocumentParser.ParserError
+import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
 import org.http4s.HttpRoutes
 import org.http4s._
 import org.http4s.dsl.io._
@@ -38,7 +38,7 @@ object TransformerRoutes {
     }
   }
   
-  type TransformFunction = (MarkupFormat, String) => Either[ParserError, String]
+  type TransformFunction = (MarkupFormat, String) => Either[TransformationError, String]
 
   object OutputFormat {
     def unapply(str: String): Option[TransformFunction] = str match {
