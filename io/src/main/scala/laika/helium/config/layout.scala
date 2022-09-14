@@ -94,7 +94,19 @@ private[helium] case class LandingPage (logo: Option[Image] = None,
                                         documentationLinks: Seq[TextLink] = Nil,
                                         projectLinks: Seq[ThemeLinkSpan] = Nil,
                                         teasers: Seq[Teaser] = Nil,
-                                        styles: Seq[Path] = Nil)
+                                        styles: Seq[Path] = Nil) {
+  
+  import LengthUnit._
+  
+  val subtitleFontSize: Length =
+    if (subtitle.exists(_.length > 75)) px(22)
+    else if (subtitle.exists(_.length > 55)) px(27)
+    else px(32)
+  
+  val teaserTitleFontSize: Length = if (teasers.size <= 4) px(28) else px(20)
+  val teaserBodyFontSize: Length = if (teasers.size <= 4) px(17) else px(15)
+  
+}
 
 /** In contrast to the public `LinkGroup` this UI component allows all types of links as children, including menus.
   */

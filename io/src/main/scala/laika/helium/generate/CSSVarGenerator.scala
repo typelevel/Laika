@@ -18,7 +18,7 @@ package laika.helium.generate
 
 import laika.ast.RelativePath
 import laika.ast.Path.Root
-import laika.helium.config.{ColorSet, CommonSettings, DarkModeSupport, EPUBSettings, SiteSettings}
+import laika.helium.config.{ColorSet, CommonSettings, DarkModeSupport, EPUBSettings, LandingPage, SiteSettings}
 import laika.theme.config.FontDefinition
 
 private[helium] object CSSVarGenerator {
@@ -40,7 +40,7 @@ private[helium] object CSSVarGenerator {
       "nav-width"      -> navigationWidth.displayValue,
       "top-bar-height" -> topBarHeight.displayValue
     )
-    generate(settings, layoutStyles, settings.layout.topNavigationBar.highContrast)
+    generate(settings, layoutStyles, settings.layout.topNavigationBar.highContrast, settings.landingPage)
   }
   
   def generate (settings: EPUBSettings): String = {
@@ -49,7 +49,7 @@ private[helium] object CSSVarGenerator {
         generateFontFace(font, res.path.relativeTo(Root / "helium" / "laika-helium.epub.css"))
       }
     }.mkString("", "\n\n", "\n\n")
-    embeddedFonts + generate(settings, Nil, topBarHighContrast = false)
+    embeddedFonts + generate(settings, Nil, topBarHighContrast = false, landingPage = None)
   }
   
   private def toVars (pairs: Seq[(String, String)]): Seq[(String, String)] = pairs.map { 
@@ -99,8 +99,14 @@ private[helium] object CSSVarGenerator {
       "syntax-wheel5" -> syntaxHighlighting.wheel.c5.displayValue
     )
   }
+  
+  def landingPageLayout (landingPage: LandingPage): Seq[(String, String)] = Seq(
+    "landing-subtitle-font-size" -> landingPage.subtitleFontSize.displayValue,
+    "teaser-title-font-size" -> landingPage.teaserTitleFontSize.displayValue,
+    "teaser-body-font-size" -> landingPage.teaserBodyFontSize.displayValue,
+  )
 
-  def generate (common: DarkModeSupport, additionalVars: Seq[(String, String)], topBarHighContrast: Boolean): String = {
+  def generate (common: DarkModeSupport, additionalVars: Seq[(String, String)], topBarHighContrast: Boolean, landingPage: Option[LandingPage]): String = {
     import common._
     val vars = 
       colorSet(common.colors, topBarHighContrast) ++ 
@@ -118,7 +124,8 @@ private[helium] object CSSVarGenerator {
         "block-spacing" -> common.layout.defaultBlockSpacing.displayValue,
         "line-height" -> common.layout.defaultLineHeight.toString
       ) ++ 
-      additionalVars
+      additionalVars ++
+      landingPage.fold(Seq[(String, String)]())(landingPageLayout)
       
     val (colorScheme, darkModeStyles) = common.darkMode match {
       case Some(darkModeColors) => (Seq(("color-scheme", "light dark")), 

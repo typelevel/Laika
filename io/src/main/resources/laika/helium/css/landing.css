@@ -35,6 +35,16 @@ body {
   margin: 0 0 25px 0;
   padding: 0 35px;
 }
+.teaser h2 {
+  font-size: var(--teaser-title-font-size);
+  margin-bottom: 0.25em;
+  margin-top: 0;
+}
+
+.teaser p {
+  font-size: var(--teaser-body-font-size);
+}
+
 #header-left {
   color: var(--primary-medium);
   margin: 0 auto;
@@ -71,7 +81,7 @@ ul {
 li {
   padding: 0 10px 0 10px;
   display: block;
-  font-size: 17px;
+  font-size: 16px;
 }
 .large {
   font-size: 24px;
@@ -83,16 +93,19 @@ li {
   font-weight: bold;
   margin-bottom: 12px;
 }
-#header-left h2 {
+#header-left h1, #header-left h2 {
   color: var(--primary-medium);
-  font-size: 19px;
-}
-h2 {
-  font-size: 20px;
-  margin-top: 0;
-  line-height: 28px;
+  line-height: 1.5;
   margin-bottom: 5px;
 }
+#header-left h1 {
+  font-size: 48px;
+}
+#header-left h2 {
+  font-size: var(--landing-subtitle-font-size);
+  margin-top: 0.7em;
+}
+
 @media (min-width: 700px) {
   #header {
     display: flex;
@@ -243,10 +256,6 @@ h2 {
 
 #header-left .menu-toggle:hover:after {
   border-top: 8px solid var(--primary-medium);
-}
-
-.menu-content {
-  display: block;
 }
 
 #header-left .menu-content {
