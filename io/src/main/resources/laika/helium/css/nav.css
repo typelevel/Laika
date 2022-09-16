@@ -24,10 +24,20 @@ header a:hover, nav .row a:hover {
   cursor: pointer;
   color: var(--top-hover)
 }
-header img, nav .row img {
-  height: 80%;
-  width: auto;
+
+header .image-link {
+  position: relative;
+  height: var(--top-bar-height);
 }
+header img {
+  max-height: calc(var(--top-bar-height) - 10px);
+  width: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
 header .row a, nav .row a {
   margin: 0 0 0 20px;
 }
