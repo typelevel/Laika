@@ -144,12 +144,12 @@ private[laika] object ConfigGenerator {
 
   def populateConfig (helium: Helium): Config =
     ConfigBuilder.empty
-      .withValue("helium.landingPage", helium.siteSettings.content.landingPage)
-      .withValue("helium.topBar", helium.siteSettings.content.topNavigationBar)
+      .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
+      .withValue("helium.site.topNavigation", helium.siteSettings.content.topNavigationBar)
       .withValue("helium.site.mainNavigation", helium.siteSettings.content.mainNavigation)
       .withValue("helium.site.pageNavigation", helium.siteSettings.content.pageNavigation)
       .withValue("helium.site.footer", helium.siteSettings.content.footer)
-      .withValue("helium.favIcons", helium.siteSettings.content.favIcons)
+      .withValue("helium.site.favIcons", helium.siteSettings.content.favIcons)
       .withValue("helium.site.templates", templatePaths)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
       .withValue("laika.epub", helium.epubSettings.bookConfig)
@@ -172,6 +172,9 @@ private[laika] object ConfigGenerator {
       .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .withValue("laika.epub.coverImage", helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .withValue(HeliumIcon.registry)
+      .withValue("helium.landingPage", helium.siteSettings.content.landingPage) // legacy key
+      .withValue("helium.topBar", helium.siteSettings.content.topNavigationBar) // legacy key
+      .withValue("helium.favIcons", helium.siteSettings.content.favIcons) // legacy key
       .build
   
 }
