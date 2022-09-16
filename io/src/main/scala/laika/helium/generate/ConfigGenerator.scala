@@ -88,13 +88,24 @@ private[laika] object ConfigGenerator {
       .build
   }
 
+  private case class SourceEditLinks (baseURL: String, text: String, icon: Icon)
+
+  private implicit val sourceEditLinksEncoder: ConfigEncoder[SourceEditLinks] = ConfigEncoder[SourceEditLinks] { editLinks =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("baseURL", editLinks.baseURL)
+      .withValue("text", editLinks.text)
+      .withValue("icon", editLinks.icon)
+      .build
+  }
+  
   implicit val pageNavEncoder: ConfigEncoder[PageNavigation] = ConfigEncoder[PageNavigation] { pageNav =>
+    val editLinks = pageNav.sourceBaseURL.map { baseURL =>
+      SourceEditLinks(baseURL.stripSuffix("/"), pageNav.sourceLinkText, HeliumIcon.edit)
+    }
     ConfigEncoder.ObjectBuilder.empty
       .withValue("enabled", pageNav.enabled)
       .withValue("depth", pageNav.depth)
-      .withValue("sourceBaseURL", pageNav.sourceBaseURL.map(_.stripSuffix("/")))
-      .withValue("sourceLinkText", pageNav.sourceLinkText)
-      .withValue("sourceLinkIcon", HeliumIcon.edit)
+      .withValue("sourceEditLinks", editLinks)
       .build
   }
 

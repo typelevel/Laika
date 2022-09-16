@@ -8,6 +8,6 @@
     ]
   }
 
-  <p class="footer">@:for(helium.site.pageNavigation.sourceBaseURL)<a href="${_}${cursor.currentDocument.path}">${helium.site.pageNavigation.sourceLinkIcon}${helium.site.pageNavigation.sourceLinkText}</a>@:@</p>
+  <p class="footer">@:for(helium.site.pageNavigation.sourceEditLinks)<a href="${_.baseURL}${cursor.currentDocument.path}">${_.icon}${_.text}</a>@:@</p>
 </nav>
 @:@

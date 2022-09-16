@@ -127,8 +127,6 @@ private[helium] case class GenericLinkGroup (links: Seq[ThemeLink], options: Opt
   def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
 }
 
-private[helium] case class MarkupEditLinks (text: String, baseURL: String)
-
 /** Configuration for a single favicon which can be an internal resource or an external URL.
   * 
   * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
