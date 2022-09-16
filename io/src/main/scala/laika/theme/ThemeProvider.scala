@@ -44,9 +44,9 @@ trait ThemeProvider { self =>
     * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
     * They are roughly as follows:
     * 
-    * - For functionality that is an accumulation of features, for example parser extensions, renderer overrides
-    *   or AST rewrite rules, the effect is accumulative, this theme and the extensions will be merged to a single set
-    *   of features.
+    * - For functionality that is an accumulation of features, for example input files, parser extensions, 
+    *   renderer overrides or AST rewrite rules, the effect is accumulative,
+    *   this theme and the extensions will be merged to a single set of features.
     *   
     * - For functionality that is provided by unique instances, for example the template engine or the default template,
     *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
