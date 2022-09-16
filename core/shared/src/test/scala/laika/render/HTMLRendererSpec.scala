@@ -284,11 +284,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     ))
     val html =
       """<ul class="nav-list">
-        |  <li class="level1 nav-title-page"><a href="doc-1.html">Link-1</a></li>
-        |  <li class="level2 nav-leaf-entry"><a href="doc-2.html">Link-2</a></li>
-        |  <li class="level1 nav-section-header">Header-3</li>
-        |  <li class="level2 active nav-leaf-entry"><a href="doc-4.html">Link-4</a></li>
-        |  <li class="level1 nav-leaf-entry"><a href="doc-5.html">Link-5</a></li>
+        |  <li class="level1 nav-node"><a href="doc-1.html">Link-1</a></li>
+        |  <li class="level2 nav-leaf"><a href="doc-2.html">Link-2</a></li>
+        |  <li class="level1 nav-header">Header-3</li>
+        |  <li class="level2 active nav-leaf"><a href="doc-4.html">Link-4</a></li>
+        |  <li class="level1 nav-leaf"><a href="doc-5.html">Link-5</a></li>
         |</ul>""".stripMargin
     run(elem, html)
   }

@@ -215,7 +215,7 @@ nav .row {
   font-size: 1.1em;
 }
 
-#sidebar .nav-list li.level1.nav-title-page {
+#sidebar .nav-list li.level1.nav-node {
   margin-bottom: 5px;
   border-bottom: 2px solid var(--secondary-color);
 }
@@ -225,11 +225,11 @@ nav .row {
   padding-left: 0;
 }
 
-#sidebar .nav-list li.level1.nav-title-page a {
+#sidebar .nav-list li.level1.nav-node a {
   padding-bottom: 1px;
 }
 
-#sidebar .nav-list li.nav-section-header {
+#sidebar .nav-list li.nav-header {
   color: var(--secondary-color);
   display: block;
   padding: 3px 15px;
@@ -239,7 +239,7 @@ nav .row {
   font-size: 1em;
 }
 
-#sidebar .nav-list li.nav-section-header.level2 {
+#sidebar .nav-list li.nav-header.level2 {
   margin-left: 10px;
   margin-top: 5px;
   font-size: 0.9em;
@@ -323,7 +323,7 @@ ul.nav-list, #page-nav ul {
   text-decoration: none;
 }
 
-.nav-list li + .nav-section-header {
+.nav-list li + .nav-header {
   margin-top: 9px;
 }
 

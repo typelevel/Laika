@@ -92,9 +92,9 @@ object Style {
   
   val nav: Options = Styles("nav")
   val navList: Options = Styles("nav-list")
-  val navSectionHeader: Options = Styles("nav-section-header")
-  val navTitlePage: Options = Styles("nav-title-page")
-  val navLeafEntry: Options = Styles("nav-leaf-entry")
+  val navHeader: Options = Styles("nav-header")
+  val navNode: Options = Styles("nav-node")
+  val navLeaf: Options = Styles("nav-leaf")
   val active: Options = Styles("active")
   val breadcrumb: Options = Styles("breadcrumb")
   val bookmark: Options = Styles("bookmark")
