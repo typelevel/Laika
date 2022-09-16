@@ -92,7 +92,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
                      |</a>
                      |</div>
-                     |<a class="icon-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+                     |<a class="icon-link glyph-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
                      |<div class="row links">
                      |</div>
                      |</header>

@@ -97,6 +97,10 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                  |--content-width: 860px;
                                  |--nav-width: 275px;
                                  |--top-bar-height: 35px;""".stripMargin
+
+  private val landingPage = """--landing-subtitle-font-size: 32px;
+                              |--teaser-title-font-size: 28px;
+                              |--teaser-body-font-size: 17px;""".stripMargin
   
   private val colorScheme = "color-scheme: light dark;"
     
@@ -106,6 +110,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val expected = s"""$defaultColors
                       |$defaultFonts
                       |$defaultLayout
+                      |$landingPage
                       |$colorScheme""".stripMargin
     transformAndExtract(singleDoc, heliumBase, ":root {", "}").assertEquals(expected)
   }
@@ -122,6 +127,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                               |--header3-font-size: 19px;
                               |--header4-font-size: 14px;
                               |$defaultLayout
+                              |$landingPage
                               |$colorScheme""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
@@ -170,6 +176,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                               |--syntax-wheel5: #110055;
                               |$defaultFonts
                               |$defaultLayout
+                              |$landingPage
                               |$colorScheme""".stripMargin
 
   private val darkModeColors = """}
@@ -266,7 +273,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   
   test("dark mode disabled") {
     val helium = heliumBase.site.darkMode.disabled
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(defaultColors + "\n" + defaultFonts  + "\n" + defaultLayout)
+    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(defaultColors + "\n" + defaultFonts  + "\n" + defaultLayout + "\n" + landingPage)
   }
 
   private val customLayout = s"""$defaultColors
@@ -276,6 +283,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--content-width: 1000px;
                                |--nav-width: 300px;
                                |--top-bar-height: 55px;
+                               |$landingPage
                                |$colorScheme""".stripMargin
   
   test("layout") {
