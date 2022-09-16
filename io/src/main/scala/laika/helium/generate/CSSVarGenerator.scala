@@ -18,7 +18,7 @@ package laika.helium.generate
 
 import laika.ast.RelativePath
 import laika.ast.Path.Root
-import laika.helium.config.{ColorSet, CommonSettings, DarkModeSupport, EPUBSettings, LandingPage, SiteSettings}
+import laika.helium.config.{ColorSet, DarkModeSupport, EPUBSettings, LandingPage, SiteSettings}
 import laika.theme.config.FontDefinition
 
 private[helium] object CSSVarGenerator {
@@ -40,7 +40,7 @@ private[helium] object CSSVarGenerator {
       "nav-width"      -> navigationWidth.displayValue,
       "top-bar-height" -> topBarHeight.displayValue
     )
-    generate(settings, layoutStyles, settings.layout.topNavigationBar.highContrast, settings.landingPage)
+    generate(settings, layoutStyles, settings.content.topNavigationBar.highContrast, settings.content.landingPage)
   }
   
   def generate (settings: EPUBSettings): String = {

@@ -23,7 +23,6 @@ import laika.parse.{GeneratedSource, SourceFragment}
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
   def defaultLineHeight: Double
-  def tableOfContent: Option[TableOfContent]
 }
 
 private[helium] case class WebLayout(contentWidth: Length,
@@ -31,14 +30,17 @@ private[helium] case class WebLayout(contentWidth: Length,
                                      topBarHeight: Length,
                                      defaultBlockSpacing: Length,
                                      defaultLineHeight: Double,
-                                     anchorPlacement: AnchorPlacement,
-                                     favIcons: Seq[Favicon] = Nil,
-                                     footer: Option[TemplateSpan] = Some(HeliumFooter.default),
-                                     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
-                                     mainNavigation: MainNavigation = MainNavigation(),
-                                     pageNavigation: PageNavigation = PageNavigation(),
-                                     tableOfContent: Option[TableOfContent] = None,
-                                     downloadPage: Option[DownloadPage] = None) extends CommonLayout
+                                     anchorPlacement: AnchorPlacement) extends CommonLayout
+
+private[helium] case class WebContent(favIcons: Seq[Favicon] = Nil,
+                                      htmlIncludes: HTMLIncludes = HTMLIncludes(),
+                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
+                                      mainNavigation: MainNavigation = MainNavigation(),
+                                      pageNavigation: PageNavigation = PageNavigation(),
+                                      footer: Option[TemplateSpan] = Some(HeliumFooter.default),
+                                      landingPage: Option[LandingPage] = None,
+                                      tableOfContent: Option[TableOfContent] = None,
+                                      downloadPage: Option[DownloadPage] = None)
 
 private[helium] case class PDFLayout (pageWidth: Length, pageHeight: Length,
                                       marginTop: Length, marginRight: Length, marginBottom: Length, marginLeft: Length,

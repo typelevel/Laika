@@ -37,11 +37,11 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
   private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
 
   private def addLandingPage: TreeProcessor[F] = 
-    siteSettings.landingPage
+    siteSettings.content.landingPage
       .fold(noOp)(LandingPageGenerator.generate)
   
   private def addDownloadPage: TreeProcessor[F] = 
-    siteSettings.layout.downloadPage
+    siteSettings.content.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(noOp)(DownloadPageGenerator.generate)
       
