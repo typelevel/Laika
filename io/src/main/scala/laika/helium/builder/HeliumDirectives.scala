@@ -37,9 +37,9 @@ private[helium] object HeliumDirectives {
       val html = (versions, pathTranslator).tupled.fold("") { case (versions, pathTranslator) =>
         
         val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
-        val localRootPrefix = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
+        val relativeRoot = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
         
-        val (currentPath, currentVersion, siteBaseURL) = if (isVersioned) {
+        val (currentPath, currentVersion, absoluteRoot) = if (isVersioned) {
           val path = pathTranslator.translate(cursor.path).toString
           val version = versions.currentVersion.pathSegment
           val siteBaseURL = cursor.config.get[String](LaikaKeys.siteBaseURL).toOption
@@ -47,7 +47,7 @@ private[helium] object HeliumDirectives {
           (path, version, siteBaseURLStr)
         } else ("", "", "null")
         
-        s"""<script>initVersions("$localRootPrefix", "$currentPath", "$currentVersion", $siteBaseURL);</script>"""
+        s"""<script>initVersions("$relativeRoot", "$currentPath", "$currentVersion", $absoluteRoot);</script>"""
       }
       TemplateString(html)
     }
