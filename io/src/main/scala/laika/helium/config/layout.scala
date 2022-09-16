@@ -151,6 +151,11 @@ object Favicon {
   def external (url: String, sizes: String, mediaType: String): Favicon = 
     Favicon(ExternalTarget(url), Some(sizes), Some(mediaType))
 
+  /** Creates the configuration for a single favicon with an external URL.
+    */
+  def external (url: String, mediaType: String): Favicon =
+    Favicon(ExternalTarget(url), None, Some(mediaType))
+
   /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
     * This resource must be part of the inputs known to Laika.
     *
@@ -158,6 +163,12 @@ object Favicon {
     */
   def internal (path: Path, sizes: String): Favicon = 
     Favicon(InternalTarget(path), Some(sizes), mediaType(path.suffix))
+
+  /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
+    * This resource must be part of the inputs known to Laika.
+    */
+  def internal (path: Path): Favicon =
+    Favicon(InternalTarget(path), None, mediaType(path.suffix))
 }
 
 /** Represents release info to be displayed on the landing page.

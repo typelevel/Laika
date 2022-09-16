@@ -263,12 +263,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
     val helium = heliumBase.site.favIcons(
       Favicon.internal(Root / "icon-1.png", "32x32"),
-      Favicon.internal(Root / "icon-2.png", "64x64")
+      Favicon.internal(Root / "icon-2.png", "64x64"),
+      Favicon.internal(Root / "icon.svg")
     )
     val expected = meta ++ """
                    |<title></title>
                    |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png"/>
                    |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png"/>
+                   |<link rel="icon"  type="image/svg+xml" href="icon.svg"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
