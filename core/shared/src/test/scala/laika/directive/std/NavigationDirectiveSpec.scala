@@ -23,6 +23,7 @@ import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
+import laika.config.{ConfigBuilder, LaikaKeys}
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
@@ -149,7 +150,8 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
     assertEquals(
       parseTemplateAndRewrite(input, 
         hasTitleDocs = options.hasTitleDocs, 
-        includeTargetFormatConfig = options.includeTargetFormatConfig
+        includeTargetFormatConfig = options.includeTargetFormatConfig,
+        additionalDocuments = options.additionalDocuments
       ),
       Right(NavModel.templateResult(expectedNav:_*)(options))
     )
@@ -161,7 +163,8 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
                          maxLevels: Int = Int.MaxValue,
                          excludeSections: Boolean = false,
                          itemStyles: Options = NoOpt,
-                         includeTargetFormatConfig: Boolean = false)
+                         includeTargetFormatConfig: Boolean = false,
+                         additionalDocuments: Seq[Document] = Nil)
   
   object NavOptions {
     implicit lazy val defaults: NavOptions = NavOptions()
@@ -249,6 +252,24 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts 
 
     implicit val options: NavOptions = NavOptions(hasTitleDocs = true)
 
+    val template =
+      """aaa @:navigationTree { 
+        |  entries = [
+        |    { target = "/" }
+        |  ] 
+        |} bbb ${cursor.currentDocument.content}""".stripMargin
+
+    runTemplate(template, rootList)
+  }
+
+  test("template nav - an entry generated from the root of the tree with one document excluded via configuration") {
+
+    implicit val options: NavOptions = NavOptions(additionalDocuments = Seq(
+      Document(Root / "doc-3", RootElement.empty, config = 
+        ConfigBuilder.empty.withValue(LaikaKeys.excludeFromNavigation, true).build)
+      )
+    )
+    
     val template =
       """aaa @:navigationTree { 
         |  entries = [
