@@ -276,7 +276,7 @@ li {
   font-size: 20px;
 }
 #header-left a.text-link.menu-toggle {
-  padding-top: 0;
+  padding-top: 2px;
 }
 
 #header-left a.image-link {
