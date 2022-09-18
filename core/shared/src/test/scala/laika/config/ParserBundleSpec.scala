@@ -346,17 +346,19 @@ class ParserHookSpec extends FunSuite with ParserSetup {
 class ConfigProviderSpec extends FunSuite with BundleSetup {
 
   object BetweenBraces extends ConfigProvider {
-    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
+    def markupConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
+    def templateConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("{{", "}}")
     def configDocument (input: String): ConfigParser = ConfigParser.empty
   }
   object BetweenAngles extends ConfigProvider {
-    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
+    def markupConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
+    def templateConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.betweenLines("<<", ">>")
     def configDocument (input: String): ConfigParser = ConfigParser.empty
   }
 
   def parseWith(opConfig: OperationConfig, input: String): Either[ConfigError, Config] = opConfig
     .configProvider
-    .configHeader
+    .markupConfigHeader
     .parse(input) match {
       case Success(builderRoot, _) =>
         builderRoot.resolve(Origin.root, Config.empty, Map.empty)
@@ -443,9 +445,9 @@ class TemplateParserConfigSpec extends FunSuite with BundleSetup {
     )
   }
 
-  test("return None in strict mode when there is no parser installed") {
+  test("retain the template parser in strict mode") {
     val config = createConfig(createParser())
-    assert(config.forStrictMode.templateParser.isEmpty)
+    assert(config.forStrictMode.templateParser.nonEmpty)
   }
 
 }

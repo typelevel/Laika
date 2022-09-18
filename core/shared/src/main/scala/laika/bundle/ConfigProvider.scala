@@ -30,7 +30,7 @@ import laika.parse.combinator.Parsers
   *
   * @author Jens Halm
   */
-trait ConfigProvider {
+trait ConfigProvider { self =>
 
   /** The parser for configuration headers in markup documents.
     * 
@@ -42,7 +42,19 @@ trait ConfigProvider {
     * is necessary as substitution references in configuration headers can
     * refer to values defined in configuration files or programmatically.
     */
-  def configHeader: Parser[ConfigParser]
+  def markupConfigHeader: Parser[ConfigParser]
+
+  /** The parser for configuration headers in template documents.
+    *
+    * The parser is expected to fail if it does not recognize the fence
+    * before and after the configuration header. Otherwise it is expected
+    * to succeed, without parsing the actual string input from the configuration
+    * header. This will happen lazily when the `ConfigParser` will be resolved
+    * with a fallback Config provided by the runtime. This deferred resolution
+    * is necessary as substitution references in configuration headers can
+    * refer to values defined in configuration files or programmatically.
+    */
+  def templateConfigHeader: Parser[ConfigParser]
 
   /** The parser for configuration files recognized in input directories.
     *
@@ -52,6 +64,16 @@ trait ConfigProvider {
     * refer to values defined in configuration files or programmatically.
     */
   def configDocument (input: String): ConfigParser
+
+  /** Returns a new config provider for strict mode that disables all extensions for text markup
+    * documents which should run only features of the original markup spec.
+    * Templates and configuration files remain unaffected.
+    */
+  def forStrictMode: ConfigProvider = new ConfigProvider {
+    def markupConfigHeader = ConfigProvider.empty.markupConfigHeader
+    def templateConfigHeader = self.templateConfigHeader
+    def configDocument (input: String) = self.configDocument(input)
+  }
   
 }
 
@@ -61,7 +83,8 @@ object ConfigProvider {
     * an empty Config instance.
     */
   val empty: ConfigProvider = new ConfigProvider {
-    def configHeader = Parsers.success(ConfigParser.empty)
+    def markupConfigHeader = Parsers.success(ConfigParser.empty)
+    def templateConfigHeader = Parsers.success(ConfigParser.empty)
     def configDocument (input: String) = ConfigParser.empty
   }
   

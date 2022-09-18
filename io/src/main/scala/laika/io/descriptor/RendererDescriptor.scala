@@ -58,14 +58,14 @@ object RendererDescriptor {
   
   def create[F[_]: Applicative] (op: TreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.format.description,
-    op.renderer.config.bundles.filter(op.renderer.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
+    op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
     describeOutput(op.output),
     op.renderer.config.renderFormatted
   ))
 
   def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.description,
-    op.renderer.interimRenderer.config.bundles.filter(op.renderer.interimRenderer.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
+    op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
     describeOutput(op.output),
     op.renderer.interimRenderer.config.renderFormatted
   ))

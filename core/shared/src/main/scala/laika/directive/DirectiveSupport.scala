@@ -22,6 +22,7 @@ import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle
 import laika.config.ConfigParser
 import laika.parse.{Parser, SourceFragment}
 import laika.parse.builders.{delimitedBy, text, ws}
+import laika.parse.combinator.Parsers
 import laika.parse.implicits._
 import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, DirectiveParsers, SpanDirectiveParsers, TemplateParsers}
 import laika.parse.text.TextParsers
@@ -36,20 +37,23 @@ import laika.parse.text.TextParsers
 class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
                         spanDirectives: Seq[Spans.Directive],
                         templateDirectives: Seq[Templates.Directive],
-                        linkDirectives: Seq[Links.Directive]) extends ExtensionBundle {
+                        linkDirectives: Seq[Links.Directive],
+                        strictMode: Boolean) extends ExtensionBundle { self =>
 
   val description: String = "Laika's directive support"
 
   override val origin: BundleOrigin = BundleOrigin.Library
   
   private val configProvider: ConfigProvider = new ConfigProvider {
-    def configHeader: Parser[ConfigParser] = ConfigHeaderParser.withDefaultLineDelimiters
+    def markupConfigHeader: Parser[ConfigParser] = 
+      if (strictMode) Parsers.success(ConfigParser.empty) else ConfigHeaderParser.withDefaultLineDelimiters
+    def templateConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.withDefaultLineDelimiters
     def configDocument (input: String): ConfigParser = ConfigParser.parse(input)
   }
   
   override lazy val parsers: ParserBundle = ParserBundle(
-    blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
-    spanParsers = Seq(
+    blockParsers = if (strictMode) Nil else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
+    spanParsers = if (strictMode) Nil else Seq(
       SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))), 
       SpanDirectiveParsers.contextRef
     ),
@@ -83,7 +87,7 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
   }
   
   override lazy val rewriteRules: RewritePhaseBuilder = { 
-    case RewritePhase.Resolve => Seq(RewriteRules.forSpans {
+    case RewritePhase.Resolve => if (strictMode) Nil else Seq(RewriteRules.forSpans {
       case ref: LinkIdReference if ref.ref.startsWith("@:") =>
         linkParser.parse(ref.ref.drop(2)).toEither.fold(
           err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
@@ -101,10 +105,13 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
     new DirectiveSupport(blockDirectives ++ newBlockDirectives,
       spanDirectives ++ newSpanDirectives,
       templateDirectives ++ newTemplateDirectives,
-      linkDirectives ++ newLinkDirectives)
+      linkDirectives ++ newLinkDirectives,
+      strictMode)
 
+  override def forStrictMode: Option[ExtensionBundle] = 
+    Some(new DirectiveSupport(Nil, Nil, templateDirectives, Nil, strictMode = true))
 }
 
 /** Empty default instance without any directives installed.
   */
-object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil, Nil)
+object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil, Nil, strictMode = false)

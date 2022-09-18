@@ -42,7 +42,7 @@ import laika.bundle.ExtensionBundle
   *
   * @author Jens Halm
   */
-trait DirectiveRegistry extends ExtensionBundle {
+trait DirectiveRegistry extends ExtensionBundle { self =>
   
   val description: String = "Registry for Laika's directives"
 
@@ -165,6 +165,12 @@ trait DirectiveRegistry extends ExtensionBundle {
     * */
   def linkDirectives: Seq[Links.Directive]
 
+  override def forStrictMode: Option[ExtensionBundle] = Some(new DirectiveRegistry {
+    val spanDirectives = Nil
+    val blockDirectives = Nil
+    val linkDirectives = Nil
+    def templateDirectives = self.templateDirectives
+  })
 
   override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
     case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives, linkDirectives)
