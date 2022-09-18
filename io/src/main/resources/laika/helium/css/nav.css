@@ -220,8 +220,8 @@ nav .row {
 }
 
 #sidebar .nav-list li.level1 {
-  margin-left: 0;
-  padding: 3px 15px;
+  margin-left: -5px;
+  padding: 1px 0;
   font-size: 1.1em;
 }
 
@@ -231,8 +231,8 @@ nav .row {
 }
 
 #sidebar .nav-list li.level1 a {
-  margin-left: -5px;
-  padding-left: 0;
+  margin-left: 0;
+  padding: 3px 15px 4px 15px;
 }
 
 #sidebar .nav-list li.level1.nav-node a {
@@ -247,6 +247,9 @@ nav .row {
   text-transform: uppercase;
   margin-left: -5px;
   font-size: 1em;
+}
+#sidebar .nav-list li.level1.nav-header { /* for higher specificity */
+  padding: 3px 15px;
 }
 
 #sidebar .nav-list li.nav-header.level2 {
