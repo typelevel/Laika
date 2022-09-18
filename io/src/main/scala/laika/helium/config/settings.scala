@@ -330,9 +330,9 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
 private[helium] trait CopyOps {
   protected def helium: Helium
 
-  protected def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings)
-  protected def copyWith (epubSettings: EPUBSettings): Helium = new Helium(helium.siteSettings, epubSettings, helium.pdfSettings)
-  protected def copyWith (pdfSettings: PDFSettings): Helium   = new Helium(helium.siteSettings, helium.epubSettings, pdfSettings)
+  protected def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings, helium.extensions)
+  protected def copyWith (epubSettings: EPUBSettings): Helium = new Helium(helium.siteSettings, epubSettings, helium.pdfSettings, helium.extensions)
+  protected def copyWith (pdfSettings: PDFSettings): Helium   = new Helium(helium.siteSettings, helium.epubSettings, pdfSettings, helium.extensions)
 }
 
 private[helium] trait SiteOps extends SingleConfigOps with CopyOps {

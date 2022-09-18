@@ -72,7 +72,7 @@ import laika.theme._
 class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
                              private[laika] val epubSettings: EPUBSettings,
                              private[laika] val pdfSettings: PDFSettings,
-                             extensions: Seq[ThemeProvider] = Nil) { self =>
+                             private[laika] val extensions: Seq[ThemeProvider]) { self =>
 
   /** Selects the configuration options available for site generation.
     */

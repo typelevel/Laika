@@ -197,6 +197,6 @@ private[helium] object HeliumDefaults {
     coverImages = Nil
   )
 
-  val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings)
+  val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings, Nil)
   
 }
