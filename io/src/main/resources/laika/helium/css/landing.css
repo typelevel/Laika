@@ -157,7 +157,8 @@ li {
 /* title links container ======================================================= */
 
 #header-left div.row.links {
-  margin-top: 45px;
+  margin-top: 42px;
+  margin-bottom: 17px;
   height: 40px;
   display: flex;
   /*justify-content: space-between;*/
@@ -236,7 +237,9 @@ li {
   color: white;
   background-color: var(--secondary-color);
 }
-
+#header-left .button-link {
+  bottom: 0;
+}
 #header-left a.menu-toggle {
   height: 100%;
   width: 100%;
@@ -271,6 +274,9 @@ li {
 #header-left a.text-link {
   padding-top: 3px;
   font-size: 20px;
+}
+#header-left a.text-link.menu-toggle {
+  padding-top: 0;
 }
 
 #header-left a.image-link {
