@@ -102,7 +102,7 @@ li {
   font-size: 48px;
 }
 #header-left h2 {
-  font-size: var(--landing-subtitle-font-size);
+  font-size: calc(var(--landing-subtitle-font-size) * 0.9);
   margin-top: 0.7em;
 }
 
@@ -118,7 +118,7 @@ li {
     margin: 0;
   }
   #header-left h2 {
-    font-size: 22px;
+    font-size: var(--landing-subtitle-font-size);
   }
   #header-right {
     max-width: 450px;
