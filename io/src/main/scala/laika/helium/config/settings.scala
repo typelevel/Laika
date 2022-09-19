@@ -601,6 +601,32 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * part of the rendered site, but are not included in other formats like EPUB or PDF.
     */
   def baseURL (url: String): Helium = copyWith(helium.siteSettings.copy(baseURL = Some(url)))
+
+  /** Resets the specified UI elements receiving a true flag to the defaults.
+    * 
+    * This method can be used in rare cases where a configuration that has been pre-populated with some UI elements
+    * beyond the built-in defaults of Helium should get reset without falling back to the basic `Helium.defaults`.
+    * This cannot be done with the regular configuration methods as some properties of type `Seq[A]` behave in 
+    * an additive way, meaning that if you call `.site.topNavigationBar(navLinks = Seq(...))` those links will 
+    * be added to those already present.
+    * 
+    * If starting from `Helium.defaults` directly this method has no effect as Laika does not pre-populate those
+    * `Seq[A]` settings. But 3-rd party tools might provide a Helium instance with additional elements.
+    * 
+    * @param mainNavigation indicates whether the main (left) navigation pane should reset to the auto-generated list
+    * @param topNavigation indicates whether the top navigation bar should remove any pre-populated links
+    * @param favIcons indicates that the list of favicons should be cleared
+    * @return
+    */
+  def resetDefaults (mainNavigation: Boolean = false, topNavigation: Boolean = false, favIcons: Boolean = false): Helium = {
+    val base = currentContent
+    val newMainNav = if (mainNavigation) MainNavigation() else base.mainNavigation
+    val newTopNav = if (topNavigation) TopNavigationBar.default else base.topNavigationBar
+    val newFavIcons = if (favIcons) Nil else base.favIcons
+    val newContent = currentContent.copy(mainNavigation = newMainNav, topNavigationBar = newTopNav, favIcons = newFavIcons)
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
+    
 }
 
 private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {

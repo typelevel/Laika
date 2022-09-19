@@ -375,6 +375,44 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
+  test("top navigation - with menu, but after calling resetDefaults") {
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+        |</a>
+        |</div>
+        |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
+        |<div class="row links">
+        |<div class="menu-container">
+        |<a class="text-link menu-toggle" href="#">Menu Label</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
+        |<li class="level1 nav-leaf"><a href="doc-2.html">Link 1</a></li>
+        |<li class="level1 nav-leaf"><a href="doc-3.html">Link 2</a></li>
+        |</ul>
+        |</nav>
+        |</div>
+        |</div>""".stripMargin
+    val imagePath = Root / "home.png"
+    val helium = Helium.defaults.site.landingPage()
+      .site.topNavigationBar(
+        navLinks = Seq(
+          ButtonLink.internal(Root / "doc-1.md", "Removed")
+        )
+      )
+      .site.resetDefaults(topNavigation = true)
+      .site.topNavigationBar(
+        homeLink = ImageLink.internal(Root / "README", Image.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))),
+        navLinks = Seq(
+          Menu.create("Menu Label",
+            TextLink.internal(Root / "doc-2.md", "Link 1"),
+            TextLink.internal(Root / "doc-3.md", "Link 2")
+          )
+        ))
+    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+  }
+
   test("top navigation - with version dropdown on a versioned page") {
     val versionMenu = VersionMenu.create("Version:", "Choose Version")
     val helium = Helium.defaults
