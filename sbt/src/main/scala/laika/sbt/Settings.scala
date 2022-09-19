@@ -52,7 +52,7 @@ object Settings {
       .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(laikaConfig.value.encoding)
   }
   
-  val describe: Initialize[String] = setting {
+  val describe: Initialize[Task[String]] = task {
 
     val userConfig = laikaConfig.value
 
@@ -81,7 +81,7 @@ object Settings {
 
     val inputs = laikaInputs.value.delegate
 
-    transformer
+    val result = transformer
       .use(_
         .fromInput(inputs)
         .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
@@ -90,6 +90,10 @@ object Settings {
       .unsafeRunSync()
       .copy(renderer = "Depending on task")
       .formatted
+    
+    streams.value.log.success("\n" + result)
+    
+    result
   }
   
   val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
