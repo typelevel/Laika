@@ -26,16 +26,14 @@ header a:hover, nav .row a:hover {
 }
 
 header .image-link {
-  position: relative;
   height: var(--top-bar-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 header img {
   max-height: calc(var(--top-bar-height) - 10px);
   width: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  margin: auto;
 }
 
 header .row a, nav .row a {
