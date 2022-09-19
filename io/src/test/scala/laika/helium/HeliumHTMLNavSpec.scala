@@ -44,10 +44,10 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     )
   )
 
-  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
+  def transformer (theme: ThemeProvider, excludeFromValidation: Seq[Path] = Seq(Root)): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .withConfigValue(LinkConfig(excludeFromValidation = excludeFromValidation))
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -116,13 +116,15 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
                           helium: Helium, 
                           start: String, 
                           end: String, 
-                          docPath: Path = Root / "doc-1.html"): IO[String] = transformer(helium.build).use { t =>
-    for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- IO.fromEither(resultTree.extractTidiedSubstring(docPath, start, end)
-        .toRight(new RuntimeException("Missing document under test")))
-    } yield res
-  }
+                          docPath: Path = Root / "doc-1.html",
+                          excludeFromValidation: Seq[Path] = Seq(Root)): IO[String] = 
+    transformer(helium.build, excludeFromValidation = excludeFromValidation).use { t =>
+      for {
+        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        res        <- IO.fromEither(resultTree.extractTidiedSubstring(docPath, start, end)
+          .toRight(new RuntimeException("Missing document under test")))
+      } yield res
+    }
   
   def transformAndAssertNoPageNav(inputs: Seq[(Path, String)],
                                   helium: Helium,
@@ -308,27 +310,37 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(flatInputs, Helium.defaults.site.landingPage(), "<header id=\"top-bar\">", "</header>").assertEquals(expected)
   }
 
-  test("top navigation - with custom links") {
+  test("top navigation - with custom links - references to other versions not validated") {
     val expected =
       """<div class="row">
         |<a id="nav-icon">
         |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
         |</a>
+        |<div class="menu-container version-menu">
+        |<a class="text-link menu-toggle" href="#">Choose Version</a>
+        |<nav class="menu-content">
+        |<ul class="nav-list">
+        |</ul>
+        |</nav>
+        |</div>
         |</div>
         |<a class="image-link" href="index.html"><img src="home.png" alt="Homepage" title="Home"></a>
         |<div class="row links">
         |<a class="icon-link glyph-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+        |<a class="icon-link glyph-link" href="0.43/doc-9.txt"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
         |<a class="button-link" href="http://somewhere.com/">Somewhere</a>
         |</div>""".stripMargin
     val imagePath = Root / "home.png"
     val helium = Helium.defaults.site.landingPage()
+      .site.versions(versions)
       .site.topNavigationBar(
         homeLink = ImageLink.internal(Root / "README", Image.internal(imagePath, alt = Some("Homepage"), title = Some("Home"))), 
         navLinks = Seq(
-          IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+          IconLink.internal(Root / "doc-2.md", HeliumIcon.demo), // validated internal ref
+          IconLink.internal(Root / "0.43" / "doc-9.txt", HeliumIcon.demo), // not validated as referring to a different version
           ButtonLink.external("http://somewhere.com/", "Somewhere")
         ))
-    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(expected)
+    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>", excludeFromValidation = Nil).assertEquals(expected)
   }
 
   test("top navigation - with menu") {
