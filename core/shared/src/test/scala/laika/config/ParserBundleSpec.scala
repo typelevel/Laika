@@ -102,8 +102,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
     val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input),
-      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb").content)
     )
   }
 
@@ -114,8 +114,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
     val bundle2 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('>')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input),
-      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input).map(_.content),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb").content)
     )
   }
 
@@ -125,8 +125,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
     val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+', '!')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input),
-      Right(doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content),
+      Right(doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb").content)
     )
   }
 
@@ -138,8 +138,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
     ))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input),
-      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content),
+      Right(doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb").content)
     )
   }
 
@@ -184,8 +184,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
     val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input), 
-      Right(doc('>' -> "aaa", '+' -> "bbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content), 
+      Right(doc('>' -> "aaa", '+' -> "bbb").content)
     )
   }
 
@@ -196,8 +196,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
     val bundle2 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('>')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input), 
-      Right(doc('>' -> "aaa", '+' -> "bbb"))
+      MarkupParser.of(format).using(bundle1, bundle2).build.parse(input).map(_.content), 
+      Right(doc('>' -> "aaa", '+' -> "bbb").content)
     )
   }
 
@@ -207,8 +207,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
     val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+', '!')))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input), 
-      Right(doc('>' -> "aaa", '!' -> "bbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content), 
+      Right(doc('>' -> "aaa", '!' -> "bbb").content)
     )
   }
 
@@ -220,8 +220,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
     ))
 
     assertEquals(
-      MarkupParser.of(format).using(bundle).build.parse(input), 
-      Right(doc('>' -> "aaa", '+' -> "bbb"))
+      MarkupParser.of(format).using(bundle).build.parse(input).map(_.content), 
+      Right(doc('>' -> "aaa", '+' -> "bbb").content)
     )
   }
 
@@ -263,8 +263,8 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
     assertEquals(
-      parserBuilder(parserBundle).using(appBundle).build.parse("foo"), 
-      Right(doc("foo!?"))
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo").map(_.content), 
+      Right(doc("foo!?").content)
     )
   }
 
@@ -273,15 +273,15 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle2 = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
     assertEquals(
-      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"), 
-      Right(doc("foo!?"))
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo").map(_.content), 
+      Right(doc("foo!?").content)
     )
   }
 
   test("preProcessInput - provide the identity function when no hook is defined") {
     assertEquals(
-      parserBuilder().build.parse("foo"),
-      Right(doc("foo"))
+      parserBuilder().build.parse("foo").map(_.content),
+      Right(doc("foo").content)
     )
   }
 
@@ -291,8 +291,8 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
     assertEquals(
-      parserBuilder(parserBundle).using(appBundle).build.parse("foo"),
-      Right(doc("foo!?"))
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo").map(_.content),
+      Right(doc("foo!?").content)
     )
   }
 
@@ -301,15 +301,15 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle2 = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
     assertEquals(
-      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"),
-      Right(doc("foo!?"))
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo").map(_.content),
+      Right(doc("foo!?").content)
     )
   }
 
   test("postProcessBlocks - provide the identity function when no hook is defined") {
     assertEquals(
-      parserBuilder().build.parse("foo"),
-      Right(doc("foo"))
+      parserBuilder().build.parse("foo").map(_.content),
+      Right(doc("foo").content)
     )
   }
 
@@ -319,8 +319,8 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
 
     assertEquals(
-      parserBuilder(parserBundle).using(appBundle).build.parse("foo"),
-      Right(doc("foo!?"))
+      parserBuilder(parserBundle).using(appBundle).build.parse("foo").map(_.content),
+      Right(doc("foo!?").content)
     )
   }
 
@@ -329,15 +329,15 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     val appBundle2 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
 
     assertEquals(
-      parserBuilder().using(appBundle1, appBundle2).build.parse("foo"),
-      Right(doc("foo!?"))
+      parserBuilder().using(appBundle1, appBundle2).build.parse("foo").map(_.content),
+      Right(doc("foo!?").content)
     )
   }
 
   test("postProcessDocument - provide the identity function when no hook is defined") {
     assertEquals(
-      parserBuilder().build.parse("foo"),
-      Right(doc("foo"))
+      parserBuilder().build.parse("foo").map(_.content),
+      Right(doc("foo").content)
     )
   }
 
