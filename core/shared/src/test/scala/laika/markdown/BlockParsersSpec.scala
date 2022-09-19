@@ -353,7 +353,14 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
       |###""".stripMargin
     run(input, p("aaa\nbbb"), p("###"))
   }
-  
+
+  test("atx header - recognize header without preceding blank line") {
+    val input = """aaa
+                  |bbb
+                  |### CCC""".stripMargin
+    run(input, BlockSequence(p("aaa\nbbb"), Header(3, "CCC")))
+  }
+
   
   
   test("rules - line decorated by '-' and space characters ending on a '-'") {

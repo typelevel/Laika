@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{BlockParser, BlockParserBuilder, BlockPosition}
+import laika.bundle.{BlockParser, BlockParserBuilder, BlockParserBuilderOps, BlockPosition}
 import laika.parse.{BlockSource, LineSource, Parser}
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
@@ -147,7 +147,7 @@ object BlockParsers {
    *  Markdown also allows to decorate the line with trailing `'#'` characters which
    *  this parser will remove.
    */
-  val atxHeader: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  val atxHeader: BlockParserBuilderOps = BlockParser.recursive { recParsers =>
     
     def stripDecoration (text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
     
