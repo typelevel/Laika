@@ -72,11 +72,11 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
   ).site.landingPage()
   
   test("download page included - full HTML") {
-    val expected = """<head>
+    val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                      |<meta charset="utf-8">
                      |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+                     |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
                      |<title>Downloads</title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                      |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
