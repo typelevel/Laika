@@ -23,6 +23,7 @@ import laika.ast.Path.Root
 import laika.rewrite.nav.TargetFormats
 
 import java.io.InputStream
+import scala.reflect.ClassTag
 
 /** A binary input stream and its virtual path within the input tree.
   *
@@ -56,18 +57,25 @@ object BinaryInput {
     BinaryInput(stream, mountPoint, targetFormats, Some(file))
   }
 
-  def fromStream[F[_]: Sync] (stream: F[InputStream],
-                              mountPoint: Path = Root/"doc",
-                              autoClose: Boolean = true,
-                              targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+  def fromInputStream[F[_]: Sync] (stream: F[InputStream],
+                                   mountPoint: Path = Root/"doc",
+                                   autoClose: Boolean = true,
+                                   targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
     val input = fs2.io.readInputStream(stream, 64 * 1024, autoClose)
     BinaryInput(input, mountPoint, targetFormats)
   }
 
-  def fromClasspath[F[_]: Async] (resource: String,
-                                  mountPoint: Path = Root/"doc",
-                                  targetFormats: TargetFormats = TargetFormats.All,
-                                  classLoader: ClassLoader = getClass.getClassLoader): BinaryInput[F] = {
+  def fromClassResource[F[_]: Async, T: ClassTag] (resource: String,
+                                                   mountPoint: Path = Root/"doc",
+                                                   targetFormats: TargetFormats = TargetFormats.All): BinaryInput[F] = {
+    val stream = fs2.io.readClassResource[F,T](resource)
+    BinaryInput(stream, mountPoint, targetFormats)
+  }
+  
+  def fromClassLoaderResource[F[_]: Async] (resource: String,
+                                            mountPoint: Path = Root/"doc",
+                                            targetFormats: TargetFormats = TargetFormats.All,
+                                            classLoader: ClassLoader = getClass.getClassLoader): BinaryInput[F] = {
     val stream = fs2.io.readClassLoaderResource(resource, classLoader = classLoader)
     BinaryInput(stream, mountPoint, targetFormats)
   }

@@ -41,7 +41,7 @@ private[helium] object HeliumInputBuilder {
     val fontInputs = fontResources.foldLeft(InputTree[F]) { case (tree, embedResource) =>
       embedResource match {
         case res: EmbeddedFontFile     => tree.addFile(res.file, res.path)
-        case res: EmbeddedFontResource => tree.addClasspathResource(res.name, res.path)
+        case res: EmbeddedFontResource => tree.addClassLoaderResource(res.name, res.path)
       }
     }
     
@@ -50,21 +50,21 @@ private[helium] object HeliumInputBuilder {
     val unversioned = ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build
   
     val themeInputs = fontInputs
-      .addClasspathResource("laika/helium/templates/default.template.epub.xhtml", DefaultTemplatePath.forEPUB)
-      .addClasspathResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
-      .addClasspathResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
-      .addClasspathResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
-      .addClasspathResource("laika/helium/templates/includes/head.template.html", templatesPath / "head.template.html")
-      .addClasspathResource("laika/helium/templates/includes/topNav.template.html", templatesPath / "topNav.template.html")
-      .addClasspathResource("laika/helium/templates/includes/mainNav.template.html", templatesPath / "mainNav.template.html")
-      .addClasspathResource("laika/helium/templates/includes/pageNav.template.html", templatesPath / "pageNav.template.html")
-      .addClasspathResource("laika/helium/templates/includes/footer.template.html", templatesPath / "footer.template.html")
-      .addClasspathResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
-      .addClasspathResource("laika/helium/js/preview.js", heliumPath / "laika-preview.js")
-      .addClasspathResource("laika/helium/css/landing.css", heliumPath / "landing.page.css")
-      .addClasspathResource("laika/helium/fonts/icofont/icofont.min.css", heliumPath / "icofont.min.css")
-      .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
-      .addClasspathResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
+      .addClassLoaderResource("laika/helium/templates/default.template.epub.xhtml", DefaultTemplatePath.forEPUB)
+      .addClassLoaderResource("laika/helium/templates/default.template.html", DefaultTemplatePath.forHTML)
+      .addClassLoaderResource("laika/helium/templates/landing.template.html", Root / "landing.template.html")
+      .addClassLoaderResource("laika/helium/templates/default.template.fo", DefaultTemplatePath.forFO)
+      .addClassLoaderResource("laika/helium/templates/includes/head.template.html", templatesPath / "head.template.html")
+      .addClassLoaderResource("laika/helium/templates/includes/topNav.template.html", templatesPath / "topNav.template.html")
+      .addClassLoaderResource("laika/helium/templates/includes/mainNav.template.html", templatesPath / "mainNav.template.html")
+      .addClassLoaderResource("laika/helium/templates/includes/pageNav.template.html", templatesPath / "pageNav.template.html")
+      .addClassLoaderResource("laika/helium/templates/includes/footer.template.html", templatesPath / "footer.template.html")
+      .addClassLoaderResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
+      .addClassLoaderResource("laika/helium/js/preview.js", heliumPath / "laika-preview.js")
+      .addClassLoaderResource("laika/helium/css/landing.css", heliumPath / "landing.page.css")
+      .addClassLoaderResource("laika/helium/fonts/icofont/icofont.min.css", heliumPath / "icofont.min.css")
+      .addClassLoaderResource("laika/helium/fonts/icofont/fonts/icofont.woff", heliumPath / "fonts" / "icofont.woff")
+      .addClassLoaderResource("laika/helium/fonts/icofont/fonts/icofont.woff2", heliumPath / "fonts" / "icofont.woff2")
       .addString(new FOStyles(helium).input, FOStyles.defaultPath)
       .addConfig(ConfigBuilder.empty.withValue(LaikaKeys.targetFormats, Seq("epub","epub.xhtml","pdf")).build, Root / "laika" / "fonts" / "generated.conf")
       .addConfig(unversioned, Root / "laika" / "generated.conf")
@@ -72,7 +72,7 @@ private[helium] object HeliumInputBuilder {
     
     val versionedInputs = 
       if (helium.siteSettings.versions.isEmpty) themeInputs
-      else themeInputs.addClasspathResource("laika/helium/js/versions.js", heliumPath / "laika-versions.js")
+      else themeInputs.addClassLoaderResource("laika/helium/js/versions.js", heliumPath / "laika-versions.js")
   
     val siteVars = MergedCSSGenerator.mergeSiteCSS(CSSVarGenerator.generate(helium.siteSettings))
     val epubVars = MergedCSSGenerator.mergeEPUBCSS(CSSVarGenerator.generate(helium.epubSettings))
