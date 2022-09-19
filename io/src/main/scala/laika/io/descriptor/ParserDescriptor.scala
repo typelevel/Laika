@@ -30,6 +30,7 @@ import laika.io.api.TreeParser
 case class ParserDescriptor (parsers: NonEmptyList[String], 
                              bundles: Seq[ExtensionBundleDescriptor],
                              inputs: TreeInputDescriptor,
+                             theme: ThemeDescriptor,
                              strict: Boolean,
                              acceptRawContent: Boolean) {
 
@@ -38,6 +39,8 @@ case class ParserDescriptor (parsers: NonEmptyList[String],
        |  ${parsers.toList.mkString("\n  ")}
        |Extension Bundles:
        |  ${bundles.mkString("\n  ")}
+       |Theme:
+       |  ${theme.formatted}
        |Settings:
        |  Strict Mode: $strict
        |  Accept Raw Content: $acceptRawContent
@@ -57,6 +60,7 @@ object ParserDescriptor {
           op.parsers.map(_.format.description),
           op.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
           inputDesc,
+          op.theme.descriptor,
           op.config.bundleFilter.strict,
           op.config.bundleFilter.acceptRawContent
         )

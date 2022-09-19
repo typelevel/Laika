@@ -545,6 +545,8 @@ class TreeTransformerSpec extends CatsEffectSuite
                      |  Document Type Matcher for reStructuredText (supplied by parser)
                      |  Directives for theme 'Helium' (supplied by theme)
                      |  Extensions for theme 'Helium' (supplied by theme)
+                     |Theme:
+                     |  Helium
                      |Settings:
                      |  Strict Mode: false
                      |  Accept Raw Content: false

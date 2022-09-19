@@ -25,6 +25,7 @@ import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
 import laika.bundle.{BundleOrigin, ExtensionBundle, RenderOverrides}
 import laika.config.Config
 import laika.factory.Format
+import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{InputTree, InputTreeBuilder, ParsedTree}
 import laika.theme.Theme.TreeProcessor
 import laika.theme.ThemeBuilder.BundleBuilder
@@ -140,6 +141,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (themeName: String,
   /** Builds a theme resource based on the elements passed to this builder instance.
     */
   def build: Resource[F, Theme[F]] = Resource.eval(inputs.flatMap(_.build.map(in => new Theme[F] {
+    def descriptor: ThemeDescriptor = ThemeDescriptor(themeName)
     def inputs: InputTree[F] = in
     def extensions: Seq[ExtensionBundle] = self.extensions ++ bundleBuilder.build.toSeq
     def treeProcessor: Format => TreeProcessor[F] = { format =>
