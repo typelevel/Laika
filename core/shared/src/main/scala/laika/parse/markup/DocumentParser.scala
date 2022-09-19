@@ -139,11 +139,11 @@ object DocumentParser {
     
   }
 
-  private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configProvider: ConfigProvider)
+  private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configParser: Parser[ConfigParser])
     (docFactory: (Path, ConfigParser, R) => D): DocumentInput => Either[ParserError, D] = {
 
     forParser { path =>
-      val configHeader = configProvider.configHeader | Parsers.success(ConfigParser.empty)
+      val configHeader = configParser | Parsers.success(ConfigParser.empty)
       (configHeader ~ rootParser).mapN(docFactory(path, _, _))
     }
   }
@@ -166,7 +166,7 @@ object DocumentParser {
     * headers to create a parser function for an entire text markup document.
     */
   def forMarkup (rootParser: Parser[RootElement], configProvider: ConfigProvider): DocumentInput => Either[ParserError, UnresolvedDocument] =
-    create(rootParser, configProvider) { (path, config, root) =>
+    create(rootParser, configProvider.markupConfigHeader) { (path, config, root) =>
       val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
       UnresolvedDocument(Document(path, root, fragments), config)
    }
@@ -175,7 +175,7 @@ object DocumentParser {
     * headers to create a parser function for an entire template document.
     */
   def forTemplate (rootParser: Parser[TemplateRoot], configProvider: ConfigProvider): DocumentInput => Either[ParserError, TemplateDocument] = 
-    create(rootParser, configProvider) { (path, config, root) =>
+    create(rootParser, configProvider.templateConfigHeader) { (path, config, root) =>
       TemplateDocument(path, root, config)
     }
 

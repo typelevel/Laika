@@ -41,8 +41,6 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
 
   override val origin: BundleOrigin = BundleOrigin.Parser
   
-  override val useInStrictMode: Boolean = true
-
   override def rewriteRules: RewritePhaseBuilder = {
     case RewritePhase.Resolve => Seq(new RewriteRules(textRoles))
   }

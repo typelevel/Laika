@@ -55,7 +55,7 @@ object ParserDescriptor {
       .map { inputDesc =>
         apply(
           op.parsers.map(_.format.description),
-          op.config.bundles.filter(op.config.bundleFilter).map(ExtensionBundleDescriptor.apply),
+          op.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
           inputDesc,
           op.config.bundleFilter.strict,
           op.config.bundleFilter.acceptRawContent

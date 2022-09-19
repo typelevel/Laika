@@ -53,7 +53,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             renderMessages: MessageFilter = MessageFilter.None,
                             renderFormatted: Boolean = true) extends RenderConfig {
 
-  private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundles.filter(bundleFilter))
+  private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundleFilter(bundles))
 
   /** Base configuration merged from all defined extension bundles
     * that serves as a fallback for configuration files in the source
@@ -88,6 +88,11 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   def withConfigValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]): OperationConfig =
     copy(configBuilder = configBuilder.withValue(key, value))
 
+  /** Applies the filter based on the `strict` and `withRawContent` flags set by the user
+    * to the bundles configured for this instance.
+    */
+  lazy val filteredBundles: Seq[ExtensionBundle] = bundleFilter(bundles)
+  
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.
     */
@@ -97,7 +102,10 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * and template documents.
     * Always produces an empty configuration if no provider was installed.
     */
-  lazy val configProvider: ConfigProvider = mergedBundle.parsers.configProvider.getOrElse(ConfigProvider.empty)
+  lazy val configProvider: ConfigProvider = {
+    val default = mergedBundle.parsers.configProvider.getOrElse(ConfigProvider.empty)
+    if (bundleFilter.strict) default.forStrictMode else default
+  }
 
   /** Provides the parser for CSS documents, obtained by merging the parsers defined in all extension bundles
     * and adding a fallback that produces an empty style declaration set if all other parsers fail (or none are defined).
@@ -192,26 +200,20 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
       override val origin: BundleOrigin = BundleOrigin.Parser
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
         DocumentTypeMatcher.forMarkup(parser.fileSuffixes)
-      override val useInStrictMode: Boolean = true
     }
     copy(bundles = this.bundles ++ parser.extensions :+ docTypeMatcher)
   }
 
   /** Creates a new instance that is configured to interpret text markup as defined by its specification,
-    * without any extensions. Technically this will exclude all bundles that do not have the `useInStrictMode`
-    * flag set.
+    * without any extensions.
     */
   def forStrictMode: OperationConfig = copy(bundleFilter = bundleFilter.copy(strict = true))
 
-  /**  Creates a new instance that is configured to allow raw content embedded in the host
-    *  markup language.
+  /**  Creates a new instance that is configured to allow raw content embedded in the host markup language.
     *
-    *  These are disabled by default as Laika is designed to render to multiple
-    *  output formats from a single input document. With raw content embedded
-    *  the markup document is tied to a specific output format.
-    *
-    *  Technically it activates all bundle instances which have
-    *  the `acceptRawContent` flag set to true.
+    *  These are disabled by default as Laika is designed to render to multiple output formats
+    *  from a single input document. 
+    *  With raw content embedded the markup document is tied to a specific output format.
     */
   def forRawContent: OperationConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
 
@@ -243,9 +245,13 @@ trait RenderConfig {
   * @param strict indicates that text markup should be interpreted as defined by its specification, without any extensions
   * @param acceptRawContent indicates that the users accepts the inclusion of raw content in text markup
   */
-case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) extends (ExtensionBundle => Boolean) {
-  override def apply (bundle: ExtensionBundle): Boolean =
-    (!strict || bundle.useInStrictMode) && (acceptRawContent || !bundle.acceptRawContent)
+case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) {
+  
+  def apply (bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
+    val strictApplied = if (!strict) bundles else bundles.flatMap(_.forStrictMode)
+    if (acceptRawContent) strictApplied else strictApplied.flatMap(_.rawContentDisabled)
+  }
+    
   def merge (other: BundleFilter): BundleFilter = 
     BundleFilter(strict || other.strict, acceptRawContent || other.acceptRawContent)
 }

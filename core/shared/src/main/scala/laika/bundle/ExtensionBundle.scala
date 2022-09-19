@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
+import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast._
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.config.Config
@@ -169,8 +169,6 @@ trait ExtensionBundle { self =>
 
     override lazy val origin: BundleOrigin = if (self.origin == base.origin) self.origin else BundleOrigin.Mixed
     
-    override val useInStrictMode = self.useInStrictMode && base.useInStrictMode
-
     override lazy val baseConfig = self.baseConfig.withFallback(base.baseConfig)
 
     override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
@@ -204,29 +202,35 @@ trait ExtensionBundle { self =>
 
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(base.processExtension)
+
+    override def forStrictMode = merged(self.forStrictMode, base.forStrictMode)
+    override def rawContentDisabled = merged(self.rawContentDisabled, base.rawContentDisabled)
+    
+    private def merged (thisBundle: Option[ExtensionBundle], baseBundle: Option[ExtensionBundle]): Option[ExtensionBundle] =
+      Seq(thisBundle, baseBundle).flatten.reduceOption((a,b) => a.withBase(b))
   }
 
-  /** Indicates that this bundle should still be used if the user runs a transformation in strict mode.
+  /** Provides a version of this bundle that can be used in strict mode or `None` if the entire bundle
+    * should be removed in strict mode.
+    * 
+    * When strict mode does not affect a bundle it can return `Some(this)`.
     *
-    * This setting is appropriate if a bundle contains features which are native elements of a
-    * text markup language as defined in its specification, but implemented as an extension for technical reasons.
+    * Any bundle to be used in strict mode should be free from any parser extensions that 
+    * adds features to markup syntax beyond their respective specifications.
     */
-  def useInStrictMode: Boolean = false
+  def forStrictMode: Option[ExtensionBundle] = Some(this)
 
-  /** Indicates that this bundle deals with raw content embedded in text markup, like HTML.
+  /** Provides a version of this bundle that can be used in the default run mode where raw content in markup
+    * documents (such as embedded HTML) is disabled.
     *
-    * These kind of bundles are disabled by default as Laika is designed to render to multiple
-    * output formats from a single input document. With raw content embedded the markup document
-    * is tied to a specific output format.
+    * When a bundle does not add parsers for raw content it can return `Some(this)`.
     *
-    * Bundles which have this flag set to true need to be enabled explicitly by the user by calling
-    * `withRawContent` on the `Parse` or `Transform` API:
-    *
-    * {{{
-    *   val transformer = Transformer.from(Markdown).to(HTML).withRawContent.build
-    * }}}
+    * Any bundle to be used in the default run mode should be free from any parser extensions that 
+    * allow raw content in markup.
+    * When the user switches the `acceptRawContent` flag to `true` then this method will not be invoked
+    * and the initial instance of the bundle is used.
     */
-  def acceptRawContent: Boolean = false
+  def rawContentDisabled: Option[ExtensionBundle] = Some(this)
 
 }
 
@@ -258,8 +262,6 @@ object ExtensionBundle {
 
     override val origin: BundleOrigin = BundleOrigin.Library
     
-    override val useInStrictMode = true
-
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base
     
     override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)

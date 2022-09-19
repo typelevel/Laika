@@ -186,37 +186,41 @@ class OperationConfigSpec extends FunSuite {
 
   case object Defaults extends TestExtensionBundle
 
-  case object Strict extends TestExtensionBundle { override val useInStrictMode = true }
+  case object NonStrict extends TestExtensionBundle {
+    override def forStrictMode: Option[ExtensionBundle] = None
+  }
 
-  case object RawContent extends TestExtensionBundle { override val acceptRawContent = true }
+  case object RawContent extends TestExtensionBundle {
+    override def rawContentDisabled: Option[ExtensionBundle] = None
+  }
 
   case object Both extends TestExtensionBundle {
-    override val useInStrictMode = true
-    override val acceptRawContent = true
+    override def forStrictMode: Option[ExtensionBundle] = None
+    override def rawContentDisabled: Option[ExtensionBundle] = None
   }
 
   val flagSetup = {
-    val appBundles = Seq(Defaults, Strict, RawContent, Both)
+    val appBundles = Seq(Defaults, NonStrict, RawContent, Both)
     OperationConfig.empty.withBundles(appBundles)
   }
 
   test("strict/raw flags - remove all raw content bundles in the default settings") {
-    assertEquals(flagSetup.bundles.filter(flagSetup.bundleFilter), Seq(Defaults, Strict))
+    assertEquals(flagSetup.filteredBundles, Seq(Defaults, NonStrict))
   }
 
   test("strict/raw flags - keep all bundles if rawContent is set to true") {
     val finalConfig = flagSetup.forRawContent
-    assertEquals(finalConfig.bundles.filter(finalConfig.bundleFilter), Seq(Defaults, Strict, RawContent, Both))
+    assertEquals(finalConfig.filteredBundles, Seq(Defaults, NonStrict, RawContent, Both))
   }
 
   test("strict/raw flags - remove all non-strict and raw content bundles if strict is set to true") {
     val finalConfig = flagSetup.forStrictMode
-    assertEquals(finalConfig.bundles.filter(finalConfig.bundleFilter), Seq(Strict))
+    assertEquals(finalConfig.filteredBundles, Seq(Defaults))
   }
 
   test("strict/raw flags - remove all non-strict bundles if both flags are set to true") {
     val finalConfig = flagSetup.forStrictMode.forRawContent
-    assertEquals(finalConfig.bundles.filter(finalConfig.bundleFilter), Seq(Strict,  Both))
+    assertEquals(finalConfig.filteredBundles, Seq(Defaults, RawContent))
   }
 
 }

@@ -57,4 +57,5 @@ object GitHubFlavor extends ExtensionBundle {
     )
   )
 
+  override def forStrictMode: Option[ExtensionBundle] = None
 }

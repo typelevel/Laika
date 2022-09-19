@@ -96,7 +96,6 @@ case object ReStructuredText extends MarkupFormat { self =>
     val description: String = "Default extensions for reStructuredText"
 
     override val origin: BundleOrigin = BundleOrigin.Parser
-    override val useInStrictMode: Boolean = true
 
     override val parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(

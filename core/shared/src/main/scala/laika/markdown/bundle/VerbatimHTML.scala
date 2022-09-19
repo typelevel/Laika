@@ -40,8 +40,8 @@ object VerbatimHTML extends ExtensionBundle {
   val description: String = "Support for verbatim HTML in markup"
 
   override val origin: BundleOrigin = BundleOrigin.Parser
-  override val useInStrictMode: Boolean = true
-  override val acceptRawContent: Boolean = true
+
+  override def rawContentDisabled: Option[ExtensionBundle] = None
 
   override def parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(HTMLParsers.htmlBlockFragment),
