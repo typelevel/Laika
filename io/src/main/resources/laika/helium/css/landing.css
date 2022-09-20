@@ -105,6 +105,9 @@ li {
   font-size: calc(var(--landing-subtitle-font-size) * 0.9);
   margin-top: 0.7em;
 }
+#header-left > img {
+  max-width: 100%;
+}
 
 @media (min-width: 700px) {
   #header {
