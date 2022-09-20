@@ -201,11 +201,6 @@ case class Image (target: Target,
 
 object Image {
   
-  @deprecated("use ParsedTarget.forImage", "0.18.0")
-  def create (url: String, source: SourceFragment, width: Option[Length] = None,
-              height: Option[Length] = None, alt: Option[String] = None, title: Option[String] = None): Span =
-    ParsedTarget.forImage(url, source, width, height, alt, title)
-
   /** Creates a new instance for the specified internal image.
     * The path value represents a virtual path into the input tree of a transformation
     * and may be absolute or relative.
@@ -329,12 +324,6 @@ object ParsedTarget {
       case et: ExternalTarget => Image(et, width, height, alt, title)
       case it: InternalTarget => ImagePathReference(it.underlying, source, width, height, alt, title)
     }
-}
-
-object ParsedLink {
-  @deprecated("use ParsedTarget.forLink", "0.18.0")
-  def create (linkText: Seq[Span], url: String, source: SourceFragment, title: Option[String] = None): Span =
-    ParsedTarget.forLink(linkText, url, source, title)
 }
 
 object LinkDefinition {

@@ -531,7 +531,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
-  @deprecated("0.19.0", "use the corresponding properties of the new pageNavigation method")
+  @deprecated("use the corresponding properties of the new pageNavigation method", "0.19.0")
   def markupEditLinks (text: String, baseURL: String): Helium = pageNavigation(
     sourceLinkText = text,
     sourceBaseURL = Some(baseURL)
