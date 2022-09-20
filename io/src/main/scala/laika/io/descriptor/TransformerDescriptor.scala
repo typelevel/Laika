@@ -34,6 +34,7 @@ case class TransformerDescriptor (parsers: NonEmptyList[String],
                                   renderer: String,
                                   bundles: Seq[ExtensionBundleDescriptor],
                                   inputs: TreeInputDescriptor,
+                                  theme: ThemeDescriptor,
                                   output: String,
                                   strict: Boolean,
                                   acceptRawContent: Boolean,
@@ -46,6 +47,8 @@ case class TransformerDescriptor (parsers: NonEmptyList[String],
        |  $renderer
        |Extension Bundles:
        |  ${bundles.map(_.formatted).mkString("\n  ")}
+       |Theme:
+       |  ${theme.formatted}
        |Settings:
        |  Strict Mode: $strict
        |  Accept Raw Content: $acceptRawContent
@@ -65,7 +68,8 @@ object TransformerDescriptor {
       parser.parsers, 
       renderer.renderer, 
       parser.bundles, 
-      parser.inputs, 
+      parser.inputs,
+      renderer.theme,
       renderer.output,
       parser.strict, 
       parser.acceptRawContent, 

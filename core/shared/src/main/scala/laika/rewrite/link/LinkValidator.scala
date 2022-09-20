@@ -16,10 +16,12 @@
 
 package laika.rewrite.link
 
+import laika.ast.Path.Root
 import laika.ast.RelativePath.{CurrentDocument, CurrentTree}
 import laika.ast.{DocumentCursor, GlobalLink, InternalTarget, InvalidSpan, Link, LocalLink, Path, RelativePath, ResolvedInternalTarget, RootCursor, RootElement, Span, Target}
 import laika.config.{Config, LaikaKeys}
 import laika.parse.SourceFragment
+import laika.rewrite.Versions
 import laika.rewrite.nav.TargetFormats
 
 import scala.annotation.tailrec
@@ -39,7 +41,13 @@ private[laika] class LinkValidator (cursor: DocumentCursor, findTargetFormats: P
 
   private val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
-  private val excludedPaths = cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet
+  private val versionRoots = cursor.config.getOpt[Versions].toOption.flatten
+    .map(vs => vs.allVersions.map(v => (Root / v.pathSegment / "doc").parent))
+    .getOrElse(Nil)
+    .toSet
+  
+  private val excludedPaths = 
+    cursor.config.get[LinkConfig].getOrElse(LinkConfig.empty).excludeFromValidation.toSet ++ versionRoots
   
   private def excludeFromValidation (path: Path): Boolean = {
 

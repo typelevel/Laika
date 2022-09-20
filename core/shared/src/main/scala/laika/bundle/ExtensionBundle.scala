@@ -19,7 +19,7 @@ package laika.bundle
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast._
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
-import laika.config.Config
+import laika.config.{Config, ConfigBuilder}
 import laika.parse.css.CSSParsers
 import laika.rewrite.OutputContext
 import laika.rewrite.link.SlugBuilder
@@ -265,6 +265,8 @@ object ExtensionBundle {
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base
     
     override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)
+    
+    override val baseConfig: Config = ConfigBuilder.empty.withValue("laika.version", "0.18.1").build
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)

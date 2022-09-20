@@ -19,6 +19,7 @@ package laika.theme
 import cats.effect.{Async, Resource}
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
+import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.InputTree
 
 /** Responsible for building a theme resource with the user-provided effect type and runtime configuration.
@@ -44,9 +45,9 @@ trait ThemeProvider { self =>
     * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
     * They are roughly as follows:
     * 
-    * - For functionality that is an accumulation of features, for example parser extensions, renderer overrides
-    *   or AST rewrite rules, the effect is accumulative, this theme and the extensions will be merged to a single set
-    *   of features.
+    * - For functionality that is an accumulation of features, for example input files, parser extensions, 
+    *   renderer overrides or AST rewrite rules, the effect is accumulative,
+    *   this theme and the extensions will be merged to a single set of features.
     *   
     * - For functionality that is provided by unique instances, for example the template engine or the default template,
     *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
@@ -58,6 +59,7 @@ trait ThemeProvider { self =>
       ext  <- extensions.build
     } yield {
       new Theme[F] {
+        override def descriptor: ThemeDescriptor = base.descriptor.extendWith(ext.descriptor)
         override def inputs: InputTree[F] = base.inputs.overrideWith(ext.inputs)
         override def extensions: Seq[ExtensionBundle] = base.extensions ++ ext.extensions
         override def treeProcessor: Format => Theme.TreeProcessor[F] = fmt =>

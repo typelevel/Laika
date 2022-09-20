@@ -102,8 +102,11 @@ li {
   font-size: 48px;
 }
 #header-left h2 {
-  font-size: var(--landing-subtitle-font-size);
+  font-size: calc(var(--landing-subtitle-font-size) * 0.9);
   margin-top: 0.7em;
+}
+#header-left > img {
+  max-width: 100%;
 }
 
 @media (min-width: 700px) {
@@ -118,7 +121,7 @@ li {
     margin: 0;
   }
   #header-left h2 {
-    font-size: 22px;
+    font-size: var(--landing-subtitle-font-size);
   }
   #header-right {
     max-width: 450px;
@@ -157,7 +160,8 @@ li {
 /* title links container ======================================================= */
 
 #header-left div.row.links {
-  margin-top: 45px;
+  margin-top: 42px;
+  margin-bottom: 17px;
   height: 40px;
   display: flex;
   /*justify-content: space-between;*/
@@ -236,7 +240,9 @@ li {
   color: white;
   background-color: var(--secondary-color);
 }
-
+#header-left .button-link {
+  bottom: 0;
+}
 #header-left a.menu-toggle {
   height: 100%;
   width: 100%;
@@ -271,6 +277,9 @@ li {
 #header-left a.text-link {
   padding-top: 3px;
   font-size: 20px;
+}
+#header-left a.text-link.menu-toggle {
+  padding-top: 2px;
 }
 
 #header-left a.image-link {

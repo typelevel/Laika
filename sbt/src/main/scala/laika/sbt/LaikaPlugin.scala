@@ -110,7 +110,7 @@ object LaikaPlugin extends AutoPlugin {
     val laikaAST          = taskKey[Set[File]]("Generates a formatted output of the AST obtained from a parser")
     
     
-    val laikaDescribe     = settingKey[String]("Describe the current configuration, formats and input and output files")
+    val laikaDescribe     = taskKey[String]("Describe the current configuration, formats and input and output files")
 
     val laikaExtensions   = settingKey[Seq[ExtensionBundle]]("Custom extension bundles to use in each transformation")
 

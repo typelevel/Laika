@@ -300,19 +300,23 @@ object Path {
     * 
     * Empty path segments are allowed, but should usually be avoided for usability reasons.
     */
-  def parse (str: String): Path = {
-    str match {
-      case "/"   => Root
-      case other => parseLastSegment(other.stripPrefix("/").stripSuffix("/").split("/").toList)
+  def parse (str: String): Path =
+    if (str == "/") Root
+    else {
+      val segments = str.stripPrefix("/").stripSuffix("/").split("/").toList        
+      val parts = 
+        if (str.endsWith("/")) (NonEmptyChain.fromSeq(segments), None, None)
+        else SegmentedVirtualPath.parseLastSegment(segments)
+      parts match {
+        case (Some(seg), suf, frag) => SegmentedPath(seg, suf, frag)
+        case _ => Root
+      }  
     }
-  }
   
-  private def parseLastSegment (segments: List[String]): Path = SegmentedVirtualPath.parseLastSegment(segments) match {
+  def apply (segments: List[String]): Path = SegmentedVirtualPath.parseLastSegment(segments) match {
     case (Some(seg), suf, frag) => SegmentedPath(seg, suf, frag)
     case _ => Root
   }
-  
-  def apply (segments: List[String]): Path = parseLastSegment(segments)
 
 }
 
@@ -440,8 +444,14 @@ object RelativePath {
           if (path.startsWith("..")) countParents(current + 1, path.drop(2).stripPrefix("/"))
           else (current, path)
         val (levels, rest) = countParents(0, other)
-        val segments = if (rest.isEmpty) Nil else rest.split("/").toList
-        SegmentedVirtualPath.parseLastSegment(segments) match {
+
+        val segments = rest.split("/").toList
+        val parts = {
+          if (rest.isEmpty) (None, None, None)
+          else if (str.endsWith("/")) (NonEmptyChain.fromSeq(segments), None, None)
+          else SegmentedVirtualPath.parseLastSegment(segments)
+        }
+        parts match {
           case (Some(seg), suf, frag) => SegmentedRelativePath(seg, suf, frag, levels)
           case _ => Parent(levels)
         }

@@ -16,7 +16,7 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
+import cats.effect.{Async, IO, Resource}
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.{/, Path}
 import laika.ast.Path.Root
@@ -24,9 +24,9 @@ import laika.config.LaikaKeys
 import laika.format.{HTML, Markdown}
 import laika.helium.config.Favicon
 import laika.io.api.{TreeParser, TreeRenderer, TreeTransformer}
-import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
+import laika.io.helper.{InputBuilder, ResultExtractor, StringOps, TestThemeBuilder}
 import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.model.{InputTree, StringTreeOutput}
 import laika.rewrite.link.LinkConfig
 import laika.rewrite.{Version, Versions}
 import laika.theme._
@@ -81,10 +81,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     Root / "directory.conf" -> "laika.versioned = true",
   )
   
-  val meta = """<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-               |<meta charset="utf-8">
-               |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-               |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />""".stripMargin
+  val meta = s"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                |<meta charset="utf-8">
+                |<meta name="viewport" content="width=device-width, initial-scale=1.0">
+                |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />""".stripMargin
   
   val defaultResult = meta ++ """
     |<title></title>
@@ -168,6 +168,30 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 
+  test("custom CSS and JS files, including a file from a theme extension") {
+    val inputs = Seq(
+      Root / "name.md" -> "text",
+      Root / "web" / "foo.js" -> "",
+      Root / "web" / "foo.css" -> "",
+    )
+    val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
+      def build[G[_]: Async] = InputTree[G].addString("", Root / "theme" / "bar.css")
+    }
+    val themeExt = TestThemeBuilder.forInputs(themeInputs)
+    val expected = meta ++ """
+                   |<title></title>
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+                   |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+                   |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
+                   |<link rel="stylesheet" type="text/css" href="web/foo.css" />
+                   |<script src="helium/laika-helium.js"></script>
+                   |<script src="web/foo.js"></script>
+                   |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, heliumBase.extendWith(themeExt)).assertEquals(expected)
+  }
+
   test("custom configuration for CSS and JS file locations") {
     val inputs = Seq(
       Root / "name.md" -> "text",
@@ -239,12 +263,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
     val helium = heliumBase.site.favIcons(
       Favicon.internal(Root / "icon-1.png", "32x32"),
-      Favicon.internal(Root / "icon-2.png", "64x64")
+      Favicon.internal(Root / "icon-2.png", "64x64"),
+      Favicon.internal(Root / "icon.svg")
     )
     val expected = meta ++ """
                    |<title></title>
                    |<link rel="icon" sizes="32x32" type="image/png" href="icon-1.png"/>
                    |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png"/>
+                   |<link rel="icon"  type="image/svg+xml" href="icon.svg"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />

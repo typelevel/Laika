@@ -20,6 +20,7 @@ import cats.data.Kleisli
 import cats.effect.Async
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
+import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{InputTree, ParsedTree}
 import laika.theme.Theme.TreeProcessor
 
@@ -43,6 +44,10 @@ import laika.theme.Theme.TreeProcessor
   * @author Jens Halm
   */
 trait Theme[F[_]] {
+
+  /** A descriptor for this theme and its extensions for tooling or logging.
+    */
+  def descriptor: ThemeDescriptor
 
   /** The inputs to pre-populate when using parsers or transformers with this theme.
     * 

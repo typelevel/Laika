@@ -347,7 +347,9 @@ trait TreeStructure { this: TreeContent =>
     **/
   def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
     def hasLinks (item: NavigationItem): Boolean = item.link.nonEmpty || item.content.exists(hasLinks)
-    val navContent = if (context.excludeSelf) content.filterNot(_.path == context.refPath) else content
+    val navContent = content
+      .filterNot(_.path == context.refPath && context.excludeSelf)
+      .filterNot(_.config.get[Boolean](LaikaKeys.excludeFromNavigation).getOrElse(false)) 
     val children = if (context.isComplete) Nil else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
     val navTitle = title.getOrElse(SpanSequence(path.name))
     context.newNavigationItem(navTitle, titleDocument, children, targetFormats)

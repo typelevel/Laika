@@ -31,11 +31,11 @@ private[helium] object MergedCSSGenerator {
   def mergeSiteCSS[F[_]: Async](varBlock: String): F[String] = {
 
     val inputTree = InputTree[F]
-      .addClasspathResource("laika/helium/css/container.css", Root / "css" / "container.css")
-      .addClasspathResource("laika/helium/css/content.css", Root / "css" / "content.css")
-      .addClasspathResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
-      .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
-      .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
+      .addClassLoaderResource("laika/helium/css/container.css", Root / "css" / "container.css")
+      .addClassLoaderResource("laika/helium/css/content.css", Root / "css" / "content.css")
+      .addClassLoaderResource("laika/helium/css/nav.css", Root / "css" / "nav.css")
+      .addClassLoaderResource("laika/helium/css/code.css", Root / "css" / "code.css")
+      .addClassLoaderResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .build
     
     for {
@@ -57,10 +57,10 @@ private[helium] object MergedCSSGenerator {
       }
 
     val inputTree = InputTree[F]
-      .addClasspathResource("laika/helium/css/content.epub.css", Root / "css" / "content.css")
-      .addClasspathResource("laika/helium/css/toc.css", Root / "css" / "content.css")
-      .addClasspathResource("laika/helium/css/code.css", Root / "css" / "code.css")
-      .addClasspathResource("laika/helium/css/code.epub.css", Root / "css" / "code.epub.css")
+      .addClassLoaderResource("laika/helium/css/content.epub.css", Root / "css" / "content.css")
+      .addClassLoaderResource("laika/helium/css/toc.css", Root / "css" / "content.css")
+      .addClassLoaderResource("laika/helium/css/code.css", Root / "css" / "code.css")
+      .addClassLoaderResource("laika/helium/css/code.epub.css", Root / "css" / "code.epub.css")
       .build
 
     for {

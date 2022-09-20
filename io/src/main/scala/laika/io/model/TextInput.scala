@@ -19,13 +19,16 @@ package laika.io.model
 import cats.syntax.all._
 import cats.{Applicative, Functor}
 import cats.effect.{Async, Concurrent}
+import cats.instances.stream
 import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast.{DocumentType, Navigatable, Path, TextDocumentType}
 import laika.parse.markup.DocumentParser.DocumentInput
+import laika.rewrite.nav.TargetFormats
 
 import java.io.InputStream
 import scala.io.Codec
+import scala.reflect.ClassTag
 
 /** Character input for the various parsers of this library and its virtual path within the input tree.
   *
@@ -64,21 +67,29 @@ object TextInput {
     TextInput[F](input, mountPoint, docType, Some(file))
   }
 
-  def fromStream[F[_]: Async] (stream: F[InputStream],
-                               mountPoint: Path = Root/"doc",
-                               docType: TextDocumentType = DocumentType.Markup,
-                               autoClose: Boolean = true)
-                              (implicit codec: Codec): TextInput[F] = {
+  def fromInputStream[F[_]: Async] (stream: F[InputStream],
+                                    mountPoint: Path = Root/"doc",
+                                    docType: TextDocumentType = DocumentType.Markup,
+                                    autoClose: Boolean = true)
+                                   (implicit codec: Codec): TextInput[F] = {
 
     val input = readAll(fs2.io.readInputStream(stream, 64 * 1024, autoClose), codec)
     TextInput[F](input, mountPoint, docType)
   }
 
-  def fromClasspath[F[_]: Async] (resource: String,
-                                  mountPoint: Path = Root/"doc",
-                                  docType: TextDocumentType = DocumentType.Markup,
-                                  classLoader: ClassLoader = getClass.getClassLoader)
-                                 (implicit codec: Codec): TextInput[F] = {
+  def fromClassResource[F[_]: Async, T: ClassTag] (resource: String,
+                                                   mountPoint: Path = Root/"doc",
+                                                   docType: TextDocumentType = DocumentType.Markup)
+                                                  (implicit codec: Codec): TextInput[F] = {
+    val input = readAll(fs2.io.readClassResource[F,T](resource), codec)
+    TextInput(input, mountPoint, docType)
+  }
+  
+  def fromClassLoaderResource[F[_]: Async] (resource: String,
+                                            mountPoint: Path = Root/"doc",
+                                            docType: TextDocumentType = DocumentType.Markup,
+                                            classLoader: ClassLoader = getClass.getClassLoader)
+                                           (implicit codec: Codec): TextInput[F] = {
     val input = readAll(fs2.io.readClassLoaderResource(resource, classLoader = classLoader), codec)
     TextInput[F](input, mountPoint, docType)
   }

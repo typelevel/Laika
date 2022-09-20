@@ -16,7 +16,6 @@
 
 package laika.io.descriptor
 
-import cats.effect.Sync
 import cats.implicits._
 import laika.ast.DocumentType
 import laika.collection.TransitionalCollectionOps._

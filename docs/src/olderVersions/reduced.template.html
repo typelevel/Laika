@@ -12,7 +12,7 @@
     @:for(laika.site.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
-    @:for(helium.favIcons)
+    @:for(helium.site.favIcons)
       <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) href="@:target(_.target)"/>
     @:@
     @:for(helium.webFonts)
@@ -35,7 +35,7 @@
         @:for(laika.versions)
         <div id="version-menu-container">
           <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
-            ${helium.topBar.versionPrefix} ${_.currentVersion.displayValue}
+            ${helium.site.topNavigation.versionPrefix} ${_.currentVersion.displayValue}
           </a>
           <nav id="version-menu">
             <ul id="version-list" class="nav-list">
@@ -45,7 +45,7 @@
         @:@
       </div>
   
-      ${?helium.topBar.home}
+      ${?helium.site.topNavigation.home}
       
       <span class="row">
         <a class="icon-link svg-link" href="https://github.com/planet42/Laika">

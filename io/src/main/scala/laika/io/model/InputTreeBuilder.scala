@@ -31,6 +31,7 @@ import laika.io.runtime.TreeResultBuilder.{ConfigResult, DocumentResult, ParserR
 
 import java.io.{File, InputStream}
 import scala.io.Codec
+import scala.reflect.ClassTag
 
 /** Builder API for freely constructing input trees from directories, files, classpath resources, in-memory strings
   * or pre-constructed AST trees.
@@ -168,6 +169,24 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
     }
 
   /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
+    * The specified name must be compatible with Java's `Class.getResource`.
+    * Relative paths will be interpreted as relative to the package name of the referenced class,
+    * with all `.` replaced by `/`.
+    *
+    * The content type of the stream will be determined by the suffix of the virtual path, e.g.
+    * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
+    */
+  def addClassResource[T: ClassTag] (name: String,
+                                     mountPoint: Path)
+                                    (implicit codec: Codec): InputTreeBuilder[F] =
+    addStep(mountPoint) {
+      case DocumentType.Static(formats) =>
+        _ + BinaryInput.fromClassResource[F,T](name, mountPoint, formats)
+      case docType: TextDocumentType =>
+        _ + TextInput.fromClassResource[F,T](name, mountPoint, docType)
+    }
+  
+  /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
     * The specified name must be compatible with Java's `ClassLoader.getResource`.
     * The optional `ClassLoader` argument can be used to ensure the resource is found in an application or plugin
     * that uses multiple class loaders. 
@@ -176,16 +195,20 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
     * The content type of the stream will be determined by the suffix of the virtual path, e.g.
     * `doc.md` would be passed to the markup parser, `doc.template.html` to the template parser, and so on.
     */
-  def addClasspathResource (name: String,
-                            mountPoint: Path,
-                            classLoader: ClassLoader = getClass.getClassLoader)
-                           (implicit codec: Codec): InputTreeBuilder[F] =
+  def addClassLoaderResource (name: String,
+                              mountPoint: Path,
+                              classLoader: ClassLoader = getClass.getClassLoader)
+                             (implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput.fromClasspath(name, mountPoint, formats, classLoader)
+        _ + BinaryInput.fromClassLoaderResource(name, mountPoint, formats, classLoader)
       case docType: TextDocumentType =>
-        _ + TextInput.fromClasspath(name, mountPoint, docType, classLoader)
+        _ + TextInput.fromClassLoaderResource(name, mountPoint, docType, classLoader)
     }
+
+  @deprecated("Use addClassResource or addClassLoaderResource", "0.19.0")
+  def addClasspathResource (name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
+    addClassLoaderResource(name, mountPoint)
 
   @deprecated("use addInputStream", "0.19.0")
   def addStream (stream: F[InputStream],
@@ -208,9 +231,9 @@ class InputTreeBuilder[F[_]](private[laika] val exclude: FileFilter,
                      (implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput.fromStream(stream, mountPoint,autoClose, formats)
+        _ + BinaryInput.fromInputStream(stream, mountPoint,autoClose, formats)
       case docType: TextDocumentType =>
-        _ + TextInput.fromStream(stream, mountPoint, docType, autoClose)
+        _ + TextInput.fromInputStream(stream, mountPoint, docType, autoClose)
     }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.

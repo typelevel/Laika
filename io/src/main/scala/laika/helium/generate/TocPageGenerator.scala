@@ -19,7 +19,7 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{/, BlockSequence, Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
+import laika.ast.{Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
 import laika.factory.Format
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
@@ -31,7 +31,7 @@ private[helium] object TocPageGenerator {
 
   def generate[F[_]: Sync] (helium: Helium, format: Format): TreeProcessor[F] = {
     val tocConfig = (format match {
-      case HTML => helium.siteSettings.layout.tableOfContent
+      case HTML => helium.siteSettings.content.tableOfContent
       case EPUB.XHTML => helium.epubSettings.layout.tableOfContent
       case XSLFO => helium.pdfSettings.layout.tableOfContent
       case _ => None

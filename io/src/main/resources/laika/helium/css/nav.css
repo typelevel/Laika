@@ -24,10 +24,18 @@ header a:hover, nav .row a:hover {
   cursor: pointer;
   color: var(--top-hover)
 }
-header img, nav .row img {
-  height: 80%;
+
+header .image-link {
+  height: var(--top-bar-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+header img {
+  max-height: calc(var(--top-bar-height) - 10px);
   width: auto;
 }
+
 header .row a, nav .row a {
   margin: 0 0 0 20px;
 }
@@ -210,26 +218,26 @@ nav .row {
 }
 
 #sidebar .nav-list li.level1 {
-  margin-left: 0;
-  padding: 3px 15px;
+  margin-left: -5px;
+  padding: 1px 0;
   font-size: 1.1em;
 }
 
-#sidebar .nav-list li.level1.nav-title-page {
+#sidebar .nav-list li.level1.nav-node {
   margin-bottom: 5px;
   border-bottom: 2px solid var(--secondary-color);
 }
 
 #sidebar .nav-list li.level1 a {
-  margin-left: -5px;
-  padding-left: 0;
+  margin-left: 0;
+  padding: 3px 15px 4px 15px;
 }
 
-#sidebar .nav-list li.level1.nav-title-page a {
+#sidebar .nav-list li.level1.nav-node a {
   padding-bottom: 1px;
 }
 
-#sidebar .nav-list li.nav-section-header {
+#sidebar .nav-list li.nav-header {
   color: var(--secondary-color);
   display: block;
   padding: 3px 15px;
@@ -238,8 +246,11 @@ nav .row {
   margin-left: -5px;
   font-size: 1em;
 }
+#sidebar .nav-list li.level1.nav-header { /* for higher specificity */
+  padding: 3px 15px;
+}
 
-#sidebar .nav-list li.nav-section-header.level2 {
+#sidebar .nav-list li.nav-header.level2 {
   margin-left: 10px;
   margin-top: 5px;
   font-size: 0.9em;
@@ -323,7 +334,7 @@ ul.nav-list, #page-nav ul {
   text-decoration: none;
 }
 
-.nav-list li + .nav-section-header {
+.nav-list li + .nav-header {
   margin-top: 9px;
 }
 

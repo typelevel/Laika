@@ -131,8 +131,7 @@ private[helium] object HeliumDefaults {
     ),
     colors = colors(syntaxDarkScheme),
     darkMode = Some(darkModeColors),
-    htmlIncludes = HTMLIncludes(),
-    landingPage = None,
+    content = WebContent(),
     layout = WebLayout(
       contentWidth = px(860),
       navigationWidth = px(275),
@@ -198,6 +197,6 @@ private[helium] object HeliumDefaults {
     coverImages = Nil
   )
 
-  val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings)
+  val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings, Nil)
   
 }

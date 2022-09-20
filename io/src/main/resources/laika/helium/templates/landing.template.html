@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+    <meta name="generator" content="Laika ${laika.version} + Helium Theme" />
     <title>${?laika.site.metadata.title}</title>
     @:for(laika.site.metadata.authors)
       <meta name="author" content="${_}"/>
@@ -12,7 +12,7 @@
     @:for(laika.site.metadata.description)
       <meta name="description" content="${_}"/>
     @:@
-    @:for(helium.favIcons)
+    @:for(helium.site.favIcons)
       <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) href="@:target(_.target)"/>
     @:@
     @:for(helium.webFonts)
@@ -28,37 +28,37 @@
 
     <div id="header">
       <div id="header-left">
-        @:for(helium.landingPage.logo) ${_} @:@
-        @:for(helium.landingPage.title) <h1>${_}</h1> @:@
-        @:for(helium.landingPage.subtitle) <h2>${_}</h2> @:@
-        ${?helium.landingPage.titleLinks}
+        @:for(helium.site.landingPage.logo) ${_} @:@
+        @:for(helium.site.landingPage.title) <h1>${_}</h1> @:@
+        @:for(helium.site.landingPage.subtitle) <h2>${_}</h2> @:@
+        ${?helium.site.landingPage.titleLinks}
       </div>
       <div id="header-right">
-        @:for(helium.landingPage.latestReleases)
+        @:for(helium.site.landingPage.latestReleases)
           <p>${_.title}</p>
           <p class="large">${_.version}</p>
         @:@
-        @:for(helium.landingPage.license)
+        @:for(helium.site.landingPage.license)
           <p>License</p>
           <p class="large">${_}</p>
         @:@
-        @:if(helium.landingPage.documentationLinks)
+        @:if(helium.site.landingPage.documentationLinks)
           <div id="docs">
             <p>Documentation</p>
             <ul>
-              @:for(helium.landingPage.documentationLinks)
+              @:for(helium.site.landingPage.documentationLinks)
                 <li>${_}</li>
               @:@
             </ul>
           </div>
         @:@
-        @:for(helium.landingPage.projectLinks)
+        @:for(helium.site.landingPage.projectLinks)
           <p class="medium">${_}</p>
         @:@
       </div>
     </div>
     ${?cursor.currentDocument.fragments.header}
-    @:for(helium.landingPage.teaserRows)
+    @:for(helium.site.landingPage.teaserRows)
       <div class="teasers">
         @:for(_.teasers)
           <div class="teaser">

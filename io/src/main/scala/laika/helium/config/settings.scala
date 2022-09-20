@@ -41,9 +41,8 @@ private[helium] case class SiteSettings (fontResources: Seq[FontDefinition],
                                          fontSizes: FontSizes,
                                          colors: ColorSet,
                                          darkMode: Option[ColorSet],
-                                         htmlIncludes: HTMLIncludes,
-                                         landingPage: Option[LandingPage],
                                          layout: WebLayout,
+                                         content: WebContent,
                                          metadata: DocumentMetadata,
                                          versions: Option[Versions] = None,
                                          baseURL: Option[String] = None) extends DarkModeSupport
@@ -229,6 +228,7 @@ private[helium] trait DarkModeOps extends ColorOps {
 
 private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
   
+  protected def currentMetadata: DocumentMetadata
   protected def withFontFamilies (fonts: ThemeFonts): Helium
   protected def withFontSizes (sizes: FontSizes): Helium
   protected def withColors (colors: ColorSet): Helium
@@ -253,8 +253,19 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
                 language: Option[String] = None,
                 datePublished: Option[OffsetDateTime] = None,
                 dateModified: Option[OffsetDateTime] = None,
-                version: Option[String] = None): Helium =
-    withMetadata(DocumentMetadata(title, description, identifier, authors, language, datePublished, dateModified, version))
+                version: Option[String] = None): Helium = {
+    val current = currentMetadata
+    withMetadata(DocumentMetadata(
+      title.orElse(current.title), 
+      description.orElse(current.description), 
+      identifier.orElse(current.identifier),
+      current.authors ++ authors, 
+      language.orElse(current.language), 
+      datePublished.orElse(current.datePublished), 
+      dateModified.orElse(current.dateModified), 
+      version
+    ))
+  }
 }
 
 private[helium] trait AllFormatsOps extends CommonConfigOps {
@@ -319,12 +330,16 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
 private[helium] trait CopyOps {
   protected def helium: Helium
 
-  protected def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings)
-  protected def copyWith (epubSettings: EPUBSettings): Helium = new Helium(helium.siteSettings, epubSettings, helium.pdfSettings)
-  protected def copyWith (pdfSettings: PDFSettings): Helium   = new Helium(helium.siteSettings, helium.epubSettings, pdfSettings)
+  protected def copyWith (siteSettings: SiteSettings): Helium = new Helium(siteSettings, helium.epubSettings, helium.pdfSettings, helium.extensions)
+  protected def copyWith (epubSettings: EPUBSettings): Helium = new Helium(helium.siteSettings, epubSettings, helium.pdfSettings, helium.extensions)
+  protected def copyWith (pdfSettings: PDFSettings): Helium   = new Helium(helium.siteSettings, helium.epubSettings, pdfSettings, helium.extensions)
 }
 
 private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
+  
+  protected def currentContent: WebContent = helium.siteSettings.content
+  protected def currentLayout: WebLayout = helium.siteSettings.layout
+  protected def currentMetadata: DocumentMetadata = helium.siteSettings.metadata
   protected def currentColors: ColorSet = helium.siteSettings.colors
   def fontResources (defn: FontDefinition*): Helium =  copyWith(helium.siteSettings.copy(fontResources = defn))
   protected def withFontFamilies (fonts: ThemeFonts): Helium = copyWith(helium.siteSettings.copy(themeFonts = fonts))
@@ -348,16 +363,20 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
     * which might be useful when your input contains CSS files unrelated to the pages rendered by Laika.
     */
-  def autoLinkCSS (paths: Path*): Helium =
-    copyWith(helium.siteSettings.copy(htmlIncludes = helium.siteSettings.htmlIncludes.copy(includeCSS = paths)))
+  def autoLinkCSS (paths: Path*): Helium = {
+    val newContent = currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeCSS = paths))
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
 
   /** Auto-links JavaScript documents from the specified paths.
     * By default all JavaScript documents found anywhere in the input tree will be linked in HTML files.
     * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
     * which might be useful when your input contains JavaScript files unrelated to the pages rendered by Laika.
     */
-  def autoLinkJS (paths: Path*): Helium =
-    copyWith(helium.siteSettings.copy(htmlIncludes = helium.siteSettings.htmlIncludes.copy(includeJS = paths)))
+  def autoLinkJS (paths: Path*): Helium = {
+    val newContent = currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeJS = paths))
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
 
   /** Allows to override the defaults for Helium's layout.
     * You can use the constructors found in the `LengthUnit` companion to create length values,
@@ -371,13 +390,13 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param defaultLineHeight   the default line height
     * @param anchorPlacement     the placement of anchors for copying the links of section headlines (left, right or none)
     */
-  def layout (contentWidth: Length,
-              navigationWidth: Length,
-              topBarHeight: Length,
-              defaultBlockSpacing: Length,
-              defaultLineHeight: Double,
-              anchorPlacement: AnchorPlacement): Helium = {
-    val layout = helium.siteSettings.layout.copy(
+  def layout (contentWidth: Length = currentLayout.contentWidth,
+              navigationWidth: Length = currentLayout.navigationWidth,
+              topBarHeight: Length = currentLayout.topBarHeight,
+              defaultBlockSpacing: Length = currentLayout.defaultBlockSpacing,
+              defaultLineHeight: Double = currentLayout.defaultLineHeight,
+              anchorPlacement: AnchorPlacement = currentLayout.anchorPlacement): Helium = {
+    val newLayout = currentLayout.copy(
       contentWidth = contentWidth,
       navigationWidth = navigationWidth,
       topBarHeight = topBarHeight,
@@ -385,7 +404,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       defaultLineHeight = defaultLineHeight,
       anchorPlacement = anchorPlacement
     )
-    copyWith(helium.siteSettings.copy(layout = layout))
+    copyWith(helium.siteSettings.copy(layout = newLayout))
   }
 
   /** Defines a footer as a sequence of AST elements.
@@ -395,8 +414,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     */
   def footer (spans: Span*): Helium = {
     val footerSpan = if (spans.isEmpty) None else Some(TemplateSpanSequence.adapt(spans))
-    val newLayout = helium.siteSettings.layout.copy(footer = footerSpan)
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    val newContent = currentContent.copy(footer = footerSpan)
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Defines a footer as raw HTML output.
@@ -408,8 +427,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   /** Adds one or more favicons which can be an internal resource or an external URL.
     */
   def favIcons (icons: Favicon*): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(favIcons = icons)
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    val newContent = currentContent.copy(favIcons = currentContent.favIcons ++ icons)
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Configures the main (left) navigation pane.
@@ -435,13 +454,19 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param prependLinks        navigation sections to place above the auto-generated navigation structure
     * @param appendLinks         navigation sections to place below the auto-generated navigation structure
     */
-  def mainNavigation (depth: Int = 2, 
-                      includePageSections: Boolean = false, 
+  def mainNavigation (depth: Int = currentContent.mainNavigation.depth, 
+                      includePageSections: Boolean = currentContent.mainNavigation.includePageSections, 
                       prependLinks: Seq[ThemeNavigationSection] = Nil, 
                       appendLinks: Seq[ThemeNavigationSection] = Nil): Helium = {
-    val newLayout = helium.siteSettings.layout
-      .copy(mainNavigation = MainNavigation(depth, includePageSections, prependLinks, appendLinks))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    val newContent = currentContent.copy(
+      mainNavigation = MainNavigation(
+        depth, 
+        includePageSections, 
+        currentContent.mainNavigation.prependLinks ++ prependLinks,
+        currentContent.mainNavigation.appendLinks ++ appendLinks
+      )
+    )
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Configures the top navigation bar of the main content pages.
@@ -453,22 +478,28 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param highContrast indicates whether the background color should have a high contrast to the background
     *                     of the page (darker in light mode and lighter in dark mode).
     */
-  def topNavigationBar (homeLink: ThemeLink = DynamicHomeLink.default, 
+  def topNavigationBar (homeLink: ThemeLink = currentContent.topNavigationBar.homeLink, 
                         navLinks: Seq[ThemeLink] = Nil,
-                        versionMenu: VersionMenu = VersionMenu.default,
-                        highContrast: Boolean = false): Helium = {
-    val newLayout = helium.siteSettings.layout
-      .copy(topNavigationBar = TopNavigationBar(homeLink, navLinks, versionMenu, highContrast))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+                        versionMenu: VersionMenu = currentContent.topNavigationBar.versionMenu,
+                        highContrast: Boolean = currentContent.topNavigationBar.highContrast): Helium = {
+    val newContent = currentContent.copy(
+      topNavigationBar = TopNavigationBar(
+        homeLink,
+        currentContent.topNavigationBar.navLinks ++ navLinks, 
+        versionMenu, 
+        highContrast
+      )
+    )
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
   
-  def pageNavigation (enabled: Boolean = helium.siteSettings.layout.pageNavigation.enabled, 
-                      depth: Int = helium.siteSettings.layout.pageNavigation.depth,
-                      sourceBaseURL: Option[String] = helium.siteSettings.layout.pageNavigation.sourceBaseURL,
-                      sourceLinkText: String = helium.siteSettings.layout.pageNavigation.sourceLinkText): Helium = {
-    val newLayout = helium.siteSettings.layout
+  def pageNavigation (enabled: Boolean = currentContent.pageNavigation.enabled, 
+                      depth: Int = currentContent.pageNavigation.depth,
+                      sourceBaseURL: Option[String] = currentContent.pageNavigation.sourceBaseURL,
+                      sourceLinkText: String = currentContent.pageNavigation.sourceLinkText): Helium = {
+    val newContent = helium.siteSettings.content
       .copy(pageNavigation = PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
@@ -477,8 +508,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param depth the navigation depth which may be different than the one for the navigation bar
     */
   def tableOfContent (title: String, depth: Int): Helium = {
-    val newLayout = helium.siteSettings.layout.copy(tableOfContent = Some(TableOfContent(title, depth)))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    val newContent = helium.siteSettings.content.copy(tableOfContent = Some(TableOfContent(title, depth)))
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Adds a download page to the generated site that contains links to EPUB and PDF versions of the site.
@@ -495,9 +526,9 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     */
   def downloadPage (title: String, description: Option[String], downloadPath: Path = Root / "downloads",
                     includeEPUB: Boolean = true, includePDF: Boolean = true): Helium = {
-    val newLayout = helium.siteSettings.layout
+    val newContent = helium.siteSettings.content
       .copy(downloadPage = Some(DownloadPage(title, description, downloadPath, includeEPUB, includePDF)))
-    copyWith(helium.siteSettings.copy(layout = newLayout))
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   @deprecated("0.19.0", "use the corresponding properties of the new pageNavigation method")
@@ -543,7 +574,8 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
                    teasers: Seq[Teaser] = Nil,
                    styles: Seq[Path] = Nil): Helium = {
     val page = LandingPage(logo, title, subtitle, latestReleases, license, titleLinks, documentationLinks, projectLinks, teasers, styles)
-    copyWith(helium.siteSettings.copy(landingPage = Some(page)))
+    val newContent = currentContent.copy(landingPage = Some(page))
+    copyWith(helium.siteSettings.copy(content = newContent))
   }
 
   /** Specify the configuration for versioned documentation, a core Laika feature simply exposed via the Helium Config API.
@@ -569,10 +601,39 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * part of the rendered site, but are not included in other formats like EPUB or PDF.
     */
   def baseURL (url: String): Helium = copyWith(helium.siteSettings.copy(baseURL = Some(url)))
+
+  /** Resets the specified UI elements receiving a true flag to the defaults.
+    * 
+    * This method can be used in rare cases where a configuration that has been pre-populated with some UI elements
+    * beyond the built-in defaults of Helium should get reset without falling back to the basic `Helium.defaults`.
+    * This cannot be done with the regular configuration methods as some properties of type `Seq[A]` behave in 
+    * an additive way, meaning that if you call `.site.topNavigationBar(navLinks = Seq(...))` those links will 
+    * be added to those already present.
+    * 
+    * If starting from `Helium.defaults` directly this method has no effect as Laika does not pre-populate those
+    * `Seq[A]` settings. But 3-rd party tools might provide a Helium instance with additional elements.
+    * 
+    * @param mainNavigation indicates whether the main (left) navigation pane should reset to the auto-generated list
+    * @param topNavigation indicates whether the top navigation bar should remove any pre-populated links
+    * @param favIcons indicates that the list of favicons should be cleared
+    * @return
+    */
+  def resetDefaults (mainNavigation: Boolean = false, topNavigation: Boolean = false, favIcons: Boolean = false): Helium = {
+    val base = currentContent
+    val newMainNav = if (mainNavigation) MainNavigation() else base.mainNavigation
+    val newTopNav = if (topNavigation) TopNavigationBar.default else base.topNavigationBar
+    val newFavIcons = if (favIcons) Nil else base.favIcons
+    val newContent = currentContent.copy(mainNavigation = newMainNav, topNavigationBar = newTopNav, favIcons = newFavIcons)
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
+    
 }
 
 private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
+
+  protected def currentMetadata: DocumentMetadata = helium.epubSettings.metadata
   protected def currentColors: ColorSet = helium.epubSettings.colors
+  protected def currentLayout: EPUBLayout = helium.epubSettings.layout
   
   def fontResources (defn: FontDefinition*): Helium =
     copyWith(helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(fonts = defn)))
@@ -615,9 +676,9 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
     * If you choose very high numbers for this setting you might see pages with a lot of blank space when it has
     * to move a large block to the next page.
     */
-  def layout (defaultBlockSpacing: Length,
-              defaultLineHeight: Double,
-              keepTogetherDecoratedLines: Int): Helium =
+  def layout (defaultBlockSpacing: Length = currentLayout.defaultBlockSpacing,
+              defaultLineHeight: Double = currentLayout.defaultLineHeight,
+              keepTogetherDecoratedLines: Int = currentLayout.keepTogetherDecoratedLines): Helium =
     copyWith(helium.epubSettings.copy(layout = EPUBLayout(
       defaultBlockSpacing, defaultLineHeight, keepTogetherDecoratedLines
     )))
@@ -665,6 +726,8 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
 }
 
 private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
+
+  protected def currentMetadata: DocumentMetadata = helium.pdfSettings.metadata
   protected def currentColors: ColorSet = helium.pdfSettings.colors
   
   def fontResources (defn: FontDefinition*): Helium =

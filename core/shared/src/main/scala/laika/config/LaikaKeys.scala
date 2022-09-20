@@ -42,6 +42,8 @@ object LaikaKeys {
   
   val navigationOrder: Key = root.child("navigationOrder")
   
+  val excludeFromNavigation: Key = root.child("excludeFromNavigation")
+  
   val targetFormats: Key = root.child("targetFormats")
   
   val validateLinks: Key = root.child("validateLinks")

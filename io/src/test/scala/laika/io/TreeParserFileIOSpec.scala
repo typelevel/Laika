@@ -267,6 +267,13 @@ class TreeParserFileIOSpec
     )
   }
 
+  test("read a directory from the file system plus one extra classpath resource") {
+    CustomInput.run(
+      _.addClassResource[TreeParserFileIOSpec]("doc-7.md", ExtraDoc.path),
+      ExtraDoc.expected
+    )
+  }
+
   test("read a directory from the file system plus one extra template from a string") {
     CustomInput.run(
       _.addString("Template", ExtraTemplate.path),

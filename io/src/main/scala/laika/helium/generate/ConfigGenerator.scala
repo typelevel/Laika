@@ -88,13 +88,24 @@ private[laika] object ConfigGenerator {
       .build
   }
 
+  private case class SourceEditLinks (baseURL: String, text: String, icon: Icon)
+
+  private implicit val sourceEditLinksEncoder: ConfigEncoder[SourceEditLinks] = ConfigEncoder[SourceEditLinks] { editLinks =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("baseURL", editLinks.baseURL)
+      .withValue("text", editLinks.text)
+      .withValue("icon", editLinks.icon)
+      .build
+  }
+  
   implicit val pageNavEncoder: ConfigEncoder[PageNavigation] = ConfigEncoder[PageNavigation] { pageNav =>
+    val editLinks = pageNav.sourceBaseURL.map { baseURL =>
+      SourceEditLinks(baseURL.stripSuffix("/"), pageNav.sourceLinkText, HeliumIcon.edit)
+    }
     ConfigEncoder.ObjectBuilder.empty
       .withValue("enabled", pageNav.enabled)
       .withValue("depth", pageNav.depth)
-      .withValue("sourceBaseURL", pageNav.sourceBaseURL.map(_.stripSuffix("/")))
-      .withValue("sourceLinkText", pageNav.sourceLinkText)
-      .withValue("sourceLinkIcon", HeliumIcon.edit)
+      .withValue("sourceEditLinks", editLinks)
       .build
   }
 
@@ -133,22 +144,22 @@ private[laika] object ConfigGenerator {
 
   def populateConfig (helium: Helium): Config =
     ConfigBuilder.empty
-      .withValue("helium.landingPage", helium.siteSettings.landingPage)
-      .withValue("helium.topBar", helium.siteSettings.layout.topNavigationBar)
-      .withValue("helium.site.mainNavigation", helium.siteSettings.layout.mainNavigation)
-      .withValue("helium.site.pageNavigation", helium.siteSettings.layout.pageNavigation)
-      .withValue("helium.site.footer", helium.siteSettings.layout.footer)
-      .withValue("helium.favIcons", helium.siteSettings.layout.favIcons)
+      .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
+      .withValue("helium.site.topNavigation", helium.siteSettings.content.topNavigationBar)
+      .withValue("helium.site.mainNavigation", helium.siteSettings.content.mainNavigation)
+      .withValue("helium.site.pageNavigation", helium.siteSettings.content.pageNavigation)
+      .withValue("helium.site.footer", helium.siteSettings.content.footer)
+      .withValue("helium.site.favIcons", helium.siteSettings.content.favIcons)
       .withValue("helium.site.templates", templatePaths)
       .withValue("laika.site.metadata", helium.siteSettings.metadata)
       .withValue("laika.epub", helium.epubSettings.bookConfig)
       .withValue("laika.pdf", helium.pdfSettings.bookConfig)
       .withValue("helium.pdf", helium.pdfSettings.layout)
       .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
-      .withValue("helium.site.includeEPUB", helium.siteSettings.layout.downloadPage.fold(false)(_.includeEPUB))
-      .withValue("helium.site.includePDF", helium.siteSettings.layout.downloadPage.fold(false)(_.includePDF))
-      .withValue(LaikaKeys.site.css.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.htmlIncludes.includeCSS)
-      .withValue(LaikaKeys.site.js.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.htmlIncludes.includeJS)
+      .withValue("helium.site.includeEPUB", helium.siteSettings.content.downloadPage.fold(false)(_.includeEPUB))
+      .withValue("helium.site.includePDF", helium.siteSettings.content.downloadPage.fold(false)(_.includePDF))
+      .withValue(LaikaKeys.site.css.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeCSS)
+      .withValue(LaikaKeys.site.js.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeJS)
       .withValue(LaikaKeys.epub.css.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
       .withValue(LaikaKeys.epub.js.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS)
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
@@ -161,6 +172,9 @@ private[laika] object ConfigGenerator {
       .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .withValue("laika.epub.coverImage", helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
       .withValue(HeliumIcon.registry)
+      .withValue("helium.landingPage", helium.siteSettings.content.landingPage) // legacy key
+      .withValue("helium.topBar", helium.siteSettings.content.topNavigationBar) // legacy key
+      .withValue("helium.favIcons", helium.siteSettings.content.favIcons) // legacy key
       .build
   
 }

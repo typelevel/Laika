@@ -2,7 +2,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+  <meta name="generator" content="Laika ${laika.version} + Helium Theme" />
   <title>${cursor.currentDocument.title}</title>
   @:for(laika.site.metadata.authors)
   <meta name="author" content="${_}"/>
@@ -13,7 +13,7 @@
   @:for(laika.metadata.canonicalLink)
   <link rel="canonical" href="${_}"/>
   @:@
-  @:for(helium.favIcons)
+  @:for(helium.site.favIcons)
   <link rel="icon" @:attribute(sizes, _.sizes) @:attribute(type, _.type) href="@:target(_.target)"/>
   @:@
   @:for(helium.webFonts)

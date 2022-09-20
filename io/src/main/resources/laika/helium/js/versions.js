@@ -5,18 +5,18 @@ function logError (req) {
   console.log(`[${status}]: ${text}`);
 }
 
-function populateMenu (data, localRootPrefix, currentPath, currentVersion, siteBaseURL) {
+function populateMenu (data, currentPath, currentVersion, relativeRoot, absoluteRoot) {
   
   const currentTarget = data.linkTargets.find(target => target.path === currentPath);
   let canonicalLink;
   
   const listItems = data.versions.map(version => {
-    const pathPrefix = localRootPrefix + version.pathSegment;
+    const pathPrefix = relativeRoot + version.pathSegment;
     const hasMatchingLink = currentTarget && currentTarget.versions.includes(version.pathSegment);
     const href = (hasMatchingLink) ? pathPrefix + currentPath : pathPrefix + version.fallbackLink;
     if (version.canonical && hasMatchingLink) {
       const versionedPath = version.pathSegment + currentPath
-      canonicalLink = (siteBaseURL != null) ? siteBaseURL + versionedPath : localRootPrefix + versionedPath;
+      canonicalLink = (absoluteRoot != null) ? absoluteRoot + versionedPath : relativeRoot + versionedPath;
     }
 
     const link = document.createElement('a');
@@ -53,14 +53,14 @@ function populateMenu (data, localRootPrefix, currentPath, currentVersion, siteB
   return canonicalLink;
 }
 
-function loadVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL) {
-  const url = localRootPrefix + "laika/versionInfo.json";
+function loadVersions (currentPath, currentVersion, relativeRoot, absoluteRoot) {
+  const url = relativeRoot + "laika/versionInfo.json";
   const req = new XMLHttpRequest();
   req.open("GET", url);
   req.responseType = "json";
   req.onload = () => {
     if (req.status === 200) {
-      const canonicalLink = populateMenu(req.response, localRootPrefix, currentPath, currentVersion, siteBaseURL);
+      const canonicalLink = populateMenu(req.response, currentPath, currentVersion, relativeRoot, absoluteRoot);
       if (canonicalLink) insertCanonicalLink(canonicalLink);
     }
     else logError(req)
@@ -81,9 +81,9 @@ function insertCanonicalLink (linkHref) {
   }
 }
 
-function initVersions (localRootPrefix, currentPath, currentVersion, siteBaseURL) {
+function initVersions (relativeRoot, currentPath, currentVersion, absoluteRoot) {
   document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll(".version-menu").length > 0)
-      loadVersions(localRootPrefix, currentPath, currentVersion, siteBaseURL);
+      loadVersions(currentPath, currentVersion, relativeRoot, absoluteRoot);
   });
 }

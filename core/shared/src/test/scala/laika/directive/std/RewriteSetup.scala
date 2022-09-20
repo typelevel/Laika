@@ -87,10 +87,11 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
 
   def parseTemplateAndRewrite (template: String, 
                                hasTitleDocs: Boolean = false, 
-                               includeTargetFormatConfig: Boolean = false): Either[String, RootElement] = {
+                               includeTargetFormatConfig: Boolean = false,
+                               additionalDocuments: Seq[Document] = Nil): Either[String, RootElement] = {
     parseTemplate(template).flatMap { tRoot =>
       rewriteTree(buildTree(Some((DefaultTemplatePath.forHTML.name, tRoot.content)), 
-        hasTitleDocs = hasTitleDocs, includeTargetFormatConfig = includeTargetFormatConfig))
+        hasTitleDocs = hasTitleDocs, includeTargetFormatConfig = includeTargetFormatConfig).appendContent(additionalDocuments))
     }
   }
 

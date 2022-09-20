@@ -94,7 +94,7 @@ object ResourceLoader {
       str <- Sync[F].delay(con.getInputStream)
     } yield str
     
-    val input = TextInput.fromStream[F](stream, Root, DocumentType.Config, autoClose = true)
+    val input = TextInput.fromInputStream[F](stream, Root, DocumentType.Config, autoClose = true)
     input.asDocumentInput.attempt.map {
       case Left(_: FileNotFoundException) => None
       case Left(t) => Some(Left(ConfigResourceError(s"Unable to load config from URL '${url.toString}': ${t.getMessage}")))

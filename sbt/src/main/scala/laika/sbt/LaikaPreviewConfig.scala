@@ -42,7 +42,9 @@ class LaikaPreviewConfig (val port: Port,
     */
   def withPort (port: Port): LaikaPreviewConfig = copy(newPort = port)
 
-  def withHost(host:Host):LaikaPreviewConfig = copy(newHost = host)
+  /** Specifies the host the server should run on (default localhost).
+    */
+  def withHost (host: Host): LaikaPreviewConfig = copy(newHost = host)
 
   /** Specifies the interval at which input file resources are polled for changes (default 3 seconds).
     */
@@ -59,6 +61,6 @@ class LaikaPreviewConfig (val port: Port,
 object LaikaPreviewConfig {
 
   /** A config instance populated with default values. */
-  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort,ServerConfig.defaultHost, ServerConfig.defaultPollInterval, false)
+  val defaults = new LaikaPreviewConfig(ServerConfig.defaultPort, ServerConfig.defaultHost, ServerConfig.defaultPollInterval, false)
 
 }

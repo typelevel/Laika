@@ -22,6 +22,7 @@ import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
+import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{DirectoryInput, DirectoryOutput, FileFilter, InputTree, RenderedTreeRoot, TreeOutput}
 import laika.theme.Theme
 import laika.theme.Theme.TreeProcessor
@@ -34,6 +35,7 @@ import laika.theme.Theme.TreeProcessor
 object TransformerRuntime {
   
   private def themeWithoutInputs[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
+    def descriptor: ThemeDescriptor = theme.descriptor
     def inputs: InputTree[F] = InputTree.empty
     def extensions: Seq[ExtensionBundle] = theme.extensions
     def treeProcessor: Format => TreeProcessor[F] = theme.treeProcessor

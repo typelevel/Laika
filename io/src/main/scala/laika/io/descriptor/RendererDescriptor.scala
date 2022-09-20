@@ -28,6 +28,7 @@ import laika.io.model.{BinaryOutput, DirectoryOutput, TreeOutput}
   */
 case class RendererDescriptor (renderer: String,
                                bundles: Seq[ExtensionBundleDescriptor],
+                               theme: ThemeDescriptor,
                                output: String,
                                renderFormatted: Boolean) {
 
@@ -36,6 +37,8 @@ case class RendererDescriptor (renderer: String,
        |  $renderer
        |Extension Bundles:
        |  ${bundles.mkString("\n  ")}
+       |Theme:
+       |  ${theme.formatted}
        |Settings:
        |  Render Formatted: $renderFormatted
        |Target:
@@ -59,6 +62,7 @@ object RendererDescriptor {
   def create[F[_]: Applicative] (op: TreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.format.description,
     op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+    op.theme.descriptor,
     describeOutput(op.output),
     op.renderer.config.renderFormatted
   ))
@@ -66,6 +70,7 @@ object RendererDescriptor {
   def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
     op.renderer.description,
     op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+    op.theme.descriptor,
     describeOutput(op.output),
     op.renderer.interimRenderer.config.renderFormatted
   ))

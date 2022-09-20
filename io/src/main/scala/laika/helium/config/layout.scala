@@ -23,7 +23,6 @@ import laika.parse.{GeneratedSource, SourceFragment}
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
   def defaultLineHeight: Double
-  def tableOfContent: Option[TableOfContent]
 }
 
 private[helium] case class WebLayout(contentWidth: Length,
@@ -31,14 +30,17 @@ private[helium] case class WebLayout(contentWidth: Length,
                                      topBarHeight: Length,
                                      defaultBlockSpacing: Length,
                                      defaultLineHeight: Double,
-                                     anchorPlacement: AnchorPlacement,
-                                     favIcons: Seq[Favicon] = Nil,
-                                     footer: Option[TemplateSpan] = Some(HeliumFooter.default),
-                                     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
-                                     mainNavigation: MainNavigation = MainNavigation(),
-                                     pageNavigation: PageNavigation = PageNavigation(),
-                                     tableOfContent: Option[TableOfContent] = None,
-                                     downloadPage: Option[DownloadPage] = None) extends CommonLayout
+                                     anchorPlacement: AnchorPlacement) extends CommonLayout
+
+private[helium] case class WebContent(favIcons: Seq[Favicon] = Nil,
+                                      htmlIncludes: HTMLIncludes = HTMLIncludes(),
+                                      topNavigationBar: TopNavigationBar = TopNavigationBar.default,
+                                      mainNavigation: MainNavigation = MainNavigation(),
+                                      pageNavigation: PageNavigation = PageNavigation(),
+                                      footer: Option[TemplateSpan] = Some(HeliumFooter.default),
+                                      landingPage: Option[LandingPage] = None,
+                                      tableOfContent: Option[TableOfContent] = None,
+                                      downloadPage: Option[DownloadPage] = None)
 
 private[helium] case class PDFLayout (pageWidth: Length, pageHeight: Length,
                                       marginTop: Length, marginRight: Length, marginBottom: Length, marginLeft: Length,
@@ -125,8 +127,6 @@ private[helium] case class GenericLinkGroup (links: Seq[ThemeLink], options: Opt
   def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
 }
 
-private[helium] case class MarkupEditLinks (text: String, baseURL: String)
-
 /** Configuration for a single favicon which can be an internal resource or an external URL.
   * 
   * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
@@ -151,6 +151,11 @@ object Favicon {
   def external (url: String, sizes: String, mediaType: String): Favicon = 
     Favicon(ExternalTarget(url), Some(sizes), Some(mediaType))
 
+  /** Creates the configuration for a single favicon with an external URL.
+    */
+  def external (url: String, mediaType: String): Favicon =
+    Favicon(ExternalTarget(url), None, Some(mediaType))
+
   /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
     * This resource must be part of the inputs known to Laika.
     *
@@ -158,6 +163,12 @@ object Favicon {
     */
   def internal (path: Path, sizes: String): Favicon = 
     Favicon(InternalTarget(path), Some(sizes), mediaType(path.suffix))
+
+  /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
+    * This resource must be part of the inputs known to Laika.
+    */
+  def internal (path: Path): Favicon =
+    Favicon(InternalTarget(path), None, mediaType(path.suffix))
 }
 
 /** Represents release info to be displayed on the landing page.

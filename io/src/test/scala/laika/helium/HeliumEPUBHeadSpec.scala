@@ -41,11 +41,11 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     Root / "name.md" -> "text"
   )
   
-  private val defaultResult = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                                |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                                |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
-                                |<title></title>
-                                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
+  private val defaultResult = s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                                 |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                                 |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+                                 |<title></title>
+                                 |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
   
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 
@@ -84,12 +84,12 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "web" / "foo.js" -> "", // filtered, as JS is not supported yet for EPUB
       Root / "web" / "foo.shared.css" -> "",
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                     |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
+    val expected = s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+                      |<title></title>
+                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
+                      |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
     transformAndExtractHead(inputs).assertEquals(expected)
   }
 
@@ -104,12 +104,12 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val helium = Helium.defaults
       .epub.autoLinkCSS(Root / "custom-css")
       .epub.autoLinkJS(Root / "custom-js")
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
-                     |<title></title>
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-                     |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
+    val expected = s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+                      |<title></title>
+                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
+                      |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
   
@@ -118,14 +118,14 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       authors = Seq("Maria Green", "Elena Blue"),
       description = Some("Some description")
     )
-    val expected = """<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                     |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                     |<meta name="generator" content="Laika 0.18.1 + Helium Theme" />
-                     |<title></title>
-                     |<meta name="author" content="Maria Green"/>
-                     |<meta name="author" content="Elena Blue"/>
-                     |<meta name="description" content="Some description"/>
-                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
+    val expected = s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                      |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+                      |<title></title>
+                      |<meta name="author" content="Maria Green"/>
+                      |<meta name="author" content="Elena Blue"/>
+                      |<meta name="description" content="Some description"/>
+                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 

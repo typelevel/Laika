@@ -71,7 +71,8 @@ import laika.theme._
   */
 class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
                              private[laika] val epubSettings: EPUBSettings,
-                             private[laika] val pdfSettings: PDFSettings) { self =>
+                             private[laika] val pdfSettings: PDFSettings,
+                             private[laika] val extensions: Seq[ThemeProvider]) { self =>
 
   /** Selects the configuration options available for site generation.
     */
@@ -100,10 +101,29 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
     protected def helium: Helium = self
   }
 
+  /** Creates a new Helium configuration using this instance as a base and the provided theme as the extension.
+    *
+    * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
+    * They are roughly as follows:
+    *
+    * - For functionality that is an accumulation of features, for example input files, parser extensions, 
+    *   renderer overrides or AST rewrite rules, the effect is accumulative,
+    *   this theme and the extensions will be merged to a single set of features.
+    *
+    * - For functionality that is provided by unique instances, for example the template engine or the default template,
+    *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
+    *   if present.
+    */
+  def extendWith (theme: ThemeProvider): Helium = 
+    new Helium(siteSettings, epubSettings, pdfSettings, extensions :+ theme)
+
   /** Builds a theme provider that can be passed to the sbt plugin's `laikaTheme` setting
     * or the `withTheme` method of parsers and transformers when using the library API.
     */
-  def build: ThemeProvider = new HeliumThemeBuilder(this)
+  def build: ThemeProvider = {
+    val base: ThemeProvider = new HeliumThemeBuilder(this)
+    extensions.foldLeft(base)(_.extendWith(_))
+  }
   
 }
 
