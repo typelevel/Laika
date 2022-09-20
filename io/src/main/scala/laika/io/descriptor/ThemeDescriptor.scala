@@ -25,7 +25,7 @@ case class ThemeDescriptor (description: String, extensions: Seq[String] = Nil) 
 
   def formatted: String = {
     val extensionDesc = if (extensions.isEmpty) "" else 
-      " - with extensions:\n  " + extensions.mkString("  \n") 
+      " - with extensions:\n    " + extensions.mkString("\n    ") 
     description + extensionDesc
   }
   
