@@ -371,7 +371,7 @@ As a minimum set of documentation it's recommended to include:
 * Document the compatible Laika versions.
   Laika is still in the 0.x version range, so some breaking changes are still expected before reaching the 1.0 milestone.
   But the big rewrite phases are a thing of the past now, so you won't be exposed to massive disruptions.
-  A 1.0 version is expected at some point after the 0.18 or 0.19 releases.
+  A 1.0 version is expected at some point after the 0.19 release.
   
 * Document your theme configuration API.
 

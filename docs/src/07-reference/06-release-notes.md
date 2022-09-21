@@ -2,6 +2,95 @@
 Release Notes
 =============
 
+0.19.0-RC1 (Sep ??, 2022)
+-------------------------
+
+* Helium Theme
+    * Template modularization - when custom templates are required they can now be added for just a portion of the
+      page - e.g. head, main navigation, top navigation bar, etc.
+      This reduces potential issues when core theme changes are not regularly merged up with custom templates.
+    * Add support for canonical links
+        * Can be set manually via `laika.metadata.canonicalLink` in configuration headers in text markup documents.
+        * Will be set automatically in versioned documentation if one version is marked as canonical in config.
+    * Helium now works properly with `strict` mode switched on.
+      This mode is supposed to only remove all extensions from text markup parser that go beyond their respective specs,
+      but the implementation previously also aggressively excluded several unrelated extensions.
+    * Smarter defaults for the home link and better error messages when no suitable target can be found.
+    * New UI components - programmatically add version switcher menus, generic menus or link groups to the UI.
+    * Expanded Helium Config API
+        * Customize the left/main navigation pane (depth, additional links).
+        * Customize the page navigation or exclude it from individual pages.
+        * Customize the version switcher menu (labels, additional entries).
+        * Specify footers via config API.
+        * Link CSS or JavaScript to individual pages only via HOCON config headers in markup documents.
+        * Add a new placeholder to the landing page template for placing UI components right beneath the subtitle.
+        * The same config method can now be invoked multiple times without omitted arguments resetting to defaults.
+        * Some properties like those for navigation links now accumulate, so that a user can add to links
+          pre-populated by a theme.
+    * Helium CSS
+        * Render more style classes to allow for more fine-grained custom CSS, e.g. the name of the icon in case
+          of icon links or the name of the directive in case of link directives.
+        * Improved styles for the main/left navigation panel (some styles were missing causing the hierarchy to disappear).
+        * Fixes for the top navigation bar (where some link types were not properly centered and sized).
+* Standard Directives
+    * Add new `@:target` directive which in contrast to the now deprecated `@:path` directive also supports external targets.
+    * Add new `@:date` directive for rendering formatted dates and times in text markup or templates.
+* Syntax Highlighting
+    * Add support for Dart.
+* Markdown Spec Compliance
+    * atx-headers (those starting with `#`) do no longer require a preceding empty line to get recognized.
+* Link Validation
+    * When transforming versioned documentation, exclude links to other versions from validation as those are usually
+      not available as input source.
+* Navigation
+    * Add support for `laika.excludeFromNavigation` flag in HOCON configuration headers, causing a page to be
+      transformed like other pages, but excluded from any auto-generated navigation structures.
+* Theme APIs
+    * Add `ThemeProvider.extendWith(ThemeProvider)` and `Helium.extendWith(ThemeProvider)` for creating themes
+      that depend on existing themes.
+    * Add `Theme.descriptor` and include it in the output of `laikaDescribe`.
+* Extension Points
+    * Add new extension point `PathTranslator` to `ExtensionBundle` that allows to customize how paths of
+      input documents are translated to paths of output documents.
+    * Add `PrettyURLs` extension based on this new extension point. 
+      It will translate the inputs into a structure that allows to create links to pages without the `.html` extension. 
+      In some tools this is default behaviour, but with Laika the new extension must be enabled explicitly. 
+* Migrate `laika-io` module to fs2
+    * As a consequence, some high-level user API change requirements from `Sync` to `Async`.
+    * Introduce new `FilePath` API that is aligned with Laika's virtual path API.
+    * Deprecate all public API that expects a `java.io.File` argument.
+* Document AST
+    * Introduce a more fine-grained rewrite phase model. 
+      This is a larger internal refactoring that removes a whole range of old limitations when writing custom directives.
+      In most circumstances directives are now allowed to dynamically add to the document structure 
+      (e.g. by introducing headers that are reflected in navigation structures). See also the related bugfix below.
+    * Add convenience methods to several node types (e.g. `Document.appendContent(Block*)`, `DocumentTree.appendContent(TreeContent*)`).
+    * Split `date` metadata into `datePublished` and `dateModified`.
+* Preview Server
+    * Switch http4s from blaze to ember backend.
+    * Split `laikaPreview` task in sbt plugin into a builder and a launcher, so that integrators like `sbt-typelevel`
+      can reuse the build step while modfiying the launcher.
+* Bugfixes
+    * Headers or other nodes with ids disappear when created in a custom directive.
+    * Title documents generate duplicate nodes in a breadcrumb component.
+    * `laikaDescribe` in the sbt plugin is now a task again, as a setting will log stale output from previous
+      directory scanning.
+
+
+0.18.2 (Mar 27, 2022)
+---------------------
+
+* Fixes and improvements:
+    * When using versioned output, the document `versionInfo.json` was still rendered when the `renderUnversioned`
+      flag was set to `false`, even though the document is unversioned itself.
+    * Link references within directive bodies (e.g. a `@:callout` component) were not resolved.
+    * Several variable substitutions like `cursor.nextDocument.relativePath` were pointing to the markup sources
+      and not to the rendered output, even though the latter is much more commonly needed for rendering links.
+      This release deprecates the old variable names ending in `.relativePath` and `.absolutePath` and replaces them
+      with `.path` (pointing to the output document for rendering links) and `.sourcePath` (pointing to the
+      markup sources - the existing behaviour, but with a clearer name).
+
+
 0.18.1 (Dec 12, 2021)
 ---------------------
 
