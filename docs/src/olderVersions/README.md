@@ -1,5 +1,5 @@
 {%
-  laika.template = "reduced.template.html"
+  helium.site.pageNavigation.enabled = false
 %}
 
 Older Versions

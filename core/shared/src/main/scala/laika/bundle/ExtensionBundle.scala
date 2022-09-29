@@ -266,7 +266,7 @@ object ExtensionBundle {
     
     override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)
     
-    override val baseConfig: Config = ConfigBuilder.empty.withValue("laika.version", "0.19.0-RC1").build
+    override val baseConfig: Config = ConfigBuilder.empty.withValue("laika.version", "0.19.0").build
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)

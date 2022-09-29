@@ -33,3 +33,15 @@
   width: 100px;
   height: 100px;
 }
+
+/* top entries in left nav ==================== */
+
+#sidebar .nav-list li.level1.nav-leaf {
+  margin-left: 10px;
+  margin-bottom: 2px;
+  font-size: 1em;
+}
+
+#sidebar .nav-list li.level1.nav-leaf a {
+  padding: 3px 15px 4px 15px;
+}

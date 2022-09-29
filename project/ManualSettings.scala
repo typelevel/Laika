@@ -3,7 +3,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.LaikaKeys
 import laika.helium.Helium
-import laika.helium.config.{AnchorPlacement, Favicon, HeliumIcon, IconLink, ReleaseInfo, Teaser, TextLink}
+import laika.helium.config.{Favicon, HeliumIcon, IconLink, ReleaseInfo, Teaser, TextLink, VersionMenu}
 import laika.rewrite.link.{ApiLinks, LinkConfig}
 import laika.rewrite.{Version, Versions}
 import laika.rewrite.nav.{ChoiceConfig, CoverImage, SelectionConfig, Selections}
@@ -15,16 +15,16 @@ object ManualSettings {
   private object versions {
     private def version(version: String, stable: Boolean = false): Version = {
       val label = if (stable) Some("Stable") else Some("EOL")
-      Version(version, version, "/table-of-content.html", label)
+      val pathSegment = if (stable) "latest" else version
+      Version(version, pathSegment, "/table-of-content.html", label, canonical = stable)
     }
-    val v018    = version("0.18", stable = true)
+    val v019    = version("0.19", stable = true)
+    val v018    = version("0.18")
     val v017    = version("0.17")
     val v016    = version("0.16")
-    val older   = Version("Older Versions", "olderVersions")
     val current = v018
-    //val latest  = Root
-    private val all = Seq(v018, v017, v016, older)
-    val config = Versions(
+    val all     = Seq(v019, v018, v017, v016)
+    val config  = Versions(
       currentVersion = current,
       olderVersions = all.dropWhile(_ != current).drop(1),
       newerVersions = all.takeWhile(_ != current)
@@ -92,22 +92,16 @@ object ManualSettings {
     .all.tableOfContent("Table of Content", depth = 4)
     .site.topNavigationBar(
       navLinks = Seq(
-        IconLink.external(paths.srcURL, HeliumIcon.github, options = Styles("svg-link")),
-        IconLink.internal(paths.api, HeliumIcon.api, options = Styles("svg-link")),
+        IconLink.external(paths.srcURL, HeliumIcon.github),
+        IconLink.internal(paths.api, HeliumIcon.api),
         IconLink.internal(paths.downloads, HeliumIcon.download),
         IconLink.external(paths.demoURL, HeliumIcon.demo)
+      ),
+      versionMenu = VersionMenu.create("Version", "Choose Version", additionalLinks = 
+        Seq(TextLink.internal(Root / "olderVersions" / "README.md", "Older Versions")))
       )
-    )
-    .site.layout(
-      contentWidth = px(860),
-      navigationWidth = px(275),
-      topBarHeight = px(35),
-      defaultBlockSpacing = px(10),
-      defaultLineHeight = 1.5,
-      anchorPlacement = AnchorPlacement.Right
-    )
     .site.favIcons(Favicon.internal(paths.favicon, "32x32"))
-    .site.markupEditLinks("Source for this page", paths.docsSrcURL)
+    .site.pageNavigation(sourceBaseURL = Some(paths.docsSrcURL))
     .site.downloadPage("Documentation Downloads", Some(text.downloadDesc))
     .site.versions(versions.config)
     .site.baseURL(paths.docsURL)
@@ -116,7 +110,7 @@ object ManualSettings {
                          width = Some(px(327)), height = Some(px(393)), alt = Some("Laika Logo")
                        )),
       subtitle       = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.18.2")),
+      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.0")),
       license        = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),

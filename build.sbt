@@ -210,5 +210,3 @@ lazy val demo = crossProject(JSPlatform, JVMPlatform)
     Compile / fullOptJS / artifactPath :=
       (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer-opt.mjs"
   )
-
-  

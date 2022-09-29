@@ -588,6 +588,8 @@ the rendering of internal links. It has no effect on other formats like EPUB or 
 In contrast to some other site generators, this extension is disabled by default.
 It can be enabled like any other extension:
 
+@:select(config)
+
 @:choice(sbt)
 ```scala
 laikaExtensions += PrettyURLs

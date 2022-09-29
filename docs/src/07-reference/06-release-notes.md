@@ -2,8 +2,8 @@
 Release Notes
 =============
 
-0.19.0-RC1 (Sep ??, 2022)
--------------------------
+0.19.0 (Oct ??, 2022)
+---------------------
 
 * Helium Theme
     * Template modularization - when custom templates are required they can now be added for just a portion of the
