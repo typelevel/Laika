@@ -24,7 +24,7 @@ class PlatformDateDirectiveSpec extends FunSuite
       .formatConstant(new js.Date(testDate), timeStyle)
       .flatMap(_.toOption)
       .getOrElse("")
-      .split("00 AM ")
+      .split(":00 (AM )?")
       .last
     
   def runTemplate (input: String, config: String, expectedContent: TemplateSpan*)(implicit loc: munit.Location): Unit = {
