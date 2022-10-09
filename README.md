@@ -10,8 +10,7 @@ Toolkit for transforming lightweight text markup and template based site and e-b
 Latest Release
 --------------
 
-The latest stable release is version **0.18.2**.  
-The latest pre-release is version **0.19.0-RC1**.  
+The latest release is version **0.19.0**.  
 
 The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.
 The sbt plugin is published for sbt 1.x.
@@ -73,7 +72,7 @@ Further Information
 
 [Manual]: https://planet42.github.io/Laika/index.html
 [Demo App]: http://planet42.org/
-[API]: https://planet42.github.io/Laika/0.18/api/laika/api/
+[API]: https://planet42.github.io/Laika/latest/api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Discussions]: https://github.com/planet42/Laika/discussions
