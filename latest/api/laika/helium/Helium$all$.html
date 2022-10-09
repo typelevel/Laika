@@ -1,0 +1,822 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      
+      <script type="text/javascript">
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
+    
+        </head>
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="../../index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="../../laika/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.helium" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="helium"></a><a id="helium:helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">helium</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.helium.Helium" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HeliumextendsAnyRef"></a><a id="Helium:Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Configuration API for the Helium theme settings." href="Helium.html"><span class="name">Helium</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configuration API for the Helium theme settings.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration API for the Helium theme settings.</p><p>Helium can be fully configured with its Scala API and does not require any configuration files.</p><p>The entry point for all configuration steps is always <code>Helium.defaults</code> to ensure there are sensible defaults
+in place for all the options you omit in your configuration.</p><p>For each configuration step you need to choose one of the four selectors,
+either <code>all</code> to specify options for all three output formats or <code>site</code>, <code>epub</code> or <code>pdf</code> to select a single format.
+Not all options are available for all formats, but the IDE's context help and the documentation below can guide you.</p><p>In the minimal example below we only specify some metadata for all formats as well as the navigation depth
+for EPUB and PDF:</p><pre><span class="kw">val</span> theme = Helium.defaults
+.all.metadata(
+title = <span class="std">Some</span>(<span class="lit">"Project Name"</span>),
+language = <span class="std">Some</span>(<span class="lit">"de"</span>),
+)
+.epub.navigationDepth(<span class="num">4</span>)
+.pdf.navigationDepth(<span class="num">4</span>)
+.build</pre><p>Laika also provides convenient constructors for some of the data types used frequently in its theme API.
+You can import <code>laika.theme.Color._</code> for specifying colors with <code>hex(&quot;ffaaff&quot;)</code> or <code>rgb(255, 0, 0)</code> and
+<code>laika.ast.LengthUnit._</code> for specifying sizes with <code>px(12)</code> or <code>pt(9)</code> or other available units.</p><p>The final call to <code>build</code> produces a <code>ThemeProvider</code> that can be passed to Laika's transformers
+or the <code>laikaTheme</code> sbt setting:</p><p>Example for sbt plugin:</p><pre>laikaTheme := theme</pre><p>Example for the library API:</p><pre><span class="kw">val</span> transformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .parallel[IO]
+  .witTheme(theme)
+  .build</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.helium">helium</a></dd></dl></div>
+    </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="" title="Selects the configuration options available for all three output formats."></a>
+                        <a href="" title="Selects the configuration options available for all three output formats.">all</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Helium$epub$.html" title="Selects the configuration options available for EPUB generation."></a>
+                        <a href="Helium$epub$.html" title="Selects the configuration options available for EPUB generation.">epub</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Helium$pdf$.html" title="Selects the configuration options available for PDF generation."></a>
+                        <a href="Helium$pdf$.html" title="Selects the configuration options available for PDF generation.">pdf</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Helium$site$.html" title="Selects the configuration options available for site generation."></a>
+                        <a href="Helium$site$.html" title="Selects the configuration options available for site generation.">site</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="object value">
+      <div id="definition">
+        <div class="big-circle object">o</div>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.helium">helium</a>.<a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></p>
+        <h1>all<span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">all</span><span class="result"> extends <span class="extype" name="laika.helium.config.AllFormatsOps">AllFormatsOps</span></span>
+      </span>
+      </h4>
+
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Selects the configuration options available for all three output formats.</p><p>This means that it only contains the options that exist in all three formats,
+for anything specific to one or two formats you need to use their respective selectors.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">
+            Linear Supertypes
+          </span>
+          <div class="superTypes hiddenContent"><span class="extype" name="laika.helium.config.AllFormatsOps">AllFormatsOps</span>, <span class="extype" name="laika.helium.config.CommonConfigOps">CommonConfigOps</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.helium.Helium.all"><span>all</span></li><li class="in" name="laika.helium.config.AllFormatsOps"><span>AllFormatsOps</span></li><li class="in" name="laika.helium.config.CommonConfigOps"><span>CommonConfigOps</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
+              <ol>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
+              </ol>
+            </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        
+
+        <div class="values members">
+              <h3>Value Members</h3>
+              <ol>
+                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#fontFamilies" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fontFamilies(body:String,headlines:String,code:String):laika.helium.Helium"></a><a id="fontFamilies(String,String,String):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#fontFamilies(body:String,headlines:String,code:String):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fontFamilies</span><span class="params">(<span name="body">body: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="headlines">headlines: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="code">code: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies which font family to use for the body text, for headlines
+and for inline code and code blocks.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies which font family to use for the body text, for headlines
+and for inline code and code blocks.</p><p>All specified fonts need to be made available for the theme first by using the <code>fontResources</code> method.
+The body font needs to be available at least as regular, italic, bold and bold italic.
+The headline font needs to support bold and bold italic.
+For the code font a regular font weight is sufficient.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#fontResources" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium"></a><a id="fontResources(FontDefinition*):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#fontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fontResources</span><span class="params">(<span name="defn">defn: <a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><div class="fullcomment"><div class="comment cmt"><p>Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><p>E-book formats like EPUB or PDF require a local font file to be available for embedding.
+A web font URL can only be used for website generation.</p><p>When using this method, all default fonts of the Helium theme will be de-registered.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#fontSizes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fontSizes(body:laika.ast.Length,code:laika.ast.Length,title:laika.ast.Length,header2:laika.ast.Length,header3:laika.ast.Length,header4:laika.ast.Length,small:laika.ast.Length):laika.helium.Helium"></a><a id="fontSizes(Length,Length,Length,Length,Length,Length,Length):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#fontSizes(body:laika.ast.Length,code:laika.ast.Length,title:laika.ast.Length,header2:laika.ast.Length,header3:laika.ast.Length,header4:laika.ast.Length,small:laika.ast.Length):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fontSizes</span><span class="params">(<span name="body">body: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="code">code: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="title">title: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="header2">header2: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="header3">header3: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="header4">header4: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>, <span name="small">small: <a href="../ast/Length.html" class="extype" name="laika.ast.Length">Length</a></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configure the theme's font sizes.</p><div class="fullcomment"><div class="comment cmt"><p>Configure the theme's font sizes.
+Most property names are self-explanatory, the small font is currently only used for footnote references
+in PDF output.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#hashCode():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.helium.Helium.all#helium" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="helium:laika.helium.Helium"></a><a id="helium:Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#helium:laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">helium</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.helium.Helium.all">all</a> → AllFormatsOps</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#messageColors" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="messageColors(info:laika.theme.config.Color,infoLight:laika.theme.config.Color,warning:laika.theme.config.Color,warningLight:laika.theme.config.Color,error:laika.theme.config.Color,errorLight:laika.theme.config.Color):laika.helium.Helium"></a><a id="messageColors(Color,Color,Color,Color,Color,Color):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#messageColors(info:laika.theme.config.Color,infoLight:laika.theme.config.Color,warning:laika.theme.config.Color,warningLight:laika.theme.config.Color,error:laika.theme.config.Color,errorLight:laika.theme.config.Color):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">messageColors</span><span class="params">(<span name="info">info: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="infoLight">infoLight: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="warning">warning: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="warningLight">warningLight: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="error">error: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="errorLight">errorLight: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configures the colors of runtime messages embedded in the rendered result.</p><div class="fullcomment"><div class="comment cmt"><p>Configures the colors of runtime messages embedded in the rendered result.
+Warnings and errors will only be rendered if you change the configuration to visual debugging,
+by default the presence of errors will lead to the abortion of the process.
+See the section &quot;Visual Debugging&quot; on the Configuration page in the manual for details.
+</p></div><dl class="paramcmts block"><dt class="param">info</dt><dd class="cmt"><p>the text color for info-level messages</p></dd><dt class="param">infoLight</dt><dd class="cmt"><p>the background color for info-level messages</p></dd><dt class="param">warning</dt><dd class="cmt"><p>the text color for warning-level messages</p></dd><dt class="param">warningLight</dt><dd class="cmt"><p>the background color for warning-level messages</p></dd><dt class="param">error</dt><dd class="cmt"><p>the text color for error-level messages</p></dd><dt class="param">errorLight</dt><dd class="cmt"><p>the background color for error-level messages</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#metadata" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="metadata(title:Option[String],description:Option[String],identifier:Option[String],authors:Seq[String],language:Option[String],datePublished:Option[java.time.OffsetDateTime],dateModified:Option[java.time.OffsetDateTime],version:Option[String]):laika.helium.Helium"></a><a id="metadata(Option[String],Option[String],Option[String],Seq[String],Option[String],Option[OffsetDateTime],Option[OffsetDateTime],Option[String]):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#metadata(title:Option[String],description:Option[String],identifier:Option[String],authors:Seq[String],language:Option[String],datePublished:Option[java.time.OffsetDateTime],dateModified:Option[java.time.OffsetDateTime],version:Option[String]):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">metadata</span><span class="params">(<span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="identifier">identifier: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="authors">authors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>, <span name="language">language: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="datePublished">datePublished: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.time.OffsetDateTime">OffsetDateTime</span>] = <span class="symbol">None</span></span>, <span name="dateModified">dateModified: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.time.OffsetDateTime">OffsetDateTime</span>] = <span class="symbol">None</span></span>, <span name="version">version: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Allows to define a small set of metadata that describes the output.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to define a small set of metadata that describes the output.</p><p>In the generated site it will be used to populate the <code>&lt;head&gt;</code> section of the HTML output,
+for EPUB and PDF it will be used to embed the information into the generated files
+in a way that the respective readers understand.</p><p>When using the sbt plugin the <code>title</code>, <code>description</code> and <code>version</code> metadata will be pre-populated by the standard
+sbt settings <code>name</code>, <code>description</code> and <code>version</code> respectively.
+When using the library API no medata will be defined by default.
+It is recommended to always define the language and title as the minimum set of metadata.
+</p></div><dl class="paramcmts block"><dt class="param">title</dt><dd class="cmt"><p>the title of the site and/or e-book</p></dd><dt class="param">description</dt><dd class="cmt"><p>a short description of the site and/or e-book</p></dd><dt class="param">identifier</dt><dd class="cmt"><p>a unique identifier for the e-book, not used for site generation</p></dd><dt class="param">authors</dt><dd class="cmt"><p>one or more author names</p></dd><dt class="param">language</dt><dd class="cmt"><p>the language of the site and/or e-book, should always be defined</p></dd><dt class="param">datePublished</dt><dd class="cmt"><p>the publication date as a UTC date-time</p></dd><dt class="param">dateModified</dt><dd class="cmt"><p>the modification date as a UTC date-time</p></dd><dt class="param">version</dt><dd class="cmt"><p>the version string for the output</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#syntaxHighlightingColors" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="syntaxHighlightingColors(base:laika.helium.config.ColorQuintet,wheel:laika.helium.config.ColorQuintet):laika.helium.Helium"></a><a id="syntaxHighlightingColors(ColorQuintet,ColorQuintet):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#syntaxHighlightingColors(base:laika.helium.config.ColorQuintet,wheel:laika.helium.config.ColorQuintet):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">syntaxHighlightingColors</span><span class="params">(<span name="base">base: <a href="config/ColorQuintet.html" class="extype" name="laika.helium.config.ColorQuintet">ColorQuintet</a></span>, <span name="wheel">wheel: <a href="config/ColorQuintet.html" class="extype" name="laika.helium.config.ColorQuintet">ColorQuintet</a></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies two sets of five colors each to be used by Laika's support for syntax highlighting.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies two sets of five colors each to be used by Laika's support for syntax highlighting.</p><p>If you use the built-in highlighters (which are based on Laika's own parsers) the display is based
+on a 10-color scheme with 5 base colors which are usually grayish/low saturation and 5 &quot;wheel&quot; colors
+which are usually placed around the color wheel.</p><p>If you use external tools like <code>highlight.js</code> these settings will have no effect and you need to use
+the styling mechanism of that 3rd-party tool.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#tableOfContent" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tableOfContent(title:String,depth:Int):laika.helium.Helium"></a><a id="tableOfContent(String,Int):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#tableOfContent(title:String,depth:Int):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tableOfContent</span><span class="params">(<span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds a dedicated page for a table of content, in addition to the reader-native navigation structure.</p><div class="fullcomment"><div class="comment cmt"><p>Adds a dedicated page for a table of content, in addition to the reader-native navigation structure.
+</p></div><dl class="paramcmts block"><dt class="param">title</dt><dd class="cmt"><p>the title to display on the page and in navigation that links to the page</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the navigation depth which may be different than the one for the reader-native navigation structure</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="laika.helium.config.AllFormatsOps#themeColors" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="themeColors(primary:laika.theme.config.Color,primaryMedium:laika.theme.config.Color,primaryLight:laika.theme.config.Color,secondary:laika.theme.config.Color,text:laika.theme.config.Color,background:laika.theme.config.Color,bgGradient:(laika.theme.config.Color,laika.theme.config.Color)):laika.helium.Helium"></a><a id="themeColors(Color,Color,Color,Color,Color,Color,(Color,Color)):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#themeColors(primary:laika.theme.config.Color,primaryMedium:laika.theme.config.Color,primaryLight:laika.theme.config.Color,secondary:laika.theme.config.Color,text:laika.theme.config.Color,background:laika.theme.config.Color,bgGradient:(laika.theme.config.Color,laika.theme.config.Color)):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">themeColors</span><span class="params">(<span name="primary">primary: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="primaryMedium">primaryMedium: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="primaryLight">primaryLight: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="secondary">secondary: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="text">text: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="background">background: <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a></span>, <span name="bgGradient">bgGradient: (<a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a>, <a href="../theme/config/Color.html" class="extype" name="laika.theme.config.Color">Color</a>)</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configures the four main colors used by the theme.</p><div class="fullcomment"><div class="comment cmt"><p>Configures the four main colors used by the theme.
+</p></div><dl class="paramcmts block"><dt class="param">primary</dt><dd class="cmt"><p>this color is used for headlines, navigation highlights and other decorative elements</p></dd><dt class="param">primaryMedium</dt><dd class="cmt"><p>is supposed to be a shade between primary and primaryLight and is used for borders
+                     and text on the landing page (on dark background)</p></dd><dt class="param">primaryLight</dt><dd class="cmt"><p>is supposed to be a lighter shade of the primary color and is used for the background
+                    color of sidebars and other decorated blocks; ensure that the text in the <code>primary</code> color
+                    is readable when placed on a <code>primaryLight</code> background</p></dd><dt class="param">secondary</dt><dd class="cmt"><p>this color is used for navigation headers and links</p></dd><dt class="param">text</dt><dd class="cmt"><p>the color of the body text</p></dd><dt class="param">background</dt><dd class="cmt"><p>the background color of the pages</p></dd><dt class="param">bgGradient</dt><dd class="cmt"><p>specifies two colors to be used as background gradient, currently only used on the landing page</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>AllFormatsOps → CommonConfigOps</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li>
+              </ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$all$.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: ">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+                <span class="name">@Deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="laika.helium.config.AllFormatsOps">
+              <h3>Inherited from <span class="extype" name="laika.helium.config.AllFormatsOps">AllFormatsOps</span></h3>
+            </div><div class="parent" name="laika.helium.config.CommonConfigOps">
+              <h3>Inherited from <span class="extype" name="laika.helium.config.CommonConfigOps">CommonConfigOps</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+    </body>
+          </div>
+        </div>
+      </div>
+    </body>
+      </html>

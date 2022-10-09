@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Laika 0.19.0-RC1 + Helium Theme" />
+  <title>Theme Settings</title>
+  
+  
+  <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/site/laika-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  <script src="../helium/laika-helium.js"></script>
+    <script src="../helium/laika-versions.js"></script>
+  <script>initVersions("../../", "/03-preparing-content/03-theme-settings.html", "latest", "https://planet42.github.io/Laika/");</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 0.19</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+          <li class="level1 nav-leaf"><a href="../../olderVersions/">Older Versions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <a class="icon-link glyph-link" href="../../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/planet42/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="../api/laika/api/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/planet42/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="../api/laika/api/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../table-of-content.html">Table of Content</a></li>
+    <li class="level1 nav-leaf"><a href="../downloads.html">Documentation Downloads</a></li>
+    <li class="level1 nav-header">About Laika</li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/01-features.html">Features</a></li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+    <li class="level1 nav-header">Running Laika</li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+    <li class="level1 nav-header">Preparing Content</li>
+    <li class="level2 nav-leaf"><a href="01-directory-structure.html">Directory Structure</a></li>
+    <li class="level2 nav-leaf"><a href="02-navigation.html">Navigation</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Theme Settings</a></li>
+    <li class="level2 nav-leaf"><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+    <li class="level2 nav-leaf"><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+    <li class="level1 nav-header">Customizing Laika</li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/01-overview.html">Customizing Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+    <li class="level1 nav-header">Extending Laika</li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/01-overview.html">Extending Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+    <li class="level1 nav-header">Sub-Modules</li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+    <li class="level1 nav-header">Reference</li>
+    <li class="level2 nav-leaf"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/06-release-notes.html">Release Notes</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Theme Settings</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#the-helium-theme">The Helium Theme</a></li>
+    <li class="level1 nav-leaf"><a href="#helium-configuration-api">Helium Configuration API</a></li>
+    <li class="level1 nav-leaf"><a href="#fonts">Fonts</a></li>
+    <li class="level1 nav-node"><a href="#colors">Colors</a></li>
+    <li class="level2 nav-leaf"><a href="#theme-colors">Theme Colors</a></li>
+    <li class="level2 nav-leaf"><a href="#syntax-highlighting">Syntax Highlighting</a></li>
+    <li class="level2 nav-leaf"><a href="#dark-mode">Dark Mode</a></li>
+    <li class="level1 nav-leaf"><a href="#layout">Layout</a></li>
+    <li class="level1 nav-leaf"><a href="#metadata">Metadata</a></li>
+    <li class="level1 nav-leaf"><a href="#metadata-for-individual-documents">Metadata for Individual Documents</a></li>
+    <li class="level1 nav-node"><a href="#navigation-links-favicons-footer">Navigation, Links, Favicons &amp; Footer</a></li>
+    <li class="level2 nav-leaf"><a href="#main-navigation">Main Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="#top-navigation-bar">Top Navigation Bar</a></li>
+    <li class="level2 nav-leaf"><a href="#page-navigation">Page Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="#table-of-contents">Table of Contents</a></li>
+    <li class="level2 nav-leaf"><a href="#favicons">Favicons</a></li>
+    <li class="level2 nav-leaf"><a href="#footer">Footer</a></li>
+    <li class="level1 nav-leaf"><a href="#download-page">Download Page</a></li>
+    <li class="level1 nav-leaf"><a href="#website-landing-page">Website Landing Page</a></li>
+    <li class="level1 nav-leaf"><a href="#cover-images-for-e-books">Cover Images for E-books</a></li>
+    <li class="level1 nav-leaf"><a href="#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a></li>
+    <li class="level1 nav-node"><a href="#custom-templates">Custom Templates</a></li>
+    <li class="level2 nav-leaf"><a href="#customizing-template-fragments">Customizing Template Fragments</a></li>
+  </ul>
+
+  <p class="footer"><a href="https://github.com/planet42/Laika/tree/master/docs/src/03-preparing-content/03-theme-settings.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="theme-settings" class="title">Theme Settings</h1>
+        <p>If you use the sbt plugin or the parsers, renderers or transformers from the <code>laika-io</code> module,
+        each transformation is based on a theme that provides a set of default templates and styles for all output formats.</p>
+        <p>If you use a pure transformer from the <code>laika-core</code> module, 
+        there is no theme support as these transformers only process a single string as input and output.</p>
+        <p>This chapter documents Laika&#39;s only built-in theme, called <code>Helium</code>, and its configuration options.</p>
+        
+        <h2 id="the-helium-theme" class="section"><a class="anchor-link left" href="#the-helium-theme"><i class="icofont-laika link">&#xef71;</i></a>The Helium Theme</h2>
+        <p>The name of Laika&#39;s default theme reflects its lightweight nature as it is not based on any CSS or JavaScript libraries
+        like Bootstrap, but instead only comes with a minimal set of hand-crafted CSS and JavaScript.</p>
+        <p>Helium includes default styles for web sites, EPUB and PDF documents, 
+        so you can generate a documentation site complete with a download page for e-book formats in one go.</p>
+        <p>The generated site is responsive and designed to work well on smaller devices.</p>
+        <p>Without any explicit theme configuration, Laika transformers run with the Helium theme and all its defaults,
+        which is equivalent to the following configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaTheme</span><span> := </span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">build</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">witTheme</span><span>(</span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">build</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>If you are fine with your site and e-books looking exactly like Laika&#39;s documentation, 
+        including its choices for colors and fonts, you can skip the theme configuration step.</p>
+        <p>Otherwise you have the following options:</p>
+        <ul>
+          <li>
+            <p>To tweak just some aspects of the look and feel like the color schemes and fonts 
+            and to add custom links, metadata and custom styles to the default theme, 
+            follow the instructions in this chapter below.</p>
+          </li>
+          <li>
+            <p>If you want full control and design everything from scratch, 
+            you can alternatively install <code>Theme.empty</code> instead of Helium&#39;s defaults and then add all
+            templates and CSS files to your input directories. See <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a> for details. </p>
+          </li>
+          <li>
+            <p>If you want full control, but re-use your design across multiple projects or publish it as a 3rd-party theme,
+            see <a href="../05-extending-laika/02-creating-themes.html#creating-themes">Creating Themes</a> for details.</p>
+          </li>
+          <li>
+            <p>Hopefully at some point there is also a selection of 3rd-party themes available.</p>
+          </li>
+        </ul>
+        
+        <h2 id="helium-configuration-api" class="section"><a class="anchor-link left" href="#helium-configuration-api"><i class="icofont-laika link">&#xef71;</i></a>Helium Configuration API</h2>
+        <p>Helium can be fully configured with its Scala API and does not require any configuration files.</p>
+        <p>The entry point for all configuration steps is always <code>Helium.defaults</code> to ensure there are sensible defaults
+        in place for all the options you omit in your configuration.</p>
+        <p>For each configuration step you need to choose one of the four selectors, 
+        either <code>all</code> to specify options for all three output formats or <code>site</code>, <code>epub</code> or <code>pdf</code> to select a single format.
+        Not all options are available for all formats, but the IDE&#39;s context help and the documentation below can guide you.</p>
+        <p>In the minimal example below we only specify some metadata for all formats as well as the navigation depth
+        for EPUB and PDF:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">theme</span><span> = </span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">all</span><span>.</span><span class="identifier">metadata</span><span>(
+    </span><span class="identifier">title</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Project Name&quot;</span><span>),
+    </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;de&quot;</span><span>),
+  )
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>Laika also provides convenient constructors for some of the data types used frequently in its theme API.
+        You can import <code>laika.theme.Color._</code> for specifying colors with <code>hex(&quot;ffaaff&quot;)</code> or <code>rgb(255, 0, 0)</code> and 
+        <code>laika.ast.LengthUnit._</code> for specifying sizes with <code>px(12)</code> or <code>pt(9)</code> or other available units.
+        All configuration examples in this chapter assume these imports are in place.</p>
+        <p>The final call to <code>build</code> produces a <code>ThemeProvider</code> that can be passed to Laika&#39;s transformers
+        or the <code>laikaTheme</code> sbt setting:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaTheme</span><span> := </span><span class="identifier">theme</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">witTheme</span><span>(</span><span class="identifier">theme</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        
+        <h2 id="fonts" class="section"><a class="anchor-link left" href="#fonts"><i class="icofont-laika link">&#xef71;</i></a>Fonts</h2>
+        <p>By default Laika includes three fonts in its published artifact 
+        so that they are ready to be embedded into EPUB or PDF documents.
+        All these fonts are licensed under the Open Font License:</p>
+        <ul>
+          <li><code>Lato</code> (for headlines and body text): <a href="https://fonts.google.com/specimen/Lato#about">https://fonts.google.com/specimen/Lato#about</a></li>
+          <li><code>Fira Code</code> (for code blocks and inline code): <a href="https://github.com/tonsky/FiraCode">https://github.com/tonsky/FiraCode</a></li>
+          <li><code>IcoFont</code> (for Laika&#39;s small set of icons): <a href="https://icofont.com/icons">https://icofont.com/icons</a></li>
+        </ul>
+        <p>You can override these defaults by defining your own set of fonts.</p>
+        <p>This is an excerpt of Laika&#39;s default configuration as an example:</p>
+        <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">latoURL</span><span> = </span><span class="string-literal">&quot;http://fonts.googleapis.com/css?family=Lato:400,700&quot;</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">firaURL</span><span> = 
+  </span><span class="string-literal">&quot;https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css&quot;</span><span>
+
+</span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">all</span><span>.</span><span class="identifier">fontResources</span><span>(
+  </span><span class="type-name">FontDefinition</span><span>(
+    </span><span class="type-name">Font</span><span>
+      .</span><span class="identifier">embedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;Lato/Lato-Regular.ttf&quot;</span><span>)
+      .</span><span class="identifier">webCSS</span><span>(</span><span class="identifier">latoURL</span><span>),
+    </span><span class="string-literal">&quot;Lato&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
+  ),
+  </span><span class="type-name">FontDefinition</span><span>(
+    </span><span class="type-name">Font</span><span>
+      .</span><span class="identifier">embedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;Lato/Lato-Bold.ttf&quot;</span><span>),
+    </span><span class="string-literal">&quot;Lato&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Bold</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
+  ),
+  </span><span class="type-name">FontDefinition</span><span>(
+    </span><span class="type-name">Font</span><span>
+      .</span><span class="identifier">embedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;FiraCode/FiraCode-Medium.otf&quot;</span><span>)
+      .</span><span class="identifier">webCSS</span><span>(</span><span class="identifier">firaURL</span><span>),
+    </span><span class="string-literal">&quot;Fira Code&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
+  ),
+  </span><span class="type-name">FontDefinition</span><span>(
+    </span><span class="type-name">Font</span><span>
+      .</span><span class="identifier">embedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;icofont/icofont.ttf&quot;</span><span>)
+      .</span><span class="identifier">webCSS</span><span>(</span><span class="string-literal">&quot;../icons/icofont.min.css&quot;</span><span>),
+    </span><span class="string-literal">&quot;IcoFont&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
+  )
+)</span></code></pre>
+        <p>The <code>embedResource</code> method picks the font to be embedded from the resource directory inside the jar, 
+        use <code>emedFile</code> to pick a font from the file system.
+        Font embedding will be performed for EPUB and PDF output
+        For the site you can use the <code>webCSS</code> method to link to the CSS containing the <code>font-face</code> definitions.
+        It will automatically be included in the <code>&lt;head&gt;</code> sections of the generated HTML 
+        without the need to adjust the default templates.</p>
+        <p>Note that the use of the <code>fontResources</code> method <em>replaces</em> the defaults, it does not add them.
+        If you want to use some of the built-in fonts you have to redefine them in this step.
+        This ensures that no unused font resources will be embedded.</p>
+        <p>Additionally you can define the font families and font sizes for the site and e-books:</p>
+        <pre><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">all</span><span>.</span><span class="identifier">fontFamilies</span><span>(
+    </span><span class="identifier">body</span><span> = </span><span class="string-literal">&quot;MyBodyFont&quot;</span><span>,
+    </span><span class="identifier">headlines</span><span> = </span><span class="string-literal">&quot;MyHeadlineFont&quot;</span><span>,
+    </span><span class="identifier">code</span><span> = </span><span class="string-literal">&quot;MyCodeFont&quot;</span><span>
+  )
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">fontSizes</span><span>(
+    </span><span class="identifier">body</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">15</span><span>),
+    </span><span class="identifier">code</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">14</span><span>),
+    </span><span class="identifier">title</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">34</span><span>),
+    </span><span class="identifier">header2</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">28</span><span>),
+    </span><span class="identifier">header3</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">20</span><span>),
+    </span><span class="identifier">header4</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">15</span><span>),
+    </span><span class="identifier">small</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">12</span><span>)
+  )
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">fontSizes</span><span>(
+    </span><span class="identifier">body</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">10</span><span>),
+    </span><span class="identifier">code</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">9</span><span>),
+    </span><span class="identifier">title</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">24</span><span>),
+    </span><span class="identifier">header2</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">14</span><span>),
+    </span><span class="identifier">header3</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">12</span><span>),
+    </span><span class="identifier">header4</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">11</span><span>),
+    </span><span class="identifier">small</span><span> = </span><span class="identifier">pt</span><span>(</span><span class="number-literal">8</span><span>)
+  )</span></code></pre>
+        <p>The example above specifies the three font families with the <code>all</code> selector, defining them for all output formats.
+        Make sure the names match font resources defined in the previous step so that they are available for embedding.</p>
+        <p>The font sizes on the other hand will often be defined per format, the example above shows the definitions for
+        the site and PDF output.</p>
+        
+        <h2 id="colors" class="section"><a class="anchor-link left" href="#colors"><i class="icofont-laika link">&#xef71;</i></a>Colors</h2>
+        <p>Helium lets you define two different color sets: The theme colors which are used for headlines, links, navigation
+        and backgrounds as well as the syntax coloring scheme to be used for all code blocks.</p>
+        
+        <h3 id="theme-colors" class="section"><a class="anchor-link left" href="#theme-colors"><i class="icofont-laika link">&#xef71;</i></a>Theme Colors</h3>
+        <p>The following example overrides Laika&#39;s theme colors for all output formats:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">all</span><span>.</span><span class="identifier">themeColors</span><span>(
+    </span><span class="identifier">primary</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;007c99&quot;</span><span>),
+    </span><span class="identifier">secondary</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;931813&quot;</span><span>),
+    </span><span class="identifier">primaryMedium</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;a7d4de&quot;</span><span>),
+    </span><span class="identifier">primaryLight</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;ebf6f7&quot;</span><span>),
+    </span><span class="identifier">text</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;5f5f5f&quot;</span><span>),
+    </span><span class="identifier">background</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;ffffff&quot;</span><span>),
+    </span><span class="identifier">bgGradient</span><span> = (</span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;095269&quot;</span><span>), </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;007c99&quot;</span><span>))
+  )</span></code></pre>
+        <p>The default theme colors, which are used for the documentation you are reading right now, are as follows:</p>
+        <div class="color-block">
+          <div class="color-row">
+            <div class="color-cell">
+              <p> primary</p>
+              <div class="color-box" style="background-color: #007c99"> </div>
+            </div>
+            <div class="color-cell">
+              <p> secondary</p>
+              <div class="color-box" style="background-color: #931813"> </div>
+            </div>
+            <div class="color-cell">
+              <p> primaryMedium</p>
+              <div class="color-box" style="background-color: #a7d4de"> </div>
+            </div>
+            <div class="color-cell">
+              <p> primaryLight</p>
+              <div class="color-box" style="background-color: #ebf6f7"> </div>
+            </div>
+          </div>
+        </div>
+        
+        <ul>
+          <li><code>primary</code> is used for highlights and the text of navigation panes and inline code spans.</li>
+          <li><code>secondary</code> is used for links and headlines.</li>
+          <li><code>primaryMedium</code> is usually a shade slightly darker than <code>primaryLight</code>, used for borders and text on dark background.</li>
+          <li><code>primaryLight</code> is usually a lighter shade of the primary color, used as background color.</li>
+          <li><code>text</code> is solely used as the color of the body text.</li>
+          <li><code>background</code> is used as the background color of the main content column (side bars and top navigation bars have different
+          backgrounds).</li>
+          <li><code>bgGradient</code> is a pair of colors currently only used for the gradient on the landing page.</li>
+        </ul>
+        <p>In terms of getting the right contrast, the color combinations must support the following:</p>
+        <ul>
+          <li>Text in <code>primary</code> color must be readable on <code>primaryLight</code> background.</li>
+          <li>Text in <code>primaryMedium</code> color must be readable on <code>primary</code> background (this combination is only used on the landing page).</li>
+        </ul>
+        
+        <h3 id="syntax-highlighting" class="section"><a class="anchor-link left" href="#syntax-highlighting"><i class="icofont-laika link">&#xef71;</i></a>Syntax Highlighting</h3>
+        <p>These settings are only relevant if you use Laika&#39;s built-in highlighters,
+        in case you prefer to use a 3rd-party library like <code>highlight.js</code> you need to use their styling mechanism. </p>
+        <p>Laika&#39;s own syntax color scheme is built around sets of 10 colors, of which 5 are usually a set of grayish colors
+        from light to dark with almost no saturation and a set of 5 colors which are supposed to be positioned around
+        the color wheel.</p>
+        <p>The defaults for Laika&#39;s dark theme (as used on this site) are:</p>
+        <div class="color-block">
+          <div class="color-row">
+            <div class="color-cell">
+              <p> base-1</p>
+              <div class="color-box" style="background-color: #2a3236"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-2</p>
+              <div class="color-box" style="background-color: #8c878e"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-3</p>
+              <div class="color-box" style="background-color: #b2adb4"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-4</p>
+              <div class="color-box" style="background-color: #bddcee"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-5</p>
+              <div class="color-box" style="background-color: #e8e8e8"> </div>
+            </div>
+          </div>
+          <div class="color-row">
+            <div class="color-cell">
+              <p> wheel-1</p>
+              <div class="color-box" style="background-color: #e28e93"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-2</p>
+              <div class="color-box" style="background-color: #ef9725"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-3</p>
+              <div class="color-box" style="background-color: #ffc66d"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-4</p>
+              <div class="color-box" style="background-color: #7fb971"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-5</p>
+              <div class="color-box" style="background-color: #4dbed4"> </div>
+            </div>
+          </div>
+        </div>
+        
+        <p>For the light scheme (used by default in EPUB and PDF output) they are:</p>
+        <div class="color-block">
+          <div class="color-row">
+            <div class="color-cell">
+              <p> base-1</p>
+              <div class="color-box" style="background-color: #f6f1ef"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-2</p>
+              <div class="color-box" style="background-color: #af9e84"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-3</p>
+              <div class="color-box" style="background-color: #937f61"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-4</p>
+              <div class="color-box" style="background-color: #645133"> </div>
+            </div>
+            <div class="color-cell">
+              <p> base-5</p>
+              <div class="color-box" style="background-color: #362e21"> </div>
+            </div>
+          </div>
+          <div class="color-row">
+            <div class="color-cell">
+              <p> wheel-1</p>
+              <div class="color-box" style="background-color: #9a6799"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-2</p>
+              <div class="color-box" style="background-color: #9f4c46"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-3</p>
+              <div class="color-box" style="background-color: #a0742d"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-4</p>
+              <div class="color-box" style="background-color: #7d8d4c"> </div>
+            </div>
+            <div class="color-cell">
+              <p> wheel-5</p>
+              <div class="color-box" style="background-color: #6498ae"> </div>
+            </div>
+          </div>
+        </div>
+        <p>They can be overridden per format or for all at once:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">all</span><span>.</span><span class="identifier">syntaxHighlightingColors</span><span>(
+    </span><span class="identifier">base</span><span> = </span><span class="type-name">ColorQuintet</span><span>(
+      </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;2a3236&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;8c878e&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;b2adb4&quot;</span><span>), 
+      </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;bddcee&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;e8e8e8&quot;</span><span>)
+    ),
+    </span><span class="identifier">wheel</span><span> = </span><span class="type-name">ColorQuintet</span><span>(
+      </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;e28e93&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;ef9725&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;ffc66d&quot;</span><span>), 
+      </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;7fb971&quot;</span><span>), </span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;4dbed4&quot;</span><span>)
+    )
+  )</span></code></pre>
+        <p>For dark themes the base colors have to go from dark to light, for light themes the other way round.</p>
+        <p>The base colors are used as background color (the first), for comments, punctuation, identifiers and uncategorized
+        spans, the wheel colors are used for the more significant types of code spans. 
+        Amongst others these are substitution references, annotations (1st color), keywords, escape sequences (2nd),
+        attribute names, declaration names (3rd), all types of literals (4th), type names, tag names (5th), 
+        and several categories for other types of syntax, e.g. in text markup.</p>
+        
+        <h3 id="dark-mode" class="section"><a class="anchor-link left" href="#dark-mode"><i class="icofont-laika link">&#xef71;</i></a>Dark Mode</h3>
+        <p>For EPUB and HTML output Laika also supports explicit configuration for dark mode.
+        This requires e-book readers and browsers which support the CSS for dark mode 
+        (the <code>color-scheme</code> attribute and the <code>prefers-color-scheme</code> media query).
+        In supported software the color sets configured for Helium&#39;s dark mode become active
+        whenever the user has switched on dark mode in the OS or in the reader software.</p>
+        <p>The following example defines custom theme colors for dark mode in EPUB output:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">darkMode</span><span>.</span><span class="identifier">themeColors</span><span>(
+    </span><span class="identifier">primary</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;a7d4de&quot;</span><span>),
+    </span><span class="identifier">secondary</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;f1c47b&quot;</span><span>),
+    </span><span class="identifier">primaryMedium</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;a7d4de&quot;</span><span>),
+    </span><span class="identifier">primaryLight</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;125d75&quot;</span><span>),
+    </span><span class="identifier">text</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;eeeeee&quot;</span><span>),
+    </span><span class="identifier">background</span><span> = </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;064458&quot;</span><span>),
+    </span><span class="identifier">bgGradient</span><span> = (</span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;064458&quot;</span><span>), </span><span class="type-name">Color</span><span>.</span><span class="identifier">hex</span><span>(</span><span class="string-literal">&quot;197286&quot;</span><span>))
+  )</span></code></pre>
+        <p>Similar configuration can be added for site output and syntax highlighting colors.</p>
+        <p>The default theme colors for dark mode, which are used for the documentation you are reading right now, in case you have
+        set dark mode as your preference, are as follows:</p>
+        <div class="color-block">
+          <div class="color-row">
+            <div class="color-cell">
+              <p> primary</p>
+              <div class="color-box" style="background-color: #a7d4de"> </div>
+            </div>
+            <div class="color-cell">
+              <p> secondary</p>
+              <div class="color-box" style="background-color: #f1c47b"> </div>
+            </div>
+            <div class="color-cell">
+              <p> primaryMedium</p>
+              <div class="color-box" style="background-color: #a7d4de"> </div>
+            </div>
+            <div class="color-cell">
+              <p> primaryLight</p>
+              <div class="color-box" style="background-color: #125d75"> </div>
+            </div>
+          </div>
+        </div>
+        <p>The meaning of &quot;light&quot; and &quot;medium&quot; are inverted here, to avoid confusion with names for the light mode scheme.
+        For an overview how these colors are used, see <a href="#theme-colors">Theme Colors</a> above.</p>
+        <p>Please note that while Laika also technically supports dark mode configuration for EPUB output, 
+        the support in reader software is currently so poor that it&#39;s usually not worth it.
+        Syntax highlighting colors, for example, are ignored in dark mode in most readers, 
+        making dark mode for EPUB quite an unattractive choice for technical documentation.</p>
+        
+        <h2 id="layout" class="section"><a class="anchor-link left" href="#layout"><i class="icofont-laika link">&#xef71;</i></a>Layout</h2>
+        <p>The configuration API allows to control a few aspects of the layout, like columns widths and line heights,
+        that are the most like candidates for frequent adjustments.</p>
+        <p>These are the options for the site:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">layout</span><span>(
+    </span><span class="identifier">contentWidth</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">860</span><span>),
+    </span><span class="identifier">navigationWidth</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">275</span><span>),
+    </span><span class="identifier">defaultBlockSpacing</span><span> = </span><span class="identifier">px</span><span>(</span><span class="number-literal">10</span><span>),
+    </span><span class="identifier">defaultLineHeight</span><span> = </span><span class="number-literal">1.5</span><span>,
+    </span><span class="identifier">anchorPlacement</span><span> = </span><span class="type-name">AnchorPlacement</span><span>.</span><span class="type-name">Left</span><span>
+  )</span></code></pre>
+        <p>The example shows the values for Helium&#39;s defaults. <code>contentWidth</code> is the maximum width of the main column,
+        <code>navigationWidth</code> the width of the left navigation pane, <code>defaultBlockSpacing</code> the space between block elements
+        in the main column and <code>defaultLineHeight</code> the line height of normal paragraphs.</p>
+        <p><code>anchorPlacement</code> configures the little anchors for section headers that appear on mouse-over and allow to copy the URL.
+        The default is <code>Left</code>, other options are <code>Right</code> or <code>None</code>.</p>
+        <p>If you need to tweak the layout beyond these options you can always include custom CSS files in your input directory
+        that override additional styles.</p>
+        <p>For PDF output you can also define the page size and margins:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">layout</span><span>(
+    </span><span class="identifier">pageWidth</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">21</span><span>),
+    </span><span class="identifier">pageHeight</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">29.7</span><span>),
+    </span><span class="identifier">marginTop</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">1</span><span>),
+    </span><span class="identifier">marginRight</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">2.5</span><span>),
+    </span><span class="identifier">marginBottom</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">1</span><span>),
+    </span><span class="identifier">marginLeft</span><span> = </span><span class="identifier">cm</span><span>(</span><span class="number-literal">2.5</span><span>),
+    </span><span class="identifier">defaultBlockSpacing</span><span> = </span><span class="identifier">mm</span><span>(</span><span class="number-literal">3</span><span>),
+    </span><span class="identifier">defaultLineHeight</span><span> = </span><span class="number-literal">1.5</span><span>,
+    </span><span class="identifier">keepTogetherDecoratedLines</span><span> = </span><span class="number-literal">12</span><span>
+  )</span></code></pre>
+        <p>Again, the example shows the defaults. The properties for the page dimensions and margins should be self-explanatory,
+        <code>defaultBlockSpacing</code> and <code>defaultLineHeight</code> are analogous to the site settings.
+        Finally, <code>keepTogetherDecoratedLines</code> controls the number of lines for decorated blocks like code examples or callouts
+        that should always be kept on the same page. 
+        With the above setting of <code>12</code> only blocks with more than 12 lines are allowed to be split across multiple pages.</p>
+        
+        <h2 id="metadata" class="section"><a class="anchor-link left" href="#metadata"><i class="icofont-laika link">&#xef71;</i></a>Metadata</h2>
+        <p>Helium allows to define a small set of metadata that describes the output.
+        In the generated site it will be used to populate the <code>&lt;head&gt;</code> section of the HTML output,
+        for EPUB and PDF it will be used to embed the information into the generated files 
+        in a way that the respective readers understand.</p>
+        <p>Like many other options, you can specify metadata either with the <code>all</code> selector for all formats,
+        or define them separately with the <code>epub</code>, <code>pdf</code> or <code>site</code> selectors.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">metadata</span><span>(
+    </span><span class="identifier">title</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Project Name&quot;</span><span>),
+    </span><span class="identifier">description</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Fancy Hyperbole goes here&quot;</span><span>),
+    </span><span class="identifier">identifier</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;XSD-9876-XVT&quot;</span><span>),
+    </span><span class="identifier">authors</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="string-literal">&quot;Maria Green&quot;</span><span>, </span><span class="string-literal">&quot;Helena Brown&quot;</span><span>),
+    </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;de&quot;</span><span>),
+    </span><span class="identifier">datePublished</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Instant</span><span>.</span><span class="identifier">now</span><span>),
+    </span><span class="identifier">version</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;2.3.4&quot;</span><span>) 
+  )</span></code></pre>
+        <p>When using the sbt plugin the <code>title</code>, <code>description</code> and <code>version</code> metadata will be pre-populated by the standard
+        sbt settings <code>name</code>, <code>description</code> and <code>version</code> respectively. 
+        When using the library API no medata will be defined by default.
+        It is recommended to always define the language and title as the minimum set of metadata.</p>
+        
+        <h2 id="metadata-for-individual-documents" class="section"><a class="anchor-link left" href="#metadata-for-individual-documents"><i class="icofont-laika link">&#xef71;</i></a>Metadata for Individual Documents</h2>
+        <p>The API shown above specifies metadata globally which is most convenient for output formats like PDF or EPUB,
+        which produce a single artefact.
+        For site generation you may want to override some of these values per page.
+        You can do that in a configuration header of your markup document:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">{%</span><span>
+</span><span class="attribute-name">laika.metadata</span><span> {
+  </span><span class="attribute-name">authors</span><span> = [</span><span class="string-literal">&quot;Helena North&quot;</span><span>, </span><span class="string-literal">&quot;Maria South&quot;</span><span>]
+  </span><span class="attribute-name">datePublished</span><span> = </span><span class="string-literal">&quot;2012-10-10T12:00:00&quot;</span><span>
+  </span><span class="attribute-name">dateModified</span><span> = </span><span class="string-literal">&quot;2014-07-07T12:00:00&quot;</span><span>
+  </span><span class="attribute-name">canonicalLink</span><span> = </span><span class="string-literal">&quot;http://foo.org/page.html&quot;</span><span>
+}
+</span><span class="keyword">%}</span></code></pre>
+        <p>These values can then be used in templates like other substitution variables:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">meta</span><span class="tag-punctuation"> </span><span class="attribute-name">itemprop</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;datePublished&quot;</span><span class="tag-punctuation"> </span><span class="attribute-name">content</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;</span><span class="substitution">${laika.metadata.datePublished}</span><span class="string-literal">&quot;</span><span class="tag-punctuation">&gt;</span></code></pre>
+        <p>The <code>canonicalLink</code> property will automatically render as a <code>link rel=&quot;canonical&quot;...</code> tag in the HTML output
+        when using the Helium theme.</p>
+        <p>Otherwise the page-level metadata is a core feature and available even when not using the Helium theme.
+        Note that, at the moment, <code>dateModified</code> is not auto-populated from the file system and has to be set manually.
+        In many cases this is desirable anyway, as not every file modification represents a meaningful change to the user.</p>
+        
+        <h2 id="navigation-links-favicons-footer" class="section"><a class="anchor-link left" href="#navigation-links-favicons-footer"><i class="icofont-laika link">&#xef71;</i></a>Navigation, Links, Favicons &amp; Footer</h2>
+        <p>This section describes the navigation options specific to the Helium theme.
+        There are several other navigation features which are supported independent of the theme in use,
+        like the option to centralize all definitions of external links.
+        They are described in a dedicated <a href="02-navigation.html#navigation">Navigation</a> chapter.</p>
+        
+        <h3 id="main-navigation" class="section"><a class="anchor-link left" href="#main-navigation"><i class="icofont-laika link">&#xef71;</i></a>Main Navigation</h3>
+        <p>By default the Helium theme includes a left navigation pane that is auto-generated based on the structure
+        of your input directories and is up to 2 levels deep.</p>
+        <p>You can override some defaults and add additional menu entries via the configuration API:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">site</span><span>
+  .</span><span class="identifier">mainNavigation</span><span>(
+    </span><span class="identifier">depth</span><span> = </span><span class="number-literal">3</span><span>,
+    </span><span class="identifier">includePageSections</span><span> = </span><span class="boolean-literal">true</span><span>,
+    </span><span class="identifier">appendLinks</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">ThemeNavigationSection</span><span>(</span><span class="string-literal">&quot;Additional Links&quot;</span><span>,
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-1.md&quot;</span><span>, </span><span class="string-literal">&quot;Link 1&quot;</span><span>),
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://foo.com&quot;</span><span>, </span><span class="string-literal">&quot;Link 2&quot;</span><span>)
+    ))
+  )</span></code></pre>
+        <p>The theme includes full styling for up to three levels. 
+        More than 3 levels will probably lead to confusing UX, 
+        but if you do want to use more you need to add additional CSS to your inputs. 
+        You can use the classes Helium adds to the <code>&lt;li&gt;</code> tags (<code>level4</code>, <code>level5</code>, etc.) for the custom styles.</p>
+        <p>If the <code>includePageSections</code> parameter is set to true (it&#39;s <code>false</code> by default), the navigation structure will not only 
+        reflect the directory structure and the documents within, but also the section headers on individual pages.
+        This option may be attractive if you only have very few pages in your site and want to make better use
+        of the space in the left navigation pane.
+        Note that sections may still be filtered based on your setting for the overall navigation depth.</p>
+        <p>Finally, you can also append or prepend additional sections of links, each with a section header and one or more links. 
+        Prepending may not be desirable if you also configure a table of content or a download page,
+        as the prepended links would appear before them.</p>
+        
+        <h3 id="top-navigation-bar" class="section"><a class="anchor-link left" href="#top-navigation-bar"><i class="icofont-laika link">&#xef71;</i></a>Top Navigation Bar</h3>
+        <p>You can replace the home link in the middle of the bar and a row of buttons or icons with links at the right corner.
+        The home link, unless overridden, points to <code>index.html</code> and uses the <code>HeliumIcon.home</code> icon.
+        The navigation links on the right are empty by default.
+        The left corner of the top bar is always reserved for the button to open or close the navigation.</p>
+        <pre><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">site</span><span>
+  .</span><span class="identifier">topNavigationBar</span><span>(
+    </span><span class="identifier">homeLink</span><span> = </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;README.md&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">home</span><span>),
+    </span><span class="identifier">navLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-2.md&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">download</span><span>),
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;http://somewhere.com/&quot;</span><span>, </span><span class="string-literal">&quot;Text Link&quot;</span><span>),
+      </span><span class="type-name">ButtonLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;http://somewhere.com/&quot;</span><span>, </span><span class="string-literal">&quot;Button Link&quot;</span><span>)
+    ),
+    </span><span class="identifier">versionMenu</span><span> = </span><span class="type-name">VersionMenu</span><span>.</span><span class="identifier">create</span><span>(
+      </span><span class="identifier">versionedLabelPrefix</span><span> = </span><span class="string-literal">&quot;Version:&quot;</span><span>, 
+      </span><span class="identifier">unversionedLabel</span><span> = </span><span class="string-literal">&quot;Choose Version&quot;</span><span>
+    ),
+    </span><span class="identifier">highContrast</span><span> = </span><span class="boolean-literal">true</span><span>
+  )</span></code></pre>
+        <p>All the properties shown above have default values, so you don&#39;t have to specify them all.
+        Details for each of these options are described in the sections below.</p>
+        
+        <h4 id="home-link" class="section"><a class="anchor-link left" href="#home-link"><i class="icofont-laika link">&#xef71;</i></a>Home Link</h4>
+        <p>The link to the homepage can be customized as shown in the example above.
+        It accepts the same type of links as the <code>navLinks</code> property described below.</p>
+        <p>If it is not configured explicitly, Laika attempts to apply the following defaults in this order:</p>
+        <ul>
+          <li>If the site has a landing page (configured via <code>Helium.defaults.site.landingPage(...)</code>) then the home link
+          will point to that page with the default home icon.</li>
+          <li>If the site input has a <code>README.md</code> or <code>README.rst</code> then the home link
+          will point to that page with the default home icon.
+          The page recognized as the title page per directory might be different in case the user overrides
+          the <code>laika.titleDocuments.inputName</code> setting as shown in <a href="01-directory-structure.html#title-documents">Title Documents</a>.</li>
+          <li>If the home link is neither configured explicitly nor any of the default home link targets mentioned above exist
+          in the input tree, the transformation will fail with an error pointing to this part of the documentation.</li>
+        </ul>
+        
+        <h4 id="right-navigation-links" class="section"><a class="anchor-link left" href="#right-navigation-links"><i class="icofont-laika link">&#xef71;</i></a>Right Navigation Links</h4>
+        <p>The links for the right side of the top navigation bar (<code>navLinks</code>, by default empty) can be 
+        an <code>IconLink</code> with optional text, a <code>ButtonLink</code> with an optional icon, a plain <code>TextLink</code>, an <code>ImageLink</code> 
+        or a drop-down <code>Menu</code>.
+        All links can be external or internal, in case of the latter, it is always a path from the perspective 
+        of Laika&#39;s virtual root, not a file system path, and will be validated (dead links will cause the transformation to fail).</p>
+        <p>With the default Helium settings the three link types from our code example render as shown below:</p>
+        <div class="small-image">
+          <img src="../../img/helium-links.png" alt="Screenshot of Helium Link Styles" width="270" height="35">
+        </div>
+        <p>On very small screens (e.g. portrait mode on phones) the links will move into the left navigation pane instead
+        and larger controls like menus will be removed.</p>
+        
+        <h4 id="version-menu" class="section"><a class="anchor-link left" href="#version-menu"><i class="icofont-laika link">&#xef71;</i></a>Version Menu</h4>
+        <p>The <code>versionMenu</code> property allows to override the defaults for the version dropdown.</p>
+        <p>You can specify the label prefix for versioned pages (the actual current version number will be appended),
+        the label for the menu on unversioned pages (in the example &quot;Choose Version&quot;) and optionally additional links
+        like &quot;Help me choose...&quot; that point to static pages instead of a versioned sub-site.</p>
+        
+        <h4 id="navigation-bar-styling" class="section"><a class="anchor-link left" href="#navigation-bar-styling"><i class="icofont-laika link">&#xef71;</i></a>Navigation Bar Styling</h4>
+        <p>Finally, the <code>highContrast</code> option indicates whether the background color should have a high contrast to the background
+        of the page (darker in light mode and lighter in dark mode).</p>
+        
+        
+        <h3 id="page-navigation" class="section"><a class="anchor-link left" href="#page-navigation"><i class="icofont-laika link">&#xef71;</i></a>Page Navigation</h3>
+        <p>A Helium site contains a page navigation pane on the right side on bigger screens.
+        When running with the default settings, the pane contains the title of the page and links
+        to the two top layers of the sections on that page.</p>
+        <p>The configuration API allows for some customization:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">pageNavigation</span><span>(
+    </span><span class="identifier">enabled</span><span> = </span><span class="boolean-literal">true</span><span>,
+    </span><span class="identifier">depth</span><span> = </span><span class="number-literal">1</span><span>,
+    </span><span class="identifier">sourceBaseURL</span><span> = </span><span class="string-literal">&quot;https://github.com/my/project&quot;</span><span>,
+    </span><span class="identifier">sourceLinkText</span><span> = </span><span class="string-literal">&quot;Source for this Page&quot;</span><span>
+  )</span></code></pre>
+        <p>The <code>enabled</code> property is true by default. Setting it to false completely removes it from the rendered pages.
+        In this case all other properties won&#39;t have any effect unless the flag is set to true on individual pages as shown below.</p>
+        <p>The <code>depth</code> property allows to change the navigation depth.
+        The default is 2, meaning it will link to all level 1 and level 2 headers of the page.</p>
+        <p>Finally, the bottom of the pane can contain a link to the markup sources (e.g. on GitHub)
+        if you provide a <code>sourceBaseURL</code>.
+        The <code>sourceLinkText</code> can be overridden, too. The example above shows the default value.</p>
+        <p>The same properties can also be set on individual pages via a HOCON configuration header:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">helium.site.pageNavigation.depth</span><span> = </span><span class="number-literal">3</span><span>
+</span><span class="keyword">%}</span></code></pre>
+        <p>Note that setting the depth to 0 will not remove the page navigation box as it will still render
+        the title and the link to the source if configured.
+        To remove the pane entirely, the <code>enabled</code> flag has to be set to false instead.</p>
+        
+        <h3 id="table-of-contents" class="section"><a class="anchor-link left" href="#table-of-contents"><i class="icofont-laika link">&#xef71;</i></a>Table of Contents</h3>
+        <p>All three formats support an additional table of contents. 
+        This does not refer to the main navigation menu (the left pane of the Helium site and the respective
+        reader&#39;s navigation bars in case of EPUB or PDF) which Helium will always produce.
+        It is an optional, separate page that can be included in e-books or the site.
+        For PDF format this is essential, as the reader&#39;s navigation would be lost if the user prints the PDF.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">tableOfContent</span><span>(</span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>, </span><span class="identifier">depth</span><span> = </span><span class="number-literal">3</span><span>)
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">tableOfContent</span><span>(</span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>, </span><span class="identifier">depth</span><span> = </span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">tableOfContent</span><span>(</span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>, </span><span class="identifier">depth</span><span> = </span><span class="number-literal">4</span><span>)</span></code></pre>
+        <p>For all formats you can specify the title of the page and the navigation depth.
+        The depth value includes all layers of the hierarchy, directories, documents and sections within documents.</p>
+        <p>In e-books the table of content will be inserted right after the (optional) cover image,
+        for the site it will become a link at the top of the left navigation pane.</p>
+        <p>Finally, the navigation depth for the reader&#39;s navigation for EPUB and PDF can also be controlled:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)</span></code></pre>
+        <div class="callout info">
+          <i class="icofont-laika info">&#xef4e;</i>
+          <p>The default for EPUB is just 2 levels as some readers like iBooks mess with the hierarchy of navigation items
+          when using more than 2 levels.
+          If you increase this setting make sure you verify it&#39;s looking good in the targeted readers.</p>
+        </div>
+        
+        <h3 id="favicons" class="section"><a class="anchor-link left" href="#favicons"><i class="icofont-laika link">&#xef71;</i></a>Favicons</h3>
+        <p>You can specify one or more favicons for your site:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">favIcons</span><span>(
+    </span><span class="type-name">Favicon</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;favicon32x32.png&quot;</span><span>, </span><span class="identifier">sizes</span><span> = </span><span class="string-literal">&quot;32x32&quot;</span><span>),
+    </span><span class="type-name">Favicon</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;favicon64x64.png&quot;</span><span>, </span><span class="identifier">sizes</span><span> = </span><span class="string-literal">&quot;64x64&quot;</span><span>)
+  )</span></code></pre>
+        
+        <h3 id="footer" class="section"><a class="anchor-link left" href="#footer"><i class="icofont-laika link">&#xef71;</i></a>Footer</h3>
+        <p>By default, the theme includes a footer pointing to the Laika project.
+        There is no requirement to keep this footer though, and the API gives you the following options:</p>
+        <p>Set a raw HTML string as the footer:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">footer</span><span>(</span><span class="string-literal">&quot;&quot;&quot;This is a &lt;a href=&quot;https://foo.com/&quot;&gt;Foo&lt;/a&gt; project under the Bar licence.&quot;&quot;&quot;</span><span>)</span></code></pre>
+        <p>Set the footer as a sequence of AST nodes:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">footer</span><span>(
+    </span><span class="type-name">TemplateString</span><span>(</span><span class="string-literal">&quot;This is a &quot;</span><span>),
+    </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://foo.com/&quot;</span><span>)(</span><span class="string-literal">&quot;Foo&quot;</span><span>),
+    </span><span class="type-name">TemplateString</span><span>(</span><span class="string-literal">&quot; project under the Bar licence.&quot;</span><span>)
+  )</span></code></pre>
+        <p>Remove the footer entirely:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">footer</span><span>()</span></code></pre>
+        <p>Note that there is no option to define the footer in markup. 
+        Themes are independent of the underlying markup parser and a site can be generated
+        with only a reStructuredText parser configured for the runtime, for example.</p>
+        
+        <h2 id="download-page" class="section"><a class="anchor-link left" href="#download-page"><i class="icofont-laika link">&#xef71;</i></a>Download Page</h2>
+        <p>A page offering generated EPUB and PDF files with the same content and structure as the site for download
+        can be added via Helium configuration:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">downloadPage</span><span>(
+    </span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Documentation Downloads&quot;</span><span>,
+    </span><span class="identifier">description</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Optional Text Below Title&quot;</span><span>),
+    </span><span class="identifier">downloadPath</span><span> = </span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;downloads&quot;</span><span>,
+    </span><span class="identifier">includeEPUB</span><span> = </span><span class="boolean-literal">true</span><span>,
+    </span><span class="identifier">includePDF</span><span> = </span><span class="boolean-literal">true</span><span>
+  )</span></code></pre>
+        <p>The last three properties in the example above are equivalent to the defaults and can be omitted.</p>
+        <p>If you configure <a href="#cover-images-for-e-books">Cover Images for E-books</a> they will be used to display thumbnails above the download links.</p>
+        
+        <h2 id="website-landing-page" class="section"><a class="anchor-link left" href="#website-landing-page"><i class="icofont-laika link">&#xef71;</i></a>Website Landing Page</h2>
+        <p>By default the generated site does not have a dedicated landing page. 
+        The site&#39;s entry point will simply be the <code>README.md</code> or <code>README.rst</code> document (if present), 
+        rendered with the default template, meaning with the top and left navigation bars.
+        If you don&#39;t mind that users arrive straight at the content pages, you can stick with the defaults.</p>
+        <p>Alternatively Helium offers a dedicated landing page tailored for software documentation sites.
+        This is the full set of content options available:</p>
+        <pre><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">landingPage</span><span>(
+    </span><span class="identifier">logo</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">Image</span><span>()),
+    </span><span class="identifier">title</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Project Name&quot;</span><span>),
+    </span><span class="identifier">subtitle</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Fancy Hyperbole Goes Here&quot;</span><span>),
+    </span><span class="identifier">latestReleases</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">ReleaseInfo</span><span>(</span><span class="string-literal">&quot;Latest Stable Release&quot;</span><span>, </span><span class="string-literal">&quot;2.3.5&quot;</span><span>),
+      </span><span class="type-name">ReleaseInfo</span><span>(</span><span class="string-literal">&quot;Latest Milestone Release&quot;</span><span>, </span><span class="string-literal">&quot;2.4.0-M2&quot;</span><span>)
+    ),
+    </span><span class="identifier">license</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;MIT&quot;</span><span>),
+    </span><span class="identifier">titleLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">VersionMenu</span><span>.</span><span class="identifier">create</span><span>(</span><span class="identifier">unversionedLabel</span><span> = </span><span class="string-literal">&quot;Getting Started&quot;</span><span>),
+      </span><span class="type-name">LinkGroup</span><span>.</span><span class="identifier">create</span><span>(
+        </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://github.com/abcdefg/&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">github</span><span>),
+        </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://gitter.im/abcdefg/&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">chat</span><span>),
+        </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://twitter.com/abcdefg/&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">twitter</span><span>)
+      )
+    ),
+    </span><span class="identifier">documentationLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-1.md&quot;</span><span>, </span><span class="string-literal">&quot;Doc 1&quot;</span><span>),
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-2.md&quot;</span><span>, </span><span class="string-literal">&quot;Doc 2&quot;</span><span>)
+    ),
+    </span><span class="identifier">projectLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-1.md&quot;</span><span>, </span><span class="string-literal">&quot;Text Link&quot;</span><span>),
+      </span><span class="type-name">ButtonLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;http://somewhere.com/&quot;</span><span>, </span><span class="string-literal">&quot;Button Label&quot;</span><span>),
+      </span><span class="type-name">LinkGroup</span><span>.</span><span class="identifier">create</span><span>(
+        </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-2.md&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">demo</span><span>),
+        </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-3.md&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">info</span><span>)
+      )  
+    ),
+    </span><span class="identifier">teasers</span><span> = </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">Teaser</span><span>(</span><span class="string-literal">&quot;Teaser 1&quot;</span><span>, </span><span class="string-literal">&quot;Description 1&quot;</span><span>),
+      </span><span class="type-name">Teaser</span><span>(</span><span class="string-literal">&quot;Teaser 2&quot;</span><span>, </span><span class="string-literal">&quot;Description 2&quot;</span><span>),
+      </span><span class="type-name">Teaser</span><span>(</span><span class="string-literal">&quot;Teaser 3&quot;</span><span>, </span><span class="string-literal">&quot;Description 3&quot;</span><span>)
+    )
+  )</span></code></pre>
+        <p>Every single content item shown above is optional, but of course the page would look strange if you omit them all.</p>
+        <p>The diagram below shows the positions of these items on the page:</p>
+        <div class="default-image-block">
+          <img src="../../img/landing-page.png" alt="Configurable Areas on the Landing Page" width="700" height="570">
+        </div>
+        <p>The left side of the header introduces the project, ideally you would choose at least one of the three options 
+        (logo, title and subtitle). 
+        In the case of Laika&#39;s site for example, the title is omitted as the project name is already part of the logo.</p>
+        <p>Below the subtitle you can also add a row of links, which may be a menu, icon links, text links or even a
+        version menu, by using the <code>titleLinks</code> property.
+        This is the most prominent position for links on the landing page.</p>
+        <p>On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
+        The panel for documentation links can be any links right into the content of your site, like Getting Started pages, 
+        tables of contents, and hopefully also a link to the API documentation.</p>
+        <p>The project links below can be any set of additional links, like to GitHub, Twitter or your chat.
+        Like with the top navigation bar of the main page, you can choose between an <code>IconLink</code> with optional text,
+        a <code>ButtonLink</code> with an optional icon, a plain <code>TextLink</code> or a horizontal group of links (<code>LinkGroup</code>) which
+        are usually a row of icon links placed into a column of text links.
+        Internal targets are again within the virtual path and will be validated.</p>
+        <div class="callout info">
+          <i class="icofont-laika info">&#xef4e;</i>
+          <p>The right side of the header is the only section of the landing page containing links. 
+          This is a deliberate departure from the often confusing entry points of other software documentations sites
+          where relevant links are scattered all over the place.</p>
+        </div>
+        <p>Finally a set of teasers which are quite common on landing page can be defined for the white area below the header.</p>
+        <p>Additionally or alternatively you can also add a regular markup document called <code>landing-page.&lt;suffix&gt;</code> to one
+        of your input directories and its content will be inserted at the bottom of this page.
+        This is in case you want to stick with the traditional approach of some sites, which give you &#39;Getting Started&#39;
+        style content right on the start page.
+        It can also be used to list adopters, provide a feature overview or links to presentations or videos.</p>
+        
+        <h2 id="cover-images-for-e-books" class="section"><a class="anchor-link left" href="#cover-images-for-e-books"><i class="icofont-laika link">&#xef71;</i></a>Cover Images for E-books</h2>
+        <p>You can include cover images for EPUB and PDF files. 
+        They will also be used to display little thumbnails on the download page.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">coverImages</span><span>(</span><span class="type-name">CoverImage</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;cover.png&quot;</span><span>))
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">coverImages</span><span>(</span><span class="type-name">CoverImage</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;cover.png&quot;</span><span>))</span></code></pre>
+        
+        <p>See <a href="04-ebooks.html#supported-document-types">Supported Document Types</a> for a list of supported image formats.</p>
+        
+        <h2 id="auto-linking-css-js-files" class="section"><a class="anchor-link left" href="#auto-linking-css-js-files"><i class="icofont-laika link">&#xef71;</i></a>Auto-Linking CSS &amp; JS Files</h2>
+        <p>If all the configuration options shown above don&#39;t give you enough flexibility, you can always include
+        additional CSS and JavaScript files to tweak the site&#39;s look &amp; feel.</p>
+        <p>You can examine the CSS generated by Helium and override individual style declarations by placing them
+        anywhere in a CSS file inside one of your input directories.
+        They will always be included in a way that they have higher precedence than the theme&#39;s styles.</p>
+        <p>If you want to prevent Helium from scanning all input directories for CSS files, 
+        you can alternatively specify one or more directories explicitly:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">autoLinkCSS</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;my-css&quot;</span><span>)
+  .</span><span class="identifier">site</span><span>.</span><span class="identifier">autoLinkJS</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;my-js&quot;</span><span>)</span></code></pre>
+        <p>If you use these methods with an empty parameter list, scanning for files will effectively be disabled
+        and only Helium&#39;s own CSS and JavaScript will be included.</p>
+        <p>The global scanning will skip files which have the suffix <code>.page.css</code> or <code>.page.js</code>.
+        With this naming scheme you can add files which are not meant to be included in every generated page.
+        If you want to explicitly add one of these files to an individual document,
+        you can do that with a HOCON configuration header in the corresponding markup document:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">laika.site.css.searchPaths</span><span> = [</span><span class="string-literal">&quot;/styles/custom.page.css&quot;</span><span>]
+</span><span class="keyword">%}</span></code></pre>
+        <p>You can also use paths of directories, in which case those will be scanned in the same way
+        as with the global search paths configured via the Helium API. </p>
+        <p>Like everything in Laika, the paths are virtual and not file system paths, so they must point to somewhere
+        within the configured inputs. .</p>
+        <p>The use of JavaScript in EPUB templates might need additional configuration, in particular with customized templates.
+        See <a href="04-ebooks.html#javascript-for-epub">JavaScript for EPUB</a> for details.</p>
+        
+        <h2 id="custom-templates" class="section"><a class="anchor-link left" href="#custom-templates"><i class="icofont-laika link">&#xef71;</i></a>Custom Templates</h2>
+        <p>In cases where even custom CSS files do not give you the level of control you need, 
+        the final step (apart from creating your own theme), would be to create your own default templates.</p>
+        <p>As a starting point you can copy and modify Helium&#39;s default templates, which you can find 
+        <a href="https://github.com/planet42/Laika/tree/master/io/src/main/resources/laika/helium/templates">here</a>.
+        Or you can start from scratch and only use the existing templates as an inspiration.</p>
+        <p>Any default templates placed into the user input directories will override the corresponding templates
+        with the same path from a theme.
+        This way you can always customize just one of the templates, while keeping the rest as provided by the theme.</p>
+        <p>For an introduction to the template syntax, template file names and more details see <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a>.</p>
+        
+        <h3 id="customizing-template-fragments" class="section"><a class="anchor-link left" href="#customizing-template-fragments"><i class="icofont-laika link">&#xef71;</i></a>Customizing Template Fragments</h3>
+        <p>If you only want to adjust a small aspect of the theme and otherwise stick to the default Helium look and feel,
+        you can alternatively just override one or more template fragments.</p>
+        
+        <h4 id="global-overrides" class="section"><a class="anchor-link left" href="#global-overrides"><i class="icofont-laika link">&#xef71;</i></a>Global Overrides</h4>
+        <p>If you want to replace one or more fragments globally, you can place them at <code>/helium/templates/&lt;fragment&gt;.template.html</code>
+        inside one of your input directories,
+        where <code>&lt;fragment&gt;</code> is one of <code>head</code>, <code>topNav</code>, <code>mainNav</code>, <code>pageNav</code> or <code>footer</code>.
+        The names should be self-explanatory.</p>
+        
+        <h4 id="overrides-per-document" class="section"><a class="anchor-link left" href="#overrides-per-document"><i class="icofont-laika link">&#xef71;</i></a>Overrides per Document</h4>
+        <p>Finally, when you want to apply a custom fragment to individual markup documents,
+        you can explicitly refer to it in the configuration header of the markup document:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">{%</span><span>
+  </span><span class="attribute-name">helium.templates.head</span><span> = </span><span class="string-literal">../my-custom-head.template.html</span><span>
+</span><span class="keyword">%}</span></code></pre>
+        <p>The path is interpreted relative to the markup document,
+        but has to be somewhere within one of the specified input directories,
+        as templates are parsed and cached upfront before getting applied to documents.</p>
+        <p>All HTML templates must have a name with the pattern <code>&lt;name&gt;.template.html</code>.
+        The configuration key to assign them to has the format <code>helium.templates.&lt;fragment&gt;</code>
+        where <code>&lt;fragment&gt;</code> is again one of <code>head</code>, <code>topNav</code>, <code>mainNav</code>, <code>pageNav</code> or <code>footer</code>.</p>
+        <p>Finally, like with all Laika configuration, you can also use different scopes than just the current document.
+        Using these config keys in a file <code>directory.conf</code> sets the override for all document in that directory
+        and all its sub-directories.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://planet42.github.io/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

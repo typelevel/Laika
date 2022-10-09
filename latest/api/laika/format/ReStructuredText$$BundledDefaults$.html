@@ -1,0 +1,891 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      
+      <script type="text/javascript">
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
+    
+        </head>
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="../../index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="../../laika/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.format" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="format"></a><a id="format:format"></a>
+      <span class="permalink">
+      <a href="../../laika/format/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">format</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.format.ReStructuredText" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ReStructuredText"></a><a id="ReStructuredText:ReStructuredText"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="A parser for text written in reStructuredText markup." href="ReStructuredText$.html"><span class="name">ReStructuredText</span></a><span class="result"> extends <a href="../factory/MarkupFormat.html" class="extype" name="laika.factory.MarkupFormat">MarkupFormat</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A parser for text written in reStructuredText markup.</p><div class="fullcomment"><div class="comment cmt"><p>A parser for text written in reStructuredText markup. Instances of this class may be passed directly
+ to the <code>Parseer</code> or <code>Transformer</code> APIs:</p><pre><span class="kw">val</span> document = MarkupParser.of(ReStructuredText).build.parse(inputString)
+
+Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)</pre><p> reStructuredText has several types of extension points that are fully supported by Laika.
+ For more information on how to implement and register those see <a href="../rst/bundle/RstExtensionRegistry.html" class="extype" name="laika.rst.bundle.RstExtensionRegistry">laika.rst.bundle.RstExtensionRegistry</a>.</p><p> In addition to the standard reStructuredText directives, the API also supports a custom directive
+ type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
+ tags which can be used in any of the supported markup formats or in templates. If you need this
+ level of flexibility, it is recommended to use the Laika directives, if you want to stay compatible
+ with the reStructuredText reference parser, you should pick the standard directives.</p><p> Laika directives can be registered with the <a href="../directive/DirectiveRegistry.html" class="extype" name="laika.directive.DirectiveRegistry">laika.directive.DirectiveRegistry</a> extension bundle.
+ The DSLs for creating directives are similar, but still different,
+ due to differences in the feature set of the two variants. The Laika directives try to avoid some
+ of the unnecessary complexities of reStructuredText directives.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.format">format</a></dd></dl></div>
+    </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="" title=""></a>
+                        <a href="" title="">BundledDefaults</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="object value">
+      <div id="definition">
+        <div class="big-circle object">o</div>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.format">format</a>.<a href="ReStructuredText$.html" class="extype" name="laika.format.ReStructuredText">ReStructuredText</a></p>
+        <h1>BundledDefaults<span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BundledDefaults</span><span class="result"> extends <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></span>
+      </span>
+      </h4>
+
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">
+            Linear Supertypes
+          </span>
+          <div class="superTypes hiddenContent"><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.format.ReStructuredText.BundledDefaults"><span>BundledDefaults</span></li><li class="in" name="laika.bundle.ExtensionBundle"><span>ExtensionBundle</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
+              <ol>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
+              </ol>
+            </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        
+
+        <div class="values members">
+              <h3>Value Members</h3>
+              <ol>
+                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#baseConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="baseConfig:laika.config.Config"></a><a id="baseConfig:Config"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#baseConfig:laika.config.Config" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">baseConfig</span><span class="result">: <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Base configuration that serves as a fallback for
+configuration files in the source directories
+and/or config headers in markup and template documents.</p><div class="fullcomment"><div class="comment cmt"><p>Base configuration that serves as a fallback for
+configuration files in the source directories
+and/or config headers in markup and template documents.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.format.ReStructuredText.BundledDefaults#description" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="description:String"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#description:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">description</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Short string describing the extension for tooling and logging.</p><div class="fullcomment"><div class="comment cmt"><p>Short string describing the extension for tooling and logging.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.ReStructuredText.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#docTypeMatcher" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="docTypeMatcher:PartialFunction[laika.ast.Path,laika.ast.DocumentType]"></a><a id="docTypeMatcher:PartialFunction[Path,DocumentType]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#docTypeMatcher:PartialFunction[laika.ast.Path,laika.ast.DocumentType]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">docTypeMatcher</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>, <a href="../ast/DocumentType.html" class="extype" name="laika.ast.DocumentType">DocumentType</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies the function to use for determining the document type
+of the input based on its path.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the function to use for determining the document type
+of the input based on its path.</p><p>Any path for which this function is not defined will be processed by the remaining
+defined bundles. The documents for paths for which none of the extensions provides
+a <code>DocumentType</code> will be treated as static files to be copied over to the target
+directory in transformations by default.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#extendPathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extendPathTranslator:PartialFunction[laika.bundle.ExtensionBundle.PathTranslatorExtensionContext,laika.rewrite.nav.PathTranslator]"></a><a id="extendPathTranslator:PartialFunction[PathTranslatorExtensionContext,PathTranslator]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#extendPathTranslator:PartialFunction[laika.bundle.ExtensionBundle.PathTranslatorExtensionContext,laika.rewrite.nav.PathTranslator]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extendPathTranslator</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../bundle/ExtensionBundle$$PathTranslatorExtensionContext.html" class="extype" name="laika.bundle.ExtensionBundle.PathTranslatorExtensionContext">PathTranslatorExtensionContext</a>, <a href="../rewrite/nav/PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Extends the built-in path translator with additional functionality.</p><div class="fullcomment"><div class="comment cmt"><p>Extends the built-in path translator with additional functionality.</p><p>The internal path translator deals with aspects like applying the suffix for the output format
+or modifying the path for versioned documents and more.</p><p>The <code>PathTranslatorExtensionContext</code> provides access to this internal path translator, to the output
+format it is going to be used for and the complete user configuration.</p><p>In most cases, extensions can simply be created by using either <code>PathTranslator.preTranslate</code>
+or <code>PathTranslator.postTranslate</code> to apply additional translation steps either before or after
+applying the internal translator.</p><p>Alternatively a completely custom implementation of the <code>PathTranslator</code> trait can be provided,
+but this will usually not be necessary.</p><p><code>PathTranslator</code> implementations usually do not deal with the fragment part of the path.
+Use the <code>slugBuilder</code> extension point for this purpose.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#forStrictMode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="forStrictMode:Option[laika.bundle.ExtensionBundle]"></a><a id="forStrictMode:Option[ExtensionBundle]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#forStrictMode:Option[laika.bundle.ExtensionBundle]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">forStrictMode</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides a version of this bundle that can be used in strict mode or <code>None</code> if the entire bundle
+should be removed in strict mode.</p><div class="fullcomment"><div class="comment cmt"><p>Provides a version of this bundle that can be used in strict mode or <code>None</code> if the entire bundle
+should be removed in strict mode.</p><p>When strict mode does not affect a bundle it can return <code>Some(this)</code>.</p><p>Any bundle to be used in strict mode should be free from any parser extensions that
+adds features to markup syntax beyond their respective specifications.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#hashCode():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+                <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.format.ReStructuredText.BundledDefaults#origin" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="origin:laika.bundle.BundleOrigin"></a><a id="origin:BundleOrigin"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#origin:laika.bundle.BundleOrigin" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">origin</span><span class="result">: <a href="../bundle/BundleOrigin.html" class="extype" name="laika.bundle.BundleOrigin">BundleOrigin</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Indicates whether the bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the bundle is a built-in default provided by the library,
+a collection of extensions installed by a markup format or user-defined.</p><p>This is relevant for determining the precedence of installed bundles when merging
+them, as user-supplied functionality always overrides library defaults.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.ReStructuredText.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.format.ReStructuredText.BundledDefaults#parsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parsers:laika.bundle.ParserBundle"></a><a id="parsers:ParserBundle"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#parsers:laika.bundle.ParserBundle" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parsers</span><span class="result">: <a href="../bundle/ParserBundle.html" class="extype" name="laika.bundle.ParserBundle">ParserBundle</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies extensions and/or replacements for parsers that deal with
+text markup, templates, CSS or configuration headers.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies extensions and/or replacements for parsers that deal with
+text markup, templates, CSS or configuration headers.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.ReStructuredText.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#processExtension" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="processExtension:PartialFunction[laika.bundle.ExtensionBundle,laika.bundle.ExtensionBundle]"></a><a id="processExtension:PartialFunction[ExtensionBundle,ExtensionBundle]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#processExtension:PartialFunction[laika.bundle.ExtensionBundle,laika.bundle.ExtensionBundle]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">processExtension</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>, <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Internal API usually only called by other extension bundles.</p><div class="fullcomment"><div class="comment cmt"><p>Internal API usually only called by other extension bundles.</p><p>In some cases a bundle might be an extension of another bundle and needs the opportunity
+to process and modify that bundle without requiring a direct reference to it. An example
+is a registry for directives which needs to pass all its registered directives to the
+bundle which deals with finally creating all the directive parsers.</p><p>The partial function should match only on the types of bundles it intends to process
+and is then allowed to return a new, modified instance of that bundle.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#rawContentDisabled" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rawContentDisabled:Option[laika.bundle.ExtensionBundle]"></a><a id="rawContentDisabled:Option[ExtensionBundle]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#rawContentDisabled:Option[laika.bundle.ExtensionBundle]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rawContentDisabled</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Provides a version of this bundle that can be used in the default run mode where raw content in markup
+documents (such as embedded HTML) is disabled.</p><div class="fullcomment"><div class="comment cmt"><p>Provides a version of this bundle that can be used in the default run mode where raw content in markup
+documents (such as embedded HTML) is disabled.</p><p>When a bundle does not add parsers for raw content it can return <code>Some(this)</code>.</p><p>Any bundle to be used in the default run mode should be free from any parser extensions that
+allow raw content in markup.
+When the user switches the <code>acceptRawContent</code> flag to <code>true</code> then this method will not be invoked
+and the initial instance of the bundle is used.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.format.ReStructuredText.BundledDefaults#renderOverrides" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderOverrides:Seq[laika.format.HTML.Overrides]"></a><a id="renderOverrides:Seq[HTML.Overrides]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#renderOverrides:Seq[laika.format.HTML.Overrides]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderOverrides</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<a href="HTML$.html#OverridesextendsRenderOverrideswithProductwithSerializable" class="extmbr" name="laika.factory.RenderFormat.Overrides">HTML.Overrides</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The overrides for renderers defined by this bundle.</p><div class="fullcomment"><div class="comment cmt"><p>The overrides for renderers defined by this bundle.</p><p>An override is always specific to a particular output format like HTML or PDF.
+A bundle can contain multiple overrides for the same output format which will be merged before use.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.format.ReStructuredText.BundledDefaults">BundledDefaults</a> → <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#rewriteRules" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rewriteRules:laika.ast.RewriteRules.RewritePhaseBuilder"></a><a id="rewriteRules:RewritePhaseBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#rewriteRules:laika.ast.RewriteRules.RewritePhaseBuilder" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rewriteRules</span><span class="result">: <a href="../ast/RewriteRules$.html#RewritePhaseBuilder=PartialFunction[laika.ast.RewritePhase,Seq[laika.ast.RewriteRules.RewriteRulesBuilder]]" class="extmbr" name="laika.ast.RewriteRules.RewritePhaseBuilder">RewritePhaseBuilder</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Specifies rewrite rules to be applied to the document tree model between the
+parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies rewrite rules to be applied to the document tree model between the
+parse and render operations.</p><p>The specified functions will be invoked for each document, allowing to capture
+information from the entire document tree before returning the actual rule,
+which is a partial function from <code>Element</code> to <code>Option[Element]</code> that allows
+to remove or replace elements from the tree.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#slugBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="slugBuilder:Option[String=&gt;String]"></a><a id="slugBuilder:Option[(String)⇒String]"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#slugBuilder:Option[String=&gt;String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slugBuilder</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><div class="fullcomment"><div class="comment cmt"><p>Function that receives the text of a headline, the name of a document
+or directory or a manually assigned identifier, and builds a slug from it
+that becomes part of the final URL or identifier (depending on output format).</p><p>The result of the function must be:</p><p>- a valid identifier in HTML and XML
+- a valid path segment in a URL
+- a valid file name
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.bundle.ExtensionBundle#withBase" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withBase(base:laika.bundle.ExtensionBundle):laika.bundle.ExtensionBundle"></a><a id="withBase(ExtensionBundle):ExtensionBundle"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#withBase(base:laika.bundle.ExtensionBundle):laika.bundle.ExtensionBundle" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withBase</span><span class="params">(<span name="base">base: <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></span>)</span><span class="result">: <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new extension bundle by merging the content of this bundle with the
+content of the base bundle.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new extension bundle by merging the content of this bundle with the
+content of the base bundle.</p><p>The other bundle is treated as the base of this bundle, which means that:</p><p>- in case of optional features a feature defined in this bundle will overwrite a feature defined in the base</p><p>- in case of features applied in sequence, the features in this bundle will be applied before the features
+  in the base bundle</p><p>- in case of feature collections, the features of this bundle will be merged with those of the base bundle
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></dd></dl></div>
+    </li>
+              </ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/format/ReStructuredText$$BundledDefaults$.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: ">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+                <span class="name">@Deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="laika.bundle.ExtensionBundle">
+              <h3>Inherited from <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+    </body>
+          </div>
+        </div>
+      </div>
+    </body>
+      </html>
