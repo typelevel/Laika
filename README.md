@@ -63,8 +63,6 @@ Further Information
 
 * Browse the [API].
 
-* Follow on [Twitter] for release announcements.
-
 * Create [Issues] for bug reports or enhancement requests.
 
 * Ask questions or share ideas in [Discussions].
@@ -73,6 +71,5 @@ Further Information
 [Manual]: https://planet42.github.io/Laika/index.html
 [Demo App]: http://planet42.org/
 [API]: https://planet42.github.io/Laika/latest/api/laika/api/
-[Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Discussions]: https://github.com/planet42/Laika/discussions
