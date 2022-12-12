@@ -4,7 +4,7 @@ import sbt.Keys.{artifactPath, crossScalaVersions}
 import Dependencies._
 
 lazy val basicSettings = Seq(
-  version               := "0.19.0",
+  version               := "0.19.1-SNAPSHOT",
   homepage              := Some(new URL("https://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://planet42.org")),
