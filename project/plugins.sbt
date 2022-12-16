@@ -3,7 +3,7 @@ addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.8.2")
 
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.7")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
 
