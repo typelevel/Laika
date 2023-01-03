@@ -30,7 +30,8 @@ def priorTo2_13(version: String): Boolean =
   }
 
 lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
+  crossScalaVersions    := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
+  mimaPreviousArtifacts := Set(organization.value %% moduleName.value % "0.19.0")
 )
 
 lazy val publishSettings = Seq(
@@ -79,6 +80,7 @@ lazy val root = project.in(file("."))
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
+  .disablePlugins(MimaPlugin)
   .settings(
     crossScalaVersions := Nil,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js),
@@ -100,7 +102,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
-  .settings(basicSettings)
+  .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
@@ -110,12 +112,10 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jvmSettings(
-    libraryDependencies += jTidy, 
-    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
+    libraryDependencies += jTidy
   )
   .jsSettings(
-    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
 
 lazy val io = project.in(file("io"))
@@ -160,7 +160,12 @@ lazy val plugin = project.in(file("sbt"))
       "-Duser.language=en",
       "-Duser.country=GB"
     ),
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    mimaPreviousArtifacts := {
+      val sbtV = (pluginCrossBuild / sbtBinaryVersion).value
+      val scalaV = (update / scalaBinaryVersion).value
+      Set(Defaults.sbtPluginExtra(organization.value % moduleName.value % "0.19.0", sbtV, scalaV))
+    }
   )
 
 lazy val demo = crossProject(JSPlatform, JVMPlatform)
