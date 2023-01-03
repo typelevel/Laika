@@ -23,15 +23,21 @@ lazy val basicSettings = Seq(
                            
 )
 
+val mimaPreviousVersions = Set("0.19.0")
+
+val previousArtifacts = Seq(
+  mimaPreviousArtifacts := mimaPreviousVersions
+    .map(v => projectID.value.withRevision(v).withExplicitArtifacts(Vector.empty))
+)
+
 def priorTo2_13(version: String): Boolean =
   CrossVersion.partialVersion(version) match {
     case Some((2, minor)) if minor < 13 => true
     case _                              => false
   }
 
-lazy val moduleSettings = basicSettings ++ Seq(
-  crossScalaVersions    := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
-  mimaPreviousArtifacts := Set(organization.value %% moduleName.value % "0.19.0")
+lazy val moduleSettings = basicSettings ++ previousArtifacts ++ Seq(
+  crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
 )
 
 lazy val publishSettings = Seq(
@@ -149,6 +155,7 @@ lazy val plugin = project.in(file("sbt"))
   .dependsOn(core.jvm, io, pdf, preview)
   .enablePlugins(SbtPlugin)
   .settings(basicSettings)
+  .settings(previousArtifacts)
   .settings(publishSettings)
   .settings(
     name := "laika-sbt",
@@ -160,12 +167,7 @@ lazy val plugin = project.in(file("sbt"))
       "-Duser.language=en",
       "-Duser.country=GB"
     ),
-    scriptedBufferLog := false,
-    mimaPreviousArtifacts := {
-      val sbtV = (pluginCrossBuild / sbtBinaryVersion).value
-      val scalaV = (update / scalaBinaryVersion).value
-      Set(Defaults.sbtPluginExtra(organization.value % moduleName.value % "0.19.0", sbtV, scalaV))
-    }
+    scriptedBufferLog := false
   )
 
 lazy val demo = crossProject(JSPlatform, JVMPlatform)
