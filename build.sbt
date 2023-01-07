@@ -23,13 +23,20 @@ lazy val basicSettings = Seq(
                            
 )
 
+val mimaPreviousVersions = Set("0.19.0")
+
+val previousArtifacts = Seq(
+  mimaPreviousArtifacts := mimaPreviousVersions
+    .map(v => projectID.value.withRevision(v).withExplicitArtifacts(Vector.empty))
+)
+
 def priorTo2_13(version: String): Boolean =
   CrossVersion.partialVersion(version) match {
     case Some((2, minor)) if minor < 13 => true
     case _                              => false
   }
 
-lazy val moduleSettings = basicSettings ++ Seq(
+lazy val moduleSettings = basicSettings ++ previousArtifacts ++ Seq(
   crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
 )
 
@@ -79,6 +86,7 @@ lazy val root = project.in(file("."))
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
+  .disablePlugins(MimaPlugin)
   .settings(
     crossScalaVersions := Nil,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(plugin, core.js, demo.jvm, demo.js),
@@ -100,7 +108,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
-  .settings(basicSettings)
+  .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
@@ -110,12 +118,10 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jvmSettings(
-    libraryDependencies += jTidy, 
-    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
+    libraryDependencies += jTidy
   )
   .jsSettings(
-    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
 
 lazy val io = project.in(file("io"))
@@ -149,6 +155,7 @@ lazy val plugin = project.in(file("sbt"))
   .dependsOn(core.jvm, io, pdf, preview)
   .enablePlugins(SbtPlugin)
   .settings(basicSettings)
+  .settings(previousArtifacts)
   .settings(publishSettings)
   .settings(
     name := "laika-sbt",
