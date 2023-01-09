@@ -1,7 +1,7 @@
 
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
-addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.8.2")
+addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.8.3")
 
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
 
