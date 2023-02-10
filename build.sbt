@@ -104,7 +104,7 @@ lazy val docs = project.in(file("docs"))
     Laika / target := baseDirectory.value / "target"
   )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
