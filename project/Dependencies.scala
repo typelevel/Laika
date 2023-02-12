@@ -9,7 +9,7 @@ object Dependencies {
 
     val catsCore   = "2.9.0"
     val catsEffect = "3.4.5"
-    val fs2        = "3.5.0"
+    val fs2        = "3.6.1"
     val http4s     = "0.23.18"
     
     val munit      = "0.7.29"
