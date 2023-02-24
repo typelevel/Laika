@@ -3,7 +3,7 @@ addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.9.0")
 
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.14")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.1")
 
