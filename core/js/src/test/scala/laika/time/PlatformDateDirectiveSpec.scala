@@ -1,7 +1,7 @@
 package laika.time
 
 import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.ast.{RootElement, TemplateRoot, TemplateSpan, TemplateString}
+import laika.ast.{Replace, RewriteRules, RootElement, TemplateRoot, TemplateSpan, TemplateString}
 import laika.directive.std.{MarkupParserSetup, TemplateParserSetup}
 import munit.FunSuite
 
@@ -19,16 +19,26 @@ class PlatformDateDirectiveSpec extends FunSuite
   private lazy val longTZ = runTZ("long")
   private lazy val fullTZ = runTZ("full")
 
-  private def runTZ(timeStyle: String): String =
-    PlatformDateTime
+  private def runTZ(timeStyle: String): String = {
+    val dateStr = PlatformDateTime
       .formatConstant(new js.Date(testDate), timeStyle)
       .flatMap(_.toOption)
       .getOrElse("")
+      
+    normalizeWhitespace(dateStr)  
       .split(":00 (AM )?")
       .last
+  }
+
+  def normalizeWhitespace (str: String): String = str.replaceAll("\\p{javaSpaceChar}+", " ")
+
+  def normalizeWhitespace (rootElement: RootElement): RootElement =
+    rootElement.rewriteChildren(RewriteRules.forTemplates {
+      case ts: TemplateString => Replace(TemplateString(normalizeWhitespace(ts.content)))
+    })
     
   def runTemplate (input: String, config: String, expectedContent: TemplateSpan*)(implicit loc: munit.Location): Unit = {
-    assertEquals(parseTemplateWithConfig(input, config), Right(RootElement(TemplateRoot(expectedContent))))
+    assertEquals(parseTemplateWithConfig(input, config).map(normalizeWhitespace), Right(RootElement(TemplateRoot(expectedContent))))
   }
 
   private def run(dateStyle: String, expectedFormattedDate: String, language: String = "en", extraDirectiveArg: String = "")(implicit loc: munit.Location): Unit = {
