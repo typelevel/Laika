@@ -21,28 +21,27 @@ package laika.bundle
   *
   * This is relevant for determining the precedence of installed bundles when merging
   * them, as user-supplied functionality always overrides library defaults.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait BundleOrigin
 
 object BundleOrigin {
-  
+
   /** Indicates that the extension bundle is a built-in extension provided by Laika.
-    * 
+    *
     * Internally Laika uses its own extension hooks to provide non-standard
     * functionality like its directive syntax. Keeping it in extensions
     * means these features can be disabled when run in strict mode.
-    * 
     */
   case object Library extends BundleOrigin
 
   /** Indicates that the extension bundle is provided by a parser for markup format.
-    * 
+    *
     * A parser may either provide a feature as a bundle to allow the user to disable
     * it, e.g. support for raw content in the output format which might be security risk
-    * when entered by the user. 
-    * 
+    * when entered by the user.
+    *
     * Another scenario is a parser that needs to supply custom renderers as its
     * parsers produce AST nodes which are not known by the built-in renderers.
     */
@@ -55,7 +54,7 @@ object BundleOrigin {
     * such as custom directives or extensions to markup syntax.
     */
   case object Theme extends BundleOrigin
-  
+
   /** Indicates that the extension bundle has been provided by the user.
     */
   case object User extends BundleOrigin
@@ -66,5 +65,5 @@ object BundleOrigin {
     * internally from all the individual bundles.
     */
   case object Mixed extends BundleOrigin
-  
+
 }

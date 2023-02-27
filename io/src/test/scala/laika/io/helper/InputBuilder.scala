@@ -17,26 +17,30 @@
 package laika.io.helper
 
 import cats.effect.IO
-import laika.ast.{DocumentType, Path}
+import laika.ast.{ DocumentType, Path }
 import laika.io.model._
 import laika.rewrite.nav.TargetFormats
 
 trait InputBuilder {
 
   object ByteInput {
-    
-    def apply (input: String, path: Path, targetFormats: TargetFormats = TargetFormats.All): BinaryInput[IO] =
+
+    def apply(
+        input: String,
+        path: Path,
+        targetFormats: TargetFormats = TargetFormats.All
+    ): BinaryInput[IO] =
       BinaryInput.fromString(input, path, targetFormats)
-      
-    def empty (path: Path): BinaryInput[IO] = BinaryInput.fromString("", path)
+
+    def empty(path: Path): BinaryInput[IO] = BinaryInput.fromString("", path)
   }
-  
-  def build (inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =
+
+  def build(inputs: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): IO[InputTree[IO]] =
     build(inputs).build(docTypeMatcher)
 
-  def build (inputs: Seq[(Path, String)]): InputTreeBuilder[IO] =
-    inputs.foldLeft(InputTree[IO]) {
-      case (builder, (path, input)) => builder.addString(input, path)
+  def build(inputs: Seq[(Path, String)]): InputTreeBuilder[IO] =
+    inputs.foldLeft(InputTree[IO]) { case (builder, (path, input)) =>
+      builder.addString(input, path)
     }
-  
+
 }

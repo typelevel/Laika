@@ -16,17 +16,18 @@
 
 package laika.parse.markup
 
-import laika.bundle.{BlockParserBuilder, MarkupExtensions, ParserBundle, SpanParserBuilder}
+import laika.bundle.{ BlockParserBuilder, MarkupExtensions, ParserBundle, SpanParserBuilder }
 import laika.factory.MarkupFormat
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object RootParserProvider {
 
-  def forParsers (blockParsers: Seq[BlockParserBuilder] = Nil,
-                  spanParsers: Seq[SpanParserBuilder] = Nil,
-                  markupExtensions: MarkupExtensions = ParserBundle().markupExtensions): RootParserWrapper = {
+  def forParsers(
+      blockParsers: Seq[BlockParserBuilder] = Nil,
+      spanParsers: Seq[SpanParserBuilder] = Nil,
+      markupExtensions: MarkupExtensions = ParserBundle().markupExtensions
+  ): RootParserWrapper = {
 
     val bp = blockParsers
     val sp = spanParsers
@@ -34,16 +35,17 @@ object RootParserProvider {
     object Parser extends MarkupFormat {
       val fileSuffixes = Set.empty[String]
       val blockParsers = bp
-      val spanParsers = sp
-      val extensions = Seq()
+      val spanParsers  = sp
+      val extensions   = Seq()
     }
 
     new RootParserWrapper(Parser, markupExtensions)
 
   }
 
-  class RootParserWrapper(markupParser: MarkupFormat, markupExtensions: MarkupExtensions) extends RootParser(markupParser, markupExtensions) {
+  class RootParserWrapper(markupParser: MarkupFormat, markupExtensions: MarkupExtensions)
+      extends RootParser(markupParser, markupExtensions) {
     lazy val standaloneSpanParser = defaultSpanParser
   }
-  
+
 }

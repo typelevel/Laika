@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.ast.{Element, MessageFilter, MessageLevel}
+import laika.ast.{ Element, MessageFilter, MessageLevel }
 import laika.bundle.ExtensionBundle
 import laika.factory.RenderFormat
 
@@ -44,14 +44,18 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     *  }.build
     *  }}}
     */
-  def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {
-    val description: String = "Custom render function"
-    override val renderOverrides = Seq(renderFormat.Overrides(value = customRenderer))
-  })
+  def rendering(customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(
+    new ExtensionBundle {
+      val description: String      = "Custom render function"
+      override val renderOverrides = Seq(renderFormat.Overrides(value = customRenderer))
+    }
+  )
 
   /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
     */
-  def renderMessages (filter: MessageFilter): ThisType = withConfig(config.copy(renderMessages = filter))
+  def renderMessages(filter: MessageFilter): ThisType = withConfig(
+    config.copy(renderMessages = filter)
+  )
 
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.

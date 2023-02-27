@@ -16,27 +16,27 @@
 
 package laika.ast.sample
 
-import laika.ast.{ParentSelector, StyleDeclaration, StylePredicate, StyleSelector}
+import laika.ast.{ ParentSelector, StyleDeclaration, StylePredicate, StyleSelector }
 
 trait StyleBuilders {
 
-  val defaultStyleMap = Map("foo"->"bar")
-  
-  def selector (predicates: StylePredicate*): StyleSelector = StyleSelector(predicates.toSet)
-  
-  def selector (selector: StyleSelector, parent: StyleSelector, immediate: Boolean): StyleSelector =
+  val defaultStyleMap = Map("foo" -> "bar")
+
+  def selector(predicates: StylePredicate*): StyleSelector = StyleSelector(predicates.toSet)
+
+  def selector(selector: StyleSelector, parent: StyleSelector, immediate: Boolean): StyleSelector =
     selector.copy(parent = Some(ParentSelector(parent, immediate)))
-  
-  def styleDecl (styles: Map[String,String], selector: StyleSelector): StyleDeclaration =
+
+  def styleDecl(styles: Map[String, String], selector: StyleSelector): StyleDeclaration =
     StyleDeclaration(selector, styles)
-    
-  def styleDecl (selector: StyleSelector): StyleDeclaration =
+
+  def styleDecl(selector: StyleSelector): StyleDeclaration =
     StyleDeclaration(selector, defaultStyleMap)
 
-  def styleDecl (predicates: StylePredicate*): StyleDeclaration =
+  def styleDecl(predicates: StylePredicate*): StyleDeclaration =
     StyleDeclaration(StyleSelector(predicates.toSet), defaultStyleMap)
 
-  def styleDecl (styles: Map[String,String], predicates: StylePredicate*): StyleDeclaration =
+  def styleDecl(styles: Map[String, String], predicates: StylePredicate*): StyleDeclaration =
     StyleDeclaration(StyleSelector(predicates.toSet), styles)
-  
+
 }

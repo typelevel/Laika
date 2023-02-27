@@ -18,42 +18,57 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{Keywords, TagBasedFormats, TagParser}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.common.{ Keywords, TagBasedFormats, TagParser }
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object XMLSyntax extends TagBasedFormats with SyntaxHighlighter {
-  
-  val pi: CodeSpanParser = CodeSpanParser(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
+
+  val pi: CodeSpanParser    = CodeSpanParser(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
   val cdata: CodeSpanParser = CodeSpanParser(CodeCategory.XML.CData, "<![CDATA[", "]]>")
 
   object DTD {
-    
-    val notation: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "NOTATION").embed(
-      Keywords("SYSTEM", "PUBLIC"),
-      string,
-      name(CodeCategory.Identifier),
-    )
-  
+
+    val notation: CodeSpanParser =
+      TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "NOTATION").embed(
+        Keywords("SYSTEM", "PUBLIC"),
+        string,
+        name(CodeCategory.Identifier)
+      )
+
     val entity: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ENTITY").embed(
       Keywords("SYSTEM", "PUBLIC", "NDATA"),
       string,
-      name(CodeCategory.Identifier),
-    )
-  
-    val attribute: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ATTLIST").embed(
-      Keywords("CDATA", "ID", "IDREF", "IDREFS", "ENTITY", "ENTITIES", "NMTOKEN", "NMTOKENS", "#REQUIRED", "#IMPLIED", "#FIXED", "NOTATION"),
-      string,
-      name(CodeCategory.Identifier),
-    )
-
-    val element: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ELEMENT").embed(
-      Keywords("EMPTY", "ANY", "#PCDATA"),
       name(CodeCategory.Identifier)
     )
-    
+
+    val attribute: CodeSpanParser =
+      TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ATTLIST").embed(
+        Keywords(
+          "CDATA",
+          "ID",
+          "IDREF",
+          "IDREFS",
+          "ENTITY",
+          "ENTITIES",
+          "NMTOKEN",
+          "NMTOKENS",
+          "#REQUIRED",
+          "#IMPLIED",
+          "#FIXED",
+          "NOTATION"
+        ),
+        string,
+        name(CodeCategory.Identifier)
+      )
+
+    val element: CodeSpanParser =
+      TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "ELEMENT").embed(
+        Keywords("EMPTY", "ANY", "#PCDATA"),
+        name(CodeCategory.Identifier)
+      )
+
   }
 
   val xmlDecl: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<?", "?>", "xml").embed(
@@ -86,5 +101,5 @@ object XMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     startTag,
     endTag
   )
-  
+
 }

@@ -17,7 +17,7 @@
 package laika.factory
 
 /** Base trait for all types of input and output formats.
-  * 
+  *
   * @author Jens Halm
   */
 trait Format {
@@ -25,5 +25,5 @@ trait Format {
   /** Short string describing the markup or output format for tooling and logging.
     */
   def description: String = toString
-  
+
 }

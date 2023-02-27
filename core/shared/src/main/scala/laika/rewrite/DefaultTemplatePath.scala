@@ -20,17 +20,17 @@ import laika.ast.Path
 import laika.ast.Path.Root
 
 /** Provides the paths for default templates for all formats.
-  * 
+  *
   * @author Jens Halm
   */
 object DefaultTemplatePath {
 
   private val base: Path = Root / "default"
-  
+
   def forSuffix(suffix: String): Path = base.withSuffix(s"template.$suffix")
-  
+
   def forHTML: Path = forSuffix("html")
   def forEPUB: Path = forSuffix("epub.xhtml")
-  def forFO: Path = forSuffix("fo")
-  
+  def forFO: Path   = forSuffix("fo")
+
 }

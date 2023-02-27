@@ -19,38 +19,51 @@ package laika.render
 import laika.ast._
 import laika.factory.RenderContext
 
-
 /** API for renderers that produce text output.
- * 
- * @param renderChild  the function to use for rendering child elements
- * @param currentElement the active element currently being rendered 
- * @param parents the stack of parent elements of this formatter in recursive rendering, 
- *                with the root element being the last in the list
- * @param indentation the indentation mechanism for this formatter
-  *                     
- * @author Jens Halm
- */
-case class TextFormatter (renderChild: (TextFormatter, Element) => String,
-                          currentElement: Element,
-                          parents: List[Element],
-                          indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, currentElement, parents, indentation, MessageFilter.Debug) {
+  *
+  * @param renderChild  the function to use for rendering child elements
+  * @param currentElement the active element currently being rendered
+  * @param parents the stack of parent elements of this formatter in recursive rendering,
+  *                with the root element being the last in the list
+  * @param indentation the indentation mechanism for this formatter
+  *
+  * @author Jens Halm
+  */
+case class TextFormatter(
+    renderChild: (TextFormatter, Element) => String,
+    currentElement: Element,
+    parents: List[Element],
+    indentation: Indentation
+) extends BaseFormatter[TextFormatter](
+      renderChild,
+      currentElement,
+      parents,
+      indentation,
+      MessageFilter.Debug
+    ) {
 
-  protected def withChild (element: Element): TextFormatter = copy(parents = currentElement :: parents, currentElement = element)
+  protected def withChild(element: Element): TextFormatter =
+    copy(parents = currentElement :: parents, currentElement = element)
 
-  protected def withIndentation (newIndentation: Indentation): TextFormatter = copy(indentation = newIndentation)
-  
+  protected def withIndentation(newIndentation: Indentation): TextFormatter =
+    copy(indentation = newIndentation)
+
 }
 
 /** Default factory for TextFormatters, based on a provided RenderContext.
   */
 object TextFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
-  def apply (context: RenderContext[TextFormatter]): TextFormatter = 
+
+  def apply(context: RenderContext[TextFormatter]): TextFormatter =
     TextFormatter(context.renderChild, context.root, Nil, context.indentation)
+
 }
 
 /** Default factory for ASTFormatters, based on a provided RenderContext.
   */
 object ASTFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
-  def apply (context: RenderContext[TextFormatter]): TextFormatter =
+
+  def apply(context: RenderContext[TextFormatter]): TextFormatter =
     TextFormatter(context.renderChild, context.root, Nil, Indentation.dotted)
+
 }

@@ -16,9 +16,9 @@
 
 package laika.parse.markup
 
-import laika.parse.text.DelimiterResult.{Complete, Continue}
-import laika.parse.text.{Delimiter, DelimiterResult}
-import laika.parse.{Parsed, SourceCursor, Success}
+import laika.parse.text.DelimiterResult.{ Complete, Continue }
+import laika.parse.text.{ Delimiter, DelimiterResult }
+import laika.parse.{ Parsed, SourceCursor, Success }
 
 /** Delimiter implementation for parsing inline spans that distinguishes
   * between a delimiter that marks the end of the span and a delimiter
@@ -26,11 +26,16 @@ import laika.parse.{Parsed, SourceCursor, Success}
   *
   * @author Jens Halm
   */
-class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[String]) extends Delimiter[InlineResult] {
+class InlineDelimiter(nestedDelimiters: Set[Char], endDelimiters: Delimiter[String])
+    extends Delimiter[InlineResult] {
 
   val startChars = nestedDelimiters ++ endDelimiters.startChars
 
-  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[InlineResult] = {
+  def atStartChar(
+      startChar: Char,
+      charsConsumed: Int,
+      source: SourceCursor
+  ): DelimiterResult[InlineResult] = {
 
     def nestedDelimiter: DelimiterResult[InlineResult] = {
       val capturedText = source.capture(charsConsumed)
@@ -45,7 +50,7 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
     else nestedDelimiter
   }
 
-  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[InlineResult] =
+  def atEOF(charsConsumed: Int, source: SourceCursor): Parsed[InlineResult] =
     endDelimiters.atEOF(charsConsumed, source).map(EndDelimiter.apply)
 
 }
@@ -56,8 +61,8 @@ sealed trait InlineResult
 
 /** The result in case the start character of a nested span has been parsed.
   */
-case class NestedDelimiter (startChar: Char, capturedText: String) extends InlineResult
+case class NestedDelimiter(startChar: Char, capturedText: String) extends InlineResult
 
 /** The result in case the end delimiter for the text has been parsed.
   */
-case class EndDelimiter (capturedText: String) extends InlineResult
+case class EndDelimiter(capturedText: String) extends InlineResult

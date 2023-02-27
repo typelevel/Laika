@@ -19,16 +19,14 @@ package laika.parse.text
 import laika.parse.Parser
 import laika.parse.builders._
 import munit.FunSuite
-   
+
 class TextParsersSpec extends FunSuite {
 
-
-  def run[A] (parser: Parser[A], input: String, expected: A): Unit =
+  def run[A](parser: Parser[A], input: String, expected: A): Unit =
     assertEquals(parser.parse(input).toEither, Right(expected))
 
-  def expectFailure[A] (parser: Parser[A], input: String): Unit =
+  def expectFailure[A](parser: Parser[A], input: String): Unit =
     assert(parser.parse(input).toEither.isLeft)
-
 
   test("prevNot - succeed if the previous character is not one of those specified") {
     run(oneChar ~> prevNot('x'), "abc", ())
@@ -50,7 +48,6 @@ class TextParsersSpec extends FunSuite {
     (oneChar ~> prevNot(_ == 'a'), "abc")
   }
 
-
   test("nextNot - succeed if the next character is not one of those specified") {
     run(oneChar ~> nextNot('x'), "abc", ())
   }
@@ -70,7 +67,6 @@ class TextParsersSpec extends FunSuite {
   test("nextNot - fail if the the predicate is satisfied") {
     expectFailure(oneChar ~> nextNot(_ == 'b'), "abc")
   }
-
 
   test("prevIn - succeed if the previous character is one of those specified") {
     run(oneChar ~> prevIn('a', 'c'), "abc", ())
@@ -92,7 +88,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(oneChar ~> prevIs(_ == 'b'), "abc")
   }
 
-
   test("nextIn - succeed if the next character is one of those specified") {
     run(oneChar ~> nextIn('b'), "abc", ())
   }
@@ -113,7 +108,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(oneChar ~> nextIs(_ == 'a'), "abc")
   }
 
-
   test("literal - succeed with a matching string literal") {
     run(literal("abc"), "abcd", "abc")
   }
@@ -121,7 +115,6 @@ class TextParsersSpec extends FunSuite {
   test("literal - fail when the string literal does not match") {
     expectFailure(literal("bcd"), "abcd")
   }
-
 
   test("eol - succeed for \\n") {
     run(eol, "\naaa", ())
@@ -139,7 +132,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(eol, "abc")
   }
 
-
   test("eof - succeed at the end of the input") {
     run(eof, "", "")
   }
@@ -148,13 +140,11 @@ class TextParsersSpec extends FunSuite {
     expectFailure(eof, "\n")
   }
 
-
   test("atStart - succeed at the start of the input") {
     run(atStart, "abc", ())
   }
 
-  test("atStart - fail when not at the start of the input") {
-  }
+  test("atStart - fail when not at the start of the input") {}
 
   test("ws - succeed with all whitespace characters") {
     run(ws, " \t abcd", " \t ")
@@ -176,7 +166,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(wsEol, "abcd")
   }
 
-
   test("blankLine - succeed with whitespace characters followed by newline") {
     run(blankLine, " \n abcd", "")
   }
@@ -188,7 +177,6 @@ class TextParsersSpec extends FunSuite {
   test("blankLine - fail with non-whitespace chacracters") {
     expectFailure(blankLine, "abcd")
   }
-
 
   test("blankLines - succeed with one blank line") {
     run(blankLines, " \n abcd", List(""))
@@ -202,7 +190,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(blankLines, "abcd")
   }
 
-
   test("restOfLine - succeed with all characters of the current line") {
     run(restOfLine, " aa\nabcd", " aa")
   }
@@ -210,7 +197,6 @@ class TextParsersSpec extends FunSuite {
   test("restOfLine - succeed with an empty result") {
     run(restOfLine, "\nabcd", "")
   }
-
 
   test("textLine - succeed with all characters of the current line") {
     run(textLine, " aa\nabcd", " aa")
@@ -220,7 +206,6 @@ class TextParsersSpec extends FunSuite {
     expectFailure(textLine, "\nabcd")
   }
 
-
   test("anyChars - always succeed consuming the entire input") {
     run(anyChars, "abcde $&", "abcde $&")
   }
@@ -228,7 +213,6 @@ class TextParsersSpec extends FunSuite {
   test("anyChars - only consume the specified maximum number of characters") {
     run(anyChars.max(3), "abcde $&", "abc")
   }
-
 
   test("anyOf - succeed with an empty result when no characters match") {
     run(anyOf('x'), "ababccab", "")
@@ -254,10 +238,11 @@ class TextParsersSpec extends FunSuite {
     run(anyOf('x').min(3), "xxxxabc", "xxxx")
   }
 
-  test("anyOf - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "anyOf - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(anyOf('x').max(3), "xxxxxx", "xxx")
   }
-
 
   test("someOf - succeed for the matching character when 1 character is specified") {
     run(someOf('x'), "xxabc", "xx")
@@ -275,7 +260,9 @@ class TextParsersSpec extends FunSuite {
     expectFailure(someOf('x').min(3), "xxabc")
   }
 
-  test("someOf - fail when it does not consume any characters as min(1) is implicit in someOf parsers") {
+  test(
+    "someOf - fail when it does not consume any characters as min(1) is implicit in someOf parsers"
+  ) {
     expectFailure(someOf('x'), "abcde")
   }
 
@@ -283,10 +270,11 @@ class TextParsersSpec extends FunSuite {
     run(someOf('x').min(3), "xxxxabc", "xxxx")
   }
 
-  test("someOf - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "someOf - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(someOf('x').max(3), "xxxxxx", "xxx")
   }
-
 
   test("oneOf - succeed for the matching character when 1 character is specified") {
     run(TextParsers.oneOf('x'), "xxabc", "x")
@@ -303,7 +291,6 @@ class TextParsersSpec extends FunSuite {
   test("oneOf - fail when the first character does not match") {
     expectFailure(TextParsers.oneOf('x'), "yxxabc")
   }
-
 
   test("anyNot - succeed for all non-matching characters when 1 character is specified") {
     run(anyNot('x'), "abcxxabc", "abc")
@@ -325,10 +312,11 @@ class TextParsersSpec extends FunSuite {
     run(anyNot('x').min(3), "abcdxxxx", "abcd")
   }
 
-  test("anyNot - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "anyNot - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(anyNot('x').max(3), "abcdxxxx", "abc")
   }
-
 
   test("someNot - succeed for all non-matching characters when 1 character is specified") {
     run(someNot('x'), "abcxxabc", "abc")
@@ -346,7 +334,9 @@ class TextParsersSpec extends FunSuite {
     expectFailure(someNot('x').min(3), "abxx")
   }
 
-  test("someNot - fail when it does not consume any characters as min(1) is implicit in someNot parsers") {
+  test(
+    "someNot - fail when it does not consume any characters as min(1) is implicit in someNot parsers"
+  ) {
     expectFailure(someNot('a', 'b'), "abcde")
   }
 
@@ -354,10 +344,11 @@ class TextParsersSpec extends FunSuite {
     run(someNot('x').min(3), "abcdxxxx", "abcd")
   }
 
-  test("someNot - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "someNot - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(someNot('x').max(3), "abcdxxxx", "abc")
   }
-
 
   test("oneNot - succeed for a non-matching character when 1 character is specified") {
     run(TextParsers.oneNot('a'), "xxabc", "x")
@@ -375,19 +366,19 @@ class TextParsersSpec extends FunSuite {
     expectFailure(TextParsers.oneNot('x', 'y'), "yxxabc")
   }
 
-
   test("anyOf - succeed for any character within the specified range when 1 range is specified") {
     run(anyOf(range('a', 'd')), "abcde $&", "abcd")
   }
 
-  test("anyOf - succeed for any character within the specified ranges when 2 ranges are specified") {
+  test(
+    "anyOf - succeed for any character within the specified ranges when 2 ranges are specified"
+  ) {
     run(anyOf(range('a', 'd') ++ range('x', 'z')), "abcdxyzff", "abcdxyz")
   }
 
   test("anyOf - succeed in case the end of the input is reached") {
     run(anyOf(range('a', 'd')), "abcabd", "abcabd")
   }
-
 
   test("anyWhile - succeed with an empty result when no characters match") {
     run(anyWhile(_ < 'd'), "xyzzyw", "")
@@ -409,10 +400,11 @@ class TextParsersSpec extends FunSuite {
     run(anyWhile(_ < 'd').min(3), "abcdxxxx", "abc")
   }
 
-  test("anyWhile - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "anyWhile - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(anyWhile(_ < 'd').max(2), "abcdxxxx", "ab")
   }
-
 
   test("someWhile - succeed as long as the specified condition is met") {
     run(someWhile(_ < 'd'), "abcde $&", "abc")
@@ -426,7 +418,9 @@ class TextParsersSpec extends FunSuite {
     expectFailure(someWhile(_ < 'd').min(3), "abxx")
   }
 
-  test("someWhile - fail when it does not consume any characters as min(1) is implicit in someNot parsers") {
+  test(
+    "someWhile - fail when it does not consume any characters as min(1) is implicit in someNot parsers"
+  ) {
     expectFailure(someWhile(_ < 'd'), "xxyyzz")
   }
 
@@ -434,10 +428,11 @@ class TextParsersSpec extends FunSuite {
     run(someWhile(_ < 'd').min(3), "abcdxxxx", "abc")
   }
 
-  test("someWhile - stop, but still succeed, when it has consumed the specified maximum number of characters") {
+  test(
+    "someWhile - stop, but still succeed, when it has consumed the specified maximum number of characters"
+  ) {
     run(someWhile(_ < 'd').max(2), "abcdxxxx", "ab")
   }
-
 
   test("oneIf - succeed as long as the specified condition is met") {
     run(oneIf(_ < 'd'), "abcde $&", "a")
@@ -450,7 +445,6 @@ class TextParsersSpec extends FunSuite {
   test("oneIf - fail in case the specified predicate is not met") {
     expectFailure(oneIf(_ < 'd'), "zxxxyyyz")
   }
-
 
   private val az = delimitedBy(CharGroup.lowerAlpha)
 
@@ -470,10 +464,11 @@ class TextParsersSpec extends FunSuite {
     expectFailure(az.failOn('3', '4'), "1234abcd")
   }
 
-  test("delimitedBy - fail in case the end of the input is reached before seeing a delimiter character") {
+  test(
+    "delimitedBy - fail in case the end of the input is reached before seeing a delimiter character"
+  ) {
     expectFailure(az, "1234567")
   }
-
 
   private val lit = delimitedBy(">>>")
 
@@ -493,7 +488,9 @@ class TextParsersSpec extends FunSuite {
     expectFailure(lit.failOn('3', '4'), "1234>>>")
   }
 
-  test("delimitedBy - fail in case the end of the input is reached before seeing the delimiter string") {
+  test(
+    "delimitedBy - fail in case the end of the input is reached before seeing the delimiter string"
+  ) {
     expectFailure(lit, "1234567")
   }
 

@@ -16,29 +16,27 @@
 
 package laika.parse.hocon
 
-import laika.config.{ConfigParser, ConfigParserErrors}
+import laika.config.{ ConfigParser, ConfigParserErrors }
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class HoconErrorSpec extends FunSuite {
-  
-  def run (input: String, expectedMessage: String)(implicit loc: munit.Location): Unit = {
+
+  def run(input: String, expectedMessage: String)(implicit loc: munit.Location): Unit = {
 
     ConfigParser.parse(input).resolve() match {
-      case Right(result) => fail(s"Unexpected parser success: $result")
+      case Right(result)                    => fail(s"Unexpected parser success: $result")
       case Left(ConfigParserErrors(errors)) =>
         assertEquals(errors.size, 1)
         assertEquals(errors.head.toString, expectedMessage)
-      case Left(other) => fail(s"Unexpected parser error: $other")
+      case Left(other)                      => fail(s"Unexpected parser error: $other")
     }
 
   }
 
-
   test("missing closing quotes in a top level property") {
-    val input =
+    val input           =
       """
         |a = "foo bar
         |
@@ -53,7 +51,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing quotes in an array property") {
-    val input =
+    val input           =
       """
         |a = [
         | 3
@@ -72,7 +70,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing quotes in a nested object property") {
-    val input =
+    val input           =
       """
         |a {
         | aa = "some text
@@ -90,7 +88,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing quotes in a substitution reference") {
-    val input =
+    val input           =
       """
         |a = ${"foo.bar}
         |
@@ -105,7 +103,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing quotes in a property key") {
-    val input =
+    val input           =
       """
         |"a = 7
         |
@@ -118,10 +116,9 @@ class HoconErrorSpec extends FunSuite {
         |      ^""".stripMargin
     run(input, expectedMessage)
   }
-    
-  
+
   test("invalid characters for unquoted strings in a top level property value") {
-    val input =
+    val input           =
       """
         |a = foo ? bar
         |
@@ -136,7 +133,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid characters for unquoted strings in an array property") {
-    val input =
+    val input           =
       """
         |a = [
         | 3
@@ -155,7 +152,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid characters for unquoted strings in a nested object property value") {
-    val input =
+    val input           =
       """
         |a {
         | aa = some ? text
@@ -171,9 +168,9 @@ class HoconErrorSpec extends FunSuite {
         |           ^""".stripMargin
     run(input, expectedMessage)
   }
-  
+
   test("invalid characters for unquoted strings in a substitution reference") {
-    val input =
+    val input           =
       """
         |a = ${foo = bar}
         |
@@ -188,7 +185,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid characters for unquoted strings in a property key") {
-    val input =
+    val input           =
       """
         |a } c = 7
         |
@@ -202,8 +199,10 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-  test("invalid characters for unquoted strings as a consequence of a missing separator between fields") {
-    val input =
+  test(
+    "invalid characters for unquoted strings as a consequence of a missing separator between fields"
+  ) {
+    val input           =
       """
         |a {
         |  b { x = 5 y = 6 }
@@ -220,10 +219,9 @@ class HoconErrorSpec extends FunSuite {
         |              ^""".stripMargin
     run(input, expectedMessage)
   }
-    
 
   test("invalid escape sequences in a top level property") {
-    val input =
+    val input           =
       """
         |a = "foo \x bar"
         |
@@ -237,9 +235,8 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-   
   test("missing closing brackets for arrays in a top level property") {
-    val input =
+    val input           =
       """
         |a = [3, 4, 5
         |
@@ -254,7 +251,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing brackets for arrays in a top level property in a multiline array") {
-    val input =
+    val input           =
       """
         |a = [
         | 3
@@ -272,7 +269,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing brackets for arrays in a nested object property") {
-    val input =
+    val input           =
       """
         |a {
         |  b = [
@@ -293,9 +290,8 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-  
   test("missing closing brackets for objects in a top level property") {
-    val input =
+    val input           =
       """
         |a {
         |  x = 5
@@ -311,7 +307,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing brackets for objects in a multiline array") {
-    val input =
+    val input           =
       """
         |a = [
         | { x = 3
@@ -330,7 +326,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing brackets for objects in a nested object property") {
-    val input =
+    val input           =
       """
         |a {
         |  b { x = 5
@@ -348,9 +344,8 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-  
   test("missing '=' or ':' between key and value in a top level property") {
-    val input =
+    val input           =
       """
         |a 5
         |
@@ -365,7 +360,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing '=' or ':' between key and value in a multiline array") {
-    val input =
+    val input           =
       """
         |a = [
         | { x 3 }
@@ -384,7 +379,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing '=' or ':' between key and value in a nested object property") {
-    val input =
+    val input           =
       """
         |a {
         |  b { x 5 }
@@ -402,9 +397,8 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-
   test("missing closing braces for substitution references in a top level property") {
-    val input =
+    val input           =
       """
         |a = ${foo.bar
         |
@@ -419,7 +413,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing braces for substitution references in a multiline array") {
-    val input =
+    val input           =
       """
         |a = [
         | ${foo.bar
@@ -438,7 +432,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing braces for substitution references in a nested object property") {
-    val input =
+    val input           =
       """
         |a {
         |  b = ${foo.bar
@@ -456,9 +450,8 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-  
   test("missing closing triple quotes in a top level object") {
-    val input =
+    val input           =
       """
         |a = +++foo bar
         |       baz baz
@@ -473,7 +466,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("missing closing triple quotes in a nested object") {
-    val input =
+    val input           =
       """
         |a = {
         |  aa = +++foo bar
@@ -488,10 +481,9 @@ class HoconErrorSpec extends FunSuite {
         |     ^""".stripMargin
     run(input, expectedMessage)
   }
-  
-  
+
   test("invalid include syntax - missing closing quotes") {
-    val input =
+    val input           =
       """
         |include "foo.conf
         |       
@@ -505,7 +497,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid include syntax - missing closing quotes (file syntax)") {
-    val input =
+    val input           =
       """
         |include file("foo.conf)
         |       
@@ -519,7 +511,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid include syntax - missing closing parenthesis (file syntax)") {
-    val input =
+    val input           =
       """
         |include file("foo.conf"
         |       
@@ -533,7 +525,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid include syntax - missing closing parenthesis (required/file syntax)") {
-    val input =
+    val input           =
       """
         |include required(file("foo.conf")
         |       
@@ -547,7 +539,7 @@ class HoconErrorSpec extends FunSuite {
   }
 
   test("invalid include syntax - missing quotes") {
-    val input =
+    val input           =
       """
         |include file(foo.conf)
         |       
@@ -560,5 +552,4 @@ class HoconErrorSpec extends FunSuite {
     run(input, expectedMessage)
   }
 
-  
 }

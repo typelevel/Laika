@@ -16,32 +16,36 @@
 
 package laika.factory
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
 import laika.config.Config
-import laika.io.model.{BinaryOutput, RenderedTreeRoot}
+import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
 
 /** Post processor for the result output of a renderer.
- *  Useful for scenarios where interim formats will be generated
- *  (e.g. XSL-FO for a PDF target or XHTML for an EPUB target).
- *  
- *  @author Jens Halm
- */
+  *  Useful for scenarios where interim formats will be generated
+  *  (e.g. XSL-FO for a PDF target or XHTML for an EPUB target).
+  *
+  *  @author Jens Halm
+  */
 abstract class BinaryPostProcessor[F[_]: Async] {
 
   /** Processes the interim render result and writes it to the specified final output.
-    * 
+    *
     * @param result the result of the renderer for the interim format
     * @param output the binary output to render to
-    * @param config the operation config that had been used for the interim result 
-   */
-  def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit]
-  
+    * @param config the operation config that had been used for the interim result
+    */
+  def process(
+      result: RenderedTreeRoot[F],
+      output: BinaryOutput[F],
+      config: OperationConfig
+  ): F[Unit]
+
 }
 
 trait BinaryPostProcessorBuilder {
-  
-  def build[F[_]: Async] (config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]]
-  
+
+  def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]]
+
 }

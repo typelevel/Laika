@@ -19,7 +19,7 @@ package laika.bundle
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast._
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
-import laika.config.{Config, ConfigBuilder}
+import laika.config.{ Config, ConfigBuilder }
 import laika.parse.css.CSSParsers
 import laika.rewrite.OutputContext
 import laika.rewrite.link.SlugBuilder
@@ -60,10 +60,10 @@ trait ExtensionBundle { self =>
   /** Short string describing the extension for tooling and logging.
     */
   def description: String
-  
+
   /** Indicates whether the bundle is a built-in default provided by the library,
     * a collection of extensions installed by a markup format or user-defined.
-    * 
+    *
     * This is relevant for determining the precedence of installed bundles when merging
     * them, as user-supplied functionality always overrides library defaults.
     */
@@ -88,9 +88,9 @@ trait ExtensionBundle { self =>
   /** Function that receives the text of a headline, the name of a document
     * or directory or a manually assigned identifier, and builds a slug from it
     * that becomes part of the final URL or identifier (depending on output format).
-    * 
+    *
     * The result of the function must be:
-    * 
+    *
     * - a valid identifier in HTML and XML
     * - a valid path segment in a URL
     * - a valid file name
@@ -120,25 +120,26 @@ trait ExtensionBundle { self =>
   def renderOverrides: Seq[RenderOverrides] = Seq.empty
 
   /** Extends the built-in path translator with additional functionality.
-    * 
+    *
     * The internal path translator deals with aspects like applying the suffix for the output format
     * or modifying the path for versioned documents and more.
-    * 
+    *
     * The `PathTranslatorExtensionContext` provides access to this internal path translator, to the output
     * format it is going to be used for and the complete user configuration.
-    * 
+    *
     * In most cases, extensions can simply be created by using either `PathTranslator.preTranslate`
-    * or `PathTranslator.postTranslate` to apply additional translation steps either before or after 
+    * or `PathTranslator.postTranslate` to apply additional translation steps either before or after
     * applying the internal translator.
-    * 
+    *
     * Alternatively a completely custom implementation of the `PathTranslator` trait can be provided,
     * but this will usually not be necessary.
-    * 
+    *
     * `PathTranslator` implementations usually do not deal with the fragment part of the path.
     * Use the `slugBuilder` extension point for this purpose.
     */
-  def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] = PartialFunction.empty
-  
+  def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] =
+    PartialFunction.empty
+
   /** Internal API usually only called by other extension bundles.
     *
     * In some cases a bundle might be an extension of another bundle and needs the opportunity
@@ -163,59 +164,67 @@ trait ExtensionBundle { self =>
     *
     * - in case of feature collections, the features of this bundle will be merged with those of the base bundle
     */
-  def withBase (base: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
+  def withBase(base: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
 
     val description: String = "Merged Bundle"
 
-    override lazy val origin: BundleOrigin = if (self.origin == base.origin) self.origin else BundleOrigin.Mixed
-    
+    override lazy val origin: BundleOrigin =
+      if (self.origin == base.origin) self.origin else BundleOrigin.Mixed
+
     override lazy val baseConfig = self.baseConfig.withFallback(base.baseConfig)
 
     override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
-    
+
     override lazy val slugBuilder = self.slugBuilder.orElse(base.slugBuilder)
 
     override lazy val parsers: ParserBundle = self.parsers withBase base.parsers
 
     /* flipped on purpose, base rules need to be applied first, so that app rules do not need to deal with potentially
        unknown node types */
-    override lazy val rewriteRules = {
-      case phase => base.rewriteRules.lift(phase).getOrElse(Nil) ++ self.rewriteRules.lift(phase).getOrElse(Nil)
+    override lazy val rewriteRules = { case phase =>
+      base.rewriteRules.lift(phase).getOrElse(Nil) ++ self.rewriteRules.lift(phase).getOrElse(Nil)
     }
 
     override lazy val renderOverrides = self.renderOverrides ++ base.renderOverrides
 
-    override def extendPathTranslator: PartialFunction[PathTranslatorExtensionContext, PathTranslator] =
+    override def extendPathTranslator
+        : PartialFunction[PathTranslatorExtensionContext, PathTranslator] =
       new PartialFunction[PathTranslatorExtensionContext, PathTranslator] {
 
-        def isDefinedAt (ctx: PathTranslatorExtensionContext): Boolean =
+        def isDefinedAt(ctx: PathTranslatorExtensionContext): Boolean =
           self.extendPathTranslator.isDefinedAt(ctx) || base.extendPathTranslator.isDefinedAt(ctx)
 
-        def apply (ctx: PathTranslatorExtensionContext): PathTranslator = {
+        def apply(ctx: PathTranslatorExtensionContext): PathTranslator = {
           val newPathTranslator = base.extendPathTranslator
             .applyOrElse[PathTranslatorExtensionContext, PathTranslator](ctx, _.baseTranslator)
-          val newCtx = new PathTranslatorExtensionContext(newPathTranslator, ctx.outputContext, ctx.config)
+          val newCtx            =
+            new PathTranslatorExtensionContext(newPathTranslator, ctx.outputContext, ctx.config)
           self.extendPathTranslator
             .applyOrElse[PathTranslatorExtensionContext, PathTranslator](newCtx, _.baseTranslator)
         }
+
       }
 
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(base.processExtension)
 
-    override def forStrictMode = merged(self.forStrictMode, base.forStrictMode)
+    override def forStrictMode      = merged(self.forStrictMode, base.forStrictMode)
     override def rawContentDisabled = merged(self.rawContentDisabled, base.rawContentDisabled)
-    
-    private def merged (thisBundle: Option[ExtensionBundle], baseBundle: Option[ExtensionBundle]): Option[ExtensionBundle] =
-      Seq(thisBundle, baseBundle).flatten.reduceOption((a,b) => a.withBase(b))
+
+    private def merged(
+        thisBundle: Option[ExtensionBundle],
+        baseBundle: Option[ExtensionBundle]
+    ): Option[ExtensionBundle] =
+      Seq(thisBundle, baseBundle).flatten.reduceOption((a, b) => a.withBase(b))
+
   }
 
   /** Provides a version of this bundle that can be used in strict mode or `None` if the entire bundle
     * should be removed in strict mode.
-    * 
+    *
     * When strict mode does not affect a bundle it can return `Some(this)`.
     *
-    * Any bundle to be used in strict mode should be free from any parser extensions that 
+    * Any bundle to be used in strict mode should be free from any parser extensions that
     * adds features to markup syntax beyond their respective specifications.
     */
   def forStrictMode: Option[ExtensionBundle] = Some(this)
@@ -225,7 +234,7 @@ trait ExtensionBundle { self =>
     *
     * When a bundle does not add parsers for raw content it can return `Some(this)`.
     *
-    * Any bundle to be used in the default run mode should be free from any parser extensions that 
+    * Any bundle to be used in the default run mode should be free from any parser extensions that
     * allow raw content in markup.
     * When the user switches the `acceptRawContent` flag to `true` then this method will not be invoked
     * and the initial instance of the bundle is used.
@@ -239,17 +248,21 @@ trait ExtensionBundle { self =>
 object ExtensionBundle {
 
   /** The context that is provided to builders for path translator extensions.
-    * 
+    *
     * @param baseTranslator the internal path translator that can be used for delegating most translation steps to
-    * @param outputContext  the context for the output format the translator is used for 
+    * @param outputContext  the context for the output format the translator is used for
     *                       (since translators are different per render format)
     * @param config         the complete user configuration for the current transformation
     */
-  class PathTranslatorExtensionContext (val baseTranslator: PathTranslator, val outputContext: OutputContext, val config: Config)
+  class PathTranslatorExtensionContext(
+      val baseTranslator: PathTranslator,
+      val outputContext: OutputContext,
+      val config: Config
+  )
 
   /** An empty bundle */
   object Empty extends ExtensionBundle {
-    val description: String = "Empty extension bundle"
+    val description: String           = "Empty extension bundle"
     override val origin: BundleOrigin = BundleOrigin.Library
   }
 
@@ -261,12 +274,13 @@ object ExtensionBundle {
     val description: String = "Laika's Default Extensions"
 
     override val origin: BundleOrigin = BundleOrigin.Library
-    
+
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DocumentTypeMatcher.base
-    
+
     override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)
-    
-    override val baseConfig: Config = ConfigBuilder.empty.withValue("laika.version", "0.19.1-SNAPSHOT").build
+
+    override val baseConfig: Config =
+      ConfigBuilder.empty.withValue("laika.version", "0.19.1-SNAPSHOT").build
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)

@@ -16,18 +16,17 @@
 
 package laika.parse.hocon
 
-import laika.config.{BooleanValue, DoubleValue, LongValue, NullValue}
+import laika.config.{ BooleanValue, DoubleValue, LongValue, NullValue }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 trait ResultBuilders {
 
-  val nullValue: ConfigBuilderValue = ResolvedBuilderValue(NullValue)
-  val trueValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(true))
-  val falseValue: ConfigBuilderValue = ResolvedBuilderValue(BooleanValue(false))
-  def longValue(value: Long): ConfigBuilderValue = ResolvedBuilderValue(LongValue(value))
+  val nullValue: ConfigBuilderValue                  = ResolvedBuilderValue(NullValue)
+  val trueValue: ConfigBuilderValue                  = ResolvedBuilderValue(BooleanValue(true))
+  val falseValue: ConfigBuilderValue                 = ResolvedBuilderValue(BooleanValue(false))
+  def longValue(value: Long): ConfigBuilderValue     = ResolvedBuilderValue(LongValue(value))
   def doubleValue(value: Double): ConfigBuilderValue = ResolvedBuilderValue(DoubleValue(value))
   def stringValue(value: String): ConfigBuilderValue = ValidStringValue(value)
-  
+
 }

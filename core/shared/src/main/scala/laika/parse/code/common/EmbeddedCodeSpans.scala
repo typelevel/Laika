@@ -16,17 +16,17 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CategorizedCode, CodeSpan, CodeSpans, Span, ~}
+import laika.ast.{ CategorizedCode, CodeSpan, CodeSpans, Span, ~ }
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.markup.InlineParsers
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.text.{ DelimitedText, PrefixedParser }
 import laika.parse.builders._
 import laika.parse.implicits._
 
 /** Factories for creating a span parser that detects other syntax as part of the span.
-  * 
+  *
   * @author Jens Halm
   */
 object EmbeddedCodeSpans {
@@ -37,26 +37,31 @@ object EmbeddedCodeSpans {
     * An example is a parser for an HTML script element, where the text parser is responsible
     * for detecting the end of the tag (`</script>`) whereas the embedded syntax is JavaScript, not HTML.
     */
-  def parser (textParser: DelimitedText, embedded: SyntaxHighlighter): Parser[Seq[CodeSpan]] =
+  def parser(textParser: DelimitedText, embedded: SyntaxHighlighter): Parser[Seq[CodeSpan]] =
     parser(textParser, embedded.spanParsers)
 
   /** Creates a new parser for code spans based on the specified parser for delimited text
     * and the sequence of code span parsers that detect child spans within that delimited text.
-    * 
+    *
     * The optional `defaultCategories` will be assigned to all text that is not recognized by the child span
     * parsers, but part of the delimited string.
-    * 
+    *
     * An example is a parser for an HTML tag with attributes, where the text parser is responsible
     * for detecting the end of the tag (e.g. `/>` for an empty tag) whereas the embedded child parsers
     * are responsible for detecting attribute names and values and entity references.
     */
-  def parser (textParser: DelimitedText, embedded: Seq[CodeSpanParser], defaultCategories: Set[CodeCategory] = Set.empty): Parser[Seq[CodeSpan]] = {
-    
+  def parser(
+      textParser: DelimitedText,
+      embedded: Seq[CodeSpanParser],
+      defaultCategories: Set[CodeCategory] = Set.empty
+  ): Parser[Seq[CodeSpan]] = {
+
     val codeSpanParsers = embedded.flatMap(_.parsers)
-    val newLineParsers  = codeSpanParsers.filter(_.startChars.contains('\n')).reduceLeftOption(_ | _)
-    val mainParser      = InlineParsers.spans(textParser).embedAll(codeSpanParsers)
-    
-    def extract(spans: Seq[Span]): List[CodeSpan] = spans.flatMap(CodeSpans.extract(defaultCategories)).toList
+    val newLineParsers = codeSpanParsers.filter(_.startChars.contains('\n')).reduceLeftOption(_ | _)
+    val mainParser     = InlineParsers.spans(textParser).embedAll(codeSpanParsers)
+
+    def extract(spans: Seq[Span]): List[CodeSpan] =
+      spans.flatMap(CodeSpans.extract(defaultCategories)).toList
 
     newLineParsers.fold(mainParser.map(extract)) { newLineParser =>
       (opt(atStart ~> newLineParser).map(_.toList) ~ mainParser).concat.map(extract)

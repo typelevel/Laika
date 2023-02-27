@@ -20,12 +20,26 @@ import cats.data.Kleisli
 import cats.syntax.all._
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{Block, BlockSequence, Document, Image, InternalTarget, Paragraph, Path, RootElement, SpanLink, Style, Text, Title, TitledBlock}
-import laika.config.{ConfigException, LaikaKeys}
+import laika.ast.{
+  Block,
+  BlockSequence,
+  Document,
+  Image,
+  InternalTarget,
+  Paragraph,
+  Path,
+  RootElement,
+  SpanLink,
+  Style,
+  Text,
+  Title,
+  TitledBlock
+}
+import laika.config.{ ConfigException, LaikaKeys }
 import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
 import laika.io.model.ParsedTree
-import laika.rewrite.nav.{CoverImages, Selections}
+import laika.rewrite.nav.{ CoverImages, Selections }
 import laika.theme.Theme.TreeProcessor
 
 private[helium] object DownloadPageGenerator {
@@ -34,14 +48,18 @@ private[helium] object DownloadPageGenerator {
 
     val refPath: Path = Root / "downloads"
 
-    def downloadAST (link: Path, title: String, coverImage: Option[Path]): TitledBlock = TitledBlock(Seq(
-      Text(title)
-    ), coverImage.map(img => Paragraph(Image(InternalTarget(img).relativeTo(refPath), alt = Some(title)))).toSeq ++ Seq(
-      Paragraph(SpanLink(InternalTarget(link).relativeTo(refPath))("Download"))
-    ))
+    def downloadAST(link: Path, title: String, coverImage: Option[Path]): TitledBlock = TitledBlock(
+      Seq(
+        Text(title)
+      ),
+      coverImage.map(img =>
+        Paragraph(Image(InternalTarget(img).relativeTo(refPath), alt = Some(title)))
+      ).toSeq ++ Seq(
+        Paragraph(SpanLink(InternalTarget(link).relativeTo(refPath))("Download"))
+      )
+    )
 
     Kleisli[F, ParsedTree[F], ParsedTree[F]] { tree =>
-
       val treeWithDownloadPage = for {
         epubCoverImages  <- CoverImages.forEPUB(tree.root.config)
         pdfCoverImages   <- CoverImages.forPDF(tree.root.config)
@@ -53,35 +71,63 @@ private[helium] object DownloadPageGenerator {
         val downloads: Seq[Block] =
           if (combinations.isEmpty) {
             val epubLink = downloadPath / s"$artifactBaseName.epub"
-            val pdfLink = downloadPath / s"$artifactBaseName.pdf"
-            val epubAST = if (pageConfig.includeEPUB) Seq(downloadAST(epubLink, "EPUB", epubCoverImages.default)) else Nil
-            val pdfAST = if (pageConfig.includePDF) Seq(downloadAST(pdfLink, "PDF", pdfCoverImages.default)) else Nil
+            val pdfLink  = downloadPath / s"$artifactBaseName.pdf"
+            val epubAST  =
+              if (pageConfig.includeEPUB)
+                Seq(downloadAST(epubLink, "EPUB", epubCoverImages.default))
+              else Nil
+            val pdfAST   =
+              if (pageConfig.includePDF) Seq(downloadAST(pdfLink, "PDF", pdfCoverImages.default))
+              else Nil
             Seq(BlockSequence(epubAST ++ pdfAST).withStyle("downloads"))
           }
-          else combinations.map { combination =>
-            val baseTitle = combination.map(_.label).mkString(" - ")
-            val classifier = combination.map(_.name).mkString("-")
-            val epubLink = downloadPath / s"$artifactBaseName-$classifier.epub"
-            val pdfLink = downloadPath / s"$artifactBaseName-$classifier.pdf"
-            val epubAST = if (pageConfig.includeEPUB)
-              Seq(downloadAST(epubLink, baseTitle + " (EPUB)", epubCoverImages.getImageFor(classifier))) else Nil
-            val pdfAST = if (pageConfig.includePDF)
-              Seq(downloadAST(pdfLink, baseTitle + " (PDF)", pdfCoverImages.getImageFor(classifier))) else Nil
-            BlockSequence(epubAST ++ pdfAST).withStyle("downloads")
-          }
-        val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(Paragraph(_)).toSeq ++: downloads
-        val doc = Document(Root / "downloads.gen", RootElement(blocks), config = tree.root.config.withValue("helium.markupEditLinks", false).build)
+          else
+            combinations.map { combination =>
+              val baseTitle  = combination.map(_.label).mkString(" - ")
+              val classifier = combination.map(_.name).mkString("-")
+              val epubLink   = downloadPath / s"$artifactBaseName-$classifier.epub"
+              val pdfLink    = downloadPath / s"$artifactBaseName-$classifier.pdf"
+              val epubAST    =
+                if (pageConfig.includeEPUB)
+                  Seq(
+                    downloadAST(
+                      epubLink,
+                      baseTitle + " (EPUB)",
+                      epubCoverImages.getImageFor(classifier)
+                    )
+                  )
+                else Nil
+              val pdfAST     =
+                if (pageConfig.includePDF)
+                  Seq(
+                    downloadAST(
+                      pdfLink,
+                      baseTitle + " (PDF)",
+                      pdfCoverImages.getImageFor(classifier)
+                    )
+                  )
+                else Nil
+              BlockSequence(epubAST ++ pdfAST).withStyle("downloads")
+            }
+        val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(
+          Paragraph(_)
+        ).toSeq ++: downloads
+        val doc    = Document(
+          Root / "downloads.gen",
+          RootElement(blocks),
+          config = tree.root.config.withValue("helium.markupEditLinks", false).build
+        )
         tree.copy(
           root = tree.root.copy(
             tree = tree.root.tree.copy(
-              content = doc +: tree.root.tree.content,
+              content = doc +: tree.root.tree.content
             )
           )
         )
       }
-      
+
       Sync[F].fromEither(treeWithDownloadPage.leftMap(ConfigException.apply))
     }
   }
-  
+
 }

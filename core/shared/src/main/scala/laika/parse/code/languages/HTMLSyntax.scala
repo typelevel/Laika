@@ -18,26 +18,26 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{Keywords, TagBasedFormats, TagParser}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.common.{ Keywords, TagBasedFormats, TagParser }
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.implicits._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
-  
+
   val docType: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
     Keywords("SYSTEM", "PUBLIC"),
     string,
     comment,
     name(CodeCategory.Identifier)
   )
-  
-  private def startTag(tagName: String): TagParser = TagParser(CodeCategory.Tag.Name, "<", ">", tagName).embed(
-    stringWithEntities,
-    name(CodeCategory.AttributeName)
-  )
+
+  private def startTag(tagName: String): TagParser =
+    TagParser(CodeCategory.Tag.Name, "<", ">", tagName).embed(
+      stringWithEntities,
+      name(CodeCategory.AttributeName)
+    )
 
   val scriptTag: CodeSpanParser = CodeSpanParser {
     (startTag("script") ~ elementRest("script", JavaScriptSyntax.spanParsers)).concat
@@ -59,5 +59,5 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     startTag,
     endTag
   )
-  
+
 }

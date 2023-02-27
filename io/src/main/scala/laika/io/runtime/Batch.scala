@@ -16,20 +16,20 @@
 
 package laika.io.runtime
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.implicits._
 import cats.effect.implicits._
 
-/** Type class for the effect F that encapsulates the mechanism 
+/** Type class for the effect F that encapsulates the mechanism
   * and configuration for executing a batch of operations, either sequentially or in parallel.
-  * 
+  *
   * @author Jens Halm
   */
 trait Batch[F[_]] {
 
   /** Runs the specified batch, either sequentially or in parallel, depending on implementation.
     */
-  def execute[A] (fas: Vector[F[A]]): F[Vector[A]]
+  def execute[A](fas: Vector[F[A]]): F[Vector[A]]
 
 }
 
@@ -44,13 +44,13 @@ object Batch {
   /** Creates a Batch instance for sequential execution.
     */
   def sequential[F[_]: Sync]: Batch[F] = new Batch[F] {
-    def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = fas.sequence
+    def execute[A](fas: Vector[F[A]]): F[Vector[A]] = fas.sequence
   }
 
   /** Creates a Batch instance for parallel execution.
     */
-  def parallel[F[_]: Async] (parallelism: Int): Batch[F] = new Batch[F] {
-    def execute[A] (fas: Vector[F[A]]): F[Vector[A]] = fas.parSequenceN(parallelism)
+  def parallel[F[_]: Async](parallelism: Int): Batch[F] = new Batch[F] {
+    def execute[A](fas: Vector[F[A]]): F[Vector[A]] = fas.parSequenceN(parallelism)
   }
 
 }

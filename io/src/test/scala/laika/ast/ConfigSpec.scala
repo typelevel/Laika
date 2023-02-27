@@ -23,22 +23,20 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.BundleProvider
-import laika.config.Origin.{DocumentScope, TreeScope}
+import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.config._
-import laika.format.{HTML, Markdown, ReStructuredText}
+import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.FileIO
-import laika.io.helper.{InputBuilder, TestThemeBuilder}
+import laika.io.helper.{ InputBuilder, TestThemeBuilder }
 import laika.io.implicits._
-import laika.io.model.{FilePath, InputTreeBuilder, ParsedTree}
-import laika.rewrite.{DefaultTemplatePath, OutputContext}
+import laika.io.model.{ FilePath, InputTreeBuilder, ParsedTree }
+import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.CatsEffectSuite
 
-
 class ConfigSpec extends CatsEffectSuite
-  with FileIO
-  with TestSourceBuilders
-  with InputBuilder {
-
+    with FileIO
+    with TestSourceBuilders
+    with InputBuilder {
 
   object Contents {
 
@@ -99,9 +97,9 @@ class ConfigSpec extends CatsEffectSuite
         |${b}
         |${c}
         |bbb""".stripMargin
-    
+
     val configDoc = """foo = bar"""
-    
+
     val configWithCpInclude =
       """
         |a = 1
@@ -110,9 +108,9 @@ class ConfigSpec extends CatsEffectSuite
 
     def configWithFileInclude(fileName: String): String =
       s"""
-        |a = 1
-        |
-        |include file("$fileName")""".stripMargin
+         |a = 1
+         |
+         |include file("$fileName")""".stripMargin
 
     val configDocWithPath = """foo = ../foo.txt"""
 
@@ -120,35 +118,40 @@ class ConfigSpec extends CatsEffectSuite
       """{% foo.bar: 7 %}
         |${foo.bar}
         |${foo.baz}""".stripMargin
-    
+
     val mergeableConfig = """{ foo.baz = 9 }"""
   }
-  
-  def toResult (parsed: ParsedTree[IO]): IO[RootElement] = 
+
+  def toResult(parsed: ParsedTree[IO]): IO[RootElement] =
     IO.fromEither(resultDoc(parsed.root).map(_.content).leftMap(e => ConfigException(e)))
 
-  def resultDoc (root: DocumentTreeRoot): Either[ConfigError, Document] =
+  def resultDoc(root: DocumentTreeRoot): Either[ConfigError, Document] =
     resultTree(root).map(_.content.collect { case doc: Document => doc }.head)
 
-  def resultTree (root: DocumentTreeRoot): Either[ConfigError, DocumentTree] =
-    root.applyTemplates(OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML)), OutputContext(HTML)).map(_.tree)
-    
-  implicit class ConfigResultOps[A] (res: Either[ConfigError, A]) {
+  def resultTree(root: DocumentTreeRoot): Either[ConfigError, DocumentTree] =
+    root.applyTemplates(
+      OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML)),
+      OutputContext(HTML)
+    ).map(_.tree)
+
+  implicit class ConfigResultOps[A](res: Either[ConfigError, A]) {
     def toIO: IO[A] = IO.fromEither(res.leftMap(e => ConfigException(e)))
   }
-  
+
   private val markdownParser = MarkupParser.of(Markdown).parallel[IO].build
 
   private val rstParser = MarkupParser.of(ReStructuredText).parallel[IO].build
 
-  def parseMD (input: InputTreeBuilder[IO]): IO[RootElement] = parseMDTree(input).flatMap(toResult)
-  def parseMDTree (input: InputTreeBuilder[IO]): IO[ParsedTree[IO]] = markdownParser.use { p =>
+  def parseMD(input: InputTreeBuilder[IO]): IO[RootElement] = parseMDTree(input).flatMap(toResult)
+
+  def parseMDTree(input: InputTreeBuilder[IO]): IO[ParsedTree[IO]] = markdownParser.use { p =>
     p.fromInput(input).parse
   }
-  def parseRST (input: InputTreeBuilder[IO]): IO[RootElement] = rstParser.use { p =>
+
+  def parseRST(input: InputTreeBuilder[IO]): IO[RootElement] = rstParser.use { p =>
     p.fromInput(input).parse.flatMap(toResult)
   }
-  
+
   def result(span: TemplateSpan): RootElement = RootElement(
     TemplateRoot(
       TemplateString("<h1>"),
@@ -160,57 +163,59 @@ class ConfigSpec extends CatsEffectSuite
   )
 
   test("parse configuration sections embedded in Markdown documents") {
-    val inputs = Seq(
+    val inputs   = Seq(
       Root / "default.template.html" -> Contents.templateWithRef,
-      Root / "input.md" -> Contents.markupWithConfig
+      Root / "input.md"              -> Contents.markupWithConfig
     )
     val expected = result(TemplateString("bar"))
     parseMD(build(inputs)).assertEquals(expected)
   }
 
-  test("parse configuration sections embedded in Markdown documents after blank lines and whitespace") {
-    val inputs = Seq(
+  test(
+    "parse configuration sections embedded in Markdown documents after blank lines and whitespace"
+  ) {
+    val inputs   = Seq(
       Root / "default.template.html" -> Contents.templateWithRef,
-      Root / "input.md" -> Contents.markupWithConfigAfterWhitespace
+      Root / "input.md"              -> Contents.markupWithConfigAfterWhitespace
     )
     val expected = result(TemplateString("bar"))
     parseMD(build(inputs)).assertEquals(expected)
   }
 
   test("parse configuration sections embedded in reStructuredText documents") {
-    val inputs = Seq(
+    val inputs   = Seq(
       DefaultTemplatePath.forHTML -> Contents.templateWithRef,
-      Root / "input.rst" -> Contents.markupWithConfig
+      Root / "input.rst"          -> Contents.markupWithConfig
     )
     val expected = result(TemplateString("bar"))
     parseRST(build(inputs)).assertEquals(expected)
   }
 
   test("insert an invalid element when a required context reference is missing") {
-    val inputs = Seq(
+    val inputs   = Seq(
       DefaultTemplatePath.forHTML -> Contents.templateWithMissingRef,
-      Root / "input.rst" -> Contents.markupWithConfig
+      Root / "input.rst"          -> Contents.markupWithConfig
     )
-    val msg = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
-    val src = source("${foox}", Contents.templateWithMissingRef, DefaultTemplatePath.forHTML)
+    val msg      = RuntimeMessage(MessageLevel.Error, "Missing required reference: 'foox'")
+    val src      = source("${foox}", Contents.templateWithMissingRef, DefaultTemplatePath.forHTML)
     val expected = result(TemplateElement(InvalidSpan(msg, src)))
     parseRST(build(inputs)).assertEquals(expected)
   }
 
   test("insert an empty string when an optional context reference is missing") {
-    val inputs = Seq(
+    val inputs   = Seq(
       DefaultTemplatePath.forHTML -> Contents.templateWithOptRef,
-      Root / "input.rst" -> Contents.markupWithConfig
+      Root / "input.rst"          -> Contents.markupWithConfig
     )
     val expected = result(TemplateString(""))
     parseRST(build(inputs)).assertEquals(expected)
   }
 
   test("make directory configuration available for references in markup") {
-    val inputs = Seq(
-      Root / "directory.conf" -> Contents.configDoc,
+    val inputs   = Seq(
+      Root / "directory.conf"     -> Contents.configDoc,
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
-      Root / "input.md" -> Contents.markupWithRef
+      Root / "input.md"           -> Contents.markupWithRef
     )
     val expected = RootElement(
       TemplateRoot(
@@ -223,10 +228,10 @@ class ConfigSpec extends CatsEffectSuite
   }
 
   test("include classpath resources in directory configuration") {
-    val inputs = Seq(
-      Root / "directory.conf" -> Contents.configWithCpInclude,
+    val inputs   = Seq(
+      Root / "directory.conf"     -> Contents.configWithCpInclude,
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
-      Root / "input.md" -> Contents.markupWithRefs
+      Root / "input.md"           -> Contents.markupWithRefs
     )
     val expected = RootElement(
       TemplateRoot(
@@ -240,59 +245,59 @@ class ConfigSpec extends CatsEffectSuite
 
   test("include file resources in directory configuration") {
     def inputs(file: FilePath) = Seq(
-      Root / "directory.conf" -> Contents.configWithFileInclude(file.toString),
+      Root / "directory.conf"     -> Contents.configWithFileInclude(file.toString),
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
-      Root / "input.md" -> Contents.markupWithRefs
+      Root / "input.md"           -> Contents.markupWithRefs
     )
-    val expected = RootElement(
+    val expected               = RootElement(
       TemplateRoot(
         TemplateString("<div>"),
         EmbeddedRoot("aaa\n1\n2\n3\nbbb"),
         TemplateString("</div>\nCCC")
       )
     )
-    val bConf =
+    val bConf                  =
       """include "c.conf" 
         |
         |b = 2
       """.stripMargin
-    
+
     val res = for {
       tempDir <- newTempDirectory
-      conf    =  tempDir / "b.conf"
-      _       <- writeFile(conf, bConf)
-      _       <- writeFile(tempDir / "c.conf", "c = 3")
-      res     <- parseMD(build(inputs(conf)))
+      conf = tempDir / "b.conf"
+      _   <- writeFile(conf, bConf)
+      _   <- writeFile(tempDir / "c.conf", "c = 3")
+      res <- parseMD(build(inputs(conf)))
     } yield res
-    
+
     res.assertEquals(expected)
   }
 
   test("merge objects from config headers in markup with objects in directory configuration") {
-    val inputs = Seq(
-      Root / "directory.conf" -> Contents.mergeableConfig,
+    val inputs   = Seq(
+      Root / "directory.conf"     -> Contents.mergeableConfig,
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
-      Root / "input.md" -> Contents.markupWithMergeableConfig
+      Root / "input.md"           -> Contents.markupWithMergeableConfig
     )
     val expected = Seq(
       Field("bar", LongValue(7), Origin(DocumentScope, Root / "input.md")),
       Field("baz", LongValue(9), Origin(TreeScope, Root / "directory.conf"))
     )
     parseMDTree(build(inputs))
-      .map { tree => 
+      .map { tree =>
         val doc = tree.root.tree.content.head.asInstanceOf[Document]
-        doc.config.get[ConfigValue]("foo").collectFirst {
-          case ov: ObjectValue => ov.values.sortBy(_.key)
+        doc.config.get[ConfigValue]("foo").collectFirst { case ov: ObjectValue =>
+          ov.values.sortBy(_.key)
         }
       }
       .assertEquals(Some(expected))
   }
 
   test("decode merged objects as a Map") {
-    val inputs = Seq(
-      Root / "directory.conf" -> Contents.mergeableConfig,
+    val inputs   = Seq(
+      Root / "directory.conf"     -> Contents.mergeableConfig,
       DefaultTemplatePath.forHTML -> Contents.templateWithoutConfig,
-      Root / "input.md" -> Contents.markupWithMergeableConfig
+      Root / "input.md"           -> Contents.markupWithMergeableConfig
     )
     val expected = Seq(
       ("bar", 7),
@@ -307,10 +312,10 @@ class ConfigSpec extends CatsEffectSuite
   }
 
   test("make directory configuration available for references in templates") {
-    val inputs = Seq(
-      Root / "directory.conf" -> Contents.configDoc,
+    val inputs   = Seq(
+      Root / "directory.conf"     -> Contents.configDoc,
       DefaultTemplatePath.forHTML -> Contents.templateWithRef,
-      Root / "input.rst" -> "txt"
+      Root / "input.rst"          -> "txt"
     )
     val expected = RootElement(
       TemplateRoot(
@@ -324,7 +329,9 @@ class ConfigSpec extends CatsEffectSuite
     parseRST(build(inputs)).assertEquals(expected)
   }
 
-  test("merge configuration found in documents, templates, directories, programmatic setup, bundles, themes and theme extensions") {
+  test(
+    "merge configuration found in documents, templates, directories, programmatic setup, bundles, themes and theme extensions"
+  ) {
 
     val template =
       """{% key2: val2 %}
@@ -347,22 +354,26 @@ class ConfigSpec extends CatsEffectSuite
     val config7 = "key7: val7"
 
     val inputs = Seq(
-      Root / "directory.conf" -> config4,
+      Root / "directory.conf"                             -> config4,
       Root / "dir" / DefaultTemplatePath.forHTML.relative -> template,
-      Root / "dir" / "directory.conf" -> config3,
-      Root / "dir" / "input.md" -> md,
+      Root / "dir" / "directory.conf"                     -> config3,
+      Root / "dir" / "input.md"                           -> md
     )
 
     val expected = RootElement(
       TemplateRoot(
-        (1 to 7) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
+        (1 to 7) map (n => List(TemplateString("val" + n))) reduce (_ ++ List(
+          TemplateString("\n")
+        ) ++ _)
       )
     )
-    
+
     val theme = TestThemeBuilder
       .forBundle(BundleProvider.forConfigString(config6))
-      .extendWith(TestThemeBuilder
-        .forBundle(BundleProvider.forConfigString(config7)))
+      .extendWith(
+        TestThemeBuilder
+          .forBundle(BundleProvider.forConfigString(config7))
+      )
 
     MarkupParser
       .of(Markdown)
@@ -398,7 +409,7 @@ class ConfigSpec extends CatsEffectSuite
       """{% foo: "#ref" %}
         |aaa
         |bbb""".stripMargin
-    val inputs = Seq(
+    val inputs               = Seq(
       Root / "dir" / "input.md" -> markupWithPathConfig
     )
 
@@ -425,7 +436,7 @@ class ConfigSpec extends CatsEffectSuite
           .map(_.config.get[Path]("foo"))
       }
       .assertEquals(Some(Right(Root / "foo.txt")))
-    
+
   }
 
   test("decode an array element in a document config header") {
@@ -442,5 +453,5 @@ class ConfigSpec extends CatsEffectSuite
       }
       .assertEquals(Some(Right("c")))
   }
-  
+
 }

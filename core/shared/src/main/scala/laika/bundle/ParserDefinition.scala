@@ -17,7 +17,7 @@
 package laika.bundle
 
 import cats.data.NonEmptySet
-import laika.ast.{Block, Element, Span}
+import laika.ast.{ Block, Element, Span }
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 
@@ -56,12 +56,14 @@ sealed trait ParserDefinition[E <: Element] {
   * @param paragraphLineCheck a test for the start of each line in plain paragraphs that indicates whether the line might
   *                           be the start of a block identified by this parser
   */
-case class BlockParserDefinition (startChars: Set[Char],
-                                  parser: Parser[Block],
-                                  isRecursive: Boolean,
-                                  position: BlockPosition,
-                                  precedence: Precedence,
-                                  paragraphLineCheck: Option[PrefixedParser[Any]] = None) extends ParserDefinition[Block]
+case class BlockParserDefinition(
+    startChars: Set[Char],
+    parser: Parser[Block],
+    isRecursive: Boolean,
+    position: BlockPosition,
+    precedence: Precedence,
+    paragraphLineCheck: Option[PrefixedParser[Any]] = None
+) extends ParserDefinition[Block]
 
 /** Defines a parser for a single kind of span element,
   * like a literal text span or a link reference for example.
@@ -72,25 +74,32 @@ case class BlockParserDefinition (startChars: Set[Char],
   * @param precedence indicates whether the parser should be applied before the base parsers of
   * the host language (high precedence) or after them
   */
-case class SpanParserDefinition (startChars: NonEmptySet[Char],
-                                 parser: Parser[Span],
-                                 isRecursive: Boolean,
-                                 precedence: Precedence) extends ParserDefinition[Span]
+case class SpanParserDefinition(
+    startChars: NonEmptySet[Char],
+    parser: Parser[Span],
+    isRecursive: Boolean,
+    precedence: Precedence
+) extends ParserDefinition[Span]
 
 /** Indicates whether a parser should be applied before the base parsers of
   * the host language (high precedence) or after them (low precedence).
   */
 sealed trait Precedence
+
 object Precedence {
+
   implicit val ordering: Ordering[Precedence] = new Ordering[Precedence] {
-    def compare (x: Precedence, y: Precedence): Int = (x, y) match {
+
+    def compare(x: Precedence, y: Precedence): Int = (x, y) match {
       case (Precedence.High, Precedence.Low) => 1
       case (Precedence.Low, Precedence.High) => -1
-      case _ => 0
+      case _                                 => 0
     }
+
   }
+
   object High extends Precedence
-  object Low extends Precedence
+  object Low  extends Precedence
 }
 
 /** Specifies the position a block element is allowed to appear in.
@@ -100,8 +109,9 @@ object Precedence {
   * of a list item or within a quoted block. `Any` allows block elements in any position.
   */
 sealed trait BlockPosition
+
 object BlockPosition {
-  case object Any extends BlockPosition
-  case object RootOnly extends BlockPosition
+  case object Any        extends BlockPosition
+  case object RootOnly   extends BlockPosition
   case object NestedOnly extends BlockPosition
 }

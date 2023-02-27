@@ -19,25 +19,55 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.common.{CharLiteral, Comment, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.common.{ CharLiteral, Comment, Keywords, NumberLiteral, StringLiteral }
 import laika.parse.code.languages.ScalaSyntax.charEscapes
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.text.CharGroup.{digit, lowerAlpha, upperAlpha}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
+import laika.parse.text.CharGroup.{ digit, lowerAlpha, upperAlpha }
 
-/**
- * @author Michał Sitko
- */
+/** @author Michał Sitko
+  */
 object HaskellSyntax extends SyntaxHighlighter {
+
   /** The names of the language (and its optional aliases) as used in text markup */
   override def language: NonEmptyList[String] = NonEmptyList.of("hs", "haskell")
 
   val comment: CodeSpanParser = Comment.singleLine("--") ++ Comment.multiLine("{-", "-}")
 
   val keywords =
-    Keywords("as", "case", "data", "data family", "data instance", "default", "deriving",
-      "deriving instance", "do", "else", "forall", "foreign", "hiding", "if", "import", "in",
-      "infix", "infixl", "infixr", "instance", "let", "mdo", "module", "newtype", "of",
-      "proc", "qualified", "rec", "then", "type", "type family", "type instance", "where"
+    Keywords(
+      "as",
+      "case",
+      "data",
+      "data family",
+      "data instance",
+      "default",
+      "deriving",
+      "deriving instance",
+      "do",
+      "else",
+      "forall",
+      "foreign",
+      "hiding",
+      "if",
+      "import",
+      "in",
+      "infix",
+      "infixl",
+      "infixr",
+      "instance",
+      "let",
+      "mdo",
+      "module",
+      "newtype",
+      "of",
+      "proc",
+      "qualified",
+      "rec",
+      "then",
+      "type",
+      "type family",
+      "type instance",
+      "where"
     )
 
   val stringLiteral =
@@ -48,7 +78,8 @@ object HaskellSyntax extends SyntaxHighlighter {
 
   val identifiers = IdParser(lowerAlpha.add('_'), digit ++ upperAlpha.add('\''))
 
-  val types = IdParser(upperAlpha.add('_'), digit ++ lowerAlpha.add('\'')).withCategory(CodeCategory.TypeName)
+  val types =
+    IdParser(upperAlpha.add('_'), digit ++ lowerAlpha.add('\'')).withCategory(CodeCategory.TypeName)
 
   /** The parsers for individual code spans written in this language */
   override def spanParsers: Seq[CodeSpanParser] = Seq(
@@ -60,4 +91,5 @@ object HaskellSyntax extends SyntaxHighlighter {
     types,
     numberLiteral
   )
+
 }

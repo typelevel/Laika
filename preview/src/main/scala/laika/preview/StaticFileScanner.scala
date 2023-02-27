@@ -24,18 +24,22 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.io.config.SiteConfig
-import laika.io.model.{BinaryInput, FilePath}
+import laika.io.model.{ BinaryInput, FilePath }
 import laika.io.runtime.DirectoryScanner
 import laika.rewrite.Versions
 
 private[preview] object StaticFileScanner {
 
-  private def collect[F[_]: Async] (filePath: FilePath, vPath: Path = Root): F[List[(Path, SiteResult[F])]] = {
+  private def collect[F[_]: Async](
+      filePath: FilePath,
+      vPath: Path = Root
+  ): F[List[(Path, SiteResult[F])]] = {
     DirectoryScanner.scanDirectory(filePath) { paths =>
       paths.toList
         .traverse { filePath =>
-          val vChild = vPath / filePath.name
-          def result: (Path, SiteResult[F]) = (vChild, StaticResult(BinaryInput.fromFile(filePath, vPath).input))
+          val vChild                        = vPath / filePath.name
+          def result: (Path, SiteResult[F]) =
+            (vChild, StaticResult(BinaryInput.fromFile(filePath, vPath).input))
           Files[F].isDirectory(filePath.toFS2Path).ifM(
             collect(filePath, vChild),
             Async[F].pure(List(result))
@@ -44,10 +48,10 @@ private[preview] object StaticFileScanner {
         .map(_.flatten)
     }
   }
-  
-  def collectVersionedFiles[F[_]: Async] (config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
 
-    def otherVersions (versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
+  def collectVersionedFiles[F[_]: Async](config: OperationConfig): F[Map[Path, SiteResult[F]]] = {
+
+    def otherVersions(versions: Option[Versions]): F[List[(Path, SiteResult[F])]] = {
       (versions, versions.flatMap(_.scannerConfig)) match {
         case (Some(vs), Some(scanner)) =>
           val versionRoot = FilePath.parse(scanner.rootDirectory)
@@ -57,21 +61,28 @@ private[preview] object StaticFileScanner {
               collect(versionRoot / v.pathSegment, Root / v.pathSegment)
             }
             .map(_.flatten)
-        case _ => List.empty[(Path, SiteResult[F])].pure[F]
+        case _                         => List.empty[(Path, SiteResult[F])].pure[F]
+      }
+
     }
-      
-    }
-    
+
     for {
-      versions <- Async[F].fromEither(config.baseConfig.getOpt[Versions].leftMap(ConfigException.apply))
+      versions <- Async[F].fromEither(
+        config.baseConfig.getOpt[Versions].leftMap(ConfigException.apply)
+      )
       files    <- otherVersions(versions)
     } yield files.toMap
   }
 
-  def collectAPIFiles[F[_]: Async] (config: OperationConfig, apiDir: FilePath): F[Map[Path, SiteResult[F]]] =
+  def collectAPIFiles[F[_]: Async](
+      config: OperationConfig,
+      apiDir: FilePath
+  ): F[Map[Path, SiteResult[F]]] =
     for {
-      apiPath  <- Async[F].fromEither(SiteConfig.apiPath(config.baseConfig).leftMap(ConfigException.apply))
-      files    <- collect(apiDir, apiPath)
+      apiPath <- Async[F].fromEither(
+        SiteConfig.apiPath(config.baseConfig).leftMap(ConfigException.apply)
+      )
+      files   <- collect(apiDir, apiPath)
     } yield files.toMap
-  
+
 }

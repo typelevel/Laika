@@ -17,7 +17,7 @@
 package laika.io.model
 
 import cats.Applicative
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast._
@@ -31,29 +31,41 @@ import scala.io.Codec
   * @param path       The full virtual path of this output (does not represent the filesystem path in case of file I/O)
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-case class TextOutput[F[_]] (writer: TextOutput.Writer[F], path: Path, targetFile: Option[FilePath] = None)
+case class TextOutput[F[_]](
+    writer: TextOutput.Writer[F],
+    path: Path,
+    targetFile: Option[FilePath] = None
+)
 
 object TextOutput {
-  
+
   type Writer[F[_]] = String => F[Unit]
 
-  private def writeAll[F[_]: Concurrent] (outPipe: fs2.Pipe[F, Byte, Nothing], codec: Codec): Writer[F] =
-    output => fs2.Stream
-      .emit(output)
-      .through(fs2.text.encode(codec.charSet))
-      .through(outPipe)
-      .compile
-      .drain
-  
-  def noOp[F[_]: Applicative] (path: Path = Root/"doc"): TextOutput[F] =
+  private def writeAll[F[_]: Concurrent](
+      outPipe: fs2.Pipe[F, Byte, Nothing],
+      codec: Codec
+  ): Writer[F] =
+    output =>
+      fs2.Stream
+        .emit(output)
+        .through(fs2.text.encode(codec.charSet))
+        .through(outPipe)
+        .compile
+        .drain
+
+  def noOp[F[_]: Applicative](path: Path = Root / "doc"): TextOutput[F] =
     TextOutput[F](_ => Applicative[F].unit, path)
 
-  def forFile[F[_]: Async] (file: FilePath, path: Path = Root/"doc")(implicit codec: Codec): TextOutput[F] =
+  def forFile[F[_]: Async](file: FilePath, path: Path = Root / "doc")(implicit
+      codec: Codec
+  ): TextOutput[F] =
     TextOutput[F](writeAll(Files[F].writeAll(file.toFS2Path), codec), path, Some(file))
-    
-  def forStream[F[_]: Async] (stream: F[OutputStream],
-                              path: Path = Root/"doc",
-                              autoClose: Boolean = true)
-                             (implicit codec: Codec): TextOutput[F] =
+
+  def forStream[F[_]: Async](
+      stream: F[OutputStream],
+      path: Path = Root / "doc",
+      autoClose: Boolean = true
+  )(implicit codec: Codec): TextOutput[F] =
     TextOutput[F](writeAll(fs2.io.writeOutputStream(stream, autoClose), codec), path)
+
 }

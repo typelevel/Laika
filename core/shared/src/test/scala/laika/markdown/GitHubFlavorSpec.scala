@@ -25,11 +25,13 @@ import laika.parse.Parser
 import laika.parse.markup.RootParser
 import munit.FunSuite
 
-
 class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
-  val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions)
-    .withBundles(Seq(GitHubFlavor)).markupExtensions)
+  val rootParser = new RootParser(
+    Markdown,
+    OperationConfig(Markdown.extensions)
+      .withBundles(Seq(GitHubFlavor)).markupExtensions
+  )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
@@ -40,19 +42,18 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     Row(cells.map(c => BodyCell(c)))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
-    val cellsWithText = bodyRow(cells:_*).content
+    val cellsWithText = bodyRow(cells: _*).content
     Row(cellsWithText.padTo(count, BodyCell.empty))
   }
 
   def bodyRowSpans(cells: Seq[Span]*): Row =
     Row(cells.map(c => BodyCell(Paragraph(c))))
 
-  def runBlocks (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
+  def runBlocks(input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
 
-  def runSpans (input: String, spans: Span*)(implicit loc: munit.Location): Unit =
+  def runSpans(input: String, spans: Span*)(implicit loc: munit.Location): Unit =
     runBlocks(input, Paragraph(spans))
-
 
   test("parse standard Markdown") {
     val input = """aaa
@@ -61,22 +62,21 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
                   |# CCC""".stripMargin
     runBlocks(input, p("aaa\nbbb"), Header(1, Seq(Text("CCC"))))
   }
-  
 
   test("strikethrough - enclosed in ~~ at the beginning of a phrase") {
-    runSpans("~~some~~ text", Deleted("some"),Text(" text"))
+    runSpans("~~some~~ text", Deleted("some"), Text(" text"))
   }
 
   test("strikethrough - enclosed in ~~ at the end of a phrase") {
-    runSpans("some ~~text~~", Text("some "),Deleted("text"))
+    runSpans("some ~~text~~", Text("some "), Deleted("text"))
   }
 
   test("strikethrough - enclosed in ~~ in the middle of a phrase") {
-    runSpans("some ~~text~~ here", Text("some "),Deleted("text"),Text(" here"))
+    runSpans("some ~~text~~ here", Text("some "), Deleted("text"), Text(" here"))
   }
 
   test("strikethrough - enclosed in ~~ with a nested em span") {
-    runSpans("some ~~*text*~~ here", Text("some "),Deleted(Emphasized("text")),Text(" here"))
+    runSpans("some ~~*text*~~ here", Text("some "), Deleted(Emphasized("text")), Text(" here"))
   }
 
   test("strikethrough - enclosed in ~~ when it spans the entire phrase") {
@@ -91,47 +91,59 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     runSpans("some ~~text here", Text("some ~~text here"))
   }
 
-
   test("auto-links - http URI") {
     val uri = "http://www.link.com"
-    runSpans("some http://www.link.com here", Text("some "),
-      SpanLink.external(uri)(uri), Text(" here"))
+    runSpans(
+      "some http://www.link.com here",
+      Text("some "),
+      SpanLink.external(uri)(uri),
+      Text(" here")
+    )
   }
 
   test("auto-links - http URI containing an IP4 address") {
     val uri = "http://127.0.0.1/path"
-    runSpans(s"some $uri here", Text("some "),
-      SpanLink.external(uri)(uri), Text(" here"))
+    runSpans(s"some $uri here", Text("some "), SpanLink.external(uri)(uri), Text(" here"))
   }
 
   test("auto-links - https URI") {
     val uri = "https://www.link.com"
-    runSpans("some https://www.link.com here", Text("some "),
-      SpanLink.external(uri)(uri), Text(" here"))
+    runSpans(
+      "some https://www.link.com here",
+      Text("some "),
+      SpanLink.external(uri)(uri),
+      Text(" here")
+    )
   }
 
   test("auto-links - www URI") {
     val uri = "www.link.com"
-    runSpans("some www.link.com here", Text("some "),
-      SpanLink.external(uri)(uri), Text(" here"))
+    runSpans("some www.link.com here", Text("some "), SpanLink.external(uri)(uri), Text(" here"))
   }
 
   test("auto-links - email address") {
     val email = "user@domain.com"
-    runSpans("some user@domain.com here", Text("some "),
-      SpanLink.external("mailto:"+email)(email), Text(" here"))
+    runSpans(
+      "some user@domain.com here",
+      Text("some "),
+      SpanLink.external("mailto:" + email)(email),
+      Text(" here")
+    )
   }
 
   test("auto-links - http URI without trailing punctuation") {
     val uri = "http://www.link.com"
-    runSpans("some http://www.link.com. here", Text("some "),
-      SpanLink.external(uri)(uri), Text(". here"))
+    runSpans(
+      "some http://www.link.com. here",
+      Text("some "),
+      SpanLink.external(uri)(uri),
+      Text(". here")
+    )
   }
 
   test("auto-links - www URI without trailing punctuation") {
     val uri = "www.link.com"
-    runSpans("some www.link.com. here", Text("some "),
-      SpanLink.external(uri)(uri), Text(". here"))
+    runSpans("some www.link.com. here", Text("some "), SpanLink.external(uri)(uri), Text(". here"))
   }
 
   test("auto-links - do not parse a URI containing unicode characters") {
@@ -141,10 +153,13 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("auto-links - email address without surrounding punctuation") {
     val email = "user@domain.com"
-    runSpans("some (user@domain.com) here", Text("some ("),
-      SpanLink.external("mailto:"+email)(email), Text(") here"))
+    runSpans(
+      "some (user@domain.com) here",
+      Text("some ("),
+      SpanLink.external("mailto:" + email)(email),
+      Text(") here")
+    )
   }
-
 
   test("code block with backtick fences") {
     val input =
@@ -183,7 +198,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     runBlocks(input, LiteralBlock("code\n~~~"))
   }
 
-  test("code blocks - do not recognize a closing fence that consists of different fence characters") {
+  test(
+    "code blocks - do not recognize a closing fence that consists of different fence characters"
+  ) {
     val input =
       """~~~~~
         |code
@@ -214,7 +231,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
   }
 
   test("code block inside a list item, indented by 4 spaces") {
-    val input =
+    val input  =
       """- list item:
         |  
         |    ~~~ foo
@@ -223,10 +240,12 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
         |    code
         |    ~~~
       """.stripMargin
-    val result = BulletList(StringBullet("-"))(Seq(
-      Paragraph("list item:"),
-      CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
-    ))
+    val result = BulletList(StringBullet("-"))(
+      Seq(
+        Paragraph("list item:"),
+        CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
+      )
+    )
     runBlocks(input, result)
   }
 
@@ -286,7 +305,6 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     runBlocks(input, BlockSequence(p("aaa"), LiteralBlock("code")), p("bbb"))
   }
 
-
   test("table head and body") {
     val input =
       """|| AAA | BBB |
@@ -294,8 +312,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || CCC | DDD |
          || EEE | FFF |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(bodyRow("CCC", "DDD"), bodyRow("EEE", "FFF"))))
     )
   }
 
@@ -306,11 +325,17 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || CCC | DDD |
          || EEE | FFF *GGG* |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(
-        bodyRow("CCC","DDD"),
-        bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized("GGG")))
-      )))
+    runBlocks(
+      input,
+      Table(
+        headerRow("AAA", "BBB"),
+        TableBody(
+          Seq(
+            bodyRow("CCC", "DDD"),
+            bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized("GGG")))
+          )
+        )
+      )
     )
   }
 
@@ -321,8 +346,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || CCC | DDD
          |  EEE | FFF |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(bodyRow("CCC", "DDD"), bodyRow("EEE", "FFF"))))
     )
   }
 
@@ -333,8 +359,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || CCC | DDD | XXX |
          |  EEE | FFF |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(bodyRow("CCC", "DDD"), bodyRow("EEE", "FFF"))))
     )
   }
 
@@ -345,8 +372,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || CCC |
          |  EEE | FFF |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC"), bodyRow("EEE","FFF"))))
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(paddedBodyRow(2, "CCC"), bodyRow("EEE", "FFF"))))
     )
   }
 
@@ -356,9 +384,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          || --- | --- |
          || \|  | \|  |
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("|","|"))))
-    )
+    runBlocks(input, Table(headerRow("AAA", "BBB"), TableBody(Seq(bodyRow("|", "|")))))
   }
 
   test("table that ends on a blank line") {
@@ -369,8 +395,9 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          |
          |DDD
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
       p("DDD")
     )
   }
@@ -383,28 +410,32 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
          |* DDD
          |* EEE
       """.stripMargin
-    runBlocks(input, 
-      Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+    runBlocks(
+      input,
+      Table(headerRow("AAA", "BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
       BulletList("DDD", "EEE")
     )
   }
 
   test("table with alignments") {
-    val input =
+    val input   =
       """|| AAA | BBB | CCC |
          || :--- | ---: | :--: |
          || DDD | EEE | FFF |
          || GGG | HHH | III |
       """.stripMargin
     val options = Seq(Style.alignLeft, Style.alignRight, Style.alignCenter)
-    def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
-      Row(row.content.zip(options).map {
-        case (cell, opt) => cell.withOptions(opt)
+    def applyOptions(rows: Seq[Row]): Seq[Row] = rows map { row =>
+      Row(row.content.zip(options).map { case (cell, opt) =>
+        cell.withOptions(opt)
       })
     }
-    runBlocks(input, Table(
-      TableHead(applyOptions(headerRow("AAA","BBB","CCC").content)),
-      TableBody(applyOptions(Seq(bodyRow("DDD","EEE","FFF"), bodyRow("GGG","HHH","III")))))
+    runBlocks(
+      input,
+      Table(
+        TableHead(applyOptions(headerRow("AAA", "BBB", "CCC").content)),
+        TableBody(applyOptions(Seq(bodyRow("DDD", "EEE", "FFF"), bodyRow("GGG", "HHH", "III"))))
+      )
     )
   }
 
@@ -413,7 +444,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
       """|| AAA | BBB |
          || --- | --- |
       """.stripMargin
-    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+    runBlocks(input, Table(headerRow("AAA", "BBB"), TableBody(Nil)))
   }
 
   test("table head without body without leading '|' in the separator row") {
@@ -421,7 +452,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
       """|| AAA | BBB |
          |  --- | --- |
       """.stripMargin
-    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+    runBlocks(input, Table(headerRow("AAA", "BBB"), TableBody(Nil)))
   }
 
   test("table head without body without trailing '|' in the separator row") {
@@ -429,10 +460,12 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
       """|| AAA | BBB |
          || --- | ---
       """.stripMargin
-    runBlocks(input, Table(headerRow("AAA","BBB"), TableBody(Nil)))
+    runBlocks(input, Table(headerRow("AAA", "BBB"), TableBody(Nil)))
   }
 
-  test("tables - do not recognize a table head where the number of cells in the separator row does not match the header row") {
+  test(
+    "tables - do not recognize a table head where the number of cells in the separator row does not match the header row"
+  ) {
     val input =
       """|| AAA | BBB |
          |  --- |

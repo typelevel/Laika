@@ -16,56 +16,58 @@
 
 package laika.theme
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.InputTree
 
 /** Responsible for building a theme resource with the user-provided effect type and runtime configuration.
-  * 
+  *
   * Implementations of this trait can be passed to the `withTheme` method of the parser, renderer and transformer
   * APIs of the `laika-io` module.
   * Theme authors would usually offer a theme-specific configuration API with a final `build` method
   * that provides a `ThemeProvider` for the user.
-  * 
+  *
   * @author Jens Halm
   */
 trait ThemeProvider { self =>
 
   /** Builds the theme resource with the user-provided effect type and runtime configuration.
-    * 
+    *
     * For convenience, implementations of this method usually utilize a [[laika.theme.ThemeBuilder]] to construct
     * `Theme` instances, but this is not mandatory.
     */
   def build[F[_]: Async]: Resource[F, Theme[F]]
 
   /** Creates a new theme using this instance as a base and the provided instance as the extension.
-    * 
+    *
     * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
     * They are roughly as follows:
-    * 
-    * - For functionality that is an accumulation of features, for example input files, parser extensions, 
+    *
+    * - For functionality that is an accumulation of features, for example input files, parser extensions,
     *   renderer overrides or AST rewrite rules, the effect is accumulative,
     *   this theme and the extensions will be merged to a single set of features.
-    *   
+    *
     * - For functionality that is provided by unique instances, for example the template engine or the default template,
     *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
     *   if present.
     */
-  def extendWith (extensions: ThemeProvider): ThemeProvider = new ThemeProvider {
+  def extendWith(extensions: ThemeProvider): ThemeProvider = new ThemeProvider {
+
     def build[F[_]: Async] = for {
       base <- self.build
       ext  <- extensions.build
     } yield {
       new Theme[F] {
-        override def descriptor: ThemeDescriptor = base.descriptor.extendWith(ext.descriptor)
-        override def inputs: InputTree[F] = base.inputs.overrideWith(ext.inputs)
+        override def descriptor: ThemeDescriptor      = base.descriptor.extendWith(ext.descriptor)
+        override def inputs: InputTree[F]             = base.inputs.overrideWith(ext.inputs)
         override def extensions: Seq[ExtensionBundle] = base.extensions ++ ext.extensions
         override def treeProcessor: Format => Theme.TreeProcessor[F] = fmt =>
           base.treeProcessor(fmt).andThen(ext.treeProcessor(fmt))
       }
     }
+
   }
-  
+
 }

@@ -16,37 +16,47 @@
 
 package laika.rewrite.nav
 
-import laika.config.{Config, LaikaKeys}
+import laika.config.{ Config, LaikaKeys }
 import laika.ast._
 import laika.config.Config.ConfigResult
 
-/** Responsible for applying the navigation order to the 
- *  contents of a document tree, either based on user-specified
- *  configuration or by the alphabetical order of the names of 
- *  the documents and subtrees.
- *  
- *  @author Jens Halm
- */
+/** Responsible for applying the navigation order to the
+  *  contents of a document tree, either based on user-specified
+  *  configuration or by the alphabetical order of the names of
+  *  the documents and subtrees.
+  *
+  *  @author Jens Halm
+  */
 object NavigationOrder {
-  
-  def applyTo (content: Seq[Cursor], config: Config, parentPosition: TreePosition): ConfigResult[Seq[Cursor]] = {
 
-    def reAssignPosition (cursor: Cursor, position: TreePosition, configF: Config => Config = identity): Cursor = cursor match {
-      case doc: DocumentCursor => doc.copy(
-        position = position,
-        target = doc.target.copy(position = position),
-        config = configF(cursor.config)
-      )
-      case tree: TreeCursor => tree.copy(
-        position = position,
-        target = tree.target.copy(position = position),
-        config = configF(cursor.config)
-      )
+  def applyTo(
+      content: Seq[Cursor],
+      config: Config,
+      parentPosition: TreePosition
+  ): ConfigResult[Seq[Cursor]] = {
+
+    def reAssignPosition(
+        cursor: Cursor,
+        position: TreePosition,
+        configF: Config => Config = identity
+    ): Cursor = cursor match {
+      case doc: DocumentCursor =>
+        doc.copy(
+          position = position,
+          target = doc.target.copy(position = position),
+          config = configF(cursor.config)
+        )
+      case tree: TreeCursor    =>
+        tree.copy(
+          position = position,
+          target = tree.target.copy(position = position),
+          config = configF(cursor.config)
+        )
     }
 
-    def reAssignPositions (content: Seq[Cursor]): Seq[Cursor] =
-      content.zipWithIndex.map {
-        case (cursor, index) => reAssignPosition(cursor, parentPosition.forChild(index + 1))
+    def reAssignPositions(content: Seq[Cursor]): Seq[Cursor] =
+      content.zipWithIndex.map { case (cursor, index) =>
+        reAssignPosition(cursor, parentPosition.forChild(index + 1))
       }
 
     config

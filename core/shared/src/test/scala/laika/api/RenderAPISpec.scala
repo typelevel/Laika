@@ -22,23 +22,24 @@ import laika.format._
 import munit.FunSuite
 
 class RenderAPISpec extends FunSuite
-                    with ParagraphCompanionShortcuts {
+    with ParagraphCompanionShortcuts {
 
-  
   val rootElem = RootElement(p("aaö"), p("bbb"))
 
   val expected = """RootElement - Blocks: 2
-      |. Paragraph - Spans: 1
-      |. . Text - 'aaö'
-      |. Paragraph - Spans: 1
-      |. . Text - 'bbb'""".stripMargin
+                   |. Paragraph - Spans: 1
+                   |. . Text - 'aaö'
+                   |. Paragraph - Spans: 1
+                   |. . Text - 'bbb'""".stripMargin
 
   test("document to string") {
     assertEquals(Renderer.of(AST).build.render(rootElem), Right(expected))
   }
 
   test("override default renderer for specific element types") {
-    val renderer = Renderer.of(AST).rendering { case (_, Text(content,_)) => s"String - '$content'" }.build
+    val renderer       = Renderer.of(AST).rendering { case (_, Text(content, _)) =>
+      s"String - '$content'"
+    }.build
     val modifiedResult = expected.replace("Text", "String")
     assertEquals(renderer.render(rootElem), Right(modifiedResult))
   }

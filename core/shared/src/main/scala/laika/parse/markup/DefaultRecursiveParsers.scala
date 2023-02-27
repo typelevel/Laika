@@ -26,7 +26,6 @@ import laika.parse.builders._
   */
 trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpanParsers {
 
-
   /** The maximum level of block nesting. Some block types like lists
     * and blockquotes contain nested blocks. To protect against malicious
     * input or accidentally broken markup, the level of nesting is restricted.
@@ -48,15 +47,14 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
 
   /** Builds a parser for a list of blocks based on the parser for a single block.
     */
-  protected def blockList (p: => Parser[Block]): Parser[Seq[Block]]
-
+  protected def blockList(p: => Parser[Block]): Parser[Seq[Block]]
 
   private class InternalRecursiveBlockParser {
 
     lazy val recursive    = consumeAll(opt(blankLines) ~> blockList(nestedBlock))
     lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(fallbackBlock))
 
-    def parse (source: SourceCursor): Parsed[Seq[Block]] = {
+    def parse(source: SourceCursor): Parsed[Seq[Block]] = {
       val p = if (source.nestLevel < maxNestLevel) recursive else nonRecursive
       p.parse(source.nextNestLevel)
     }
@@ -70,20 +68,21 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
       case Success(str, next) =>
         recursiveBlockParser.parse(str) match {
           case Success(blocks, _) => Success(blocks, next)
-          case f: Failure => f
+          case f: Failure         => f
         }
-      case f: Failure => f
+      case f: Failure         => f
     }
   }
 
   def recursiveBlocks: RecursiveBlockParser = new RecursiveBlockParser {
-    
-    def parse (in: SourceFragment): Parsed[Seq[Block]] = recursiveBlockParser.parse(in)
 
-    def parseAndRecover (in: SourceFragment): Seq[Block] = recursiveBlockParser.parse(in) match {
+    def parse(in: SourceFragment): Parsed[Seq[Block]] = recursiveBlockParser.parse(in)
+
+    def parseAndRecover(in: SourceFragment): Seq[Block] = recursiveBlockParser.parse(in) match {
       case Success(blocks, _) => blocks
       case f: Failure         => List(InvalidBlock(f.message, in))
     }
+
   }
 
 }

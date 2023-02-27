@@ -55,6 +55,6 @@ class Stack[T] {
 
   /** Pushes the specified element to the top the Stack.
     */
-  def push (elem: T): Unit = underlying = elem +: underlying
+  def push(elem: T): Unit = underlying = elem +: underlying
 
 }

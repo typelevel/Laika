@@ -19,28 +19,35 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.implicits._
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.common.{CharLiteral, Comment, Identifier, Keywords, NumberLiteral, NumericSuffix, StringLiteral}
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue, TypeName }
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
+import laika.parse.code.common.{
+  CharLiteral,
+  Comment,
+  Identifier,
+  Keywords,
+  NumberLiteral,
+  NumericSuffix,
+  StringLiteral
+}
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object JavaSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("java")
-  
+
   val annotation: CodeSpanParser = CodeSpanParser {
-    "@" ~> Identifier.alphaNum.withCategory(CodeCategory.Annotation).map { name => 
+    "@" ~> Identifier.alphaNum.withCategory(CodeCategory.Annotation).map { name =>
       Seq(name.copy(content = "@" + name.content))
     }
   }
 
-  val charEscapes: CodeSpanParser = 
+  val charEscapes: CodeSpanParser =
     StringLiteral.Escape.unicode ++
-    StringLiteral.Escape.octal ++
-    StringLiteral.Escape.char
-  
+      StringLiteral.Escape.octal ++
+      StringLiteral.Escape.char
+
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("//"),
     Comment.multiLine("/*", "*/"),
@@ -50,18 +57,61 @@ object JavaSyntax extends SyntaxHighlighter {
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null"),
     Keywords(TypeName)("boolean", "byte", "char", "double", "float", "int", "long", "short"),
-    Keywords("abstract", "assert", "break", "case", "catch", "class", "const", "continue",
-      "default", "do", "else", "enum", "extends", "finally", "final", "for", "if", 
-      "implements", "import", "instanceof", "interface", "module", "native", "new", "package", "private", 
-      "protected", "public", "requires", "return", "static", "strictfp", "super", "switch", "synchronized",
-      "this", "throws", "throw", "transient", "try", "var", "void", "volatile", "while"),
-    Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName),
+    Keywords(
+      "abstract",
+      "assert",
+      "break",
+      "case",
+      "catch",
+      "class",
+      "const",
+      "continue",
+      "default",
+      "do",
+      "else",
+      "enum",
+      "extends",
+      "finally",
+      "final",
+      "for",
+      "if",
+      "implements",
+      "import",
+      "instanceof",
+      "interface",
+      "module",
+      "native",
+      "new",
+      "package",
+      "private",
+      "protected",
+      "public",
+      "requires",
+      "return",
+      "static",
+      "strictfp",
+      "super",
+      "switch",
+      "synchronized",
+      "this",
+      "throws",
+      "throw",
+      "transient",
+      "try",
+      "var",
+      "void",
+      "volatile",
+      "while"
+    ),
+    Identifier.alphaNum.withIdStartChars('_', '$').withCategoryChooser(
+      Identifier.upperCaseTypeName
+    ),
     NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
     NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
     NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float)
   )
-  
+
 }

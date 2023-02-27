@@ -19,15 +19,14 @@ package laika.rst
 import laika.rst.BaseParsers.simpleRefName
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class BaseParsersSpec extends FunSuite {
 
   test("parse a name consisting of characters") {
     assertEquals(simpleRefName.parse("name").toEither, Right("name"))
   }
-    
+
   test("parse a name consisting of characters and digits") {
     assertEquals(simpleRefName.parse("7name9").toEither, Right("7name9"))
   }

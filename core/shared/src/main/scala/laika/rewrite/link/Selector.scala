@@ -58,19 +58,19 @@ sealed trait UniqueSelector extends Selector {
 
 /** A selector for a rendered target in a document.
   */
-case class TargetIdSelector (id: String) extends UniqueSelector {
+case class TargetIdSelector(id: String) extends UniqueSelector {
   val description = s"link target with id '$id'"
 }
 
 /** A selector for a definition for an internal or external link.
   */
-case class LinkDefinitionSelector (id: String) extends UniqueSelector {
+case class LinkDefinitionSelector(id: String) extends UniqueSelector {
   val description = s"link definition with id '$id'"
 }
 
 /** A selector based on a path, optionally including a fragment component.
   */
-case class PathSelector (path: Path) extends UniqueSelector {
+case class PathSelector(path: Path) extends UniqueSelector {
   val description = s"link target with path '$path'"
 }
 

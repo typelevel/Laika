@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.implicits._
 import laika.ast.Path
 import laika.ast.Path.Root
@@ -31,7 +31,6 @@ import laika.render.TagFormatter
   * @author Jens Halm
   */
 class ContainerWriter {
-
 
   private val opfRenderer = new OPFRenderer
   private val navRenderer = new HtmlNavRenderer
@@ -49,35 +48,56 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Sync] (result: RenderedTreeRoot[F], config: EPUB.BookConfig): Seq[BinaryInput[F]] = {
+  def collectInputs[F[_]: Sync](
+      result: RenderedTreeRoot[F],
+      config: EPUB.BookConfig
+  ): Seq[BinaryInput[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
-    def shiftContentPath (path: Path): Path =
+    def shiftContentPath(path: Path): Path =
       if (path.suffix.contains("html")) contentRoot / path.withSuffix("xhtml").relative
       else contentRoot / path.relative
 
-    def toBinaryInput (content: String, path: Path): BinaryInput[F] = BinaryInput.fromString(content, path)
+    def toBinaryInput(content: String, path: Path): BinaryInput[F] =
+      BinaryInput.fromString(content, path)
 
     val finalResult = result.copy[F](staticDocuments = result.staticDocuments)
-    
+
     val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
-      .filter(in => in.path.suffix.exists(suf => MimeTypes.supportedTypes.contains(suf) || 
-        MimeTypes.supportedTypes.contains(suf.split("\\.").last)))
+      .filter(in =>
+        in.path.suffix.exists(suf =>
+          MimeTypes.supportedTypes.contains(suf) ||
+          MimeTypes.supportedTypes.contains(suf.split("\\.").last)
+        )
+      )
       .map { doc =>
         doc.copy(path = shiftContentPath(doc.path))
       }
 
-    val title     = TagFormatter.escape(config.metadata.title.getOrElse(finalResult.title.fold("UNTITLED")(_.extractText)))
-    
+    val title = TagFormatter.escape(
+      config.metadata.title.getOrElse(finalResult.title.fold("UNTITLED")(_.extractText))
+    )
+
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
-    val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
-    val opf       = toBinaryInput(opfRenderer.render(finalResult, title, config), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(finalResult, title, config.navigationDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(finalResult, title, config.identifier, config.navigationDepth), Root / "EPUB" / "toc.ncx")
-    
-    val renderedDocs = finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
+    val iBooksOpt = toBinaryInput(
+      StaticContent.iBooksOptions,
+      Root / "META-INF" / "com.apple.ibooks.display-options.xml"
+    )
+    val opf       =
+      toBinaryInput(opfRenderer.render(finalResult, title, config), Root / "EPUB" / "content.opf")
+    val nav       = toBinaryInput(
+      navRenderer.render(finalResult, title, config.navigationDepth),
+      Root / "EPUB" / "nav.xhtml"
+    )
+    val ncx       = toBinaryInput(
+      ncxRenderer.render(finalResult, title, config.identifier, config.navigationDepth),
+      Root / "EPUB" / "toc.ncx"
+    )
+
+    val renderedDocs =
+      finalResult.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
     Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
   }
@@ -94,15 +114,16 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Async] (result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
+  def write[F[_]: Async](result: RenderedTreeRoot[F], output: BinaryOutput[F]): F[Unit] = {
 
     for {
-      config <- Sync[F].fromEither(EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException.apply))
-      inputs =  collectInputs(result, config)
-      _      <- ZipWriter.zipEPUB(inputs, output)
+      config <- Sync[F].fromEither(
+        EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException.apply)
+      )
+      inputs = collectInputs(result, config)
+      _ <- ZipWriter.zipEPUB(inputs, output)
     } yield ()
 
   }
-
 
 }

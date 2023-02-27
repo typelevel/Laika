@@ -16,31 +16,31 @@
 
 package laika.io.api
 
-import cats.effect.{Async, Resource, Sync}
+import cats.effect.{ Async, Resource, Sync }
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{ BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput }
 import laika.io.ops.TextOutputOps
-import laika.io.runtime.{Batch, RendererRuntime}
-import laika.theme.{Theme, ThemeProvider}
+import laika.io.runtime.{ Batch, RendererRuntime }
+import laika.theme.{ Theme, ThemeProvider }
 
 /** Renderer for a tree of output documents.
   *
   * @author Jens Halm
   */
-class TreeRenderer[F[_]: Async: Batch] (renderer: Renderer, theme: Theme[F]) {
+class TreeRenderer[F[_]: Async: Batch](renderer: Renderer, theme: Theme[F]) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
-  def from (input: DocumentTreeRoot): TreeRenderer.OutputOps[F] =
+  def from(input: DocumentTreeRoot): TreeRenderer.OutputOps[F] =
     TreeRenderer.OutputOps(renderer, theme, input, Nil)
 
   /** Builder step that specifies the root of the document tree to render
     * and the static documents to copy to the target (if it is file-system based).
     */
-  def from (input: ParsedTree[F]): TreeRenderer.OutputOps[F] =
+  def from(input: ParsedTree[F]): TreeRenderer.OutputOps[F] =
     TreeRenderer.OutputOps(renderer, theme, input.root, input.staticDocuments)
 
 }
@@ -51,16 +51,17 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  class Builder[F[_]: Async: Batch] (renderer: Renderer, theme: Resource[F, Theme[F]]) {
+  class Builder[F[_]: Async: Batch](renderer: Renderer, theme: Resource[F, Theme[F]]) {
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: ThemeProvider): Builder[F] = new Builder(renderer, theme.build)
+    def withTheme(theme: ThemeProvider): Builder[F] = new Builder(renderer, theme.build)
 
     /** Applies the specified theme to this renderer, overriding any previously specified themes.
       */
-    def withTheme (theme: Theme[F]): Builder[F] = new Builder(renderer, Resource.pure[F, Theme[F]](theme))
-    
+    def withTheme(theme: Theme[F]): Builder[F] =
+      new Builder(renderer, Resource.pure[F, Theme[F]](theme))
+
     /** Final builder step that creates a parallel renderer.
       */
     def build: Resource[F, TreeRenderer[F]] = theme.map(new TreeRenderer[F](renderer, _))
@@ -69,10 +70,12 @@ object TreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Batch] (renderer: Renderer,
-                                           theme: Theme[F],
-                                           input: DocumentTreeRoot,
-                                           staticDocuments: Seq[BinaryInput[F]]) extends TextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Batch](
+      renderer: Renderer,
+      theme: Theme[F],
+      input: DocumentTreeRoot,
+      staticDocuments: Seq[BinaryInput[F]]
+  ) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
@@ -80,9 +83,10 @@ object TreeRenderer {
 
     /** Copies the specified binary input to the output target, in addition to rendering the document tree.
       */
-    def copying (toCopy: Seq[BinaryInput[F]]): OutputOps[F] = copy(staticDocuments = staticDocuments ++ toCopy)
+    def copying(toCopy: Seq[BinaryInput[F]]): OutputOps[F] =
+      copy(staticDocuments = staticDocuments ++ toCopy)
 
-    def toOutput (output: TreeOutput): Op[F] = Op[F](renderer, theme, input, output, staticDocuments)
+    def toOutput(output: TreeOutput): Op[F] = Op[F](renderer, theme, input, output, staticDocuments)
 
   }
 
@@ -91,11 +95,13 @@ object TreeRenderer {
     * It can be run by invoking the `render` method which delegates to the library's default runtime implementation
     * or by developing a custom runner that performs the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Batch] (renderer: Renderer,
-                                    theme: Theme[F],
-                                    input: DocumentTreeRoot,
-                                    output: TreeOutput,
-                                    staticDocuments: Seq[BinaryInput[F]] = Nil) {
+  case class Op[F[_]: Async: Batch](
+      renderer: Renderer,
+      theme: Theme[F],
+      input: DocumentTreeRoot,
+      output: TreeOutput,
+      staticDocuments: Seq[BinaryInput[F]] = Nil
+  ) {
 
     /** The configuration of the renderer.
       */
@@ -111,7 +117,7 @@ object TreeRenderer {
       * This functionality is mostly intended for tooling support.
       */
     def describe: F[RendererDescriptor] = RendererDescriptor.create(this)
-    
+
   }
 
 }

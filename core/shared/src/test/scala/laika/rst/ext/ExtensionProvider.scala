@@ -16,40 +16,41 @@
 
 package laika.rst.ext
 
-import laika.ast.{Block, Span}
-import laika.bundle.{ExtensionBundle, MarkupExtensions, ParserHooks}
+import laika.ast.{ Block, Span }
+import laika.bundle.{ ExtensionBundle, MarkupExtensions, ParserHooks }
 import laika.format.ReStructuredText
 import laika.parse.markup.RootParserProvider.RootParserWrapper
-import laika.rst.bundle.{LinkTargetProcessor, RstExtensionRegistry, RstExtensionSupport}
+import laika.rst.bundle.{ LinkTargetProcessor, RstExtensionRegistry, RstExtensionSupport }
 import laika.rst.ext.Directives.Directive
 import laika.rst.ext.TextRoles.TextRole
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object ExtensionProvider {
 
-  def forDefaultTextRole (name: String): ExtensionBundle = new RstExtensionRegistry {
-    val blockDirectives = Nil
-    val spanDirectives = Nil
-    val textRoles = Nil
+  def forDefaultTextRole(name: String): ExtensionBundle = new RstExtensionRegistry {
+    val blockDirectives          = Nil
+    val spanDirectives           = Nil
+    val textRoles                = Nil
     override val defaultTextRole = Some(name)
   }
 
-  def forExtensions (blocks: Seq[Directive[Block]] = Nil,
-                     spans: Seq[Directive[Span]] = Nil,
-                     roles: Seq[TextRole] = Nil): ExtensionBundle = new RstExtensionRegistry {
+  def forExtensions(
+      blocks: Seq[Directive[Block]] = Nil,
+      spans: Seq[Directive[Span]] = Nil,
+      roles: Seq[TextRole] = Nil
+  ): ExtensionBundle = new RstExtensionRegistry {
     val blockDirectives = blocks
-    val spanDirectives = spans
-    val textRoles = roles
+    val spanDirectives  = spans
+    val textRoles       = roles
   }
 
 }
 
 object RootParserProvider {
 
-  def forBundle (bundle: ExtensionBundle): RootParserWrapper = {
-    val finalBundle = bundle.processExtension(RstExtensionSupport)
+  def forBundle(bundle: ExtensionBundle): RootParserWrapper = {
+    val finalBundle      = bundle.processExtension(RstExtensionSupport)
     val markupExtensions = MarkupExtensions(
       blockParsers = finalBundle.parsers.blockParsers,
       spanParsers = finalBundle.parsers.spanParsers,

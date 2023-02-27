@@ -16,18 +16,18 @@
 
 package laika.parse.code.common
 
-import laika.ast.{CodeSpan, CodeSpans, ~}
+import laika.ast.{ CodeSpan, CodeSpans, ~ }
 import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.implicits._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.implicits._
 import laika.parse.text.PrefixedParser
-import laika.parse.text.TextParsers.{delimitedBy, literal}
+import laika.parse.text.TextParsers.{ delimitedBy, literal }
 
 /** Configurable base parsers for tag based formats like HTML or XML.
-  * 
+  *
   * @author Jens Halm
   */
 trait TagBasedFormats {
@@ -55,9 +55,9 @@ trait TagBasedFormats {
       }
 
   val string: CodeSpanParser = StringLiteral.singleLine('\'') ++ StringLiteral.singleLine('"')
-  
-  val stringWithEntities: CodeSpanParser = 
-    StringLiteral.singleLine('\'').embed(ref) ++ 
+
+  val stringWithEntities: CodeSpanParser =
+    StringLiteral.singleLine('\'').embed(ref) ++
       StringLiteral.singleLine('"').embed(ref)
 
   /** Parses an empty tag (closed by `/>`) with optional attributes. */
@@ -80,10 +80,12 @@ trait TagBasedFormats {
     * embedding syntax for the content of the element.
     * Assumes that the start tag has already been parsed.
     */
-  def elementRest(tagName: String, 
-                  embedded: Seq[CodeSpanParser] = Nil, 
-                  tagNameCategory: CodeCategory = CodeCategory.Tag.Name): Parser[Seq[CodeSpan]] = {
-    
+  def elementRest(
+      tagName: String,
+      embedded: Seq[CodeSpanParser] = Nil,
+      tagNameCategory: CodeCategory = CodeCategory.Tag.Name
+  ): Parser[Seq[CodeSpan]] = {
+
     val endTag: Seq[CodeSpan] = Seq(
       CodeSpan("</", CodeCategory.Tag.Punctuation),
       CodeSpan(tagName, tagNameCategory)
@@ -92,15 +94,17 @@ trait TagBasedFormats {
       case content ~ close => content ++ endTag :+ CodeSpan(close, CodeCategory.Tag.Punctuation)
     }
   }
-  
+
 }
 
 /** Configurable base parser for tags in formats like HTML or XML. */
-case class TagParser(tagCategory: String => CodeCategory,
-                     start: String,
-                     end: String,
-                     tagName: PrefixedParser[String] = TagParser.nameParser.map(_.content),
-                     embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
+case class TagParser(
+    tagCategory: String => CodeCategory,
+    start: String,
+    end: String,
+    tagName: PrefixedParser[String] = TagParser.nameParser.map(_.content),
+    embedded: Seq[CodeSpanParser] = Nil
+) extends CodeParserBase {
 
   private val categories: Set[CodeCategory] = Set(CodeCategory.Tag.Punctuation)
 
@@ -114,9 +118,9 @@ case class TagParser(tagCategory: String => CodeCategory,
 
   def underlying: PrefixedParser[Seq[CodeSpan]] = {
 
-    val startParser = literal(start).asCode(CodeCategory.Tag.Punctuation)
+    val startParser   = literal(start).asCode(CodeCategory.Tag.Punctuation)
     val tagNameParser = tagName.map(name => CodeSpan(name, tagCategory(name)))
-    val delim = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end)
+    val delim         = if (end == "/>") delimitedBy(end).failOn('>') else delimitedBy(end)
 
     (startParser ~ tagNameParser ~ EmbeddedCodeSpans.parser(delim, embedded, categories)).mapN {
       (startPunct, tagNameSpan, content) =>
@@ -127,16 +131,14 @@ case class TagParser(tagCategory: String => CodeCategory,
 }
 
 object TagParser {
-  val nameParser: IdParser = Identifier.alphaNum.withIdStartChars('_',':').withIdPartChars('-','.')
-  
-  def apply (tagCategory: CodeCategory,
-             start: String,
-             end: String,
-             tagName: String): TagParser =
+
+  val nameParser: IdParser =
+    Identifier.alphaNum.withIdStartChars('_', ':').withIdPartChars('-', '.')
+
+  def apply(tagCategory: CodeCategory, start: String, end: String, tagName: String): TagParser =
     new TagParser(_ => tagCategory, start, end, literal(tagName))
 
-  def apply (tagCategory: CodeCategory,
-             start: String,
-             end: String): TagParser =
+  def apply(tagCategory: CodeCategory, start: String, end: String): TagParser =
     new TagParser(_ => tagCategory, start, end)
+
 }
