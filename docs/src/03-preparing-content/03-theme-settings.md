@@ -5,7 +5,7 @@ Theme Settings
 If you use the sbt plugin or the parsers, renderers or transformers from the `laika-io` module,
 each transformation is based on a theme that provides a set of default templates and styles for all output formats.
 
-If you use a pure transformer from the `laika-core` module, 
+If you use a pure transformer from the `laika-core` module,
 there is no theme support as these transformers only process a single string as input and output.
 
 This chapter documents Laika's only built-in theme, called `Helium`, and its configuration options.
@@ -17,7 +17,7 @@ The Helium Theme
 The name of Laika's default theme reflects its lightweight nature as it is not based on any CSS or JavaScript libraries
 like Bootstrap, but instead only comes with a minimal set of hand-crafted CSS and JavaScript.
 
-Helium includes default styles for web sites, EPUB and PDF documents, 
+Helium includes default styles for web sites, EPUB and PDF documents,
 so you can generate a documentation site complete with a download page for e-book formats in one go.
 
 The generated site is responsive and designed to work well on smaller devices.
@@ -43,22 +43,22 @@ val transformer = Transformer
 ```
 @:@
 
-If you are fine with your site and e-books looking exactly like Laika's documentation, 
+If you are fine with your site and e-books looking exactly like Laika's documentation,
 including its choices for colors and fonts, you can skip the theme configuration step.
 
 Otherwise you have the following options:
 
-* To tweak just some aspects of the look and feel like the color schemes and fonts 
-  and to add custom links, metadata and custom styles to the default theme, 
+* To tweak just some aspects of the look and feel like the color schemes and fonts
+  and to add custom links, metadata and custom styles to the default theme,
   follow the instructions in this chapter below.
-  
-* If you want full control and design everything from scratch, 
+
+* If you want full control and design everything from scratch,
   you can alternatively install `Theme.empty` instead of Helium's defaults and then add all
-  templates and CSS files to your input directories. See [Creating Templates] for details. 
- 
+  templates and CSS files to your input directories. See [Creating Templates] for details.
+
 * If you want full control, but re-use your design across multiple projects or publish it as a 3rd-party theme,
   see [Creating Themes] for details.
-  
+
 * Hopefully at some point there is also a selection of 3rd-party themes available.
 
 
@@ -70,7 +70,7 @@ Helium can be fully configured with its Scala API and does not require any confi
 The entry point for all configuration steps is always `Helium.defaults` to ensure there are sensible defaults
 in place for all the options you omit in your configuration.
 
-For each configuration step you need to choose one of the four selectors, 
+For each configuration step you need to choose one of the four selectors,
 either `all` to specify options for all three output formats or `site`, `epub` or `pdf` to select a single format.
 Not all options are available for all formats, but the IDE's context help and the documentation below can guide you.
 
@@ -89,7 +89,7 @@ val theme = Helium.defaults
 ```
 
 Laika also provides convenient constructors for some of the data types used frequently in its theme API.
-You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` or `rgb(255, 0, 0)` and 
+You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` or `rgb(255, 0, 0)` and
 `laika.ast.LengthUnit._` for specifying sizes with `px(12)` or `pt(9)` or other available units.
 All configuration examples in this chapter assume these imports are in place.
 
@@ -118,12 +118,12 @@ val transformer = Transformer
 Fonts
 -----
 
-By default Laika includes three fonts in its published artifact 
+By default Laika includes three fonts in its published artifact
 so that they are ready to be embedded into EPUB or PDF documents.
 All these fonts are licensed under the Open Font License:
 
 * `Lato` (for headlines and body text): https://fonts.google.com/specimen/Lato#about
-* `Fira Code` (for code blocks and inline code): https://github.com/tonsky/FiraCode
+* `Fira Mono` (for code blocks and inline code): https://fonts.google.com/specimen/FiraMono#about
 * `IcoFont` (for Laika's small set of icons): https://icofont.com/icons
 
 You can override these defaults by defining your own set of fonts.
@@ -132,8 +132,7 @@ This is an excerpt of Laika's default configuration as an example:
 
 ```scala
 val latoURL = "http://fonts.googleapis.com/css?family=Lato:400,700"
-val firaURL = 
-  "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"
+val firaURL = "https://fonts.googleapis.com/css?family=Fira+Mono:500"
 
 Helium.defaults.all.fontResources(
   FontDefinition(
@@ -149,9 +148,9 @@ Helium.defaults.all.fontResources(
   ),
   FontDefinition(
     Font
-      .embedResource(fontPath + "FiraCode/FiraCode-Medium.otf")
+      .embedResource(fontPath + "FiraMono/FiraMono-Medium.ttf")
       .webCSS(firaURL),
-    "Fira Code", FontWeight.Normal, FontStyle.Normal
+    "Fira Mono", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
     Font
@@ -162,11 +161,11 @@ Helium.defaults.all.fontResources(
 )
 ```
 
-The `embedResource` method picks the font to be embedded from the resource directory inside the jar, 
+The `embedResource` method picks the font to be embedded from the resource directory inside the jar,
 use `emedFile` to pick a font from the file system.
 Font embedding will be performed for EPUB and PDF output
 For the site you can use the `webCSS` method to link to the CSS containing the `font-face` definitions.
-It will automatically be included in the `<head>` sections of the generated HTML 
+It will automatically be included in the `<head>` sections of the generated HTML
 without the need to adjust the default templates.
 
 Note that the use of the `fontResources` method *replaces* the defaults, it does not add them.
@@ -263,7 +262,7 @@ In terms of getting the right contrast, the color combinations must support the 
 ### Syntax Highlighting
 
 These settings are only relevant if you use Laika's built-in highlighters,
-in case you prefer to use a 3rd-party library like `highlight.js` you need to use their styling mechanism. 
+in case you prefer to use a 3rd-party library like `highlight.js` you need to use their styling mechanism.
 
 Laika's own syntax color scheme is built around sets of 10 colors, of which 5 are usually a set of grayish colors
 from light to dark with almost no saturation and a set of 5 colors which are supposed to be positioned around
@@ -313,11 +312,11 @@ They can be overridden per format or for all at once:
 Helium.defaults
   .all.syntaxHighlightingColors(
     base = ColorQuintet(
-      hex("2a3236"), hex("8c878e"), hex("b2adb4"), 
+      hex("2a3236"), hex("8c878e"), hex("b2adb4"),
       hex("bddcee"), hex("e8e8e8")
     ),
     wheel = ColorQuintet(
-      hex("e28e93"), hex("ef9725"), hex("ffc66d"), 
+      hex("e28e93"), hex("ef9725"), hex("ffc66d"),
       hex("7fb971"), hex("4dbed4")
     )
   )
@@ -326,16 +325,16 @@ Helium.defaults
 For dark themes the base colors have to go from dark to light, for light themes the other way round.
 
 The base colors are used as background color (the first), for comments, punctuation, identifiers and uncategorized
-spans, the wheel colors are used for the more significant types of code spans. 
+spans, the wheel colors are used for the more significant types of code spans.
 Amongst others these are substitution references, annotations (1st color), keywords, escape sequences (2nd),
-attribute names, declaration names (3rd), all types of literals (4th), type names, tag names (5th), 
+attribute names, declaration names (3rd), all types of literals (4th), type names, tag names (5th),
 and several categories for other types of syntax, e.g. in text markup.
 
 
 ### Dark Mode
 
 For EPUB and HTML output Laika also supports explicit configuration for dark mode.
-This requires e-book readers and browsers which support the CSS for dark mode 
+This requires e-book readers and browsers which support the CSS for dark mode
 (the `color-scheme` attribute and the `prefers-color-scheme` media query).
 In supported software the color sets configured for Helium's dark mode become active
 whenever the user has switched on dark mode in the OS or in the reader software.
@@ -372,9 +371,9 @@ a7d4de primaryMedium
 The meaning of "light" and "medium" are inverted here, to avoid confusion with names for the light mode scheme.
 For an overview how these colors are used, see [Theme Colors] above.
 
-Please note that while Laika also technically supports dark mode configuration for EPUB output, 
+Please note that while Laika also technically supports dark mode configuration for EPUB output,
 the support in reader software is currently so poor that it's usually not worth it.
-Syntax highlighting colors, for example, are ignored in dark mode in most readers, 
+Syntax highlighting colors, for example, are ignored in dark mode in most readers,
 making dark mode for EPUB quite an unattractive choice for technical documentation.
 
 
@@ -427,7 +426,7 @@ Helium.defaults
 Again, the example shows the defaults. The properties for the page dimensions and margins should be self-explanatory,
 `defaultBlockSpacing` and `defaultLineHeight` are analogous to the site settings.
 Finally, `keepTogetherDecoratedLines` controls the number of lines for decorated blocks like code examples or callouts
-that should always be kept on the same page. 
+that should always be kept on the same page.
 With the above setting of `12` only blocks with more than 12 lines are allowed to be split across multiple pages.
 
 
@@ -436,7 +435,7 @@ Metadata
 
 Helium allows to define a small set of metadata that describes the output.
 In the generated site it will be used to populate the `<head>` section of the HTML output,
-for EPUB and PDF it will be used to embed the information into the generated files 
+for EPUB and PDF it will be used to embed the information into the generated files
 in a way that the respective readers understand.
 
 Like many other options, you can specify metadata either with the `all` selector for all formats,
@@ -451,12 +450,12 @@ Helium.defaults
     authors = Seq("Maria Green", "Helena Brown"),
     language = Some("de"),
     datePublished = Some(Instant.now),
-    version = Some("2.3.4") 
+    version = Some("2.3.4")
   )
 ```
 
 When using the sbt plugin the `title`, `description` and `version` metadata will be pre-populated by the standard
-sbt settings `name`, `description` and `version` respectively. 
+sbt settings `name`, `description` and `version` respectively.
 When using the library API no medata will be defined by default.
 It is recommended to always define the language and title as the minimum set of metadata.
 
@@ -524,18 +523,18 @@ Helium.defaults.site
   )
 ```
 
-The theme includes full styling for up to three levels. 
-More than 3 levels will probably lead to confusing UX, 
-but if you do want to use more you need to add additional CSS to your inputs. 
+The theme includes full styling for up to three levels.
+More than 3 levels will probably lead to confusing UX,
+but if you do want to use more you need to add additional CSS to your inputs.
 You can use the classes Helium adds to the `<li>` tags (`level4`, `level5`, etc.) for the custom styles.
 
-If the `includePageSections` parameter is set to true (it's `false` by default), the navigation structure will not only 
+If the `includePageSections` parameter is set to true (it's `false` by default), the navigation structure will not only
 reflect the directory structure and the documents within, but also the section headers on individual pages.
 This option may be attractive if you only have very few pages in your site and want to make better use
 of the space in the left navigation pane.
 Note that sections may still be filtered based on your setting for the overall navigation depth.
 
-Finally, you can also append or prepend additional sections of links, each with a section header and one or more links. 
+Finally, you can also append or prepend additional sections of links, each with a section header and one or more links.
 Prepending may not be desirable if you also configure a table of content or a download page,
 as the prepended links would appear before them.
 
@@ -558,7 +557,7 @@ Helium.defaults.site
       ButtonLink.external("http://somewhere.com/", "Button Link")
     ),
     versionMenu = VersionMenu.create(
-      versionedLabelPrefix = "Version:", 
+      versionedLabelPrefix = "Version:",
       unversionedLabel = "Choose Version"
     ),
     highContrast = true
@@ -588,10 +587,10 @@ If it is not configured explicitly, Laika attempts to apply the following defaul
 
 #### Right Navigation Links
 
-The links for the right side of the top navigation bar (`navLinks`, by default empty) can be 
-an `IconLink` with optional text, a `ButtonLink` with an optional icon, a plain `TextLink`, an `ImageLink` 
+The links for the right side of the top navigation bar (`navLinks`, by default empty) can be
+an `IconLink` with optional text, a `ButtonLink` with an optional icon, a plain `TextLink`, an `ImageLink`
 or a drop-down `Menu`.
-All links can be external or internal, in case of the latter, it is always a path from the perspective 
+All links can be external or internal, in case of the latter, it is always a path from the perspective
 of Laika's virtual root, not a file system path, and will be validated (dead links will cause the transformation to fail).
 
 With the default Helium settings the three link types from our code example render as shown below:
@@ -667,7 +666,7 @@ To remove the pane entirely, the `enabled` flag has to be set to false instead.
 
 ### Table of Contents
 
-All three formats support an additional table of contents. 
+All three formats support an additional table of contents.
 This does not refer to the main navigation menu (the left pane of the Helium site and the respective
 reader's navigation bars in case of EPUB or PDF) which Helium will always produce.
 It is an optional, separate page that can be included in e-books or the site.
@@ -694,7 +693,7 @@ Helium.defaults
   .pdf.navigationDepth(4)
 ```
 
-@:callout(info) 
+@:callout(info)
 
 The default for EPUB is just 2 levels as some readers like iBooks mess with the hierarchy of navigation items
 when using more than 2 levels.
@@ -742,7 +741,7 @@ Helium.defaults
   .site.footer()
 ```
 
-Note that there is no option to define the footer in markup. 
+Note that there is no option to define the footer in markup.
 Themes are independent of the underlying markup parser and a site can be generated
 with only a reStructuredText parser configured for the runtime, for example.
 
@@ -772,8 +771,8 @@ If you configure [Cover Images for E-books] they will be used to display thumbna
 Website Landing Page
 --------------------
 
-By default the generated site does not have a dedicated landing page. 
-The site's entry point will simply be the `README.md` or `README.rst` document (if present), 
+By default the generated site does not have a dedicated landing page.
+The site's entry point will simply be the `README.md` or `README.rst` document (if present),
 rendered with the default template, meaning with the top and left navigation bars.
 If you don't mind that users arrive straight at the content pages, you can stick with the defaults.
 
@@ -809,7 +808,7 @@ Helium.defaults
       LinkGroup.create(
         IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
         IconLink.internal(Root / "doc-3.md", HeliumIcon.info)
-      )  
+      )
     ),
     teasers = Seq(
       Teaser("Teaser 1", "Description 1"),
@@ -823,14 +822,14 @@ Every single content item shown above is optional, but of course the page would 
 
 The diagram below shows the positions of these items on the page:
 
-@:image(../img/landing-page.png) { 
+@:image(../img/landing-page.png) {
   alt = "Configurable Areas on the Landing Page"
   intrinsicWidth = 700
   intrinsicHeight = 570
 }
 
-The left side of the header introduces the project, ideally you would choose at least one of the three options 
-(logo, title and subtitle). 
+The left side of the header introduces the project, ideally you would choose at least one of the three options
+(logo, title and subtitle).
 In the case of Laika's site for example, the title is omitted as the project name is already part of the logo.
 
 Below the subtitle you can also add a row of links, which may be a menu, icon links, text links or even a
@@ -838,7 +837,7 @@ version menu, by using the `titleLinks` property.
 This is the most prominent position for links on the landing page.
 
 On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
-The panel for documentation links can be any links right into the content of your site, like Getting Started pages, 
+The panel for documentation links can be any links right into the content of your site, like Getting Started pages,
 tables of contents, and hopefully also a link to the API documentation.
 
 The project links below can be any set of additional links, like to GitHub, Twitter or your chat.
@@ -849,7 +848,7 @@ Internal targets are again within the virtual path and will be validated.
 
 @:callout(info)
 
-The right side of the header is the only section of the landing page containing links. 
+The right side of the header is the only section of the landing page containing links.
 This is a deliberate departure from the often confusing entry points of other software documentations sites
 where relevant links are scattered all over the place.
 
@@ -867,7 +866,7 @@ It can also be used to list adopters, provide a feature overview or links to pre
 Cover Images for E-books
 ------------------------
 
-You can include cover images for EPUB and PDF files. 
+You can include cover images for EPUB and PDF files.
 They will also be used to display little thumbnails on the download page.
 
 ```scala
@@ -891,7 +890,7 @@ You can examine the CSS generated by Helium and override individual style declar
 anywhere in a CSS file inside one of your input directories.
 They will always be included in a way that they have higher precedence than the theme's styles.
 
-If you want to prevent Helium from scanning all input directories for CSS files, 
+If you want to prevent Helium from scanning all input directories for CSS files,
 you can alternatively specify one or more directories explicitly:
 
 ```scala
@@ -915,7 +914,7 @@ you can do that with a HOCON configuration header in the corresponding markup do
 ```
 
 You can also use paths of directories, in which case those will be scanned in the same way
-as with the global search paths configured via the Helium API. 
+as with the global search paths configured via the Helium API.
 
 Like everything in Laika, the paths are virtual and not file system paths, so they must point to somewhere
 within the configured inputs. @:todo(maybe better to include just one section at the top about virtual paths).
@@ -927,10 +926,10 @@ See [JavaScript for EPUB] for details.
 Custom Templates
 ----------------
 
-In cases where even custom CSS files do not give you the level of control you need, 
+In cases where even custom CSS files do not give you the level of control you need,
 the final step (apart from creating your own theme), would be to create your own default templates.
 
-As a starting point you can copy and modify Helium's default templates, which you can find 
+As a starting point you can copy and modify Helium's default templates, which you can find
 [here](https://github.com/planet42/Laika/tree/master/io/src/main/resources/laika/helium/templates).
 Or you can start from scratch and only use the existing templates as an inspiration.
 

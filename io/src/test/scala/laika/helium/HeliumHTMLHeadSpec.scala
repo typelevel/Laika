@@ -47,12 +47,12 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       .parallel[IO]
       .build
   }
-  
+
   val parserAndRenderer: Resource[IO, (TreeParser[IO], TreeRenderer[IO])] = for {
     p <- parser
     r <- renderer
   } yield (p, r)
-  
+
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
@@ -60,7 +60,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     .parallel[IO]
     .withTheme(theme)
     .build
-  
+
   val singleDoc = Seq(
     Root / "name.md" -> "text"
   )
@@ -80,16 +80,16 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     Root / "name.md" -> "text",
     Root / "directory.conf" -> "laika.versioned = true",
   )
-  
+
   val meta = s"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 |<meta charset="utf-8">
                 |<meta name="viewport" content="width=device-width, initial-scale=1.0">
                 |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />""".stripMargin
-  
+
   val defaultResult = meta ++ """
     |<title></title>
     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
     |<script src="helium/laika-helium.js"></script>
@@ -105,9 +105,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Version("0.43.x", "0.43")
     )
   )
-  
+
   val heliumBase = Helium.defaults.site.landingPage()
-  
+
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] = transformAndExtractHead(inputs, Helium.defaults)
 
   def transformAndExtractHead(inputs: Seq[(Path, String)], helium: Helium, underTest: Path = Root / "name.html"): IO[String] = transformer(helium.build).use { t =>
@@ -125,7 +125,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
-    
+
   test("Helium defaults via separate parser and renderer") {
     parserAndRenderer.use {
       case (p, r) => p.fromInput(build(singleDocPlusHome)).parse.flatMap { tree =>
@@ -139,7 +139,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   test("Helium defaults via transformer") {
     transformAndExtractHead(singleDocPlusHome).assertEquals(defaultResult)
   }
-  
+
   test("exclude CSS and JS from API directory") {
     val inputs = Seq(
       Root / "name.md" -> "text",
@@ -148,7 +148,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     )
     transformAndExtractHead(inputs, heliumBase).assertEquals(defaultResult)
   }
-  
+
   test("custom CSS and JS files") {
     val inputs = Seq(
       Root / "name.md" -> "text",
@@ -158,7 +158,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = meta ++ """
                    |<title></title>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                    |<link rel="stylesheet" type="text/css" href="web/foo.css" />
@@ -181,7 +181,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = meta ++ """
                    |<title></title>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                    |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
@@ -206,7 +206,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = meta ++ """
                    |<title></title>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                    |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
@@ -215,7 +215,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
-  
+
   test("metadata (authors, description)") {
     val helium = heliumBase.all.metadata(
       authors = Seq("Maria Green", "Elena Blue"),
@@ -227,7 +227,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<meta name="author" content="Elena Blue"/>
                    |<meta name="description" content="Some description"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                    |<script src="helium/laika-helium.js"></script>
@@ -247,7 +247,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                              |<title></title>
                              |<link rel="canonical" href="http://very.canonical/"/>
                              |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                             |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                             |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                              |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                              |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                              |<script src="helium/laika-helium.js"></script>
@@ -272,7 +272,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<link rel="icon" sizes="64x64" type="image/png" href="icon-2.png"/>
                    |<link rel="icon"  type="image/svg+xml" href="icon.svg"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                    |<script src="helium/laika-helium.js"></script>
@@ -301,7 +301,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                    |<link rel="icon" sizes="32x32" type="image/png" href="../../img/icon-1.png"/>
                    |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png"/>
                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                   |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                   |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                    |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
                    |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
                    |<script src="../helium/laika-helium.js"></script>
@@ -342,7 +342,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = meta ++ """
                     |<title></title>
                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                    |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                     |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                     |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                     |<script src="helium/laika-helium.js"></script>
@@ -367,7 +367,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = meta ++ """
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>
@@ -405,7 +405,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       """.stripMargin
     val inputs = Seq(
       Root / "name.md" -> markup,
-      Root / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>" 
+      Root / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
     )
     val expected = "<title>XX Title</title>"
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
@@ -426,5 +426,5 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val expected = "<title>XX Title</title>"
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
-  
+
 }

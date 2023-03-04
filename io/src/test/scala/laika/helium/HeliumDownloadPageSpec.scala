@@ -36,22 +36,22 @@ import munit.CatsEffectSuite
 class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
-  
+
   def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
       .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
-    configure(builder)  
+    configure(builder)
       .parallel[IO]
       .withTheme(theme)
       .build
   }
-  
+
   val singleDoc = Seq(
     Root / "doc.md" -> "text"
   )
-  
-  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String, 
-                          configure: ConfigureTransformer = identity): IO[String] = 
+
+  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String,
+                          configure: ConfigureTransformer = identity): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
@@ -59,18 +59,18 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
           .toRight(new RuntimeException("Missing document under test")))
       } yield res
     }
-    
+
   test("no download page configured") {
     transformAndExtract(singleDoc, Helium.defaults.site.landingPage(), "", "")
       .interceptMessage[RuntimeException]("Missing document under test")
   }
-  
+
   private val heliumWithDownloadPage = Helium.defaults.site.downloadPage(
     title = "Downloads",
     description = Some("EPUB & PDF"),
     downloadPath = Root / "documents",
   ).site.landingPage()
-  
+
   test("download page included - full HTML") {
     val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -79,7 +79,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
                      |<title>Downloads</title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>

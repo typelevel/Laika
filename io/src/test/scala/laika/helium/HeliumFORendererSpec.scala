@@ -57,12 +57,12 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
-  
+
   test("defaults - full XSL-FO output") {
     val inputs = Seq(
       Root / "doc.md" -> "Text"
     )
-    val expected = 
+    val expected =
       """<fo:layout-master-set>
         |<fo:simple-page-master
         |master-name="default"
@@ -99,9 +99,9 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     val startTag = "<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" xmlns:fox=\"http://xmlgraphics.apache.org/fop/extensions\">"
     transformAndExtract(inputs, Helium.defaults, startTag, "</fo:root>").assertEquals(expected)
   }
-  
+
   private val defaultLayout = Helium.defaults.pdfSettings.layout
-  
+
   def withCustomLayout(helium: Helium): Helium = helium.pdf.layout(
     pageWidth = defaultLayout.pageWidth,
     pageHeight = defaultLayout.pageHeight,
@@ -113,18 +113,18 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     defaultLineHeight = 1.4,
     keepTogetherDecoratedLines = defaultLayout.keepTogetherDecoratedLines
   )
-  
+
   test("custom master page layout") {
     val inputs = Seq(
       Root / "doc.md" -> "Text"
     )
     val helium = Helium.defaults.pdf.layout(
-      pageWidth = cm(14.8), 
-      pageHeight = cm(21), 
-      marginTop = cm(0.7), 
-      marginRight = cm(1.8), 
-      marginBottom = cm(0.7), 
-      marginLeft = cm(1.8), 
+      pageWidth = cm(14.8),
+      pageHeight = cm(21),
+      marginTop = cm(0.7),
+      marginRight = cm(1.8),
+      marginBottom = cm(0.7),
+      marginLeft = cm(1.8),
       defaultBlockSpacing = mm(2),
       defaultLineHeight = 1.4,
       keepTogetherDecoratedLines = 10)
@@ -139,7 +139,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     transformAndExtract(inputs, helium, "<fo:simple-page-master", "<fo:region-body margin-top=\"2cm\" margin-bottom=\"2cm\"/>")
       .assertEquals(expected)
   }
-  
+
   test("paragraph with custom font families, font sizes and layout") {
     val inputs = Seq(
       Root / "doc.md" -> "Text"
@@ -154,7 +154,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
         header4 = pt(11),
         small = pt(9))
       )
-    val expected = 
+    val expected =
       """<fo:block font-family="Custom-Body" font-size="11pt" line-height="1.4" space-after="2mm" text-align="justify">Text</fo:block>"""
     transformAndExtract(inputs, helium, "<fo:flow flow-name=\"xsl-region-body\">", "</fo:flow>")
       .assertEquals(expected)
@@ -212,15 +212,15 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     transformAndExtract(inputs, helium, "<fo:flow flow-name=\"xsl-region-body\">", "</fo:flow>")
       .assertEquals(expected)
   }
-  
+
   test("custom color scheme for syntax highlighting") {
     import Color._
     val markup =
       """
         |```scala
         |val stuff = Seq(
-        |  "text", 
-        |  7, 
+        |  "text",
+        |  7,
         |  new Foo
         |)
         |```
@@ -232,8 +232,8 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
       base = ColorQuintet(hex("000011"), hex("000022"), hex("000033"), hex("000044"), hex("000055")),
       wheel = ColorQuintet(hex("990011"), hex("990022"), hex("990033"), hex("990044"), hex("990055"))
     )
-    val expected = 
-      """<fo:block background-color="#000011" color="#000055" font-family="Fira Code" font-size="9pt" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" page-break-inside="avoid" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve"><fo:inline color="#990022">val</fo:inline> <fo:inline color="#000044">stuff</fo:inline> = <fo:inline color="#990055">Seq</fo:inline>(
+    val expected =
+      """<fo:block background-color="#000011" color="#000055" font-family="Fira Mono" font-size="9pt" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" page-break-inside="avoid" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve"><fo:inline color="#990022">val</fo:inline> <fo:inline color="#000044">stuff</fo:inline> = <fo:inline color="#990055">Seq</fo:inline>(
         |<fo:inline color="#990044">&quot;text&quot;</fo:inline>,
         |<fo:inline color="#990044">7</fo:inline>,
         |<fo:inline color="#990022">new</fo:inline> <fo:inline color="#990055">Foo</fo:inline>
@@ -241,7 +241,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     transformAndExtract(inputs, helium, "<fo:flow flow-name=\"xsl-region-body\">", "</fo:flow>")
       .assertEquals(expected)
   }
-  
+
   test("callouts with icons") {
     val markup =
       """
@@ -254,7 +254,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     val inputs = Seq(
       Root / "doc.md" -> markup
     )
-    val expected = 
+    val expected =
       """<fo:block background-color="#fcfacd" border-left="3pt solid #b1a400" font-family="Lato" font-size="10pt" fox:border-after-end-radius="2mm" fox:border-before-end-radius="2mm" line-height="1.5" margin-left="2mm" margin-right="2mm" padding="3mm 3mm 0.1mm 3mm" page-break-inside="avoid" space-after="6mm">
         |<fo:block padding-top="-2mm"><fo:inline color="#b1a400" font-family="IcoFont" font-size="16pt">&#xf026;</fo:inline></fo:block>
         |<fo:block font-family="Lato" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">You really should not do this.</fo:block>
@@ -262,7 +262,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     transformAndExtract(inputs, Helium.defaults, "<fo:flow flow-name=\"xsl-region-body\">", "</fo:flow>")
       .assertEquals(expected)
   }
-  
+
   test("cover image") {
     val inputs = Seq(
       Root / "doc.md" -> "Text",
@@ -271,10 +271,10 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     val helium = Helium.defaults.pdf.coverImages(
       CoverImage(Root / "cover.png")
     )
-    val expected = 
+    val expected =
       """<fox:external-document src="/cover.png" width="21cm" height="29.7cm" content-width="21cm"/>"""
     transformAndExtract(inputs, helium, "</fo:layout-master-set>", "<fo:page-sequence master-reference=\"default\">")
       .assertEquals(expected)
   }
-  
+
 }

@@ -28,14 +28,14 @@ import munit.FunSuite
   */
 class FopFactoryConfigSpec extends FunSuite {
 
-  
+
   def renderXML (helium: Helium): String = {
     val config = ConfigGenerator.populateConfig(helium)
     val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
     FopFactoryBuilder.generateXMLConfig(pdfConfig)
   }
-  
-  
+
+
   test("defaults") {
     val expected =
       """<fop version="1.0">
@@ -54,8 +54,8 @@ class FopFactoryConfigSpec extends FunSuite {
         |        <font kerning="yes" embed-url="/laika/fonts/Lato-BoldItalic.ttf" embedding-mode="subset">
         |          <font-triplet name="Lato" style="italic" weight="bold"/>
         |        </font>
-        |        <font kerning="yes" embed-url="/laika/fonts/FiraCode-Medium.otf" embedding-mode="subset">
-        |          <font-triplet name="Fira Code" style="normal" weight="normal"/>
+        |        <font kerning="yes" embed-url="/laika/fonts/FiraMono-Medium.ttf" embedding-mode="subset">
+        |          <font-triplet name="Fira Mono" style="normal" weight="normal"/>
         |        </font>
         |        <font kerning="yes" embed-url="/laika/fonts/icofont.ttf" embedding-mode="subset">
         |          <font-triplet name="IcoFont" style="normal" weight="normal"/>
@@ -66,8 +66,8 @@ class FopFactoryConfigSpec extends FunSuite {
         |</fop>""".stripMargin
     assertEquals(renderXML(Helium.defaults), expected)
   }
-  
-  private val customXML = 
+
+  private val customXML =
     """<fop version="1.0">
       |  <renderers>
       |    <renderer mime="application/pdf">
@@ -82,7 +82,7 @@ class FopFactoryConfigSpec extends FunSuite {
       |    </renderer>
       |  </renderers>
       |</fop>""".stripMargin
-  
+
   test("custom fonts via 'pdf' selector") {
     val helium = Helium.defaults.pdf.fontResources(
       FontDefinition(Font.embedFile("/projects/fonts/font-1.tff"), "Font-1", FontWeight.Normal, FontStyle.Normal),
@@ -98,5 +98,5 @@ class FopFactoryConfigSpec extends FunSuite {
     )
     assertEquals(renderXML(helium), customXML)
   }
-  
+
 }

@@ -37,14 +37,14 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
     .parallel[IO]
     .withTheme(theme)
     .build
-  
+
   val twoDocs = Seq(
     Root / "doc-1.md" -> "text",
     Root / "doc-2.md" -> "text",
     Root / "dir-1" / "doc-3.md" -> "text",
     Root / "dir-1" / "sub-dir" / "doc-3.md" -> "text"
   )
-  
+
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
@@ -52,12 +52,12 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
-    
+
   test("no table of content page configured") {
     transformAndExtract(twoDocs, Helium.defaults.site.landingPage(), "", "")
       .interceptMessage[RuntimeException]("Missing document under test")
   }
-  
+
   test("table of content included") {
     val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -66,7 +66,7 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
                      |<title>Contents</title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<script src="helium/laika-helium.js"></script>

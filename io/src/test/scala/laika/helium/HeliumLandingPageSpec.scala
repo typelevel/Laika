@@ -44,7 +44,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
       Version("0.43.x", "0.43")
     )
   )
-  
+
   def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
@@ -52,14 +52,14 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
     .parallel[IO]
     .withTheme(theme)
     .build
-  
+
   val inputs = Seq(
     Root / "doc-1.md" -> "text",
     Root / "doc-2.md" -> "text",
     Root / "home.png" -> "",
     Root / "styles" / "landing-extra.page.css" -> ""
   )
-  
+
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
@@ -67,7 +67,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
         .toRight(new RuntimeException("Missing document under test")))
     } yield res
   }
-  
+
   private val teaserHTML = """<div class="teasers">
                              |<div class="teaser">
                              |<h2>Teaser 1</h2>
@@ -82,12 +82,12 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                              |<p>Description 3</p>
                              |</div>
                              |</div>""".stripMargin
-    
+
   test("no landing page configured") {
     transformAndExtract(inputs, Helium.defaults.site.topNavigationBar(homeLink = IconLink.external("http://foo.com", HeliumIcon.home)), "", "")
       .interceptMessage[RuntimeException]("Missing document under test")
   }
-  
+
   test("full landing page configured") {
     val expected = s"""<head>
                      |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -96,7 +96,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
@@ -185,7 +185,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           Teaser("Teaser 2", "Description 2"),
           Teaser("Teaser 3", "Description 3")
         ),
-        styles = Seq(Root / "styles" / "landing-extra.page.css") 
+        styles = Seq(Root / "styles" / "landing-extra.page.css")
       )
     transformAndExtract(inputs, helium, s"""<html lang="${Locale.getDefault.toLanguageTag}">""", "</html>")
       .assertEquals(expected)
@@ -199,7 +199,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
                      |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
                      |<title></title>
                      |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                     |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+                     |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
                      |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
                      |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />

@@ -42,7 +42,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   val singleDoc = Seq(
     Root / "name.md" -> "text"
   )
-  
+
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
@@ -58,7 +58,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   private val colorScheme = "color-scheme: light dark;"
-    
+
   test("defaults") {
     val expected = s"""--primary-color: #007c99;
                      |--primary-light: #ebf6f7;
@@ -90,7 +90,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |--syntax-wheel5: #6498AE;
                      |--body-font: "Lato", sans-serif;
                      |--header-font: "Lato", sans-serif;
-                     |--code-font: "Fira Code", monospace;
+                     |--code-font: "Fira Mono", monospace;
                      |--body-font-size: 1em;
                      |--code-font-size: 0.9em;
                      |--small-font-size: 0.8em;
@@ -105,7 +105,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("embedded fonts") {
-    val expected = 
+    val expected =
       """@font-face {
         |font-family: "Lato";
         |font-weight: normal;
@@ -131,10 +131,10 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |src: url("../laika/fonts/Lato-BoldItalic.ttf");
         |}
         |@font-face {
-        |font-family: "Fira Code";
+        |font-family: "Fira Mono";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/FiraCode-Medium.otf");
+        |src: url("../laika/fonts/FiraMono-Medium.ttf");
         |}
         |@font-face {
         |font-family: "IcoFont";
@@ -147,7 +147,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
       .map(_.removeIndentation.removeBlankLines.split(":root").head)
       .assertEquals(expected)
   }
-  
+
   private val customFonts = s"""--primary-color: #007c99;
                               |--primary-light: #ebf6f7;
                               |--primary-medium: #a7d4de;
@@ -193,7 +193,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   test("custom font families and font sizes - via 'epub' selector") {
     val helium = Helium.defaults
       .epub.fontFamilies(body = "Custom-Body", headlines = "Custom-Header", code = "Custom-Code")
-      .epub.fontSizes(body = px(14), code = px(13), title = px(33), 
+      .epub.fontSizes(body = px(14), code = px(13), title = px(33),
         header2 = px(27), header3 = px(19), header4 = px(14), small = px(11))
     transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customFonts)
   }
@@ -236,7 +236,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                               |--syntax-wheel5: #110055;
                               |--body-font: "Lato", sans-serif;
                               |--header-font: "Lato", sans-serif;
-                              |--code-font: "Fira Code", monospace;
+                              |--code-font: "Fira Mono", monospace;
                               |--body-font-size: 1em;
                               |--code-font-size: 0.9em;
                               |--small-font-size: 0.8em;
@@ -247,7 +247,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                               |--block-spacing: 10px;
                               |--line-height: 1.5;
                               |$colorScheme""".stripMargin
-  
+
   private val darkModeColors = """}
                                  |@media (prefers-color-scheme: dark) {
                                  |:root {
@@ -285,7 +285,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
     val helium = Helium.defaults
       .epub.themeColors(primary = rgb(1,1,1), primaryLight = rgb(2,2,2), primaryMedium = rgb(4,4,4),
         secondary = rgb(212,212,212), text = rgb(10,10,10), background = rgb(11,11,11), bgGradient = (rgb(0,0,0), rgb(9,9,9)))
-      .epub.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"), 
+      .epub.messageColors(info = hex("aaaaaa"), infoLight = hex("aaaaab"),
         warning = hex("aaaaac"), warningLight = hex("aaaaad"),
         error = hex("aaaaae"), errorLight = hex("aaaaaf")
       )
@@ -371,7 +371,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                      |--syntax-wheel5: #6498AE;
                      |--body-font: "Lato", sans-serif;
                      |--header-font: "Lato", sans-serif;
-                     |--code-font: "Fira Code", monospace;
+                     |--code-font: "Fira Mono", monospace;
                      |--body-font-size: 1em;
                      |--code-font-size: 0.9em;
                      |--small-font-size: 0.8em;

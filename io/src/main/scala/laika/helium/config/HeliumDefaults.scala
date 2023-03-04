@@ -25,35 +25,39 @@ import laika.theme.config._
 
 private[helium] object HeliumDefaults {
 
-  private val fontPath = "laika/helium/fonts/"
+  private val fontPath = "laika/helium/fonts"
 
   private val defaultFonts = Seq(
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("https://fonts.googleapis.com/css?family=Lato:400,700"),
+      Font.embedResource(s"$fontPath/Lato/Lato-Regular.ttf").webCSS("https://fonts.googleapis.com/css?family=Lato:400,700"),
       "Lato", FontWeight.Normal, FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Italic.ttf"),
+      Font.embedResource(s"$fontPath/Lato/Lato-Italic.ttf"),
       "Lato", FontWeight.Normal, FontStyle.Italic
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Bold.ttf"),
+      Font.embedResource(s"$fontPath/Lato/Lato-Bold.ttf"),
       "Lato", FontWeight.Bold, FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-BoldItalic.ttf"),
+      Font.embedResource(s"$fontPath/Lato/Lato-BoldItalic.ttf"),
       "Lato", FontWeight.Bold, FontStyle.Italic
     ),
-    FontDefinition(
-      Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
+    /*FontDefinition(
+      Font.embedResource(s"$fontPath/FiraCode/FiraCode-Medium.ttf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
       "Fira Code", FontWeight.Normal, FontStyle.Normal
+    ),*/
+    FontDefinition(
+      Font.embedResource(s"$fontPath/FiraMono/FiraMono-Medium.ttf").webCSS("https://fonts.googleapis.com/css?family=Fira+Mono:500"),
+      "Fira Mono", FontWeight.Normal, FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "icofont/fonts/icofont.ttf"),
+      Font.embedResource(s"$fontPath/icofont/fonts/icofont.ttf"),
       "IcoFont", FontWeight.Normal, FontStyle.Normal
     ),
   )
-  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Code")
+  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Mono")
   private val defaultMessageColors = MessageColors(
     info = Color.hex("007c99"),
     infoLight = Color.hex("ebf6f7"),
@@ -104,7 +108,7 @@ private[helium] object HeliumDefaults {
     background = Color.hex("064458"),
     bgGradient = (Color.hex("064458"), Color.hex("197286")) // 007c99
   )
-  
+
   def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
     theme = themeColors,
     messages = defaultMessageColors,
@@ -116,7 +120,7 @@ private[helium] object HeliumDefaults {
     messages = darkModeMessageColors,
     syntaxHighlighting = syntaxDarkScheme
   )
-  
+
   private val defaultSiteSettings = SiteSettings(
     fontResources = defaultFonts,
     themeFonts = defaultThemeFonts,
@@ -146,7 +150,7 @@ private[helium] object HeliumDefaults {
   )
   private val defaultEPUBSettings = EPUBSettings(
     bookConfig = BookConfig(
-      fonts = defaultFonts, 
+      fonts = defaultFonts,
       navigationDepth = Some(2) // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
     ),
     themeFonts = defaultThemeFonts,
@@ -198,5 +202,5 @@ private[helium] object HeliumDefaults {
   )
 
   val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings, Nil)
-  
+
 }
