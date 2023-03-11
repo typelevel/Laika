@@ -17,20 +17,22 @@
 package laika.io.descriptor
 
 import cats.Applicative
-import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
-import laika.io.model.{BinaryOutput, DirectoryOutput, TreeOutput}
+import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
+import laika.io.model.{ BinaryOutput, DirectoryOutput, TreeOutput }
 
 /** Provides a description of a render operation, including the renderers
   * and extension bundles used, as well as the output target.
   * This functionality is mostly intended for tooling support.
-  * 
+  *
   * @author Jens Halm
   */
-case class RendererDescriptor (renderer: String,
-                               bundles: Seq[ExtensionBundleDescriptor],
-                               theme: ThemeDescriptor,
-                               output: String,
-                               renderFormatted: Boolean) {
+case class RendererDescriptor(
+    renderer: String,
+    bundles: Seq[ExtensionBundleDescriptor],
+    theme: ThemeDescriptor,
+    output: String,
+    renderFormatted: Boolean
+) {
 
   def formatted: String = {
     s"""Renderer:
@@ -44,35 +46,40 @@ case class RendererDescriptor (renderer: String,
        |Target:
        |  $output""".stripMargin
   }
-  
-  
+
 }
 
 object RendererDescriptor {
 
-  private def describeOutput[F[_]] (out: BinaryOutput[F]): String = out.targetFile.fold(
+  private def describeOutput[F[_]](out: BinaryOutput[F]): String = out.targetFile.fold(
     "In-memory bytes or stream"
   )(f => s"File '${f.getPath}'")
-  
-  private def describeOutput (out: TreeOutput): String = out match {
-    case DirectoryOutput(dir, _) => s"Directory '${dir.toString}'"
-    case _ => "In-memory strings or streams"
-  }
-  
-  def create[F[_]: Applicative] (op: TreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
-    op.renderer.format.description,
-    op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
-    op.theme.descriptor,
-    describeOutput(op.output),
-    op.renderer.config.renderFormatted
-  ))
 
-  def create[F[_]: Applicative] (op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] = Applicative[F].pure(apply(
-    op.renderer.description,
-    op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
-    op.theme.descriptor,
-    describeOutput(op.output),
-    op.renderer.interimRenderer.config.renderFormatted
-  ))
+  private def describeOutput(out: TreeOutput): String = out match {
+    case DirectoryOutput(dir, _) => s"Directory '${dir.toString}'"
+    case _                       => "In-memory strings or streams"
+  }
+
+  def create[F[_]: Applicative](op: TreeRenderer.Op[F]): F[RendererDescriptor] =
+    Applicative[F].pure(
+      apply(
+        op.renderer.format.description,
+        op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.theme.descriptor,
+        describeOutput(op.output),
+        op.renderer.config.renderFormatted
+      )
+    )
+
+  def create[F[_]: Applicative](op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] =
+    Applicative[F].pure(
+      apply(
+        op.renderer.description,
+        op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.theme.descriptor,
+        describeOutput(op.output),
+        op.renderer.interimRenderer.config.renderFormatted
+      )
+    )
 
 }

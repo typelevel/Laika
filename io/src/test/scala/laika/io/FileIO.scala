@@ -19,41 +19,42 @@ package laika.io
 import cats.effect.IO
 import fs2.io.file.Files
 import laika.ast.Path.Root
-import laika.io.model.{FilePath, TextInput, TextOutput}
+import laika.io.model.{ FilePath, TextInput, TextOutput }
 
 import java.io.ByteArrayOutputStream
 import scala.io.Codec
 
 trait FileIO {
 
-  def readFile (base: String): IO[String] = readFile(FilePath.parse(base))
-  
-  def readFile (f: FilePath)(implicit codec: Codec): IO[String] = TextInput.fromFile[IO](f).input
+  def readFile(base: String): IO[String] = readFile(FilePath.parse(base))
 
-  def writeFile (f: FilePath, content: String): IO[Unit] = TextOutput.forFile[IO](f).writer(content)
+  def readFile(f: FilePath)(implicit codec: Codec): IO[String] = TextInput.fromFile[IO](f).input
+
+  def writeFile(f: FilePath, content: String): IO[Unit] = TextOutput.forFile[IO](f).writer(content)
 
   def newTempDirectory: IO[FilePath] = Files[IO].createTempDirectory.map(FilePath.fromFS2Path)
 
   def newTempFile: IO[FilePath] = Files[IO].createTempFile.map(FilePath.fromFS2Path)
-  
-  def mkDir (f: FilePath): IO[Unit] = Files[IO].createDirectory(f.toFS2Path)
 
-  def delete (f: FilePath): IO[Unit] = Files[IO].delete(f.toFS2Path)
-  
-  def exists (f: FilePath): IO[Boolean] = Files[IO].exists(f.toFS2Path)
+  def mkDir(f: FilePath): IO[Unit] = Files[IO].createDirectory(f.toFS2Path)
 
-  def withByteArrayTextOutput (charSet: String)(f: ByteArrayOutputStream => IO[Unit]): IO[String] =
+  def delete(f: FilePath): IO[Unit] = Files[IO].delete(f.toFS2Path)
+
+  def exists(f: FilePath): IO[Boolean] = Files[IO].exists(f.toFS2Path)
+
+  def withByteArrayTextOutput(charSet: String)(f: ByteArrayOutputStream => IO[Unit]): IO[String] =
     for {
       stream <- IO(new ByteArrayOutputStream())
       _      <- f(stream)
     } yield stream.toString(charSet)
-  
-  def withByteArrayTextOutput (f: ByteArrayOutputStream => IO[Unit]): IO[String] = withByteArrayTextOutput("UTF-8")(f)
 
-  def withByteArrayOutput (f: ByteArrayOutputStream => IO[Unit]): IO[Array[Byte]] =
+  def withByteArrayTextOutput(f: ByteArrayOutputStream => IO[Unit]): IO[String] =
+    withByteArrayTextOutput("UTF-8")(f)
+
+  def withByteArrayOutput(f: ByteArrayOutputStream => IO[Unit]): IO[Array[Byte]] =
     for {
       stream <- IO(new ByteArrayOutputStream())
       _      <- f(stream)
     } yield stream.toByteArray
-    
+
 }

@@ -18,36 +18,37 @@ package laika.render
 
 import cats.effect.IO
 import fs2.io.file.Files
-import laika.api.{MarkupParser, Renderer}
-import laika.ast.{DocumentTree, DocumentTreeRoot}
-import laika.format.{Markdown, PDF}
+import laika.api.{ MarkupParser, Renderer }
+import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import laika.format.{ Markdown, PDF }
 import laika.io.FileIO
 import laika.io.implicits._
-import laika.io.model.{FilePath, InputTree, ParsedTree}
+import laika.io.model.{ FilePath, InputTree, ParsedTree }
 import laika.rewrite.DefaultTemplatePath
 import munit.CatsEffectSuite
 
-import java.io.{BufferedInputStream, FileInputStream}
+import java.io.{ BufferedInputStream, FileInputStream }
 
 /** Since there is no straightforward way to validate a rendered PDF document
- *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
- *  after rendering. Most of the functionality for PDF rendering that Laika itself
- *  provides lies in its support for XSL-FO rendering and application of CSS to
- *  this render process. This functionality is extensively tested in other Specs.
- *  For the actual creation of the binary PDF format, Laika primarily relies
- *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having 
- *  limited scope in this particular spec is acceptable.  
- */
+  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
+  *  after rendering. Most of the functionality for PDF rendering that Laika itself
+  *  provides lies in its support for XSL-FO rendering and application of CSS to
+  *  this render process. This functionality is extensively tested in other Specs.
+  *  For the actual creation of the binary PDF format, Laika primarily relies
+  *  on Apache FOP for converting the rendered XSL-FO to PDF, therefore having
+  *  limited scope in this particular spec is acceptable.
+  */
 class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   private val templateParser = MarkupParser.of(Markdown).parallel[IO].build
-  
+
   // run a parser with an empty input tree to obtain a parsed default template
   private val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
-  
-  def buildInputTree (templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
+
+  def buildInputTree(templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
     val treeWithTemplate = inputTree.copy(
-      templates = Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
+      templates =
+        Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
       config = templateTree.root.config
     )
     DocumentTreeRoot(treeWithTemplate)
@@ -60,11 +61,12 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
       .build
 
     newTempFile.flatMap { tempFile =>
-      
-      val res = renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree =>
-        r.from(buildInputTree(templateTree, createTree())).toFile(tempFile).render
-      }}
-  
+      val res = renderer.use { r =>
+        emptyTreeWithTemplate.flatMap { templateTree =>
+          r.from(buildInputTree(templateTree, createTree())).toFile(tempFile).render
+        }
+      }
+
       (res >> Files[IO].size(tempFile.toFS2Path)).map(_ > 0).assert
     }
   }
@@ -76,9 +78,11 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
       .build
 
     withByteArrayOutput { out =>
-      renderer.use { r => emptyTreeWithTemplate.flatMap { templateTree => 
-        r.from(buildInputTree(templateTree, createTree())).toStream(IO.pure(out)).render.void
-      }}
+      renderer.use { r =>
+        emptyTreeWithTemplate.flatMap { templateTree =>
+          r.from(buildInputTree(templateTree, createTree())).toStream(IO.pure(out)).render.void
+        }
+      }
     }
       .map(_.nonEmpty)
       .assert

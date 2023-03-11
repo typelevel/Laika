@@ -28,13 +28,16 @@ import laika.factory.TwoPhaseRenderFormat
   *
   * @author Jens Halm
   */
-class TwoPhaseRendererBuilder[FMT, PP] (val twoPhaseFormat: TwoPhaseRenderFormat[FMT, PP],
-                                        val config: OperationConfig) extends RendererBuilderOps[FMT] {
+class TwoPhaseRendererBuilder[FMT, PP](
+    val twoPhaseFormat: TwoPhaseRenderFormat[FMT, PP],
+    val config: OperationConfig
+) extends RendererBuilderOps[FMT] {
 
   protected[this] val renderFormat = twoPhaseFormat.interimFormat
 
   type ThisType = TwoPhaseRendererBuilder[FMT, PP]
 
-  def withConfig(newConfig: OperationConfig): ThisType = new TwoPhaseRendererBuilder[FMT, PP](twoPhaseFormat, newConfig)
+  def withConfig(newConfig: OperationConfig): ThisType =
+    new TwoPhaseRendererBuilder[FMT, PP](twoPhaseFormat, newConfig)
 
 }

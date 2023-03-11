@@ -17,42 +17,42 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{BlockParserBuilder, ExtensionBundle, SpanParserBuilder}
+import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.factory.MarkupFormat
 import laika.markdown.bundle.VerbatimHTML
-import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
+import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
 import laika.parse.Parser
-import laika.parse.text.{CharGroup, TextParsers}
-  
+import laika.parse.text.{ CharGroup, TextParsers }
+
 /** A parser for Markdown text. Instances of this class may be passed directly
- *  to the `Parser` or `Transformer` APIs:
- *  
- *  {{{
- *  val document = MarkupParser.of(Markdown).build.parse(inputString)
- *  
- *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
- *  }}}
- *  
- *  Since this library is not solely focused on producing HTML output,
- *  parsing verbatim HTML elements like defined by the official Markdown 
- *  syntax description is an optional feature, as some types of renderers 
- *  would not know what to do with HTML nodes in the document tree. 
- *  It must be enabled explicitly:
- *  
- *  {{{
- *  val parser = MarkupParser.of(Markdown).withRawContent.build
- *  }}}
- *  
- *  To switch off all custom extensions like directives,
- *  configuration sections at the start of the document or automatic
- *  id generation for headers, you can run the parser in strict mode:
- *  
- *  {{{
- *  val transformer = Transformer.from(Markdown).to(HTML).strict
- *  }}}
- * 
- *  @author Jens Halm
- */
+  *  to the `Parser` or `Transformer` APIs:
+  *
+  *  {{{
+  *  val document = MarkupParser.of(Markdown).build.parse(inputString)
+  *
+  *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
+  *  }}}
+  *
+  *  Since this library is not solely focused on producing HTML output,
+  *  parsing verbatim HTML elements like defined by the official Markdown
+  *  syntax description is an optional feature, as some types of renderers
+  *  would not know what to do with HTML nodes in the document tree.
+  *  It must be enabled explicitly:
+  *
+  *  {{{
+  *  val parser = MarkupParser.of(Markdown).withRawContent.build
+  *  }}}
+  *
+  *  To switch off all custom extensions like directives,
+  *  configuration sections at the start of the document or automatic
+  *  id generation for headers, you can run the parser in strict mode:
+  *
+  *  {{{
+  *  val transformer = Transformer.from(Markdown).to(HTML).strict
+  *  }}}
+  *
+  *  @author Jens Halm
+  */
 case object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
@@ -69,7 +69,7 @@ case object Markdown extends MarkupFormat {
     ListParsers.enumLists.rootOnly,
     ListParsers.enumLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf(CharGroup.digit)),
     ListParsers.bulletLists.rootOnly,
-    ListParsers.bulletLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-')),
+    ListParsers.bulletLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-'))
   )
 
   val spanParsers: Seq[SpanParserBuilder] = Seq(
@@ -86,8 +86,7 @@ case object Markdown extends MarkupFormat {
 
   val extensions: Seq[ExtensionBundle] = Seq(VerbatimHTML)
 
-  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
+  override def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)
-  
 
 }

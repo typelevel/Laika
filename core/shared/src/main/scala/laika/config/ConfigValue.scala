@@ -16,53 +16,53 @@
 
 package laika.config
 
-import laika.ast.{Element, Path}
+import laika.ast.{ Element, Path }
 import laika.config.Origin.Scope
 
 /** The base trait for all configuration values.
-  * 
+  *
   * This data structure is quite similar to those found in common
   * JSON libraries (HOCON is a JSON superset after all).
-  * 
-  * The only exception is one special type: the `ASTValue` which 
-  * can hold an instance of a document AST obtained from parsing 
+  *
+  * The only exception is one special type: the `ASTValue` which
+  * can hold an instance of a document AST obtained from parsing
   * text markup.
-  * 
+  *
   * This can be useful in scenarios where substitution variables
   * in templates or markup want to refer to other AST elements
   * and include them into their AST tree as is.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait ConfigValue extends Product with Serializable
 
 /** A value tagged with its origin. */
-case class Traced[T] (value: T, origin: Origin)
+case class Traced[T](value: T, origin: Origin)
 
-/** The origin of a configuration value. 
-  * 
+/** The origin of a configuration value.
+  *
   * Origins can be used to distinguish values from a specific Config
   * instance from those which were inherited from a fallback, which
   * might be relevant in scenarios where relative paths need to be
   * resolved.
-  * 
+  *
   * @param scope the scope of the containing config instance
-  * @param path the virtual path of containing config instance in a document tree 
+  * @param path the virtual path of containing config instance in a document tree
   *             (not the key inside the configuration)
   * @param sourcePath the path in the file system this configuration originates from,
   *                   empty if it was constructed in memory
-  * */
+  */
 case class Origin(scope: Scope, path: Path, sourcePath: Option[String] = None)
 
 object Origin {
-  
+
   val root: Origin = Origin(GlobalScope, Path.Root)
-  
+
   sealed trait Scope
-  case object GlobalScope extends Scope
-  case object TreeScope extends Scope
-  case object DocumentScope extends Scope
-  case object TemplateScope extends Scope
+  case object GlobalScope    extends Scope
+  case object TreeScope      extends Scope
+  case object DocumentScope  extends Scope
+  case object TemplateScope  extends Scope
   case object DirectiveScope extends Scope
 }
 
@@ -74,50 +74,58 @@ sealed trait SimpleConfigValue extends ConfigValue {
 case object NullValue extends SimpleConfigValue {
   val render: String = null
 }
+
 case class BooleanValue(value: Boolean) extends SimpleConfigValue {
   def render: String = value.toString
 }
+
 case class DoubleValue(value: Double) extends SimpleConfigValue {
   def render: String = value.toString
 }
+
 case class LongValue(value: Long) extends SimpleConfigValue {
   def render: String = value.toString
 }
+
 case class StringValue(value: String) extends SimpleConfigValue {
   def render: String = value
 }
 
-/** A value containing an AST element obtained from text markup or templates. 
-  * 
+/** A value containing an AST element obtained from text markup or templates.
+  *
   * Such a value can be used in scenarios where substitution variables
   * in templates or markup want to refer to other AST elements
   * and include them into their AST tree as is.
-  * */
+  */
 case class ASTValue(value: Element) extends ConfigValue
 
 case class ArrayValue(values: Seq[ConfigValue]) extends ConfigValue {
   def isEmpty: Boolean = values.isEmpty
 }
+
 case class ObjectValue(values: Seq[Field]) extends ConfigValue {
-  
-  def merge (other: ObjectValue): ObjectValue = {
-    
+
+  def merge(other: ObjectValue): ObjectValue = {
+
     def mergeValues(cbv1: Field, cbv2: Field): Field = (cbv1, cbv2) match {
-      case (Field(name, o1: ObjectValue, origin), Field(_, o2: ObjectValue, _)) => Field(name, o1.merge(o2), origin)
-      case (v1, _) => v1
+      case (Field(name, o1: ObjectValue, origin), Field(_, o2: ObjectValue, _)) =>
+        Field(name, o1.merge(o2), origin)
+      case (v1, _)                                                              => v1
     }
 
-    val mergedFields = (values ++ other.values).groupBy(_.key).toSeq.map {
-      case (_, fields) => fields.reduce(mergeValues)
+    val mergedFields = (values ++ other.values).groupBy(_.key).toSeq.map { case (_, fields) =>
+      fields.reduce(mergeValues)
     }
     ObjectValue(mergedFields)
   }
-  
+
   def toConfig: Config = {
-    val origin = if (values.isEmpty) Origin.root
+    val origin =
+      if (values.isEmpty) Origin.root
       else values.groupBy(_.origin).toSeq.maxBy(_._2.size)._1
     new ObjectConfig(this, origin)
   }
+
 }
 
 /** A single field of an object value. */

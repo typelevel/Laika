@@ -16,7 +16,7 @@
 
 package laika.markdown.github
 
-import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
+import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle }
 
 /** Extension bundle that enables GitHub-Flavored Markdown on top of standard Markdown.
   *

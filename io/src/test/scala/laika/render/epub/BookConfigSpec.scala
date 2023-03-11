@@ -19,31 +19,29 @@ package laika.render.epub
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key}
+import laika.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
 import laika.format.EPUB.BookConfig
 import laika.render.fo.TestTheme
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class BookConfigSpec extends FunSuite {
 
   private val testKey = Key("test")
-  
-  def decode[T: ConfigDecoder] (input: String): ConfigResult[T] =
+
+  def decode[T: ConfigDecoder](input: String): ConfigResult[T] =
     ConfigParser.parse(input).resolve().flatMap(_.get[T](Key.root))
 
-  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
-  
+  def decode[T: ConfigDecoder](config: Config): ConfigResult[T] = config.get[T](testKey)
 
   test("decode defaults with an empty config") {
     assertEquals(BookConfig.decodeWithDefaults(Config.empty), Right(BookConfig()))
   }
-  
+
   test("decode an instance with fallbacks") {
-    val input =
+    val input    =
       """{
         |laika {
         |  metadata {
@@ -72,7 +70,7 @@ class BookConfigSpec extends FunSuite {
         |  }
         |}}
       """.stripMargin
-    val actual = ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults)  
+    val actual   = ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults)
     val expected = BookConfig(
       DocumentMetadata(
         Some("Hell is around the corner"),
@@ -90,9 +88,14 @@ class BookConfigSpec extends FunSuite {
   }
 
   test("round-trip encode and decode") {
-    val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
-    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
-    val actual = decode[BookConfig](encoded)
+    val input    = BookConfig(
+      DocumentMetadata(Some("XX-33-FF-01")),
+      Some(3),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
+    val actual   = decode[BookConfig](encoded)
     val expected = BookConfig(
       DocumentMetadata(
         Some("XX-33-FF-01")
@@ -103,5 +106,5 @@ class BookConfigSpec extends FunSuite {
     )
     assertEquals(actual, Right(expected))
   }
-    
+
 }

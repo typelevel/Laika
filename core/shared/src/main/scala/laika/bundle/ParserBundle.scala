@@ -37,20 +37,22 @@ import laika.parse.markup.DocumentParser.DocumentInput
   * @param templateParser parser for template documents
   * @param styleSheetParser parser for CSS documents
   */
-case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
-                        spanParsers: Seq[SpanParserBuilder] = Nil,
-                        syntaxHighlighters: Seq[SyntaxHighlighter] = Nil,
-                        markupParserHooks: Option[ParserHooks] = None,
-                        configProvider: Option[ConfigProvider] = None,
-                        templateParser: Option[Parser[TemplateRoot]] = None,
-                        styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
+case class ParserBundle(
+    blockParsers: Seq[BlockParserBuilder] = Nil,
+    spanParsers: Seq[SpanParserBuilder] = Nil,
+    syntaxHighlighters: Seq[SyntaxHighlighter] = Nil,
+    markupParserHooks: Option[ParserHooks] = None,
+    configProvider: Option[ConfigProvider] = None,
+    templateParser: Option[Parser[TemplateRoot]] = None,
+    styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None
+) {
 
   /** Merges this instance with the specified base.
     * Collections of parsers will be merged.
     * Optional parsers in this instance will overwrite optional parsers
     * in the base (if defined), with the base only serving as a fallback.
     */
-  def withBase (base: ParserBundle): ParserBundle =
+  def withBase(base: ParserBundle): ParserBundle =
     ParserBundle(
       blockParsers ++ base.blockParsers,
       spanParsers ++ base.spanParsers,
@@ -66,7 +68,12 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
     * in this bundle.
     */
   def markupExtensions: MarkupExtensions =
-    MarkupExtensions(blockParsers, spanParsers, syntaxHighlighters, markupParserHooks.getOrElse(ParserHooks()))
+    MarkupExtensions(
+      blockParsers,
+      spanParsers,
+      syntaxHighlighters,
+      markupParserHooks.getOrElse(ParserHooks())
+    )
 
 }
 
@@ -77,15 +84,17 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
   * @param postProcessDocument function invoked after parsing but before rewriting, allowing to modify the document
   * @param preProcessInput function invoked before parsing, allowing to pre-process the input
   */
-case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-                       postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-                       preProcessInput: DocumentInput => DocumentInput = identity) {
+case class ParserHooks(
+    postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+    postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
+    preProcessInput: DocumentInput => DocumentInput = identity
+) {
 
   /** Merges this instance with the specified base.
     * The functions specified in the base are always invoked before
     * the functions in this instance.
     */
-  def withBase (base: ParserHooks): ParserHooks = ParserHooks(
+  def withBase(base: ParserHooks): ParserHooks = ParserHooks(
     base.postProcessBlocks andThen postProcessBlocks,
     base.postProcessDocument andThen postProcessDocument,
     base.preProcessInput andThen preProcessInput
@@ -104,7 +113,9 @@ case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
   * @param syntaxHighlighters parsers for syntax highlighting of code blocks
   * @param parserHooks hooks for markup parsers to control aspects beyond the individual span and block parsers
   */
-case class MarkupExtensions (blockParsers: Seq[BlockParserBuilder],
-                             spanParsers: Seq[SpanParserBuilder],
-                             syntaxHighlighters: Seq[SyntaxHighlighter],
-                             parserHooks: ParserHooks)
+case class MarkupExtensions(
+    blockParsers: Seq[BlockParserBuilder],
+    spanParsers: Seq[SpanParserBuilder],
+    syntaxHighlighters: Seq[SyntaxHighlighter],
+    parserHooks: ParserHooks
+)

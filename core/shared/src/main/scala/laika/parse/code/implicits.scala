@@ -20,19 +20,23 @@ import laika.ast.CodeSpan
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object implicits {
 
-  implicit class CodeParserOps[T] (val p: Parser[String]) extends AnyVal {
+  implicit class CodeParserOps[T](val p: Parser[String]) extends AnyVal {
     def asCode(categories: CodeCategory*): Parser[CodeSpan] = p.map(CodeSpan(_, categories.toSet))
     def asCode(categories: Set[CodeCategory]): Parser[CodeSpan] = p.map(CodeSpan(_, categories))
   }
 
-  implicit class CodeStringParserOps[T] (val p: PrefixedParser[String]) extends AnyVal {
-    def asCode(categories: CodeCategory*): PrefixedParser[CodeSpan] = p.map(CodeSpan(_, categories.toSet))
-    def asCode(categories: Set[CodeCategory]): PrefixedParser[CodeSpan] = p.map(CodeSpan(_, categories))
+  implicit class CodeStringParserOps[T](val p: PrefixedParser[String]) extends AnyVal {
+
+    def asCode(categories: CodeCategory*): PrefixedParser[CodeSpan] =
+      p.map(CodeSpan(_, categories.toSet))
+
+    def asCode(categories: Set[CodeCategory]): PrefixedParser[CodeSpan] =
+      p.map(CodeSpan(_, categories))
+
   }
-  
+
 }

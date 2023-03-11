@@ -18,7 +18,7 @@ package laika.rewrite
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.sample.{BuilderKey, DocumentTreeAssertions, SampleTrees}
+import laika.ast.sample.{ BuilderKey, DocumentTreeAssertions, SampleTrees }
 import laika.config.Config.ConfigResult
 import laika.config.ConfigParser
 import laika.parse.GeneratedSource
@@ -26,20 +26,19 @@ import munit.FunSuite
 
 class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
 
-
   trait TreeModel {
-    
+
     def config: String
     def numberSections: Boolean
     def numberDocs: Boolean
     def depth: Option[Int] = None
 
-    def isIncluded (level: Int): Boolean = depth.forall(_ >= level)
+    def isIncluded(level: Int): Boolean = depth.forall(_ >= level)
 
-    def header (level: Int, title: Int, style: String = "section") =
-      Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
+    def header(level: Int, title: Int, style: String = "section") =
+      Header(level, List(Text(s"Title $title")), Id(s"title$title") + Styles(style))
 
-    def tree (content: RootElement): DocumentTree = {
+    def tree(content: RootElement): DocumentTree = {
       val autonumberConfig = ConfigParser.parse(config).resolve().toOption.get
       SampleTrees.sixDocuments
         .docContent(content.content)
@@ -48,37 +47,44 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
         .tree
     }
 
-    def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
-      val numbered = isIncluded(num.length) && (style == "section" && numberSections) || (style == "title" && numberDocs)
-      val number = if (numbered) List(SectionNumber(num)) else Nil
-      Header(level, number ++ List(Text(s"Title $title")),Id(s"title-$title") + Styles(style))
+    def numberedHeader(
+        level: Int,
+        title: Int,
+        num: List[Int],
+        style: String = "section"
+    ): Header = {
+      val numbered = isIncluded(
+        num.length
+      ) && (style == "section" && numberSections) || (style == "title" && numberDocs)
+      val number   = if (numbered) List(SectionNumber(num)) else Nil
+      Header(level, number ++ List(Text(s"Title $title")), Id(s"title-$title") + Styles(style))
     }
 
-    def numberedSection (level: Int, title: Int, num: List[Int], children: Section*): Section =
+    def numberedSection(level: Int, title: Int, num: List[Int], children: Section*): Section =
       Section(numberedHeader(level, title, num), children)
 
     val sections = RootElement(
-      header(1,1,"title") ::
-        header(2,2) ::
-        header(3,3) ::
-        header(2,4) ::
-        header(3,5) ::
+      header(1, 1, "title") ::
+        header(2, 2) ::
+        header(3, 3) ::
+        header(2, 4) ::
+        header(3, 5) ::
         Nil
     )
-    
-    def resultContent (docNum: List[Int]): Seq[Block] = List(
-      Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
-      numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
-      numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
+
+    def resultContent(docNum: List[Int]): Seq[Block] = List(
+      Title(numberedHeader(1, 1, docNum, "title").content, Id("title-1") + Style.title),
+      numberedSection(2, 2, docNum :+ 1, numberedSection(3, 3, docNum :+ 1 :+ 1)),
+      numberedSection(2, 4, docNum :+ 2, numberedSection(3, 5, docNum :+ 2 :+ 1))
     )
 
     lazy val expected: DocumentTree = {
-      val docNums = List(List(1), List(2), List(5,1), List(5,2), List(6,1), List(6,2))
-      def contents (key: BuilderKey): Seq[Block] = {
+      val docNums = List(List(1), List(2), List(5, 1), List(5, 2), List(6, 1), List(6, 2))
+      def contents(key: BuilderKey): Seq[Block] = {
         val docNum = if (!numberDocs) Nil else docNums(key.num - 1)
         resultContent(docNum)
       }
-      
+
       SampleTrees.sixDocuments
         .docContent(contents _)
         .build
@@ -87,68 +93,84 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
 
     lazy val result: ConfigResult[DocumentTree] = {
       val docTree = tree(sections)
-      docTree.rewrite(OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree), RewritePhase.Resolve))
+      docTree.rewrite(
+        OperationConfig.default.rewriteRulesFor(DocumentTreeRoot(docTree), RewritePhase.Resolve)
+      )
     }
+
   }
 
   trait SectionsWithConfigError extends TreeModel {
+
     override def resultContent(docNum: List[Int]): List[Block] = List(
       InvalidBlock("Invalid value for autonumbering.scope: xxx", GeneratedSource),
-      Title(numberedHeader(1,1, docNum, "title").content,Id("title-1") + Style.title),
-      numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
-      numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
+      Title(numberedHeader(1, 1, docNum, "title").content, Id("title-1") + Style.title),
+      numberedSection(2, 2, docNum :+ 1, numberedSection(3, 3, docNum :+ 1 :+ 1)),
+      numberedSection(2, 4, docNum :+ 2, numberedSection(3, 5, docNum :+ 2 :+ 1))
     )
+
   }
 
   trait NumberAllConfig {
+
     val config = """laika.autonumbering { 
-      |  scope: all
-      |}""".stripMargin
+                   |  scope: all
+                   |}""".stripMargin
+
     val numberSections = true
-    val numberDocs = true
+    val numberDocs     = true
   }
 
   trait NumberTwoLevels {
+
     val config = """laika.autonumbering { 
-      |  scope: all
-      |  depth: 2
-      |}""".stripMargin
+                   |  scope: all
+                   |  depth: 2
+                   |}""".stripMargin
+
     val numberSections = true
-    val numberDocs = true
+    val numberDocs     = true
   }
 
   trait NumberDocumentsConfig {
+
     val config = """laika.autonumbering { 
-      |  scope: documents
-      |}""".stripMargin
+                   |  scope: documents
+                   |}""".stripMargin
+
     val numberSections = false
-    val numberDocs = true
+    val numberDocs     = true
   }
 
   trait NumberSectionsConfig {
+
     val config = """laika.autonumbering { 
-      |  scope: sections
-      |}""".stripMargin
+                   |  scope: sections
+                   |}""".stripMargin
+
     val numberSections = true
-    val numberDocs = false
+    val numberDocs     = false
   }
 
   trait NumberNothingConfig {
+
     val config = """laika.autonumbering { 
-      |  scope: none
-      |}""".stripMargin
+                   |  scope: none
+                   |}""".stripMargin
+
     val numberSections = false
-    val numberDocs = false
+    val numberDocs     = false
   }
 
   trait InvalidConfig {
+
     val config = """laika.autonumbering { 
                    |  scope: xxx
                    |}""".stripMargin
-    val numberSections = false
-    val numberDocs = false
-  }
 
+    val numberSections = false
+    val numberDocs     = false
+  }
 
   test("number documents, sections and titles") {
     new TreeModel with NumberAllConfig {

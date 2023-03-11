@@ -19,18 +19,18 @@ package laika.ast
 import scala.annotation.tailrec
 
 /** The position of an element within a document tree.
-  * 
+  *
   * @author Jens Halm
   */
 class TreePosition private (private val positions: Option[Seq[Int]]) extends Ordered[TreePosition] {
 
-  /** The positions (one-based) of each nesting level of this instance 
+  /** The positions (one-based) of each nesting level of this instance
     * (an empty sequence for the root or orphan positions).
     */
   def toSeq: Seq[Int] = positions.getOrElse(Nil)
 
   override def toString: String = positions match {
-    case None => "TreePosition.orphan"
+    case None      => "TreePosition.orphan"
     case Some(Nil) => "TreePosition.root"
     case Some(pos) => s"TreePosition(${pos.mkString(".")})"
   }
@@ -48,15 +48,16 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
     */
   def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
 
-  def compare (other: TreePosition): Int = {
+  def compare(other: TreePosition): Int = {
 
     @tailrec
-    def compare (pos1: Seq[Int], pos2: Seq[Int]): Int = (pos1.headOption, pos2.headOption) match {
-      case (Some(a), Some(b)) => a.compare(b) match {
-        case 0 => compare(pos1.tail, pos2.tail)
-        case nonZero => nonZero
-      }
-      case _ => 0
+    def compare(pos1: Seq[Int], pos2: Seq[Int]): Int = (pos1.headOption, pos2.headOption) match {
+      case (Some(a), Some(b)) =>
+        a.compare(b) match {
+          case 0       => compare(pos1.tail, pos2.tail)
+          case nonZero => nonZero
+        }
+      case _                  => 0
     }
 
     val maxLen = Math.max(toSeq.length, other.toSeq.length)
@@ -72,10 +73,11 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
 }
 
 object TreePosition {
-  def apply (pos: Seq[Int]) = new TreePosition(Some(pos))
-  val root = new TreePosition(Some(Nil))
-  
-  /** A document has an orphaned position assigned when it is processed on its own, 
-    * not as part of a tree of documents. */
+  def apply(pos: Seq[Int]) = new TreePosition(Some(pos))
+  val root                 = new TreePosition(Some(Nil))
+
+  /** A document has an orphaned position assigned when it is processed on its own,
+    * not as part of a tree of documents.
+    */
   val orphan = new TreePosition(None)
 }

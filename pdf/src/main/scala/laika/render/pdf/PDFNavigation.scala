@@ -20,14 +20,14 @@ import laika.ast._
 import laika.io.model.RenderedTreeRoot
 
 /** Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.
-  * 
+  *
   * @author Jens Halm
   */
 object PDFNavigation {
 
-  /** Generates bookmarks for the structure of the DocumentTree. 
+  /** Generates bookmarks for the structure of the DocumentTree.
     *
-    * Individual bookmarks can stem from tree or subtree titles, document titles or document sections, 
+    * Individual bookmarks can stem from tree or subtree titles, document titles or document sections,
     * depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
     *
@@ -35,14 +35,18 @@ object PDFNavigation {
     *  @param depth the recursion depth through trees, documents and sections
     *  @return a fragment map containing the generated bookmarks
     */
-  def generateBookmarks[F[_]] (result: RenderedTreeRoot[F], depth: Option[Int]): Map[String, Element] = if (depth.contains(0)) Map() else {
+  def generateBookmarks[F[_]](
+      result: RenderedTreeRoot[F],
+      depth: Option[Int]
+  ): Map[String, Element] = if (depth.contains(0)) Map()
+  else {
     val context = NavigationBuilderContext(
       maxLevels = depth.getOrElse(Int.MaxValue),
       currentLevel = 0,
       itemStyles = Set("bookmark")
     )
-    val toc = result.tree.asNavigationItem(context).content
+    val toc     = result.tree.asNavigationItem(context).content
     Map("bookmarks" -> NavigationList(toc, Style.bookmark))
   }
-  
+
 }

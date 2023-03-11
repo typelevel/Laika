@@ -20,9 +20,9 @@ import laika.ast.Path.Root
 
 import scala.annotation.tailrec
 
-/** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
+/** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that
   * signifies the position in the tree. Essentially factors recursion out of the tree building process.
-  * 
+  *
   * @author Jens Halm
   */
 object TreeBuilder {
@@ -31,21 +31,22 @@ object TreeBuilder {
     * The function will be invoked for each node recursively, with the path for the node to build
     * and the child nodes that are immediate children of the node to build.
     */
-  def build[C <: Navigatable, T <: C] (content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
+  def build[C <: Navigatable, T <: C](content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
 
-    def toMap (items: Iterable[C]): Map[Path, C] = items.map(c => (c.path, c)).toMap
+    def toMap(items: Iterable[C]): Map[Path, C] = items.map(c => (c.path, c)).toMap
 
-    def buildNodes (depth: Int, contentMap: Map[Path, C]): Seq[T] = {
+    def buildNodes(depth: Int, contentMap: Map[Path, C]): Seq[T] = {
 
-      @tailrec def parent(p: Path, levels: Int): Path = if (levels <= 0) p else parent(p.parent, levels - 1)
+      @tailrec def parent(p: Path, levels: Int): Path =
+        if (levels <= 0) p else parent(p.parent, levels - 1)
 
       val newNodes = content
         .filter(_.path.parent.depth >= depth)
         .map(p => parent(p.path, p.path.depth - depth - 1))
         .distinct
         .groupBy(_.parent)
-        .map {
-          case (parent, contentPaths) => buildNode(parent, contentPaths.map(contentMap))
+        .map { case (parent, contentPaths) =>
+          buildNode(parent, contentPaths.map(contentMap))
         }
 
       if (depth == 0) newNodes.toSeq

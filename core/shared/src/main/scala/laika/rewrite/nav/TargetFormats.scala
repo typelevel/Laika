@@ -17,16 +17,16 @@
 package laika.rewrite.nav
 
 import cats.data.NonEmptySet
-import laika.config.{ConfigDecoder, DefaultKey, LaikaKeys}
+import laika.config.{ ConfigDecoder, DefaultKey, LaikaKeys }
 
 import scala.collection.immutable.TreeSet
 
 /** Describes the supported target (output) formats of a resource.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait TargetFormats {
-  def contains (format: String): Boolean
+  def contains(format: String): Boolean
 }
 
 object TargetFormats {
@@ -34,28 +34,37 @@ object TargetFormats {
   /** Describes a target that is intended to be rendered for all output formats.
     */
   case object All extends TargetFormats {
-    def contains (format: String): Boolean = true
+    def contains(format: String): Boolean = true
   }
+
   /** Describes a target that should not be rendered in any output format.
     * Such a resource may still be used with a directive like `@:include` in which case the including
     * document's configuration will determine the supported output formats.
     */
   case object None extends TargetFormats {
-    def contains (format: String): Boolean = false
+    def contains(format: String): Boolean = false
   }
+
   /** Describes a target that is only intended to be rendered for the specified set of output formats.
     */
-  case class Selected (formats: NonEmptySet[String]) extends TargetFormats {
-    def contains (format: String): Boolean = formats.contains(format)
+  case class Selected(formats: NonEmptySet[String]) extends TargetFormats {
+    def contains(format: String): Boolean = formats.contains(format)
   }
+
   object Selected {
-    def apply (format: String, formats: String*): Selected = apply(NonEmptySet.of(format, formats:_*))
+
+    def apply(format: String, formats: String*): Selected = apply(
+      NonEmptySet.of(format, formats: _*)
+    )
+
   }
-  
+
   implicit val decoder: ConfigDecoder[TargetFormats] = ConfigDecoder.seq[String].map { formats =>
-    NonEmptySet.fromSet(TreeSet(formats:_*)).fold[TargetFormats](TargetFormats.None)(TargetFormats.Selected(_))
+    NonEmptySet.fromSet(TreeSet(formats: _*)).fold[TargetFormats](TargetFormats.None)(
+      TargetFormats.Selected(_)
+    )
   }
 
   implicit val defaultKey: DefaultKey[TargetFormats] = DefaultKey(LaikaKeys.targetFormats)
-  
+
 }

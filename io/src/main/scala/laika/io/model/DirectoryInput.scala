@@ -18,7 +18,7 @@ package laika.io.model
 
 import cats.effect.Async
 import fs2.io.file.Files
-import laika.ast.{DocumentType, Path}
+import laika.ast.{ DocumentType, Path }
 import laika.ast.Path.Root
 import laika.bundle.DocumentTypeMatcher
 
@@ -27,35 +27,40 @@ import scala.io.Codec
 
 /** A directory in the file system containing input documents for a tree transformation.
   *
-  * The specified `docTypeMatcher` is responsible for determining the type of input 
+  * The specified `docTypeMatcher` is responsible for determining the type of input
   * (e.g. text markup, template, etc.) based on the (virtual) document path.
   */
-case class DirectoryInput (directories: Seq[FilePath],
-                           codec: Codec,
-                           docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
-                           fileFilter: FileFilter = DirectoryInput.hiddenFileFilter,
-                           mountPoint: Path = Root)
+case class DirectoryInput(
+    directories: Seq[FilePath],
+    codec: Codec,
+    docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
+    fileFilter: FileFilter = DirectoryInput.hiddenFileFilter,
+    mountPoint: Path = Root
+)
 
 object DirectoryInput {
 
   /** A filter that selects files that are hidden in a platform-dependent way.
     */
   val hiddenFileFilter: FileFilter = new FileFilter {
-    def filter[F[_] : Async] (file: FilePath) = Files[F].isHidden(file.toFS2Path)
+    def filter[F[_]: Async](file: FilePath) = Files[F].isHidden(file.toFS2Path)
   }
 
   @deprecated("use apply(FilePath)", "0.19.0")
-  def apply (directory: File)(implicit codec: Codec): DirectoryInput = apply(FilePath.fromJavaFile(directory))
+  def apply(directory: File)(implicit codec: Codec): DirectoryInput = apply(
+    FilePath.fromJavaFile(directory)
+  )
 
   /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
     * `fileFilter` properties.
     */
-  def apply (directory: FilePath)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
-
+  def apply(directory: FilePath)(implicit codec: Codec): DirectoryInput =
+    DirectoryInput(Seq(directory), codec)
 
   /** Creates a file filter that filters all files in the specified directory.
     */
-  def filterDirectory (dir: FilePath): FileFilter = FileFilter.lift { file =>
+  def filterDirectory(dir: FilePath): FileFilter = FileFilter.lift { file =>
     file.toString.startsWith(dir.toString)
   }
+
 }

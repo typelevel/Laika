@@ -16,21 +16,22 @@
 
 package laika.directive.std
 
-import laika.ast.{RootElement, TemplateRoot, TemplateSpan, TemplateSpanSequence, TemplateString}
+import laika.ast.{ RootElement, TemplateRoot, TemplateSpan, TemplateSpanSequence, TemplateString }
 import munit.FunSuite
-
 
 class ControlFlowDirectiveSpec extends FunSuite with TemplateParserSetup {
 
-  def root (spans: TemplateSpan*): RootElement = RootElement(TemplateRoot(spans))
-  
-  def result (span: TemplateSpan): RootElement = RootElement(TemplateRoot(
-    TemplateString("aaa "),
-    span,
-    TemplateString(" bbb")
-  ))
-  
-  def surroundedBySpaces (text1: String, text2: String): TemplateSpan =
+  def root(spans: TemplateSpan*): RootElement = RootElement(TemplateRoot(spans))
+
+  def result(span: TemplateSpan): RootElement = RootElement(
+    TemplateRoot(
+      TemplateString("aaa "),
+      span,
+      TemplateString(" bbb")
+    )
+  )
+
+  def surroundedBySpaces(text1: String, text2: String): TemplateSpan =
     TemplateSpanSequence(
       TemplateString(" "),
       TemplateString(text1),
@@ -38,110 +39,180 @@ class ControlFlowDirectiveSpec extends FunSuite with TemplateParserSetup {
       TemplateString(text2),
       TemplateString(" ")
     )
-  
+
   test("for directive - process the default body once if the referenced object is a map") {
-    val input = """aaa @:for(person) ${_.name} ${_.age} @:@ bbb"""
+    val input  = """aaa @:for(person) ${_.name} ${_.age} @:@ bbb"""
     val config = "person: { name: Mary, age: 35 }"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      surroundedBySpaces("Mary", "35")
-    )))
-  }
-
-  test("for directive - process the default body multiple times if the referenced object is a list") {
-    val input = """aaa @:for(persons) ${_.name} ${_.age} @:@ bbb"""
-    val config = "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(
-        surroundedBySpaces("Mary", "35"),
-        surroundedBySpaces("Lucy", "32"),
-        surroundedBySpaces("Anna", "42")
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          surroundedBySpaces("Mary", "35")
+        )
       )
-    )))
+    )
   }
 
-  test("for directive - do not process the default body if the referenced object is an empty collection") {
-    val input = """aaa @:for(persons) ${_.name} ${_.age} @:@ bbb"""
-    val config = "persons: []"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence.empty
-    )))
+  test(
+    "for directive - process the default body multiple times if the referenced object is a list"
+  ) {
+    val input  = """aaa @:for(persons) ${_.name} ${_.age} @:@ bbb"""
+    val config =
+      "persons: [{ name: Mary, age: 35 },{ name: Lucy, age: 32 },{ name: Anna, age: 42 }]"
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(
+            surroundedBySpaces("Mary", "35"),
+            surroundedBySpaces("Lucy", "32"),
+            surroundedBySpaces("Anna", "42")
+          )
+        )
+      )
+    )
   }
 
-  test("for directive - process the @:empty body part if the referenced object is an empty collection") {
-    val input = """aaa @:for(persons) ${_.name} ${_.age} @:empty none @:@ bbb"""
+  test(
+    "for directive - do not process the default body if the referenced object is an empty collection"
+  ) {
+    val input  = """aaa @:for(persons) ${_.name} ${_.age} @:@ bbb"""
     val config = "persons: []"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(" none ")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence.empty
+        )
+      )
+    )
+  }
+
+  test(
+    "for directive - process the @:empty body part if the referenced object is an empty collection"
+  ) {
+    val input  = """aaa @:for(persons) ${_.name} ${_.age} @:empty none @:@ bbb"""
+    val config = "persons: []"
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(" none ")
+        )
+      )
+    )
   }
 
   test("for directive - process the default body once if the referenced object is a scalar value") {
-    val input = """aaa @:for(person) ${_} @:@ bbb"""
+    val input  = """aaa @:for(person) ${_} @:@ bbb"""
     val config = "person: Mary"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(TemplateString(" "), TemplateString("Mary"), TemplateString(" ")))
-    ))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(TemplateString(" "), TemplateString("Mary"), TemplateString(" "))
+        )
+      )
+    )
   }
 
-  test("if directive - process the default body once if the referenced object is the string 'true'") {
-    val input = """aaa @:if(monday) text @:@ bbb"""
+  test(
+    "if directive - process the default body once if the referenced object is the string 'true'"
+  ) {
+    val input  = """aaa @:if(monday) text @:@ bbb"""
     val config = "monday: true"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(" text ")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(" text ")
+        )
+      )
+    )
   }
 
   test("if directive - process the default body once if the referenced object is the string 'on'") {
-    val input = """aaa @:if(monday) text @:@ bbb"""
+    val input  = """aaa @:if(monday) text @:@ bbb"""
     val config = "monday: on"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(" text ")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(" text ")
+        )
+      )
+    )
   }
 
   test("if directive - do not process the default body if the referenced object does not exist") {
-    val input = """aaa @:if(monday) text @:@ bbb"""
+    val input  = """aaa @:if(monday) text @:@ bbb"""
     val config = "tuesday: on"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence.empty
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence.empty
+        )
+      )
+    )
   }
 
   test("if directive - process the @:else body if the referenced object does not exist") {
-    val input = """aaa @:if(monday) text @:else none @:@ bbb"""
+    val input  = """aaa @:if(monday) text @:else none @:@ bbb"""
     val config = "tuesday: on"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence(" none ")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence(" none ")
+        )
+      )
+    )
   }
 
   test("if directive - process the first @:elseIf body if it is defined") {
-    val input = """111 @:if(aaa) aaa @:elseIf(bbb) bbb @:elseIf(ccc) ccc @:else none @:@ 222"""
+    val input  = """111 @:if(aaa) aaa @:elseIf(bbb) bbb @:elseIf(ccc) ccc @:else none @:@ 222"""
     val config = "bbb: on"
-    assertEquals(parseTemplateWithConfig(input, config), Right(root(
-      TemplateString("111 "),
-      TemplateSpanSequence(" bbb "),
-      TemplateString(" 222")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        root(
+          TemplateString("111 "),
+          TemplateSpanSequence(" bbb "),
+          TemplateString(" 222")
+        )
+      )
+    )
   }
 
   test("if directive - process the second @:elseIf body if it is defined") {
-    val input = """111 @:if(aaa) aaa @:elseIf(bbb) bbb @:elseIf(ccc) ccc @:else none @:@ 222"""
+    val input  = """111 @:if(aaa) aaa @:elseIf(bbb) bbb @:elseIf(ccc) ccc @:else none @:@ 222"""
     val config = "ccc: on"
-    assertEquals(parseTemplateWithConfig(input, config), Right(root(
-      TemplateString("111 "),
-      TemplateSpanSequence(" ccc "),
-      TemplateString(" 222")
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        root(
+          TemplateString("111 "),
+          TemplateSpanSequence(" ccc "),
+          TemplateString(" 222")
+        )
+      )
+    )
   }
 
-  test("if directive - do not process the default body if the referenced object is not a string recognized as true") {
-    val input = """aaa @:if(monday) text @:@ bbb"""
+  test(
+    "if directive - do not process the default body if the referenced object is not a string recognized as true"
+  ) {
+    val input  = """aaa @:if(monday) text @:@ bbb"""
     val config = "monday: off"
-    assertEquals(parseTemplateWithConfig(input, config), Right(result(
-      TemplateSpanSequence.empty
-    )))
+    assertEquals(
+      parseTemplateWithConfig(input, config),
+      Right(
+        result(
+          TemplateSpanSequence.empty
+        )
+      )
+    )
   }
-  
-  
+
 }

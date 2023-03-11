@@ -16,8 +16,8 @@
 
 package laika.io
 
-import cats.data.{Kleisli, NonEmptyList}
-import cats.effect.{Async, Sync}
+import cats.data.{ Kleisli, NonEmptyList }
+import cats.effect.{ Async, Sync }
 import laika.api.builder._
 import laika.factory.BinaryPostProcessorBuilder
 import laika.helium.Helium
@@ -25,10 +25,10 @@ import laika.io.api._
 import laika.io.ops.IOBuilderOps
 import laika.io.runtime.Batch
 
-/** Implicits that add `sequential[F[_]]` and `parallel[F[_]]` methods to all builder instances for parsers, 
+/** Implicits that add `sequential[F[_]]` and `parallel[F[_]]` methods to all builder instances for parsers,
   * renderers and transformers from the laika-core module, adding support for file/stream IO,
   * suspended in the effect of your choice.
-  * 
+  *
   * The requirements for the effect are `Sync` for sequential execution and `Async` for parallel execution.
   *
   * Example for transforming an entire directory from Markdown to HTML using the `parallel` builder:
@@ -46,7 +46,7 @@ import laika.io.runtime.Batch
   *   .toDirectory("target")
   *   .transform
   * }}}
-  * 
+  *
   * These variants of parser, renderer and transformer are the most powerful of the library, and the only
   * options that support templating, style sheets and the copying of static files from input to output directory.
   *
@@ -63,46 +63,71 @@ import laika.io.runtime.Batch
   * to a single, merged output. In case of HTML the output is a tree of separate HTML documents.
   * The API adjusts to the format in use, e.g. EPUB and PDF transformers will offer a
   * `fromDirectory` ... `toFile` flow whereas HTML will offer `fromDirectory` ... `toDirectory`.
-  * 
+  *
   * @author Jens Halm
   */
 object implicits {
 
-  implicit class ImplicitParserOps (val builder: ParserBuilder) extends IOBuilderOps[TreeParser.Builder] {
+  implicit class ImplicitParserOps(val builder: ParserBuilder)
+      extends IOBuilderOps[TreeParser.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeParser.Builder[F] =
       new TreeParser.Builder[F](NonEmptyList.of(builder.build), Helium.defaults.build)
+
   }
 
-  implicit class ImplicitTextRendererOps (val builder: RendererBuilder[_]) extends IOBuilderOps[TreeRenderer.Builder] {
+  implicit class ImplicitTextRendererOps(val builder: RendererBuilder[_])
+      extends IOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
       new TreeRenderer.Builder[F](builder.build.skipRewritePhase, Helium.defaults.build.build)
+
   }
 
-  implicit class ImplicitTextTransformerOps (val builder: TransformerBuilder[_]) extends IOBuilderOps[TreeTransformer.Builder] {
+  implicit class ImplicitTextTransformerOps(val builder: TransformerBuilder[_])
+      extends IOBuilderOps[TreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeTransformer.Builder[F] = {
       val transformer = builder.build
       new TreeTransformer.Builder[F](
-        NonEmptyList.of(transformer.parser), transformer.renderer, Helium.defaults.build, Kleisli(Sync[F].pure))
+        NonEmptyList.of(transformer.parser),
+        transformer.renderer,
+        Helium.defaults.build,
+        Kleisli(Sync[F].pure)
+      )
     }
+
   }
 
-  implicit class ImplicitBinaryRendererOps (val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
+  implicit class ImplicitBinaryRendererOps(
+      val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]
+  ) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeRenderer.Builder[F] = {
-      new BinaryTreeRenderer.Builder[F](builder.twoPhaseFormat, builder.config, Helium.defaults.build.build)
+      new BinaryTreeRenderer.Builder[F](
+        builder.twoPhaseFormat,
+        builder.config,
+        Helium.defaults.build.build
+      )
     }
+
   }
 
-  implicit class ImplicitBinaryTransformerOps (val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
+  implicit class ImplicitBinaryTransformerOps(
+      val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]
+  ) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeTransformer.Builder[F] = {
       val parser = new ParserBuilder(builder.markupFormat, builder.config).build
       new BinaryTreeTransformer.Builder[F](
-        NonEmptyList.of(parser), builder.twoPhaseRenderFormat, builder.config, Helium.defaults.build, Kleisli(Sync[F].pure))
+        NonEmptyList.of(parser),
+        builder.twoPhaseRenderFormat,
+        builder.config,
+        Helium.defaults.build,
+        Kleisli(Sync[F].pure)
+      )
     }
+
   }
-  
+
 }

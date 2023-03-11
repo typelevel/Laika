@@ -16,13 +16,13 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import laika.api.Transformer
-import laika.ast.{Emphasized, Path, TemplateString}
+import laika.ast.{ Emphasized, Path, TemplateString }
 import laika.ast.Path.Root
-import laika.format.{HTML, Markdown}
+import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
-import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
+import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.theme._
@@ -31,27 +31,35 @@ import munit.CatsEffectSuite
 import java.lang.RuntimeException
 import java.util.Locale
 
-class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with StringOps {
 
-  def transformer (theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
+  def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
     .parallel[IO]
     .withTheme(theme)
     .build
-  
+
   val input = Seq(
     Root / "doc-1.md" -> "Content"
   )
-  
-  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] = transformer(helium.build).use { t =>
-    for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "doc-1.html", "<main class=\"content\">", "</main>")
-        .toRight(new RuntimeException("Missing document under test")))
-    } yield res
-  }
-    
+
+  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] =
+    transformer(helium.build).use { t =>
+      for {
+        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        res        <- IO.fromEither(
+          resultTree.extractTidiedSubstring(
+            Root / "doc-1.html",
+            "<main class=\"content\">",
+            "</main>"
+          )
+            .toRight(new RuntimeException("Missing document under test"))
+        )
+      } yield res
+    }
+
   test("default footer") {
     val expected =
       """<p>Content</p>
@@ -64,18 +72,23 @@ class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtr
 
   test("footer disabled") {
     val expected = """<p>Content</p>"""
-    transformAndExtract(input, Helium.defaults.site.landingPage().site.footer()).assertEquals(expected)
+    transformAndExtract(input, Helium.defaults.site.landingPage().site.footer()).assertEquals(
+      expected
+    )
   }
 
   test("footer set as raw HTML") {
     val footerHTML = "Custom <span>Footer HTML</span> for testing purposes."
-    val expected =
+    val expected   =
       s"""<p>Content</p>
-        |<hr class="footer-rule"/>
-        |<footer>
-        |$footerHTML
-        |</footer>""".stripMargin
-    transformAndExtract(input, Helium.defaults.site.landingPage().site.footer(footerHTML)).assertEquals(expected)
+         |<hr class="footer-rule"/>
+         |<footer>
+         |$footerHTML
+         |</footer>""".stripMargin
+    transformAndExtract(
+      input,
+      Helium.defaults.site.landingPage().site.footer(footerHTML)
+    ).assertEquals(expected)
   }
 
   test("footer set as AST nodes") {
@@ -85,14 +98,14 @@ class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtr
          |<footer>
          |Custom <em>Footer</em> for testing purposes.
          |</footer>""".stripMargin
-    val helium = Helium.defaults
+    val helium   = Helium.defaults
       .site.landingPage()
       .site.footer(
         TemplateString("Custom "),
-        Emphasized("Footer"),      
-        TemplateString(" for testing purposes.")      
-      )   
+        Emphasized("Footer"),
+        TemplateString(" for testing purposes.")
+      )
     transformAndExtract(input, helium).assertEquals(expected)
   }
-  
+
 }

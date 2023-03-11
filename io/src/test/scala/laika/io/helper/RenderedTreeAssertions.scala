@@ -17,20 +17,20 @@
 package laika.io.helper
 
 import cats.effect.IO
-import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import munit.Assertions
 
 trait RenderedTreeAssertions extends Assertions { self =>
 
-  implicit class RenderedDocumentTreeRootOps (val root: RenderedTreeRoot[IO]) {
+  implicit class RenderedDocumentTreeRootOps(val root: RenderedTreeRoot[IO]) {
 
-    def assertEquals (expected: RenderedTreeRoot[IO]): Unit = {
+    def assertEquals(expected: RenderedTreeRoot[IO]): Unit = {
 
       root.tree.assertEquals(expected.tree)
 
       (root.coverDocument, expected.coverDocument) match {
         case (Some(actual), Some(exp)) => actual.assertEquals(exp)
-        case _ => ()
+        case _                         => ()
       }
 
       self.assertEquals(
@@ -39,40 +39,41 @@ trait RenderedTreeAssertions extends Assertions { self =>
         s"difference in static documents"
       )
       self.assertEquals(
-        root.outputContext, 
+        root.outputContext,
         expected.outputContext,
         s"difference in output context"
       )
     }
+
   }
 
-  implicit class RenderedDocumentTreeOps (val tree: RenderedTree) {
-    
-    def assertEquals (expected: RenderedTree): Unit = {
-      
+  implicit class RenderedDocumentTreeOps(val tree: RenderedTree) {
+
+    def assertEquals(expected: RenderedTree): Unit = {
+
       self.assertEquals(
-        tree.allDocuments.map(_.path), 
-        expected.allDocuments.map(_.path), 
+        tree.allDocuments.map(_.path),
+        expected.allDocuments.map(_.path),
         "tree structure differs"
       )
-    
+
       tree.allDocuments.zip(expected.allDocuments).foreach { case (actual, expected) =>
         actual.assertEquals(expected)
       }
-      
+
     }
-    
+
   }
 
-  implicit class RenderedDocumentOps (val actual: RenderedDocument) {
-    
-    def assertEquals (expected: RenderedDocument): Unit = {
+  implicit class RenderedDocumentOps(val actual: RenderedDocument) {
+
+    def assertEquals(expected: RenderedDocument): Unit = {
       val doc = s"of document '${actual.path.toString}'"
       self.assertEquals(actual.content, expected.content, s"difference in content $doc")
       self.assertEquals(actual.title, expected.title, s"difference in title $doc")
       self.assertEquals(actual.sections, expected.sections, s"difference in sections $doc")
     }
-    
+
   }
-  
+
 }

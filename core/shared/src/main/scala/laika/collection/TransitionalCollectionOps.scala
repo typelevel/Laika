@@ -16,7 +16,7 @@
 
 package laika.collection
 
-import scala.collection.{AbstractIterator, Iterator}
+import scala.collection.{ AbstractIterator, Iterator }
 
 /** Temporary extension methods for cross-building to Scala 2.12 and 2.13.
   *
@@ -24,7 +24,7 @@ import scala.collection.{AbstractIterator, Iterator}
   */
 object TransitionalCollectionOps {
 
-  implicit class TransitionalMapOps[K,V] (val map: Map[K,V]) extends AnyVal {
+  implicit class TransitionalMapOps[K, V](val map: Map[K, V]) extends AnyVal {
 
     /** Temporary replacement for the `mapValues` method of the Scala SDK
       * which is deprecated in Scala 2.13 as it had returned a lazy Map
@@ -34,8 +34,8 @@ object TransitionalCollectionOps {
       * the SDK offers such a method.
       */
     def mapValuesStrict[W](f: V => W): Map[K, W] = {
-      map.map {
-        case (k,v) => (k,f(v))
+      map.map { case (k, v) =>
+        (k, f(v))
       }
     }
 
@@ -44,20 +44,22 @@ object TransitionalCollectionOps {
   /** Temporary replacement for the deprecated Tuple3.zipped method,
     * to be replaced by xs.lazyZip(ys).lazyZip(zs) once support for 2.12 is dropped.
     */
-  case class Zip3Iterator[A,B,C](as: Iterable[A], bs: Iterable[B], cs: Iterable[C]) extends Iterator[(A,B,C)] {
+  case class Zip3Iterator[A, B, C](as: Iterable[A], bs: Iterable[B], cs: Iterable[C])
+      extends Iterator[(A, B, C)] {
     private val aIter = as.iterator
     private val bIter = bs.iterator
     private val cIter = cs.iterator
-    def hasNext = aIter.hasNext && bIter.hasNext && cIter.hasNext
-    def next() = (aIter.next(), bIter.next(), cIter.next())
+    def hasNext       = aIter.hasNext && bIter.hasNext && cIter.hasNext
+    def next()        = (aIter.next(), bIter.next(), cIter.next())
   }
 
   /** Simple utility to avoid having either a dependency to scala-compat or a warning with 2.13.
     * There are very few places within Laika where we need to deal with a Java collection.
     */
-  case class JIteratorWrapper[A](underlying: java.util.Iterator[A]) extends AbstractIterator[A] with Iterator[A] {
+  case class JIteratorWrapper[A](underlying: java.util.Iterator[A]) extends AbstractIterator[A]
+      with Iterator[A] {
     def hasNext: Boolean = underlying.hasNext
-    def next(): A = underlying.next
+    def next(): A        = underlying.next
   }
 
 }

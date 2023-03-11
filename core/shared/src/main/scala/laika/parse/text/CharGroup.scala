@@ -19,16 +19,17 @@ package laika.parse.text
 import cats.data.NonEmptySet
 
 /** Common groups of characters as input for parser definitions.
-  * 
+  *
   * These groups are all in the ASCII range. For dealing with
   * the entire unicode range you can use the generic `anyWhile`
   * parser that accepts a `Char => Boolean` predicate.
-  * 
+  *
   * @author Jens Halm
   */
 object CharGroup {
-  
-  private def setForRange(range: Seq[Char]): NonEmptySet[Char] = NonEmptySet.of(range.head, range.tail:_*)
+
+  private def setForRange(range: Seq[Char]): NonEmptySet[Char] =
+    NonEmptySet.of(range.head, range.tail: _*)
 
   /** All decimal digits (0 to 9).
     */
@@ -57,5 +58,5 @@ object CharGroup {
   /** All letters and digits in the ASCII range (a to z, A to Z, 0 to 9).
     */
   val alphaNum: NonEmptySet[Char] = alpha ++ digit
-  
+
 }

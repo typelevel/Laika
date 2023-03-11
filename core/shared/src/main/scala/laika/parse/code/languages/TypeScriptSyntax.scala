@@ -18,20 +18,19 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue, TypeName}
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue, TypeName }
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object TypeScriptSyntax extends SyntaxHighlighter {
-  
-  val stringEmbeds: CodeSpanParser = 
+
+  val stringEmbeds: CodeSpanParser =
     JavaScriptSyntax.unicodeCodePointEscape ++
-    StringLiteral.Escape.unicode ++
-    StringLiteral.Escape.hex ++
-    StringLiteral.Escape.char
+      StringLiteral.Escape.unicode ++
+      StringLiteral.Escape.hex ++
+      StringLiteral.Escape.char
 
   val language: NonEmptyList[String] = NonEmptyList.of("typescript")
 
@@ -44,27 +43,40 @@ object TypeScriptSyntax extends SyntaxHighlighter {
     RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
-    Keywords("abstract", "declare", "enum", "get", "implements", "interface", "namespace", 
-      "package", "public", "private", "protected", "set", "type"),
+    Keywords(
+      "abstract",
+      "declare",
+      "enum",
+      "get",
+      "implements",
+      "interface",
+      "namespace",
+      "package",
+      "public",
+      "private",
+      "protected",
+      "set",
+      "type"
+    ),
     JavaScriptSyntax.keywords,
     Keywords(TypeName)("any", "number", "boolean", "string", "symbol", "void"),
-    Identifier.alphaNum.withIdStartChars('_','$'),
+    Identifier.alphaNum.withIdStartChars('_', '$'),
     JavaScriptSyntax.number(NumberLiteral.binary),
     JavaScriptSyntax.number(NumberLiteral.octal),
     JavaScriptSyntax.number(NumberLiteral.hex),
     JavaScriptSyntax.number(NumberLiteral.decimalFloat),
-    JavaScriptSyntax.number(NumberLiteral.decimalInt),
+    JavaScriptSyntax.number(NumberLiteral.decimalInt)
   )
 
   object TSX extends SyntaxHighlighter {
 
     val language: NonEmptyList[String] = NonEmptyList.of("tsx")
-    
+
     lazy val spanParsers: Seq[CodeSpanParser] = TypeScriptSyntax.spanParsers ++ Seq(
       JavaScriptSyntax.JSX.element,
       JavaScriptSyntax.JSX.emptyJsxTag
     )
 
   }
-  
+
 }

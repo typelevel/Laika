@@ -16,11 +16,11 @@
 
 package laika.sbt
 
-import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
+import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.ast.*
-import laika.bundle.{ExtensionBundle, RenderOverrides}
+import laika.bundle.{ ExtensionBundle, RenderOverrides }
 import laika.format.*
-import laika.render.{FOFormatter, HTMLFormatter}
+import laika.render.{ FOFormatter, HTMLFormatter }
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed
@@ -40,51 +40,56 @@ trait ExtensionBundles {
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaHtmlRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    val description: String = "Custom HTML render function"
-    override def renderOverrides: Seq[RenderOverrides] = Seq(HTML.Overrides(value = f))
-  }
+  def laikaHtmlRenderer(f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle =
+    new ExtensionBundle {
+      val description: String                            = "Custom HTML render function"
+      override def renderOverrides: Seq[RenderOverrides] = Seq(HTML.Overrides(value = f))
+    }
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaEpubRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    val description: String = "Custom XHTML render function for EPUB"
-    override def renderOverrides: Seq[RenderOverrides] = Seq(EPUB.XHTML.Overrides(value = f))
-  }
+  def laikaEpubRenderer(f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle =
+    new ExtensionBundle {
+      val description: String                            = "Custom XHTML render function for EPUB"
+      override def renderOverrides: Seq[RenderOverrides] = Seq(EPUB.XHTML.Overrides(value = f))
+    }
 
   /** Create an extension bundle based on the specified custom XSL-FO render function.
     *
     * Such a render function will also be used for PDF rendering, as XSL-FO is an interim
     * format for the PDF renderer.
     */
-  def laikaFoRenderer (f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    val description: String = "Custom XSL-FO render function for PDF"
-    override def renderOverrides: Seq[RenderOverrides] = Seq(XSLFO.Overrides(value = f))
-  }
+  def laikaFoRenderer(f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle =
+    new ExtensionBundle {
+      val description: String                            = "Custom XSL-FO render function for PDF"
+      override def renderOverrides: Seq[RenderOverrides] = Seq(XSLFO.Overrides(value = f))
+    }
 
   /** Create an extension bundle based on the specified rewrite rule for spans.
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = 
+  def laikaSpanRewriteRule(rule: RewriteRule[Span]): ExtensionBundle =
     laikaRewriteRules(RewriteRules.forSpans(rule))
 
   /** Create an extension bundle based on the specified rewrite rule for blocks.
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaBlockRewriteRule (rule: RewriteRule[Block]): ExtensionBundle = 
+  def laikaBlockRewriteRule(rule: RewriteRule[Block]): ExtensionBundle =
     laikaRewriteRules(RewriteRules.forBlocks(rule))
 
   /** Create an extension bundle based on the specified rewrite rule for blocks.
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaRewriteRules (rules: RewriteRules): ExtensionBundle = new ExtensionBundle {
+  def laikaRewriteRules(rules: RewriteRules): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom rewrite rules"
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Build => Seq(rules.asBuilder)
+
+    override def rewriteRules: RewritePhaseBuilder = { case RewritePhase.Build =>
+      Seq(rules.asBuilder)
     }
+
   }
 
   /** Create an extension bundle based on the specified rewrite rule.
@@ -93,20 +98,23 @@ trait ExtensionBundles {
     * The supplied function will get invoked for every document in the transformation, therefore
     * creating a new rule for each document.
     */
-  def laikaRewriteRuleBuilder (builder: RewriteRulesBuilder): ExtensionBundle = new ExtensionBundle {
+  def laikaRewriteRuleBuilder(builder: RewriteRulesBuilder): ExtensionBundle = new ExtensionBundle {
     val description: String = "Custom rewrite rules"
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Render(_) => Seq(builder)
-    } 
+
+    override def rewriteRules: RewritePhaseBuilder = { case RewritePhase.Render(_) =>
+      Seq(builder)
+    }
+
   }
 
   /** Create an extension bundle based on the specified document type matcher.
     *
     * The matcher function determines the document type of the input based on its path.
     */
-  def laikaDocTypeMatcher (f: PartialFunction[laika.ast.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
-    val description: String = "Custom document type matcher"
-    override def docTypeMatcher: PartialFunction[laika.ast.Path, DocumentType] = f
-  }
+  def laikaDocTypeMatcher(f: PartialFunction[laika.ast.Path, DocumentType]): ExtensionBundle =
+    new ExtensionBundle {
+      val description: String = "Custom document type matcher"
+      override def docTypeMatcher: PartialFunction[laika.ast.Path, DocumentType] = f
+    }
 
 }

@@ -49,23 +49,23 @@ sealed abstract class Parsed[+T] {
   /** Returns the result value from the parser invocation if the
     * parser succeeded or otherwise the specified fallback value.
     */
-  def getOrElse[B >: T] (default: => B): B = toOption.getOrElse(default)
+  def getOrElse[B >: T](default: => B): B = toOption.getOrElse(default)
 
   /** Returns this `Parsed` instance if the parser succeeded or
     * otherwise the specified fallback instance.
     */
-  def orElse[U >: T] (default: => Parsed[U]): Parsed[U]
+  def orElse[U >: T](default: => Parsed[U]): Parsed[U]
 
   /** Builds a new `Parsed` instance by applying the specified function
     * to the result of this instance.
     */
-  def map[U] (f: T => U): Parsed[U]
+  def map[U](f: T => U): Parsed[U]
 
 }
 
 /** The success case of `Parsed` containing the result and the remaining input.
   */
-case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
+case class Success[+T](result: T, next: SourceCursor) extends Parsed[T] {
 
   val isSuccess = true
 
@@ -73,7 +73,7 @@ case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
 
   def toEither: Either[String, T] = Right(result)
 
-  def orElse[U >: T] (default: => Parsed[U]): Parsed[U] = this
+  def orElse[U >: T](default: => Parsed[U]): Parsed[U] = this
 
   def map[U](f: T => U) = Success(f(result), next)
 
@@ -87,17 +87,18 @@ case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T] {
   *  The message property is of type `Message`, to allow for lazy message creation.
   *  The former SDK parser combinators which this API is partially inspired by contained
   *  a lot of unnecessary string concatenations for messages which were then never read.
-  *  This implementation avoids this extra cost and the result is measurable 
+  *  This implementation avoids this extra cost and the result is measurable
   *  (about 15% performance gain for a typical Markdown document for example).
   *
   *  @param msgProvider  A provider that produces an error message for this failure based on its SourceCursor
   *  @param next         The unconsumed input at the point where the failing parser started
   *  @param maxOffset    The offset position the parser could successfully read to before failing
   */
-case class Failure (msgProvider: Message, next: SourceCursor, maxOffset: Int) extends Parsed[Nothing] {
+case class Failure(msgProvider: Message, next: SourceCursor, maxOffset: Int)
+    extends Parsed[Nothing] {
 
   private lazy val failureContext = next.consume(maxOffset - next.offset)
-  
+
   /** The message specifying the cause of the failure.
     */
   lazy val message: String = msgProvider.message(failureContext)
@@ -108,9 +109,9 @@ case class Failure (msgProvider: Message, next: SourceCursor, maxOffset: Int) ex
 
   def toEither: Either[String, Nothing] = Left(message)
 
-  def orElse[U >: Nothing] (default: => Parsed[U]): Parsed[U] = default match {
+  def orElse[U >: Nothing](default: => Parsed[U]): Parsed[U] = default match {
     case s: Success[_] => s
-    case f: Failure => if (f.maxOffset > maxOffset) f else this
+    case f: Failure    => if (f.maxOffset > maxOffset) f else this
   }
 
   def map[U](f: Nothing => U): Failure = this
@@ -123,7 +124,10 @@ case class Failure (msgProvider: Message, next: SourceCursor, maxOffset: Int) ex
 }
 
 object Failure {
-  @inline def apply(msgProvider: Message, next: SourceCursor): Failure = apply(msgProvider, next, next.offset)
+
+  @inline def apply(msgProvider: Message, next: SourceCursor): Failure =
+    apply(msgProvider, next, next.offset)
+
 }
 
 /** Represents a lazy failure message.
@@ -132,7 +136,7 @@ object Failure {
   */
 trait Message {
 
-  def message (source: SourceCursor): String
+  def message(source: SourceCursor): String
 
 }
 
@@ -140,7 +144,6 @@ trait Message {
   * and factory methods.
   */
 object Message {
-
 
   val UnexpectedEOF: Message = fixed("Unexpected end of input")
 
@@ -152,12 +155,11 @@ object Message {
 
   val ExpectedEOL: Message = fixed("Expected end of line")
 
+  class MessageFactory[T](f: T => String) extends (T => Message) {
 
-  class MessageFactory[T] (f: T => String) extends (T => Message) {
+    def apply(value: T): Message = new Message {
 
-    def apply (value: T): Message = new Message {
-
-      def message (source: SourceCursor): String = f(value)
+      def message(source: SourceCursor): String = f(value)
 
     }
 
@@ -166,17 +168,17 @@ object Message {
   /** Builds a message instance for a fixed string,
     * independent of the parser context.
     */
-  def fixed (msg: String): Message = new Message {
+  def fixed(msg: String): Message = new Message {
 
-    def message (source: SourceCursor): String = msg
+    def message(source: SourceCursor): String = msg
 
   }
 
   /** Builds a message instance for the specified
     * factory function.
     */
-  def forContext (f: SourceCursor => String): Message = new Message {
-    def message (source: SourceCursor): String = f(source)
+  def forContext(f: SourceCursor => String): Message = new Message {
+    def message(source: SourceCursor): String = f(source)
   }
 
   /** Builds a factory function that produces new messages
@@ -184,6 +186,6 @@ object Message {
     * to pre-capture some context for the message that
     * does not relate to the parser context.
     */
-  def forRuntimeValue[T] (f: T => String): T => Message = new MessageFactory(f)
+  def forRuntimeValue[T](f: T => String): T => Message = new MessageFactory(f)
 
 }

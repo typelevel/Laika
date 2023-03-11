@@ -18,28 +18,27 @@ package laika.io.helper
 
 import java.util.regex.Pattern
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 trait StringOps {
 
-  implicit class TestStringOps (val str: String) {
-    
-    def extract (start: String, end: String): Option[String] = {
+  implicit class TestStringOps(val str: String) {
+
+    def extract(start: String, end: String): Option[String] = {
       val rest = str.split(Pattern.quote(start)).drop(1)
       if (rest.isEmpty) None
       else rest.mkString(start).split(Pattern.quote(end)).headOption
     }
 
-    def extractTag (tag: String): Option[String] = extract(s"<$tag>", s"</$tag>")
-    
+    def extractTag(tag: String): Option[String] = extract(s"<$tag>", s"</$tag>")
+
     def removeBlankLines: String = str.split('\n').flatMap { line =>
       if (line.trim.nonEmpty) Some(line)
       else None
     }.mkString("\n")
 
     def removeIndentation: String = str.split('\n').map(_.trim).mkString("\n")
-    
+
   }
-  
+
 }

@@ -17,53 +17,56 @@
 package laika.factory
 
 import laika.api.builder.RenderConfig
-import laika.ast.{Element, Path, StyleDeclarationSet}
+import laika.ast.{ Element, Path, StyleDeclarationSet }
 import laika.bundle.RenderOverrides
 import laika.render.Indentation
 import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.
-  * 
+  *
   * @param renderChild a render function to use for rendering the children of an element
   * @param root the root element the new renderer will be used for
   * @param styles the styles the new renderer should apply to the rendered elements
-  * @param path the (virtual) path the output will be rendered to              
-  * @param pathTranslator translates paths of input documents to the corresponding output path              
+  * @param path the (virtual) path the output will be rendered to
+  * @param pathTranslator translates paths of input documents to the corresponding output path
   * @param config additional configuration for the renderer
   */
-case class RenderContext[FMT] (renderChild: (FMT, Element) => String,
-                               root: Element,
-                               styles: StyleDeclarationSet,
-                               path: Path,
-                               pathTranslator: PathTranslator,
-                               config: RenderConfig) {
+case class RenderContext[FMT](
+    renderChild: (FMT, Element) => String,
+    root: Element,
+    styles: StyleDeclarationSet,
+    path: Path,
+    pathTranslator: PathTranslator,
+    config: RenderConfig
+) {
 
   /** The indentation mechanism to use for rendering.
     */
-  val indentation: Indentation = if (config.renderFormatted) Indentation.default else Indentation.none
-  
+  val indentation: Indentation =
+    if (config.renderFormatted) Indentation.default else Indentation.none
+
 }
 
 /** Responsible for creating renderer instances for a specific output format.
- *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition
- *  to the actual renderer function, the factory method also produces
- *  an instance of the generic `FMT` type which is the formatter API to use
- *  for custom renderer functions and which is specific to the output format.
- *  
- *  @author Jens Halm
- */
+  *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition
+  *  to the actual renderer function, the factory method also produces
+  *  an instance of the generic `FMT` type which is the formatter API to use
+  *  for custom renderer functions and which is specific to the output format.
+  *
+  *  @author Jens Halm
+  */
 trait RenderFormat[FMT] extends Format {
 
   /** The file suffix to use when rendering the output
-   *  to a file. When transforming entire directories
-   *  the suffix of the markup file will be automatically
-   *  replaced by the suffix for the output format.
-   */
+    *  to a file. When transforming entire directories
+    *  the suffix of the markup file will be automatically
+    *  replaced by the suffix for the output format.
+    */
   def fileSuffix: String
 
   /** The default renderer function for this output format.
     * It may be overridden by extensions for individual nodes of the AST.
-    * 
+    *
     * The function takes both, a formatter instance
     * and the element to render and returns a String in the target format.
     */
@@ -73,20 +76,20 @@ trait RenderFormat[FMT] extends Format {
     * based on the specified context containing the root element, the indentation mechanism and
     * the delegate function for rendering child elements (that may contain user-specified extensions
     * this render format implementation is not aware of).
-    * 
-    * The formatter created by this function (or copies created from it) 
+    *
+    * The formatter created by this function (or copies created from it)
     * will be used when invoking the default renderer.
     */
   def formatterFactory: RenderContext[FMT] => FMT
-  
+
   type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - move/promote
 
-
-  case class Overrides (value: CustomRenderFunction[FMT] = PartialFunction.empty) extends RenderOverrides {
+  case class Overrides(value: CustomRenderFunction[FMT] = PartialFunction.empty)
+      extends RenderOverrides {
 
     type Formatter = FMT
 
-    def withBase (base: Overrides): Overrides = Overrides(
+    def withBase(base: Overrides): Overrides = Overrides(
       value.orElse(base.value)
     )
 

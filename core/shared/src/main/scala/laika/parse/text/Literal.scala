@@ -19,28 +19,27 @@ package laika.parse.text
 import cats.data.NonEmptySet
 import laika.parse._
 
-/**
-  * A parser that matches a literal string.
+/** A parser that matches a literal string.
   *
   * @author Jens Halm
   */
-case class Literal (expected: String) extends PrefixedParser[String] {
-  
+case class Literal(expected: String) extends PrefixedParser[String] {
+
   require(expected.nonEmpty, "string may not be empty")
-  
+
   val startChars: NonEmptySet[Char] = NonEmptySet.one(expected.head)
 
   private val msgProvider = Message.forContext { context =>
     val toCapture = Math.min(context.remaining, expected.length)
-    val found = context.capture(toCapture)
+    val found     = context.capture(toCapture)
     s"`$expected' expected but `$found` found"
   }
-  
+
   val underlying: Parser[String] = Parser { in =>
     val source = in.input
-    val start = in.offset
-    var i = 0
-    var j = start
+    val start  = in.offset
+    var i      = 0
+    var j      = start
     while (i < expected.length && j < source.length && expected.charAt(i) == source.charAt(j)) {
       i += 1
       j += 1

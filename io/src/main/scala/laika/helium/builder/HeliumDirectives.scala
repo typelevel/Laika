@@ -17,47 +17,45 @@
 package laika.helium.builder
 
 import cats.syntax.all._
-import laika.ast.{TemplateSpanSequence, TemplateString}
+import laika.ast.{ TemplateSpanSequence, TemplateString }
 import laika.config.LaikaKeys
 import laika.directive.Templates
 import laika.rewrite.Versions
 import laika.rewrite.nav.PathTranslator
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 private[helium] object HeliumDirectives {
 
   val initVersions: Templates.Directive = Templates.create("heliumInitVersions") {
     Templates.dsl.cursor.map { cursor =>
-      
-      val versions = cursor.config.get[Versions].toOption
+      val versions       = cursor.config.get[Versions].toOption
       val pathTranslator = cursor.root.pathTranslator.map(PathTranslator.ignoreVersions)
-      
+
       val html = (versions, pathTranslator).tupled.fold("") { case (versions, pathTranslator) =>
-        
-        val isVersioned = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
+        val isVersioned  = cursor.config.get[Boolean](LaikaKeys.versioned).getOrElse(false)
         val relativeRoot = "../" * (cursor.path.depth - (if (isVersioned) 0 else 1))
-        
+
         val (currentPath, currentVersion, absoluteRoot) = if (isVersioned) {
-          val path = pathTranslator.translate(cursor.path).toString
-          val version = versions.currentVersion.pathSegment
-          val siteBaseURL = cursor.config.get[String](LaikaKeys.siteBaseURL).toOption
+          val path           = pathTranslator.translate(cursor.path).toString
+          val version        = versions.currentVersion.pathSegment
+          val siteBaseURL    = cursor.config.get[String](LaikaKeys.siteBaseURL).toOption
           val siteBaseURLStr = siteBaseURL.fold("null")(url => s""""$url"""")
           (path, version, siteBaseURLStr)
-        } else ("", "", "null")
-        
+        }
+        else ("", "", "null")
+
         s"""<script>initVersions("$relativeRoot", "$currentPath", "$currentVersion", $absoluteRoot);</script>"""
       }
       TemplateString(html)
     }
   }
-  
+
   val initPreview: Templates.Directive = Templates.eval("heliumInitPreview") {
     import Templates.dsl._
     (positionalAttributes.as[String].widen, cursor).mapN { (targetIds, cursor) =>
       val res = for {
-        enabled      <- cursor.config.get(LaikaKeys.preview.enabled, false)
+        enabled <- cursor.config.get(LaikaKeys.preview.enabled, false)
       } yield {
         val idArray = targetIds.mkString("[\"", "\",\"", "\"]")
         if (enabled) TemplateString(s"""<script>initPreview($idArray);</script>""")
@@ -66,7 +64,7 @@ private[helium] object HeliumDirectives {
       res.leftMap(_.message)
     }
   }
-  
+
   val all: Seq[Templates.Directive] = Seq(initVersions, initPreview)
-  
+
 }

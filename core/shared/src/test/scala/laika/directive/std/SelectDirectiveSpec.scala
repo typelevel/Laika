@@ -16,41 +16,38 @@
 
 package laika.directive.std
 
-import laika.api.{MarkupParser, RenderPhaseRewrite}
+import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.{RootCursor, TreePosition, _}
-import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.{ RootCursor, TreePosition, _ }
+import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.config.ConfigBuilder
-import laika.format.{HTML, Markdown}
+import laika.format.{ HTML, Markdown }
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
+import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import munit.FunSuite
 
 class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
-  with TestSourceBuilders with RenderPhaseRewrite {
-
+    with TestSourceBuilders with RenderPhaseRewrite {
 
   private val parser = MarkupParser
     .of(Markdown)
     .failOnMessages(MessageFilter.None)
-    .withConfigValue(Selections(
-      SelectionConfig("config",
-        ChoiceConfig("a", "label-a"),
-        ChoiceConfig("b", "label-b")
+    .withConfigValue(
+      Selections(
+        SelectionConfig("config", ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b"))
       )
-    ))
+    )
     .build
 
-  def parse (input: String): RootElement = parser.parse(input).toOption.get.content
-  
-  def run (input: String, expected: Block)(implicit loc: munit.Location): Unit = {
+  def parse(input: String): RootElement = parser.parse(input).toOption.get.content
+
+  def run(input: String, expected: Block)(implicit loc: munit.Location): Unit = {
     assertEquals(
       parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content.content),
       Right(Seq(p("aa"), expected, p("bb")))
     )
   }
-  
 
   test("body with two alternatives") {
     val input = """aa
@@ -68,10 +65,13 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
                   |@:@
                   |
                   |bb""".stripMargin
-    val group = Selection("config", Seq(
-      Choice("a","label-a", List(p("11\n22"))),
-      Choice("b","label-b", List(p("33\n44")))
-    ))
+    val group = Selection(
+      "config",
+      Seq(
+        Choice("a", "label-a", List(p("11\n22"))),
+        Choice("b", "label-b", List(p("33\n44")))
+      )
+    )
     run(input, group)
   }
 
@@ -93,10 +93,13 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
                   |@:@
                   |
                   |bb""".stripMargin
-    val group = Selection("config", Seq(
-      Choice("a","label-a", List(p("common"), p("11\n22"))),
-      Choice("b","label-b", List(p("common"), p("33\n44")))
-    ))
+    val group = Selection(
+      "config",
+      Seq(
+        Choice("a", "label-a", List(p("common"), p("11\n22"))),
+        Choice("b", "label-b", List(p("common"), p("33\n44")))
+      )
+    )
     run(input, group)
   }
 
@@ -109,13 +112,14 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         |22
         |
         |@:@""".stripMargin
-    val input = s"""aa
+    val input     = s"""aa
                    |
-                  |$directive
+                   |$directive
                    |
-                  |bb""".stripMargin
-    val message = "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
-    val invalid = InvalidBlock(message, source(directive, input, defaultPath))
+                   |bb""".stripMargin
+    val message   =
+      "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
+    val invalid   = InvalidBlock(message, source(directive, input, defaultPath))
     run(input, invalid)
   }
 
@@ -132,30 +136,42 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         |44
         |
         |@:@""".stripMargin
-    val input =
+    val input     =
       s"""aa
          |
          |$directive
          |
          |bb""".stripMargin
-    val message = "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
-    val invalid = InvalidBlock(message, source(directive, input, defaultPath))
+    val message   =
+      "One or more errors processing directive 'select': No label defined for choice 'c' in selection 'config'"
+    val invalid   = InvalidBlock(message, source(directive, input, defaultPath))
     run(input, invalid)
   }
 
   test("unwrap a selected choice in the template rewrite rules") {
-    val group = Selection("config", Seq(
-      Choice("a","label-a", List(p("common"), p("11\n22"))),
-      Choice("b","label-b", List(p("common"), p("33\n44")))
-    ))
-    val config = Selections(
-      SelectionConfig("config", ChoiceConfig("a", "label-a"), ChoiceConfig("b", "label-b", selected = true))
+    val group  = Selection(
+      "config",
+      Seq(
+        Choice("a", "label-a", List(p("common"), p("11\n22"))),
+        Choice("b", "label-b", List(p("common"), p("33\n44")))
+      )
     )
-    val doc = Document(Root / "doc", RootElement(group), config = ConfigBuilder.empty.withValue(config).build)
+    val config = Selections(
+      SelectionConfig(
+        "config",
+        ChoiceConfig("a", "label-a"),
+        ChoiceConfig("b", "label-b", selected = true)
+      )
+    )
+    val doc    = Document(
+      Root / "doc",
+      RootElement(group),
+      config = ConfigBuilder.empty.withValue(config).build
+    )
     assertEquals(
       rewrite(HTML)(doc).map(_.content),
       Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))
     )
   }
-  
+
 }

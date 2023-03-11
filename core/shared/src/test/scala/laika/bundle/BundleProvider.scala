@@ -16,26 +16,28 @@
 
 package laika.bundle
 
-import laika.ast.RewriteRules.{RewritePhaseBuilder, RewriteRulesBuilder}
-import laika.config.{Config, ConfigParser}
+import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
+import laika.config.{ Config, ConfigParser }
 import laika.ast._
-import laika.directive.{DirectiveRegistry, Templates}
+import laika.directive.{ DirectiveRegistry, Templates }
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.PathTranslator
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object BundleProvider {
-  
-  class TestExtensionBundle (override val origin: BundleOrigin = BundleOrigin.User) extends ExtensionBundle {
+
+  class TestExtensionBundle(override val origin: BundleOrigin = BundleOrigin.User)
+      extends ExtensionBundle {
     val description: String = "Extensions under test"
   }
 
-  def forMarkupParser (blockParsers: Seq[BlockParserBuilder] = Nil,
-                       spanParsers: Seq[SpanParserBuilder] = Nil,
-                       origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forMarkupParser(
+      blockParsers: Seq[BlockParserBuilder] = Nil,
+      spanParsers: Seq[SpanParserBuilder] = Nil,
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def parsers: ParserBundle = ParserBundle(
       blockParsers = blockParsers,
@@ -44,22 +46,29 @@ object BundleProvider {
 
   }
 
-  def forParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-                      postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-                      preProcessInput: DocumentInput => DocumentInput = identity,
-                      origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forParserHooks(
+      postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+      postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
+      preProcessInput: DocumentInput => DocumentInput = identity,
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def parsers: ParserBundle = ParserBundle(
-      markupParserHooks = Some(ParserHooks(
-        postProcessBlocks = postProcessBlocks,
-        postProcessDocument = postProcessDocument,
-        preProcessInput = preProcessInput
-      ))
+      markupParserHooks = Some(
+        ParserHooks(
+          postProcessBlocks = postProcessBlocks,
+          postProcessDocument = postProcessDocument,
+          preProcessInput = preProcessInput
+        )
+      )
     )
 
   }
 
-  def forConfigProvider (provider: ConfigProvider, origin: BundleOrigin = BundleOrigin.User): TestExtensionBundle = new TestExtensionBundle(origin) {
+  def forConfigProvider(
+      provider: ConfigProvider,
+      origin: BundleOrigin = BundleOrigin.User
+  ): TestExtensionBundle = new TestExtensionBundle(origin) {
 
     override def parsers: ParserBundle = ParserBundle(
       configProvider = Some(provider)
@@ -67,55 +76,71 @@ object BundleProvider {
 
   }
 
-  def forConfigString (input: String, origin: BundleOrigin = BundleOrigin.User): TestExtensionBundle = new TestExtensionBundle(origin) {
+  def forConfigString(
+      input: String,
+      origin: BundleOrigin = BundleOrigin.User
+  ): TestExtensionBundle = new TestExtensionBundle(origin) {
 
     override def baseConfig: Config = ConfigParser.parse(input).resolve().toOption.get
 
   }
 
-  def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new TestExtensionBundle() {
+  def forDocTypeMatcher(matcher: PartialFunction[Path, DocumentType]): ExtensionBundle =
+    new TestExtensionBundle() {
+
+      override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
+
+    }
+
+  def forDocTypeMatcher(origin: BundleOrigin)(
+      matcher: PartialFunction[Path, DocumentType]
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
 
   }
 
-  def forDocTypeMatcher (origin: BundleOrigin)(matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new TestExtensionBundle(origin) {
-
-    override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
-
-  }
-
-  def forSlugBuilder (f: String => String, origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forSlugBuilder(
+      f: String => String,
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def slugBuilder: Option[String => String] = Some(f)
 
   }
-  
-  def forPathTranslator (origin: BundleOrigin = BundleOrigin.User)(f: Path => Path): ExtensionBundle = new TestExtensionBundle(origin) {
-    
-    override def extendPathTranslator: PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
+
+  def forPathTranslator(
+      origin: BundleOrigin = BundleOrigin.User
+  )(f: Path => Path): ExtensionBundle = new TestExtensionBundle(origin) {
+
+    override def extendPathTranslator
+        : PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
       case context => PathTranslator.postTranslate(context.baseTranslator)(f)
     }
-    
+
   }
 
-  def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle() {
+  def forSpanRewriteRule(rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle() {
 
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Resolve => Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
+    override def rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
+      Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
     }
 
   }
 
-  def forSpanRewriteRule (origin: BundleOrigin)(rule: RewriteRule[Span]): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forSpanRewriteRule(origin: BundleOrigin)(rule: RewriteRule[Span]): ExtensionBundle =
+    new TestExtensionBundle(origin) {
 
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Resolve => Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
+      override def rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
+        Seq(laika.ast.RewriteRules.forSpans(rule).asBuilder)
+      }
+
     }
 
-  }
-
-  def forTemplateParser(parser: Parser[TemplateRoot], origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forTemplateParser(
+      parser: Parser[TemplateRoot],
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def parsers: ParserBundle = ParserBundle(
       templateParser = Some(parser)
@@ -123,18 +148,24 @@ object BundleProvider {
 
   }
 
-  def forTemplateDirective(directive: Templates.Directive, bundleOrigin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new DirectiveRegistry {
+  def forTemplateDirective(
+      directive: Templates.Directive,
+      bundleOrigin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new DirectiveRegistry {
 
     override def origin: BundleOrigin = bundleOrigin
-    
+
     val templateDirectives = Seq(directive)
-    val spanDirectives = Seq()
-    val blockDirectives = Seq()
-    val linkDirectives = Seq()
+    val spanDirectives     = Seq()
+    val blockDirectives    = Seq()
+    val linkDirectives     = Seq()
 
   }
 
-  def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]], origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forStyleSheetParser(
+      parser: Parser[Set[StyleDeclaration]],
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(parser)
@@ -142,7 +173,10 @@ object BundleProvider {
 
   }
 
-  def forOverrides (overrides: RenderOverrides, origin: BundleOrigin = BundleOrigin.User): ExtensionBundle = new TestExtensionBundle(origin) {
+  def forOverrides(
+      overrides: RenderOverrides,
+      origin: BundleOrigin = BundleOrigin.User
+  ): ExtensionBundle = new TestExtensionBundle(origin) {
 
     override def renderOverrides: Seq[RenderOverrides] = Seq(overrides)
 

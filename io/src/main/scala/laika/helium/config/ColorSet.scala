@@ -18,31 +18,37 @@ package laika.helium.config
 
 import laika.theme.config.Color
 
-private[helium] case class ColorSet (theme: ThemeColors,
-                                     messages: MessageColors,
-                                     syntaxHighlighting: SyntaxColors)
+private[helium] case class ColorSet(
+    theme: ThemeColors,
+    messages: MessageColors,
+    syntaxHighlighting: SyntaxColors
+)
 
-private[helium] case class ThemeColors (primary: Color,
-                                        primaryMedium: Color,
-                                        primaryLight: Color,
-                                        secondary: Color,
-                                        text: Color,
-                                        background: Color,
-                                        bgGradient: (Color, Color))
+private[helium] case class ThemeColors(
+    primary: Color,
+    primaryMedium: Color,
+    primaryLight: Color,
+    secondary: Color,
+    text: Color,
+    background: Color,
+    bgGradient: (Color, Color)
+)
 
-private[helium] case class MessageColors (info: Color,
-                                          infoLight: Color,
-                                          warning: Color,
-                                          warningLight: Color,
-                                          error: Color,
-                                          errorLight: Color)
+private[helium] case class MessageColors(
+    info: Color,
+    infoLight: Color,
+    warning: Color,
+    warningLight: Color,
+    error: Color,
+    errorLight: Color
+)
 
-private[helium] case class SyntaxColors (base: ColorQuintet, wheel: ColorQuintet)
+private[helium] case class SyntaxColors(base: ColorQuintet, wheel: ColorQuintet)
 
 /** Specifies a set of five colors which is a grouping used in Laika's support for syntax highlighting.
-  * 
+  *
   * If you use the built-in highlighters (which are based on Laika's own parsers) the display is based
   * on a 10-color scheme with 5 base colors which are usually grayish/low saturation and 5 "wheel" colors
   * which are usually placed around the color wheel.
   */
-case class ColorQuintet (c1: Color, c2: Color, c3: Color, c4: Color, c5: Color)
+case class ColorQuintet(c1: Color, c2: Color, c3: Color, c4: Color, c5: Color)

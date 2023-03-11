@@ -19,26 +19,32 @@ package laika.parse.hocon
 import laika.parse.hocon.HoconParsers._
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class HoconJsonSpec extends FunSuite with ResultBuilders {
 
-  def f (key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
 
-  def result (fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(ObjectBuilderValue(fields))
-  
+  def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
+    ObjectBuilderValue(fields)
+  )
 
   test("empty object in") {
     assertEquals(objectValue.parse("{ }").toEither, result())
   }
 
   test("object with one property in") {
-    assertEquals(objectValue.parse("""{ "a": "foo" }""").toEither, result(BuilderField("a", stringValue("foo"))))
+    assertEquals(
+      objectValue.parse("""{ "a": "foo" }""").toEither,
+      result(BuilderField("a", stringValue("foo")))
+    )
   }
 
   test("object with two properties in") {
-    assertEquals(objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither, result(f("a","foo"),f("b","bar")))
+    assertEquals(
+      objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither,
+      result(f("a", "foo"), f("b", "bar"))
+    )
   }
 
   test("object with all property types") {
@@ -51,21 +57,35 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
         |  "arr": [ 1, 2, "bar" ],
         |  "obj": { "inner": "xx", "num": 9.5 }
         |}""".stripMargin
-    assertEquals(objectValue.parse(input).toEither, result(
-      BuilderField("str", stringValue("foo")),
-      BuilderField("int", longValue(27)),
-      BuilderField("null", nullValue),
-      BuilderField("bool", trueValue),
-      BuilderField("arr", ArrayBuilderValue(Seq(
-        longValue(1), longValue(2), stringValue("bar")
-      ))),
-      BuilderField("obj", ObjectBuilderValue(Seq(
-        BuilderField("inner", stringValue("xx")),
-        BuilderField("num", doubleValue(9.5))
-      )))
-    ))
+    assertEquals(
+      objectValue.parse(input).toEither,
+      result(
+        BuilderField("str", stringValue("foo")),
+        BuilderField("int", longValue(27)),
+        BuilderField("null", nullValue),
+        BuilderField("bool", trueValue),
+        BuilderField(
+          "arr",
+          ArrayBuilderValue(
+            Seq(
+              longValue(1),
+              longValue(2),
+              stringValue("bar")
+            )
+          )
+        ),
+        BuilderField(
+          "obj",
+          ObjectBuilderValue(
+            Seq(
+              BuilderField("inner", stringValue("xx")),
+              BuilderField("num", doubleValue(9.5))
+            )
+          )
+        )
+      )
+    )
   }
-
 
   test("empty string") {
     assertEquals(quotedString.parse("\"\"").toEither, Right(ValidStringValue("")))
@@ -74,7 +94,7 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
   test("string containing only whitespace") {
     assertEquals(quotedString.parse("\"  \"").toEither, Right(ValidStringValue("  ")))
   }
-  
+
   test("plain string") {
     assertEquals(quotedString.parse("\"fooz\"").toEither, Right(ValidStringValue("fooz")))
   }
@@ -84,10 +104,12 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
   }
 
   test("unicode character reference") {
-    assertEquals(quotedString.parse("\"foo \\u007B bar\"").toEither, Right(ValidStringValue("foo { bar")))
+    assertEquals(
+      quotedString.parse("\"foo \\u007B bar\"").toEither,
+      Right(ValidStringValue("foo { bar"))
+    )
   }
-    
-  
+
   test("long") {
     assertEquals(numberValue.parse("123").toEither, Right(longValue(123)))
   }
@@ -101,12 +123,11 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
   }
 
   test("double with an exponent") {
-    assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235E12)))
+    assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235e12)))
   }
 
   test("double with a negative exponent") {
     assertEquals(numberValue.parse("123.5E-2").toEither, Right(doubleValue(1.235)))
   }
-  
-  
+
 }

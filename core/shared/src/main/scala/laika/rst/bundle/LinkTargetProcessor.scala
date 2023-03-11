@@ -17,7 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast._
-import laika.rst.ast.{CustomizedTextRole, ReferenceName}
+import laika.rst.ast.{ CustomizedTextRole, ReferenceName }
 
 import scala.collection.mutable.ListBuffer
 
@@ -31,12 +31,12 @@ import scala.collection.mutable.ListBuffer
   */
 object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
-  def apply (blocks: Seq[Block]): Seq[Block] = {
+  def apply(blocks: Seq[Block]): Seq[Block] = {
 
-    case object Mock extends Block { 
+    case object Mock extends Block {
       val options: Options = NoOpt
-      type Self = Mock.type 
-      def withOptions (options: Options): Mock.type = this
+      type Self = Mock.type
+      def withOptions(options: Options): Mock.type = this
     }
 
     // TODO - simplify
@@ -44,20 +44,23 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
       case (buffer, _ :: InternalLinkTarget(Id(id1)) :: InternalLinkTarget(Id(id2)) :: Nil) =>
         buffer += LinkAlias(id1, id2)
-      case (buffer, _ :: InternalLinkTarget(Id(id)) :: (ld: LinkDefinition) :: Nil) =>
+      case (buffer, _ :: InternalLinkTarget(Id(id)) :: (ld: LinkDefinition) :: Nil)         =>
         buffer += ld.copy(id = id)
-      case (buffer, _ :: (_: InternalLinkTarget)  :: (_: DecoratedHeader) :: Nil) => buffer
-      case (buffer, _ :: (it: InternalLinkTarget) :: elem :: Nil) => if (elem.hasId) buffer += it else buffer
+      case (buffer, _ :: (_: InternalLinkTarget) :: (_: DecoratedHeader) :: Nil) => buffer
+      case (buffer, _ :: (it: InternalLinkTarget) :: elem :: Nil)                =>
+        if (elem.hasId) buffer += it else buffer
 
       case (buffer, (it: InternalLinkTarget) :: (h: DecoratedHeader) :: _) =>
         buffer += h.copy(content = it +: h.content)
 
       case (buffer, InternalLinkTarget(Id(_)) :: (ld: LinkDefinition) :: _ :: Nil) => buffer += ld
-      case (buffer, InternalLinkTarget(Id(id)) :: elem :: _ :: Nil) if !elem.hasId => buffer += elem.withId(id)
+      case (buffer, InternalLinkTarget(Id(id)) :: elem :: _ :: Nil) if !elem.hasId =>
+        buffer += elem.withId(id)
 
-      case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
+      case (buffer, _ :: _ :: Nil)   =>
+        buffer // only happens for empty results (with just the 2 mocks)
       case (buffer, _ :: other :: _) => buffer += other
-      case (buffer, _)          => buffer
+      case (buffer, _)               => buffer
     }
   }.toList
 

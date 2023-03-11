@@ -18,19 +18,19 @@ package laika.directive.std
 
 import cats.syntax.all._
 import laika.ast._
-import laika.directive.{Blocks, Templates}
+import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
 import scala.annotation.tailrec
 
 /** Provides the implementation for the standard breadcrumb directives.
   *
-  * This includes the template and markup-block variants of this directive, 
+  * This includes the template and markup-block variants of this directive,
   * which builds a navigation list from the root node of the input tree to the current document.
-  * 
+  *
   * For full documentation see the section about the
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#breadcrumb Breadcrumb Directive]]
   * in the manual.
-  * 
+  *
   * @author Jens Halm
   */
 object BreadcrumbDirectives {
@@ -40,11 +40,12 @@ object BreadcrumbDirectives {
     *
     * Serves as the implementation for the breadcrumb directive, but can also be inserted into the AST manually.
     */
-  case class BreadcrumbBuilder (source: SourceFragment, options: Options = NoOpt) extends BlockResolver {
+  case class BreadcrumbBuilder(source: SourceFragment, options: Options = NoOpt)
+      extends BlockResolver {
 
     type Self = BreadcrumbBuilder
 
-    def resolve (cursor: DocumentCursor): Block = {
+    def resolve(cursor: DocumentCursor): Block = {
 
       val context = NavigationBuilderContext(
         refPath = cursor.path,
@@ -52,13 +53,18 @@ object BreadcrumbDirectives {
       )
 
       @tailrec
-      def entriesFor (tree: TreeCursor, items: List[NavigationItem] = Nil): List[NavigationItem] = {
+      def entriesFor(tree: TreeCursor, items: List[NavigationItem] = Nil): List[NavigationItem] = {
         val title = tree.target.title.getOrElse(SpanSequence(tree.path.name))
-        val item = context.newNavigationItem(title, tree.target.titleDocument, Nil, tree.target.targetFormats)
-        
+        val item  = context.newNavigationItem(
+          title,
+          tree.target.titleDocument,
+          Nil,
+          tree.target.targetFormats
+        )
+
         tree.parent match {
-          case None => item :: items
-          case Some(parent) => entriesFor(parent,item ::items)
+          case None         => item :: items
+          case Some(parent) => entriesFor(parent, item :: items)
         }
       }
       // if cursor is targeting title document, we don't need to append docEntry
@@ -74,16 +80,16 @@ object BreadcrumbDirectives {
       }
     }
 
-    def withOptions (options: Options): BreadcrumbBuilder = copy(options = options)
+    def withOptions(options: Options): BreadcrumbBuilder = copy(options = options)
 
-    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
-    
+    def runsIn(phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
     lazy val unresolvedMessage: String = "Unresolved breadcrumb builder"
   }
 
   /** Implementation of the `breadcrumb` directive for templates.
     */
-  lazy val forTemplates: Templates.Directive  = Templates.create("breadcrumb") {
+  lazy val forTemplates: Templates.Directive = Templates.create("breadcrumb") {
 
     import Templates.dsl._
 
@@ -94,7 +100,7 @@ object BreadcrumbDirectives {
 
   /** Implementation of the `breadcrumb` directive for block elements in markup documents.
     */
-  lazy val forBlocks: Blocks.Directive  = Blocks.create("breadcrumb") {
+  lazy val forBlocks: Blocks.Directive = Blocks.create("breadcrumb") {
 
     import Blocks.dsl._
 
@@ -102,5 +108,5 @@ object BreadcrumbDirectives {
       BreadcrumbBuilder(src).resolve(cursor)
     }
   }
-  
+
 }

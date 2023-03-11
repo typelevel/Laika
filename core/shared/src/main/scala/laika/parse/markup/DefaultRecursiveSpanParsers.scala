@@ -16,10 +16,10 @@
 
 package laika.parse.markup
 
-import laika.ast.{InvalidSpan, Span}
+import laika.ast.{ InvalidSpan, Span }
 import laika.parse._
 import laika.parse.combinator.Parsers
-import laika.parse.text.{DelimitedText, PrefixedParser}
+import laika.parse.text.{ DelimitedText, PrefixedParser }
 
 /** Default implementation for parsing inline markup recursively.
   *
@@ -27,54 +27,58 @@ import laika.parse.text.{DelimitedText, PrefixedParser}
   */
 trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscapedTextParsers {
 
-
   /** All default span parsers registered for a host markup language.
     */
   protected def spanParsers: Seq[PrefixedParser[Span]]
 
-  protected lazy val defaultSpanParser: InlineParser[Span, List[Span]] = 
+  protected lazy val defaultSpanParser: InlineParser[Span, List[Span]] =
     InlineParsers.spans(DelimitedText.Undelimited).embedAll(spanParsers)
-  
-  private class TwoPhaseInlineParser (textParser: Parser[SourceFragment],
-                                      delegate: => InlineParser[Span, List[Span]]) extends InlineParser[Span, List[Span]] {
+
+  private class TwoPhaseInlineParser(
+      textParser: Parser[SourceFragment],
+      delegate: => InlineParser[Span, List[Span]]
+  ) extends InlineParser[Span, List[Span]] {
 
     private lazy val spanParser0 = delegate
 
-    override def embed (parser: => PrefixedParser[Span]) =
+    override def embed(parser: => PrefixedParser[Span]) =
       new TwoPhaseInlineParser(textParser, delegate.embed(parser))
 
-    override def embedAll (parsers: => Seq[PrefixedParser[Span]]) =
+    override def embedAll(parsers: => Seq[PrefixedParser[Span]]) =
       new TwoPhaseInlineParser(textParser, delegate.embedAll(parsers))
 
-    override def parse (source: SourceCursor) = {
+    override def parse(source: SourceCursor) = {
       textParser.parse(source) match {
         case Success(src, next) =>
           spanParser0.parse(src) match {
             case Success(spans, _) => Success(spans, next)
-            case f: Failure => f
+            case f: Failure        => f
           }
-        case f: Failure => f
+        case f: Failure         => f
       }
     }
 
   }
 
-  def recursiveSpans (p: DelimitedText): InlineParser[Span, List[Span]] = InlineParsers.spans(p).embedAll(spanParsers)
+  def recursiveSpans(p: DelimitedText): InlineParser[Span, List[Span]] =
+    InlineParsers.spans(p).embedAll(spanParsers)
 
   def recursiveSpans(parser: Parser[SourceFragment]): InlineParser[Span, List[Span]] =
     new TwoPhaseInlineParser(parser, defaultSpanParser)
 
   def recursiveSpans: RecursiveSpanParser = new RecursiveSpanParserDelegate(defaultSpanParser)
-  
-  protected class RecursiveSpanParserDelegate (delegate: Parser[Seq[Span]]) extends RecursiveSpanParser {
+
+  protected class RecursiveSpanParserDelegate(delegate: Parser[Seq[Span]])
+      extends RecursiveSpanParser {
     private val parser = Parsers.consumeAll(delegate)
 
-    def parse (in: SourceFragment): Parsed[Seq[Span]] = parser.parse(in)
+    def parse(in: SourceFragment): Parsed[Seq[Span]] = parser.parse(in)
 
-    def parseAndRecover (in: SourceFragment): Seq[Span] = parser.parse(in) match {
+    def parseAndRecover(in: SourceFragment): Seq[Span] = parser.parse(in) match {
       case Success(blocks, _) => blocks
       case f: Failure         => List(InvalidSpan(f.message, in))
     }
+
   }
 
 }

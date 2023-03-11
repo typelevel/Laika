@@ -19,24 +19,25 @@ package laika.io.config
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
-import laika.config.{Config, LaikaKeys}
+import laika.config.{ Config, LaikaKeys }
 
 /** Configuration for special folders in Laika's site output.
-  * 
+  *
   * @author Jens Halm
   */
 object SiteConfig {
 
   private val defaultDownloadPath: Path = Root / "downloads"
-  private val defaultApiPath: Path = Root / "api"
+  private val defaultApiPath: Path      = Root / "api"
 
   /** The path within the virtual tree to place downloads (EPUB and PDF) in.
     */
-  def downloadPath (config: Config): ConfigResult[Path] =
+  def downloadPath(config: Config): ConfigResult[Path] =
     config.get[Path](LaikaKeys.site.downloadPath, defaultDownloadPath)
 
-  /** The path within the virtual tree where API documentation will be generated or copied into. 
+  /** The path within the virtual tree where API documentation will be generated or copied into.
     */
-  def apiPath (config: Config): ConfigResult[Path] = config.get[Path](LaikaKeys.site.apiPath, defaultApiPath)
+  def apiPath(config: Config): ConfigResult[Path] =
+    config.get[Path](LaikaKeys.site.apiPath, defaultApiPath)
 
 }

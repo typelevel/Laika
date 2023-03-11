@@ -16,27 +16,27 @@
 
 package laika.render.pdf
 
-import java.io.{OutputStream, StringReader}
+import java.io.{ OutputStream, StringReader }
 
 import cats.effect.std.Dispatcher
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
-import javax.xml.transform.{Transformer, TransformerFactory}
+import javax.xml.transform.{ Transformer, TransformerFactory }
 import laika.ast.DocumentMetadata
-import laika.io.model.{BinaryInput, BinaryOutput}
-import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
+import laika.io.model.{ BinaryInput, BinaryOutput }
+import org.apache.fop.apps.{ FOUserAgent, FOUserAgentFactory, FopFactory }
 import org.apache.xmlgraphics.util.MimeConstants
 
-/** Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream 
+/** Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream
   * that represents the entire document and its navigation elements.
-  * 
+  *
   * @author Jens Halm
   */
-class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F]) {
+class PDFRenderer[F[_]: Async](fopFactory: FopFactory, dispatcher: Dispatcher[F]) {
 
-  /** Render the given XSL-FO input as a PDF to the specified binary output. 
+  /** Render the given XSL-FO input as a PDF to the specified binary output.
     *
     *  @param foInput the input in XSL-FO format
     *  @param output the output to write the final result to
@@ -44,17 +44,29 @@ class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F
     *  @param staticDocuments additional files like fonts or images that the renderer should resolve for FOP
     *  which will be used to resolve relative paths
     */
-  def render (foInput: String, output: BinaryOutput[F], metadata: DocumentMetadata, staticDocuments: Seq[BinaryInput[F]] = Nil): F[Unit] = {
+  def render(
+      foInput: String,
+      output: BinaryOutput[F],
+      metadata: DocumentMetadata,
+      staticDocuments: Seq[BinaryInput[F]] = Nil
+  ): F[Unit] = {
 
-    def applyMetadata (agent: FOUserAgent): F[Unit] = Sync[F].delay {
-      metadata.dateModified.orElse(metadata.datePublished).foreach(d => agent.setCreationDate(new java.util.Date(d.toInstant.toEpochMilli)))
+    def applyMetadata(agent: FOUserAgent): F[Unit] = Sync[F].delay {
+      metadata.dateModified.orElse(metadata.datePublished).foreach(d =>
+        agent.setCreationDate(new java.util.Date(d.toInstant.toEpochMilli))
+      )
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       metadata.title.foreach(t => agent.setTitle(t))
     }
 
-    def createSAXResult (out: OutputStream): F[SAXResult] = 
+    def createSAXResult(out: OutputStream): F[SAXResult] =
       for {
-        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(fopFactory, new FopResourceResolver(staticDocuments, dispatcher)))
+        foUserAgent <- Async[F].delay(
+          FOUserAgentFactory.createFOUserAgent(
+            fopFactory,
+            new FopResourceResolver(staticDocuments, dispatcher)
+          )
+        )
         _           <- applyMetadata(foUserAgent)
         fop         <- Async[F].delay(fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
       } yield new SAXResult(fop.getDefaultHandler)
@@ -63,7 +75,7 @@ class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F
       val factory = TransformerFactory.newInstance
       factory.newTransformer // identity transformer
     }
-    
+
     output.resource.use { out =>
       for {
         source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
@@ -74,5 +86,5 @@ class PDFRenderer[F[_]: Async] (fopFactory: FopFactory, dispatcher: Dispatcher[F
     }
 
   }
-  
+
 }

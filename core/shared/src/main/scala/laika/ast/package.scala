@@ -16,19 +16,18 @@
 
 package laika
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 package object ast {
 
   /** Specifies how a particular element, document or document
     * tree should be rewritten.
     *
-    * If the rule is not defined for a specific element or the rule returns 
-    * a `Retain` action as a result the old element remains in the tree unchanged. 
-    * 
+    * If the rule is not defined for a specific element or the rule returns
+    * a `Retain` action as a result the old element remains in the tree unchanged.
+    *
     * If it returns `Remove` then the node gets removed from the ast,
-    * if it returns `Replace` with a new element it will replace the old one. 
+    * if it returns `Replace` with a new element it will replace the old one.
     */
   type RewriteRule[T] = PartialFunction[T, RewriteAction[T]]
 
@@ -37,10 +36,10 @@ package object ast {
     *  is not defined the renderer will fall back to the default
     *  renderer (or the next custom renderer, in case there are multiple).
     */
-  type RenderFunction = PartialFunction[Element,Unit]
+  type RenderFunction = PartialFunction[Element, Unit]
 
   /** A wrapper for two result values.
     */
-  case class ~[+A,+B] (_1:A, _2:B)
+  case class ~[+A, +B](_1: A, _2: B)
 
 }

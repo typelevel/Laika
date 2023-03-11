@@ -18,20 +18,38 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
-import laika.ast.{Block, BlockResolver, DocumentCursor, ExternalTarget, InternalTarget, InvalidBlock, NavigationBuilderContext, NavigationItem, NavigationLink, NavigationList, NoOpt, Options, RewritePhase, SpanSequence, Style, TemplateElement, VirtualPath}
-import laika.config.{ConfigDecoder, ConfigError, Key}
-import laika.directive.{Blocks, Templates}
-import laika.parse.{GeneratedSource, SourceFragment}
+import laika.ast.{
+  Block,
+  BlockResolver,
+  DocumentCursor,
+  ExternalTarget,
+  InternalTarget,
+  InvalidBlock,
+  NavigationBuilderContext,
+  NavigationItem,
+  NavigationLink,
+  NavigationList,
+  NoOpt,
+  Options,
+  RewritePhase,
+  SpanSequence,
+  Style,
+  TemplateElement,
+  VirtualPath
+}
+import laika.config.{ ConfigDecoder, ConfigError, Key }
+import laika.directive.{ Blocks, Templates }
+import laika.parse.{ GeneratedSource, SourceFragment }
 
 /** Implementation of the navigationTree directive for templates and markup blocks.
-  * 
+  *
   * This directive supports the generation of navigation trees which can be any combination of auto-generated
   * trees from the input tree and manual entries, optionally to external targets, too.
   *
   * For full documentation see the section about the
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#navigationtree navigationTree Directive]]
   * in the manual.
-  * 
+  *
   * @author Jens Halm
   */
 object NavigationTreeDirectives {
@@ -51,14 +69,16 @@ object NavigationTreeDirectives {
     * @param excludeSelf indicates whether the current document should be included
     * @param options optional styles and/or an id for the final navigation list
     */
-  case class NavigationBuilderConfig (entries: Seq[NavigationNodeConfig],
-                                      source: SourceFragment,
-                                      defaultDepth: Int = Int.MaxValue,
-                                      itemStyles: Set[String] = Set(),
-                                      excludeRoot: Boolean = false,
-                                      excludeSections: Boolean = false,
-                                      excludeSelf: Boolean = false,
-                                      options: Options = NoOpt) extends BlockResolver {
+  case class NavigationBuilderConfig(
+      entries: Seq[NavigationNodeConfig],
+      source: SourceFragment,
+      defaultDepth: Int = Int.MaxValue,
+      itemStyles: Set[String] = Set(),
+      excludeRoot: Boolean = false,
+      excludeSections: Boolean = false,
+      excludeSelf: Boolean = false,
+      options: Options = NoOpt
+  ) extends BlockResolver {
 
     type Self = NavigationBuilderConfig
 
@@ -67,27 +87,37 @@ object NavigationTreeDirectives {
       * In case of configuration errors or references to non-existing documents an error message
       * will be returned as a `Left`.
       */
-    def eval (cursor: DocumentCursor): Either[String, NavigationList] = {
+    def eval(cursor: DocumentCursor): Either[String, NavigationList] = {
 
-      def generate (currentLevel: Int)(node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
+      def generate(
+          currentLevel: Int
+      )(node: NavigationNodeConfig): ValidatedNec[String, List[NavigationItem]] = node match {
 
         case ManualNavigationNode(title, target, entries) =>
           val link = target.map(NavigationLink(_))
-          if (currentLevel < defaultDepth) entries.toList.map(generate(currentLevel + 1)).combineAll.map { childNodes =>
-            List(NavigationItem(title, childNodes, link, options = Style.level(currentLevel)))
-          }
+          if (currentLevel < defaultDepth)
+            entries.toList.map(generate(currentLevel + 1)).combineAll.map { childNodes =>
+              List(NavigationItem(title, childNodes, link, options = Style.level(currentLevel)))
+            }
           else if (link.nonEmpty) List(NavigationItem(title, Nil, link)).validNec
           else Nil.validNec
 
-        case GeneratedNavigationNode(targetPath, title, depth, optExcludeRoot, optExcludeSections) =>
-          val resolvedTarget = InternalTarget(targetPath).relativeTo(cursor.path).absolutePath.relative
-          val target = cursor.root.target.tree.selectDocument(resolvedTarget).orElse(
+        case GeneratedNavigationNode(
+              targetPath,
+              title,
+              depth,
+              optExcludeRoot,
+              optExcludeSections
+            ) =>
+          val resolvedTarget =
+            InternalTarget(targetPath).relativeTo(cursor.path).absolutePath.relative
+          val target         = cursor.root.target.tree.selectDocument(resolvedTarget).orElse(
             cursor.root.target.tree.selectSubtree(resolvedTarget)
           )
           target.fold[ValidatedNec[String, List[NavigationItem]]](
             s"Unable to resolve document or tree with path: $targetPath".invalidNec
           ) { treeContent =>
-            val noRoot = optExcludeRoot.getOrElse(excludeRoot)
+            val noRoot  = optExcludeRoot.getOrElse(excludeRoot)
             val context = NavigationBuilderContext(
               refPath = cursor.path,
               itemStyles = itemStyles,
@@ -107,15 +137,18 @@ object NavigationTreeDirectives {
         .combineAll
         .toEither
         .map(NavigationList(_))
-        .leftMap(errors => s"One or more errors generating navigation: ${errors.toList.mkString(",")}")
+        .leftMap(errors =>
+          s"One or more errors generating navigation: ${errors.toList.mkString(",")}"
+        )
     }
 
-    def resolve (cursor: DocumentCursor): Block = eval(cursor).fold(InvalidBlock(_, source), identity)
+    def resolve(cursor: DocumentCursor): Block =
+      eval(cursor).fold(InvalidBlock(_, source), identity)
 
-    def withOptions (options: Options): NavigationBuilderConfig = copy(options = options)
+    def withOptions(options: Options): NavigationBuilderConfig = copy(options = options)
 
-    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
-    
+    def runsIn(phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
     lazy val unresolvedMessage: String = "Unresolved navigation builder"
   }
 
@@ -123,17 +156,26 @@ object NavigationTreeDirectives {
     */
   object NavigationBuilderConfig {
 
-    implicit val decoder: ConfigDecoder[NavigationBuilderConfig] = ConfigDecoder.config.flatMap { config =>
-      for {
-        entries         <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)
-        defaultDepth    <- config.get[Int]("defaultDepth", Int.MaxValue)
-        itemStyles      <- config.get[Seq[String]]("itemStyles", Nil)
-        excludeRoot     <- config.get[Boolean]("excludeRoot", false)
-        excludeSections <- config.get[Boolean]("excludeSections", false)
-        excludeSelf     <- config.get[Boolean]("excludeSelf", false)
-      } yield {
-        NavigationBuilderConfig(entries, GeneratedSource, defaultDepth, itemStyles.toSet, excludeRoot, excludeSections, excludeSelf)
-      }
+    implicit val decoder: ConfigDecoder[NavigationBuilderConfig] = ConfigDecoder.config.flatMap {
+      config =>
+        for {
+          entries         <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)
+          defaultDepth    <- config.get[Int]("defaultDepth", Int.MaxValue)
+          itemStyles      <- config.get[Seq[String]]("itemStyles", Nil)
+          excludeRoot     <- config.get[Boolean]("excludeRoot", false)
+          excludeSections <- config.get[Boolean]("excludeSections", false)
+          excludeSelf     <- config.get[Boolean]("excludeSelf", false)
+        } yield {
+          NavigationBuilderConfig(
+            entries,
+            GeneratedSource,
+            defaultDepth,
+            itemStyles.toSet,
+            excludeRoot,
+            excludeSections,
+            excludeSelf
+          )
+        }
     }
 
   }
@@ -146,34 +188,43 @@ object NavigationTreeDirectives {
     */
   object NavigationNodeConfig {
 
-    implicit lazy val decoder: ConfigDecoder[NavigationNodeConfig] = ConfigDecoder.config.flatMap { config =>
+    implicit lazy val decoder: ConfigDecoder[NavigationNodeConfig] = ConfigDecoder.config.flatMap {
+      config =>
+        config.getOpt[String]("target").flatMap { optTarget =>
+          def createManualNode(
+              externalTarget: Option[ExternalTarget]
+          ): Either[ConfigError, NavigationNodeConfig] = for {
+            title    <- config.get[String]("title")
+            children <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)(
+              ConfigDecoder.seq(decoder)
+            )
+          } yield {
+            ManualNavigationNode(SpanSequence(title), externalTarget, children)
+          }
 
-      config.getOpt[String]("target").flatMap { optTarget =>
+          def createGeneratedNode(
+              internalTarget: VirtualPath
+          ): Either[ConfigError, NavigationNodeConfig] = for {
+            title           <- config.getOpt[String]("title")
+            depth           <- config.getOpt[Int]("depth")
+            excludeRoot     <- config.getOpt[Boolean]("excludeRoot")
+            excludeSections <- config.getOpt[Boolean]("excludeSections")
+          } yield {
+            val titleSpan = title.map(SpanSequence(_))
+            GeneratedNavigationNode(internalTarget, titleSpan, depth, excludeRoot, excludeSections)
+          }
 
-        def createManualNode (externalTarget: Option[ExternalTarget]): Either[ConfigError, NavigationNodeConfig] = for {
-          title    <- config.get[String]("title")
-          children <- config.get[Seq[NavigationNodeConfig]]("entries", Nil)(ConfigDecoder.seq(decoder))
-        } yield {
-          ManualNavigationNode(SpanSequence(title), externalTarget, children)
+          optTarget.fold(createManualNode(None)) { targetStr =>
+            if (
+              targetStr.startsWith("http:") || targetStr.startsWith(
+                "https:"
+              ) || targetStr.startsWith("mailto:")
+            )
+              createManualNode(Some(ExternalTarget(targetStr)))
+            else
+              createGeneratedNode(VirtualPath.parse(targetStr))
+          }
         }
-
-        def createGeneratedNode (internalTarget: VirtualPath): Either[ConfigError, NavigationNodeConfig] = for {
-          title           <- config.getOpt[String]("title")
-          depth           <- config.getOpt[Int]("depth")
-          excludeRoot     <- config.getOpt[Boolean]("excludeRoot")
-          excludeSections <- config.getOpt[Boolean]("excludeSections")
-        } yield {
-          val titleSpan = title.map(SpanSequence(_))
-          GeneratedNavigationNode(internalTarget, titleSpan, depth, excludeRoot, excludeSections)
-        }
-
-        optTarget.fold(createManualNode(None)) { targetStr =>
-          if (targetStr.startsWith("http:") || targetStr.startsWith("https:") || targetStr.startsWith("mailto:"))
-            createManualNode(Some(ExternalTarget(targetStr)))
-          else
-            createGeneratedNode(VirtualPath.parse(targetStr))
-        }
-      }
     }
 
   }
@@ -186,11 +237,13 @@ object NavigationTreeDirectives {
     * @param excludeRoot indicates whether the root node should be excluded in which case the first-level children will be inserted into the parent node
     * @param excludeSections indicates whether sections within documents should be excluded in automatic entries
     */
-  case class GeneratedNavigationNode (target: VirtualPath,
-                                      title: Option[SpanSequence] = None,
-                                      depth: Option[Int] = None,
-                                      excludeRoot: Option[Boolean] = None,
-                                      excludeSections: Option[Boolean] = None) extends NavigationNodeConfig
+  case class GeneratedNavigationNode(
+      target: VirtualPath,
+      title: Option[SpanSequence] = None,
+      depth: Option[Int] = None,
+      excludeRoot: Option[Boolean] = None,
+      excludeSections: Option[Boolean] = None
+  ) extends NavigationNodeConfig
 
   /** The configuration for a manual entry in the navigation tree.
     * The entry can have further children which may in turn be either manual or automatically generated nodes.
@@ -199,13 +252,15 @@ object NavigationTreeDirectives {
     * @param target   the external link for this node (if missing this node just generates a navigation header as a separator within the tree)
     * @param entries  the children of this node, either manual or automatically generated
     */
-  case class ManualNavigationNode (title: SpanSequence,
-                                   target: Option[ExternalTarget] = None,
-                                   entries: Seq[NavigationNodeConfig] = Nil) extends NavigationNodeConfig
+  case class ManualNavigationNode(
+      title: SpanSequence,
+      target: Option[ExternalTarget] = None,
+      entries: Seq[NavigationNodeConfig] = Nil
+  ) extends NavigationNodeConfig
 
   /** Implementation of the `navigationTree` directive for templates.
     */
-  lazy val forTemplates: Templates.Directive  = Templates.eval("navigationTree") {
+  lazy val forTemplates: Templates.Directive = Templates.eval("navigationTree") {
 
     import Templates.dsl._
 
@@ -218,7 +273,7 @@ object NavigationTreeDirectives {
 
   /** Implementation of the `navigationTree` directive for block elements in markup documents.
     */
-  lazy val forBlocks: Blocks.Directive  = Blocks.eval("navigationTree") {
+  lazy val forBlocks: Blocks.Directive = Blocks.eval("navigationTree") {
 
     import Blocks.dsl._
 
@@ -228,5 +283,5 @@ object NavigationTreeDirectives {
         .flatMap(_.eval(cursor))
     }
   }
-  
+
 }

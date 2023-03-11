@@ -26,14 +26,14 @@ import laika.theme.Theme
 import munit.CatsEffectSuite
 import org.http4s.headers.`Content-Type`
 import org.http4s.implicits._
-import org.http4s.{MediaType, Method, Request, Response, Status, Uri}
+import org.http4s.{ MediaType, Method, Request, Response, Status, Uri }
 
 class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
-  
-  def stringBody (expected: String)(response: Response[IO]): IO[Unit] =
+
+  def stringBody(expected: String)(response: Response[IO]): IO[Unit] =
     response.as[String].assertEquals(expected)
 
-  def nonEmptyBody (response: Response[IO]): IO[Unit] =
+  def nonEmptyBody(response: Response[IO]): IO[Unit] =
     response.body.compile.last.map(_.nonEmpty).assert
 
   def ignoreBody: Response[IO] => IO[Unit] = _ => IO.unit
@@ -45,18 +45,22 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
     .build
 
   private val defaultServer = {
-    val inputs = build(Seq(
-      (Root / "doc.md") -> "foo",
-      (Root / "dir" / "README.md") -> "foo",
-      (Root / "dir" / "image.jpg") -> "img"
-    ))
+    val inputs = build(
+      Seq(
+        (Root / "doc.md")            -> "foo",
+        (Root / "dir" / "README.md") -> "foo",
+        (Root / "dir" / "image.jpg") -> "img"
+      )
+    )
     ServerBuilder(defaultParser, inputs)
   }
 
-  def check[A](actual:            IO[Response[IO]],
-               expectedStatus:    Status,
-               expectedMediaType: Option[MediaType] = None,
-               bodyCheck:         Response[IO] => IO[Unit] = ignoreBody): IO[Unit] =
+  def check[A](
+      actual: IO[Response[IO]],
+      expectedStatus: Status,
+      expectedMediaType: Option[MediaType] = None,
+      bodyCheck: Response[IO] => IO[Unit] = ignoreBody
+  ): IO[Unit] =
     actual.flatMap { response =>
       assertEquals(response.status, expectedStatus)
       expectedMediaType.foreach { mt =>
@@ -64,12 +68,14 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
       }
       bodyCheck(response)
     }
-  
-  def run (uri: Uri,
-           expectedStatus:    Status,
-           expectedMediaType: Option[MediaType] = None,
-           bodyCheck:         Response[IO] => IO[Unit] = ignoreBody,
-           config:            ServerConfig = ServerConfig.defaults): IO[Unit] = 
+
+  def run(
+      uri: Uri,
+      expectedStatus: Status,
+      expectedMediaType: Option[MediaType] = None,
+      bodyCheck: Response[IO] => IO[Unit] = ignoreBody,
+      config: ServerConfig = ServerConfig.defaults
+  ): IO[Unit] =
     defaultServer
       .withConfig(config)
       .buildRoutes
@@ -78,7 +84,6 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
         check(res, expectedStatus, expectedMediaType, bodyCheck)
       }
 
-  
   test("serve a rendered document") {
     run(uri"/doc.html", Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
   }
@@ -93,11 +98,17 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
 
   test("serve a generated EPUB document") {
     val config = ServerConfig.defaults.withEPUBDownloads
-    run(uri"/downloads/docs.epub", Status.Ok, Some(MediaType.application.`epub+zip`), nonEmptyBody, config)
+    run(
+      uri"/downloads/docs.epub",
+      Status.Ok,
+      Some(MediaType.application.`epub+zip`),
+      nonEmptyBody,
+      config
+    )
   }
 
   test("return 404 for unknown target path") {
     run(uri"/dir/styles.css", Status.NotFound)
   }
-  
+
 }

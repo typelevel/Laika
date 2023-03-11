@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import laika.config.{Config, ConfigBuilder, ConfigParser, ConfigValue}
+import laika.config.{ Config, ConfigBuilder, ConfigParser, ConfigValue }
 import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -31,7 +31,7 @@ object ConfigHeaderParser {
   /** Parser for default configuration headers which are enclosed
     * between lines containing `{%` and `%}` respectively.
     */
-  def withDefaultLineDelimiters: Parser[ConfigParser] = betweenLines("{%","%}")
+  def withDefaultLineDelimiters: Parser[ConfigParser] = betweenLines("{%", "%}")
 
   /** Parser for configuration headers which are enclosed
     * between the specified start and end delimiters.
@@ -51,14 +51,13 @@ object ConfigHeaderParser {
     * the expected start or end delimiters, so that other parsers (if defined) can be
     * tried instead.
     */
-  def forTextParser (parser: Parser[String]): Parser[ConfigParser] = parser.map(ConfigParser.parse)
+  def forTextParser(parser: Parser[String]): Parser[ConfigParser] = parser.map(ConfigParser.parse)
 
   // val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(Config.empty)) }
 
-  def merge (config: Config, values: Seq[(String, ConfigValue)]): Config =
+  def merge(config: Config, values: Seq[(String, ConfigValue)]): Config =
     values.foldLeft(ConfigBuilder.withFallback(config)) { case (builder, (key, value)) =>
       builder.withValue(key, value)
     }.build
-
 
 }

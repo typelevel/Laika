@@ -21,68 +21,73 @@ import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.builders._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.implicits._
 import laika.parse.text.CharGroup
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class CommonSyntaxParserSpec extends FunSuite {
 
-  
-  val rule: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)
-  
-  private def createParser (allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] = new SyntaxHighlighter {
-    val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
-    
-    val spanParsers: Seq[CodeSpanParser] = Seq(
-      rule,
-      Comment.multiLine("/*", "*/"),
-      Comment.singleLine("//"),
-      Keywords("foo", "bar", "baz"),
-      CharLiteral.standard.embed(
-        StringLiteral.Escape.unicode,
-        StringLiteral.Escape.hex,
-        StringLiteral.Escape.octal,
-        StringLiteral.Escape.char
-      ),
-      RegexLiteral.standard,
-      StringLiteral.multiLine("'''"),
-      StringLiteral.singleLine('\'').embed(
-        StringLiteral.Escape.unicode,
-        StringLiteral.Escape.hex,
-        StringLiteral.Escape.octal,
-        StringLiteral.Escape.char,
-        StringLiteral.Escape.literal("$$"),
-        StringLiteral.Substitution.between("${", "}"),
-        StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source)
-      ),
-      Identifier.alphaNum.withIdStartChars('_','$').withCategoryChooser(Identifier.upperCaseTypeName).copy(allowDigitBeforeStart = allowLetterAfterNumber),
-      NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
-      NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
-      NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
-      NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
-      NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(allowFollowingLetter = allowLetterAfterNumber),
-      NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(allowFollowingLetter = allowLetterAfterNumber)
-    )
-  }.rootParser
-  
+  val rule: CodeSpanParser =
+    CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)
+
+  private def createParser(allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] =
+    new SyntaxHighlighter {
+      val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
+
+      val spanParsers: Seq[CodeSpanParser] = Seq(
+        rule,
+        Comment.multiLine("/*", "*/"),
+        Comment.singleLine("//"),
+        Keywords("foo", "bar", "baz"),
+        CharLiteral.standard.embed(
+          StringLiteral.Escape.unicode,
+          StringLiteral.Escape.hex,
+          StringLiteral.Escape.octal,
+          StringLiteral.Escape.char
+        ),
+        RegexLiteral.standard,
+        StringLiteral.multiLine("'''"),
+        StringLiteral.singleLine('\'').embed(
+          StringLiteral.Escape.unicode,
+          StringLiteral.Escape.hex,
+          StringLiteral.Escape.octal,
+          StringLiteral.Escape.char,
+          StringLiteral.Escape.literal("$$"),
+          StringLiteral.Substitution.between("${", "}"),
+          StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source)
+        ),
+        Identifier.alphaNum.withIdStartChars('_', '$').withCategoryChooser(
+          Identifier.upperCaseTypeName
+        ).copy(allowDigitBeforeStart = allowLetterAfterNumber),
+        NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
+        NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
+        NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
+        NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
+        NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(
+          allowFollowingLetter = allowLetterAfterNumber
+        ),
+        NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(
+          allowFollowingLetter = allowLetterAfterNumber
+        )
+      )
+
+    }.rootParser
+
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()
 
-  def run (input: String, spans: CodeSpan*)(implicit loc: munit.Location): Unit =
+  def run(input: String, spans: CodeSpan*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(spans.toList))
-    
-  
+
   object Identifiers {
-    def test(id: String, category: CodeCategory): Unit = run(s"+- $id *^",
-      CodeSpan("+- "),
-      CodeSpan(id, category),
-      CodeSpan(" *^")
-    )
+
+    def test(id: String, category: CodeCategory): Unit =
+      run(s"+- $id *^", CodeSpan("+- "), CodeSpan(id, category), CodeSpan(" *^"))
+
   }
-  
+
   test("identifier starting with a lower-case letter") {
     Identifiers.test("id", CodeCategory.Identifier)
   }
@@ -106,22 +111,24 @@ class CommonSyntaxParserSpec extends FunSuite {
   test("type name containing an underscore") {
     Identifiers.test("Type_Foo", CodeCategory.TypeName)
   }
-    
-  
+
   object Numeric {
-    def test(numberLiteral: String): Unit = run(s"one1 $numberLiteral three3",
+
+    def test(numberLiteral: String): Unit = run(
+      s"one1 $numberLiteral three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(numberLiteral, CodeCategory.NumberLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
+
   }
-  
+
   test("binary literal") {
     Numeric.test("0b10011011")
   }
-  
+
   test("binary literal with underscores") {
     Numeric.test("0b_1001_1011")
   }
@@ -205,35 +212,47 @@ class CommonSyntaxParserSpec extends FunSuite {
   test("hex float literal with an exponent") {
     Numeric.test("0x23.f5p-23")
   }
-  
+
   test("do not recognize a number immediately followed by a letter") {
-    run(s"one1 123bb three3",
+    run(
+      s"one1 123bb three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" 123bb "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
   }
 
-  test("recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)") {
-    assertEquals(createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3").toEither, Right(Seq( 
-      CodeSpan("one1", CodeCategory.Identifier),
-      CodeSpan(" "),
-      CodeSpan("123", CodeCategory.NumberLiteral),
-      CodeSpan("bb", CodeCategory.Identifier),
-      CodeSpan(" "),
-      CodeSpan("three3", CodeCategory.Identifier)
-    )))
+  test(
+    "recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)"
+  ) {
+    assertEquals(
+      createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3").toEither,
+      Right(
+        Seq(
+          CodeSpan("one1", CodeCategory.Identifier),
+          CodeSpan(" "),
+          CodeSpan("123", CodeCategory.NumberLiteral),
+          CodeSpan("bb", CodeCategory.Identifier),
+          CodeSpan(" "),
+          CodeSpan("three3", CodeCategory.Identifier)
+        )
+      )
+    )
   }
-    
+
   object StringLiterals {
-    def test(literal: String): Unit = run(s"one1 $literal three3", 
+
+    def test(literal: String): Unit = run(
+      s"one1 $literal three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(literal, CodeCategory.StringLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
-    def testEmbedded(category: CodeCategory, text: String): Unit = run(s"one1 'aa $text bb' three3",
+
+    def testEmbedded(category: CodeCategory, text: String): Unit = run(
+      s"one1 'aa $text bb' three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("'aa ", CodeCategory.StringLiteral),
@@ -242,7 +261,8 @@ class CommonSyntaxParserSpec extends FunSuite {
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
-    def testEscape(escape: String): Unit = testEmbedded(CodeCategory.EscapeSequence, escape)
+
+    def testEscape(escape: String): Unit      = testEmbedded(CodeCategory.EscapeSequence, escape)
     def testSubstitution(subst: String): Unit = testEmbedded(CodeCategory.Substitution, subst)
   }
 
@@ -253,7 +273,7 @@ class CommonSyntaxParserSpec extends FunSuite {
   test("multi-line string literal") {
     StringLiterals.test("'''foo bar'''")
   }
-    
+
   test("single character escape") {
     StringLiterals.testEscape("\\t")
   }
@@ -283,14 +303,18 @@ class CommonSyntaxParserSpec extends FunSuite {
   }
 
   object CharLiterals {
-    def test(literal: String): Unit = run(s"one1 $literal three3",
+
+    def test(literal: String): Unit = run(
+      s"one1 $literal three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan(literal, CodeCategory.CharLiteral),
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
-    def testEscape (text: String): Unit = run(s"one1 '$text' three3",
+
+    def testEscape(text: String): Unit = run(
+      s"one1 '$text' three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("'", CodeCategory.CharLiteral),
@@ -299,6 +323,7 @@ class CommonSyntaxParserSpec extends FunSuite {
       CodeSpan(" "),
       CodeSpan("three3", CodeCategory.Identifier)
     )
+
   }
 
   test("char literal") {
@@ -321,9 +346,9 @@ class CommonSyntaxParserSpec extends FunSuite {
     CharLiterals.testEscape("\\x7f")
   }
 
-
   test("regex literal") {
-    run(s"one1 /[a-z]*/ three3", 
+    run(
+      s"one1 /[a-z]*/ three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("/[a-z]*/", CodeCategory.RegexLiteral),
@@ -333,7 +358,8 @@ class CommonSyntaxParserSpec extends FunSuite {
   }
 
   test("regex literal with an escape sequence") {
-    run(s"one1 /[\\\\]*/ three3", 
+    run(
+      s"one1 /[\\\\]*/ three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("/[", CodeCategory.RegexLiteral),
@@ -345,7 +371,8 @@ class CommonSyntaxParserSpec extends FunSuite {
   }
 
   test("regex literal with flags") {
-    run(s"one1 /[a-z]*/gi three3", 
+    run(
+      s"one1 /[a-z]*/gi three3",
       CodeSpan("one1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("/[a-z]*/gi", CodeCategory.RegexLiteral),
@@ -354,21 +381,21 @@ class CommonSyntaxParserSpec extends FunSuite {
     )
   }
 
-
   test("single line comment") {
-    
+
     val input =
       """line1
         |line2 // comment
         |line3""".stripMargin
-    
-    run(input, 
+
+    run(
+      input,
       CodeSpan("line1", CodeCategory.Identifier),
       CodeSpan("\n"),
       CodeSpan("line2", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("// comment\n", CodeCategory.Comment),
-      CodeSpan("line3", CodeCategory.Identifier),
+      CodeSpan("line3", CodeCategory.Identifier)
     )
   }
 
@@ -379,67 +406,70 @@ class CommonSyntaxParserSpec extends FunSuite {
         |mar
         |maz */ line3""".stripMargin
 
-    run(input, 
+    run(
+      input,
       CodeSpan("line1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("/* moo\nmar\nmaz */", CodeCategory.Comment),
       CodeSpan(" "),
-      CodeSpan("line3", CodeCategory.Identifier),
+      CodeSpan("line3", CodeCategory.Identifier)
     )
   }
-  
-  
+
   test("keywords") {
     val input = "one foo three"
 
-    run(input, 
+    run(
+      input,
       CodeSpan("one", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("foo", CodeCategory.Keyword),
       CodeSpan(" "),
-      CodeSpan("three", CodeCategory.Identifier),
+      CodeSpan("three", CodeCategory.Identifier)
     )
   }
-  
+
   test("ignore keywords when they are followed by more letters or digits") {
     val input = "one foo1 bar2 four"
 
-    run(input, 
+    run(
+      input,
       CodeSpan("one", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("foo1", CodeCategory.Identifier),
       CodeSpan(" "),
       CodeSpan("bar2", CodeCategory.Identifier),
       CodeSpan(" "),
-      CodeSpan("four", CodeCategory.Identifier),
+      CodeSpan("four", CodeCategory.Identifier)
     )
   }
 
   test("ignore keywords when they are preceded by letters or digits") {
     val input = "one 1foo bbar four"
 
-    run(input, 
+    run(
+      input,
       CodeSpan("one", CodeCategory.Identifier),
       CodeSpan(" 1foo "),
       CodeSpan("bbar", CodeCategory.Identifier),
       CodeSpan(" "),
-      CodeSpan("four", CodeCategory.Identifier),
+      CodeSpan("four", CodeCategory.Identifier)
     )
   }
-  
-  
+
   test("newline detection - recognize input at the start of a line") {
     val input =
       """line1
         |===
         |line3""".stripMargin
 
-    run(input, 
+    run(
+      input,
       CodeSpan("line1", CodeCategory.Identifier),
       CodeSpan("\n"),
       CodeSpan("===", CodeCategory.Markup.Fence),
       CodeSpan("\n"),
-      CodeSpan("line3", CodeCategory.Identifier),
+      CodeSpan("line3", CodeCategory.Identifier)
     )
   }
 
@@ -449,12 +479,13 @@ class CommonSyntaxParserSpec extends FunSuite {
         |line2
         |line3""".stripMargin
 
-    run(input, 
+    run(
+      input,
       CodeSpan("===", CodeCategory.Markup.Fence),
       CodeSpan("\n"),
       CodeSpan("line2", CodeCategory.Identifier),
       CodeSpan("\n"),
-      CodeSpan("line3", CodeCategory.Identifier),
+      CodeSpan("line3", CodeCategory.Identifier)
     )
   }
 
@@ -464,14 +495,14 @@ class CommonSyntaxParserSpec extends FunSuite {
         |line2 ===
         |line3""".stripMargin
 
-    run(input, 
+    run(
+      input,
       CodeSpan("line1", CodeCategory.Identifier),
       CodeSpan("\n"),
       CodeSpan("line2", CodeCategory.Identifier),
       CodeSpan(" ===\n"),
-      CodeSpan("line3", CodeCategory.Identifier),
+      CodeSpan("line3", CodeCategory.Identifier)
     )
   }
-  
-  
+
 }

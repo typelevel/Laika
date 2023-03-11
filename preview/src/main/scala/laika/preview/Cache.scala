@@ -16,12 +16,11 @@
 
 package laika.preview
 
-import cats.effect.{Concurrent, Ref}
+import cats.effect.{ Concurrent, Ref }
 import cats.syntax.all._
 import laika.preview.Cache.Result
 
-
-private[preview] class Cache[F[_]: Concurrent, V] (factory: F[V], ref: Ref[F, Result[V]]) {
+private[preview] class Cache[F[_]: Concurrent, V](factory: F[V], ref: Ref[F, Result[V]]) {
 
   def get: F[V] = ref.get.rethrow
 
@@ -29,15 +28,16 @@ private[preview] class Cache[F[_]: Concurrent, V] (factory: F[V], ref: Ref[F, Re
     factory.attempt.flatMap { result =>
       ref.set(result)
     }
-  
+
 }
 
 private[preview] object Cache {
 
   type Result[A] = Either[Throwable, A]
 
-  def create[F[_]: Concurrent, V] (factory: F[V]): F[Cache[F, V]] = factory.attempt.flatMap { result =>
-    Concurrent[F].ref(result).map { ref => new Cache[F, V](factory, ref) }
+  def create[F[_]: Concurrent, V](factory: F[V]): F[Cache[F, V]] = factory.attempt.flatMap {
+    result =>
+      Concurrent[F].ref(result).map { ref => new Cache[F, V](factory, ref) }
   }
 
 }

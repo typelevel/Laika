@@ -17,42 +17,39 @@
 package laika.rst
 
 import laika.ast._
-import laika.bundle.{BlockParser, BlockParserBuilder}
+import laika.bundle.{ BlockParser, BlockParserBuilder }
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{Failure, LineSource, Parser, Success}
+import laika.parse.{ Failure, LineSource, Parser, Success }
 import laika.rst.ast._
 import BaseParsers._
 import laika.parse.text.PrefixedParser
 
 /** Provides the parsers for all types of explicit block elements.
- *  In reStructuredText an explicit block element starts with `.. `,
- *  followed by a block where the second and subsequent lines are indented.
- * 
- * @author Jens Halm
- */
-class ExplicitBlockParsers (recParsers: RecursiveParsers) {
-
+  *  In reStructuredText an explicit block element starts with `.. `,
+  *  followed by a block where the second and subsequent lines are indented.
+  *
+  * @author Jens Halm
+  */
+class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   import recParsers._
 
-  
   private val explicitStart = ".." ~ ws.min(1)
-  
-  
+
   /** Parses all types of explicit block items.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
-   */
-  lazy val explicitBlockItem: PrefixedParser[Block] = (explicitStart ~> (footnote | citation | linkTarget | comment)) |
-    (".." ~ nextIn('\n') ~> comment)
-  
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
+    */
+  lazy val explicitBlockItem: PrefixedParser[Block] =
+    (explicitStart ~> (footnote | citation | linkTarget | comment)) |
+      (".." ~ nextIn('\n') ~> comment)
 
   /** Parses a footnote.
-   *
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
-   */
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]].
+    */
   lazy val footnote: Parser[FootnoteDefinition] = {
 
     def reverseWS: Parser[Int] = Parser { in =>
@@ -61,62 +58,71 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
         case Failure(msg, _, _) => Failure(msg, in)
       }
     }
-    
+
     val prefix = reverseWS ~ ("[" ~> footnoteLabel <~ "]" ~ ws)
-    
-    (prefix ~ recursiveBlocks(indentedBlock())).withCursor.map { case (wsCount ~ label ~ content, src) =>
-      val bodyInput = if (src.input.lastOption.contains('\n')) src.input.dropRight(1) else src.input
-      val reconstructedInput = ".." + (" " * wsCount) + bodyInput
-      val refCursor = src match {
-        case ls: LineSource if ls.parent.offset >= 2 + wsCount => ls.parent
-        case other => other.root
-      }
-      val reconstructedSource = LineSource(reconstructedInput, refCursor.consume((2 + wsCount) * -1))
-      FootnoteDefinition(label, content, reconstructedSource)
+
+    (prefix ~ recursiveBlocks(indentedBlock())).withCursor.map {
+      case (wsCount ~ label ~ content, src) =>
+        val bodyInput           =
+          if (src.input.lastOption.contains('\n')) src.input.dropRight(1) else src.input
+        val reconstructedInput  = ".." + (" " * wsCount) + bodyInput
+        val refCursor           = src match {
+          case ls: LineSource if ls.parent.offset >= 2 + wsCount => ls.parent
+          case other                                             => other.root
+        }
+        val reconstructedSource =
+          LineSource(reconstructedInput, refCursor.consume((2 + wsCount) * -1))
+        FootnoteDefinition(label, content, reconstructedSource)
     }
   }
-  
+
   /** Parses a citation.
-   *
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]]. 
-   */
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]].
+    */
   lazy val citation: Parser[Citation] = {
     val prefix = "[" ~> simpleRefName <~ "]" ~ ws
-    
+
     (prefix ~ recursiveBlocks(indentedBlock())).mapN(Citation(_, _))
   }
-  
+
   /** Parses a link definition, either an internal, external or indirect link.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
-   */
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
+    */
   lazy val linkTarget: Parser[Block with Span] = {
-    
-    val named = "_" ~> (("`" ~> escapedUntil('`') <~ ":") | escapedUntil(':')).map { ReferenceName(_).normalized }
-      
+
+    val named = "_" ~> (("`" ~> escapedUntil('`') <~ ":") | escapedUntil(':')).map {
+      ReferenceName(_).normalized
+    }
+
     val internal = named.map(id => InternalLinkTarget(Id(id)))
-    
+
     val external = {
       val anonymous = literal("__:").as("")
-    
-      ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(LinkDefinition.create(_, _))
+
+      ((anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody).mapN(
+        LinkDefinition.create(_, _)
+      )
     }
-    
+
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(delimitedBy('`')) | simpleRefName) <~ "_" ~ wsEol) ^^ {
-        case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(
+        delimitedBy('`')
+      ) | simpleRefName) <~ "_" ~ wsEol) ^^ { case name ~ refName =>
+        LinkAlias(name, refName.replaceAll("\n", ""))
       }
     }
-    
+
     indirect | external | internal
   }
-  
+
   /** Parses a comment.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
-   */
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
+    */
   val comment: Parser[Comment] = indentedBlock().map(src => Comment(src.input.trim))
-  
+
 }
 
 /** Provides the parsers for all types of explicit block elements.

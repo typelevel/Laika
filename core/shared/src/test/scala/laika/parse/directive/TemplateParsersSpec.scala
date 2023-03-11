@@ -24,76 +24,99 @@ import munit.FunSuite
 
 class TemplateParsersSpec extends FunSuite with TestSourceBuilders {
 
-
   val defaultParser: Parser[List[Span]] = new TemplateParsers(Map()).templateSpans
 
-  def parse (input: String): Either[String, List[Span]] = defaultParser.parse(input).toEither
+  def parse(input: String): Either[String, List[Span]] = defaultParser.parse(input).toEither
 
-  def result (spans: Span*): Either[String, List[Span]] = Right(spans.toList)
+  def result(spans: Span*): Either[String, List[Span]] = Right(spans.toList)
 
-  
   test("content without any markup") {
     assertEquals(parse("some text"), result(TemplateString("some text")))
   }
-  
-  
+
   test("context reference as the only template content") {
     val input = "${document.content}"
-    assertEquals(parse(input), result(TemplateContextReference(Key("document","content"), required = true, generatedSource(input))))
-    
+    assertEquals(
+      parse(input),
+      result(
+        TemplateContextReference(
+          Key("document", "content"),
+          required = true,
+          generatedSource(input)
+        )
+      )
+    )
+
   }
-  
+
   test("context reference at the beginning of a template") {
-    val ref = "${document.content}"
+    val ref   = "${document.content}"
     val input = s"$ref some text"
-    assertEquals(parse(input), result(
-      TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
-      TemplateString(" some text")
-    ))
+    assertEquals(
+      parse(input),
+      result(
+        TemplateContextReference(Key("document", "content"), required = true, source(ref, input)),
+        TemplateString(" some text")
+      )
+    )
   }
-  
+
   test("context reference at the end of a template") {
-    val ref = "${document.content}"
+    val ref   = "${document.content}"
     val input = s"some text $ref"
-    assertEquals(parse(input), result(
-      TemplateString("some text "), 
-      TemplateContextReference(Key("document","content"), required = true, source(ref, input))
-    ))
-    
+    assertEquals(
+      parse(input),
+      result(
+        TemplateString("some text "),
+        TemplateContextReference(Key("document", "content"), required = true, source(ref, input))
+      )
+    )
+
   }
-  
+
   test("context reference in the middle of a template") {
-    val ref = "${document.content}"
+    val ref   = "${document.content}"
     val input = s"some text $ref some more"
-    assertEquals(parse(input), result(
-      TemplateString("some text "), 
-      TemplateContextReference(Key("document","content"), required = true, source(ref, input)), 
-      TemplateString(" some more")
-    ))
+    assertEquals(
+      parse(input),
+      result(
+        TemplateString("some text "),
+        TemplateContextReference(Key("document", "content"), required = true, source(ref, input)),
+        TemplateString(" some more")
+      )
+    )
   }
 
   test("optional context reference") {
-    val ref = "${?document.content}"
+    val ref   = "${?document.content}"
     val input = s"some text $ref some more"
-    assertEquals(parse(input), result(
-      TemplateString("some text "), 
-      TemplateContextReference(Key("document","content"), required = false, source(ref, input)), 
-      TemplateString(" some more")
-    ))
+    assertEquals(
+      parse(input),
+      result(
+        TemplateString("some text "),
+        TemplateContextReference(Key("document", "content"), required = false, source(ref, input)),
+        TemplateString(" some more")
+      )
+    )
   }
 
   test("invalid context reference") {
-    val errorMsg = """Invalid HOCON reference: '${document = content}': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
-                    |
-                    |some text ${document = content} some more
-                    |                     ^""".stripMargin
+    val errorMsg =
+      """Invalid HOCON reference: '${document = content}': [1.22] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+        |
+        |some text ${document = content} some more
+        |                     ^""".stripMargin
 
-    val ref = "${document = content}"
+    val ref   = "${document = content}"
     val input = s"some text $ref some more"
-    assertEquals(parse(input), result(TemplateString("some text "), 
-      TemplateElement(InvalidSpan(errorMsg, source(ref, input))), 
-      TemplateString(" some more")
-    ))
+    assertEquals(
+      parse(input),
+      result(
+        TemplateString("some text "),
+        TemplateElement(InvalidSpan(errorMsg, source(ref, input))),
+        TemplateString(" some more")
+      )
+    )
 
   }
 

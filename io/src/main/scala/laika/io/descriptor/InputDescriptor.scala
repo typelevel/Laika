@@ -19,69 +19,80 @@ package laika.io.descriptor
 import cats.implicits._
 import laika.ast.DocumentType
 import laika.collection.TransitionalCollectionOps._
-import laika.io.model.{BinaryInput, FilePath, InputTree, TextInput}
+import laika.io.model.{ BinaryInput, FilePath, InputTree, TextInput }
 
 /** Describes a single, textual or binary input for a parsing or rendering operation.
   * This functionality is mostly intended for tooling support.
-  * 
+  *
   * @author Jens Halm
   */
-case class InputDescriptor (description: String, docType: DocumentType)
+case class InputDescriptor(description: String, docType: DocumentType)
 
 object InputDescriptor {
 
-  def create[F[_]] (input: TextInput[F]): InputDescriptor = {
+  def create[F[_]](input: TextInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       s"${input.path.toString}: in-memory string or stream"
     )(f => s"${input.path.toString}: file '${f.toString}'")
     apply(desc, input.docType)
   }
 
-  def create[F[_]] (input: BinaryInput[F]): InputDescriptor = {
+  def create[F[_]](input: BinaryInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       s"${input.path.toString}: in-memory bytes or stream"
     )(f => s"${input.path.toString}: file '${f.toString}'")
     apply(desc, DocumentType.Static())
   }
-  
+
 }
 
-case class TreeInputDescriptor (inputs: Seq[InputDescriptor], sourceDirectories: Seq[FilePath] = Nil, missingDirectories: Seq[FilePath] = Nil) {
-  
+case class TreeInputDescriptor(
+    inputs: Seq[InputDescriptor],
+    sourceDirectories: Seq[FilePath] = Nil,
+    missingDirectories: Seq[FilePath] = Nil
+) {
+
   def formatted: String = {
     val descriptions = inputs.map(in => (in.docType.productPrefix, in.description)) ++
-      sourceDirectories.map(dir => (TreeInputDescriptor.rootDirectoriesText, dir.toString)) ++ 
-      missingDirectories.map(dir => (TreeInputDescriptor.rootDirectoriesText, dir.toString + " (does not exist or is not a directory)"))
-    
+      sourceDirectories.map(dir => (TreeInputDescriptor.rootDirectoriesText, dir.toString)) ++
+      missingDirectories.map(dir =>
+        (
+          TreeInputDescriptor.rootDirectoriesText,
+          dir.toString + " (does not exist or is not a directory)"
+        )
+      )
+
     val grouped = descriptions.groupBy(_._1).mapValuesStrict(_.map(_._2))
-    
+
     TreeInputDescriptor.docTypeMappings.map { case (docType, typeDesc) =>
-      val docs = grouped.get(docType).fold("-"){ _.distinct.sorted.mkString("\n    ") }
+      val docs = grouped.get(docType).fold("-") { _.distinct.sorted.mkString("\n    ") }
       s"""  $typeDesc
-         |    $docs""".stripMargin  
+         |    $docs""".stripMargin
     }.mkString("\n").drop(2)
   }
-  
+
 }
 
 object TreeInputDescriptor {
 
   private[descriptor] val rootDirectoriesText = "Root Directories"
-  
+
   private[descriptor] val docTypeMappings: Seq[(String, String)] = Seq(
-    DocumentType.Markup.productPrefix -> "Markup File(s)",
-    DocumentType.Template.productPrefix -> "Template(s)",
-    DocumentType.Config.productPrefix -> "Configuration Files(s)",
+    DocumentType.Markup.productPrefix         -> "Markup File(s)",
+    DocumentType.Template.productPrefix       -> "Template(s)",
+    DocumentType.Config.productPrefix         -> "Configuration Files(s)",
     DocumentType.StyleSheet("").productPrefix -> "CSS for PDF",
-    DocumentType.Static().productPrefix -> "Copied File(s)",
-    rootDirectoriesText -> rootDirectoriesText
+    DocumentType.Static().productPrefix       -> "Copied File(s)",
+    rootDirectoriesText                       -> rootDirectoriesText
   )
 
-  def create[F[_]] (input: InputTree[F], missingDirectories: Seq[FilePath]): TreeInputDescriptor = 
+  def create[F[_]](input: InputTree[F], missingDirectories: Seq[FilePath]): TreeInputDescriptor =
     TreeInputDescriptor(
-      input.textInputs.map(InputDescriptor.create[F]) ++ input.binaryInputs.map(InputDescriptor.create[F]),
+      input.textInputs.map(InputDescriptor.create[F]) ++ input.binaryInputs.map(
+        InputDescriptor.create[F]
+      ),
       input.sourcePaths,
       missingDirectories
     )
-  
+
 }

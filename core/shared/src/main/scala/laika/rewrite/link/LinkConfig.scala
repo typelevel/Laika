@@ -16,37 +16,38 @@
 
 package laika.rewrite.link
 
-import laika.ast.{Path, Target}
+import laika.ast.{ Path, Target }
 import laika.config._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
-case class LinkConfig (targets: Seq[TargetDefinition] = Nil, 
-                       excludeFromValidation: Seq[Path] = Nil,
-                       apiLinks: Seq[ApiLinks] = Nil,
-                       sourceLinks: Seq[SourceLinks] = Nil)
+case class LinkConfig(
+    targets: Seq[TargetDefinition] = Nil,
+    excludeFromValidation: Seq[Path] = Nil,
+    apiLinks: Seq[ApiLinks] = Nil,
+    sourceLinks: Seq[SourceLinks] = Nil
+)
 
 object LinkConfig {
-  
+
   val empty: LinkConfig = LinkConfig(Nil, Nil, Nil)
-  
+
   implicit val key: DefaultKey[LinkConfig] = DefaultKey(LaikaKeys.links)
-  
+
   implicit val decoder: ConfigDecoder[LinkConfig] = ConfigDecoder.config.flatMap { config =>
     for {
-      targets  <- config.get[Map[String, String]]("targets", Map.empty[String,String])
-      exclude  <- config.get[Seq[Path]]("excludeFromValidation", Nil)
-      apiLinks <- config.get[Seq[ApiLinks]]("api", Nil)
+      targets     <- config.get[Map[String, String]]("targets", Map.empty[String, String])
+      exclude     <- config.get[Seq[Path]]("excludeFromValidation", Nil)
+      apiLinks    <- config.get[Seq[ApiLinks]]("api", Nil)
       sourceLinks <- config.get[Seq[SourceLinks]]("source", Nil)
     } yield {
-      val mappedTargets = targets.map {
-        case (id, targetURL) => TargetDefinition(id, Target.parse(targetURL))
+      val mappedTargets = targets.map { case (id, targetURL) =>
+        TargetDefinition(id, Target.parse(targetURL))
       }
       LinkConfig(mappedTargets.toSeq, exclude, apiLinks, sourceLinks)
     }
   }
-  
+
   implicit val encoder: ConfigEncoder[LinkConfig] = ConfigEncoder[LinkConfig] { config =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("targets", config.targets.map(t => (t.id, t.target.render())).toMap)
@@ -55,12 +56,12 @@ object LinkConfig {
       .withValue("source", config.sourceLinks)
       .build
   }
-  
+
 }
 
-case class TargetDefinition (id: String, target: Target)
+case class TargetDefinition(id: String, target: Target)
 
-case class SourceLinks (baseUri: String, suffix: String, packagePrefix: String = "*")
+case class SourceLinks(baseUri: String, suffix: String, packagePrefix: String = "*")
 
 object SourceLinks {
 
@@ -81,12 +82,17 @@ object SourceLinks {
       .withValue("suffix", links.suffix)
       .build
   }
+
 }
 
-case class ApiLinks (baseUri: String, packagePrefix: String = "*", packageSummary: String = "index.html")
+case class ApiLinks(
+    baseUri: String,
+    packagePrefix: String = "*",
+    packageSummary: String = "index.html"
+)
 
 object ApiLinks {
-  
+
   implicit val decoder: ConfigDecoder[ApiLinks] = ConfigDecoder.config.flatMap { config =>
     for {
       baseUri <- config.get[String]("baseUri")
@@ -104,4 +110,5 @@ object ApiLinks {
       .withValue("packageSummary", links.packageSummary)
       .build
   }
+
 }

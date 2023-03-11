@@ -19,28 +19,27 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.builders._
-import laika.parse.code.common.{Identifier, Keywords, NumberLiteral, StringLiteral}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.common.{ Identifier, Keywords, NumberLiteral, StringLiteral }
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object LaikaASTSyntax extends SyntaxHighlighter {
-  
+
   val language: NonEmptyList[String] = NonEmptyList.of("laika-ast")
-  
+
   val indentation: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Tag.Punctuation) {
     literal(". ").rep.min(1).source
   }
 
   val upperCaseTypeName: String => CodeCategory = s =>
     if (s.nonEmpty && s.head.isUpper) CodeCategory.TypeName else CodeCategory.StringLiteral
-  
+
   val spanParsers: Seq[CodeSpanParser] = Seq(
     indentation,
     StringLiteral.singleLine('\'').embed(
       CodeSpanParser(CodeCategory.EscapeSequence)(literal("|")),
-      Keywords(CodeCategory.Tag.Punctuation)("[...]"),
+      Keywords(CodeCategory.Tag.Punctuation)("[...]")
     ),
     Keywords(CodeCategory.Markup.Headline)("Header", "Title"),
     Keywords(CodeCategory.Identifier)("Id", "Styles"),
@@ -48,5 +47,5 @@ object LaikaASTSyntax extends SyntaxHighlighter {
     NumberLiteral.decimalInt,
     Identifier.alphaNum.withCategoryChooser(upperCaseTypeName)
   )
-  
+
 }

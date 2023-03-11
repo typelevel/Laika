@@ -16,46 +16,49 @@
 
 package laika.io.helper
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.implicits._
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 trait ResultExtractor {
 
-  implicit class RenderedTreeRootOps[F[_]: Async] (val root: RenderedTreeRoot[F]) extends StringOps  {
+  implicit class RenderedTreeRootOps[F[_]: Async](val root: RenderedTreeRoot[F]) extends StringOps {
 
-    private def readText (stream: fs2.Stream[F, Byte]): F[String] = 
+    private def readText(stream: fs2.Stream[F, Byte]): F[String] =
       stream.through(fs2.text.utf8.decode).compile.string
 
-    def extractStaticContent (path: Path): F[String] = for {
-      input   <- Sync[F].fromEither(root.staticDocuments.find(_.path == path)
-        .toRight(new RuntimeException(s"Not found: '$path'")))
+    def extractStaticContent(path: Path): F[String] = for {
+      input   <- Sync[F].fromEither(
+        root.staticDocuments.find(_.path == path)
+          .toRight(new RuntimeException(s"Not found: '$path'"))
+      )
       content <- readText(input.input)
     } yield content
-    
-    def extractStaticContent (path: Path, start: String, end: String): F[String] =
+
+    def extractStaticContent(path: Path, start: String, end: String): F[String] =
       for {
         content <- extractStaticContent(path)
-        res     <- Sync[F].fromEither(content.extract(start, end)
-                          .toRight(new RuntimeException(s"No substring between: '$start' and '$end'")))
-      } yield res.removeIndentation.removeBlankLines
-    
-    def extractTidiedSubstring (path: Path, start: String, end: String): Option[String] =
-      for {
-        doc  <- root.allDocuments.find(_.path == path)
-        res  <- doc.content.extract(start, end)
+        res     <- Sync[F].fromEither(
+          content.extract(start, end)
+            .toRight(new RuntimeException(s"No substring between: '$start' and '$end'"))
+        )
       } yield res.removeIndentation.removeBlankLines
 
-    def extractTidiedTagContent (path: Path, tagName: String): Option[String] =
+    def extractTidiedSubstring(path: Path, start: String, end: String): Option[String] =
       for {
-        doc  <- root.allDocuments.find(_.path == path)
-        res  <- doc.content.extractTag(tagName)
+        doc <- root.allDocuments.find(_.path == path)
+        res <- doc.content.extract(start, end)
+      } yield res.removeIndentation.removeBlankLines
+
+    def extractTidiedTagContent(path: Path, tagName: String): Option[String] =
+      for {
+        doc <- root.allDocuments.find(_.path == path)
+        res <- doc.content.extractTag(tagName)
       } yield res.removeIndentation.removeBlankLines
 
   }
-  
+
 }

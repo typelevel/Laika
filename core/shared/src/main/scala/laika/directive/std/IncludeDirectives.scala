@@ -17,59 +17,80 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{Block, BlockScope, BlockSequence, DocumentCursor, Element, Path, TemplateScope, TemplateSpan, TemplateSpanSequence}
-import laika.config.{ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin}
-import laika.directive.{Blocks, Templates}
+import laika.ast.{
+  Block,
+  BlockScope,
+  BlockSequence,
+  DocumentCursor,
+  Element,
+  Path,
+  TemplateScope,
+  TemplateSpan,
+  TemplateSpanSequence
+}
+import laika.config.{ ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin }
+import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
 import laika.rewrite.TemplateRewriter
 
 /** Provides the implementation for the standard include and embed directives.
   *
-  * This includes the template and markup-block variants of these directives, 
+  * This includes the template and markup-block variants of these directives,
   * which allow to embed one template or markup document inside another.
-  * 
+  *
   * For full documentation see the section about
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#inclusions Include and Embed Directives]]
   * in the manual.
-  * 
+  *
   * @author Jens Halm
   */
 object IncludeDirectives {
 
-  private def config (attributes: Config, body: Option[Element], path: Path): ObjectValue = {
+  private def config(attributes: Config, body: Option[Element], path: Path): ObjectValue = {
     val attributeValues = attributes match {
       case oc: ObjectConfig => oc.root.values
-      case _ => Nil
+      case _                => Nil
     }
-    val bodyValue = body.map(b => Field("embeddedBody", ASTValue(b), Origin(Origin.DirectiveScope, path)))
+    val bodyValue       =
+      body.map(b => Field("embeddedBody", ASTValue(b), Origin(Origin.DirectiveScope, path)))
     ObjectValue(attributeValues ++ bodyValue.toSeq)
   }
 
-  private def resolvePath (literalPath: Path,
-                           pathConfigKey: String,
-                           config: Config): Either[String, Path] =
+  private def resolvePath(
+      literalPath: Path,
+      pathConfigKey: String,
+      config: Config
+  ): Either[String, Path] =
     if (config.hasKey(pathConfigKey)) config.get[Path](pathConfigKey).leftMap(_.message)
     else Right(literalPath)
-  
-  private def resolveTemplateReference (path: Path, 
-                                        attributes: Config, 
-                                        cursor: DocumentCursor,
-                                        source: SourceFragment,
-                                        body: Option[Seq[TemplateSpan]] = None): Either[String, TemplateSpan] = {
+
+  private def resolveTemplateReference(
+      path: Path,
+      attributes: Config,
+      cursor: DocumentCursor,
+      source: SourceFragment,
+      body: Option[Seq[TemplateSpan]] = None
+  ): Either[String, TemplateSpan] = {
     cursor.root.target.tree.selectTemplate(path.relative)
       .map { doc =>
-        val context = config(attributes, body.map(TemplateSpanSequence(_)), cursor.templatePath.getOrElse(cursor.path))
+        val context = config(
+          attributes,
+          body.map(TemplateSpanSequence(_)),
+          cursor.templatePath.getOrElse(cursor.path)
+        )
         val content = TemplateSpanSequence(doc.content.content)
         TemplateScope(content, context, source)
       }
       .toRight(s"Unresolved reference to template '${path.toString}'")
   }
 
-  private def resolveDocumentReference (path: Path, 
-                                        attributes: Config, 
-                                        cursor: DocumentCursor,
-                                        source: SourceFragment,
-                                        body: Option[Seq[Block]] = None): Either[String, Block] = {
+  private def resolveDocumentReference(
+      path: Path,
+      attributes: Config,
+      cursor: DocumentCursor,
+      source: SourceFragment,
+      body: Option[Seq[Block]] = None
+  ): Either[String, Block] = {
     cursor.root.target.tree.selectDocument(path.relative)
       .map { doc =>
         val context = config(attributes, body.map(BlockSequence(_)), cursor.path)
@@ -85,7 +106,7 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
           .flatMap(resolveTemplateReference(_, attributes, cursor, source))
@@ -98,10 +119,16 @@ object IncludeDirectives {
 
     import Templates.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
-      case (literalPath, pathKey, attributes, body, cursor, source) =>
-        resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveTemplateReference(_, attributes, cursor, source, Some(body)))
+    (
+      attribute(0).as[Path],
+      attribute(0).as[String],
+      allAttributes,
+      parsedBody,
+      cursor,
+      source
+    ).mapN { case (literalPath, pathKey, attributes, body, cursor, source) =>
+      resolvePath(literalPath, pathKey, cursor.resolver.config)
+        .flatMap(resolveTemplateReference(_, attributes, cursor, source, Some(body)))
     }
   }
 
@@ -111,7 +138,7 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN { 
+    (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
         resolvePath(literalPath, pathKey, cursor.resolver.config)
           .flatMap(resolveDocumentReference(_, attributes, cursor, source))
@@ -124,11 +151,17 @@ object IncludeDirectives {
 
     import Blocks.dsl._
 
-    (attribute(0).as[Path], attribute(0).as[String], allAttributes, parsedBody, cursor, source).mapN { 
-      case (literalPath, pathKey, attributes, body, cursor, source) =>
-        resolvePath(literalPath, pathKey, cursor.resolver.config)
-          .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
+    (
+      attribute(0).as[Path],
+      attribute(0).as[String],
+      allAttributes,
+      parsedBody,
+      cursor,
+      source
+    ).mapN { case (literalPath, pathKey, attributes, body, cursor, source) =>
+      resolvePath(literalPath, pathKey, cursor.resolver.config)
+        .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
     }
   }
-  
+
 }
