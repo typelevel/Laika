@@ -20,8 +20,7 @@ import laika.config.ConfigParser
 import laika.file.FileIO
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class HoconParserIntegrationSpec extends FunSuite with ResultBuilders {
 

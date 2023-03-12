@@ -17,8 +17,8 @@
 package laika.rst.bundle
 
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.ast.{Block, RewritePhase, Span}
-import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle}
+import laika.ast.{ Block, RewritePhase, Span }
+import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle }
 import laika.parse.markup.RecursiveParsers
 import laika.rst.InlineParsers
 import laika.rst.ext.Directives.Directive
@@ -32,17 +32,19 @@ import laika.rst.ext.TextRoles.TextRole
   *
   * @author Jens Halm
   */
-class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
-                           spanDirectives: Seq[Directive[Span]],
-                           textRoles: Seq[TextRole],
-                           defaultTextRole: String) extends ExtensionBundle {
+class RstExtensionSupport(
+    blockDirectives: Seq[Directive[Block]],
+    spanDirectives: Seq[Directive[Span]],
+    textRoles: Seq[TextRole],
+    defaultTextRole: String
+) extends ExtensionBundle {
 
   val description: String = "Support for user-defined reStructuredText directives"
 
   override val origin: BundleOrigin = BundleOrigin.Parser
-  
-  override def rewriteRules: RewritePhaseBuilder = {
-    case RewritePhase.Resolve => Seq(new RewriteRules(textRoles))
+
+  override def rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
+    Seq(new RewriteRules(textRoles))
   }
 
   override lazy val parsers: ParserBundle = ParserBundle(
@@ -54,15 +56,18 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
     )
   )
 
-  def withDirectives (newBlockDirectives: Seq[Directive[Block]],
-                      newSpanDirectives: Seq[Directive[Span]],
-                      newTextRoles: Seq[TextRole],
-                      newDefaultTextRole: Option[String] = None) : RstExtensionSupport =
+  def withDirectives(
+      newBlockDirectives: Seq[Directive[Block]],
+      newSpanDirectives: Seq[Directive[Span]],
+      newTextRoles: Seq[TextRole],
+      newDefaultTextRole: Option[String] = None
+  ): RstExtensionSupport =
     new RstExtensionSupport(
       blockDirectives ++ newBlockDirectives,
       spanDirectives ++ newSpanDirectives,
       textRoles ++ newTextRoles,
-      newDefaultTextRole.getOrElse(defaultTextRole))
+      newDefaultTextRole.getOrElse(defaultTextRole)
+    )
 
 }
 
@@ -92,7 +97,7 @@ object RstExtension {
   /** Initializes the specified extensions with the given recursive parsers
     * and returns them as a map keyed by the name of the extension.
     */
-  def createAsMap[P] (ext: Seq[RstExtension[P]], recParsers: RecursiveParsers): Map[String, P] =
+  def createAsMap[P](ext: Seq[RstExtension[P]], recParsers: RecursiveParsers): Map[String, P] =
     ext map { e => (e.name.toLowerCase, e.part(recParsers)) } toMap
 
 }

@@ -18,71 +18,83 @@ package laika.parse.code
 
 /** Represents a category that can be assigned to a span inside a code block
   * to facilitate syntax highlighting.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait CodeCategory extends Product with Serializable {
   protected def prefix: String = ""
+
   private def camel2dash(text: String) = text.drop(1).foldLeft(text.head.toLower.toString) {
     case (acc, c) if c.isUpper => acc + "-" + c.toLower
-    case (acc, c) => acc + c
+    case (acc, c)              => acc + c
   }
+
   /** The name of the category which usually translates to styles in rendered output. */
   def name: String = prefix + camel2dash(productPrefix)
 }
 
 object CodeCategory {
 
-  case object Comment extends CodeCategory
-  case object Annotation extends CodeCategory
-  case object Keyword extends CodeCategory
-  case object BooleanLiteral extends CodeCategory
-  case object NumberLiteral extends CodeCategory
-  case object StringLiteral extends CodeCategory
-  case object CharLiteral extends CodeCategory
-  case object SymbolLiteral extends CodeCategory
-  case object RegexLiteral extends CodeCategory
-  case object LiteralValue extends CodeCategory
-  case object EscapeSequence extends CodeCategory
-  case object Substitution extends CodeCategory
-  case object TypeName extends CodeCategory
-  case object AttributeName extends CodeCategory
+  case object Comment         extends CodeCategory
+  case object Annotation      extends CodeCategory
+  case object Keyword         extends CodeCategory
+  case object BooleanLiteral  extends CodeCategory
+  case object NumberLiteral   extends CodeCategory
+  case object StringLiteral   extends CodeCategory
+  case object CharLiteral     extends CodeCategory
+  case object SymbolLiteral   extends CodeCategory
+  case object RegexLiteral    extends CodeCategory
+  case object LiteralValue    extends CodeCategory
+  case object EscapeSequence  extends CodeCategory
+  case object Substitution    extends CodeCategory
+  case object TypeName        extends CodeCategory
+  case object AttributeName   extends CodeCategory
   case object DeclarationName extends CodeCategory
-  case object Identifier extends CodeCategory
+  case object Identifier      extends CodeCategory
 
   /** Common categories for tag-based syntax such as HTML or XML. */
   object Tag {
+
     sealed trait TagCategory extends CodeCategory {
       override def prefix: String = "tag-"
     }
-    case object Name extends TagCategory
+
+    case object Name        extends TagCategory
     case object Punctuation extends TagCategory
   }
 
   /** Categories specific to the XML format. */
   object XML {
+
     sealed trait XMLCategory extends CodeCategory {
       override def prefix: String = "xml-"
     }
+
     case object DTDTagName extends XMLCategory {
       override def name: String = "xml-dtd-tag-name"
     }
+
     case object ProcessingInstruction extends XMLCategory
+
     case object CData extends XMLCategory {
       override def name: String = "xml-cdata"
     }
+
   }
 
   /** Categories for text markup formats. */
   object Markup {
+
     sealed trait MarkupCategory extends CodeCategory {
       override def prefix: String = "markup-"
     }
-    case object Fence extends MarkupCategory
-    case object Headline extends MarkupCategory
+
+    case object Fence      extends MarkupCategory
+    case object Headline   extends MarkupCategory
     case object Emphasized extends MarkupCategory
-    case object Quote extends MarkupCategory
-    case object LinkText extends MarkupCategory
+    case object Quote      extends MarkupCategory
+    case object LinkText   extends MarkupCategory
     case object LinkTarget extends MarkupCategory
   }
+
 }

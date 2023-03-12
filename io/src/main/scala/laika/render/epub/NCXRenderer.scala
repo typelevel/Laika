@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.ast.{NavigationItem, NavigationLink}
+import laika.ast.{ NavigationItem, NavigationLink }
 import laika.io.model.RenderedTreeRoot
 import laika.render.TagFormatter
 
@@ -28,32 +28,30 @@ import laika.render.TagFormatter
   */
 class NCXRenderer {
 
-
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (identifier: String, title: String, navPoints: String, depth: Int): String =
+  def fileContent(identifier: String, title: String, navPoints: String, depth: Int): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
-      |<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
-      |  <head>
-      |    <meta name="dtb:uid" content="$identifier" />
-      |    <meta name="dtb:depth" content="$depth" />
-      |    <meta name="dtb:totalPageCount" content="0" />
-      |    <meta name="dtb:maxPageNumber" content="0" />
-      |  </head>
-      |  <docTitle>
-      |    <text>$title</text>
-      |  </docTitle>
-      |  <navMap>
-      |$navPoints
-      |  </navMap>
-      |</ncx>
+       |<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+       |  <head>
+       |    <meta name="dtb:uid" content="$identifier" />
+       |    <meta name="dtb:depth" content="$depth" />
+       |    <meta name="dtb:totalPageCount" content="0" />
+       |    <meta name="dtb:maxPageNumber" content="0" />
+       |  </head>
+       |  <docTitle>
+       |    <text>$title</text>
+       |  </docTitle>
+       |  <navMap>
+       |$navPoints
+       |  </navMap>
+       |</ncx>
     """.stripMargin
-
 
   /** Renders a single navPoint node.
     */
-  private def navPoint (title: String, link: String, pos: Int, children: String): String =
+  private def navPoint(title: String, link: String, pos: Int, children: String): String =
     s"""    <navPoint id="navPoint-$pos">
        |      <navLabel>
        |        <text>${TagFormatter.escape(title)}</text>
@@ -62,24 +60,27 @@ class NCXRenderer {
        |$children
        |    </navPoint>""".stripMargin
 
-  /** Generates navPoints for the structure of the DocumentTree. 
-    * Individual navPoints can stem from tree or subtree titles, document titles or document sections, 
+  /** Generates navPoints for the structure of the DocumentTree.
+    * Individual navPoints can stem from tree or subtree titles, document titles or document sections,
     * depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     *
     * @param bookNav the structure to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree
     */
-  private def navPoints (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String = {
+  private def navPoints(
+      bookNav: Seq[NavigationItem],
+      pos: Iterator[Int] = Iterator.from(0)
+  ): String = {
 
-    def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink = 
+    def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink =
       children.head.link.getOrElse(linkOfFirstChild(children.head.content))
 
     bookNav.map { item =>
       navPoint(
         item.title.extractText,
         item.link.getOrElse(linkOfFirstChild(item.content)).target.render(),
-        pos.next(), 
+        pos.next(),
         navPoints(item.content, pos)
       ) // NCX does not allow navigation headers without links
     }.mkString("\n")
@@ -91,13 +92,21 @@ class NCXRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render[F[_]] (result: RenderedTreeRoot[F], title: String, identifier: String, depth: Option[Int]): String = {
-    val bookNav = NavigationBuilder.forTree(result.tree, depth)
+  def render[F[_]](
+      result: RenderedTreeRoot[F],
+      title: String,
+      identifier: String,
+      depth: Option[Int]
+  ): String = {
+    val bookNav           = NavigationBuilder.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)
-    def flattenItems (items: Seq[NavigationItem], level: Int): Int = 
-      if (items.isEmpty) level else items.map(item => if (item.content.isEmpty) level else flattenItems(item.content, level + 1)).max
+    def flattenItems(items: Seq[NavigationItem], level: Int): Int =
+      if (items.isEmpty) level
+      else
+        items.map(item =>
+          if (item.content.isEmpty) level else flattenItems(item.content, level + 1)
+        ).max
     fileContent(identifier, title, renderedNavPoints, flattenItems(bookNav, 1))
   }
-
 
 }

@@ -54,14 +54,16 @@ trait RewritableContainer extends Element {
     * Concrete types are expected to support rewriting at least for all standard block, span and template span
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
-  def rewriteChildren (rules: RewriteRules): Self
+  def rewriteChildren(rules: RewriteRules): Self
 
   /** Rewrites all span children of this container based on the specified rules.
     *
     * Concrete types are expected to support rewriting at least for all standard block, span and template span
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
-  def rewriteSpans (rule: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rule)))
+  def rewriteSpans(rule: RewriteRule[Span]): Self = rewriteChildren(
+    RewriteRules(spanRules = Seq(rule))
+  )
 
 }
 
@@ -77,16 +79,18 @@ trait BlockContainer extends ElementContainer[Block] with RewritableContainer {
     * Concrete types are expected to support rewriting at least for all standard block, span and template span
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
-  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewriteChildren(RewriteRules(blockRules = Seq(rules)))
+  def rewriteBlocks(rules: RewriteRule[Block]): Self = rewriteChildren(
+    RewriteRules(blockRules = Seq(rules))
+  )
 
-  def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteBlocks(content))
+  def rewriteChildren(rules: RewriteRules): Self = withContent(rules.rewriteBlocks(content))
 
   /** Creates a copy of this instance with the specified new content.
     *
     * Implementation note: This method exists to deal with the fact that there is no polymorphic copy method
     * and trades a small bit of boilerplate for avoiding the compile time hit of using shapeless for this.
     */
-  def withContent (newContent: Seq[Block]): Self
+  def withContent(newContent: Seq[Block]): Self
 
 }
 
@@ -97,14 +101,14 @@ trait SpanContainer extends ElementContainer[Span] with RewritableContainer {
 
   type Self <: SpanContainer
 
-  def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteSpans(content))
+  def rewriteChildren(rules: RewriteRules): Self = withContent(rules.rewriteSpans(content))
 
   /** Creates a copy of this instance with the specified new content.
     *
     * Implementation note: This method exists to deal with the fact that there is no polymorphic copy method
     * and trades a small bit of boilerplate for avoiding the compile time hit of using shapeless for this.
     */
-  def withContent (newContent: Seq[Span]): Self
+  def withContent(newContent: Seq[Span]): Self
 
   /**  Extracts the text from the spans of this container, removing
     *  any formatting or links.
@@ -112,7 +116,7 @@ trait SpanContainer extends ElementContainer[Span] with RewritableContainer {
   def extractText: String = content.map {
     case tc: TextContainer => tc.content
     case sc: SpanContainer => sc.extractText
-    case _ => ""
+    case _                 => ""
   }.mkString
 
 }
@@ -130,12 +134,14 @@ trait SpanContainerCompanion {
   def empty: ContainerType = createSpanContainer(Nil)
 
   /** Create an instance only containing only one or more Text spans */
-  def apply(text: String, texts: String*): ContainerType = createSpanContainer((text +: texts).map(Text(_)))
+  def apply(text: String, texts: String*): ContainerType = createSpanContainer(
+    (text +: texts).map(Text(_))
+  )
 
   /** Create an instance containing one or more spans */
   def apply(span: Span, spans: Span*): ContainerType = createSpanContainer(span +: spans.toList)
 
-  protected def createSpanContainer (spans: Seq[Span]): ContainerType
+  protected def createSpanContainer(spans: Seq[Span]): ContainerType
 }
 
 /** Common methods for simple block containers (without additional parameters). */
@@ -143,15 +149,19 @@ trait BlockContainerCompanion extends SpanContainerCompanion {
 
   override def empty: ContainerType = createBlockContainer(Nil)
 
-  protected def createSpanContainer (spans: Seq[Span]): ContainerType = createBlockContainer(spans.map(Paragraph(_)))
+  protected def createSpanContainer(spans: Seq[Span]): ContainerType = createBlockContainer(
+    spans.map(Paragraph(_))
+  )
 
   /** Create an instance containing one or more blocks */
-  def apply(block: Block, blocks: Block*): ContainerType = createBlockContainer(block +: blocks.toList)
+  def apply(block: Block, blocks: Block*): ContainerType = createBlockContainer(
+    block +: blocks.toList
+  )
 
-  protected def createBlockContainer (blocks: Seq[Block]): ContainerType
+  protected def createBlockContainer(blocks: Seq[Block]): ContainerType
 }
 
 private[ast] object FormattedElementString {
   private lazy val renderer: Renderer = Renderer.of(AST).build.skipRewritePhase
-  def render (elem: Element): String = "\n" + renderer.render(elem) + "\n"
+  def render(elem: Element): String   = "\n" + renderer.render(elem) + "\n"
 }

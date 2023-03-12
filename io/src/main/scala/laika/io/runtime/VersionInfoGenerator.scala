@@ -22,8 +22,8 @@ import laika.io.runtime.VersionedLinkTargets.VersionedDocument
 import laika.rewrite.Versions
 
 private[io] object VersionInfoGenerator {
-  
-  private val template = 
+
+  private val template =
     """{
       |  "versions": [
       |    $VERSIONS
@@ -32,22 +32,26 @@ private[io] object VersionInfoGenerator {
       |    $LINK_TARGETS
       |  ]
       |}""".stripMargin
-  
-  private def generateVersions (versions: Versions): String = versions.allVersions.map { version =>
+
+  private def generateVersions(versions: Versions): String = versions.allVersions.map { version =>
     val fallbackLink = version.fallbackLink.trim.stripPrefix("/")
-    val label = version.label.fold(""){ label => s""", "label": "$label""""}
-    s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${version.pathSegment}", "fallbackLink": "/$fallbackLink"$label, "canonical": ${version.canonical} }"""
+    val label        = version.label.fold("") { label => s""", "label": "$label"""" }
+    s"""    { "displayValue": "${version.displayValue}", "pathSegment": "${
+        version.pathSegment
+      }", "fallbackLink": "/$fallbackLink"$label, "canonical": ${version.canonical} }"""
   }.mkString(",\n").trim
-  
-  private def generateLinkTargets (linkTargets: Seq[VersionedDocument]): String = 
+
+  private def generateLinkTargets(linkTargets: Seq[VersionedDocument]): String =
     linkTargets.sortBy(_.path.toString).map { doc =>
-      s"""    { "path": "${doc.path.toString}", "versions": ["${doc.versions.sorted.mkString("\",\"")}"] }"""
+      s"""    { "path": "${doc.path.toString}", "versions": ["${
+          doc.versions.sorted.mkString("\",\"")
+        }"] }"""
     }.mkString(",\n").trim
-    
+
   val path: Path = Root / "laika" / "versionInfo.json"
 
-  def generate (versions: Versions, linkTargets: Seq[VersionedDocument]): String = template
+  def generate(versions: Versions, linkTargets: Seq[VersionedDocument]): String = template
     .replace("$VERSIONS", generateVersions(versions))
     .replace("$LINK_TARGETS", generateLinkTargets(linkTargets))
-  
+
 }

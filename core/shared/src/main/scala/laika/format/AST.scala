@@ -17,20 +17,20 @@
 package laika.format
 
 import laika.ast._
-import laika.factory.{RenderContext, RenderFormat}
+import laika.factory.{ RenderContext, RenderFormat }
 import laika.render._
 
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
- *  May be directly passed to the `Render` or `Transform` APIs:
- * 
- *  {{{
- *  Renderer.of(AST).build.render(document)
- *  
- *  Transformer.from(Markdown).to(AST).build.transform(inputString)
- *  }}}
- * 
- *  @author Jens Halm
- */
+  *  May be directly passed to the `Render` or `Transform` APIs:
+  *
+  *  {{{
+  *  Renderer.of(AST).build.render(document)
+  *
+  *  Transformer.from(Markdown).to(AST).build.transform(inputString)
+  *  }}}
+  *
+  *  @author Jens Halm
+  */
 case object AST extends RenderFormat[TextFormatter] {
 
   val fileSuffix = "txt"
@@ -38,5 +38,5 @@ case object AST extends RenderFormat[TextFormatter] {
   val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer
 
   val formatterFactory: RenderContext[TextFormatter] => TextFormatter = ASTFormatter
-  
+
 }

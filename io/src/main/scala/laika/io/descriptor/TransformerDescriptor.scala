@@ -20,25 +20,33 @@ import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.ast.{DocumentTree, DocumentTreeRoot}
-import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
+import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import laika.io.api.{
+  BinaryTreeRenderer,
+  BinaryTreeTransformer,
+  TreeParser,
+  TreeRenderer,
+  TreeTransformer
+}
 import laika.io.runtime.Batch
 
 /** Provides a description of a transform operation, including the parsers, renderers and extension bundles used,
   * as well as the sources and output target.
   * This functionality is mostly intended for tooling support.
-  * 
+  *
   * @author Jens Halm
   */
-case class TransformerDescriptor (parsers: NonEmptyList[String], 
-                                  renderer: String,
-                                  bundles: Seq[ExtensionBundleDescriptor],
-                                  inputs: TreeInputDescriptor,
-                                  theme: ThemeDescriptor,
-                                  output: String,
-                                  strict: Boolean,
-                                  acceptRawContent: Boolean,
-                                  renderFormatted: Boolean) {
+case class TransformerDescriptor(
+    parsers: NonEmptyList[String],
+    renderer: String,
+    bundles: Seq[ExtensionBundleDescriptor],
+    inputs: TreeInputDescriptor,
+    theme: ThemeDescriptor,
+    output: String,
+    strict: Boolean,
+    acceptRawContent: Boolean,
+    renderFormatted: Boolean
+) {
 
   def formatted: String = {
     s"""Parser(s):
@@ -58,32 +66,48 @@ case class TransformerDescriptor (parsers: NonEmptyList[String],
        |Target:
        |  $output""".stripMargin
   }
-  
+
 }
 
 object TransformerDescriptor {
-  
-  def apply (parser: ParserDescriptor, renderer: RendererDescriptor): TransformerDescriptor =
+
+  def apply(parser: ParserDescriptor, renderer: RendererDescriptor): TransformerDescriptor =
     apply(
-      parser.parsers, 
-      renderer.renderer, 
-      parser.bundles, 
+      parser.parsers,
+      renderer.renderer,
+      parser.bundles,
       parser.inputs,
       renderer.theme,
       renderer.output,
-      parser.strict, 
-      parser.acceptRawContent, 
+      parser.strict,
+      parser.acceptRawContent,
       renderer.renderFormatted
     )
-  
-  def create[F[_]: Async: Batch] (op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+
+  def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
-    renderDesc <- RendererDescriptor.create(TreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
+    renderDesc <- RendererDescriptor.create(
+      TreeRenderer.Op(
+        op.renderer,
+        op.theme,
+        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        op.output,
+        Nil
+      )
+    )
   } yield apply(parserDesc, renderDesc)
 
-  def create[F[_]: Async: Batch] (op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
+  def create[F[_]: Async: Batch](op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
     parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
-    renderDesc <- RendererDescriptor.create(BinaryTreeRenderer.Op(op.renderer, op.theme, DocumentTreeRoot(DocumentTree(Root, Nil)), op.output, Nil))
+    renderDesc <- RendererDescriptor.create(
+      BinaryTreeRenderer.Op(
+        op.renderer,
+        op.theme,
+        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        op.output,
+        Nil
+      )
+    )
   } yield apply(parserDesc, renderDesc)
 
 }

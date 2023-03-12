@@ -1,6 +1,7 @@
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import sbt.Keys.{artifactPath, crossScalaVersions}
+import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 
 lazy val basicSettings = Seq(
@@ -121,7 +122,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += jTidy
   )
   .jsSettings(
-    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    Test / scalaJSLinkerConfig ~= { 
+      _.withModuleKind(ModuleKind.CommonJSModule).withESFeatures(_.withESVersion(ESVersion.ES2018)) 
+    }
   )
 
 lazy val io = project.in(file("io"))

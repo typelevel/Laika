@@ -20,32 +20,34 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType.{Markup, Static, Template}
+import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.ast._
 import laika.io.implicits._
-import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
-import laika.format.{HTML, Markdown}
+import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
+import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.BasicPathTranslator
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class ThemeBundleSpec extends FunSuite {
 
-
-  def config (themeBundles: Seq[ExtensionBundle], appBundles: Seq[ExtensionBundle], themeExtensionBundles: Seq[ExtensionBundle] = Nil): OperationConfig = {
+  def config(
+      themeBundles: Seq[ExtensionBundle],
+      appBundles: Seq[ExtensionBundle],
+      themeExtensionBundles: Seq[ExtensionBundle] = Nil
+  ): OperationConfig = {
     val baseTheme = TestThemeBuilder.forBundles(themeBundles)
-    val theme = 
+    val theme     =
       if (themeExtensionBundles.isEmpty) baseTheme
-      else baseTheme.extendWith(TestThemeBuilder.forBundles(themeExtensionBundles)) 
+      else baseTheme.extendWith(TestThemeBuilder.forBundles(themeExtensionBundles))
     Transformer
       .from(Markdown)
       .to(HTML)
-      .using(appBundles:_*)
+      .using(appBundles: _*)
       .parallel[IO]
       .withTheme(theme)
       .build
@@ -53,11 +55,9 @@ class ThemeBundleSpec extends FunSuite {
       .unsafeRunSync()
   }
 
-
-
   test("baseConfig - merged from theme and app extension") {
     val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
-    val appBundles = Seq(BundleProvider.forConfigString("bar: 2"))
+    val appBundles   = Seq(BundleProvider.forConfigString("bar: 2"))
 
     val baseConfig = config(themeBundles, appBundles).baseConfig
     assertEquals(baseConfig.get[Int]("foo"), Right(1))
@@ -66,23 +66,28 @@ class ThemeBundleSpec extends FunSuite {
 
   test("baseConfig - app config overrides an identical key in the theme config") {
     val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
-    val appBundles = Seq(BundleProvider.forConfigString("foo: 2"))
-    val baseConfig = config(themeBundles, appBundles).baseConfig
+    val appBundles   = Seq(BundleProvider.forConfigString("foo: 2"))
+    val baseConfig   = config(themeBundles, appBundles).baseConfig
     assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
 
-  test("baseConfig - theme extension config overrides an identical key in the base theme's config") {
-    val themeBundles = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
+  test(
+    "baseConfig - theme extension config overrides an identical key in the base theme's config"
+  ) {
+    val themeBundles    = Seq(BundleProvider.forConfigString("foo: 1", BundleOrigin.Theme))
     val themeExtBundles = Seq(BundleProvider.forConfigString("foo: 2", BundleOrigin.Theme))
-    val appBundles = Nil
-    val baseConfig = config(themeBundles, appBundles, themeExtBundles).baseConfig
+    val appBundles      = Nil
+    val baseConfig      = config(themeBundles, appBundles, themeExtBundles).baseConfig
     assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
-
 
   test("docTypeMatcher - merged from a markup extension and an app extension") {
-    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
-    val appBundles =   Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "bar" => Markup })
+    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) {
+      case Root / "foo" => Markup
+    })
+    val appBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "bar" =>
+      Markup
+    })
 
     val docTypeMatcher = config(themeBundles, appBundles).docTypeMatcher
     assertEquals(docTypeMatcher(Root / "foo"), Markup)
@@ -91,48 +96,74 @@ class ThemeBundleSpec extends FunSuite {
   }
 
   test("docTypeMatcher - app config overrides an identical path key in the extension config") {
-    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) { case Root / "foo" => Markup })
-    val appBundles =   Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "foo" => Template })
+    val themeBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.Theme) {
+      case Root / "foo" => Markup
+    })
+    val appBundles = Seq(BundleProvider.forDocTypeMatcher(BundleOrigin.User) { case Root / "foo" =>
+      Template
+    })
 
     val docTypeMatcher = config(themeBundles, appBundles).docTypeMatcher
     assertEquals(docTypeMatcher(Root / "foo"), Template)
     assertEquals(docTypeMatcher(Root / "bar"), Static())
   }
 
-  test("path translator - translator from app config is applied after translator from theme config") {
-    val themeBundles = Seq(BundleProvider.forPathTranslator(BundleOrigin.Theme) { p => 
+  test(
+    "path translator - translator from app config is applied after translator from theme config"
+  ) {
+    val themeBundles       = Seq(BundleProvider.forPathTranslator(BundleOrigin.Theme) { p =>
       p.parent / p.withBasename(p.basename + "-theme").relative
     })
-    val appBundles = Seq(BundleProvider.forPathTranslator() { p =>
+    val appBundles         = Seq(BundleProvider.forPathTranslator() { p =>
       p.parent / p.withBasename(p.basename + "-app").relative
     })
-    val testTree = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
+    val testTree           =
+      DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
     val compoundTranslator = config(themeBundles, appBundles)
       .pathTranslatorFor(testTree, OutputContext("html"))
       .getOrElse(BasicPathTranslator("html"))
     assertEquals(compoundTranslator.translate(Root / "doc.md"), Root / "doc-theme-app.html")
   }
-  
+
   test("rewrite rules - merged from a markup extension and an app extension") {
-    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong => Replace(Literal(s.extractText)) })
-    val appBundles =   Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) { case s: Emphasized => Replace(Literal(s.extractText)) })
+    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong =>
+      Replace(Literal(s.extractText))
+    })
+    val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
+      case s: Emphasized => Replace(Literal(s.extractText))
+    })
 
     val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
 
     val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
-    assertEquals(config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite), Right(expected))
+    assertEquals(
+      config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
+        doc.rewrite
+      ),
+      Right(expected)
+    )
   }
 
-  test("rewrite rules - apply a rule from an app config and a rule from a markup extension successively") {
-    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case Literal(text, _) => Replace(Literal(text+"!")) })
-    val appBundles =   Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) { case Literal(text, _) => Replace(Literal(text+"?")) })
+  test(
+    "rewrite rules - apply a rule from an app config and a rule from a markup extension successively"
+  ) {
+    val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) {
+      case Literal(text, _) => Replace(Literal(text + "!"))
+    })
+    val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
+      case Literal(text, _) => Replace(Literal(text + "?"))
+    })
 
-    val doc =      Document(Root, RootElement(Literal("foo")))
+    val doc      = Document(Root, RootElement(Literal("foo")))
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
-    assertEquals(config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite), Right(expected))
+    assertEquals(
+      config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
+        doc.rewrite
+      ),
+      Right(expected)
+    )
   }
-
 
 }

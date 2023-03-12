@@ -16,16 +16,15 @@
 
 package laika.render.epub
 
-import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
-import cats.effect.{Async, Sync}
+import java.util.zip.{ CRC32, ZipEntry, ZipOutputStream }
+import cats.effect.{ Async, Sync }
 import cats.effect.kernel.Concurrent
 import cats.implicits._
-import laika.io.model.{BinaryInput, BinaryOutput}
+import laika.io.model.{ BinaryInput, BinaryOutput }
 
 import java.io.OutputStream
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object ZipWriter {
 
@@ -36,37 +35,40 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Async] (inputs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
+  def zipEPUB[F[_]: Async](inputs: Seq[BinaryInput[F]], output: BinaryOutput[F]): F[Unit] = {
 
-    def copyAll (zipOut: ZipOutputStream, pipe: fs2.Pipe[F, Byte, Nothing]): F[Unit] = {
-    
-      def writeEntry (input: BinaryInput[F], prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit): F[Unit] = for {
+    def copyAll(zipOut: ZipOutputStream, pipe: fs2.Pipe[F, Byte, Nothing]): F[Unit] = {
+
+      def writeEntry(
+          input: BinaryInput[F],
+          prepareEntry: ZipEntry => F[Unit] = _ => Sync[F].unit
+      ): F[Unit] = for {
         entry <- Sync[F].delay(new ZipEntry(input.path.relative.toString))
         _     <- prepareEntry(entry)
         _     <- Sync[F].blocking(zipOut.putNextEntry(entry))
         _     <- input.input.through(pipe).compile.drain
         _     <- Sync[F].blocking(zipOut.closeEntry())
       } yield ()
-      
-      def prepareUncompressedEntry (entry: ZipEntry): F[Unit] = Sync[F].delay {
+
+      def prepareUncompressedEntry(entry: ZipEntry): F[Unit] = Sync[F].delay {
         val content = StaticContent.mimeType
-        val crc32 = new CRC32
+        val crc32   = new CRC32
         entry.setMethod(ZipOutputStream.STORED)
         entry.setSize(content.length)
         crc32.update(content.getBytes("UTF-8"))
         entry.setCrc(crc32.getValue)
       }
 
-      writeEntry(inputs.head, prepareUncompressedEntry) >> 
-        inputs.toList.tail.traverse(writeEntry(_)) >> 
-          Sync[F].blocking(zipOut.close())
+      writeEntry(inputs.head, prepareUncompressedEntry) >>
+        inputs.toList.tail.traverse(writeEntry(_)) >>
+        Sync[F].blocking(zipOut.close())
     }
 
     output.resource.map(new ZipOutputStream(_)).use { zipOut =>
       val outF: F[OutputStream] = Sync[F].pure(zipOut).widen
-      val pipe = fs2.io.writeOutputStream(outF, closeAfterUse = false)
+      val pipe                  = fs2.io.writeOutputStream(outF, closeAfterUse = false)
       copyAll(zipOut, pipe)
     }
   }
-  
+
 }

@@ -21,45 +21,74 @@ import cats.effect.Async
 import cats.implicits._
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
-import laika.io.api.{BinaryTreeRenderer, BinaryTreeTransformer, TreeParser, TreeRenderer, TreeTransformer}
+import laika.io.api.{
+  BinaryTreeRenderer,
+  BinaryTreeTransformer,
+  TreeParser,
+  TreeRenderer,
+  TreeTransformer
+}
 import laika.io.descriptor.ThemeDescriptor
-import laika.io.model.{DirectoryInput, DirectoryOutput, FileFilter, InputTree, RenderedTreeRoot, TreeOutput}
+import laika.io.model.{
+  DirectoryInput,
+  DirectoryOutput,
+  FileFilter,
+  InputTree,
+  RenderedTreeRoot,
+  TreeOutput
+}
 import laika.theme.Theme
 import laika.theme.Theme.TreeProcessor
 
 /** Internal runtime for transform operations, for text and binary output as well
-  * as parallel and sequential execution. 
+  * as parallel and sequential execution.
   *
   *  @author Jens Halm
   */
 object TransformerRuntime {
-  
-  private def themeWithoutInputs[F[_]: Monad] (theme: Theme[F]): Theme[F] = new Theme[F] {
-    def descriptor: ThemeDescriptor = theme.descriptor
-    def inputs: InputTree[F] = InputTree.empty
-    def extensions: Seq[ExtensionBundle] = theme.extensions
+
+  private def themeWithoutInputs[F[_]: Monad](theme: Theme[F]): Theme[F] = new Theme[F] {
+    def descriptor: ThemeDescriptor               = theme.descriptor
+    def inputs: InputTree[F]                      = InputTree.empty
+    def extensions: Seq[ExtensionBundle]          = theme.extensions
     def treeProcessor: Format => TreeProcessor[F] = theme.treeProcessor
   }
-  
-  private def fileFilterFor (output: TreeOutput): FileFilter = output match {
+
+  private def fileFilterFor(output: TreeOutput): FileFilter = output match {
     case DirectoryOutput(directory, _) => DirectoryInput.filterDirectory(directory)
     case _                             => FileFilter.lift(_ => false)
-  } 
+  }
 
   /** Process the specified transform operation for an entire input tree and a character output format.
     */
-  def run[F[_]: Async: Batch] (op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
-    tree       <- TreeParser.Op(op.parsers, op.theme, op.input.withFileFilter(fileFilterFor(op.output))).parse
+  def run[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
+    tree       <- TreeParser.Op(
+      op.parsers,
+      op.theme,
+      op.input.withFileFilter(fileFilterFor(op.output))
+    ).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- TreeRenderer.Op(op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- TreeRenderer.Op(
+      op.renderer,
+      themeWithoutInputs(op.theme),
+      mappedTree.root,
+      op.output,
+      mappedTree.staticDocuments
+    ).render
   } yield res
 
   /** Process the specified transform operation for an entire input tree and a binary output format.
     */
-  def run[F[_]: Async: Batch] (op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
+  def run[F[_]: Async: Batch](op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
     tree       <- TreeParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- BinaryTreeRenderer.Op[F](op.renderer, themeWithoutInputs(op.theme), mappedTree.root, op.output, mappedTree.staticDocuments).render
+    res        <- BinaryTreeRenderer.Op[F](
+      op.renderer,
+      themeWithoutInputs(op.theme),
+      mappedTree.root,
+      op.output,
+      mappedTree.staticDocuments
+    ).render
   } yield res
 
 }

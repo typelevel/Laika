@@ -16,21 +16,21 @@
 
 package laika.io.descriptor
 
-
 /** Provides a short description of a theme and its extensions for tooling or logging.
-  * 
+  *
   * @author Jens Halm
   */
-case class ThemeDescriptor (description: String, extensions: Seq[String] = Nil) {
+case class ThemeDescriptor(description: String, extensions: Seq[String] = Nil) {
 
   def formatted: String = {
-    val extensionDesc = if (extensions.isEmpty) "" else 
-      " - with extensions:\n    " + extensions.mkString("\n    ") 
+    val extensionDesc =
+      if (extensions.isEmpty) ""
+      else
+        " - with extensions:\n    " + extensions.mkString("\n    ")
     description + extensionDesc
   }
-  
-  def extendWith (extension: ThemeDescriptor): ThemeDescriptor = copy(extensions = 
-    extensions ++ (extension.description +: extension.extensions)
-  )
+
+  def extendWith(extension: ThemeDescriptor): ThemeDescriptor =
+    copy(extensions = extensions ++ (extension.description +: extension.extensions))
 
 }

@@ -33,80 +33,93 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
     */
   val maxTextWidth = 50
 
-  private case class Content (content: Seq[Element], desc: String, options: Options = NoOpt) extends Element with ElementContainer[Element] {
+  private case class Content(content: Seq[Element], desc: String, options: Options = NoOpt)
+      extends Element with ElementContainer[Element] {
     type Self = Content
     def withOptions(options: Options): Content = copy(options = options)
   }
 
-  def apply (fmt: TextFormatter, element: Element): String = {
+  def apply(fmt: TextFormatter, element: Element): String = {
 
     object NoRef
 
-    def options (opt: Options): String = {
+    def options(opt: Options): String = {
       List(
-        opt.id map ("Id("+_+")"),
-        if (opt.styles.isEmpty) None else Some(opt.styles.mkString("Styles(",",",")"))
+        opt.id map ("Id(" + _ + ")"),
+        if (opt.styles.isEmpty) None else Some(opt.styles.mkString("Styles(", ",", ")"))
       ) filter (_.isDefined) map (_.get) mkString " + "
     }
 
-    def attributes (attr: Iterator[Any], exclude: AnyRef = NoRef): String = {
-      def prep (value: Any) = value match { case opt: Options => options(opt); case other => other }
-      val it = attr.asInstanceOf[Iterator[AnyRef]]
-      val res = it
+    def attributes(attr: Iterator[Any], exclude: AnyRef = NoRef): String = {
+      def prep(value: Any) = value match { case opt: Options => options(opt); case other => other }
+      val it               = attr.asInstanceOf[Iterator[AnyRef]]
+      val res              = it
         .filter(_ ne exclude)
         .filter(_ != NoOpt)
         .map(prep)
-        .mkString ("(", ",", ")")
+        .mkString("(", ",", ")")
       if (res == "()") "" else res
     }
 
-    def elementContainerDesc (con: ElementContainer[Element], elementType: String): String = {
+    def elementContainerDesc(con: ElementContainer[Element], elementType: String): String = {
       val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
-      
+
       val prefix = con.productPrefix + attributes(rest, con.content)
-      
+
       val contentDesc = s" - $elementType: ${con.content.length.toString}"
-      if (elements.nonEmpty) prefix + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]] ++ 
-        List(Content(con.content, "Content" + contentDesc)))
+      if (elements.nonEmpty)
+        prefix + fmt.indentedChildren(
+          elements.toList.asInstanceOf[Seq[Element]] ++
+            List(Content(con.content, "Content" + contentDesc))
+        )
       else prefix + contentDesc + fmt.indentedChildren(con.content)
     }
 
-    def textContainerDesc (con: TextContainer): String = {
+    def textContainerDesc(con: TextContainer): String = {
       val start = con match {
-        case CodeSpan(_, categories, _) => 
-          val props = if (categories.isEmpty) ""
-                      else categories.toSeq.map(_.name).sorted.mkString("(", ", ", ")")
+        case CodeSpan(_, categories, _) =>
+          val props =
+            if (categories.isEmpty) ""
+            else categories.toSeq.map(_.name).sorted.mkString("(", ", ", ")")
           s"CodeSpan$props - '"
-        case _ =>
+        case _                          =>
           con.productPrefix + attributes(con.productIterator, con.content) + " - '"
       }
 
       val text = con.content.replace("\n", "|")
-      val len = text.length
+      val len  = text.length
 
       if (len <= maxTextWidth) start + text + "'"
-      else start + text.substring(0, maxTextWidth / 2) + " [...] " + text.substring(len - maxTextWidth / 2) + "'"
+      else
+        start + text.substring(0, maxTextWidth / 2) + " [...] " + text.substring(
+          len - maxTextWidth / 2
+        ) + "'"
     }
 
-    def renderElement (e: Element): String = {
+    def renderElement(e: Element): String = {
       val (elements, rest) = e.productIterator partition (_.isInstanceOf[Element])
-      e.productPrefix + attributes(rest) + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]])
+      e.productPrefix + attributes(rest) + fmt.indentedChildren(
+        elements.toList.asInstanceOf[Seq[Element]]
+      )
     }
 
-    def lists (desc: String, lists: (Seq[Element], String)*): String =
+    def lists(desc: String, lists: (Seq[Element], String)*): String =
       desc + fmt.indentedChildren(lists map { case (elems, d) => Content(elems, d + elems.length) })
 
     element match {
-      case QuotedBlock(content,attr,_)    => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
-      case DefinitionListItem(term,defn,_)=> lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
-      case SectionNumber(pos, opt)        => "SectionNumber" + attributes(Seq(pos.mkString("."), opt).iterator)
-      case bc: BlockContainer             => elementContainerDesc(bc, "Blocks")
-      case sc: SpanContainer              => elementContainerDesc(sc, "Spans")
-      case tsc: TemplateSpanContainer     => elementContainerDesc(tsc, "TemplateSpans")
-      case tc: TextContainer              => textContainerDesc(tc)
-      case Content(content,desc,_)        => desc + fmt.indentedChildren(content)
-      case ec: ElementContainer[_]        => elementContainerDesc(ec, "Elements")
-      case e                              => renderElement(e)
+      case QuotedBlock(content, attr, _)     =>
+        lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
+      case DefinitionListItem(term, defn, _) =>
+        lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
+      case SectionNumber(pos, opt)           =>
+        "SectionNumber" + attributes(Seq(pos.mkString("."), opt).iterator)
+      case bc: BlockContainer                => elementContainerDesc(bc, "Blocks")
+      case sc: SpanContainer                 => elementContainerDesc(sc, "Spans")
+      case tsc: TemplateSpanContainer        => elementContainerDesc(tsc, "TemplateSpans")
+      case tc: TextContainer                 => textContainerDesc(tc)
+      case Content(content, desc, _)         => desc + fmt.indentedChildren(content)
+      case ec: ElementContainer[_]           => elementContainerDesc(ec, "Elements")
+      case e                                 => renderElement(e)
     }
 
   }

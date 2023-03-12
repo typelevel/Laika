@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{Choice, Selection}
+import laika.ast.{ Choice, Selection }
 import laika.directive.Blocks
 import laika.rewrite.nav.Selections
 
@@ -48,25 +48,31 @@ object SelectDirective {
       }
     }
 
-    (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN { (name, multiPart, cursor) =>
-      cursor.config.get[Selections]
-        .leftMap(e => s"Error reading config for selections: ${e.message}")
-        .flatMap { config =>
-          config.getSelection(name).toRight(s"Not found: selection '$name'").flatMap { selection =>
-            multiPart
-              .children.toList
-              .traverse { choice =>
-                selection
-                  .getLabel(choice.name)
-                  .map(label => choice.copy(content = multiPart.mainBody ++ choice.content, label = label))
-                  .toValidNec(s"No label defined for choice '${choice.name}' in selection '$name'")
-              }
-              .map(Selection(name, _))
-              .toEither
-              .leftMap(_.mkString_(", "))
+    (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN {
+      (name, multiPart, cursor) =>
+        cursor.config.get[Selections]
+          .leftMap(e => s"Error reading config for selections: ${e.message}")
+          .flatMap { config =>
+            config.getSelection(name).toRight(s"Not found: selection '$name'").flatMap {
+              selection =>
+                multiPart
+                  .children.toList
+                  .traverse { choice =>
+                    selection
+                      .getLabel(choice.name)
+                      .map(label =>
+                        choice.copy(content = multiPart.mainBody ++ choice.content, label = label)
+                      )
+                      .toValidNec(
+                        s"No label defined for choice '${choice.name}' in selection '$name'"
+                      )
+                  }
+                  .map(Selection(name, _))
+                  .toEither
+                  .leftMap(_.mkString_(", "))
+            }
           }
-        }
     }
   }
-  
+
 }

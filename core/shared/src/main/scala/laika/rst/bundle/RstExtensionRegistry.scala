@@ -16,11 +16,11 @@
 
 package laika.rst.bundle
 
-import laika.ast.{Block, Span}
-import laika.bundle.{BundleOrigin, ExtensionBundle}
+import laika.ast.{ Block, Span }
+import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.rst.ext.Directives.Directive
 import laika.rst.ext.TextRoles.TextRole
-import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardTextRoles}
+import laika.rst.std.{ StandardBlockDirectives, StandardSpanDirectives, StandardTextRoles }
 
 /** Registry for custom reStructuredText extensions. Application code can define
   * any number of instances mixing in this trait and then pass
@@ -72,7 +72,7 @@ import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardT
 trait RstExtensionRegistry extends ExtensionBundle {
 
   val description: String = "Registry for reStructuredText directives"
-  
+
   /**  Registers the specified span directives.
     *  These span directives can then be referred to by substitution references.
     *
@@ -160,13 +160,12 @@ trait RstExtensionRegistry extends ExtensionBundle {
     */
   def defaultTextRole: Option[String] = None
 
-
   override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
-    case ds: RstExtensionSupport => ds.withDirectives(blockDirectives, spanDirectives, textRoles, defaultTextRole)
+    case ds: RstExtensionSupport =>
+      ds.withDirectives(blockDirectives, spanDirectives, textRoles, defaultTextRole)
   }
 
 }
-
 
 /** Registry for all standard extensions of ReStructuredText as defined by the
   * specification, except for those which allow for raw content pass-through,
@@ -181,10 +180,10 @@ object StandardExtensions extends RstExtensionRegistry {
   override val description: String = "Standard directives for reStructuredText"
 
   override val origin: BundleOrigin = BundleOrigin.Parser
-  
+
   lazy val blockDirectives = (new StandardBlockDirectives).blockDirectives
-  lazy val spanDirectives = (new StandardSpanDirectives).spanDirectives
-  lazy val textRoles = (new StandardTextRoles).allRoles
+  lazy val spanDirectives  = (new StandardSpanDirectives).spanDirectives
+  lazy val textRoles       = (new StandardTextRoles).allRoles
 
 }
 
@@ -209,7 +208,7 @@ object RawContentExtensions extends RstExtensionRegistry {
   override def rawContentDisabled: Option[ExtensionBundle] = None
 
   lazy val blockDirectives = Seq((new StandardBlockDirectives).rawDirective)
-  lazy val spanDirectives = Seq()
-  lazy val textRoles = Seq((new StandardTextRoles).rawTextRole)
+  lazy val spanDirectives  = Seq()
+  lazy val textRoles       = Seq((new StandardTextRoles).rawTextRole)
 
 }

@@ -18,24 +18,26 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.common.{Identifier, StringLiteral}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
+import laika.parse.code.common.{ Identifier, StringLiteral }
 import laika.parse.code.implicits._
 import laika.parse.builders._
 import laika.parse.implicits._
 
-/** This highlighter is very loosely defined with the aim to work for most of 
+/** This highlighter is very loosely defined with the aim to work for most of
   * the dozens of flavors of EBNF that are widely used.
-  * 
+  *
   * @author Jens Halm
   */
 object EBNFSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("ebnf")
-  
+
   val declarationName: CodeSpanParser = CodeSpanParser.onLineStart {
     val declName = Identifier.alphaNum.withCategory(CodeCategory.DeclarationName)
-    (declName ~ ws.asCode() ~ ("::=" | "=").asCode(CodeCategory.Tag.Punctuation)).mapN { Seq(_,_,_) }
+    (declName ~ ws.asCode() ~ ("::=" | "=").asCode(CodeCategory.Tag.Punctuation)).mapN {
+      Seq(_, _, _)
+    }
   }
 
   val spanParsers: Seq[CodeSpanParser] = Seq(
@@ -45,5 +47,5 @@ object EBNFSyntax extends SyntaxHighlighter {
     declarationName,
     Identifier.alphaNum
   )
-  
+
 }

@@ -16,20 +16,28 @@
 
 package laika.rewrite
 
-import laika.ast.{DocumentCursor, InvalidBlock, InvalidSpan, Replace, RewriteRules, TemplateElement, Unresolved}
+import laika.ast.{
+  DocumentCursor,
+  InvalidBlock,
+  InvalidSpan,
+  Replace,
+  RewriteRules,
+  TemplateElement,
+  Unresolved
+}
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.ConfigResult
 
 private[laika] object UnresolvedNodeDetector extends RewriteRulesBuilder {
-  
-  def apply (cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
-    RewriteRules.forBlocks {
-      case unresolved: Unresolved => Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
-    } ++ RewriteRules.forSpans {
-      case unresolved: Unresolved => Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
-    } ++ RewriteRules.forTemplates {
-      case unresolved: Unresolved => Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
+
+  def apply(cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
+    RewriteRules.forBlocks { case unresolved: Unresolved =>
+      Replace(InvalidBlock(unresolved.unresolvedMessage, unresolved.source))
+    } ++ RewriteRules.forSpans { case unresolved: Unresolved =>
+      Replace(InvalidSpan(unresolved.unresolvedMessage, unresolved.source))
+    } ++ RewriteRules.forTemplates { case unresolved: Unresolved =>
+      Replace(TemplateElement(InvalidSpan(unresolved.unresolvedMessage, unresolved.source)))
     }
   }
-  
+
 }

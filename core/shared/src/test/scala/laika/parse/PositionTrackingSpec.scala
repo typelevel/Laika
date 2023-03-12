@@ -22,19 +22,18 @@ import laika.markdown.github.GitHubFlavor
 import laika.parse.markup.DocumentParser.ParserError
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class PositionTrackingSpec extends FunSuite {
 
   private val parser = MarkupParser.of(Markdown).using(GitHubFlavor).build
 
-  def parseAndExtractMessage (input: String): String = parser.parse(input) match {
+  def parseAndExtractMessage(input: String): String = parser.parse(input) match {
     case Left(ParserError(message, _)) => message
-    case Right(doc) => s"Unexpected success: $doc"
+    case Right(doc)                    => s"Unexpected success: $doc"
   }
-  
-  def run (input: String, expectedMessage: String)(implicit loc: munit.Location): Unit =
+
+  def run(input: String, expectedMessage: String)(implicit loc: munit.Location): Unit =
     assertEquals(parseAndExtractMessage(input), expectedMessage)
 
   test("report an invalid block directive") {

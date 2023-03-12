@@ -19,15 +19,15 @@ package laika.config
 import laika.collection.TransitionalCollectionOps._
 
 /** A builder for creating a Config instance programmatically.
-  * 
+  *
   * While it's most common in Laika that Config instances are obtained
   * by parsing HOCON, instances can also be created entirely programmatically,
   * or by a combination of HOCON and programmatic values if an existing
   * fallback is used with builder.
-  * 
+  *
   * @author Jens Halm
   */
-class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
+class ConfigBuilder(fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
@@ -41,12 +41,16 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
-  def withValue[T](value: T)(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
+  def withValue[T](
+      value: T
+  )(implicit encoder: ConfigEncoder[T], defaultKey: DefaultKey[T]): ConfigBuilder =
     withValue[T](defaultKey.value, value)
 
   /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
     */
-  def withValue[T](key: String, value: Option[T])(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
+  def withValue[T](key: String, value: Option[T])(implicit
+      encoder: ConfigEncoder[T]
+  ): ConfigBuilder =
     value.fold(this)(withValue(Key.parse(key), _))
 
   /** Returns a new builder instance adding the specified value to the existing set of values if it is non-empty.
@@ -63,7 +67,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     * Simple values on the other hand will always override values with the same
     * key in the fallback.
     */
-  def withFallback(newFallback: Config): ConfigBuilder = 
+  def withFallback(newFallback: Config): ConfigBuilder =
     new ConfigBuilder(fields, origin, fallback.withFallback(newFallback))
 
   /** Resolves all specified values and returns a new Config instance.
@@ -72,17 +76,17 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 
   /** Resolves all specified values, using the specified fallback, and returns a new Config instance.
     */
-  def build (newFallback: Config): Config =
+  def build(newFallback: Config): Config =
     if (fields.isEmpty && origin == Origin.root && fallback == EmptyConfig) newFallback
     else new ObjectConfig(asObjectValue, origin, fallback.withFallback(newFallback))
-  
+
   private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
- 
+
   private def expandPath(key: Key, value: ConfigValue): Field = {
     key.segments match {
-      case name :: Nil => Field(name, value, origin)
+      case name :: Nil  => Field(name, value, origin)
       case name :: rest => Field(name, ObjectValue(Seq(expandPath(Key(rest), value))), origin)
-      case Nil => Field("", value, origin)
+      case Nil          => Field("", value, origin)
     }
   }
 
@@ -90,7 +94,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
 
     def mergeValues(cbv1: ConfigValue, cbv2: ConfigValue): ConfigValue = (cbv1, cbv2) match {
       case (o1: ObjectValue, o2: ObjectValue) => mergeObjects(ObjectValue(o1.values ++ o2.values))
-      case (_, v2) => v2
+      case (_, v2)                            => v2
     }
 
     val mergedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
@@ -98,7 +102,7 @@ class ConfigBuilder (fields: Seq[Field], origin: Origin, fallback: Config = Empt
     }
     ObjectValue(mergedFields)
   }
-  
+
 }
 
 /** Companion factory for ConfigBuilder instances.
@@ -109,7 +113,7 @@ object ConfigBuilder {
 
   /** Creates a builder with the specified origin which will be attached
     * to every field specified with the new builder.
-    * 
+    *
     * Origins can be used to distinguish values from a specific Config
     * instance from those which were inherited from a fallback, which
     * might be relevant in scenarios where relative paths need to be
@@ -120,29 +124,31 @@ object ConfigBuilder {
   /** Creates a builder with the specified fallback which will be used
     * for resolving keys which are not present in the configuration created
     * by this builder.
-    * 
+    *
     * If an entire object is requested in the resulting Config instance,
     * the keys will be merged from this builder with those present in the fallback.
     * Simple values on the other hand will always override values with the same
     * key in the fallback.
     */
-  def withFallback(fallback: Config): ConfigBuilder = new ConfigBuilder(Nil, fallback.origin, fallback)
+  def withFallback(fallback: Config): ConfigBuilder =
+    new ConfigBuilder(Nil, fallback.origin, fallback)
 
   /** Creates a builder with the specified fallback and origin.
-    * 
-    * The origin will be used for resolving keys which are not present in the 
+    *
+    * The origin will be used for resolving keys which are not present in the
     * configuration created by this builder.
     *
     * If an entire object is requested in the resulting Config instance,
     * the keys will be merged from this builder with those present in the fallback.
     * Simple values on the other hand will always override values with the same
     * key in the fallback.
-    * 
+    *
     * Origins can be used to distinguish values from a specific Config
     * instance from those which were inherited from a fallback, which
     * might be relevant in scenarios where relative paths need to be
     * resolved for example.
     */
-  def withFallback(fallback: Config, origin: Origin): ConfigBuilder = new ConfigBuilder(Nil, origin, fallback)
+  def withFallback(fallback: Config, origin: Origin): ConfigBuilder =
+    new ConfigBuilder(Nil, origin, fallback)
 
 }

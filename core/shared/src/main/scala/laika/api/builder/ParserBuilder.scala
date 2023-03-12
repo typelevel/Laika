@@ -22,15 +22,15 @@ import laika.ast.TextDocumentType
 import laika.factory.MarkupFormat
 
 /** Builder API for Parser instances.
-  * 
+  *
   * Allows to add ExtensionBundles and the `strict` and `withRawContent` flags.
-  * 
+  *
   * @author Jens Halm
   */
-class ParserBuilder (format: MarkupFormat, val config: OperationConfig) extends ParserBuilderOps {
+class ParserBuilder(format: MarkupFormat, val config: OperationConfig) extends ParserBuilderOps {
 
   val docType: TextDocumentType = Markup
-  
+
   type ThisType = ParserBuilder
 
   def withConfig(newConfig: OperationConfig): ThisType = new ParserBuilder(format, newConfig)
@@ -41,5 +41,3 @@ class ParserBuilder (format: MarkupFormat, val config: OperationConfig) extends 
   def build: MarkupParser = new MarkupParser(format, config)
 
 }
-
-

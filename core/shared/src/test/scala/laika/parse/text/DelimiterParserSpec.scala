@@ -21,17 +21,16 @@ import laika.parse.Parser
 import laika.parse.builders._
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class DelimiterParserSpec extends FunSuite {
 
   val skip: Parser[Unit] = oneChar.void
-  
+
   val abc: NonEmptySet[Char] = NonEmptySet.of('a', 'b', 'c')
-  
+
   test("parse a character delimiter") {
-    assertEquals(delimiter('*').parse("*").toEither, Right("*")) 
+    assertEquals(delimiter('*').parse("*").toEither, Right("*"))
   }
 
   test("parse a string literal delimiter") {
@@ -97,14 +96,14 @@ class DelimiterParserSpec extends FunSuite {
   test("fail when a pre-condition function is not satisfied") {
     assert((skip ~> delimiter("**").prevNot(_ > 'a')).parse("z**").toEither.isLeft)
   }
-  
+
   test("compose two delimiters") {
     val inner = delimiter("*").nextNot('a')
     val outer = delimiter(inner).nextNot('b')
-    
+
     assert(outer.parse("*a").toEither.isLeft)
     assert(outer.parse("*b").toEither.isLeft)
     assertEquals(outer.parse("*c").toEither, Right("*"))
   }
-    
+
 }

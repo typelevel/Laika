@@ -17,25 +17,25 @@
 package laika.rst
 
 import laika.ast.EnumType.Arabic
-import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
+import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast._
 import laika.parse.Parser
 import laika.rst.ast._
-import laika.rst.ext.{ExtensionProvider, RootParserProvider}
-import munit.{Assertions, FunSuite}
-     
+import laika.rst.ext.{ ExtensionProvider, RootParserProvider }
+import munit.{ Assertions, FunSuite }
 
 trait ListParserRunner extends Assertions with ParagraphCompanionShortcuts {
-  
-  private val defaultParser: Parser[RootElement] = RootParserProvider.forBundle(ExtensionProvider.forExtensions()).rootElement
-  
-  def fp (content: String): ForcedParagraph = ForcedParagraph(List(Text(content)))
 
-  def run (input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
+  private val defaultParser: Parser[RootElement] =
+    RootParserProvider.forBundle(ExtensionProvider.forExtensions()).rootElement
+
+  def fp(content: String): ForcedParagraph = ForcedParagraph(List(Text(content)))
+
+  def run(input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
+
 }
 
-  
 class BulletListSpec extends FunSuite with ListParserRunner {
 
   test("list items not separated by blank lines") {
@@ -73,7 +73,7 @@ class BulletListSpec extends FunSuite with ListParserRunner {
   }
 
   test("list items containing multiple paragraphs in a single item") {
-    val input =
+    val input    =
       """* aaa
         |   
         |  bbb
@@ -111,7 +111,7 @@ class BulletListSpec extends FunSuite with ListParserRunner {
   }
 
   test("literal block after the first line of a list item") {
-    val input =
+    val input    =
       """* aaa::
         |   
         |   bbb
@@ -127,8 +127,9 @@ class BulletListSpec extends FunSuite with ListParserRunner {
     )
     run(input, expected)
   }
+
 }
-  
+
 class EnumListSpec extends FunSuite with ListParserRunner {
 
   import EnumType._
@@ -240,7 +241,7 @@ class EnumListSpec extends FunSuite with ListParserRunner {
   }
 
   test("items containing multiple paragraphs") {
-    val input =
+    val input    =
       """1. aaa
         |   
         |   bbb
@@ -279,9 +280,10 @@ class EnumListSpec extends FunSuite with ListParserRunner {
         |1) ccc
         |
         |2) ddd""".stripMargin
-    val f = EnumFormat(Arabic, "", ")")
+    val f     = EnumFormat(Arabic, "", ")")
     run(input, EnumList("aaa", "bbb"), EnumList(f)("ccc", "ddd"))
   }
+
 }
 
 class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceBuilders {
@@ -292,7 +294,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         | aaa
         |term 2
         | bbb""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -306,7 +308,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |term 2
         | bbb""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -320,7 +322,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |term 2 : classifier
         | bbb""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem(List(Text("term 2"), Classifier(List(Text("classifier")))), List(p("bbb")))
     )
@@ -337,7 +339,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |term 2
         |  ccc""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa\naaa"), p("bbb")),
       DefinitionListItem("term 2", p("ccc"))
     )
@@ -354,7 +356,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |term 2
         |  ccc""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", QuotedBlock("aaa\naaa"), p("bbb")),
       DefinitionListItem("term 2", p("ccc"))
     )
@@ -368,7 +370,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |term 2
         | bbb""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem(List(Text("term "), Emphasized("em")), List(p("aaa"))),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -386,7 +388,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |=== ===
         | a   b 
         |=== ===""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -397,7 +399,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
     val directive =
       """.. foo::
         | :name: value""".stripMargin
-    val input =
+    val input     =
       s"""term 1
          | aaa
          |
@@ -405,7 +407,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
          | bbb
          |
          |$directive""".stripMargin
-    val list = DefinitionList(
+    val list      = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -422,7 +424,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |* list
         |  list""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -439,7 +441,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
         |
         |1. list
         |   list""".stripMargin
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
@@ -451,7 +453,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
       """########
         | Header
         |########""".stripMargin
-    val input =
+    val input  =
       s"""term 1
          | aaa
          |
@@ -459,26 +461,34 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
          | bbb
          |
          |$header""".stripMargin
-    val list = DefinitionList(
+    val list   = DefinitionList(
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
-    run(input, list, DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), source(header, input)))
+    run(
+      input,
+      list,
+      DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), source(header, input))
+    )
   }
+
 }
 
 class FieldListSpec extends FunSuite with ListParserRunner {
 
-  def fl (fields: Field*): FieldList = FieldList(fields.toList)
+  def fl(fields: Field*): FieldList = FieldList(fields.toList)
 
-  def field (name: String, blocks: Block*): Field = Field(List(Text(name)), blocks.toList)
-  
+  def field(name: String, blocks: Block*): Field = Field(List(Text(name)), blocks.toList)
+
   test("list with all bodies on the same line as the name") {
     val input =
       """:name1: value1
         |:name2: value2
         |:name3: value3""".stripMargin
-    run(input, fl(field("name1", p("value1")), field("name2", p("value2")), field("name3", p("value3"))))
+    run(
+      input,
+      fl(field("name1", p("value1")), field("name2", p("value2")), field("name3", p("value3")))
+    )
   }
 
   test("list with bodies spanning multiple lines") {
@@ -499,22 +509,30 @@ class FieldListSpec extends FunSuite with ListParserRunner {
         |  line1d
         |:name2: line2a
         |  line2b""".stripMargin
-    run(input, fl(field("name1", p("line1a\nline1b"), p("line1c\nline1d")), field("name2", p("line2a\nline2b"))))
+    run(
+      input,
+      fl(
+        field("name1", p("line1a\nline1b"), p("line1c\nline1d")),
+        field("name2", p("line2a\nline2b"))
+      )
+    )
   }
+
 }
 
 class OptionListSpec extends FunSuite with ListParserRunner {
 
-  def optL (items: OptionListItem*): OptionList = OptionList(items.toList)
+  def optL(items: OptionListItem*): OptionList = OptionList(items.toList)
 
-  def oli (name: String, value: Block*): OptionListItem = OptionListItem(List(ProgramOption(name, None)), value.toList)
+  def oli(name: String, value: Block*): OptionListItem =
+    OptionListItem(List(ProgramOption(name, None)), value.toList)
 
-  def oli (name: String, value: String): OptionListItem = OptionListItem(List(ProgramOption(name, None)), List(p(value)))
+  def oli(name: String, value: String): OptionListItem =
+    OptionListItem(List(ProgramOption(name, None)), List(p(value)))
 
-  def oli (name: String, argDelim: String, arg: String, value: String): OptionListItem =
+  def oli(name: String, argDelim: String, arg: String, value: String): OptionListItem =
     OptionListItem(List(ProgramOption(name, Some(OptionArgument(arg, argDelim)))), List(p(value)))
-  
-  
+
   test("list with short posix options") {
     val input =
       """-a  Option1
@@ -595,10 +613,11 @@ class OptionListSpec extends FunSuite with ListParserRunner {
     val input = """-a   Option""".stripMargin
     run(input, optL(oli("-a", "Option")))
   }
+
 }
 
 class LineBlockSpec extends FunSuite with ListParserRunner {
-  
+
   test("block with out continuation or indentation") {
     val input =
       """|| Line1
@@ -623,7 +642,14 @@ class LineBlockSpec extends FunSuite with ListParserRunner {
          ||     Line3
          ||   Line4
          || Line5""".stripMargin
-    run(input, LineBlock(Line("Line1"), LineBlock(Line("Line2"), LineBlock(Line("Line3")), Line("Line4")), Line("Line5")))
+    run(
+      input,
+      LineBlock(
+        Line("Line1"),
+        LineBlock(Line("Line2"), LineBlock(Line("Line3")), Line("Line4")),
+        Line("Line5")
+      )
+    )
   }
 
   test("nested structure (pointing left)") {
@@ -633,7 +659,14 @@ class LineBlockSpec extends FunSuite with ListParserRunner {
          || Line3
          ||   Line4
          ||     Line5""".stripMargin
-    run(input, LineBlock(LineBlock(LineBlock(Line("Line1")), Line("Line2")), Line("Line3"), LineBlock(Line("Line4"), LineBlock(Line("Line5")))))
+    run(
+      input,
+      LineBlock(
+        LineBlock(LineBlock(Line("Line1")), Line("Line2")),
+        Line("Line3"),
+        LineBlock(Line("Line4"), LineBlock(Line("Line5")))
+      )
+    )
   }
+
 }
-  

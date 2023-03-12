@@ -59,7 +59,9 @@ class RootCursorSpec extends FunSuite {
     assertEquals(cursor.consume(4).capture(3), "def")
   }
 
-  test("capture all remaining characters when trying to capture more characters than are available") {
+  test(
+    "capture all remaining characters when trying to capture more characters than are available"
+  ) {
     assertEquals(cursor.consume(5).capture(7), "ef")
   }
 
@@ -98,7 +100,7 @@ class RootCursorSpec extends FunSuite {
   test("convert Windows line feeds") {
     assertEquals(SourceCursor("abc\r\ndef\r\nghi").input, "abc\ndef\nghi")
   }
-  
+
 }
 
 class BlockCursorSpec extends FunSuite {
@@ -106,7 +108,7 @@ class BlockCursorSpec extends FunSuite {
   import cats.data.NonEmptyChain
 
   private val cursor = {
-    val root = new RootSource(InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
+    val root  = new RootSource(InputString("000\nabc\ndef", Some(Root / "doc")), 4, 0)
     val lines = NonEmptyChain(
       LineSource("abc", root),
       LineSource("def", root.consume(4))
@@ -150,7 +152,9 @@ class BlockCursorSpec extends FunSuite {
     assertEquals(cursor.consume(4).capture(3), "def")
   }
 
-  test("capture all remaining characters when trying to capture more characters than are available") {
+  test(
+    "capture all remaining characters when trying to capture more characters than are available"
+  ) {
     assertEquals(cursor.consume(5).capture(7), "ef")
   }
 

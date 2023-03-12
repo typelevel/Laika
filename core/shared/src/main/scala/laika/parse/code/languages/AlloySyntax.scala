@@ -20,14 +20,15 @@ import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.common.{Comment, Keywords, NumberLiteral}
-import laika.parse.text.CharGroup.{digit, lowerAlpha, upperAlpha}
+import laika.parse.code.common.{ Comment, Keywords, NumberLiteral }
+import laika.parse.text.CharGroup.{ digit, lowerAlpha, upperAlpha }
 
 /** https://alloytools.org/download/alloy-language-reference.pdf
   *
   * @author Michał Sitko
   */
 object AlloySyntax extends SyntaxHighlighter {
+
   /** The names of the language (and its optional aliases) as used in text markup */
   override def language: NonEmptyList[String] = NonEmptyList.of("alloy")
 
@@ -35,13 +36,41 @@ object AlloySyntax extends SyntaxHighlighter {
     Comment.singleLine("--") ++ Comment.singleLine("//") ++ Comment.multiLine("/*", "*/")
 
   val keywords = Keywords(
-    "abstract", "all", "and", "as", "assert",
-    "but", "check", "disj", "else", "exactly",
-    "extends","fact", "for", "fun", "iden",
-    "iff", "implies", "in", "Int", "let",
-    "lone", "module", "no", "none", "not",
-    "one", "open", "or", "pred", "run",
-    "set", "sig", "some", "sum", "univ",
+    "abstract",
+    "all",
+    "and",
+    "as",
+    "assert",
+    "but",
+    "check",
+    "disj",
+    "else",
+    "exactly",
+    "extends",
+    "fact",
+    "for",
+    "fun",
+    "iden",
+    "iff",
+    "implies",
+    "in",
+    "Int",
+    "let",
+    "lone",
+    "module",
+    "no",
+    "none",
+    "not",
+    "one",
+    "open",
+    "or",
+    "pred",
+    "run",
+    "set",
+    "sig",
+    "some",
+    "sum",
+    "univ",
     "enum"
   )
 
@@ -56,4 +85,5 @@ object AlloySyntax extends SyntaxHighlighter {
     identifiers,
     numberLiteral
   )
+
 }

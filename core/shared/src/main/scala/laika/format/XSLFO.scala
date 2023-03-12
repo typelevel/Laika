@@ -17,29 +17,29 @@
 package laika.format
 
 import laika.ast.Element
-import laika.factory.{RenderContext, RenderFormat}
+import laika.factory.{ RenderContext, RenderFormat }
 import laika.render._
 
 import scala.language.existentials
 
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
- * 
- *  {{{
- *  Renderer.of(XSLFO).build.render(document)
- *  
- *  Transformer.from(Markdown).to(XSLFO).build.transform(inputString)
- *  }}}
- *  
- *  This renderer is usually used as an interim format for producing a PDF, 
- *  where you do not deal with this format directly. But it can alternatively
- *  also be used as the final output and then get processed by external tools.
- * 
- *  @author Jens Halm
- */
+  *
+  *  {{{
+  *  Renderer.of(XSLFO).build.render(document)
+  *
+  *  Transformer.from(Markdown).to(XSLFO).build.transform(inputString)
+  *  }}}
+  *
+  *  This renderer is usually used as an interim format for producing a PDF,
+  *  where you do not deal with this format directly. But it can alternatively
+  *  also be used as the final output and then get processed by external tools.
+  *
+  *  @author Jens Halm
+  */
 object XSLFO extends RenderFormat[FOFormatter] {
-  
+
   override val description: String = "XSL-FO"
-  
+
   val fileSuffix = "fo"
 
   val defaultRenderer: (FOFormatter, Element) => String = FORenderer

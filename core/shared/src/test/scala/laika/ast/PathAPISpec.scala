@@ -17,12 +17,11 @@
 package laika.ast
 
 import laika.ast.Path._
-import laika.ast.RelativePath.{CurrentDocument, CurrentTree, Parent}
-import munit.{FunSuite, Location}
+import laika.ast.RelativePath.{ CurrentDocument, CurrentTree, Parent }
+import munit.{ FunSuite, Location }
 
 class PathAPISpec extends FunSuite {
 
-  
   private val abs_a = Root / "a"
   private val abs_b = abs_a / "b"
   private val abs_c = abs_b / "c"
@@ -34,19 +33,20 @@ class PathAPISpec extends FunSuite {
   private val up_a = Parent(1) / "a"
   private val up_b = up_a / "b"
   private val up_c = up_b / "c"
-  
-  
-  def decoder (testName: String)(body: Any): Unit = test(s"decoder - $testName")(body)
-  def parent (testName: String)(body: Any): Unit = test(s"parent - $testName")(body)
-  def depth (testName: String)(body: Any): Unit = test(s"depth - $testName")(body)
-  def basename (testName: String, actual: VirtualPath, expected: String): Unit = 
+
+  def decoder(testName: String)(body: Any): Unit = test(s"decoder - $testName")(body)
+  def parent(testName: String)(body: Any): Unit  = test(s"parent - $testName")(body)
+  def depth(testName: String)(body: Any): Unit   = test(s"depth - $testName")(body)
+
+  def basename(testName: String, actual: VirtualPath, expected: String): Unit =
     test(s"basename - $testName") {
       assertEquals(actual.basename, expected)
     }
-  def withBasename (testName: String, pathUnderTest: VirtualPath)(
-    expectedToString: String,
-    expectedName: String,
-    expectedBasename: String
+
+  def withBasename(testName: String, pathUnderTest: VirtualPath)(
+      expectedToString: String,
+      expectedName: String,
+      expectedBasename: String
   ): Unit = {
     test(s"withBasename - $testName") {
       assertEquals(pathUnderTest.toString, expectedToString)
@@ -54,14 +54,16 @@ class PathAPISpec extends FunSuite {
       assertEquals(pathUnderTest.basename, expectedBasename)
     }
   }
-  def suffix (testName: String, actual: VirtualPath, expected: Option[String]): Unit =
+
+  def suffix(testName: String, actual: VirtualPath, expected: Option[String]): Unit =
     test(s"suffix - $testName") {
       assertEquals(actual.suffix, expected)
     }
-  def withSuffix (testName: String, pathUnderTest: VirtualPath)(
-    expectedToString: String,
-    expectedName: String,
-    expectedSuffix: String
+
+  def withSuffix(testName: String, pathUnderTest: VirtualPath)(
+      expectedToString: String,
+      expectedName: String,
+      expectedSuffix: String
   ): Unit = {
     test(s"withSuffix - $testName") {
       assertEquals(pathUnderTest.toString, expectedToString)
@@ -69,14 +71,16 @@ class PathAPISpec extends FunSuite {
       assertEquals(pathUnderTest.suffix, Some(expectedSuffix))
     }
   }
-  def fragment (testName: String, actual: VirtualPath, expected: Option[String]): Unit =
+
+  def fragment(testName: String, actual: VirtualPath, expected: Option[String]): Unit =
     test(s"fragment - $testName") {
       assertEquals(actual.fragment, expected)
     }
-  def withFragment (testName: String, pathUnderTest: VirtualPath)(
-    expectedToString: String,
-    expectedName: String,
-    expectedFragment: String
+
+  def withFragment(testName: String, pathUnderTest: VirtualPath)(
+      expectedToString: String,
+      expectedName: String,
+      expectedFragment: String
   ): Unit = {
     test(s"withFragment - $testName") {
       assertEquals(pathUnderTest.toString, expectedToString)
@@ -84,19 +88,23 @@ class PathAPISpec extends FunSuite {
       assertEquals(pathUnderTest.fragment, Some(expectedFragment))
     }
   }
-  def concatAbs (testName: String, actual: Path, expected: Path): Unit =
+
+  def concatAbs(testName: String, actual: Path, expected: Path): Unit =
     test(s"path concatenation for absolute paths - $testName") { assertEquals(actual, expected) }
 
-  def concatRel (testName: String, actual: RelativePath, expected: RelativePath): Unit =
+  def concatRel(testName: String, actual: RelativePath, expected: RelativePath): Unit =
     test(s"path concatenation for relative paths - $testName") { assertEquals(actual, expected) }
 
-  def relativeTo (testName: String, actual: VirtualPath, expected: VirtualPath)(implicit loc: Location): Unit =
+  def relativeTo(testName: String, actual: VirtualPath, expected: VirtualPath)(implicit
+      loc: Location
+  ): Unit =
     test(s"relativeTo - $testName") { assertEquals(actual, expected) }
 
-  def isSubPath (testName: String, actual: Boolean, expected: Boolean)(implicit loc: Location): Unit =
+  def isSubPath(testName: String, actual: Boolean, expected: Boolean)(implicit
+      loc: Location
+  ): Unit =
     test(s"isSubPath - $testName") { assertEquals(actual, expected) }
-  
-  
+
   decoder("absolute path with three segments") {
     assertEquals(VirtualPath.parse("/foo/bar/baz"), Root / "foo" / "bar" / "baz")
   }
@@ -108,7 +116,7 @@ class PathAPISpec extends FunSuite {
   decoder("ignore trailing slashes for absolute paths") {
     assertEquals(VirtualPath.parse("/foo/"), Root / "foo")
   }
-  
+
   decoder("root path from a single slash") {
     assertEquals(VirtualPath.parse("/"), Root)
   }
@@ -144,7 +152,7 @@ class PathAPISpec extends FunSuite {
   decoder("relative path to parent with three segments") {
     assertEquals(VirtualPath.parse("../foo/bar/baz"), Parent(1) / "foo" / "bar" / "baz")
   }
-  
+
   decoder("relative path to parent with one segment") {
     assertEquals(VirtualPath.parse("../foo/"), Parent(1) / "foo")
   }
@@ -168,7 +176,7 @@ class PathAPISpec extends FunSuite {
   decoder("relative path to parent one level up without trailing slash") {
     assertEquals(VirtualPath.parse(".."), Parent(1))
   }
-  
+
   decoder("ignore leading slashes when RelativePath.parse is invoked directly") {
     assertEquals(RelativePath.parse("/foo/"), CurrentTree / "foo")
   }
@@ -177,7 +185,6 @@ class PathAPISpec extends FunSuite {
     assertEquals(Path.parse("foo/"), Root / "foo")
   }
 
-    
   parent("Root for Root") {
     assertEquals(Root.parent, Root)
   }
@@ -218,7 +225,6 @@ class PathAPISpec extends FunSuite {
     assertEquals(up_c.parent, up_b)
   }
 
-
   depth("0 for Root") {
     assertEquals(Root.depth, 0)
   }
@@ -231,7 +237,6 @@ class PathAPISpec extends FunSuite {
     assertEquals(abs_c.depth, 3)
   }
 
-    
   basename("/ for Root", Root, "/")
 
   basename(". for CurrentTree", CurrentTree, ".")
@@ -252,7 +257,6 @@ class PathAPISpec extends FunSuite {
 
   basename("for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", "foo")
 
-  
   withBasename("called on an absolute path without suffix", abs_c.withBasename("d"))(
     expectedToString = "/a/b/d",
     expectedName = "d",
@@ -271,13 +275,14 @@ class PathAPISpec extends FunSuite {
     expectedBasename = "bar"
   )
 
-
-  withBasename("called on an absolute path with suffix and with fragment", (abs_c / "foo.jpg#baz").withBasename("bar"))(
+  withBasename(
+    "called on an absolute path with suffix and with fragment",
+    (abs_c / "foo.jpg#baz").withBasename("bar")
+  )(
     expectedToString = "/a/b/c/bar.jpg#baz",
     expectedName = "bar.jpg",
     expectedBasename = "bar"
   )
-
 
   withBasename("called on a relative path with suffix", (rel_c / "foo.jpg").withBasename("bar"))(
     expectedToString = "a/b/c/bar.jpg",
@@ -285,13 +290,14 @@ class PathAPISpec extends FunSuite {
     expectedBasename = "bar"
   )
 
-
-  withBasename("called on a relative path with suffix with fragment", (rel_c / "foo.jpg#baz").withBasename("bar"))(
+  withBasename(
+    "called on a relative path with suffix with fragment",
+    (rel_c / "foo.jpg#baz").withBasename("bar")
+  )(
     expectedToString = "a/b/c/bar.jpg#baz",
     expectedName = "bar.jpg",
     expectedBasename = "bar"
   )
-
 
   suffix("empty for Root", Root, None)
 
@@ -309,20 +315,26 @@ class PathAPISpec extends FunSuite {
 
   suffix("use longest suffix in case of multiple dots", abs_c / "foo.tar.gz", Some("tar.gz"))
 
-  suffix("defined for an absolute path with suffix and fragment", abs_c / "foo.jpg#baz", Some("jpg"))
+  suffix(
+    "defined for an absolute path with suffix and fragment",
+    abs_c / "foo.jpg#baz",
+    Some("jpg")
+  )
 
   suffix("defined for a relative path with suffix", rel_c / "foo.jpg", Some("jpg"))
 
-  suffix("defined for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", Some("jpg")) 
-  
-  
+  suffix("defined for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", Some("jpg"))
+
   withSuffix("called on an absolute path without suffix", abs_c.withSuffix("foo"))(
     expectedToString = "/a/b/c.foo",
     expectedName = "c.foo",
     expectedSuffix = "foo"
   )
 
-  withSuffix("called on an absolute path without suffix with fragment", (abs_c / "foo#baz").withSuffix("bar"))(
+  withSuffix(
+    "called on an absolute path without suffix with fragment",
+    (abs_c / "foo#baz").withSuffix("bar")
+  )(
     expectedToString = "/a/b/c/foo.bar#baz",
     expectedName = "foo.bar",
     expectedSuffix = "bar"
@@ -334,7 +346,10 @@ class PathAPISpec extends FunSuite {
     expectedSuffix = "foo"
   )
 
-  withSuffix("called on a relative path without suffix with fragment", (rel_c / "foo#baz").withSuffix("bar"))(
+  withSuffix(
+    "called on a relative path without suffix with fragment",
+    (rel_c / "foo#baz").withSuffix("bar")
+  )(
     expectedToString = "a/b/c/foo.bar#baz",
     expectedName = "foo.bar",
     expectedSuffix = "bar"
@@ -346,7 +361,10 @@ class PathAPISpec extends FunSuite {
     expectedSuffix = "baz"
   )
 
-  withSuffix("called on an absolute path with suffix and with fragment", (abs_c / "foo.jpg#baz").withSuffix("bar"))(
+  withSuffix(
+    "called on an absolute path with suffix and with fragment",
+    (abs_c / "foo.jpg#baz").withSuffix("bar")
+  )(
     expectedToString = "/a/b/c/foo.bar#baz",
     expectedName = "foo.bar",
     expectedSuffix = "bar"
@@ -358,12 +376,14 @@ class PathAPISpec extends FunSuite {
     expectedSuffix = "baz"
   )
 
-  withSuffix("called on a relative path with suffix with fragment", (rel_c / "foo.jpg#baz").withSuffix("bar"))(
+  withSuffix(
+    "called on a relative path with suffix with fragment",
+    (rel_c / "foo.jpg#baz").withSuffix("bar")
+  )(
     expectedToString = "a/b/c/foo.bar#baz",
     expectedName = "foo.bar",
     expectedSuffix = "bar"
   )
-
 
   fragment("empty for Root", Root, None)
 
@@ -381,20 +401,30 @@ class PathAPISpec extends FunSuite {
 
   fragment("defined for an absolute path with fragment", abs_c / "foo#baz", Some("baz"))
 
-  fragment("defined for an absolute path with suffix and fragment", abs_c / "foo.jpg#baz", Some("baz"))
+  fragment(
+    "defined for an absolute path with suffix and fragment",
+    abs_c / "foo.jpg#baz",
+    Some("baz")
+  )
 
   fragment("defined for a relative path with fragment", rel_c / "foo#baz", Some("baz"))
 
-  fragment("defined for a relative path with suffix and fragment", rel_c / "foo.jpg#baz", Some("baz"))
+  fragment(
+    "defined for a relative path with suffix and fragment",
+    rel_c / "foo.jpg#baz",
+    Some("baz")
+  )
 
-  
   withFragment("called on an absolute path without fragment", abs_c.withFragment("baz"))(
     expectedToString = "/a/b/c#baz",
     expectedName = "c",
     expectedFragment = "baz"
   )
 
-  withFragment("called on an absolute path without fragment with suffix", (abs_c / "foo.jpg").withFragment("baz"))(
+  withFragment(
+    "called on an absolute path without fragment with suffix",
+    (abs_c / "foo.jpg").withFragment("baz")
+  )(
     expectedToString = "/a/b/c/foo.jpg#baz",
     expectedName = "foo.jpg",
     expectedFragment = "baz"
@@ -406,7 +436,10 @@ class PathAPISpec extends FunSuite {
     expectedFragment = "baz"
   )
 
-  withFragment("called on a relative path without fragment with suffix", (rel_c / "foo.jpg").withFragment("baz"))(
+  withFragment(
+    "called on a relative path without fragment with suffix",
+    (rel_c / "foo.jpg").withFragment("baz")
+  )(
     expectedToString = "a/b/c/foo.jpg#baz",
     expectedName = "foo.jpg",
     expectedFragment = "baz"
@@ -418,7 +451,10 @@ class PathAPISpec extends FunSuite {
     expectedFragment = "baz"
   )
 
-  withFragment("called on an absolute path with fragment and with suffix", (abs_c / "foo.jpg#bar").withFragment("baz"))(
+  withFragment(
+    "called on an absolute path with fragment and with suffix",
+    (abs_c / "foo.jpg#bar").withFragment("baz")
+  )(
     expectedToString = "/a/b/c/foo.jpg#baz",
     expectedName = "foo.jpg",
     expectedFragment = "baz"
@@ -430,12 +466,14 @@ class PathAPISpec extends FunSuite {
     expectedFragment = "baz"
   )
 
-  withFragment("called on a relative path with fragment with suffix", (rel_c / "foo.jpg#baz").withFragment("baz"))(
+  withFragment(
+    "called on a relative path with fragment with suffix",
+    (rel_c / "foo.jpg#baz").withFragment("baz")
+  )(
     expectedToString = "a/b/c/foo.jpg#baz",
     expectedName = "foo.jpg",
     expectedFragment = "baz"
   )
-
 
   concatAbs("return the same instance when invoked with CurrentTree", abs_c / CurrentTree, abs_c)
 
@@ -443,78 +481,140 @@ class PathAPISpec extends FunSuite {
 
   concatAbs("return Root when pointing to the top-most parent", abs_c / Parent(3), Root)
 
-  concatAbs("two paths with segments", Root / "foo" / "bar" / (CurrentTree / "baz"), Root / "foo" / "bar" / "baz")
+  concatAbs(
+    "two paths with segments",
+    Root / "foo" / "bar" / (CurrentTree / "baz"),
+    Root / "foo" / "bar" / "baz"
+  )
 
-  concatAbs("path pointing to a parent one level up", Root / "foo" / "bar" / (Parent(1) / "baz"), Root / "foo" / "baz")
+  concatAbs(
+    "path pointing to a parent one level up",
+    Root / "foo" / "bar" / (Parent(1) / "baz"),
+    Root / "foo" / "baz"
+  )
 
-  concatAbs("path pointing to a parent two levels up", Root / "foo" / "bar" / (Parent(2) / "baz"), Root / "baz")
+  concatAbs(
+    "path pointing to a parent two levels up",
+    Root / "foo" / "bar" / (Parent(2) / "baz"),
+    Root / "baz"
+  )
 
-  concatAbs("keep the suffix when invoked with CurrentTree", (abs_b / "c.foo") / CurrentDocument(None), abs_b / "c.foo")
-  
-  
+  concatAbs(
+    "keep the suffix when invoked with CurrentTree",
+    (abs_b / "c.foo") / CurrentDocument(None),
+    abs_b / "c.foo"
+  )
+
   concatRel("return the same instance when invoked with Current", rel_c / CurrentTree, rel_c)
 
   concatRel("return the immediate parent when invoked with Parent(1)", rel_c / Parent(1), rel_b)
 
-  concatRel("return CurrentTree when pointing to the top-most parent", rel_c / Parent(3), CurrentTree)
+  concatRel(
+    "return CurrentTree when pointing to the top-most parent",
+    rel_c / Parent(3),
+    CurrentTree
+  )
 
   concatRel("return Parent(1) when pointing past the top-most parent", rel_c / Parent(4), Parent(1))
 
-  concatRel("two paths with segments", 
-    CurrentTree / "foo" / "bar" / (CurrentTree / "baz"), 
-    CurrentTree / "foo" / "bar" / "baz")
+  concatRel(
+    "two paths with segments",
+    CurrentTree / "foo" / "bar" / (CurrentTree / "baz"),
+    CurrentTree / "foo" / "bar" / "baz"
+  )
 
-  concatRel("path pointing to a parent one level up", 
-    CurrentTree / "foo" / "bar" / (Parent(1) / "baz"), 
-    CurrentTree / "foo" / "baz")
+  concatRel(
+    "path pointing to a parent one level up",
+    CurrentTree / "foo" / "bar" / (Parent(1) / "baz"),
+    CurrentTree / "foo" / "baz"
+  )
 
-  concatRel("path pointing to a parent two levels up", 
-    CurrentTree / "foo" / "bar" / (Parent(2) / "baz"), 
-    CurrentTree / "baz")
+  concatRel(
+    "path pointing to a parent two levels up",
+    CurrentTree / "foo" / "bar" / (Parent(2) / "baz"),
+    CurrentTree / "baz"
+  )
 
   concatRel("append to CurrentTree", CurrentTree / (Parent(1) / "baz"), Parent(1) / "baz")
 
   concatRel("append to Parent(1)", Parent(1) / (Parent(1) / "baz"), Parent(2) / "baz")
 
-  concatRel("path pointing to a parent one level up to another path pointing one level up", 
-    Parent(1) / "foo" / "bar" / (Parent(1) / "baz"), 
-    Parent(1) / "foo" / "baz")
+  concatRel(
+    "path pointing to a parent one level up to another path pointing one level up",
+    Parent(1) / "foo" / "bar" / (Parent(1) / "baz"),
+    Parent(1) / "foo" / "baz"
+  )
 
-  concatRel("path pointing to a parent two levels up to another path pointing one level up", 
-    Parent(1) / "foo" / "bar" / (Parent(2) / "baz"), 
-    Parent(1) / "baz")
-  
-  
-  relativeTo("pointing to the same document", (Root / "a").relativeTo(Root / "a"), CurrentDocument())
+  concatRel(
+    "path pointing to a parent two levels up to another path pointing one level up",
+    Parent(1) / "foo" / "bar" / (Parent(2) / "baz"),
+    Parent(1) / "baz"
+  )
+
+  relativeTo(
+    "pointing to the same document",
+    (Root / "a").relativeTo(Root / "a"),
+    CurrentDocument()
+  )
 
   relativeTo("pointing to a parent tree", (Root / "a").relativeTo(Root / "a" / "b"), Parent(1))
 
-  relativeTo("pointing to a document in the parent tree", (Root / "c").relativeTo(Root / "a" / "b"), Parent(1) / "c")
+  relativeTo(
+    "pointing to a document in the parent tree",
+    (Root / "c").relativeTo(Root / "a" / "b"),
+    Parent(1) / "c"
+  )
 
-  relativeTo("pointing to a document in the same tree", (Root / "a" / "b").relativeTo(Root / "a" / "c"), CurrentTree / "b")
+  relativeTo(
+    "pointing to a document in the same tree",
+    (Root / "a" / "b").relativeTo(Root / "a" / "c"),
+    CurrentTree / "b"
+  )
 
   relativeTo("path relative to Root", (Root / "a" / "b").relativeTo(Root), CurrentTree / "a" / "b")
 
   relativeTo("relative path pointing upwards to Root", Root.relativeTo(Root / "a" / "c"), Parent(2))
 
-  relativeTo("relative path pointing to a fragment in the same document", (Root / "a" / "b#ref").relativeTo(Root / "a" / "b"), CurrentDocument("ref"))
+  relativeTo(
+    "relative path pointing to a fragment in the same document",
+    (Root / "a" / "b#ref").relativeTo(Root / "a" / "b"),
+    CurrentDocument("ref")
+  )
 
-  relativeTo("preserve suffix and fragment", (Root / "a" / "b.html#ref").relative, CurrentTree / "a" / "b.html#ref")
-
+  relativeTo(
+    "preserve suffix and fragment",
+    (Root / "a" / "b.html#ref").relative,
+    CurrentTree / "a" / "b.html#ref"
+  )
 
   isSubPath("true for two identical paths", abs_c.isSubPath(abs_c), true)
 
-  isSubPath("true for two identical paths with suffix", abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("foo")), true)
+  isSubPath(
+    "true for two identical paths with suffix",
+    abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("foo")),
+    true
+  )
 
-  isSubPath("false for two identical paths with different suffix", abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("bar")), false)
+  isSubPath(
+    "false for two identical paths with different suffix",
+    abs_c.withSuffix("foo").isSubPath(abs_c.withSuffix("bar")),
+    false
+  )
 
-  isSubPath("false for two identical paths when one is without suffix", abs_c.withSuffix("foo").isSubPath(abs_c), false)
+  isSubPath(
+    "false for two identical paths when one is without suffix",
+    abs_c.withSuffix("foo").isSubPath(abs_c),
+    false
+  )
 
   isSubPath("true for a child path", abs_c.isSubPath(abs_a), true)
 
-  isSubPath("false for a parent path with a suffix", abs_c.isSubPath(abs_a.withSuffix("foo")), false)
+  isSubPath(
+    "false for a parent path with a suffix",
+    abs_c.isSubPath(abs_a.withSuffix("foo")),
+    false
+  )
 
   isSubPath("false for a parent path", abs_a.isSubPath(abs_c), false)
 
-  
 }

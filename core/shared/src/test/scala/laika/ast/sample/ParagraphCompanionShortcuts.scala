@@ -20,8 +20,8 @@ import laika.ast._
 
 trait ParagraphCompanionShortcuts { self =>
 
-  def p (spans: Span*): Paragraph = Paragraph(spans.toList)
+  def p(spans: Span*): Paragraph = Paragraph(spans.toList)
 
-  def p (text: String): Paragraph = Paragraph(text)
+  def p(text: String): Paragraph = Paragraph(text)
 
 }

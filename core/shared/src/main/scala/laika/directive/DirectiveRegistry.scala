@@ -43,7 +43,7 @@ import laika.bundle.ExtensionBundle
   * @author Jens Halm
   */
 trait DirectiveRegistry extends ExtensionBundle { self =>
-  
+
   val description: String = "Registry for Laika's directives"
 
   /**  Registers the specified span directives.
@@ -141,11 +141,11 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  {{{
     *  object MyDirectives extends DirectiveRegistry {
     *    val linkDirectives = Seq(
-    *      Links.eval("rfc") { linkId => 
+    *      Links.eval("rfc") { linkId =>
     *        Try(Integer.parseInt(linkId))
     *         .toEither
     *         .fold(
-    *           _ => Left(s"Not a valid RFC id: \$linkId"), 
+    *           _ => Left(s"Not a valid RFC id: \$linkId"),
     *           id => Right(SpanLink.external(s"http://tools.ietf.org/html/rfc\$linkId")(s"RFC \$id"))
     *         )
     *      }
@@ -162,18 +162,19 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  URL `http://tools.ietf.org/html/rfc2356`.
     *
     *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
-    * */
+    */
   def linkDirectives: Seq[Links.Directive]
 
   override def forStrictMode: Option[ExtensionBundle] = Some(new DirectiveRegistry {
-    val spanDirectives = Nil
-    val blockDirectives = Nil
-    val linkDirectives = Nil
+    val spanDirectives     = Nil
+    val blockDirectives    = Nil
+    val linkDirectives     = Nil
     def templateDirectives = self.templateDirectives
   })
 
   override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
-    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives, linkDirectives)
+    case ds: DirectiveSupport =>
+      ds.withDirectives(blockDirectives, spanDirectives, templateDirectives, linkDirectives)
   }
 
 }

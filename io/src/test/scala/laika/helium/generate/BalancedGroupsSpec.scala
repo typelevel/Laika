@@ -23,7 +23,7 @@ class BalancedGroupsSpec extends FunSuite {
 
   val dummyOp: IO[Unit] = IO.unit
 
-  def groupCount (numOps: Int, size: Int): Seq[Int] = {
+  def groupCount(numOps: Int, size: Int): Seq[Int] = {
     val ops = Vector.fill(numOps)(dummyOp)
     BalancedGroups
       .create(ops, size)
@@ -35,19 +35,21 @@ class BalancedGroupsSpec extends FunSuite {
   }
 
   test("create groups of size 1 when the number of items is lower than the specified size") {
-    assertEquals(groupCount(3, 5), Seq(1,1,1))
+    assertEquals(groupCount(3, 5), Seq(1, 1, 1))
   }
 
   test("create groups of size 1 when the number of items is equal to the specified size") {
-    assertEquals(groupCount(4, 4), Seq(1,1,1,1))
+    assertEquals(groupCount(4, 4), Seq(1, 1, 1, 1))
   }
 
-  test("create groups of variable size when the number of items is not a multiple of the specified size") {
-    assertEquals(groupCount(9, 4), Seq(3,2,2,2))
+  test(
+    "create groups of variable size when the number of items is not a multiple of the specified size"
+  ) {
+    assertEquals(groupCount(9, 4), Seq(3, 2, 2, 2))
   }
 
   test("create groups of equal size when the number of items is a multiple of the specified size") {
-    assertEquals(groupCount(9, 3), Seq(3,3,3))
+    assertEquals(groupCount(9, 3), Seq(3, 3, 3))
   }
 
 }

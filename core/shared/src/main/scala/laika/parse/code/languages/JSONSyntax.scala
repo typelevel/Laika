@@ -18,14 +18,13 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.{CodeCategory, CodeSpanParser}
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.code.common.{Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.common.{ Keywords, NumberLiteral, StringLiteral }
 import laika.parse.builders._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object JSONSyntax extends SyntaxHighlighter {
 
@@ -33,7 +32,7 @@ object JSONSyntax extends SyntaxHighlighter {
     StringLiteral.Escape.unicode,
     StringLiteral.Escape.char
   )
-  
+
   val attributeName: StringParser = string
     .withPostCondition(lookAhead(ws ~ ":").void)
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
@@ -46,7 +45,7 @@ object JSONSyntax extends SyntaxHighlighter {
     NumberLiteral.decimalFloat,
     NumberLiteral.decimalInt,
     attributeName,
-    string,
+    string
   )
-  
+
 }

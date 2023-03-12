@@ -29,21 +29,26 @@ import scala.collection.mutable.ListBuffer
   *
   * @author Jens Halm
   */
-class Repeat[+T] (parser: Parser[T], min: Int = 0, max: Int = Int.MaxValue, sep: Option[Parser[Unit]] = None) extends Parser[List[T]] {
+class Repeat[+T](
+    parser: Parser[T],
+    min: Int = 0,
+    max: Int = Int.MaxValue,
+    sep: Option[Parser[Unit]] = None
+) extends Parser[List[T]] {
 
   private val repParser = sep.fold(parser)(_ ~> parser)
-  
+
   /** Specifies a minimum number of successful invocations.
     * If the base parser fails before reaching this number
     * of results, this parser will fail.
     */
-  def min (num: Int): Repeat[T] = new Repeat(parser, num, max, sep)
+  def min(num: Int): Repeat[T] = new Repeat(parser, num, max, sep)
 
   /** Specifies a maximum number of successful invocations.
     * When this number is reached, this parser will stop invoking
     * the base parser even if it would be able to produce more results.
     */
-  def max (num: Int): Repeat[T] = new Repeat(parser, min, num, sep)
+  def max(num: Int): Repeat[T] = new Repeat(parser, min, num, sep)
 
   /** Specifies the exact number of successful invocations, a shortcut for
     * `.min(num).max(num)`.
@@ -53,24 +58,24 @@ class Repeat[+T] (parser: Parser[T], min: Int = 0, max: Int = Int.MaxValue, sep:
     * When the maximum number is reached, this parser will stop invoking
     * the base parser even if it would be able to produce more results.
     */
-  def take (num: Int): Repeat[T] = new Repeat(parser, num, num, sep)
+  def take(num: Int): Repeat[T] = new Repeat(parser, num, num, sep)
 
-  def parse (source: SourceCursor): Parsed[List[T]] = {
+  def parse(source: SourceCursor): Parsed[List[T]] = {
 
     val elems = new ListBuffer[T]
 
     @tailrec
-    def rec (source: SourceCursor, p: Parser[T]): Parsed[List[T]] =
+    def rec(source: SourceCursor, p: Parser[T]): Parsed[List[T]] =
       if (elems.length == max) Success(elems.toList, source)
-      else p.parse(source) match {
-        case Success(x, next)                  => elems += x; rec(next, repParser)
-        case _: Failure if elems.length >= min => Success(elems.toList, source)
-        case f: Failure                        => f
-      }
+      else
+        p.parse(source) match {
+          case Success(x, next)                  => elems += x; rec(next, repParser)
+          case _: Failure if elems.length >= min => Success(elems.toList, source)
+          case f: Failure                        => f
+        }
 
     rec(source, parser)
 
   }
-
 
 }

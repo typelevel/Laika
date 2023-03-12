@@ -16,19 +16,19 @@
 
 package laika.sbt
 
-import cats.effect.{Async, IO, Resource}
+import cats.effect.{ Async, IO, Resource }
 import cats.effect.unsafe.implicits.global
-import laika.api.builder.{OperationConfig, ParserBuilder}
-import laika.api.{MarkupParser, Transformer}
-import laika.bundle.{BundleOrigin, ExtensionBundle}
+import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.{ MarkupParser, Transformer }
+import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.config.Config.ConfigResult
-import laika.config.{Config, ConfigBuilder, LaikaKeys}
+import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.factory.MarkupFormat
-import laika.format.{HTML, Markdown, ReStructuredText}
+import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.config.SiteConfig
 import laika.io.implicits.*
-import laika.io.model.{FilePath, InputTree, InputTreeBuilder}
+import laika.io.model.{ FilePath, InputTree, InputTreeBuilder }
 import laika.sbt.LaikaPlugin.autoImport.*
 import sbt.Keys.*
 import sbt.*
@@ -40,23 +40,25 @@ import sbt.*
 object Settings {
 
   import Def._
-  
-  private def asLaikaFileFilter(jFilter: java.io.FileFilter): laika.io.model.FileFilter = 
+
+  private def asLaikaFileFilter(jFilter: java.io.FileFilter): laika.io.model.FileFilter =
     new laika.io.model.FileFilter {
-      def filter[F[_] : Async] (file: FilePath) = Async[F].delay(jFilter.accept(file.toJavaFile))
+      def filter[F[_]: Async](file: FilePath) = Async[F].delay(jFilter.accept(file.toJavaFile))
     }
 
   val defaultInputs: Initialize[InputTreeBuilder[IO]] = setting {
     InputTree
       .apply[IO](asLaikaFileFilter((Laika / excludeFilter).value))
-      .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(laikaConfig.value.encoding)
+      .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(
+        laikaConfig.value.encoding
+      )
   }
-  
+
   val describe: Initialize[Task[String]] = task {
 
     val userConfig = laikaConfig.value
 
-    def mergedConfig (config: OperationConfig): OperationConfig = {
+    def mergedConfig(config: OperationConfig): OperationConfig = {
       config.copy(
         bundleFilter = userConfig.bundleFilter,
         renderMessages = userConfig.renderMessages,
@@ -64,7 +66,7 @@ object Settings {
       )
     }
 
-    def createParser (format: MarkupFormat): ParserBuilder = {
+    def createParser(format: MarkupFormat): ParserBuilder = {
       val parser = MarkupParser.of(format)
       parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value: _*)
     }
@@ -82,25 +84,27 @@ object Settings {
     val inputs = laikaInputs.value.delegate
 
     val result = transformer
-      .use(_
-        .fromInput(inputs)
-        .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
-        .describe
+      .use(
+        _
+          .fromInput(inputs)
+          .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
+          .describe
       )
       .unsafeRunSync()
       .copy(renderer = "Depending on task")
       .formatted
-    
+
     streams.value.log.success("\n" + result)
-    
+
     result
   }
-  
+
   val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
-    
+
     val configFallbacks: ExtensionBundle = new ExtensionBundle {
-      val description = "Config Defaults from sbt Plugin"
-      override def origin = BundleOrigin.Library // for lowest precedence, as helium metadata should override this
+      val description     = "Config Defaults from sbt Plugin"
+      override def origin =
+        BundleOrigin.Library // for lowest precedence, as helium metadata should override this
       override def baseConfig: Config = ConfigBuilder.empty
         .withValue(LaikaKeys.metadata.child("title"), name.value)
         .withValue(LaikaKeys.site.metadata.child("title"), name.value)
@@ -108,13 +112,16 @@ object Settings {
         .withValue(LaikaKeys.site.metadata.child("description"), Keys.description.value)
         .withValue(LaikaKeys.metadata.child("version"), version.value)
         .withValue(LaikaKeys.site.metadata.child("version"), version.value)
-        .withValue(LaikaKeys.artifactBaseName, name.value + "-" + version.value.split('.').take(2).mkString("."))
+        .withValue(
+          LaikaKeys.artifactBaseName,
+          name.value + "-" + version.value.split('.').take(2).mkString(".")
+        )
         .build
     }
 
-    val userConfig = laikaConfig.value
-    def createParser (format: MarkupFormat): ParserBuilder = {
-      val parser = MarkupParser.of(format)
+    val userConfig                                        = laikaConfig.value
+    def createParser(format: MarkupFormat): ParserBuilder = {
+      val parser       = MarkupParser.of(format)
       val mergedConfig = parser.config.copy(
         bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
@@ -131,25 +138,27 @@ object Settings {
       .withAlternativeParser(createParser(ReStructuredText))
       .build
   }
-  
+
   val parserConfig: Initialize[OperationConfig] = setting {
     parser.value.use(p => IO.pure(p.config)).unsafeRunSync()
   }
-  
+
   val artifactBaseName: Initialize[String] = setting {
     validated(parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName, name.value))
   }
-  
+
   val apiTargetDirectory: Initialize[File] = setting {
-    (laikaSite / target).value / validated(SiteConfig.apiPath(Settings.parserConfig.value.baseConfig)).relative.toString
+    (laikaSite / target).value / validated(
+      SiteConfig.apiPath(Settings.parserConfig.value.baseConfig)
+    ).relative.toString
   }
 
   /** The set of targets for the transformation tasks of all supported output formats.
     */
   val allTargets = setting {
     Set(
-      (laikaSite / target).value, 
-      (laikaXSLFO / target).value, 
+      (laikaSite / target).value,
+      (laikaXSLFO / target).value,
       (laikaAST / target).value
     )
   }
@@ -157,7 +166,7 @@ object Settings {
   /** Adapts a Laika configuration value to the synchronous/impure APIs of sbt.
     * This method throws an exception in case the provided value is a `Left`.
     */
-  def validated[T] (value: ConfigResult[T]): T = value.fold[T](
+  def validated[T](value: ConfigResult[T]): T = value.fold[T](
     err => throw new RuntimeException(s"Error in project configuration: ${err.message}"),
     identity
   )

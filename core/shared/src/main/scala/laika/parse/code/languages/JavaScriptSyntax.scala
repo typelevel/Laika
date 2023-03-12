@@ -18,14 +18,13 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.NumberLiteral.{DigitParsers, NumericParser}
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
+import laika.parse.code.common.NumberLiteral.{ DigitParsers, NumericParser }
 import laika.parse.code.common._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.implicits._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object JavaScriptSyntax extends SyntaxHighlighter {
 
@@ -38,13 +37,52 @@ object JavaScriptSyntax extends SyntaxHighlighter {
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++
       StringLiteral.Escape.char
-  
-  def number(parser: NumericParser): CodeSpanParser = parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
-  
-  val keywords = Keywords("async", "as", "await", "break", "case", "catch", "class", "const", "continue", 
-    "debugger", "default", "delete", "do", "else", "export", "extends", "finally", "for", "from", "function", 
-    "if", "import", "instanceof", "in", "let", "new", "of", "return", "static", "super", "switch", 
-    "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield")
+
+  def number(parser: NumericParser): CodeSpanParser =
+    parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
+
+  val keywords = Keywords(
+    "async",
+    "as",
+    "await",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "finally",
+    "for",
+    "from",
+    "function",
+    "if",
+    "import",
+    "instanceof",
+    "in",
+    "let",
+    "new",
+    "of",
+    "return",
+    "static",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield"
+  )
 
   val language: NonEmptyList[String] = NonEmptyList.of("javascript", "js")
 
@@ -55,33 +93,33 @@ object JavaScriptSyntax extends SyntaxHighlighter {
     StringLiteral.singleLine('\'').embed(charEscapes),
     StringLiteral.multiLine("`").embed(
       charEscapes,
-      StringLiteral.Substitution.between("${", "}"),
+      StringLiteral.Substitution.between("${", "}")
     ),
     RegexLiteral.standard,
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(LiteralValue)("null", "undefined", "NaN", "Infinity"),
     keywords,
-    Identifier.alphaNum.withIdStartChars('_','$'),
+    Identifier.alphaNum.withIdStartChars('_', '$'),
     number(NumberLiteral.binary),
     number(NumberLiteral.octal),
     number(NumberLiteral.hex),
     number(NumberLiteral.decimalFloat),
-    number(NumberLiteral.decimalInt),
+    number(NumberLiteral.decimalInt)
   )
-  
+
   object JSX extends SyntaxHighlighter with TagBasedFormats {
 
     val language: NonEmptyList[String] = NonEmptyList.of("jsx")
 
     private def tagCategory(name: String): CodeCategory =
-     if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
-    
+      if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
+
     val emptyJsxTag: CodeSpanParser = HTMLSyntax.emptyTag.copy(tagCategory = tagCategory)
 
     lazy val element: CodeSpanParser = CodeSpanParser {
 
       val substitution = StringLiteral.Substitution.between("{", "}")
-      
+
       val startTag = TagParser(tagCategory _, "<", ">").embed(
         stringWithEntities,
         name(CodeCategory.AttributeName),
@@ -93,7 +131,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
         emptyJsxTag,
         substitution
       )
-      
+
       startTag >> { startSpans =>
         val tagName = startSpans.tail.head.content
         elementRest(tagName, embedded, tagCategory(tagName)).map(startSpans ++ _)
@@ -104,7 +142,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
       element,
       emptyJsxTag
     )
-    
+
   }
-  
+
 }

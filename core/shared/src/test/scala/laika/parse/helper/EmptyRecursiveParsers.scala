@@ -21,8 +21,7 @@ import laika.parse.Parser
 import laika.parse.combinator.Parsers._
 import laika.parse.markup.DefaultRecursiveParsers
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 trait EmptyRecursiveParsers extends DefaultRecursiveParsers {
 
