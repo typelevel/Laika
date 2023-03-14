@@ -10,6 +10,6 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaExtensions += laikaSpanRewriteRule {
-  case Emphasized(content,_) => Replace(Strong(content))
+laikaExtensions += laikaSpanRewriteRule { case Emphasized(content, _) =>
+  Replace(Strong(content))
 }

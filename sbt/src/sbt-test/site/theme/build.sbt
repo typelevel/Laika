@@ -9,5 +9,11 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaTheme :=  Helium.defaults.site.fontResources(
-  FontDefinition(Font.webCSS("http://home.com/myFont.css"), "MyFont", FontWeight.Normal, FontStyle.Normal)).build
+laikaTheme := Helium.defaults.site.fontResources(
+  FontDefinition(
+    Font.webCSS("http://home.com/myFont.css"),
+    "MyFont",
+    FontWeight.Normal,
+    FontStyle.Normal
+  )
+).build

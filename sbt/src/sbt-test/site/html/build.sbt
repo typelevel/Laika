@@ -1,4 +1,3 @@
-
 name := "site-html"
 
 version := "0.1"

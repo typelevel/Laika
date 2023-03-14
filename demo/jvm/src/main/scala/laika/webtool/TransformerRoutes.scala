@@ -18,39 +18,46 @@ package laika.webtool
 
 import cats.effect.IO
 import laika.factory.MarkupFormat
-import laika.format.{Markdown, ReStructuredText}
-import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
+import laika.format.{ Markdown, ReStructuredText }
+import laika.parse.markup.DocumentParser.{ ParserError, TransformationError }
 import org.http4s.HttpRoutes
 import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.headers.`Content-Type`
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object TransformerRoutes {
-  
+
   object InputFormat {
+
     def unapply(str: String): Option[MarkupFormat] = str match {
-      case "md" => Some(Markdown)
+      case "md"  => Some(Markdown)
       case "rst" => Some(ReStructuredText)
-      case _ => None
+      case _     => None
     }
+
   }
-  
+
   type TransformFunction = (MarkupFormat, String) => Either[TransformationError, String]
 
   object OutputFormat {
+
     def unapply(str: String): Option[TransformFunction] = str match {
       case "html-rendered"  => Some(Transformer.transformToRenderedHTML)
       case "html-source"    => Some(Transformer.transformToHTMLSource)
       case "ast-resolved"   => Some(Transformer.transformToResolvedAST)
       case "ast-unresolved" => Some(Transformer.transformToUnresolvedAST)
-      case _ => None
+      case _                => None
     }
+
   }
 
-  private def transform(format: MarkupFormat, f: TransformFunction, body: IO[String]): IO[Response[IO]] = for {
+  private def transform(
+      format: MarkupFormat,
+      f: TransformFunction,
+      body: IO[String]
+  ): IO[Response[IO]] = for {
     input  <- body
     result <- IO.fromEither(f(format, input))
     resp   <- Ok(result)
@@ -60,7 +67,7 @@ object TransformerRoutes {
 
     case req @ POST -> Root / "transform" / InputFormat(inFormat) / OutputFormat(outFormat) =>
       transform(inFormat, outFormat, req.as[String])
-    
+
   }
 
 }

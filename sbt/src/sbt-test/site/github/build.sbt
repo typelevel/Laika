@@ -1,4 +1,3 @@
-
 name := "site-gfm"
 
 version := "0.1"

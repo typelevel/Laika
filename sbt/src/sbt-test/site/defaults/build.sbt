@@ -1,4 +1,3 @@
-
 name := "site-defaults"
 
 version := "0.1"
