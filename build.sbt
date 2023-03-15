@@ -74,7 +74,7 @@ val catsEffect = "org.typelevel" %% "cats-effect"         % versions.catsEffect
 val fs2IO      = "co.fs2"        %% "fs2-io"              % versions.fs2
 val munitCE3   = "org.typelevel" %% "munit-cats-effect-3" % versions.munitCE3 % "test"
 
-val fop    = "org.apache.xmlgraphics" % "fop" % versions.fop
+val fop = "org.apache.xmlgraphics" % "fop" % versions.fop
 
 val http4s = Seq(
   "org.http4s" %% "http4s-dsl"          % versions.http4s,
@@ -98,15 +98,18 @@ lazy val root = project.in(file("."))
   )
 
 lazy val docs = project.in(file("docs"))
+  .dependsOn(plugin)
   .enablePlugins(LaikaPlugin)
+  .enablePlugins(MdocPlugin)
   .settings(noPublishSettings)
   .settings(
     name                      := "laika-docs",
     laikaTheme                := ManualSettings.helium,
     laikaConfig               := ManualSettings.config,
     laikaExtensions           := Seq(GitHubFlavor, SyntaxHighlighting, ManualBundle),
-    Laika / sourceDirectories := Seq(baseDirectory.value / "src"),
-    Laika / target            := baseDirectory.value / "target"
+    Laika / sourceDirectories := Seq(mdocOut.value),
+    Laika / target            := baseDirectory.value / "target",
+    mdocIn                    := baseDirectory.value / "src"
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
