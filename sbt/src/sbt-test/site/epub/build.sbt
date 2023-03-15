@@ -1,4 +1,3 @@
-
 name := "site-epub"
 
 version := "0.1"

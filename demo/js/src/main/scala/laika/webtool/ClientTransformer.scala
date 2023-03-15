@@ -17,45 +17,51 @@
 package laika.webtool
 
 import laika.factory.MarkupFormat
-import laika.format.{Markdown, ReStructuredText}
-import laika.parse.markup.DocumentParser.{ParserError, TransformationError}
+import laika.format.{ Markdown, ReStructuredText }
+import laika.parse.markup.DocumentParser.{ ParserError, TransformationError }
 
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.scalajs.js.annotation.{ JSExport, JSExportTopLevel }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 @JSExportTopLevel("ClientTransformer")
 object ClientTransformer {
-  
+
   private val delegate = Transformer
-  
+
   private val formats: Map[String, MarkupFormat] = Map(
     "md"  -> Markdown,
     "rst" -> ReStructuredText
   )
 
   @JSExport
-  def transformToRenderedHTML (format: String, input: String): String =
+  def transformToRenderedHTML(format: String, input: String): String =
     wrapError(format, input, delegate.transformToRenderedHTML)
 
   @JSExport
-  def transformToHTMLSource (format: String, input: String): String =
+  def transformToHTMLSource(format: String, input: String): String =
     wrapError(format, input, delegate.transformToHTMLSource)
 
   @JSExport
-  def transformToUnresolvedAST (format: String, input: String): String =
+  def transformToUnresolvedAST(format: String, input: String): String =
     wrapError(format, input, delegate.transformToUnresolvedAST)
 
   @JSExport
-  def transformToResolvedAST (format: String, input: String): String =
+  def transformToResolvedAST(format: String, input: String): String =
     wrapError(format, input, delegate.transformToResolvedAST)
 
-  private def wrapError(formatName: String, input: String, f: (MarkupFormat, String) => Either[TransformationError, String]): String = 
+  private def wrapError(
+      formatName: String,
+      input: String,
+      f: (MarkupFormat, String) => Either[TransformationError, String]
+  ): String =
     formats.get(formatName).fold(
       s"<p>Invalid Format ($formatName)</p>"
-    ){ format => f(format, input).fold(
-      err => s"<p>Client Transformer Error (${err.message})</p>",
-      identity
-    )}
+    ) { format =>
+      f(format, input).fold(
+        err => s"<p>Client Transformer Error (${err.message})</p>",
+        identity
+      )
+    }
+
 }

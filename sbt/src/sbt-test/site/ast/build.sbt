@@ -1,4 +1,3 @@
-
 name := "site-ast"
 
 version := "0.1"
