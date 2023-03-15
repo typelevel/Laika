@@ -109,7 +109,10 @@ lazy val docs = project.in(file("docs"))
     laikaExtensions           := Seq(GitHubFlavor, SyntaxHighlighting, ManualBundle),
     Laika / sourceDirectories := Seq(mdocOut.value),
     Laika / target            := baseDirectory.value / "target",
-    mdocIn                    := baseDirectory.value / "src"
+    mdocIn                    := baseDirectory.value / "src",
+    mdocVariables             := Map(
+      "LAIKA_VERSION" -> "0.19.0"
+    )
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
