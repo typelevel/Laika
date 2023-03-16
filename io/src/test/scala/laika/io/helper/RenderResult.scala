@@ -16,39 +16,49 @@
 
 package laika.io.helper
 
-import laika.ast.{TemplateRoot, TemplateString}
+import laika.ast.{ TemplateRoot, TemplateString }
 import laika.render.fo.TestTheme
 
 object RenderResult {
-  
-  private def buildResult (template: TemplateRoot, insertions: Seq[String]): String = {
+
+  private def buildResult(template: TemplateRoot, insertions: Seq[String]): String = {
     val it = insertions.iterator
     template.content.map {
       case TemplateString(content, _) => content
-      case _ => it.next()
+      case _                          => it.next()
     }.mkString
   }
-    
 
   object html {
-    def withDefaultTemplate(title: String, content: String): String = buildResult(TestTheme.htmlTemplate, Seq(content))
+
+    def withDefaultTemplate(title: String, content: String): String =
+      buildResult(TestTheme.htmlTemplate, Seq(content))
+
   }
 
   object epub {
-    def withDefaultTemplate(title: String, content: String): String = buildResult(TestTheme.htmlTemplate, Seq(content))
+
+    def withDefaultTemplate(title: String, content: String): String =
+      buildResult(TestTheme.htmlTemplate, Seq(content))
+
   }
-  
+
   object fo {
     def withHeliumTemplate(content: String): String = HeliumFoResult.withContent(content)
-    def withFallbackTemplate(content: String): String = buildResult(TestTheme.foTemplate, Seq("", content))
-    def withFallbackTemplate(result: String, bookmarks: String = ""): String = buildResult(TestTheme.foTemplate, Seq(bookmarks, result))
+
+    def withFallbackTemplate(content: String): String =
+      buildResult(TestTheme.foTemplate, Seq("", content))
+
+    def withFallbackTemplate(result: String, bookmarks: String = ""): String =
+      buildResult(TestTheme.foTemplate, Seq(bookmarks, result))
+
   }
-  
+
 }
 
 object HeliumFoResult {
-  
-  def withContent (content: String): String = 
+
+  def withContent(content: String): String =
     s"""<?xml version="1.0" encoding="utf-8"?>
        |
        |<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
@@ -102,5 +112,5 @@ object HeliumFoResult {
        |
        |</fo:root>
        |""".stripMargin
-  
+
 }

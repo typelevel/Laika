@@ -22,15 +22,14 @@ import laika.parse.implicits._
 import laika.parse._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
- *  
- *  A block parser in Laika can always safely assume that it is invoked at
- *  the start of the current line and that the line is not empty.
- * 
- *  @author Jens Halm
- */
+  *
+  *  A block parser in Laika can always safely assume that it is invoked at
+  *  the start of the current line and that the line is not empty.
+  *
+  *  @author Jens Halm
+  */
 trait BlockParsers {
-  
-  
+
   private val blankLineEndsBlock: Parser[Any] = failure("Blank line ends this block element")
 
   /** Parses a full block based on the specified helper parsers.
@@ -41,7 +40,7 @@ trait BlockParsers {
     *  @param firstLinePrefix parser that recognizes the start of the first line of this block
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     */
-  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[BlockSource] =
+  def block(firstLinePrefix: Parser[Any], linePrefix: => Parser[Any]): Parser[BlockSource] =
     block(firstLinePrefix, linePrefix, blankLineEndsBlock)
 
   /** Parses a full block based on the specified helper parsers.
@@ -55,7 +54,11 @@ trait BlockParsers {
     * @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     * @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[BlockSource] = {
+  def block(
+      firstLinePrefix: Parser[Any],
+      linePrefix: => Parser[Any],
+      nextBlockPrefix: => Parser[Any]
+  ): Parser[BlockSource] = {
 
     val firstLine = firstLinePrefix ~> restOfLine.line
 
@@ -63,8 +66,8 @@ trait BlockParsers {
 
     lazy val nextBlock: Parser[LineSource] = blankLines.mkLines.line <~ lookAhead(nextBlockPrefix)
 
-    (firstLine ~ (line | nextBlock).rep).map {
-      case first ~ rest => BlockSource(first, rest:_*)
+    (firstLine ~ (line | nextBlock).rep).map { case first ~ rest =>
+      BlockSource(first, rest: _*)
     }
   }
 
@@ -80,12 +83,20 @@ trait BlockParsers {
     *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
     *  @return a parser that produces the raw text of the parsed block with the indentation removed
     */
-  def indentedBlock (minIndent: Int = 1,
-                     linePredicate: => Parser[Any] = success(()),
-                     endsOnBlankLine: Boolean = false,
-                     firstLineIndented: Boolean = false,
-                     maxIndent: Int = Int.MaxValue): Parser[BlockSource] =
-    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent).map(_._1)
+  def indentedBlock(
+      minIndent: Int = 1,
+      linePredicate: => Parser[Any] = success(()),
+      endsOnBlankLine: Boolean = false,
+      firstLineIndented: Boolean = false,
+      maxIndent: Int = Int.MaxValue
+  ): Parser[BlockSource] =
+    indentedBlockWithLevel(
+      minIndent,
+      linePredicate,
+      endsOnBlankLine,
+      firstLineIndented,
+      maxIndent
+    ).map(_._1)
 
   /**  Parses a full block based on the specified helper parsers, expecting an indentation for
     *  all lines except the first. The indentation may vary between the parts of the indented
@@ -100,56 +111,62 @@ trait BlockParsers {
     *  @return a parser that produces the raw text of the parsed block with the indentation removed and the
     *          indentation level (number of whitespace characters removed from the text lines)
     */
-  def indentedBlockWithLevel (minIndent: Int = 1,
-                              linePredicate: => Parser[Any] = success(()),
-                              endsOnBlankLine: Boolean = false,
-                              firstLineIndented: Boolean = false,
-                              maxIndent: Int = Int.MaxValue): Parser[(BlockSource, Int)] = {
+  def indentedBlockWithLevel(
+      minIndent: Int = 1,
+      linePredicate: => Parser[Any] = success(()),
+      endsOnBlankLine: Boolean = false,
+      firstLineIndented: Boolean = false,
+      maxIndent: Int = Int.MaxValue
+  ): Parser[(BlockSource, Int)] = {
 
     import scala.math._
 
-    abstract class Line extends Product { 
+    abstract class Line                                                      extends Product {
       def curIndent: Int
       def source: LineSource
     }
-    case class BlankLine(curIndent: Int, source: LineSource) extends Line
+    case class BlankLine(curIndent: Int, source: LineSource)                 extends Line
     case class IndentedLine(curIndent: Int, indent: Int, source: LineSource) extends Line
     case class FirstLine(source: LineSource) extends Line { val curIndent: Int = Int.MaxValue }
 
     val composedLinePredicate = not(blankLine) ~ linePredicate
 
-    def lineStart (curIndent: Int) = ws.min(minIndent).max(curIndent).count <~ composedLinePredicate
+    def lineStart(curIndent: Int) = ws.min(minIndent).max(curIndent).count <~ composedLinePredicate
 
-    def textLine (curIndent: Int): Parser[Seq[Line]] = (lineStart(curIndent) ~ ws.count ~ restOfLine.trim.line).map {
-      case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text))
-    }
+    def textLine(curIndent: Int): Parser[Seq[Line]] =
+      (lineStart(curIndent) ~ ws.count ~ restOfLine.trim.line).map {
+        case indent1 ~ indent2 ~ text =>
+          List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text))
+      }
 
     val blankLines: Parser[Seq[LineSource]] = (not(eof) ~> blankLine.line).rep.min(1)
 
-    def emptyLines (curIndent: Int): Parser[Seq[Line]] = blankLines <~ lookAhead(lineStart(curIndent)) ^^ {
-      _.map(line => BlankLine(curIndent, line))
-    }
+    def emptyLines(curIndent: Int): Parser[Seq[Line]] =
+      blankLines <~ lookAhead(lineStart(curIndent)) ^^ {
+        _.map(line => BlankLine(curIndent, line))
+      }
 
     val firstLine =
       if (firstLineIndented) textLine(Int.MaxValue)
       else restOfLine.line.map(s => List(FirstLine(s)))
 
-    val firstLineGuard = if (firstLineIndented) ws.min(minIndent).count ~ composedLinePredicate else success(())
+    val firstLineGuard =
+      if (firstLineIndented) ws.min(minIndent).count ~ composedLinePredicate else success(())
 
-    def nextLine (prevLines: Seq[Line]) =
+    def nextLine(prevLines: Seq[Line]) =
       if (endsOnBlankLine) textLine(prevLines.head.curIndent)
       else textLine(prevLines.head.curIndent) | emptyLines(prevLines.head.curIndent)
 
-    def result (lines: Seq[Seq[Line]]): (BlockSource, Int) = {
-      val minIndent = lines.last.head.curIndent
+    def result(lines: Seq[Seq[Line]]): (BlockSource, Int) = {
+      val minIndent                      = lines.last.head.curIndent
       val adjustedLines: Seq[LineSource] = lines.flatten.map {
-        case FirstLine(src)             => src
-        case BlankLine(_, src)          => src
-        case IndentedLine(_,indent,src) =>
+        case FirstLine(src)               => src
+        case BlankLine(_, src)            => src
+        case IndentedLine(_, indent, src) =>
           val extraIndent = indent - minIndent
           LineSource(" " * extraIndent + src.input, src.parent.consume(extraIndent * -1))
       }
-      (BlockSource(adjustedLines.head, adjustedLines.tail:_*), minIndent)
+      (BlockSource(adjustedLines.head, adjustedLines.tail: _*), minIndent)
     }
 
     lookAhead(firstLineGuard) ~> firstLine.repWith(nextLine) ^^ result
@@ -159,7 +176,7 @@ trait BlockParsers {
 
 /** Instance that allows to import all block parsers in isolation.
   *
-  * Usually it is more convenient to import laika.parse.api._ 
+  * Usually it is more convenient to import laika.parse.api._
   * to get all parser builders with one import.
   */
 object BlockParsers extends BlockParsers

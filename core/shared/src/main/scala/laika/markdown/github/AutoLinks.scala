@@ -36,7 +36,7 @@ object AutoLinks {
   private val endChars   = NonEmptySet.of('*', '_', '~', ')', '?', '!', '.', ',', ':', ' ', '\n')
 
   private val reverseMarkupStart: Parser[Any] = lookAhead(eof | oneOf(startChars))
-  private val afterMarkupEnd: Parser[Any] = oneOf(endChars)
+  private val afterMarkupEnd: Parser[Any]     = oneOf(endChars)
 
   /** The parsers for http and email auto-links.
     */

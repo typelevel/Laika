@@ -28,20 +28,21 @@ object StaticContent {
 
   /** The content of the file `container.xml` in the `META-INF` folder of the EPUB container.
     */
-  val container = """<?xml version="1.0" encoding="UTF-8"?>
-    |<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-    |  <rootfiles>
-    |    <rootfile full-path="EPUB/content.opf" media-type="application/oebps-package+xml" />
-    |  </rootfiles>
-    |</container>""".stripMargin
+  val container =
+    """<?xml version="1.0" encoding="UTF-8"?>
+      |<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+      |  <rootfiles>
+      |    <rootfile full-path="EPUB/content.opf" media-type="application/oebps-package+xml" />
+      |  </rootfiles>
+      |</container>""".stripMargin
 
   /** iBook configuration options.
     */
   val iBooksOptions = """<?xml version="1.0" encoding="UTF-8"?>
-   |<display_options>
-   |  <platform name="*">
-   |    <option name="specified-fonts">true</option>
-   |  </platform>
-   |</display_options>""".stripMargin
+                        |<display_options>
+                        |  <platform name="*">
+                        |    <option name="specified-fonts">true</option>
+                        |  </platform>
+                        |</display_options>""".stripMargin
 
 }

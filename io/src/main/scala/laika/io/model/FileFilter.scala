@@ -22,24 +22,27 @@ import cats.syntax.all._
 /** File filter that defines the filter function in `[F[_]]` to allow for effectful filter logic.
   */
 trait FileFilter { self =>
-  
-  def filter[F[_]: Async] (file: FilePath): F[Boolean]
+
+  def filter[F[_]: Async](file: FilePath): F[Boolean]
 
   /** Creates a new instance that filters file paths where either
     * this filter or the specified other filter applies.
     */
-  def orElse (other: FileFilter): FileFilter = new FileFilter {
-    def filter[G[_] : Async] (file: FilePath) = self.filter[G](file).ifM(
+  def orElse(other: FileFilter): FileFilter = new FileFilter {
+
+    def filter[G[_]: Async](file: FilePath) = self.filter[G](file).ifM(
       Async[G].pure(true),
       other.filter[G](file)
     )
+
   }
+
 }
 
 object FileFilter {
- 
-  def lift (f: FilePath => Boolean): FileFilter = new FileFilter {
-    def filter[F[_] : Async] (file: FilePath) = Async[F].pure(f(file))
+
+  def lift(f: FilePath => Boolean): FileFilter = new FileFilter {
+    def filter[F[_]: Async](file: FilePath) = Async[F].pure(f(file))
   }
-  
+
 }

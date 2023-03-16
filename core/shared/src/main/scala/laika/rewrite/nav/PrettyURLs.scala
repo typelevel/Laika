@@ -17,16 +17,16 @@
 package laika.rewrite.nav
 
 import laika.ast.Path
-import laika.bundle.{BundleOrigin, ExtensionBundle}
+import laika.bundle.{ BundleOrigin, ExtensionBundle }
 
 /** Extension specific to site rendering that translates the output path,
   * producing "pretty URLs" that do not contain the `html` file suffix.
-  * 
+  *
   * A path like `foo/bar.html` for example would be translated to `foo/bar/index.html` so that
   * links can be simply rendered as `foo/bar/`.
-  * 
+  *
   * When the render format is anything other than HTML, this extension has no effect.
-  * 
+  *
   * The extension can be added to a transformer like any other extension:
   *
   * {{{
@@ -38,9 +38,9 @@ import laika.bundle.{BundleOrigin, ExtensionBundle}
   *   .using(PrettyURLs)
   *   .build
   * }}}
-  * 
+  *
   * or via the `laikaExtensions` setting when using the sbt plugin:
-  * 
+  *
   * {{{
   *   laikaExtensions += PrettyURLs
   * }}}
@@ -52,19 +52,23 @@ object PrettyURLs extends ExtensionBundle {
   override val origin: BundleOrigin = BundleOrigin.Library
 
   val description: String = "Pretty URL extension for site rendering"
-  
+
   private val outputBaseName = "index"
   private val formatSelector = "html"
 
-  override def extendPathTranslator: PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
+  override def extendPathTranslator
+      : PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
     case context if context.outputContext.formatSelector == formatSelector =>
       val asPrettyURL: Path => Path = path =>
-        if (path.basename == outputBaseName || !path.suffix.contains(context.outputContext.fileSuffix)) path
+        if (
+          path.basename == outputBaseName || !path.suffix.contains(context.outputContext.fileSuffix)
+        ) path
         else {
-          val basePath = path.withoutFragment.withoutSuffix / outputBaseName
+          val basePath   = path.withoutFragment.withoutSuffix / outputBaseName
           val withSuffix = path.suffix.fold(basePath)(basePath.withSuffix)
           path.fragment.fold(withSuffix)(withSuffix.withFragment)
         }
       PathTranslator.postTranslate(context.baseTranslator)(asPrettyURL)
   }
+
 }

@@ -24,7 +24,7 @@ import laika.parse.Failure
 /** Base trait for all configuration errors that occurred
   * during parsing, resolving, retrieving or convering
   * configuration values.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait ConfigError {
@@ -32,15 +32,19 @@ sealed trait ConfigError {
 }
 
 /** Indicates that a value found in the configuration does not have the expected
-  * type so that type conversion is not even attempted. */
+  * type so that type conversion is not even attempted.
+  */
 case class InvalidType(expected: String, actual: ConfigValue) extends ConfigError {
-  val message: String = s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replace("Value","")}"
+
+  val message: String =
+    s"Invalid type - expected: $expected, actual: ${actual.productPrefix.replace("Value", "")}"
+
 }
 
 /** An error that occurred when decoding a configuration value to a target type. */
-case class DecodingError (error: String, key: Option[Key] = None) extends ConfigError {
+case class DecodingError(error: String, key: Option[Key] = None) extends ConfigError {
   val message: String = key.fold("")(k => s"Error decoding '${k.toString}': ") + error
-  def withKey (key: Key): DecodingError = copy(key = Some(key))
+  def withKey(key: Key): DecodingError = copy(key = Some(key))
 }
 
 /** A generic error for invalid values. */
@@ -55,23 +59,45 @@ case class ConfigParserError(failure: Failure) extends ConfigError {
 case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
   val message = failures.map(_.toString).mkString("Multiple errors parsing HOCON: ", ", ", "")
 }
+
 /** Multiple errors that occurred when processing configuration. */
 case class ConfigErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
-  val message = failures.map(_.toString).mkString_("Multiple errors processing configuration: ", ", ", "")
+
+  val message =
+    failures.map(_.toString).mkString_("Multiple errors processing configuration: ", ", ", "")
+
 }
+
 /** Multiple errors that occurred when processing configuration for a document. */
-case class DocumentConfigErrors(path: Path, failures: NonEmptyChain[ConfigError]) extends ConfigError {
-  val message = failures.map(_.toString).mkString_(s"Multiple errors processing configuration for document '$path': ", ", ", "")
+case class DocumentConfigErrors(path: Path, failures: NonEmptyChain[ConfigError])
+    extends ConfigError {
+
+  val message = failures.map(_.toString).mkString_(
+    s"Multiple errors processing configuration for document '$path': ",
+    ", ",
+    ""
+  )
+
 }
+
 object DocumentConfigErrors {
-  def apply (path: Path, error: ConfigError): DocumentConfigErrors = error match {
+
+  def apply(path: Path, error: ConfigError): DocumentConfigErrors = error match {
     case ConfigErrors(errors) => new DocumentConfigErrors(path, errors)
     case other                => new DocumentConfigErrors(path, NonEmptyChain.one(other))
   }
+
 }
+
 /** Multiple errors that occurred when processing configuration for a document tree. */
 case class TreeConfigErrors(failures: NonEmptyChain[DocumentConfigErrors]) extends ConfigError {
-  val message = failures.map(_.toString).mkString_(s"Multiple errors processing configuration for document tree: ", ", ", "")
+
+  val message = failures.map(_.toString).mkString_(
+    s"Multiple errors processing configuration for document tree: ",
+    ", ",
+    ""
+  )
+
 }
 
 /** An error that occurred when resolving the interim result of a parsing operation. */

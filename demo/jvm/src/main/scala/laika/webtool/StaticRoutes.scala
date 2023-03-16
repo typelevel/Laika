@@ -17,11 +17,10 @@
 package laika.webtool
 
 import cats.effect.IO
-import org.http4s.{HttpRoutes, Request, Response, StaticFile}
+import org.http4s.{ HttpRoutes, Request, Response, StaticFile }
 import org.http4s.dsl.io._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object StaticRoutes {
 
@@ -31,11 +30,11 @@ object StaticRoutes {
   val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
 
     case req @ GET -> Root => static("index.html", req)
-      
+
     case req @ GET -> Root / "bundle.js" => static("bundle.js", req)
-      
+
     case req @ GET -> Root / "assets" / file => static(s"assets/$file", req)
-    
+
   }
-  
+
 }

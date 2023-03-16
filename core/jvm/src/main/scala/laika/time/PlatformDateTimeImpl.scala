@@ -17,13 +17,12 @@
 package laika.time
 
 import cats.syntax.all._
-import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder, FormatStyle}
-import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
+import java.time.format.{ DateTimeFormatter, DateTimeFormatterBuilder, FormatStyle }
+import java.time.{ LocalDateTime, OffsetDateTime, ZoneId }
 import java.util.Locale
 import scala.util.Try
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object PlatformDateTimeImpl extends PlatformDateTime {
 
@@ -36,7 +35,7 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     .appendPattern("[XXX][X]")
     .toFormatter
 
-  def parse (dateString: String): Either[String, Type] = {
+  def parse(dateString: String): Either[String, Type] = {
 
     def parseOffsetDateTime(input: String): Either[String, Type] = Try {
       OffsetDateTime.from(offsetDateTime.parse(input))
@@ -51,16 +50,21 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     else parseLocalDateTime(dateString + "T00:00:00")
   }
 
-  private[laika] def format (date: Type, pattern: String, locale: Option[String] = None): Either[String, String] =
+  private[laika] def format(
+      date: Type,
+      pattern: String,
+      locale: Option[String] = None
+  ): Either[String, String] =
     getLocale(locale).flatMap { loc =>
-      Try(new DateTimeFormatterBuilder()
-        .appendPattern(pattern)
-        .toFormatter
-        .withLocale(loc)
-        .format(date)
+      Try(
+        new DateTimeFormatterBuilder()
+          .appendPattern(pattern)
+          .toFormatter
+          .withLocale(loc)
+          .format(date)
       ).toEither.left.map(_.getMessage)
     }
-    
+
   private lazy val formatterConstants = Map(
     "BASIC_ISO_DATE"       -> DateTimeFormatter.BASIC_ISO_DATE,
     "ISO_LOCAL_DATE"       -> DateTimeFormatter.ISO_LOCAL_DATE,
@@ -77,20 +81,24 @@ object PlatformDateTimeImpl extends PlatformDateTime {
     "ISO_WEEK_DATE"        -> DateTimeFormatter.ISO_WEEK_DATE,
     "ISO_INSTANT"          -> DateTimeFormatter.ISO_INSTANT,
     "RFC_1123_DATE_TIME"   -> DateTimeFormatter.RFC_1123_DATE_TIME,
-    "MEDIUM" -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM),
-    "SHORT"  -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+    "MEDIUM"               -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM),
+    "SHORT"                -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
   )
-  
-  private def getLocale (languageTag: Option[String]): Either[String, Locale] = 
+
+  private def getLocale(languageTag: Option[String]): Either[String, Locale] =
     languageTag.fold[Either[String, Locale]](Right(Locale.getDefault)) { lang =>
       Try(new Locale.Builder().setLanguageTag(lang).build()).toEither.leftMap(_.getMessage)
     }
 
-  private[laika] def formatConstant (date: Type, constant: String, locale: Option[String] = None): Option[Either[String, String]] = 
+  private[laika] def formatConstant(
+      date: Type,
+      constant: String,
+      locale: Option[String] = None
+  ): Option[Either[String, String]] =
     formatterConstants.get(constant.trim.toUpperCase).map { formatter =>
       getLocale(locale).flatMap { loc =>
         Try(formatter.withLocale(loc).format(date)).toEither.leftMap(_.getMessage)
       }
     }
-    
+
 }

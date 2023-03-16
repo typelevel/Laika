@@ -26,36 +26,35 @@ import laika.parse.markup.DocumentParser.ParserError
 import munit.FunSuite
 
 class DocumentAPISpec extends FunSuite
-  with ParagraphCompanionShortcuts {
-
+    with ParagraphCompanionShortcuts {
 
   val defaultParser: MarkupParser = MarkupParser.of(Markdown).build
 
   test("specify a title in a config section") {
     val markup = """{% laika.title: Foo and Bar %}
-      |
-      |# Ignored Title
-      |
-      |Some text
-      |
-      |## Section
-      |
-      |Some more text""".stripMargin
+                   |
+                   |# Ignored Title
+                   |
+                   |Some text
+                   |
+                   |## Section
+                   |
+                   |Some more text""".stripMargin
 
     assertEquals(
-      defaultParser.parse(markup).map(_.title), 
+      defaultParser.parse(markup).map(_.title),
       Right(Some(SpanSequence("Foo and Bar")))
     )
   }
 
   test("no title if run in the default mode for pure parsers where title extraction is disabled") {
     val markup = """# Title
-      |
-      |Some text
-      |
-      |## Section
-      |
-      |Some more text""".stripMargin
+                   |
+                   |Some text
+                   |
+                   |## Section
+                   |
+                   |Some more text""".stripMargin
 
     assertEquals(
       defaultParser.parse(markup).map(_.title),
@@ -63,7 +62,9 @@ class DocumentAPISpec extends FunSuite
     )
   }
 
-  test("use the title from the first headline if it is not overridden in a config section and title extraction is enabled") {
+  test(
+    "use the title from the first headline if it is not overridden in a config section and title extraction is enabled"
+  ) {
     val markup = """# Title
                    |
                    |Some text
@@ -78,14 +79,16 @@ class DocumentAPISpec extends FunSuite
       .build
       .parse(markup)
       .flatMap(_.title.toRight(ParserError("no title", Root)))
-    
+
     assertEquals(res, Right(SpanSequence("Title")))
   }
 
-  test("return an empty list if there is neither a structure with a title nor a title in a config section") {
+  test(
+    "return an empty list if there is neither a structure with a title nor a title in a config section"
+  ) {
     val markup = """Some text
-      |
-      |Some more text""".stripMargin
+                   |
+                   |Some more text""".stripMargin
 
     assertEquals(
       defaultParser.parse(markup).map(_.title),
@@ -95,23 +98,25 @@ class DocumentAPISpec extends FunSuite
 
   test("produce the same result when rewriting a document once or twice") {
     val markup = """# Section 1
-      |
-      |Some text
-      |
-      |# Section 2
-      |
-      |Some more text""".stripMargin
-    
+                   |
+                   |Some text
+                   |
+                   |# Section 2
+                   |
+                   |Some more text""".stripMargin
+
     val doc = defaultParser.parseUnresolved(markup).toOption.get.document
 
     val rewritten1 = OperationConfig.default
       .rewriteRulesFor(doc, RewritePhase.Resolve)
       .flatMap(doc.rewrite)
     val rewritten2 = rewritten1
-      .flatMap(doc => OperationConfig.default
-        .rewriteRulesFor(doc, RewritePhase.Resolve)
-        .flatMap(doc.rewrite))
-    
+      .flatMap(doc =>
+        OperationConfig.default
+          .rewriteRulesFor(doc, RewritePhase.Resolve)
+          .flatMap(doc.rewrite)
+      )
+
     assertEquals(
       rewritten1.map(_.content),
       rewritten2.map(_.content)
@@ -120,18 +125,18 @@ class DocumentAPISpec extends FunSuite
 
   test("allow to rewrite the document using a custom rule") {
     val markup = """# Title
-      |
-      |# Section 1
-      |
-      |Some text
-      |
-      |# Section 2
-      |
-      |Some more text""".stripMargin
+                   |
+                   |# Section 1
+                   |
+                   |Some text
+                   |
+                   |# Section 2
+                   |
+                   |Some more text""".stripMargin
 
-    val raw = defaultParser.parseUnresolved(markup).toOption.get.document
-    val testRule = RewriteRules.forSpans {
-      case Text("Some text",_) => Replace(Text("Swapped"))
+    val raw       = defaultParser.parseUnresolved(markup).toOption.get.document
+    val testRule  = RewriteRules.forSpans { case Text("Some text", _) =>
+      Replace(Text("Swapped"))
     }
     val rewritten = OperationConfig.default
       .rewriteRulesFor(raw.copy(position = TreePosition.root), RewritePhase.Resolve)
@@ -139,13 +144,20 @@ class DocumentAPISpec extends FunSuite
 
     assertEquals(
       rewritten.map(_.content),
-      Right(RootElement(
-        Title(List(Text("Title")), Id("title") + Style.title),
-        Section(Header(1, List(Text("Section 1")), Id("section-1") + Style.section), List(p("Swapped"))),
-        Section(Header(1, List(Text("Section 2")), Id("section-2") + Style.section), List(p("Some more text")))
-      ))
+      Right(
+        RootElement(
+          Title(List(Text("Title")), Id("title") + Style.title),
+          Section(
+            Header(1, List(Text("Section 1")), Id("section-1") + Style.section),
+            List(p("Swapped"))
+          ),
+          Section(
+            Header(1, List(Text("Section 2")), Id("section-2") + Style.section),
+            List(p("Some more text"))
+          )
+        )
+      )
     )
   }
-
 
 }

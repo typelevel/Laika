@@ -21,18 +21,18 @@ import laika.ast._
 import laika.parse.Parser
 import laika.parse.implicits._
 import laika.parse.builders._
-import laika.parse.text.{CharGroup, Characters}
+import laika.parse.text.{ CharGroup, Characters }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object BaseParsers {
 
   /** Set of punctuation characters as supported by transitions (rules) and
     * overlines and underlines for header sections.
     */
-  private[laika] val punctuationChars: NonEmptySet[Char] = 
-    NonEmptySet.of('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
+  private[laika] val punctuationChars: NonEmptySet[Char] =
+    NonEmptySet.of('!', '"', '#', '$', '%', '&', '\'', '(', ')', '[', ']', '{', '}', '*', '+', ',',
+      '-', '.', ':', ';', '/', '<', '>', '=', '?', '@', '\\', '^', '_', '`', '|', '~')
 
   /** Parses punctuation characters as supported by transitions (rules) and
     * overlines and underlines for header sections.
@@ -46,7 +46,7 @@ object BaseParsers {
     */
   val simpleRefName: Parser[String] = {
     val alphaNum = someWhile(c => Character.isDigit(c) || Character.isLetter(c))
-    val symbol = oneOf('-', '_', '.', ':', '+').void
+    val symbol   = oneOf('-', '_', '.', ':', '+').void
 
     alphaNum.rep(symbol).min(1).source
   }
@@ -55,11 +55,11 @@ object BaseParsers {
     * The unit is mandatory and must be CSS-compatible.
     */
   val sizeAndUnit: Parser[Length] = {
-    def evalLength (value: String): Either[String, LengthUnit] = 
+    def evalLength(value: String): Either[String, LengthUnit] =
       LengthUnit.fromString(value).toRight(s"Invalid length unit: $value")
-    val digit = someOf(CharGroup.digit)
+    val digit                                                 = someOf(CharGroup.digit)
     val amount = (digit ~ opt("." ~ digit)).source.map(_.toDouble)
-    val unit = (simpleRefName | "%").evalMap(evalLength)
+    val unit   = (simpleRefName | "%").evalMap(evalLength)
     (amount ~ (ws ~> unit)).mapN(Length.apply)
   }
 
@@ -68,9 +68,9 @@ object BaseParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
-    val decimal = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
-    val autonumber = literal("#").as(Autonumber)
-    val autosymbol = literal("*").as(Autosymbol)
+    val decimal         = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
+    val autonumber      = literal("#").as(Autonumber)
+    val autosymbol      = literal("*").as(Autosymbol)
     val autonumberLabel = "#" ~> simpleRefName.map(AutonumberLabel.apply)
 
     decimal | autonumberLabel | autonumber | autosymbol

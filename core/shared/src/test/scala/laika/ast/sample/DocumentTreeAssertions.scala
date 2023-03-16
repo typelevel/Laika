@@ -16,95 +16,117 @@
 
 package laika.ast.sample
 
-import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TemplateDocument}
+import laika.ast.{ Document, DocumentTree, DocumentTreeRoot, TemplateDocument }
 import laika.config.Config.ConfigResult
 import munit.Assertions
 
 trait DocumentTreeAssertions extends Assertions { self =>
 
-  implicit class DocumentTreeRootEitherOps (val root: ConfigResult[DocumentTreeRoot]) {
+  implicit class DocumentTreeRootEitherOps(val root: ConfigResult[DocumentTreeRoot]) {
 
-    def assertEquals (expected: DocumentTreeRoot): Unit = {
+    def assertEquals(expected: DocumentTreeRoot): Unit = {
       root.fold(
-        err  => Assertions.fail(s"rewriting failed: $err"), 
-        root => root.assertEquals(expected)
-      )
-    }
-    
-  }
-
-  implicit class DocumentTreeEitherOps (val root: ConfigResult[DocumentTree]) {
-
-    def assertEquals (expected: DocumentTree): Unit = {
-      root.fold(
-        err  => Assertions.fail(s"rewriting failed: $err"),
+        err => Assertions.fail(s"rewriting failed: $err"),
         root => root.assertEquals(expected)
       )
     }
 
   }
-  
-  implicit class DocumentTreeRootOps (val root: DocumentTreeRoot) {
 
-    def assertEquals (expected: DocumentTreeRoot): Unit = {
+  implicit class DocumentTreeEitherOps(val root: ConfigResult[DocumentTree]) {
+
+    def assertEquals(expected: DocumentTree): Unit = {
+      root.fold(
+        err => Assertions.fail(s"rewriting failed: $err"),
+        root => root.assertEquals(expected)
+      )
+    }
+
+  }
+
+  implicit class DocumentTreeRootOps(val root: DocumentTreeRoot) {
+
+    def assertEquals(expected: DocumentTreeRoot): Unit = {
 
       root.tree.assertEquals(expected.tree)
 
-      self.assertEquals(root.allDocuments.map(_.path), expected.allDocuments.map(_.path), "tree structure differs")
-      
+      self.assertEquals(
+        root.allDocuments.map(_.path),
+        expected.allDocuments.map(_.path),
+        "tree structure differs"
+      )
+
       (root.coverDocument, expected.coverDocument) match {
         case (Some(actual), Some(exp)) => actual.assertEquals(exp)
-        case _ => ()
+        case _                         => ()
       }
 
-      self.assertEquals(root.staticDocuments, expected.staticDocuments, "number or names of static documents differ")
-      
+      self.assertEquals(
+        root.staticDocuments,
+        expected.staticDocuments,
+        "number or names of static documents differ"
+      )
+
     }
+
   }
 
-  implicit class DocumentTreeOps (val tree: DocumentTree) {
-    
-    def assertEquals (expected: DocumentTree): Unit = {
-      
+  implicit class DocumentTreeOps(val tree: DocumentTree) {
+
+    def assertEquals(expected: DocumentTree): Unit = {
+
       def validateStructure(): Unit = {
-        self.assertEquals(tree.allDocuments.map(_.path), expected.allDocuments.map(_.path), "tree structure differs")
+        self.assertEquals(
+          tree.allDocuments.map(_.path),
+          expected.allDocuments.map(_.path),
+          "tree structure differs"
+        )
       }
-      
+
       def validateContent(): Unit = {
         tree.allDocuments.zip(expected.allDocuments).foreach { case (actual, expected) =>
           actual.assertEquals(expected)
         }
       }
-      
-      def collectTemplates (tree: DocumentTree): Seq[TemplateDocument] = tree.templates ++ tree.content.collect {
-        case child: DocumentTree => collectTemplates(child)
-      }.flatten
-      
+
+      def collectTemplates(tree: DocumentTree): Seq[TemplateDocument] =
+        tree.templates ++ tree.content.collect { case child: DocumentTree =>
+          collectTemplates(child)
+        }.flatten
+
       def validateTemplates(): Unit = {
-        val actualTmp = collectTemplates(tree)
+        val actualTmp   = collectTemplates(tree)
         val expectedTmp = collectTemplates(expected)
-        self.assertEquals(actualTmp.map(_.path), expectedTmp.map(_.path), "number or names of templates differs")
+        self.assertEquals(
+          actualTmp.map(_.path),
+          expectedTmp.map(_.path),
+          "number or names of templates differs"
+        )
         actualTmp.zip(expectedTmp).foreach { case (actual, expected) =>
-          self.assertEquals(actual.content, expected.content, s"difference in content of template '${actual.path.toString}'")
+          self.assertEquals(
+            actual.content,
+            expected.content,
+            s"difference in content of template '${actual.path.toString}'"
+          )
         }
       }
-      
+
       validateStructure()
       validateContent()
       validateTemplates()
     }
-    
+
   }
 
-  implicit class DocumentOps (val actual: Document) {
-    
-    def assertEquals (expected: Document): Unit = {
+  implicit class DocumentOps(val actual: Document) {
+
+    def assertEquals(expected: Document): Unit = {
       val doc = s"of document '${actual.path.toString}'"
       self.assertEquals(actual.content, expected.content, s"difference in content $doc")
       self.assertEquals(actual.title, expected.title, s"difference in title $doc")
       self.assertEquals(actual.fragments, expected.fragments, s"difference in fragments $doc")
     }
-    
+
   }
-  
+
 }

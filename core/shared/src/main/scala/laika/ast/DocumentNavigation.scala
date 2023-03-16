@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.rewrite.nav.TargetFormats
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
-  * 
+  *
   * @author Jens Halm
   */
 trait DocumentNavigation extends Navigatable {
@@ -38,14 +38,23 @@ trait DocumentNavigation extends Navigatable {
   def sections: Seq[SectionInfo]
 
   /** Creates the navigation structure for this document up to the specified depth.
-    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections. 
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections.
     *
     * @param context captures the navigation depth, reference path and styles for the navigation tree being built
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
-  def asNavigationItem (context: NavigationBuilderContext = NavigationBuilderContext()): NavigationItem = {
-    val children = if (context.isComplete || context.excludeSections) Nil else sections.map(_.asNavigationItem(path, context.nextLevel))
-    context.newNavigationItem(title.getOrElse(SpanSequence(path.name)), path, children, targetFormats)
+  def asNavigationItem(
+      context: NavigationBuilderContext = NavigationBuilderContext()
+  ): NavigationItem = {
+    val children =
+      if (context.isComplete || context.excludeSections) Nil
+      else sections.map(_.asNavigationItem(path, context.nextLevel))
+    context.newNavigationItem(
+      title.getOrElse(SpanSequence(path.name)),
+      path,
+      children,
+      targetFormats
+    )
   }
 
   /** The formats this document should be rendered to.
@@ -63,26 +72,51 @@ trait DocumentNavigation extends Navigatable {
   * @param excludeSections indicates whether the recursion should exclude sections of documents even when maxLevels
   *                        has not been reached yet
   */
-case class NavigationBuilderContext (refPath: Path = Root,
-                                     itemStyles: Set[String] = Set(),
-                                     maxLevels: Int = Int.MaxValue,
-                                     currentLevel: Int = 1,
-                                     excludeSections: Boolean = false,
-                                     excludeSelf: Boolean = false) {
+case class NavigationBuilderContext(
+    refPath: Path = Root,
+    itemStyles: Set[String] = Set(),
+    maxLevels: Int = Int.MaxValue,
+    currentLevel: Int = 1,
+    excludeSections: Boolean = false,
+    excludeSelf: Boolean = false
+) {
 
   lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
 
   val isComplete: Boolean = currentLevel >= maxLevels
 
-  def newNavigationItem (title: SpanSequence, target: Option[DocumentNavigation], children: Seq[NavigationItem], targetFormats: TargetFormats): NavigationItem =
-    createNavigationItem(title, target.map(doc => (doc.path, doc.targetFormats)), children, targetFormats)
+  def newNavigationItem(
+      title: SpanSequence,
+      target: Option[DocumentNavigation],
+      children: Seq[NavigationItem],
+      targetFormats: TargetFormats
+  ): NavigationItem =
+    createNavigationItem(
+      title,
+      target.map(doc => (doc.path, doc.targetFormats)),
+      children,
+      targetFormats
+    )
 
-  def newNavigationItem (title: SpanSequence, target: Path, children: Seq[NavigationItem], targetFormats: TargetFormats): NavigationItem =
+  def newNavigationItem(
+      title: SpanSequence,
+      target: Path,
+      children: Seq[NavigationItem],
+      targetFormats: TargetFormats
+  ): NavigationItem =
     createNavigationItem(title, Some((target, TargetFormats.All)), children, targetFormats)
-  
-  private def createNavigationItem (title: SpanSequence, target: Option[(Path, TargetFormats)], children: Seq[NavigationItem], targetFormats: TargetFormats): NavigationItem = {
+
+  private def createNavigationItem(
+      title: SpanSequence,
+      target: Option[(Path, TargetFormats)],
+      children: Seq[NavigationItem],
+      targetFormats: TargetFormats
+  ): NavigationItem = {
     val styles = Style.level(currentLevel) + Styles(itemStyles)
-    val link = target.map { case (path, formats) => NavigationLink(InternalTarget(path).relativeTo(refPath), path == refPath, formats) }
+    val link   = target.map { case (path, formats) =>
+      NavigationLink(InternalTarget(path).relativeTo(refPath), path == refPath, formats)
+    }
     NavigationItem(title, children, link, targetFormats, styles)
   }
+
 }

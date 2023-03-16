@@ -18,60 +18,61 @@ package laika.config
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.ast.DocumentType.{Markup, Static, Template}
+import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.bundle.BundleProvider.TestExtensionBundle
 import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{BundleOrigin, BundleProvider, ExtensionBundle}
+import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
 import laika.factory.MarkupFormat
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class OperationConfigSpec extends FunSuite {
 
-
-  def createConfig (parserBundles: Seq[ExtensionBundle],
-                    appBundles: Seq[ExtensionBundle]): OperationConfig = {
+  def createConfig(
+      parserBundles: Seq[ExtensionBundle],
+      appBundles: Seq[ExtensionBundle]
+  ): OperationConfig = {
 
     object Parser extends MarkupFormat {
-      val fileSuffixes = Set("foo")
-      val blockParsers = Nil
-      val spanParsers = Nil
+      val fileSuffixes    = Set("foo")
+      val blockParsers    = Nil
+      val spanParsers     = Nil
       lazy val extensions = parserBundles
     }
 
     val base = OperationConfig.default.withBundlesFor(Parser)
-    appBundles.foldLeft(base){ (acc, bundle) => acc.withBundles(Seq(bundle)) }
-  
+    appBundles.foldLeft(base) { (acc, bundle) => acc.withBundles(Seq(bundle)) }
+
   }
 
-  
   test("extension bundles - merge bundles based on their origin and configuration order") {
     object UserBundle1 extends TestExtensionBundle
     object UserBundle2 extends TestExtensionBundle
     object ThemeBundle extends TestExtensionBundle {
       override val origin: BundleOrigin = BundleOrigin.Theme
     }
-    
+
     val bundles1 = Seq(UserBundle1, LaikaDefaults, ThemeBundle, GitHubFlavor, UserBundle2)
     val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.Empty)
-    val config1 = OperationConfig(bundles1)
-    val config2 = OperationConfig(bundles2)
-    assertEquals(config1.merge(config2).bundles, Seq(
-      LaikaDefaults,
-      ExtensionBundle.Empty,
-      GitHubFlavor,
-      VerbatimHTML,
-      ThemeBundle,
-      UserBundle1,
-      UserBundle2
-    ))
+    val config1  = OperationConfig(bundles1)
+    val config2  = OperationConfig(bundles2)
+    assertEquals(
+      config1.merge(config2).bundles,
+      Seq(
+        LaikaDefaults,
+        ExtensionBundle.Empty,
+        GitHubFlavor,
+        VerbatimHTML,
+        ThemeBundle,
+        UserBundle1,
+        UserBundle2
+      )
+    )
   }
-
 
   test("baseConfig - merge config from a markup extension with config from an app extension") {
     val config = createConfig(
@@ -83,7 +84,7 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(baseConfig.get[Int]("foo"), Right(1))
     assertEquals(baseConfig.get[Int]("bar"), Right(2))
   }
-  
+
   test("baseConfig - let an app config override an identical key in the extension config") {
     val config = createConfig(
       parserBundles = Seq(BundleProvider.forConfigString("foo: 1")),
@@ -94,21 +95,25 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
 
-  test("baseConfig - let an app config override an identical key in a previously installed app config") {
+  test(
+    "baseConfig - let an app config override an identical key in a previously installed app config"
+  ) {
     val config = createConfig(
       parserBundles = Nil,
-      appBundles = Seq(BundleProvider.forConfigString("foo: 1"), BundleProvider.forConfigString("foo: 2"))
+      appBundles =
+        Seq(BundleProvider.forConfigString("foo: 1"), BundleProvider.forConfigString("foo: 2"))
     )
 
     val baseConfig = config.baseConfig
     assertEquals(baseConfig.get[Int]("foo"), Right(2))
   }
 
-
-  test("docTypeMatcher - merge matcher from a markup extension with the matcher from an app extension") {
+  test(
+    "docTypeMatcher - merge matcher from a markup extension with the matcher from an app extension"
+  ) {
     val config = createConfig(
       parserBundles = Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Markup }),
-      appBundles =    Seq(BundleProvider.forDocTypeMatcher { case Root / "bar" => Markup })
+      appBundles = Seq(BundleProvider.forDocTypeMatcher { case Root / "bar" => Markup })
     )
 
     val docTypeMatcher = config.docTypeMatcher
@@ -117,10 +122,12 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(docTypeMatcher(Root / "baz"), Static())
   }
 
-  test("docTypeMatcher - let an app config override an identical path key in the extension config") {
+  test(
+    "docTypeMatcher - let an app config override an identical path key in the extension config"
+  ) {
     val config = createConfig(
       parserBundles = Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Markup }),
-      appBundles =    Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Template })
+      appBundles = Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Template })
     )
 
     val docTypeMatcher = config.docTypeMatcher
@@ -128,10 +135,12 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(docTypeMatcher(Root / "bar"), Static())
   }
 
-  test("docTypeMatcher - let an app config override an identical path key in a previously installed app config") {
+  test(
+    "docTypeMatcher - let an app config override an identical path key in a previously installed app config"
+  ) {
     val config = createConfig(
       parserBundles = Nil,
-      appBundles =    Seq(
+      appBundles = Seq(
         BundleProvider.forDocTypeMatcher { case Root / "foo" => Markup },
         BundleProvider.forDocTypeMatcher { case Root / "foo" => Template }
       )
@@ -142,47 +151,66 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(docTypeMatcher(Root / "bar"), Static())
   }
 
-
   test("rewrite rules - merge a rule from a markup extension with the rule from an app extension") {
     val config = createConfig(
-      parserBundles = Seq(BundleProvider.forSpanRewriteRule { case s: Strong => Replace(Literal(s.extractText)) }),
-      appBundles =    Seq(BundleProvider.forSpanRewriteRule { case s: Emphasized => Replace(Literal(s.extractText)) })
+      parserBundles = Seq(BundleProvider.forSpanRewriteRule { case s: Strong =>
+        Replace(Literal(s.extractText))
+      }),
+      appBundles = Seq(BundleProvider.forSpanRewriteRule { case s: Emphasized =>
+        Replace(Literal(s.extractText))
+      })
     )
 
     val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
 
     val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
-    assertEquals(config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite), Right(expected))
+    assertEquals(
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
+      Right(expected)
+    )
   }
 
-  test("rewrite rules - apply a rule from an app config and a rule from a markup extension successively") {
+  test(
+    "rewrite rules - apply a rule from an app config and a rule from a markup extension successively"
+  ) {
     val config = createConfig(
-      parserBundles = Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"!")) }),
-      appBundles =    Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) })
+      parserBundles = Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) =>
+        Replace(Literal(text + "!"))
+      }),
+      appBundles = Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) =>
+        Replace(Literal(text + "?"))
+      })
     )
 
-    val doc =      Document(Root, RootElement(Literal("foo")))
+    val doc      = Document(Root, RootElement(Literal("foo")))
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
-    assertEquals(config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite), Right(expected))
+    assertEquals(
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
+      Right(expected)
+    )
   }
 
-  test("rewrite rules - apply a rule from an app config and a rule from a previously installed app config successively") {
+  test(
+    "rewrite rules - apply a rule from an app config and a rule from a previously installed app config successively"
+  ) {
     val config = createConfig(
       parserBundles = Nil,
-      appBundles =    Seq(
-        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"!")) },
-        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) }
+      appBundles = Seq(
+        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text + "!")) },
+        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text + "?")) }
       )
     )
 
-    val doc =      Document(Root, RootElement(Literal("foo")))
+    val doc      = Document(Root, RootElement(Literal("foo")))
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
-    assertEquals(config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite), Right(expected))
+    assertEquals(
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
+      Right(expected)
+    )
   }
-
 
   case object Defaults extends TestExtensionBundle
 
@@ -195,7 +223,7 @@ class OperationConfigSpec extends FunSuite {
   }
 
   case object Both extends TestExtensionBundle {
-    override def forStrictMode: Option[ExtensionBundle] = None
+    override def forStrictMode: Option[ExtensionBundle]      = None
     override def rawContentDisabled: Option[ExtensionBundle] = None
   }
 
@@ -213,7 +241,9 @@ class OperationConfigSpec extends FunSuite {
     assertEquals(finalConfig.filteredBundles, Seq(Defaults, NonStrict, RawContent, Both))
   }
 
-  test("strict/raw flags - remove all non-strict and raw content bundles if strict is set to true") {
+  test(
+    "strict/raw flags - remove all non-strict and raw content bundles if strict is set to true"
+  ) {
     val finalConfig = flagSetup.forStrictMode
     assertEquals(finalConfig.filteredBundles, Seq(Defaults))
   }

@@ -17,35 +17,38 @@
 package laika.render
 
 import laika.ast._
-import laika.ast.sample.{BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees}
+import laika.ast.sample.{ BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees }
 import laika.format.PDF
 
 trait PDFTreeModel {
-  
-  def content (key: BuilderKey): Seq[Block] = Seq(
+
+  def content(key: BuilderKey): Seq[Block] = Seq(
     Title(Seq(Text(s"Title ${key.num} & More")), Id(s"title-${key.num}") + Style.title),
     Paragraph(s"Text ${key.num}")
   )
-  def titleDocContent (num: Int): Seq[Block] = Seq(
+
+  def titleDocContent(num: Int): Seq[Block] = Seq(
     Title(Seq(Text(s"Title Doc $num")), Id(s"title-$num") + Style.title),
     Paragraph(s"Text $num")
   )
-  
-  def treeSetup (useTitleDocuments: Boolean): SampleSixDocuments => SampleSixDocuments = 
-    if (!useTitleDocuments) _
-      .tree1.config(SampleConfig.title("Tree 1 & More"))
-      .tree2.config(SampleConfig.title("Tree 2 & More"))
-    else 
+
+  def treeSetup(useTitleDocuments: Boolean): SampleSixDocuments => SampleSixDocuments =
+    if (!useTitleDocuments)
+      _
+        .tree1.config(SampleConfig.title("Tree 1 & More"))
+        .tree2.config(SampleConfig.title("Tree 2 & More"))
+    else
       _.tree1.titleDoc.content(titleDocContent(2))
-       .tree2.titleDoc.content(titleDocContent(3))
-          
+        .tree2.titleDoc.content(titleDocContent(3))
+
   private val navConfigKey = PDF.BookConfig.defaultKey.value.child("navigationDepth")
-  
-  def createTree (navigationDepth: Int = 23, useTitleDocuments: Boolean = false): DocumentTree = SampleTrees.sixDocuments
-    .root.config(_.withValue(navConfigKey, navigationDepth))
-    .docContent(content _)
-    .apply(treeSetup(useTitleDocuments))
-    .build
-    .tree
-  
+
+  def createTree(navigationDepth: Int = 23, useTitleDocuments: Boolean = false): DocumentTree =
+    SampleTrees.sixDocuments
+      .root.config(_.withValue(navConfigKey, navigationDepth))
+      .docContent(content _)
+      .apply(treeSetup(useTitleDocuments))
+      .build
+      .tree
+
 }

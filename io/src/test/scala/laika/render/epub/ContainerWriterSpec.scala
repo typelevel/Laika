@@ -21,9 +21,7 @@ import laika.format.EPUB
 import laika.io.model.RenderedTreeRoot
 import munit.FunSuite
 
-
 class ContainerWriterSpec extends FunSuite {
-
 
   val writer = new ContainerWriter
 
@@ -35,12 +33,11 @@ class ContainerWriterSpec extends FunSuite {
     "/EPUB/nav.xhtml",
     "/EPUB/toc.ncx"
   )
-  
-  def collectInputs (renderResult: RenderedTreeRoot[IO]): Seq[String] = 
+
+  def collectInputs(renderResult: RenderedTreeRoot[IO]): Seq[String] =
     writer
       .collectInputs(renderResult, EPUB.BookConfig())
       .map(_.path.toString)
-
 
   test("collect a single target document") {
     assertEquals(collectInputs(SingleDocument.input), standardFiles :+ "/EPUB/content/foo.xhtml")

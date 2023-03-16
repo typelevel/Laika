@@ -16,30 +16,32 @@
 
 package laika.render.pdf
 
-import java.io.{ByteArrayInputStream, File}
+import java.io.{ ByteArrayInputStream, File }
 
 import cats.effect.Async
 import cats.effect.std.Dispatcher
 import laika.format.PDF
 import laika.io.model.BinaryInput
-import org.apache.fop.apps.{FopConfParser, FopFactory}
+import org.apache.fop.apps.{ FopConfParser, FopFactory }
 
 /** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.
-  * 
+  *
   * @author Jens Halm
   */
 object FopFactoryBuilder {
-  
-  def generateXMLConfig (config: PDF.BookConfig): String = {
+
+  def generateXMLConfig(config: PDF.BookConfig): String = {
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here
     val fontDefs = config.fonts.flatMap { font =>
       font.resource.embedResource.map { res =>
         s"""        <font kerning="yes" embed-url="${res.path}" embedding-mode="subset">
-           |          <font-triplet name="${font.family}" style="${font.style.value}" weight="${font.weight.value}"/>
+           |          <font-triplet name="${font.family}" style="${font.style.value}" weight="${
+            font.weight.value
+          }"/>
            |        </font>""".stripMargin
       }
     }.mkString("\n").stripPrefix("        ")
-    
+
     s"""<fop version="1.0">
        |  <renderers>
        |    <renderer mime="application/pdf">
@@ -51,15 +53,19 @@ object FopFactoryBuilder {
        |</fop>""".stripMargin
   }
 
-  def build[F[_]: Async] (config: PDF.BookConfig, staticDocs: Seq[BinaryInput[F]], dispatcher: Dispatcher[F]): F[FopFactory] = {
-    
-    val confInput = new ByteArrayInputStream(generateXMLConfig(config).getBytes)
-    val resolver = new FopResourceResolver(staticDocs, dispatcher)
+  def build[F[_]: Async](
+      config: PDF.BookConfig,
+      staticDocs: Seq[BinaryInput[F]],
+      dispatcher: Dispatcher[F]
+  ): F[FopFactory] = {
 
-    Async[F].delay { 
+    val confInput = new ByteArrayInputStream(generateXMLConfig(config).getBytes)
+    val resolver  = new FopResourceResolver(staticDocs, dispatcher)
+
+    Async[F].delay {
       val parser = new FopConfParser(confInput, new File(".").toURI, resolver)
-      parser.getFopFactoryBuilder.build() 
+      parser.getFopFactoryBuilder.build()
     }
   }
-  
+
 }

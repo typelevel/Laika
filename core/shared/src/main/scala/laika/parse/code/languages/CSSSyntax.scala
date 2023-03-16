@@ -17,71 +17,74 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{CodeSpan, ~}
+import laika.ast.{ CodeSpan, ~ }
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.Characters
 import laika.parse.builders._
 import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.code.implicits._
 import laika.parse.implicits._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object CSSSyntax extends SyntaxHighlighter {
-  
+
   private val ws: Characters[String] = anyOf('\n', ' ')
-  
-  private def idBase (category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser = 
+
+  private def idBase(category: CodeCategory, allowDigitBeforeStart: Boolean): Identifier.IdParser =
     Identifier.alphaNum
-      .withIdStartChars('_','-')
+      .withIdStartChars('_', '-')
       .withCategory(category)
       .copy(allowDigitBeforeStart = allowDigitBeforeStart)
-  
-  def identifier (category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParser = {
+
+  def identifier(category: CodeCategory, allowDigitBeforeStart: Boolean): CodeSpanParser = {
     val base = idBase(category, allowDigitBeforeStart)
     base.withPrefix("@" | "#") ++ base
   }
-  
-  lazy val escape: CodeSpanParser = 
-    CodeSpanParser(CodeCategory.EscapeSequence)(("\\" ~ DigitParsers.hex.min(1)).source) ++ StringLiteral.Escape.char
+
+  lazy val escape: CodeSpanParser =
+    CodeSpanParser(CodeCategory.EscapeSequence)(
+      ("\\" ~ DigitParsers.hex.min(1)).source
+    ) ++ StringLiteral.Escape.char
 
   lazy val url: CodeSpanParser = CodeSpanParser {
     (literal("url(") ~ ws ~ anyNot('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
-      case _ ~ ws1 ~ value ~ ws2 ~ _ => Seq(
-        CodeSpan("url", CodeCategory.Identifier),
-        CodeSpan("(" + ws1),
-        CodeSpan(value, CodeCategory.StringLiteral),
-        CodeSpan(ws2 + ")"),
-      )
+      case _ ~ ws1 ~ value ~ ws2 ~ _ =>
+        Seq(
+          CodeSpan("url", CodeCategory.Identifier),
+          CodeSpan("(" + ws1),
+          CodeSpan(value, CodeCategory.StringLiteral),
+          CodeSpan(ws2 + ")")
+        )
     }
   }
-  
-  val color: CodeSpanParser = CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ DigitParsers.hex.min(1).max(6)).source)
+
+  val color: CodeSpanParser =
+    CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ DigitParsers.hex.min(1).max(6)).source)
 
   val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)
-  
-  val number: CodeSpanParser = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true) ++ 
+
+  val number: CodeSpanParser = NumberLiteral.decimalFloat.copy(allowFollowingLetter = true) ++
     NumberLiteral.decimalInt.copy(allowFollowingLetter = true)
-  
+
   val declaration: CodeSpanParser = {
-    
-    val embedded: Seq[CodeSpanParser] = Seq(
+
+    val embedded: Seq[CodeSpanParser]                        = Seq(
       Comment.multiLine("/*", "*/"),
       string,
       color,
       url,
       number,
-      identifier(CodeCategory.Identifier, allowDigitBeforeStart = true),
+      identifier(CodeCategory.Identifier, allowDigitBeforeStart = true)
     )
     def valueParser(inBlock: Boolean): Parser[Seq[CodeSpan]] = {
       val separator = (ws ~ ":").source.asCode()
-      val delim = oneChar.asCode()
-      val text = if (inBlock) delimitedBy('}',';', ')') else delimitedBy('}',';')
+      val delim     = oneChar.asCode()
+      val text      = if (inBlock) delimitedBy('}', ';', ')') else delimitedBy('}', ';')
       (separator ~ EmbeddedCodeSpans.parser(text.keepDelimiter, embedded) ~ delim).map {
         case sep ~ con ~ del => sep +: con :+ del
       }
@@ -91,11 +94,11 @@ object CSSSyntax extends SyntaxHighlighter {
     CodeSpanParser {
       (attrName ~ valueParser(inBlock = false)).concat
     } ++
-    CodeSpanParser {
-      ("(" ~> attrName ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
-    }
+      CodeSpanParser {
+        ("(" ~> attrName ~ valueParser(inBlock = true)).concat.map(spans => CodeSpan("(") +: spans)
+      }
   }
-  
+
   val language: NonEmptyList[String] = NonEmptyList.of("css")
 
   val spanParsers: Seq[CodeSpanParser] = Seq(
@@ -105,5 +108,5 @@ object CSSSyntax extends SyntaxHighlighter {
     identifier(CodeCategory.Identifier, allowDigitBeforeStart = false),
     Keywords("!important")
   )
-  
+
 }

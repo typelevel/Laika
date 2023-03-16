@@ -17,7 +17,7 @@
 package laika.sbt
 
 import cats.effect.IO
-import laika.ast.DocumentType.{Config, Markup, StyleSheet, Template}
+import laika.ast.DocumentType.{ Config, Markup, StyleSheet, Template }
 import laika.ast._
 import laika.io.model.InputTree
 import sbt.Logger
@@ -28,31 +28,33 @@ import sbt.Logger
   */
 object Logs {
 
-  def s (num: Int): String = if (num == 1) "" else "s"
+  def s(num: Int): String = if (num == 1) "" else "s"
 
   /** Create a string containing detailed information about
     * the number and types of documents found in the specified input
     * tree.
     */
-  def inputs (tree: InputTree[IO]): String = {
+  def inputs(tree: InputTree[IO]): String = {
 
     val docTypes = tree.textInputs.map(_.docType)
-    val docs = docTypes.count(_ == Markup)
-    val tmpl = docTypes.count(_ == Template)
-    val styles = docTypes.count(_.isInstanceOf[StyleSheet])
-    val conf = docTypes.count(_ == Config)
+    val docs     = docTypes.count(_ == Markup)
+    val tmpl     = docTypes.count(_ == Template)
+    val styles   = docTypes.count(_.isInstanceOf[StyleSheet])
+    val conf     = docTypes.count(_ == Config)
 
-    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)}, $styles stylesheet${s(styles)} ..."
+    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${
+        s(conf)
+      }, $styles stylesheet${s(styles)} ..."
   }
 
   /** Create a string containing detailed information about
     * the number and types of documents processed for the specified
     * output tree.
     */
-  def outputs (root: DocumentTreeRoot, format: String): String = {
+  def outputs(root: DocumentTreeRoot, format: String): String = {
 
     val render = root.allDocuments.size
-    val copy = root.staticDocuments.size
+    val copy   = root.staticDocuments.size
 
     s"Rendering $render $format document${s(render)}, copying $copy static file${s(copy)} ..."
   }
@@ -64,18 +66,18 @@ object Logs {
     * @param tree the document tree to extract runtime messages from
     * @param filter the filter to apply to runtime messages to be included in the log
     */
-  def runtimeMessages (logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
+  def runtimeMessages(logger: Logger, tree: DocumentTreeRoot, filter: MessageFilter): Unit = {
 
-    def logMessage (inv: Invalid, path: Path): Unit = {
+    def logMessage(inv: Invalid, path: Path): Unit = {
       val source = inv.fallback match {
         case tc: TextContainer => tc.content
-        case other => other.toString
+        case other             => other.toString
       }
-      val text = s"$path: ${inv.message.content}\nsource: $source"
+      val text   = s"$path: ${inv.message.content}\nsource: $source"
       inv.message.level match {
-        case MessageLevel.Debug => logger.debug(text)
-        case MessageLevel.Info => logger.info(text)
-        case MessageLevel.Warning => logger.warn(text)
+        case MessageLevel.Debug                      => logger.debug(text)
+        case MessageLevel.Info                       => logger.info(text)
+        case MessageLevel.Warning                    => logger.warn(text)
         case MessageLevel.Error | MessageLevel.Fatal => logger.error(text)
       }
     }

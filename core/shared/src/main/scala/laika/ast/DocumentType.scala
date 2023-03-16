@@ -46,12 +46,12 @@ object DocumentType {
   /** A style sheet that needs to get passed
     *  to a renderer.
     */
-  case class StyleSheet (format: String) extends TextDocumentType
+  case class StyleSheet(format: String) extends TextDocumentType
 
   /** A static file that needs to get copied
     *  over to the output target.
     */
-  case class Static (formats: TargetFormats = TargetFormats.All) extends DocumentType
+  case class Static(formats: TargetFormats = TargetFormats.All) extends DocumentType
 
   /** A document that should be ignored and neither
     *  get processed nor copied.

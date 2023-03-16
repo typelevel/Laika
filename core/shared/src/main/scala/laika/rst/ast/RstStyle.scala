@@ -16,31 +16,31 @@
 
 package laika.rst.ast
 
-import laika.ast.{Options, Styles}
+import laika.ast.{ Options, Styles }
 
 /** Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules.
-  * 
+  *
   * @author Jens Halm
   */
 object RstStyle {
 
-  val line: Options = Styles("line")
-  val lineBlock: Options = Styles("line-block")
-  val target: Options = Styles("target")
-  val option: Options = Styles("option")
-  val optionList: Options = Styles("option-list")
-  val description: Options = Styles("description")
-  val fieldName: Options = Styles("field-name")
-  val fieldBody: Options = Styles("field-body")
-  val fieldList: Options = Styles("field-list")
-  val compound: Options = Styles("compound")
-  val admonition: Options = Styles("admonition")
-  val topic: Options = Styles("topic")
-  val rubric: Options = Styles("rubric")
-  val subtitle: Options = Styles("subtitle")
-  val sidebar: Options = Styles("sidebar")
-  val subscript: Options = Styles("subscript")
-  val superscript: Options = Styles("superscript")
+  val line: Options           = Styles("line")
+  val lineBlock: Options      = Styles("line-block")
+  val target: Options         = Styles("target")
+  val option: Options         = Styles("option")
+  val optionList: Options     = Styles("option-list")
+  val description: Options    = Styles("description")
+  val fieldName: Options      = Styles("field-name")
+  val fieldBody: Options      = Styles("field-body")
+  val fieldList: Options      = Styles("field-list")
+  val compound: Options       = Styles("compound")
+  val admonition: Options     = Styles("admonition")
+  val topic: Options          = Styles("topic")
+  val rubric: Options         = Styles("rubric")
+  val subtitle: Options       = Styles("subtitle")
+  val sidebar: Options        = Styles("sidebar")
+  val subscript: Options      = Styles("subscript")
+  val superscript: Options    = Styles("superscript")
   val titleReference: Options = Styles("title-reference")
-  
+
 }

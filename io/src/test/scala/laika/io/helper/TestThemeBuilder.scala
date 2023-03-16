@@ -21,39 +21,43 @@ import laika.ast.Document
 import laika.bundle.ExtensionBundle
 import laika.factory.Format
 import laika.io.model.InputTreeBuilder
-import laika.theme.{ThemeBuilder, ThemeProvider, TreeProcessorBuilder}
-
+import laika.theme.{ ThemeBuilder, ThemeProvider, TreeProcessorBuilder }
 
 object TestThemeBuilder {
-  
+
   trait Inputs {
     def build[F[_]: Async]: InputTreeBuilder[F]
   }
-  
-  def forInputs (themeInputs: Inputs): ThemeProvider = new ThemeProvider {
+
+  def forInputs(themeInputs: Inputs): ThemeProvider = new ThemeProvider {
     def build[F[_]: Async] = ThemeBuilder("test").addInputs(themeInputs.build).build
   }
 
-  def forBundle (bundle: ExtensionBundle): ThemeProvider = new ThemeProvider {
+  def forBundle(bundle: ExtensionBundle): ThemeProvider = new ThemeProvider {
     def build[F[_]: Async] = ThemeBuilder("test").addExtensions(bundle).build
   }
 
-  def forBundles (bundles: Seq[ExtensionBundle]): ThemeProvider = new ThemeProvider {
-    def build[F[_]: Async] = ThemeBuilder("test").addExtensions(bundles:_*).build
+  def forBundles(bundles: Seq[ExtensionBundle]): ThemeProvider = new ThemeProvider {
+    def build[F[_]: Async] = ThemeBuilder("test").addExtensions(bundles: _*).build
   }
-  
-  def forDocumentMapper (f: Document => Document): ThemeProvider = new ThemeProvider {
+
+  def forDocumentMapper(f: Document => Document): ThemeProvider = new ThemeProvider {
+
     def build[F[_]: Async] = ThemeBuilder("test")
       .processTree { case _ => TreeProcessorBuilder[F].mapDocuments(f) }
       .build
+
   }
 
-  def forDocumentMapper (format: Format)(f: Document => Document): ThemeProvider = new ThemeProvider {
-    def build[F[_]: Async] = {
-      ThemeBuilder("test")
-        .processTree(TreeProcessorBuilder[F].mapDocuments(f), format)
-        .build
+  def forDocumentMapper(format: Format)(f: Document => Document): ThemeProvider =
+    new ThemeProvider {
+
+      def build[F[_]: Async] = {
+        ThemeBuilder("test")
+          .processTree(TreeProcessorBuilder[F].mapDocuments(f), format)
+          .build
+      }
+
     }
-  }
-  
+
 }

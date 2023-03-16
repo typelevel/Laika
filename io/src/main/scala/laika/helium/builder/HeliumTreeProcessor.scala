@@ -20,31 +20,30 @@ import cats.data.Kleisli
 import cats.effect.Sync
 import cats.syntax.all._
 import laika.ast.Path.Root
-import laika.config.{ConfigException, LaikaKeys}
+import laika.config.{ ConfigException, LaikaKeys }
 import laika.factory.Format
 import laika.helium.Helium
-import laika.helium.generate.{DownloadPageGenerator, LandingPageGenerator, TocPageGenerator}
+import laika.helium.generate.{ DownloadPageGenerator, LandingPageGenerator, TocPageGenerator }
 import laika.io.model.ParsedTree
 import laika.theme.Theme.TreeProcessor
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
 
   import helium._
-  
+
   private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
 
-  private def addLandingPage: TreeProcessor[F] = 
+  private def addLandingPage: TreeProcessor[F] =
     siteSettings.content.landingPage
       .fold(noOp)(LandingPageGenerator.generate)
-  
-  private def addDownloadPage: TreeProcessor[F] = 
+
+  private def addDownloadPage: TreeProcessor[F] =
     siteSettings.content.downloadPage
       .filter(p => p.includeEPUB || p.includePDF)
       .fold(noOp)(DownloadPageGenerator.generate)
-      
+
   private def removePreviewJS: TreeProcessor[F] = Kleisli[F, ParsedTree[F], ParsedTree[F]] { tree =>
     val newTree = for {
       enabled <- tree.root.config.get(LaikaKeys.preview.enabled, false)
@@ -52,14 +51,14 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
       if (enabled) tree
       else tree.removeStaticDocuments(_ == Root / "helium" / "laika-preview.js")
     }
-    
+
     Sync[F].fromEither(newTree.leftMap(ConfigException.apply))
   }
 
   val forHTML: TreeProcessor[F] = addDownloadPage
     .andThen(addLandingPage)
 
-  def forAllFormats (format: Format): TreeProcessor[F] =
+  def forAllFormats(format: Format): TreeProcessor[F] =
     TocPageGenerator.generate(helium, format).andThen(removePreviewJS)
-  
+
 }

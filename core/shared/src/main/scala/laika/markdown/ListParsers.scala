@@ -17,11 +17,11 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{BlockParser, BlockParserBuilder, BlockParserBuilderOps}
+import laika.bundle.{ BlockParser, BlockParserBuilder, BlockParserBuilderOps }
 import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.{CharGroup, PrefixedParser}
+import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.builders._
 
 /** Provides parsers for bullet lists ("unordered list" in the Markdown spec)
@@ -31,11 +31,13 @@ import laika.parse.builders._
   */
 object ListParsers {
 
-  private val bulletChar: Parser[String] = oneOf('*','-','+')
-  private val enumChar: Parser[String] = oneOf(CharGroup.digit)
+  private val bulletChar: Parser[String] = oneOf('*', '-', '+')
+  private val enumChar: Parser[String]   = oneOf(CharGroup.digit)
 
   private val wsAfterItemStart: Parser[Unit] = someOf(' ', '\t').void
-  private val enumStartRest: Parser[String] = (anyOf(CharGroup.digit) ~ "." ~ wsAfterItemStart).as("")
+
+  private val enumStartRest: Parser[String] =
+    (anyOf(CharGroup.digit) ~ "." ~ wsAfterItemStart).as("")
 
   /** Parses the start of a bullet list item.
     */
@@ -52,31 +54,33 @@ object ListParsers {
     *  @param newList function that produces a block element for the document tree
     *  @param newItem function that produces a new list item element based on position and content arguments
     */
-  def list [T <: Block, I <: ListItem] (itemStartChar: Parser[Any],
-                                        itemStartRest: Parser[Any],
-                                        newList: List[I] => T,
-                                        newItem: (Int, Seq[Block]) => I)(implicit recParsers: RecursiveParsers): Parser[T] = {
+  def list[T <: Block, I <: ListItem](
+      itemStartChar: Parser[Any],
+      itemStartRest: Parser[Any],
+      newList: List[I] => T,
+      newItem: (Int, Seq[Block]) => I
+  )(implicit recParsers: RecursiveParsers): Parser[T] = {
 
-    def flattenItems (firstItem: Seq[Block], items: List[Boolean ~ Seq[Block]]) = {
+    def flattenItems(firstItem: Seq[Block], items: List[Boolean ~ Seq[Block]]) = {
 
       val hasBlankLines = items.exists(_._1)
-      val blockItems = firstItem +: items.map(_._2)
+      val blockItems    = firstItem +: items.map(_._2)
 
-      def rewriteItemContent (blocks: Seq[Block], pos: Int) = {
+      def rewriteItemContent(blocks: Seq[Block], pos: Int) = {
         val rewritten = blocks match {
           /* Promoting Paragraph to ForcedParagraph if the list has any blank lines
              between list items or if it is adjacent to blank lines within the list item
              itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
-          case Paragraph(content,opt) :: Nil if hasBlankLines =>
+          case Paragraph(content, opt) :: Nil if hasBlankLines               =>
             ForcedParagraph(content, opt) :: Nil
-          case BlockSequence((p @ Paragraph(content,opt)) :: rest, _) :: xs =>
-            if (!hasBlankLines) SpanSequence(content,opt) :: rest ::: xs else p :: rest ::: xs
-          case other => other
+          case BlockSequence((p @ Paragraph(content, opt)) :: rest, _) :: xs =>
+            if (!hasBlankLines) SpanSequence(content, opt) :: rest ::: xs else p :: rest ::: xs
+          case other                                                         => other
         }
 
-        newItem(pos,rewritten)
+        newItem(pos, rewritten)
       }
-      val pos = Iterator.from(1)
+      val pos                                              = Iterator.from(1)
       blockItems map { item => rewriteItemContent(item, pos.next()) }
     }
 
@@ -84,32 +88,47 @@ object ListParsers {
 
     val itemStart = itemStartChar ~ itemStartRest
 
-    val listItem: Parser[Seq[Block]] = recParsers.recursiveBlocks(BlockParsers.mdBlock(
-      not(rule) ~> itemStart, not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace), BlockParsers.tabOrSpace
-    ))
+    val listItem: Parser[Seq[Block]] = recParsers.recursiveBlocks(
+      BlockParsers.mdBlock(
+        not(rule) ~> itemStart,
+        not(blankLine | itemStart) ~ opt(BlockParsers.tabOrSpace),
+        BlockParsers.tabOrSpace
+      )
+    )
 
-    listItem ~ (opt(blankLines).map(_.isDefined) ~ listItem).rep ^^
-      { case firstItem ~ items => newList(flattenItems(firstItem, items)) }
+    listItem ~ (opt(blankLines).map(_.isDefined) ~ listItem).rep ^^ { case firstItem ~ items =>
+      newList(flattenItems(firstItem, items))
+    }
   }
 
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
     */
-  val bulletLists: BlockParserBuilderOps = 
+  val bulletLists: BlockParserBuilderOps =
     BlockParser.recursive { implicit recParsers =>
       PrefixedParser('+', '*', '-') {
         lookAhead(oneChar) >> { char =>
           val bullet = StringBullet(char)
-          list(bulletChar, wsAfterItemStart, BulletList(_: List[BulletListItem], bullet), (_, blocks) => BulletListItem(blocks, bullet))
+          list(
+            bulletChar,
+            wsAfterItemStart,
+            BulletList(_: List[BulletListItem], bullet),
+            (_, blocks) => BulletListItem(blocks, bullet)
+          )
         }
       }
     }.withLowPrecedence
 
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
     */
-  val enumLists: BlockParserBuilderOps = 
+  val enumLists: BlockParserBuilderOps =
     BlockParser.recursive { implicit recParsers =>
       PrefixedParser(CharGroup.digit) {
-        list(enumChar, enumStartRest, EnumList(_: List[EnumListItem], EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
+        list(
+          enumChar,
+          enumStartRest,
+          EnumList(_: List[EnumListItem], EnumFormat()),
+          (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos)
+        )
       }
     }
 

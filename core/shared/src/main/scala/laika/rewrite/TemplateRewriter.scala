@@ -20,9 +20,9 @@ import cats.implicits._
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Origin.TemplateScope
-import laika.config.{ConfigError, LaikaKeys, Origin, ValidationError}
-import laika.factory.{RenderFormat, TwoPhaseRenderFormat}
-import laika.parse.{LineSource, SourceCursor}
+import laika.config.{ ConfigError, LaikaKeys, Origin, ValidationError }
+import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
+import laika.parse.{ LineSource, SourceCursor }
 import laika.rewrite.ReferenceResolver.CursorKeys
 
 import scala.annotation.tailrec
@@ -31,24 +31,34 @@ private[laika] trait TemplateRewriter {
 
   private val defaultTemplateRoot: TemplateRoot = {
     val src = s"$${${CursorKeys.documentContent}}"
-    TemplateRoot(TemplateContextReference(CursorKeys.documentContent, required = true, LineSource(src, SourceCursor(src))))
+    TemplateRoot(
+      TemplateContextReference(
+        CursorKeys.documentContent,
+        required = true,
+        LineSource(src, SourceCursor(src))
+      )
+    )
   }
-  
-  private def defaultTemplate (format: String): TemplateDocument = 
+
+  private def defaultTemplate(format: String): TemplateDocument =
     TemplateDocument(DefaultTemplatePath.forSuffix(format), defaultTemplateRoot)
-  
-  private def shouldRender (formatSelector: String)(content: Cursor): Boolean = 
-    content.target.targetFormats.contains(formatSelector) 
-  
-  /** Selects and applies the templates for the specified output format to all documents 
+
+  private def shouldRender(formatSelector: String)(content: Cursor): Boolean =
+    content.target.targetFormats.contains(formatSelector)
+
+  /** Selects and applies the templates for the specified output format to all documents
     * within the specified tree cursor recursively.
-   */
-  def applyTemplates (tree: DocumentTreeRoot, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTreeRoot] = {
+    */
+  def applyTemplates(
+      tree: DocumentTreeRoot,
+      rules: RewriteRulesBuilder,
+      context: OutputContext
+  ): Either[ConfigError, DocumentTreeRoot] = {
     for {
       cursor   <- RootCursor(tree, Some(context))
       newCover <- cursor.coverDocument
-                    .filter(shouldRender(context.formatSelector))
-                    .traverse(applyTemplate(_, rules, context))
+        .filter(shouldRender(context.formatSelector))
+        .traverse(applyTemplate(_, rules, context))
       newTree  <- applyTemplates(cursor.tree, rules, context)
     } yield {
       cursor.target.copy(
@@ -57,14 +67,20 @@ private[laika] trait TemplateRewriter {
       )
     }
   }
-  
-  private def applyTemplates (cursor: TreeCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, DocumentTree] = {
+
+  private def applyTemplates(
+      cursor: TreeCursor,
+      rules: RewriteRulesBuilder,
+      context: OutputContext
+  ): Either[ConfigError, DocumentTree] = {
     for {
-      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(applyTemplate(_, rules, context))
+      newTitle   <- cursor.titleDocument.filter(shouldRender(context.formatSelector)).traverse(
+        applyTemplate(_, rules, context)
+      )
       newContent <- cursor.children.filter(shouldRender(context.formatSelector)).toList.traverse {
-                      case doc: DocumentCursor => applyTemplate(doc, rules, context)
-                      case tree: TreeCursor    => applyTemplates(tree, rules, context)
-                    }
+        case doc: DocumentCursor => applyTemplate(doc, rules, context)
+        case tree: TreeCursor    => applyTemplates(tree, rules, context)
+      }
     } yield {
       cursor.target.copy(
         titleDocument = newTitle,
@@ -73,36 +89,58 @@ private[laika] trait TemplateRewriter {
       )
     }
   }
-  
-  private def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, context: OutputContext): Either[ConfigError, Document] = for {
-    template <- selectTemplate(cursor, context.fileSuffix).map(_.getOrElse(defaultTemplate(context.fileSuffix)))
+
+  private def applyTemplate(
+      cursor: DocumentCursor,
+      rules: RewriteRulesBuilder,
+      context: OutputContext
+  ): Either[ConfigError, Document] = for {
+    template <- selectTemplate(cursor, context.fileSuffix).map(
+      _.getOrElse(defaultTemplate(context.fileSuffix))
+    )
     doc      <- applyTemplate(cursor, rules, template)
   } yield doc
 
   /** Applies the specified template to the target of the specified document cursor.
     */
-  def applyTemplate (cursor: DocumentCursor, rules: RewriteRulesBuilder, template: TemplateDocument): Either[ConfigError, Document] = {
-    template.config.resolve(Origin(TemplateScope, template.path), cursor.config, cursor.root.target.includes).flatMap { mergedConfig =>
+  def applyTemplate(
+      cursor: DocumentCursor,
+      rules: RewriteRulesBuilder,
+      template: TemplateDocument
+  ): Either[ConfigError, Document] = {
+    template.config.resolve(
+      Origin(TemplateScope, template.path),
+      cursor.config,
+      cursor.root.target.includes
+    ).flatMap { mergedConfig =>
       val cursorWithMergedConfig = cursor.copy(
         config = mergedConfig,
-        resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig, cursor.position),
+        resolver = ReferenceResolver.forDocument(
+          cursor.target,
+          cursor.parent,
+          mergedConfig,
+          cursor.position
+        ),
         templatePath = Some(template.path)
       )
       rules(cursorWithMergedConfig).map { docRules =>
         val newContent = docRules.rewriteBlock(template.content)
-        val newRoot = newContent match {
+        val newRoot    = newContent match {
           case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
           case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-          case other => RootElement(other)
+          case other                                              => RootElement(other)
         }
         cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
-      } 
+      }
     }
   }
-  
-  private[laika] def selectTemplate (cursor: DocumentCursor, format: String): Either[ConfigError, Option[TemplateDocument]] = {
-    val config = cursor.config
-    val templatePath  =  config.getOpt[Path](LaikaKeys.template).flatMap {
+
+  private[laika] def selectTemplate(
+      cursor: DocumentCursor,
+      format: String
+  ): Either[ConfigError, Option[TemplateDocument]] = {
+    val config       = cursor.config
+    val templatePath = config.getOpt[Path](LaikaKeys.template).flatMap {
       case None       => config.getOpt[Path](LaikaKeys.template(format))
       case Some(path) => Right(Some(path))
     }
@@ -119,29 +157,33 @@ private[laika] trait TemplateRewriter {
         @tailrec def templateForTree(tree: TreeCursor): Option[TemplateDocument] =
           (tree.target.selectTemplate(templatePath), tree.parent) match {
             case (None, Some(parent)) => templateForTree(parent)
-            case (Some(template), _) => Some(template)
-            case (None, None) => None
+            case (Some(template), _)  => Some(template)
+            case (None, None)         => None
           }
 
         Right(templateForTree(cursor.parent))
     }
   }
-  
+
 }
 
 private[laika] object TemplateRewriter extends TemplateRewriter
 
 /** Describes the output for a render operation.
-  * 
+  *
   * The format selector is used by any configuration elements that allows to restrict
   * the output of documents to certain target formats.
   * It is not always identical to the fileSuffix used for the specific format.
   */
-case class OutputContext (fileSuffix: String, formatSelector: String)
+case class OutputContext(fileSuffix: String, formatSelector: String)
 
 object OutputContext {
-  def apply (format: String): OutputContext = apply(format, format)
-  def apply (format: RenderFormat[_]): OutputContext = apply(format.fileSuffix, format.description.toLowerCase)
-  def apply (format: TwoPhaseRenderFormat[_,_]): OutputContext = 
+  def apply(format: String): OutputContext = apply(format, format)
+
+  def apply(format: RenderFormat[_]): OutputContext =
+    apply(format.fileSuffix, format.description.toLowerCase)
+
+  def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext =
     apply(format.interimFormat.fileSuffix, format.description.toLowerCase)
+
 }

@@ -17,24 +17,24 @@
 package laika.bundle
 
 import cats.data.NonEmptyList
-import laika.ast.{CodeSpan, CodeSpans}
+import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.Parser
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.EmbeddedCodeSpans
 import laika.parse.text.DelimitedText
 
-
 trait SyntaxHighlighter {
-  
+
   /** The names of the language (and its optional aliases) as used in text markup */
   def language: NonEmptyList[String]
 
   /** The parsers for individual code spans written in this language */
   def spanParsers: Seq[CodeSpanParser]
-  
-  /** The resulting root parser composed of the individual span parsers to be used in 
-    * the parser for the host markup language */
+
+  /** The resulting root parser composed of the individual span parsers to be used in
+    * the parser for the host markup language
+    */
   lazy val rootParser: Parser[Seq[CodeSpan]] =
     EmbeddedCodeSpans.parser(DelimitedText.Undelimited, spanParsers).map(CodeSpans.merge)
-  
+
 }

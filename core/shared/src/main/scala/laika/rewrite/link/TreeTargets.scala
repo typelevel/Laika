@@ -17,45 +17,59 @@
 package laika.rewrite.link
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentTreeRoot, Path, StaticDocument}
+import laika.ast.{ DocumentTreeRoot, Path, StaticDocument }
 
-/** Collects all elements from a document tree that can be referenced from other elements, 
-  * like images, footnotes, citations and other inline targets. 
+/** Collects all elements from a document tree that can be referenced from other elements,
+  * like images, footnotes, citations and other inline targets.
   *
   * @author Jens Halm
   */
-class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
+class TreeTargets(root: DocumentTreeRoot, slugBuilder: String => String) {
 
   private val targetMap: Map[(Path, Selector), TargetResolver] = {
-    
-    def allPaths (path: Path): Seq[Path] =
+
+    def allPaths(path: Path): Seq[Path] =
       if (path == Root) Seq(Root)
       else allPaths(path.parent) :+ path
-    
-    def mapToKeys (paths: Seq[Path], targets: Seq[TargetResolver]): Seq[((Path, Selector), TargetResolver)] =
+
+    def mapToKeys(
+        paths: Seq[Path],
+        targets: Seq[TargetResolver]
+    ): Seq[((Path, Selector), TargetResolver)] =
       for {
         path   <- paths
         target <- targets
       } yield ((path, target.selector), target)
-    
-    val targets = root.allDocuments.flatMap { doc =>
+
+    val targets                           = root.allDocuments.flatMap { doc =>
       val targets = DocumentTargets(doc, slugBuilder).targets
-      val global = if (doc.path == Root) Nil else mapToKeys(allPaths(doc.path.parent), targets.filter(_.selector.global))
-      val local = mapToKeys(Seq(doc.path), targets)
+      val global  =
+        if (doc.path == Root) Nil
+        else mapToKeys(allPaths(doc.path.parent), targets.filter(_.selector.global))
+      val local   = mapToKeys(Seq(doc.path), targets)
       global ++ local
     }
-    def staticTarget (doc: StaticDocument) = TargetResolver.create(
-      PathSelector(doc.path), 
-      ReferenceResolver.internalLink(doc.path), 
-      TargetReplacer.removeTarget, 
+    def staticTarget(doc: StaticDocument) = TargetResolver.create(
+      PathSelector(doc.path),
+      ReferenceResolver.internalLink(doc.path),
+      TargetReplacer.removeTarget,
       doc.formats
     )
-    val static = root.staticDocuments.map(doc => ((Root, PathSelector(doc.path)), staticTarget(doc)))
-    
+    val static                            =
+      root.staticDocuments.map(doc => ((Root, PathSelector(doc.path)), staticTarget(doc)))
+
     (targets ++ static).groupBy(_._1).collect {
-      case (key, Seq((_, target))) => (key, target)
-      case ((path, selector: UniqueSelector), dupTargets) => 
-        ((path, selector), TargetResolver.forDuplicateSelector(selector, path, dupTargets.map(_._2), isDocScope = false))
+      case (key, Seq((_, target)))                        => (key, target)
+      case ((path, selector: UniqueSelector), dupTargets) =>
+        (
+          (path, selector),
+          TargetResolver.forDuplicateSelector(
+            selector,
+            path,
+            dupTargets.map(_._2),
+            isDocScope = false
+          )
+        )
     }
   }
 
@@ -66,8 +80,8 @@ class TreeTargets (root: DocumentTreeRoot, slugBuilder: String => String) {
     * Others, like those for auto-numbered footnotes will only be looked up locally,
     * with the path of the current document.
     */
-  def select (scope: Path, selector: Selector): Option[TargetResolver] = {
+  def select(scope: Path, selector: Selector): Option[TargetResolver] = {
     targetMap.get((scope, selector))
   }
-  
+
 }

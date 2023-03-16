@@ -17,11 +17,11 @@
 package laika.parse.code
 
 import cats.data.NonEmptyList
-import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter}
+import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter }
 import laika.parse.code.languages._
 
 /** Extension that registers all code syntax highlighters provided out of the box.
-  * 
+  *
   * The extension can be added to a transformer like any other extension:
   *
   * {{{
@@ -32,11 +32,11 @@ import laika.parse.code.languages._
   *   .using(SyntaxHighlighting)
   *   .build
   * }}}
-  * 
+  *
   * @author Jens Halm
   */
 case object SyntaxHighlighting extends ExtensionBundle { self =>
-  
+
   override val origin: BundleOrigin = BundleOrigin.Library
 
   val description: String = "Default Syntax Highlighters for Code"
@@ -73,17 +73,18 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
   )
 
   /** Creates a new extension bundle that contains the built-in
-    * syntax highlighters as well as the specified list of custom highlighters. 
+    * syntax highlighters as well as the specified list of custom highlighters.
     */
-  def withSyntax (syntax: SyntaxHighlighter*): ExtensionBundle = new ExtensionBundle {
-    
+  def withSyntax(syntax: SyntaxHighlighter*): ExtensionBundle = new ExtensionBundle {
+
     override val origin: BundleOrigin = BundleOrigin.User
-    
+
     val description: String = "Customized collection of Syntax Highlighters for Code"
 
     override def parsers: ParserBundle = ParserBundle(
       syntaxHighlighters = self.parsers.syntaxHighlighters ++ syntax
     )
+
   }
 
   /** Creates a new extension bundle that contains the built-in
@@ -91,11 +92,11 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
     * instead of those declared in the instance itself.
     * Can be used to create an alias for an existing syntax, e.g. binding `dotty` to `scala` instead.
     */
-  def withSyntaxBinding (binding: String, syntax: SyntaxHighlighter): ExtensionBundle = withSyntax {
+  def withSyntaxBinding(binding: String, syntax: SyntaxHighlighter): ExtensionBundle = withSyntax {
     new SyntaxHighlighter {
-      def language = NonEmptyList.of(binding)
+      def language    = NonEmptyList.of(binding)
       def spanParsers = syntax.spanParsers
     }
   }
-  
+
 }

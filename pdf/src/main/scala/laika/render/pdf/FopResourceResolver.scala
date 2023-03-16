@@ -25,31 +25,33 @@ import cats.effect.std.Dispatcher
 import laika.ast.Path
 import laika.io.model.BinaryInput
 import org.apache.fop.apps.io.ResourceResolverFactory
-import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
+import org.apache.xmlgraphics.io.{ Resource, ResourceResolver }
 
 /** Adapter for the ResourceResolver API of Apache FOP, allowing Laika to serve any kind of InputStream
-  * from its static input documents, including in-memory content or classpath resources, 
+  * from its static input documents, including in-memory content or classpath resources,
   * for which FOP does not have any support built in.
-  * 
+  *
   * The synchronous, blocking, and non-RT APIs of Apache FOP require the use of a cats-effect `Dispatcher`.
-  * 
+  *
   * Note that this involves a small risk of resources leaking as Laika has to rely on Apache FOP for
   * closing the InputStream, there is no way to know when it would be safe to do that within Laika.
-  * 
+  *
   * @author Jens Halm
   */
-class FopResourceResolver[F[_]: Async] (input: Seq[BinaryInput[F]], dispatcher: Dispatcher[F]) extends ResourceResolver {
+class FopResourceResolver[F[_]: Async](input: Seq[BinaryInput[F]], dispatcher: Dispatcher[F])
+    extends ResourceResolver {
 
   private val fallbackResolver = ResourceResolverFactory.createDefaultResourceResolver()
-  
+
   private val resourceMap = input.map(s => (s.path, s.input)).toMap
 
-  def getResource (uri: URI): Resource =
+  def getResource(uri: URI): Resource =
     if (uri.isAbsolute && uri.getScheme != "file") fallbackResolver.getResource(uri)
-    else resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in => 
-      new Resource(dispatcher.unsafeRunSync(fs2.io.toInputStreamResource(in).allocated.map(_._1)))
-    )
+    else
+      resourceMap.get(Path.parse(uri.getPath)).fold(fallbackResolver.getResource(uri))(in =>
+        new Resource(dispatcher.unsafeRunSync(fs2.io.toInputStreamResource(in).allocated.map(_._1)))
+      )
 
-  def getOutputStream (uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
+  def getOutputStream(uri: URI): OutputStream = fallbackResolver.getOutputStream(uri)
 
 }

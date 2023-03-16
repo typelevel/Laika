@@ -17,19 +17,19 @@
 package laika.parse.text
 
 import cats.data.NonEmptySet
-import laika.parse.{Failure, Message, Parser, Success}
+import laika.parse.{ Failure, Message, Parser, Success }
 import laika.parse.combinator.Parsers
 
 /** Base text parsers that provide optimized low-level parsers for typical requirements
- *  of text markup parsers. In particular they are meant as an efficient replacement
- *  for scenarios where usually regex parsers are used. In cases where different parsers
- *  need to be tried for relatively short input sequences, regex parsers tend to be less
- *  efficient. Furthermore, these base parsers may also improve readability, as it
- *  allows to combine simple low-level parsers to higher-level parsers based on the
- *  Laika combinator API, instead of producing long regexes which may be hard to read.
- * 
- *  @author Jens Halm
- */
+  *  of text markup parsers. In particular they are meant as an efficient replacement
+  *  for scenarios where usually regex parsers are used. In cases where different parsers
+  *  need to be tried for relatively short input sequences, regex parsers tend to be less
+  *  efficient. Furthermore, these base parsers may also improve readability, as it
+  *  allows to combine simple low-level parsers to higher-level parsers based on the
+  *  Laika combinator API, instead of producing long regexes which may be hard to read.
+  *
+  *  @author Jens Halm
+  */
 trait TextParsers extends Parsers {
 
   /** Creates a NonEmptySet from a Character range.
@@ -38,23 +38,23 @@ trait TextParsers extends Parsers {
     */
   def range(fromChar: Char, toChar: Char): NonEmptySet[Char] = {
     val range = if (fromChar > toChar) toChar to fromChar else fromChar to toChar
-    NonEmptySet.of(range.head, range.tail:_*)
+    NonEmptySet.of(range.head, range.tail: _*)
   }
 
   /**  A parser that matches only the specified literal string.
     *
     *  The method is implicit so that strings can automatically be lifted to their parsers.
     */
-  def literal (expected: String): PrefixedParser[String] = Literal(expected)
+  def literal(expected: String): PrefixedParser[String] = Literal(expected)
 
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.
     */
-  lazy val ws: Characters[String] = anyOf(' ','\t')
+  lazy val ws: Characters[String] = anyOf(' ', '\t')
 
   /** Succeeds at the end of a line, including the end of the input.
-   *  Produces an empty string as a result and consumes any new line characters.
-   */
+    *  Produces an empty string as a result and consumes any new line characters.
+    */
   val eol: Parser[Unit] = Parser { in =>
     if (in.atEnd) Success((), in)
     else if (in.char == '\n') Success((), in.consume(1))
@@ -66,18 +66,18 @@ trait TextParsers extends Parsers {
     * by a newline character.
     */
   val wsEol: Parser[Unit] = ws.void ~> eol
-  
+
   /** Succeeds at the end of the input.
-   */
+    */
   val eof: Parser[String] = Parser { in =>
     if (in.atEnd) Success("", in)
     else Failure(Message.ExpectedEOF, in)
-  }  
-  
+  }
+
   /** Succeeds at the start of the input.
-   */
+    */
   val atStart: Parser[Unit] = Parser { in =>
-    if (in.offset == 0) Success((), in) 
+    if (in.offset == 0) Success((), in)
     else Failure(Message.ExpectedStart, in)
   }
 
@@ -100,7 +100,7 @@ trait TextParsers extends Parsers {
   /** Parses the rest of the line from the current input offset no matter whether
     *  it consist of whitespace only or some text. Does not include the eol character(s).
     */
-  val restOfLine: Parser[String] = anyNot('\n','\r') <~ eol
+  val restOfLine: Parser[String] = anyNot('\n', '\r') <~ eol
 
   /** Parses a single text line from the current input offset (which may not be at the
     *  start of the line). Fails for blank lines. Does not include the eol character(s).
@@ -111,19 +111,19 @@ trait TextParsers extends Parsers {
     * Succeeds at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevNot (char: Char, chars: Char*): Parser[Unit] = prevNot(NonEmptySet.of(char, chars:_*))
+  def prevNot(char: Char, chars: Char*): Parser[Unit] = prevNot(NonEmptySet.of(char, chars: _*))
 
   /** Verifies that the previous character is not one of those specified.
     * Succeeds at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevNot (chars: NonEmptySet[Char]): Parser[Unit] = prevNot(chars.contains(_))
+  def prevNot(chars: NonEmptySet[Char]): Parser[Unit] = prevNot(chars.contains(_))
 
   /** Verifies that the previous character does not satisfy the specified predicate.
     * Succeeds at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevNot (predicate: Char => Boolean): Parser[Unit] = {
+  def prevNot(predicate: Char => Boolean): Parser[Unit] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
       s"previous character '$found' does not satisfy the specified predicate"
     }
@@ -138,19 +138,19 @@ trait TextParsers extends Parsers {
     * Succeeds at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextNot (char: Char, chars: Char*): Parser[Unit] = nextNot(NonEmptySet.of(char, chars:_*))
+  def nextNot(char: Char, chars: Char*): Parser[Unit] = nextNot(NonEmptySet.of(char, chars: _*))
 
   /** Verifies that the next character is not one of those specified.
     * Succeeds at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextNot (chars: NonEmptySet[Char]): Parser[Unit] = nextNot(chars.contains(_))
+  def nextNot(chars: NonEmptySet[Char]): Parser[Unit] = nextNot(chars.contains(_))
 
   /** Verifies that the next character does not satisfy the specified predicate.
     * Succeeds at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextNot (predicate: Char => Boolean): Parser[Unit] = {
+  def nextNot(predicate: Char => Boolean): Parser[Unit] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
       s"next character '$found' does not satisfy the specified predicate"
     }
@@ -161,28 +161,27 @@ trait TextParsers extends Parsers {
     }
   }
 
+  /** Verifies that the previous character is one of those specified.
+    * Fails at the start of the input and does not consume any input
+    * or produce a result when it succeeds.
+    */
+  def prevIn(char: Char, chars: Char*): Parser[Unit] = prevIn(NonEmptySet.of(char, chars: _*))
 
   /** Verifies that the previous character is one of those specified.
     * Fails at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevIn (char: Char, chars: Char*): Parser[Unit] = prevIn(NonEmptySet.of(char, chars:_*))
-
-  /** Verifies that the previous character is one of those specified.
-    * Fails at the start of the input and does not consume any input
-    * or produce a result when it succeeds.
-    */
-  def prevIn (chars: NonEmptySet[Char]): Parser[Unit] = prevIs(chars.contains(_))
+  def prevIn(chars: NonEmptySet[Char]): Parser[Unit] = prevIs(chars.contains(_))
 
   /** Verifies that the previous character satisfies the specified predicate.
     * Fails at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevIs (predicate: Char => Boolean): Parser[Unit] = {
+  def prevIs(predicate: Char => Boolean): Parser[Unit] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
       s"previous character '$found' does not satisfy the specified predicate"
     }
-    def atStart: Message = Message.fixed("unable to check predicate on start of input")
+    def atStart: Message        = Message.fixed("unable to check predicate on start of input")
     Parser { in =>
       if (in.offset == 0) Failure(atStart, in)
       else if (predicate(in.charAt(-1))) Success((), in)
@@ -194,23 +193,23 @@ trait TextParsers extends Parsers {
     * Fails at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextIn (char: Char, chars: Char*): Parser[Unit] = nextIn(NonEmptySet.of(char, chars:_*))
+  def nextIn(char: Char, chars: Char*): Parser[Unit] = nextIn(NonEmptySet.of(char, chars: _*))
 
   /** Verifies that the next character is one of those specified.
     * Fails at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextIn (chars: NonEmptySet[Char]): Parser[Unit] = nextIs(chars.contains(_))
+  def nextIn(chars: NonEmptySet[Char]): Parser[Unit] = nextIs(chars.contains(_))
 
   /** Verifies that the next character does not satisfy the specified predicate.
     * Fails at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextIs (predicate: Char => Boolean): Parser[Unit] = {
+  def nextIs(predicate: Char => Boolean): Parser[Unit] = {
     val errMsg: Char => Message = Message.forRuntimeValue[Char] { found =>
       s"next character '$found' does not satisfy the specified predicate"
     }
-    def atEnd: Message = Message.fixed("unable to check predicate on end of input")
+    def atEnd: Message          = Message.fixed("unable to check predicate on end of input")
     Parser { in =>
       if (in.remaining == 0) Failure(atEnd, in)
       else if (predicate(in.char)) Success((), in)
@@ -218,151 +217,162 @@ trait TextParsers extends Parsers {
     }
   }
 
-
-
-
   /** Consumes any kind of input, always succeeds.
-   *  This parser would consume the entire input unless a `max` constraint
-   *  is specified.
-   */
+    *  This parser would consume the entire input unless a `max` constraint
+    *  is specified.
+    */
   val anyChars: Characters[String] = Characters.anyWhile(_ => true)
-  
+
   /** Consumes any number of consecutive occurrences of the specified characters.
-   *  Always succeeds unless a minimum number of required matches is specified.
-   */
-  def anyOf (char: Char, chars: Char*): Characters[String] = Characters.include(char +: chars)
+    *  Always succeeds unless a minimum number of required matches is specified.
+    */
+  def anyOf(char: Char, chars: Char*): Characters[String] = Characters.include(char +: chars)
 
   /** Consumes any number of consecutive occurrences of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyOf (chars: NonEmptySet[Char]): Characters[String] = Characters.include(chars.toSortedSet.toSeq)
-  
+  def anyOf(chars: NonEmptySet[Char]): Characters[String] =
+    Characters.include(chars.toSortedSet.toSeq)
+
   /** Consumes any number of consecutive characters that are not one of the specified characters.
-   *  Always succeeds unless a minimum number of required matches is specified.
-   */
-  def anyNot (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
+    *  Always succeeds unless a minimum number of required matches is specified.
+    */
+  def anyNot(char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars)
 
   /** Consumes any number of consecutive occurrences that are not one of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyNot (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq)
+  def anyNot(chars: NonEmptySet[Char]): Characters[String] =
+    Characters.exclude(chars.toSortedSet.toSeq)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
-
+  def anyWhile(p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
 
   /** Consumes one character if it matches one of the specified characters, fails otherwise.
     */
-  def oneOf (char: Char, chars: Char*): PrefixedParser[String] = {
-    val startChars = NonEmptySet.of(char, chars:_*)
+  def oneOf(char: Char, chars: Char*): PrefixedParser[String] = {
+    val startChars = NonEmptySet.of(char, chars: _*)
     new PrefixCharacters(anyOf(startChars).take(1), startChars)
   }
 
   /** Consumes one character if it matches one of the specified characters, fails otherwise.
     */
-  def oneOf (chars: NonEmptySet[Char]): PrefixedParser[String] = new PrefixCharacters(anyOf(chars).take(1), chars)
+  def oneOf(chars: NonEmptySet[Char]): PrefixedParser[String] =
+    new PrefixCharacters(anyOf(chars).take(1), chars)
 
   /** Consumes one character if it is not one of the specified characters.
     */
-  def oneNot (char: Char, chars: Char*): Parser[String] = Characters.exclude(char +: chars).take(1)
+  def oneNot(char: Char, chars: Char*): Parser[String] = Characters.exclude(char +: chars).take(1)
 
   /** Consumes one character if it is not one of the specified characters.
     */
-  def oneNot (chars: NonEmptySet[Char]): Parser[String] = Characters.exclude(chars.toSortedSet.toSeq).take(1)
+  def oneNot(chars: NonEmptySet[Char]): Parser[String] =
+    Characters.exclude(chars.toSortedSet.toSeq).take(1)
 
   /** Consumes one character if it satisfies the specified predicate, fails otherwise.
     */
-  def oneIf (p: Char => Boolean): Parser[String] = Characters.anyWhile(p).take(1)
+  def oneIf(p: Char => Boolean): Parser[String] = Characters.anyWhile(p).take(1)
 
   /** Parses exactly one character from the input, fails only at the end of the input.
     */
   val oneChar: Parser[String] = anyChars.take(1)
 
-  /** Consumes one or more characters if they match one of the specified characters, 
+  /** Consumes one or more characters if they match one of the specified characters,
     * fails if the first character does not match.
     */
-  def someOf (char: Char, chars: Char*): PrefixCharacters[String] = {
-    val startChars = NonEmptySet.of(char, chars:_*)
+  def someOf(char: Char, chars: Char*): PrefixCharacters[String] = {
+    val startChars = NonEmptySet.of(char, chars: _*)
     new PrefixCharacters(anyOf(startChars).min(1), startChars)
   }
 
-  /** Consumes one or more characters if they match one of the specified characters, 
+  /** Consumes one or more characters if they match one of the specified characters,
     * fails if the first character does not match.
     */
-  def someOf (chars: NonEmptySet[Char]): PrefixCharacters[String] = new PrefixCharacters(anyOf(chars).min(1), chars)
+  def someOf(chars: NonEmptySet[Char]): PrefixCharacters[String] =
+    new PrefixCharacters(anyOf(chars).min(1), chars)
 
-  /** Consumes one or more characters that are not one of the specified characters, 
+  /** Consumes one or more characters that are not one of the specified characters,
     * fails for empty results.
     */
-  def someNot (char: Char, chars: Char*): Characters[String] = Characters.exclude(char +: chars).min(1)
+  def someNot(char: Char, chars: Char*): Characters[String] =
+    Characters.exclude(char +: chars).min(1)
 
-  /** Consumes one or more characters that are not one of the specified characters, 
+  /** Consumes one or more characters that are not one of the specified characters,
     * fails for empty results.
     */
-  def someNot (chars: NonEmptySet[Char]): Characters[String] = Characters.exclude(chars.toSortedSet.toSeq).min(1)
+  def someNot(chars: NonEmptySet[Char]): Characters[String] =
+    Characters.exclude(chars.toSortedSet.toSeq).min(1)
 
-  /** Consumes one or more characters which satisfy the specified predicate, 
+  /** Consumes one or more characters which satisfy the specified predicate,
     * fails for empty results.
     */
-  def someWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p).min(1)
-  
+  def someWhile(p: Char => Boolean): Characters[String] = Characters.anyWhile(p).min(1)
+
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (char: Char, chars: Char*): DelimitedText = new DelimitedText(TextDelimiter(oneOf(char, chars: _*)))
+  def delimitedBy(char: Char, chars: Char*): DelimitedText = new DelimitedText(
+    TextDelimiter(oneOf(char, chars: _*))
+  )
 
   /** Consumes any number of consecutive characters until one of the specified characters
     * is encountered on the input string.
     */
-  def delimitedBy (chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(TextDelimiter(oneOf(chars)))
+  def delimitedBy(chars: NonEmptySet[Char]): DelimitedText = new DelimitedText(
+    TextDelimiter(oneOf(chars))
+  )
 
   /** Consumes any number of consecutive characters until the specified string delimiter
     * is encountered on the input string.
     */
-  def delimitedBy (str: String): DelimitedText =
+  def delimitedBy(str: String): DelimitedText =
     if (str.isEmpty) DelimitedText.Undelimited
     else delimitedBy(literal(str))
 
   /** Consumes any number of consecutive characters until the specified delimiter parser
-    * succeeds on the input. 
-    * 
+    * succeeds on the input.
+    *
     * This constructor is limited to the sub-trait `PrefixedParser`
     * as only those can be optimized for an assertion that needs to be performed on each
     * character. Most parsers for non-empty text implement this trait, e.g `oneOf`, `someOf`,
     * `delimiter` or the literal parsers for a character or string.
     */
-  def delimitedBy (delimiter: PrefixedParser[String]): DelimitedText = new DelimitedText(TextDelimiter(delimiter))
+  def delimitedBy(delimiter: PrefixedParser[String]): DelimitedText = new DelimitedText(
+    TextDelimiter(delimiter)
+  )
 
-  /** Creates a parser for a delimiter based on the given set of delimiter characters 
-    * with an API that allows to specify predicates for the characters immediately 
+  /** Creates a parser for a delimiter based on the given set of delimiter characters
+    * with an API that allows to specify predicates for the characters immediately
     * preceding or following the delimiter, a common task in markup parsing.
     */
-  def delimiter (char: Char, chars: Char*): DelimiterParser = new DelimiterParser(oneOf(char, chars:_*))
+  def delimiter(char: Char, chars: Char*): DelimiterParser = new DelimiterParser(
+    oneOf(char, chars: _*)
+  )
 
-  /** Creates a parser for a delimiter based on a literal string with an API that 
-    * allows to specify predicates for the characters immediately 
+  /** Creates a parser for a delimiter based on a literal string with an API that
+    * allows to specify predicates for the characters immediately
     * preceding or following the delimiter, a common task in markup parsing.
     */
-  def delimiter (delim: String): DelimiterParser = new DelimiterParser(literal(delim))
+  def delimiter(delim: String): DelimiterParser = new DelimiterParser(literal(delim))
 
-  /** Creates a parser for a delimiter with an API that allows to specify 
-    * predicates for the characters immediately preceding or following 
+  /** Creates a parser for a delimiter with an API that allows to specify
+    * predicates for the characters immediately preceding or following
     * the delimiter, a common task in markup parsing.
-    * 
+    *
     * This specified underlying parser needs to implement the sub-trait `PrefixedParser`
     * as only those can be optimized for an assertion that needs to be performed on each
     * character. Most parsers for non-empty text implement this trait, e.g `oneOf`, `someOf`,
     * `delimiter` or the literal parsers for a character or string.
     */
-  def delimiter (parser: PrefixedParser[String]): DelimiterParser = new DelimiterParser(parser)
+  def delimiter(parser: PrefixedParser[String]): DelimiterParser = new DelimiterParser(parser)
 
 }
 
 /** Instance that allows to import all text parsers in isolation.
-  * 
-  * Usually it is more convenient to import laika.parse.api._ 
+  *
+  * Usually it is more convenient to import laika.parse.api._
   * to get all parser builders with one import.
   */
 object TextParsers extends TextParsers

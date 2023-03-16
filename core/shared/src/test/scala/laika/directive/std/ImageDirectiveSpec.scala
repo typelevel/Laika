@@ -20,43 +20,54 @@ import laika.api.RenderPhaseRewrite
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, Options, RootElement, SpanSequence, Styles, Text}
+import laika.ast.{
+  BlockSequence,
+  Image,
+  InternalTarget,
+  LengthUnit,
+  Options,
+  RootElement,
+  SpanSequence,
+  Styles,
+  Text
+}
 import laika.format.HTML
 import munit.FunSuite
 
-class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with MarkupParserSetup with RenderPhaseRewrite {
+class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with MarkupParserSetup
+    with RenderPhaseRewrite {
 
-
-  val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
+  val imgTarget           = InternalTarget(CurrentTree / "picture.jpg")
   val resolvedImageTarget = InternalTarget(CurrentTree / "picture.jpg").relativeTo(Root / "doc")
 
   val defaultBlockStyle = Styles("default-image-block")
-  val defaultSpanStyle = Styles("default-image-span")
+  val defaultSpanStyle  = Styles("default-image-span")
 
   def blocks(directive: String): String =
     s"""aaa
        |
-    |$directive
+       |$directive
        |
-    |bbb""".stripMargin
+       |bbb""".stripMargin
 
-  def runBlocks (input: String, expected: Image, options: Options = defaultBlockStyle): Unit = 
+  def runBlocks(input: String, expected: Image, options: Options = defaultBlockStyle): Unit =
     assertEquals(
-      parse(blocks(input)).flatMap(rewrite(markupParser, HTML)).map(_.content), 
-      Right(RootElement(
-        p("aaa"),
-        BlockSequence(Seq(SpanSequence(expected)), options),
-        p("bbb")
-      ))
+      parse(blocks(input)).flatMap(rewrite(markupParser, HTML)).map(_.content),
+      Right(
+        RootElement(
+          p("aaa"),
+          BlockSequence(Seq(SpanSequence(expected)), options),
+          p("bbb")
+        )
+      )
     )
-    
-  def runSpans (input: String, expected: Image): Unit =
+
+  def runSpans(input: String, expected: Image): Unit =
     assertEquals(
       parse(input).flatMap(rewrite(markupParser, HTML)).map(_.content),
       Right(RootElement(p(Text("aaa "), expected, Text(" bbb"))))
     )
-  
-  
+
   test("block directive - without any HOCON attributes") {
     runBlocks("@:image(picture.jpg)", Image(resolvedImageTarget))
   }
@@ -70,11 +81,15 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
   }
 
   test("block directive - intrinsicWidth and intrinsicHeight attributes") {
-    val input = """@:image(picture.jpg) {
+    val input  = """@:image(picture.jpg) {
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |}""".stripMargin
-    val result = Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)))
+    val result = Image(
+      resolvedImageTarget,
+      width = Some(LengthUnit.px(320)),
+      height = Some(LengthUnit.px(240))
+    )
     runBlocks(input, result)
   }
 
@@ -90,25 +105,35 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
   }
 
   test("span directive - alt and title attributes") {
-    val input = """aaa @:image(picture.jpg) {
+    val input  = """aaa @:image(picture.jpg) {
                   |  alt = alt
                   |  title = desc
                   |} bbb""".stripMargin
-    val result = Image(resolvedImageTarget, alt = Some("alt"), title = Some("desc"), options = defaultSpanStyle)
+    val result = Image(
+      resolvedImageTarget,
+      alt = Some("alt"),
+      title = Some("desc"),
+      options = defaultSpanStyle
+    )
     runSpans(input, result)
   }
 
   test("span directive - intrinsicWidth and intrinsicHeight attributes") {
-    val input = """aaa @:image(picture.jpg) {
+    val input  = """aaa @:image(picture.jpg) {
                   |  intrinsicWidth = 320
                   |  intrinsicHeight = 240
                   |} bbb""".stripMargin
-    val result = Image(resolvedImageTarget, width = Some(LengthUnit.px(320)), height = Some(LengthUnit.px(240)), options = defaultSpanStyle)
+    val result = Image(
+      resolvedImageTarget,
+      width = Some(LengthUnit.px(320)),
+      height = Some(LengthUnit.px(240)),
+      options = defaultSpanStyle
+    )
     runSpans(input, result)
   }
 
   test("span directive - style attribute") {
-    val input = """aaa @:image(picture.jpg) {
+    val input  = """aaa @:image(picture.jpg) {
                   |  style = small-image
                   |} bbb""".stripMargin
     val result = Image(resolvedImageTarget, options = Styles("small-image"))

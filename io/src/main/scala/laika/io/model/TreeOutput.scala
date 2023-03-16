@@ -23,10 +23,10 @@ import scala.io.Codec
 sealed trait TreeOutput
 
 /** A directory as a target for a rendering operation of a document tree.
-  * 
+  *
   * The specified codec will be used for writing all character output.
   */
-case class DirectoryOutput (directory: FilePath, codec: Codec) extends TreeOutput
+case class DirectoryOutput(directory: FilePath, codec: Codec) extends TreeOutput
 
 /** Instructs the renderer to produce an in-memory representation of the
   * tree of rendered outputs.

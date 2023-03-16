@@ -16,18 +16,18 @@
 
 package laika.helium.generate
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.implicits._
 import laika.ast.Path.Root
-import laika.io.model.{BinaryInput, InputTree}
+import laika.io.model.{ BinaryInput, InputTree }
 
 private[helium] object MergedCSSGenerator {
 
-  private def merge[F[_]: Concurrent] (inputs: Seq[BinaryInput[F]]): F[String] =
+  private def merge[F[_]: Concurrent](inputs: Seq[BinaryInput[F]]): F[String] =
     inputs.toList
       .traverse(_.input.through(fs2.text.utf8.decode).compile.string)
       .map(_.mkString("\n\n"))
-  
+
   def mergeSiteCSS[F[_]: Async](varBlock: String): F[String] = {
 
     val inputTree = InputTree[F]
@@ -37,7 +37,7 @@ private[helium] object MergedCSSGenerator {
       .addClassLoaderResource("laika/helium/css/code.css", Root / "css" / "code.css")
       .addClassLoaderResource("laika/helium/css/toc.css", Root / "css" / "toc.css")
       .build
-    
+
     for {
       inputs <- inputTree
       merged <- merge(inputs.binaryInputs)
@@ -45,13 +45,13 @@ private[helium] object MergedCSSGenerator {
   }
 
   def mergeEPUBCSS[F[_]: Async](varBlock: String): F[String] = {
-    
-    val importantVars = 
-      (1 to 5).map("syntax-wheel" + _) ++ 
-      (1 to 5).map("syntax-base" + _) ++ 
-      Seq("primary-color", "secondary-color")
-      
-    def addImportantAnnotation (css: String): String =
+
+    val importantVars =
+      (1 to 5).map("syntax-wheel" + _) ++
+        (1 to 5).map("syntax-base" + _) ++
+        Seq("primary-color", "secondary-color")
+
+    def addImportantAnnotation(css: String): String =
       importantVars.map(v => s"var(--$v);").foldLeft(css) { (str, substr) =>
         str.replace(substr, substr.dropRight(1) + " !important;")
       }
@@ -68,5 +68,5 @@ private[helium] object MergedCSSGenerator {
       merged <- merge(inputs.binaryInputs)
     } yield varBlock + addImportantAnnotation(merged)
   }
-  
+
 }

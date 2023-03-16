@@ -17,42 +17,42 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks}
+import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks }
 import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
 import laika.rst._
 import laika.rst.bundle._
-  
+
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
- *  to the `Parseer` or `Transformer` APIs:
- *  
- *  {{{
- *  val document = MarkupParser.of(ReStructuredText).build.parse(inputString)
- *  
- *  Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)
- *  }}}
- * 
- *  reStructuredText has several types of extension points that are fully supported by Laika.
- *  For more information on how to implement and register those see [[laika.rst.bundle.RstExtensionRegistry]].
- *
- *  In addition to the standard reStructuredText directives, the API also supports a custom directive
- *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
- *  tags which can be used in any of the supported markup formats or in templates. If you need this
- *  level of flexibility, it is recommended to use the Laika directives, if you want to stay compatible
- *  with the reStructuredText reference parser, you should pick the standard directives.
- *  
- *  Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
- *  The DSLs for creating directives are similar, but still different,
- *  due to differences in the feature set of the two variants. The Laika directives try to avoid some
- *  of the unnecessary complexities of reStructuredText directives.
- * 
- *  @author Jens Halm
- */
+  *  to the `Parseer` or `Transformer` APIs:
+  *
+  *  {{{
+  *  val document = MarkupParser.of(ReStructuredText).build.parse(inputString)
+  *
+  *  Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)
+  *  }}}
+  *
+  *  reStructuredText has several types of extension points that are fully supported by Laika.
+  *  For more information on how to implement and register those see [[laika.rst.bundle.RstExtensionRegistry]].
+  *
+  *  In addition to the standard reStructuredText directives, the API also supports a custom directive
+  *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
+  *  tags which can be used in any of the supported markup formats or in templates. If you need this
+  *  level of flexibility, it is recommended to use the Laika directives, if you want to stay compatible
+  *  with the reStructuredText reference parser, you should pick the standard directives.
+  *
+  *  Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
+  *  The DSLs for creating directives are similar, but still different,
+  *  due to differences in the feature set of the two variants. The Laika directives try to avoid some
+  *  of the unnecessary complexities of reStructuredText directives.
+  *
+  *  @author Jens Halm
+  */
 case object ReStructuredText extends MarkupFormat { self =>
 
   override val description: String = "reStructuredText"
-  
+
   val fileSuffixes: Set[String] = Set("rest", "rst")
 
   val blockParsers = Seq(
@@ -98,11 +98,13 @@ case object ReStructuredText extends MarkupFormat { self =>
     override val origin: BundleOrigin = BundleOrigin.Parser
 
     override val parsers: ParserBundle = ParserBundle(
-      markupParserHooks = Some(ParserHooks(
-        preProcessInput = WhitespacePreprocessor.forInput,
-        postProcessDocument = DocInfoExtractor,
-        postProcessBlocks = LinkTargetProcessor
-      ))
+      markupParserHooks = Some(
+        ParserHooks(
+          preProcessInput = WhitespacePreprocessor.forInput,
+          postProcessDocument = DocInfoExtractor,
+          postProcessBlocks = LinkTargetProcessor
+        )
+      )
     )
 
     override val renderOverrides = Seq(HTML.Overrides(value = ExtendedHTMLRenderer.custom))
@@ -115,7 +117,7 @@ case object ReStructuredText extends MarkupFormat { self =>
     RawContentExtensions
   )
 
-  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
+  override def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     BlockParsers.createBlockListParser(parser)
 
 }

@@ -20,22 +20,19 @@ import laika.format.PDF
 import laika.helium.Helium
 import laika.helium.generate.ConfigGenerator
 import laika.render.pdf.FopFactoryBuilder
-import laika.theme.config.{Font, FontDefinition, FontStyle, FontWeight}
+import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class FopFactoryConfigSpec extends FunSuite {
 
-  
-  def renderXML (helium: Helium): String = {
-    val config = ConfigGenerator.populateConfig(helium)
+  def renderXML(helium: Helium): String = {
+    val config    = ConfigGenerator.populateConfig(helium)
     val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
     FopFactoryBuilder.generateXMLConfig(pdfConfig)
   }
-  
-  
+
   test("defaults") {
     val expected =
       """<fop version="1.0">
@@ -66,8 +63,8 @@ class FopFactoryConfigSpec extends FunSuite {
         |</fop>""".stripMargin
     assertEquals(renderXML(Helium.defaults), expected)
   }
-  
-  private val customXML = 
+
+  private val customXML =
     """<fop version="1.0">
       |  <renderers>
       |    <renderer mime="application/pdf">
@@ -82,21 +79,41 @@ class FopFactoryConfigSpec extends FunSuite {
       |    </renderer>
       |  </renderers>
       |</fop>""".stripMargin
-  
+
   test("custom fonts via 'pdf' selector") {
     val helium = Helium.defaults.pdf.fontResources(
-      FontDefinition(Font.embedFile("/projects/fonts/font-1.tff"), "Font-1", FontWeight.Normal, FontStyle.Normal),
-      FontDefinition(Font.embedFile("/projects/fonts/font-2.tff"), "Font-2", FontWeight.Bold, FontStyle.Italic)
+      FontDefinition(
+        Font.embedFile("/projects/fonts/font-1.tff"),
+        "Font-1",
+        FontWeight.Normal,
+        FontStyle.Normal
+      ),
+      FontDefinition(
+        Font.embedFile("/projects/fonts/font-2.tff"),
+        "Font-2",
+        FontWeight.Bold,
+        FontStyle.Italic
+      )
     )
     assertEquals(renderXML(helium), customXML)
   }
 
   test("custom fonts via 'all' selector") {
     val helium = Helium.defaults.all.fontResources(
-      FontDefinition(Font.embedFile("/projects/fonts/font-1.tff"), "Font-1", FontWeight.Normal, FontStyle.Normal),
-      FontDefinition(Font.embedFile("/projects/fonts/font-2.tff"), "Font-2", FontWeight.Bold, FontStyle.Italic)
+      FontDefinition(
+        Font.embedFile("/projects/fonts/font-1.tff"),
+        "Font-1",
+        FontWeight.Normal,
+        FontStyle.Normal
+      ),
+      FontDefinition(
+        Font.embedFile("/projects/fonts/font-2.tff"),
+        "Font-2",
+        FontWeight.Bold,
+        FontStyle.Italic
+      )
     )
     assertEquals(renderXML(helium), customXML)
   }
-  
+
 }

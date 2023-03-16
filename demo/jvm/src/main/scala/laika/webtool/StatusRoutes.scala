@@ -22,15 +22,14 @@ import org.http4s.dsl.io._
 
 import scala.util.Properties
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object StatusRoutes {
 
   private lazy val version = Properties.envOrElse("VERSION", "<unknown>")
 
-  val all: HttpRoutes[IO] = HttpRoutes.of[IO] {
-    case GET -> Root / "status" => Ok(version)
+  val all: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "status" =>
+    Ok(version)
   }
 
 }

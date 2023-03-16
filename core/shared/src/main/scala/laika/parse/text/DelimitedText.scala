@@ -27,7 +27,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class DelimitedText (private[laika] val delimiter: TextDelimiter) extends Parser[String] {
+class DelimitedText(private[laika] val delimiter: TextDelimiter) extends Parser[String] {
 
   private lazy val parser: DelimitedParser[String] = new DelimitedParser[String](delimiter)
 
@@ -49,9 +49,9 @@ class DelimitedText (private[laika] val delimiter: TextDelimiter) extends Parser
 
   /** Creates a delimiter that fails when parsing any of the specified characters before a delimiter is encountered.
     */
-  def failOn (chars: Char*): DelimitedText = new DelimitedText(delimiter.copy(failOn = chars.toSet))
-  
-  def parse (source: SourceCursor): Parsed[String] = parser.parse(source)
+  def failOn(chars: Char*): DelimitedText = new DelimitedText(delimiter.copy(failOn = chars.toSet))
+
+  def parse(source: SourceCursor): Parsed[String] = parser.parse(source)
 
 }
 
@@ -67,32 +67,32 @@ object DelimitedText {
 /** Internal parser implementation that both, the public DelimitedText parser
   * and the internal InlineParser delegate to.
   */
-private[laika] class DelimitedParser [T] (val delimiter: Delimiter[T]) extends Parser[T] {
-
+private[laika] class DelimitedParser[T](val delimiter: Delimiter[T]) extends Parser[T] {
 
   private val maxChar: Char = if (delimiter.startChars.nonEmpty) delimiter.startChars.max else 0
 
-  private lazy val optimizedDelimiters: Array[Byte] = Characters.optimizedLookup(delimiter.startChars)
+  private lazy val optimizedDelimiters: Array[Byte] =
+    Characters.optimizedLookup(delimiter.startChars)
 
-
-  def parse (source: SourceCursor): Parsed[T] = {
+  def parse(source: SourceCursor): Parsed[T] = {
 
     val sourceString = source.input
-    val end = sourceString.length
-    val lookup = optimizedDelimiters
+    val end          = sourceString.length
+    val lookup       = optimizedDelimiters
 
     @tailrec
-    def parse (offset: Int): Parsed[T] = {
+    def parse(offset: Int): Parsed[T] = {
 
       def charsConsumed = offset - source.offset
 
       if (offset == end) delimiter.atEOF(charsConsumed, source)
       else {
         val char = sourceString.charAt(offset)
-        if (char <= maxChar && lookup(char) == 1) delimiter.atStartChar(char, charsConsumed, source) match {
-          case Complete(result) => result
-          case Continue         => parse(offset + 1)
-        }
+        if (char <= maxChar && lookup(char) == 1)
+          delimiter.atStartChar(char, charsConsumed, source) match {
+            case Complete(result) => result
+            case Continue         => parse(offset + 1)
+          }
         else parse(offset + 1)
       }
     }
@@ -126,7 +126,7 @@ private[laika] trait Delimiter[T] {
     *         delimiter are not met at this position, or a `Complete` instance containing
     *         the result
     */
-  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[T]
+  def atStartChar(startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[T]
 
   /** Method invoked when the end of the input is reached.
     *
@@ -134,41 +134,48 @@ private[laika] trait Delimiter[T] {
     * @param source the parser context at the position EOF has been reached
     * @return the result of the parser
     */
-  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[T]
+  def atEOF(charsConsumed: Int, source: SourceCursor): Parsed[T]
 
 }
 
 /** Delimiter implementation that allows for various kinds of customization.
   */
-private[laika] case class TextDelimiter (parser: Option[PrefixedParser[String]],
-                                         acceptEOF: Boolean = false,
-                                         nonEmpty: Boolean = false,
-                                         keepDelimiter: Boolean = false,
-                                         failOn: Set[Char] = Set()) extends Delimiter[String] {
+private[laika] case class TextDelimiter(
+    parser: Option[PrefixedParser[String]],
+    acceptEOF: Boolean = false,
+    nonEmpty: Boolean = false,
+    keepDelimiter: Boolean = false,
+    failOn: Set[Char] = Set()
+) extends Delimiter[String] {
 
   val startChars: Set[Char] = parser.fold(failOn) { _.startChars.toSortedSet ++ failOn }
 
   private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
+
   private val unexpectedInput: Char => Message =
-    Message.forRuntimeValue[Char] (char => s"unexpected input in delimited text: `$char`")
+    Message.forRuntimeValue[Char](char => s"unexpected input in delimited text: `$char`")
 
-
-  def atStartChar (startChar: Char, charsConsumed: Int, source: SourceCursor): DelimiterResult[String] = {
+  def atStartChar(
+      startChar: Char,
+      charsConsumed: Int,
+      source: SourceCursor
+  ): DelimiterResult[String] = {
 
     def applyPostCondition: Option[Int] = parser.fold(Option(0)) { parser =>
       parser.parse(source.consume(charsConsumed)) match {
         case Success(_, next) => Some(next.offset - (source.offset + charsConsumed))
-        case _ => None
+        case _                => None
       }
     }
 
-    def result (delimConsumed: Int): Success[String] = {
-      val capturedText = source.capture(charsConsumed)
+    def result(delimConsumed: Int): Success[String] = {
+      val capturedText  = source.capture(charsConsumed)
       val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + delimConsumed
       Success(capturedText, source.consume(totalConsumed))
     }
 
-    if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), source, source.offset + charsConsumed))
+    if (failOn.contains(startChar))
+      Complete(Failure(unexpectedInput(startChar), source, source.offset + charsConsumed))
     else {
       applyPostCondition match {
         case None                                      => Continue
@@ -178,7 +185,7 @@ private[laika] case class TextDelimiter (parser: Option[PrefixedParser[String]],
     }
   }
 
-  def atEOF (charsConsumed: Int, source: SourceCursor): Parsed[String] = {
+  def atEOF(charsConsumed: Int, source: SourceCursor): Parsed[String] = {
     if (!acceptEOF) Failure(Message.UnexpectedEOF, source, source.offset + charsConsumed)
     else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, source)
     else Success(source.capture(charsConsumed), source.consume(charsConsumed))
@@ -206,6 +213,6 @@ private[laika] object DelimiterResult {
   /** Signals that the delimiter has been successfully parsed, ending
     * the parsing of the delimited text and providing the result.
     */
-  case class Complete[T] (result: Parsed[T]) extends DelimiterResult[T]
+  case class Complete[T](result: Parsed[T]) extends DelimiterResult[T]
 
 }

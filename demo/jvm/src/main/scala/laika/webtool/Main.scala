@@ -16,19 +16,18 @@
 
 package laika.webtool
 
-import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.effect.{ ExitCode, IO, IOApp, Resource }
 import cats.implicits._
 import com.comcast.ip4s._
 import org.http4s.implicits._
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object Main extends IOApp {
 
-  private def service = 
+  private def service =
     (StaticRoutes.all <+> TransformerRoutes.all <+> StatusRoutes.all).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] =
@@ -40,4 +39,5 @@ object Main extends IOApp {
       .withPort(port"8080")
       .withHttpApp(service)
       .build
+
 }

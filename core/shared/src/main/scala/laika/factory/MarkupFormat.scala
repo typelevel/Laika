@@ -17,27 +17,27 @@
 package laika.factory
 
 import laika.ast.Block
-import laika.bundle.{BlockParserBuilder, ExtensionBundle, SpanParserBuilder}
+import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.text.TextParsers
 
 /** Responsible for creating parser instances for a specific markup format.
- *  A parser is simply a function of type `Input => Document`.
- *  
- *  @author Jens Halm
- */
+  *  A parser is simply a function of type `Input => Document`.
+  *
+  *  @author Jens Halm
+  */
 trait MarkupFormat extends Format {
 
   /** The file suffixes recognized by this parser.
-   *  When transforming entire directories only files with
-   *  names ending in one of the specified suffixes will
-   *  be considered.
-   * 
-   *  It is recommended not to support `txt`
-   *  or similarly common suffixes as this might interfere
-   *  with other installed formats.
-   */
+    *  When transforming entire directories only files with
+    *  names ending in one of the specified suffixes will
+    *  be considered.
+    *
+    *  It is recommended not to support `txt`
+    *  or similarly common suffixes as this might interfere
+    *  with other installed formats.
+    */
   def fileSuffixes: Set[String]
 
   /** All block parsers for the markup language this parser processes.
@@ -56,12 +56,12 @@ trait MarkupFormat extends Format {
   def escapedChar: Parser[String] = TextParsers.oneChar
 
   /** The parser-specific extensions that need to be installed
-   *  for each transformation that involves this parser.
-   * 
-   *  One scenario where a parser needs to provide a bundle
-   *  is when it produces tree elements that are unknown
-   *  to the built-in rewrite rules and renderers.
-   */
+    *  for each transformation that involves this parser.
+    *
+    *  One scenario where a parser needs to provide a bundle
+    *  is when it produces tree elements that are unknown
+    *  to the built-in rewrite rules and renderers.
+    */
   def extensions: Seq[ExtensionBundle]
 
   /** Creates the parser for a sequence of blocks based on the parser
@@ -76,7 +76,7 @@ trait MarkupFormat extends Format {
     * for special requirements, for example when the previous result has an influence on
     * which parser to pick for the subsequent block.
     */
-  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = 
+  def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     (parser <~ Parsers.opt(TextParsers.blankLines)).rep
 
 }

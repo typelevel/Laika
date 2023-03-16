@@ -17,39 +17,37 @@
 package laika.rewrite.link
 
 /** Default implementation for the logic that transforms section titles, document names
- *  and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.
- * 
- * @author Jens Halm
- */
+  *  and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.
+  *
+  * @author Jens Halm
+  */
 object SlugBuilder {
 
   /** Default slug builder that turns the specified string into a slug suitable
     * as HTML or XML id, as a path segment in a URL and as a file name.
-    * 
-    * Iterates over the input text one Unicode code point at a time. 
-    * All code points that are letters or numbers or underscore are considered valid characters. 
-    * They are mapped to lower case, and included in the output. 
-    * All other code points are considered invalid characters, 
+    *
+    * Iterates over the input text one Unicode code point at a time.
+    * All code points that are letters or numbers or underscore are considered valid characters.
+    * They are mapped to lower case, and included in the output.
+    * All other code points are considered invalid characters,
     * and any sequence of such code points will be replaced by a single dash character (`-`),
     * unless the sequence starts or ends the string in which case it is simply dropped.
     */
-  def default (text: String): String = {
-    
-    val slug = text.foldLeft(("" , true)) {
-      case ((res, inWord), char) => 
-        if (Character.isLetter(char) || Character.isDigit(char)) (res + char.toLower, true)
-        else if (char == '_') (res + char, true)
-        else if (inWord) (res + "-", false)
-        else (res, false)
+  def default(text: String): String = {
+
+    val slug = text.foldLeft(("", true)) { case ((res, inWord), char) =>
+      if (Character.isLetter(char) || Character.isDigit(char)) (res + char.toLower, true)
+      else if (char == '_') (res + char, true)
+      else if (inWord) (res + "-", false)
+      else (res, false)
     }
       ._1
       .stripPrefix("-")
       .stripSuffix("-")
-    
+
     if (slug.headOption.exists(Character.isLetter)) slug
     else "_" + slug
-    
-  }
-  
-}
 
+  }
+
+}

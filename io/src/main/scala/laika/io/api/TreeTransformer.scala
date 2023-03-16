@@ -17,25 +17,27 @@
 package laika.io.api
 
 import cats.data.NonEmptyList
-import cats.effect.{Async, Resource, Sync}
-import laika.api.builder.{OperationConfig, ParserBuilder}
-import laika.api.{MarkupParser, Renderer}
-import laika.ast.{DocumentType, TextDocumentType}
+import cats.effect.{ Async, Resource, Sync }
+import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.{ MarkupParser, Renderer }
+import laika.ast.{ DocumentType, TextDocumentType }
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
-import laika.io.model.{InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput}
-import laika.io.ops.{InputOps, TextOutputOps, TreeMapperOps}
-import laika.io.runtime.{Batch, TransformerRuntime}
-import laika.theme.{Theme, ThemeProvider}
+import laika.io.model.{ InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput }
+import laika.io.ops.{ InputOps, TextOutputOps, TreeMapperOps }
+import laika.io.runtime.{ Batch, TransformerRuntime }
+import laika.theme.{ Theme, ThemeProvider }
 
 /** Transformer for a tree of input and output documents.
   *
   * @author Jens Halm
   */
-class TreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                          renderer: Renderer,
-                                          theme: Theme[F],
-                                          mapper: TreeMapper[F]) extends InputOps[F] {
+class TreeTransformer[F[_]: Async: Batch](
+    parsers: NonEmptyList[MarkupParser],
+    renderer: Renderer,
+    theme: Theme[F],
+    mapper: TreeMapper[F]
+) extends InputOps[F] {
 
   type Result = TreeTransformer.OutputOps[F]
 
@@ -48,7 +50,7 @@ class TreeTransformer[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
     .reduceLeft[OperationConfig](_ merge _)
     .withBundles(theme.extensions)
 
-  def fromInput (input: InputTreeBuilder[F]): TreeTransformer.OutputOps[F] =
+  def fromInput(input: InputTreeBuilder[F]): TreeTransformer.OutputOps[F] =
     TreeTransformer.OutputOps(parsers, renderer, theme, input, mapper)
 
 }
@@ -60,14 +62,17 @@ object TreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                         renderer: Renderer,
-                                         theme: ThemeProvider,
-                                         mapper: TreeMapper[F]) extends TreeMapperOps[F] {
+  case class Builder[F[_]: Async: Batch](
+      parsers: NonEmptyList[MarkupParser],
+      renderer: Renderer,
+      theme: ThemeProvider,
+      mapper: TreeMapper[F]
+  ) extends TreeMapperOps[F] {
 
     type MapRes = Builder[F]
-    
-    def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes = new Builder[F](parsers, renderer, theme, mapper.andThen(f))
+
+    def evalMapTree(f: ParsedTree[F] => F[ParsedTree[F]]): MapRes =
+      new Builder[F](parsers, renderer, theme, mapper.andThen(f))
 
     /** Specifies an additional parser for text markup.
       *
@@ -75,7 +80,7 @@ object TreeTransformer {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def withAlternativeParser (parser: MarkupParser): Builder[F] = copy(
+    def withAlternativeParser(parser: MarkupParser): Builder[F] = copy(
       parsers = parsers.append(parser),
       renderer = renderer.forInputFormat(parser.format)
     )
@@ -86,31 +91,36 @@ object TreeTransformer {
       * will be determined by the suffix of the input document, e.g.
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
-    def withAlternativeParser (parser: ParserBuilder): Builder[F] = withAlternativeParser(parser.build)
+    def withAlternativeParser(parser: ParserBuilder): Builder[F] = withAlternativeParser(
+      parser.build
+    )
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme (theme: ThemeProvider): Builder[F] = copy(theme = theme)
-    
+    def withTheme(theme: ThemeProvider): Builder[F] = copy(theme = theme)
+
     /** Final builder step that creates a parallel transformer.
       */
-    def build: Resource[F, TreeTransformer[F]] = theme.build.map(new TreeTransformer[F](parsers, renderer, _, mapper))
+    def build: Resource[F, TreeTransformer[F]] =
+      theme.build.map(new TreeTransformer[F](parsers, renderer, _, mapper))
 
   }
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                           renderer: Renderer,
-                                           theme: Theme[F],
-                                           input: InputTreeBuilder[F],
-                                           mapper: TreeMapper[F]) extends TextOutputOps[F] {
+  case class OutputOps[F[_]: Async: Batch](
+      parsers: NonEmptyList[MarkupParser],
+      renderer: Renderer,
+      theme: Theme[F],
+      input: InputTreeBuilder[F],
+      mapper: TreeMapper[F]
+  ) extends TextOutputOps[F] {
 
     val F: Sync[F] = Sync[F]
 
     type Result = Op[F]
 
-    def toOutput (output: TreeOutput): Op[F] = Op[F](parsers, renderer, theme, input, mapper, output)
+    def toOutput(output: TreeOutput): Op[F] = Op[F](parsers, renderer, theme, input, mapper, output)
 
   }
 
@@ -120,23 +130,25 @@ object TreeTransformer {
     * default runtime implementation or by developing a custom runner that performs
     * the transformation based on this operation's properties.
     */
-  case class Op[F[_]: Async: Batch] (parsers: NonEmptyList[MarkupParser],
-                                    renderer: Renderer,
-                                    theme: Theme[F],
-                                    input: InputTreeBuilder[F],
-                                    mapper: TreeMapper[F],
-                                    output: TreeOutput) {
+  case class Op[F[_]: Async: Batch](
+      parsers: NonEmptyList[MarkupParser],
+      renderer: Renderer,
+      theme: Theme[F],
+      input: InputTreeBuilder[F],
+      mapper: TreeMapper[F],
+      output: TreeOutput
+  ) {
 
     /** Performs the transformation based on the library's default runtime implementation, suspended in the effect F.
       */
     def transform: F[RenderedTreeRoot[F]] = TransformerRuntime.run(this)
 
-    /** Provides a description of this operation, the parsers, renderers and extension bundles used, 
+    /** Provides a description of this operation, the parsers, renderers and extension bundles used,
       * as well as the sources and output target.
       * This functionality is mostly intended for tooling support.
       */
     def describe: F[TransformerDescriptor] = TransformerDescriptor.create(this)
-    
+
   }
 
 }

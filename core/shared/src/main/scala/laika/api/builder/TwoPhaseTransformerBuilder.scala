@@ -16,27 +16,29 @@
 
 package laika.api.builder
 
-import laika.factory.{MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 
 /** Builder API for Transformer instances.
   *
-  * Allows to add ExtensionBundles, to register AST rewrite rules, 
+  * Allows to add ExtensionBundles, to register AST rewrite rules,
   * to override the renderer for specific elements and other options.
-  * 
-  * @tparam FMT the formatter API to use which varies depending on the renderer 
+  *
+  * @tparam FMT the formatter API to use which varies depending on the renderer
   * @tparam PP the type of the post processor
-  *             
+  *
   * @author Jens Halm
   */
-class TwoPhaseTransformerBuilder[FMT, PP] (val markupFormat: MarkupFormat,
-                                           val twoPhaseRenderFormat: TwoPhaseRenderFormat[FMT, PP],
-                                           val config: OperationConfig) extends TransformerBuilderOps[FMT] {
-                                           
+class TwoPhaseTransformerBuilder[FMT, PP](
+    val markupFormat: MarkupFormat,
+    val twoPhaseRenderFormat: TwoPhaseRenderFormat[FMT, PP],
+    val config: OperationConfig
+) extends TransformerBuilderOps[FMT] {
+
   protected[this] val renderFormat: RenderFormat[FMT] = twoPhaseRenderFormat.interimFormat
 
   type ThisType = TwoPhaseTransformerBuilder[FMT, PP]
 
-  def withConfig(newConfig: OperationConfig): ThisType = 
+  def withConfig(newConfig: OperationConfig): ThisType =
     new TwoPhaseTransformerBuilder[FMT, PP](markupFormat, twoPhaseRenderFormat, newConfig)
 
 }

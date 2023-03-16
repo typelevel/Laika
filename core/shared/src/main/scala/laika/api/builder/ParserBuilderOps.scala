@@ -17,7 +17,7 @@
 package laika.api.builder
 
 import laika.ast.MessageFilter
-import laika.config.{ConfigEncoder, DefaultKey, Key}
+import laika.config.{ ConfigEncoder, DefaultKey, Key }
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a parsing step (Parser and Transformer).
@@ -45,30 +45,38 @@ trait ParserBuilderOps extends CommonBuilderOps {
     *
     * The default is to fail transformations on messages of level `Error` or higher.
     */
-  def failOnMessages (filter: MessageFilter): ThisType = withConfig(config.copy(failOnMessages = filter))
+  def failOnMessages(filter: MessageFilter): ThisType = withConfig(
+    config.copy(failOnMessages = filter)
+  )
 
   /** Returns a new instance with the specified configuration value added.
     *
-    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
-    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles,
+    * but lower precedence than any value with the same key specified in a configuration file for a directory
     * or a configuration header in a markup document.
     */
-  def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): ThisType = withConfig(config.withConfigValue(value))
+  def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): ThisType = withConfig(
+    config.withConfigValue(value)
+  )
 
   /** Returns a new instance with the specified configuration value added.
     *
-    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
-    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles,
+    * but lower precedence than any value with the same key specified in a configuration file for a directory
     * or a configuration header in a markup document.
     */
-  def withConfigValue[T: ConfigEncoder](key: String, value: T): ThisType = withConfig(config.withConfigValue(key, value))
+  def withConfigValue[T: ConfigEncoder](key: String, value: T): ThisType = withConfig(
+    config.withConfigValue(key, value)
+  )
 
   /** Returns a new instance with the specified configuration value added.
     *
-    * The specified value with have higher precedence than any value with the same key registered by extension bundles, 
-    * but lower precedence than any value with the same key specified in a configuration file for a directory 
+    * The specified value with have higher precedence than any value with the same key registered by extension bundles,
+    * but lower precedence than any value with the same key specified in a configuration file for a directory
     * or a configuration header in a markup document.
     */
-  def withConfigValue[T: ConfigEncoder](key: Key, value: T): ThisType = withConfig(config.withConfigValue(key, value))
+  def withConfigValue[T: ConfigEncoder](key: Key, value: T): ThisType = withConfig(
+    config.withConfigValue(key, value)
+  )
 
 }

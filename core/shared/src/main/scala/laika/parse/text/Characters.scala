@@ -24,48 +24,54 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class Characters[T] (predicate:     Char => Boolean,
-                     resultBuilder: Characters.ResultBuilder[T],
-                     minChar:       Int = 0,
-                     maxChar:       Int = -1) extends Parser[T] {
+class Characters[T](
+    predicate: Char => Boolean,
+    resultBuilder: Characters.ResultBuilder[T],
+    minChar: Int = 0,
+    maxChar: Int = -1
+) extends Parser[T] {
 
   /** Creates and returns a new parser that fails if it does not consume the specified minimum number
     *  of characters. It may still consume more characters in case of further matches.
     */
-  def min (count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, count, maxChar)
+  def min(count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, count, maxChar)
 
   /** Creates and returns a new parser that consumes at most the specified maximum number of characters.
     *  Always succeeds, unless a minimum number of matches is also specified.
     */
-  def max (count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, minChar, count)
+  def max(count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, minChar, count)
 
   /** Creates and returns a new parser that consumes exactly the specified number of characters.
     *  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
     *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
     */
-  def take (count: Int): Characters[T] = new Characters(predicate, resultBuilder, count, count)
+  def take(count: Int): Characters[T] = new Characters(predicate, resultBuilder, count, count)
 
   /** Creates and returns a new parser that does not produce a string result, but instead
     * only the number of characters successfully parsed as an `Int`.
     */
-  override def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
+  override def count: Characters[Int] =
+    new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
 
   /** Creates and returns a new parser that does not produce a result, but instead
     * only consumes the number of characters successfully parsed.
     */
-  override def void: Characters[Unit] = new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
+  override def void: Characters[Unit] =
+    new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
 
   private val msgProvider: Int => Message =
-    Message.forRuntimeValue[Int]( actual => s"expected at least $minChar characters, got only $actual" )
+    Message.forRuntimeValue[Int](actual =>
+      s"expected at least $minChar characters, got only $actual"
+    )
 
-
-  def parse (source: SourceCursor): Parsed[T] = {
+  def parse(source: SourceCursor): Parsed[T] = {
 
     val sourceString = source.input
-    val maxOffset = if (maxChar < 0 || source.offset + maxChar < 0) sourceString.length
-                    else Math.min(source.offset + maxChar, sourceString.length)
+    val maxOffset    =
+      if (maxChar < 0 || source.offset + maxChar < 0) sourceString.length
+      else Math.min(source.offset + maxChar, sourceString.length)
 
-    def result (offset: Int) = {
+    def result(offset: Int) = {
       val consumed = offset - source.offset
       if (consumed >= minChar)
         Success(resultBuilder(source, consumed), source.consume(consumed))
@@ -74,7 +80,7 @@ class Characters[T] (predicate:     Char => Boolean,
     }
 
     @tailrec
-    def parse (offset: Int): Parsed[T] =
+    def parse(offset: Int): Parsed[T] =
       if (offset == maxOffset || !predicate(sourceString.charAt(offset))) result(offset)
       else parse(offset + 1)
 
@@ -90,15 +96,15 @@ object Characters {
   type ResultBuilder[T] = (SourceCursor, Int) => T
 
   val StringResultBuilder: ResultBuilder[String] = (ctx, consumed) => ctx.capture(consumed)
-  val CountResultBuilder: ResultBuilder[Int] =     (_,   consumed) => consumed
-  val UnitResultBuilder: ResultBuilder[Unit] =     (_, _) => ()
+  val CountResultBuilder: ResultBuilder[Int]     = (_, consumed) => consumed
+  val UnitResultBuilder: ResultBuilder[Unit]     = (_, _) => ()
 
   /**  Returns an optimized, Array-based lookup function
     *  for the specified characters.
     */
-  def optimizedLookup (chars: Iterable[Char]): Array[Byte] = {
+  def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
     val max: Int = if (chars.nonEmpty) chars.max else -1
-    val lookup = new Array[Byte](max + 1)
+    val lookup   = new Array[Byte](max + 1)
 
     for (c <- chars) lookup(c) = 1
 
@@ -108,7 +114,7 @@ object Characters {
   /** Builds a parser that consumes any number of consecutive occurrences of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def include (chars: Seq[Char]): Characters[String] = {
+  def include(chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
         c => false
@@ -121,7 +127,7 @@ object Characters {
         c => c == c1 || c == c2
       case _ =>
         val lookup = optimizedLookup(chars)
-        val max = lookup.length - 1
+        val max    = lookup.length - 1
         c => c <= max && lookup(c) == 1
     }
     new Characters(p, StringResultBuilder)
@@ -130,7 +136,7 @@ object Characters {
   /** Builds a parser that consumes any number of consecutive characters that are not one of the specified characters.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def exclude (chars: Seq[Char]): Characters[String] = {
+  def exclude(chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
         _ => true
@@ -143,7 +149,7 @@ object Characters {
         c => c != c1 && c != c2
       case _ =>
         val lookup = optimizedLookup(chars)
-        val max = lookup.length - 1
+        val max    = lookup.length - 1
         c => c > max || lookup(c) == 0
     }
     new Characters(p, StringResultBuilder)
@@ -152,6 +158,7 @@ object Characters {
   /** Builds a parser that consumes any number of consecutive characters which satisfy the specified predicate.
     * Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyWhile (predicate: Char => Boolean): Characters[String] = new Characters(predicate, StringResultBuilder)
+  def anyWhile(predicate: Char => Boolean): Characters[String] =
+    new Characters(predicate, StringResultBuilder)
 
 }

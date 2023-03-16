@@ -16,11 +16,11 @@
 
 package laika.sbt
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import laika.api.Renderer
-import laika.factory.{BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{ BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat }
 import laika.format._
 import laika.io.config.SiteConfig
 import laika.io.implicits._
@@ -33,7 +33,7 @@ import sbt._
 import sbt.util.CacheStore
 import Settings.validated
 import laika.config.Config
-import laika.preview.{ServerBuilder, ServerConfig}
+import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 
 import scala.annotation.tailrec
@@ -53,8 +53,8 @@ object Tasks {
     val targetDir = Settings.apiTargetDirectory.value
     if (laikaIncludeAPI.value) task {
 
-      val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings = (laikaGenerateAPI / sbt.Keys.mappings).value
+      val cacheDir       = streams.value.cacheDirectory / "laika" / "api"
+      val apiMappings    = (laikaGenerateAPI / sbt.Keys.mappings).value
       val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
 
       Sync.sync(CacheStore(cacheDir))(targetMappings)
@@ -62,13 +62,14 @@ object Tasks {
       streams.value.log.info("Copied API documentation to " + targetDir)
       apiMappings.map(_._2)
     }
-    else task {
-      streams.value.log.info("Delete API dir")
-      sbt.IO.delete(targetDir)
-      Nil
-    }
+    else
+      task {
+        streams.value.log.info("Delete API dir")
+        sbt.IO.delete(targetDir)
+        Nil
+      }
   }
-  
+
   /** The main transformation task of the sbt plugin.
     *
     * It accepts one or more arguments specifying the output formats. Valid arguments
@@ -86,26 +87,31 @@ object Tasks {
     val formats = spaceDelimited("<format>").parsed.map(OutputFormat.fromString)
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-    val userConfig = laikaConfig.value
-    val parser = Settings.parser.value
-    val baseConfig = Settings.parserConfig.value.baseConfig
-    val downloadPath = (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
+    val userConfig       = laikaConfig.value
+    val parser           = Settings.parser.value
+    val baseConfig       = Settings.parserConfig.value.baseConfig
+    val downloadPath     =
+      (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
     val artifactBaseName = Settings.artifactBaseName.value
 
     lazy val tree = {
       val apiPath = validated(SiteConfig.apiPath(baseConfig))
-      val inputs = generateAPI.value.foldLeft(laikaInputs.value.delegate) {
-        (inputs, path) => inputs.addProvidedPath(apiPath / path)
+      val inputs  = generateAPI.value.foldLeft(laikaInputs.value.delegate) { (inputs, path) =>
+        inputs.addProvidedPath(apiPath / path)
       }
-      val tree = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
+      val tree    = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
       Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
 
       tree
     }
-    
-    def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
-      
+
+    def renderWithFormat[FMT](
+        format: RenderFormat[FMT],
+        targetDir: File,
+        formatDesc: String
+    ): Set[File] = {
+
       if (targetDir.exists) cleanTarget(targetDir, baseConfig)
       else targetDir.mkdirs()
 
@@ -115,12 +121,13 @@ object Tasks {
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build
-        .use(_
-          .from(tree)
-          .toDirectory(FilePath.fromJavaFile(targetDir))(userConfig.encoding)
-          .render
+        .use(
+          _
+            .from(tree)
+            .toDirectory(FilePath.fromJavaFile(targetDir))(userConfig.encoding)
+            .render
         )
-        .unsafeRunSync()      
+        .unsafeRunSync()
 
       streams.value.log.info(Logs.outputs(tree.root, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
@@ -128,8 +135,11 @@ object Tasks {
       targetDir.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder], formatDesc: String): Set[File] = {
-      
+    def renderWithProcessor[FMT](
+        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+        formatDesc: String
+    ): Set[File] = {
+
       downloadPath.mkdirs()
 
       val ops = Renderer
@@ -137,13 +147,14 @@ object Tasks {
         .withConfig(Settings.parserConfig.value)
         .parallel[IO]
         .withTheme(laikaTheme.value)
-        .build 
+        .build
         .use { renderer =>
           val roots = validated(Selections.createCombinations(tree.root))
           roots.traverse { case (root, classifiers) =>
-            val classifier = if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-            val docName = artifactBaseName + classifier + "." + formatDesc.toLowerCase
-            val file = downloadPath / docName
+            val classifier =
+              if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+            val docName    = artifactBaseName + classifier + "." + formatDesc.toLowerCase
+            val file       = downloadPath / docName
             renderer
               .from(root)
               .copying(tree.staticDocuments)
@@ -152,7 +163,7 @@ object Tasks {
               .as(file)
           }
         }
-      
+
       val res = ops.unsafeRunSync()
 
       res.toList.foreach { f =>
@@ -162,24 +173,28 @@ object Tasks {
       res.toList.toSet
     }
 
-    val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputCollection = laikaInputs.value.delegate.build(Settings.parserConfig.value.docTypeMatcher).unsafeRunSync()
+    val cacheDir        = streams.value.cacheDirectory / "laika"
+    val inputCollection =
+      laikaInputs.value.delegate.build(Settings.parserConfig.value.docTypeMatcher).unsafeRunSync()
     streams.value.log.info(Logs.inputs(inputCollection))
-    val inputFiles = collectInputFiles(inputCollection)
+    val inputFiles      = collectInputFiles(inputCollection)
 
     val results = formats map { format =>
-      
       val cacheFormatDir = format.toString.toLowerCase
 
-      val fun = FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) { _ =>
-        format match {
-          case OutputFormat.HTML  => renderWithFormat(HTML, (laikaSite / target).value, "HTML")
-          case OutputFormat.AST   => renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
-          case OutputFormat.XSLFO => renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
-          case OutputFormat.EPUB  => renderWithProcessor(EPUB, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(PDF, "PDF")
+      val fun =
+        FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) {
+          _ =>
+            format match {
+              case OutputFormat.HTML  => renderWithFormat(HTML, (laikaSite / target).value, "HTML")
+              case OutputFormat.AST   =>
+                renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
+              case OutputFormat.XSLFO =>
+                renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
+              case OutputFormat.EPUB  => renderWithProcessor(EPUB, "EPUB")
+              case OutputFormat.PDF   => renderWithProcessor(PDF, "PDF")
+            }
         }
-      }
       fun(inputFiles)
     }
 
@@ -190,26 +205,31 @@ object Tasks {
   /** Creates a preview server as a `cats.effect.Resource` based on parser and input settings.
     */
   val buildPreviewServer: Initialize[Task[Resource[IO, Server]]] = task {
-    
+
     val logger = streams.value.log
     logger.info("Initializing server...")
-    
-    def applyIf (flag: Boolean, f: ServerConfig => ServerConfig): ServerConfig => ServerConfig =
+
+    def applyIf(flag: Boolean, f: ServerConfig => ServerConfig): ServerConfig => ServerConfig =
       if (flag) f else identity
-    
+
     val previewConfig = laikaPreviewConfig.value
-    
+
     val applyFlags = applyIf(laikaIncludeEPUB.value, _.withEPUBDownloads)
       .andThen(applyIf(laikaIncludePDF.value, _.withPDFDownloads))
-      .andThen(applyIf(laikaIncludeAPI.value, _.withAPIDirectory(FilePath.fromJavaFile(Settings.apiTargetDirectory.value))))
+      .andThen(
+        applyIf(
+          laikaIncludeAPI.value,
+          _.withAPIDirectory(FilePath.fromJavaFile(Settings.apiTargetDirectory.value))
+        )
+      )
       .andThen(applyIf(previewConfig.isVerbose, _.verbose))
-    
+
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
       .withHost(previewConfig.host)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
-    
+
     ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withLogger(s => IO(logger.info(s)))
       .withConfig(applyFlags(config))
@@ -221,12 +241,14 @@ object Tasks {
     * The server can be stopped with return/enter keys.
     */
   val startPreviewServer: Initialize[Task[Unit]] = task {
-    
+
     val _ = generateAPI.value
-    
+
     val (_, cancel) = buildPreviewServer.value.allocated.unsafeRunSync()
 
-    streams.value.log.info(s"Preview server started on port ${laikaPreviewConfig.value.port}. Press return/enter to exit.")
+    streams.value.log.info(
+      s"Preview server started on port ${laikaPreviewConfig.value.port}. Press return/enter to exit."
+    )
 
     try {
       System.in.read
@@ -249,7 +271,7 @@ object Tasks {
     val pdf  = if (laikaIncludePDF.value) " pdf" else ""
     generate.toTask(" html" + epub + pdf)
   }
-  
+
   val mappings: Initialize[Task[Seq[(File, String)]]] = task {
     sbt.Path.allSubpaths((laikaSite / target).value).toSeq
   }
@@ -259,7 +281,7 @@ object Tasks {
     */
   val packageSite: Initialize[Task[File]] = task {
     val artifactName = Settings.artifactBaseName.value + ".zip"
-    val zipFile = (Laika / target).value / artifactName
+    val zipFile      = (Laika / target).value / artifactName
     streams.value.log.info(s"Packaging $zipFile ...")
 
     sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile, None)
@@ -273,14 +295,16 @@ object Tasks {
   val clean: Initialize[Task[Unit]] = task {
     cleanTarget((laikaSite / target).value, Settings.parserConfig.value.baseConfig)
   }
-  
-  private def cleanTarget (targetDir: File, config: Config): Unit = {
+
+  private def cleanTarget(targetDir: File, config: Config): Unit = {
     val downloadPath   = targetDir / validated(SiteConfig.downloadPath(config)).relative.toString
     val apiPath        = targetDir / validated(SiteConfig.apiPath(config)).relative.toString
     val versionedPaths = config.get[Versions].toOption.map { versions =>
-      (versions.olderVersions ++ versions.newerVersions).map(v => new File(targetDir, v.pathSegment)).allPaths
+      (versions.olderVersions ++ versions.newerVersions).map(v =>
+        new File(targetDir, v.pathSegment)
+      ).allPaths
     }.reduceLeftOption(_ +++ _).getOrElse(PathFinder.empty)
-    
+
     val filesToDelete = targetDir.allPaths --- targetDir ---
       versionedPaths ---
       pathFinderWithParents(downloadPath) ---
@@ -289,24 +313,24 @@ object Tasks {
     sbt.IO.delete(filesToDelete.get)
   }
 
-  private def pathFinderWithParents (dir: File): PathFinder = {
+  private def pathFinderWithParents(dir: File): PathFinder = {
 
     @tailrec
-    def collect (file: File, acc: Set[File]): Set[File] = {
+    def collect(file: File, acc: Set[File]): Set[File] = {
       file.getParentFile match {
         case null => acc
-        case p => collect(p, acc + p)
+        case p    => collect(p, acc + p)
       }
     }
 
     dir.allPaths +++ collect(dir, Set())
   }
-  
+
   /** Collects all input files from the specified input tree.
     * Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles (inputs: InputTree[IO]): Set[File] = 
-    inputs.textInputs.flatMap(_.sourceFile.map(_.toJavaFile)).toSet ++ 
+  def collectInputFiles(inputs: InputTree[IO]): Set[File] =
+    inputs.textInputs.flatMap(_.sourceFile.map(_.toJavaFile)).toSet ++
       inputs.binaryInputs.flatMap(_.sourceFile.map(_.toJavaFile))
 
   /** Enumeration of output formats supported by the plugin.
@@ -325,12 +349,12 @@ object Tasks {
 
     case object AST extends OutputFormat
 
-    def fromString (name: String): OutputFormat = name.toLowerCase match {
-      case "html" => HTML
-      case "epub" => EPUB
-      case "pdf" => PDF
+    def fromString(name: String): OutputFormat = name.toLowerCase match {
+      case "html"                    => HTML
+      case "epub"                    => EPUB
+      case "pdf"                     => PDF
       case "fo" | "xslfo" | "xsl-fo" => XSLFO
-      case "formatted-ast" | "ast" => AST
+      case "formatted-ast" | "ast"   => AST
       case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
     }
 

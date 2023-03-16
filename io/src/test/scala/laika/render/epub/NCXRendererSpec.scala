@@ -23,18 +23,20 @@ import munit.FunSuite
 class NCXRendererSpec extends FunSuite {
 
   val renderer = new NCXRenderer
-  val title = "Tree 1"
-  val uuid = "some-uuid"
+  val title    = "Tree 1"
+  val uuid     = "some-uuid"
 
-  def render (input: RenderedTreeRoot[IO], depth: Int = 1): String = 
+  def render(input: RenderedTreeRoot[IO], depth: Int = 1): String =
     renderer.render(input, title, uuid, Some(depth))
-    
-  def result (navPoints: String, depth: Int = 1): String = 
+
+  def result(navPoints: String, depth: Int = 1): String =
     renderer.fileContent(uuid, title, navPoints, depth)
-    
-  def run (input: RenderedTreeRoot[IO], expectedNavPoints: String, depth: Int = 1)(implicit loc: munit.Location): Unit =
+
+  def run(input: RenderedTreeRoot[IO], expectedNavPoints: String, depth: Int = 1)(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(render(input, depth), result(expectedNavPoints, depth))
-  
+
   test("render an empty tree") {
     run(EmptyTree.input, "")
   }
@@ -54,119 +56,119 @@ class NCXRendererSpec extends FunSuite {
   test("render a tree with a two documents") {
     val expected =
       """    <navPoint id="navPoint-0">
-       |      <navLabel>
-       |        <text>Title 2</text>
-       |      </navLabel>
-       |      <content src="content/foo.epub.xhtml" />
-       |
-       |    </navPoint>
-       |    <navPoint id="navPoint-1">
-       |      <navLabel>
-       |        <text>Title 3</text>
-       |      </navLabel>
-       |      <content src="content/bar.epub.xhtml" />
-       |
-       |    </navPoint>""".stripMargin
+        |      <navLabel>
+        |        <text>Title 2</text>
+        |      </navLabel>
+        |      <content src="content/foo.epub.xhtml" />
+        |
+        |    </navPoint>
+        |    <navPoint id="navPoint-1">
+        |      <navLabel>
+        |        <text>Title 3</text>
+        |      </navLabel>
+        |      <content src="content/bar.epub.xhtml" />
+        |
+        |    </navPoint>""".stripMargin
     run(TwoDocuments.input, expected)
   }
 
   test("render a tree with a nested tree") {
 
     val expected =
-    """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml" />
-     |
-     |    </navPoint>
-     |    <navPoint id="navPoint-1">
-     |      <navLabel>
-     |        <text>Tree 4</text>
-     |      </navLabel>
-     |      <content src="content/sub/bar.epub.xhtml" />
-     |    <navPoint id="navPoint-2">
-     |      <navLabel>
-     |        <text>Title 3</text>
-     |      </navLabel>
-     |      <content src="content/sub/bar.epub.xhtml" />
-     |
-     |    </navPoint>
-     |    </navPoint>""".stripMargin
+      """    <navPoint id="navPoint-0">
+        |      <navLabel>
+        |        <text>Title 2</text>
+        |      </navLabel>
+        |      <content src="content/foo.epub.xhtml" />
+        |
+        |    </navPoint>
+        |    <navPoint id="navPoint-1">
+        |      <navLabel>
+        |        <text>Tree 4</text>
+        |      </navLabel>
+        |      <content src="content/sub/bar.epub.xhtml" />
+        |    <navPoint id="navPoint-2">
+        |      <navLabel>
+        |        <text>Title 3</text>
+        |      </navLabel>
+        |      <content src="content/sub/bar.epub.xhtml" />
+        |
+        |    </navPoint>
+        |    </navPoint>""".stripMargin
     run(NestedTree.input, expected, depth = 2)
   }
 
   test("not render a nested tree if the depth is 1") {
     val expected =
       """    <navPoint id="navPoint-0">
-       |      <navLabel>
-       |        <text>Title 2</text>
-       |      </navLabel>
-       |      <content src="content/foo.epub.xhtml" />
-       |
-       |    </navPoint>""".stripMargin
+        |      <navLabel>
+        |        <text>Title 2</text>
+        |      </navLabel>
+        |      <content src="content/foo.epub.xhtml" />
+        |
+        |    </navPoint>""".stripMargin
     run(NestedTree.input, expected)
   }
 
   test("render a document with sections when the depth is 2") {
     val expected = """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml" />
-     |    <navPoint id="navPoint-1">
-     |      <navLabel>
-     |        <text>Section A</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml#A" />
-     |
-     |    </navPoint>
-     |    <navPoint id="navPoint-2">
-     |      <navLabel>
-     |        <text>Section B</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml#B" />
-     |
-     |    </navPoint>
-     |    </navPoint>
-     |    <navPoint id="navPoint-3">
-     |      <navLabel>
-     |        <text>Title 3</text>
-     |      </navLabel>
-     |      <content src="content/bar.epub.xhtml" />
-     |    <navPoint id="navPoint-4">
-     |      <navLabel>
-     |        <text>Section A</text>
-     |      </navLabel>
-     |      <content src="content/bar.epub.xhtml#A" />
-     |
-     |    </navPoint>
-     |    <navPoint id="navPoint-5">
-     |      <navLabel>
-     |        <text>Section B</text>
-     |      </navLabel>
-     |      <content src="content/bar.epub.xhtml#B" />
-     |
-     |    </navPoint>
-     |    </navPoint>""".stripMargin
+                     |      <navLabel>
+                     |        <text>Title 2</text>
+                     |      </navLabel>
+                     |      <content src="content/foo.epub.xhtml" />
+                     |    <navPoint id="navPoint-1">
+                     |      <navLabel>
+                     |        <text>Section A</text>
+                     |      </navLabel>
+                     |      <content src="content/foo.epub.xhtml#A" />
+                     |
+                     |    </navPoint>
+                     |    <navPoint id="navPoint-2">
+                     |      <navLabel>
+                     |        <text>Section B</text>
+                     |      </navLabel>
+                     |      <content src="content/foo.epub.xhtml#B" />
+                     |
+                     |    </navPoint>
+                     |    </navPoint>
+                     |    <navPoint id="navPoint-3">
+                     |      <navLabel>
+                     |        <text>Title 3</text>
+                     |      </navLabel>
+                     |      <content src="content/bar.epub.xhtml" />
+                     |    <navPoint id="navPoint-4">
+                     |      <navLabel>
+                     |        <text>Section A</text>
+                     |      </navLabel>
+                     |      <content src="content/bar.epub.xhtml#A" />
+                     |
+                     |    </navPoint>
+                     |    <navPoint id="navPoint-5">
+                     |      <navLabel>
+                     |        <text>Section B</text>
+                     |      </navLabel>
+                     |      <content src="content/bar.epub.xhtml#B" />
+                     |
+                     |    </navPoint>
+                     |    </navPoint>""".stripMargin
     run(DocumentsWithSections.input, expected, depth = 2)
   }
 
   test("not render a document with sections when the depth is 1") {
     val expected = """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.epub.xhtml" />
-     |
-     |    </navPoint>
-     |    <navPoint id="navPoint-1">
-     |      <navLabel>
-     |        <text>Title 3</text>
-     |      </navLabel>
-     |      <content src="content/bar.epub.xhtml" />
-     |
-     |    </navPoint>""".stripMargin
+                     |      <navLabel>
+                     |        <text>Title 2</text>
+                     |      </navLabel>
+                     |      <content src="content/foo.epub.xhtml" />
+                     |
+                     |    </navPoint>
+                     |    <navPoint id="navPoint-1">
+                     |      <navLabel>
+                     |        <text>Title 3</text>
+                     |      </navLabel>
+                     |      <content src="content/bar.epub.xhtml" />
+                     |
+                     |    </navPoint>""".stripMargin
     run(DocumentsWithSections.input, expected)
   }
 

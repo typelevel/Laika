@@ -21,18 +21,21 @@ import laika.ast.DocumentTreeRoot
 import laika.ast.sample.DocumentTreeAssertions
 import laika.io.helper.RenderedTreeAssertions
 import laika.io.model.RenderedTreeRoot
-import munit.{Assertions, CatsEffectAssertions}
+import munit.{ Assertions, CatsEffectAssertions }
 
-trait IOTreeAssertions extends CatsEffectAssertions with DocumentTreeAssertions { self: Assertions =>
+trait IOTreeAssertions extends CatsEffectAssertions with DocumentTreeAssertions {
+  self: Assertions =>
 
-  implicit class AssertingTree(private val self: IO[DocumentTreeRoot]) extends DocumentTreeAssertions {
+  implicit class AssertingTree(private val self: IO[DocumentTreeRoot])
+      extends DocumentTreeAssertions {
 
-    def assertEquals(tree: DocumentTreeRoot): IO[Unit] = 
+    def assertEquals(tree: DocumentTreeRoot): IO[Unit] =
       self.map(_.assertEquals(tree))
 
   }
 
-  implicit class AssertingRenderedTree(private val self: IO[RenderedTreeRoot[IO]]) extends RenderedTreeAssertions {
+  implicit class AssertingRenderedTree(private val self: IO[RenderedTreeRoot[IO]])
+      extends RenderedTreeAssertions {
 
     def assertEquals(tree: RenderedTreeRoot[IO]): IO[Unit] =
       self.map(_.assertEquals(tree))
@@ -41,7 +44,7 @@ trait IOTreeAssertions extends CatsEffectAssertions with DocumentTreeAssertions 
 
   implicit class Asserting[A](private val self: IO[A]) {
 
-    def assertFailsWith (t: Throwable): IO[Unit] = self.attempt.assertEquals(Left(t))
+    def assertFailsWith(t: Throwable): IO[Unit] = self.attempt.assertEquals(Left(t))
 
   }
 

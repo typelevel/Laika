@@ -16,39 +16,49 @@
 
 package laika.config
 
-import cats.data.{Chain, NonEmptyChain}
-import laika.ast.{DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget}
+import cats.data.{ Chain, NonEmptyChain }
+import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.rewrite.{Version, VersionScannerConfig, Versions}
-import laika.rewrite.link.{ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition}
-import laika.rewrite.nav.{AutonumberConfig, ChoiceConfig, SelectionConfig, Selections}
+import laika.rewrite.{ Version, VersionScannerConfig, Versions }
+import laika.rewrite.link.{ ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition }
+import laika.rewrite.nav.{ AutonumberConfig, ChoiceConfig, SelectionConfig, Selections }
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
 import java.net.URI
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class ConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
 
-  def failDecode[T: ConfigDecoder: DefaultKey] (input: String, messageStart: String): Unit = {
+  def failDecode[T: ConfigDecoder: DefaultKey](input: String, messageStart: String): Unit = {
     val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
     res match {
       case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
-      case Left(err: DecodingError) => fail(s"message '${err.message}' did not start with '$messageStart''")
+      case Left(err: DecodingError)                                         =>
+        fail(s"message '${err.message}' did not start with '$messageStart''")
       case Left(err) => fail(s"Expected DecodingError, but got $err")
-      case _ => fail("decoding did not fail as expected")
+      case _         => fail("decoding did not fail as expected")
     }
   }
 
-  def decode[T: ConfigDecoder: DefaultKey] (input: String, expected: T, modifyResult: T => T = identity[T](_)): Unit =
-    assertEquals(ConfigParser.parse(input).resolve().flatMap(_.get[T]), Right(modifyResult(expected)))
+  def decode[T: ConfigDecoder: DefaultKey](
+      input: String,
+      expected: T,
+      modifyResult: T => T = identity[T](_)
+  ): Unit =
+    assertEquals(
+      ConfigParser.parse(input).resolve().flatMap(_.get[T]),
+      Right(modifyResult(expected))
+    )
 
-  def roundTrip[T: ConfigDecoder: ConfigEncoder] (value: T, modifyResult: T => T = identity[T](_)): Unit = {
+  def roundTrip[T: ConfigDecoder: ConfigEncoder](
+      value: T,
+      modifyResult: T => T = identity[T](_)
+  ): Unit = {
     val result = ConfigBuilder.empty
       .withValue(testKey, value)
       .build
@@ -72,17 +82,20 @@ class ConfigCodecSpec extends FunSuite {
         |  canonicalLink = "http://foo.bar/baz"
         |}}
       """.stripMargin
-    decode[DocumentMetadata](input, DocumentMetadata(
-      Some("Monkey Gone To Heaven"),
-      Some("It's indescribable"),
-      Some("XX-33-FF-01"),
-      Seq("Helen North", "Maria South"),
-      Some("en"),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-      Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get),
-      Some("125"),
-      Some(new URI("http://foo.bar/baz"))
-    ))
+    decode[DocumentMetadata](
+      input,
+      DocumentMetadata(
+        Some("Monkey Gone To Heaven"),
+        Some("It's indescribable"),
+        Some("XX-33-FF-01"),
+        Seq("Helen North", "Maria South"),
+        Some("en"),
+        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
+        Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get),
+        Some("125"),
+        Some(new URI("http://foo.bar/baz"))
+      )
+    )
   }
 
   test("DocumentMetadata - decode an instance with a single author") {
@@ -95,13 +108,17 @@ class ConfigCodecSpec extends FunSuite {
         |  datePublished = "2002-10-10T12:00:00"
         |}}
       """.stripMargin
-    decode[DocumentMetadata](input, DocumentMetadata(
-      None, None,
-      Some("XX-33-FF-01"),
-      Seq("Dorothea West"),
-      Some("en"),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-    ))
+    decode[DocumentMetadata](
+      input,
+      DocumentMetadata(
+        None,
+        None,
+        Some("XX-33-FF-01"),
+        Seq("Dorothea West"),
+        Some("en"),
+        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      )
+    )
   }
 
   test("DocumentMetadata - round-trip encode and decode") {
@@ -129,7 +146,10 @@ class ConfigCodecSpec extends FunSuite {
         |  dateModified = "2000-XX-01T00:00:00Z"
         |}}
       """.stripMargin
-    failDecode[DocumentMetadata](input, "Error decoding 'laika.metadata.dateModified': Invalid date format")
+    failDecode[DocumentMetadata](
+      input,
+      "Error decoding 'laika.metadata.dateModified': Invalid date format"
+    )
   }
 
   test("DocumentMetadata - fail with an invalid URI") {
@@ -142,14 +162,15 @@ class ConfigCodecSpec extends FunSuite {
         |  canonicalLink = "?#?@!#"
         |}}
       """.stripMargin
-    val msg = "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
+    val msg   =
+      "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
     failDecode[DocumentMetadata](input, msg)
   }
 
   object links {
-    
-    def sort (config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
-  
+
+    def sort(config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
+
     val fullyPopulatedInstance = LinkConfig(
       Seq(
         TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
@@ -166,6 +187,7 @@ class ConfigCodecSpec extends FunSuite {
         SourceLinks("https://bar.source/", "java", "foo.bar")
       )
     )
+
   }
 
   test("LinkConfig - decode an instance with all fields populated") {
@@ -222,21 +244,23 @@ class ConfigCodecSpec extends FunSuite {
     roundTrip(links.fullyPopulatedInstance, links.sort)
   }
 
-
   object selections {
-    
+
     val sample = Selections(
-      SelectionConfig("foo",
+      SelectionConfig(
+        "foo",
         ChoiceConfig("foo-a", "foo-label-a", selected = true),
         ChoiceConfig("foo-b", "foo-label-b")
       ).withSeparateEbooks,
-      SelectionConfig("bar",
+      SelectionConfig(
+        "bar",
         ChoiceConfig("bar-a", "bar-label-a"),
         ChoiceConfig("bar-b", "bar-label-b")
       )
     )
+
   }
-  
+
   test("ChoiceGroupsConfig - decode an instance with all fields populated") {
     val input =
       """{
@@ -265,14 +289,15 @@ class ConfigCodecSpec extends FunSuite {
   test("ChoiceGroupsConfig - round-trip encode and decode") {
     roundTrip(selections.sample)
   }
-  
-  
+
   object autonumbering {
+
     val fullyPopulatedInstance = AutonumberConfig(
       documents = true,
       sections = true,
       maxDepth = 5
     )
+
   }
 
   test("AutonumberConfig - decode an instance with all fields populated") {
@@ -291,8 +316,8 @@ class ConfigCodecSpec extends FunSuite {
     roundTrip(autonumbering.fullyPopulatedInstance)
   }
 
-  
   object versions {
+
     val testInstance = Versions(
       Version("0.42.x", "0.42", canonical = true),
       Seq(
@@ -305,11 +330,12 @@ class ConfigCodecSpec extends FunSuite {
       renderUnversioned = false,
       scannerConfig = Some(VersionScannerConfig("/path/to/versions", Seq(Root / "api")))
     )
+
   }
-  
+
   test("Versions - decode an instance with all fields populated") {
     val input =
-       """{
+      """{
         |  laika.versions {
         |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html", canonical = true }
         |    olderVersions = [
@@ -328,7 +354,7 @@ class ConfigCodecSpec extends FunSuite {
   }
 
   test("Versions - fail with invalid configuration") {
-    val input =
+    val input    =
       """{
         |  laika.versions {
         |    currentVersion = { displayValue = "0.42.x", pathSegment = "0.42", fallbackLink = "index.html", canonical = true }
@@ -339,26 +365,27 @@ class ConfigCodecSpec extends FunSuite {
         |  }
         |}
        """.stripMargin
-    val res = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
-    val expected = ConfigErrors(NonEmptyChain(
-      ValidationError("Path segments used for more than one version: 0.41"), 
-      ValidationError("More than one version marked as canonical: 0.41.x, 0.42.x")))
+    val res      = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
+    val expected = ConfigErrors(
+      NonEmptyChain(
+        ValidationError("Path segments used for more than one version: 0.41"),
+        ValidationError("More than one version marked as canonical: 0.41.x, 0.42.x")
+      )
+    )
     assertEquals(res, Left(expected))
   }
 
   test("Versions - round-trip encode and decode") {
     roundTrip(versions.testInstance)
   }
-  
-  
+
   test("IconRegistry - encode a list of icons") {
-    val open = IconStyle("open")
-    val close = IconGlyph('x')
+    val open     = IconStyle("open")
+    val close    = IconGlyph('x')
     val registry = IconRegistry("open" -> open, "close" -> close)
-    val encoded = ConfigBuilder.empty.withValue(registry).build
+    val encoded  = ConfigBuilder.empty.withValue(registry).build
     assertEquals(encoded.get[ConfigValue](LaikaKeys.icons.child("open")), Right(ASTValue(open)))
     assertEquals(encoded.get[ConfigValue](LaikaKeys.icons.child("close")), Right(ASTValue(close)))
   }
-    
 
 }
