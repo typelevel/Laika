@@ -185,6 +185,21 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     )
   }
 
+  test("links - inline link destination within angle brackets") {
+    runEnclosed(
+      """some [link](<http://foo>) here""",
+      SpanLink.external("http://foo")("link")
+    )
+  }
+
+  test("links - inline link destination containing spaces within angle brackets") {
+    val linkSrc = "[link](<foo bar.md>)"
+    val input   = s"some $linkSrc here"
+    val linkAST =
+      LinkPathReference(Seq(Text("link")), RelativePath.parse("foo bar.md"), source(linkSrc, input))
+    runEnclosed(input, linkAST)
+  }
+
   test("links - inline link with an optional title enclosed in single quotes") {
     runEnclosed(
       """some [link](http://foo 'a title') here""",
