@@ -39,6 +39,11 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
 * Directives, which extend the text markup's functionality, either one of the built-in [Standard Directives]
   or your own, custom implementations.
 
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
 
 ### Title Documents
 
@@ -53,14 +58,21 @@ The names can be overridden in Laika's global configuration (you need to omit th
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.config.LaikaKeys
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
   .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.config.LaikaKeys
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -226,7 +238,9 @@ For this to work, the library or plugin needs to know where your site is hosted.
 
 If you are using the Helium theme, there is a property you can use for this purpose:
 
-```scala
+```scala mdoc
+import laika.helium.Helium
+
 Helium.defaults.site.baseURL("https://my-docs/site")
 ```
 
@@ -235,13 +249,19 @@ If you are not using Helium, you can use the standard configuration API to set t
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.config.LaikaKeys
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LaikaKeys.siteBaseURL, "https://my-docs/site")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc
+import laika.config.LaikaKeys
+import laika.api._
+import laika.format._
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -299,7 +319,9 @@ Therefore, configuration for versioned documentation involves two steps:
 
 This is a global configuration artifact that you can define with the Helium configuration API:
 
-```scala
+```scala mdoc
+import laika.rewrite.{ Version, Versions }
+
 val versions = Versions(
   currentVersion = Version("0.42.x", "0.42", canonical = true),
   olderVersions = Seq(
@@ -370,7 +392,7 @@ The index for this flexible switching can be built up in two different ways, dep
    the version configuration for Laika is complete, including all the older versions rendered by other tools
    and the configuration for the version scanner itself:
    
-   ```scala
+   ```scala mdoc:nest
    val versions = Versions(
      currentVersion = Version("0.42.x", "0.42"),
      olderVersions  = Seq(Version("0.41.x", "0.41", label = Some("EOL"))),
@@ -409,7 +431,7 @@ them to originate in the sources for the newest version.
 You can achieve this by setting the `renderUnversioned` flag to `false` in your version config on
 the maintenance branch:
 
-```scala
+```scala mdoc:nest
 val versions = Versions(
   currentVersion = Version("0.42.x", "0.42"),
   olderVersions = Seq(),

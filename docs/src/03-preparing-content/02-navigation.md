@@ -2,6 +2,12 @@
 Navigation
 ==========
 
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
 Laika's functionality for navigation can roughly be divided into four categories:
 
 * Features added on top of the native link syntax of supported markup formats, 
@@ -57,13 +63,22 @@ you can explicitly disable validation for certain paths within the virtual tree:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.ast.Path.Root
+import laika.rewrite.link.LinkConfig
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
 ```
 
 @:choice(library)
-```scala
+```scala mdoc
+import laika.api._
+import laika.ast.Path.Root
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.LinkConfig
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -116,7 +131,10 @@ Simply add them to the project's configuration:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.ast.ExternalTarget
+import laika.rewrite.link.{ LinkConfig, TargetDefinition }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(targets = Seq(
     TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
@@ -125,7 +143,13 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.ast.ExternalTarget
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.{ LinkConfig, TargetDefinition }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -228,7 +252,9 @@ This directive requires the base URI to be defined in the project's configuratio
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.link.{ LinkConfig, ApiLinks }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(apiLinks = Seq(
     ApiLinks(baseUri = "https://example.com/api")
@@ -236,7 +262,12 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.{ LinkConfig, ApiLinks }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -254,7 +285,9 @@ while keeping one base URI as a default for all packages that do not match any p
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.link.{ LinkConfig, ApiLinks }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(apiLinks = Seq(
     ApiLinks(baseUri = "https://example.com/api"),
@@ -263,7 +296,12 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.{ LinkConfig, ApiLinks }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -295,7 +333,9 @@ This directive requires the base URI and suffix to be defined in the project's c
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.link.{ LinkConfig, SourceLinks }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(sourceLinks = Seq(
     SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
@@ -303,7 +343,12 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.{ LinkConfig, SourceLinks }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -321,7 +366,9 @@ while keeping one base URI as a default for all packages that do not match any p
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.link.{ LinkConfig, SourceLinks }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig(sourceLinks = Seq(
     SourceLinks(
@@ -337,7 +384,12 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.{ LinkConfig, SourceLinks }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -547,13 +599,20 @@ Auto-numbering can be switched on per configuration:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.nav.AutonumberConfig
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(AutonumberConfig(maxDepth = 3))
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.nav.AutonumberConfig
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -591,12 +650,18 @@ It can be enabled like any other extension:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.nav.PrettyURLs
+
 laikaExtensions += PrettyURLs
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest
+import laika.api._
+import laika.format._
+import laika.rewrite.nav.PrettyURLs
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
