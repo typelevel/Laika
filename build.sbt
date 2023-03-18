@@ -101,6 +101,7 @@ lazy val docs = project.in(file("docs"))
   .dependsOn(plugin)
   .enablePlugins(LaikaPlugin)
   .enablePlugins(MdocPlugin)
+  .enablePlugins(SbtPlugin)
   .settings(noPublishSettings)
   .settings(
     name                      := "laika-docs",
@@ -112,7 +113,8 @@ lazy val docs = project.in(file("docs"))
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
       "LAIKA_VERSION" -> "0.19.0"
-    )
+    ),
+    mdocExtraArguments        := Seq("--no-link-hygiene")
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
