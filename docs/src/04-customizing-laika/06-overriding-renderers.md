@@ -43,7 +43,10 @@ show the three different ways to register such a function.
 In the following example only the HTML output for emphasized text will be modified,
 adding a specific style class:
 
-```scala
+```scala mdoc
+import laika.ast._
+import laika.render.HTMLFormatter
+
 val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
   case (fmt, Emphasized(content, opt)) => 
     fmt.element("em", opt, content, "class" -> "big") 
@@ -76,10 +79,16 @@ In case you want to combine it with other extensions, a render override can also
 
 @:choice(sbt)
 
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
 import laika.ast._
 
-laikaSiteRenderers += laikaSiteRenderer {
+laikaExtensions += laikaHtmlRenderer {
   case (fmt, Emphasized(content, opt)) => 
     fmt.element("em", opt, content, "class" -> "big")
 }
@@ -89,7 +98,11 @@ laikaSiteRenderers += laikaSiteRenderer {
 
 **Using the Transformer API**
 
-```scala
+```scala mdoc
+import laika.api._
+import laika.ast._
+import laika.format._
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -101,8 +114,8 @@ val transformer = Transformer
 
 **Using the Renderer API**
 
-```scala
-val doc: Document = ...
+```scala mdoc:compile-only
+val doc: Document = ???
 
 val renderer = Renderer
   .of(HTML)

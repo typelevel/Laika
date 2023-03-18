@@ -342,10 +342,19 @@ They also add an `empty` constructor and a vararg constructor for passing the co
 
 If you create a custom element type you can use these base traits to get all these shortcuts with a few lines:
 
-```scala
+```scala mdoc
+import laika.ast._
+
+case class MyElement(content: Seq[Block], options: Options = NoOpt) extends Block
+    with BlockContainer {
+  type Self = MyElement
+  def withContent(newContent: Seq[Block]): MyElement = copy(content = newContent)
+  def withOptions(options: Options): MyElement       = copy(options = options)
+}
+
 object MyElement extends BlockContainerCompanion {
   type ContainerType = MyElement
-  override protected def createBlockContainer (blocks: Seq[Block]) = 
+  override protected def createBlockContainer (blocks: Seq[Block]): ContainerType = 
     MyElement(blocks)
 }
 ```
@@ -363,7 +372,9 @@ assembled into a `DocumentTree`, consisting of nested `DocumentTree` nodes and l
 
 This is the signature of the `Document` class:
 
-```scala
+```scala:reset
+import laika.ast.{Path, RootElement, Element, Config, TreePosition, DocumentStructure, TreeContent}
+
 case class Document (
   path: Path,
   content: RootElement,
@@ -407,7 +418,9 @@ The `DocumentStructure` mixin provides additional methods as shortcuts for selec
 In a multi-input transformation all `Document` instances get assembled 
 into a recursive structure of `DocumentTree` instances:
   
-```scala
+```scala:reset
+import laika.ast.{Path, Document, TemplateDocument, Config, TreePosition, TreeStructure, TreeContent}
+
 case class DocumentTree (
   path: Path,
   content: Seq[TreeContent],
