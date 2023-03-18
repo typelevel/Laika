@@ -30,6 +30,12 @@ Then enable the plugin in your project's `build.sbt`:
 enablePlugins(LaikaPlugin)
 ```
 
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
 
 Preparing Content
 -----------------
@@ -37,7 +43,7 @@ Preparing Content
 The plugin expects the source files in the `src/docs` directory inside your project.
 This default can be overridden with:
 
-```scala
+```scala mdoc:compile-only
 Laika / sourceDirectories := Seq(target.value / "somewhere-else")
 ```
 
@@ -81,7 +87,7 @@ It will also copy all other file types over to the target folder
 The site will be generated in the directory `target/docs/site` within your project.
 The default can be changed with:
 
-```scala
+```scala mdoc:compile-only
 laikaSite / target := target.value / "somewhere-else"
 ``` 
 
@@ -93,7 +99,7 @@ nor any output files removed, it is a no-op.
 
 EPUB and/or PDF files can be included with these settings:
 
-```scala
+```scala mdoc:compile-only
 laikaIncludeEPUB := true
 laikaIncludePDF  := true
 ```
@@ -102,7 +108,7 @@ In this case the `laikaSite` task will generate EPUB and/or PDF files in the roo
 in addition to the generated HTML site.
 The name of the files will be `<project-name>-<version>.<epub|pdf>` by default. You can change it with:
 
-```scala
+```scala mdoc:compile-only
 laikaEPUB / artifactPath  := target.value / "my-docs.epub"
 laikaPDF / artifactPath   := target.value / "my-docs.pdf"
 ```
@@ -114,14 +120,20 @@ For other e-book configuration options like navigation structures and cover imag
 
 The following setting causes the scaladoc output of your project to be included in the generated site:
 
-```scala
+```scala mdoc:compile-only
 laikaIncludeAPI := true
 ```
 
 It will be copied into the `api` directory of your site's target, unless you change its setting:
 
-```scala
-laikaCopyAPI / target := (laikaSite / target).value / "somewhere-else"
+```scala mdoc:compile-only
+import laika.ast.Path.Root
+import laika.config.LaikaKeys
+
+val apiPath = Root / "somewhere-else"
+
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LaikaKeys.site.apiPath, apiPath)
 ```
 
 
@@ -182,7 +194,9 @@ into your input directory.
 
 Example for applying a few Helium settings:
 
-```scala
+```scala mdoc:compile-only
+import laika.helium.Helium
+
 laikaTheme := Helium.defaults
   .all.metadata(
     title = Some("Project Name"),
@@ -195,7 +209,9 @@ laikaTheme := Helium.defaults
 
 Setting an empty theme:
 
-```scala
+```scala mdoc:compile-only
+import laika.theme.Theme
+
 laikaTheme := Theme.empty
 ```
 
@@ -231,7 +247,7 @@ or no theme at all.
 
 Example:
   
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults.strict.withRawContent
 ```
 
@@ -255,7 +271,10 @@ Register implementations of the `ExtensionBundle` API, either provided by the li
   
 Example:
 
-```scala
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
+
 laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
 ``` 
 
@@ -288,7 +307,10 @@ Most of these setting are introduced in the sections above.
 - `laikaDocTypeMatcher` extension:
   Where a simple `excludeFilter` is not sufficient you can customize the way Laika determines the document type.
   
-    ```scala
+    ```scala mdoc:compile-only
+    import laika.ast.DocumentType
+    import laika.ast.Path.Root
+  
     laikaExtensions += laikaDocTypeMatcher {
       case Root / "templates" / _ => DocumentType.Template
       case Root / "images" / _ => DocumentType.Static
@@ -305,16 +327,23 @@ e.g. when there is a need to generate content on-the-fly before starting the tra
 you can use the `laikaInputs` setting. 
 This setting completely overrides any value set with `Laika / sourceDirectories`.
 
-```scala
-val inputs = InputTree[F]
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.io.model._ 
+import laika.ast.Path.Root
+import laika.rewrite.DefaultTemplatePath
+
+def generateStyles: String = "<... custom CSS ...>"
+
+laikaInputs := InputTree[IO]
   .addDirectory("/path-to-my/markup-files")
   .addDirectory("/path-to-my/images", Root / "images")
-  .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
-  .addString(generateStyles(), Root / "css" / "site.css")
+  .addClassResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
+  .addString(generateStyles, Root / "css" / "site.css")
 ```
 
 In the example above we specify two directories, a classpath resource and a string containing CSS generated on the fly.
-By default directories get merged into a single virtual root, but in the example we declare a mount point
+By default, directories get merged into a single virtual root, but in the example we declare a mount point
 for the second directory, which causes the content of that directory to be assigned the corresponding logical path.
 
 @:callout(info)
@@ -360,10 +389,14 @@ Finally, there are three boolean flags that only affect the laikaSite task.
 
 You can override the defaults by for the `laikaPreview` task if necessary:
 
-```scala
+```scala mdoc:compile-only
+import com.comcast.ip4s._
+import scala.concurrent.duration.DurationInt
+import laika.sbt.LaikaPreviewConfig
+
 laikaPreviewConfig :=
   LaikaPreviewConfig.defaults
-    .withPort(8080)
+    .withPort(port"8080")
     .withPollInterval(5.seconds)
     .verbose
 ```
