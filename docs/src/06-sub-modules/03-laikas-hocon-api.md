@@ -100,7 +100,9 @@ Once you obtained access to a `Config` instance, either through one of the objec
 or by [Creating a Config Instance] yourself, reading from it is quite straightforward.
 You have to provide the key you want to read and the type you expect:
 
-```scala
+```scala mdoc:compile-only
+import laika.config.Config
+
 val config: Config = ???
 
 val version = config.get[String]("project.version")
@@ -140,7 +142,11 @@ Encoders are needed when you populate a `Config` instance programmatically as sh
 A decoder for a simple type is quite straightforward, it usually piggy-backs on an existing decoder.
 Let's assume you have a `Color` enum, with a constructor to create instances from a string:
 
-```scala
+```scala mdoc:silent
+sealed trait Color {
+  def name: String
+}
+// enum values omitted
 object Color {
   def fromString (value: String): Option[Color] = ???
 }
@@ -148,7 +154,9 @@ object Color {
 
 You can then flatMap on the string decoder to obtain a Color decoder:
 
-```scala
+```scala mdoc:silent
+import laika.config._
+
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>
     Color.fromString(str)
@@ -158,14 +166,16 @@ implicit val colorDecoder: ConfigDecoder[Color] =
 
 Now let's assume you need a decoder for a case class with the following shape:
 
-```scala
+```scala mdoc:silent
 case class Person (name: String, age: Int, city: Option[String])
 ```
 
 For mapping a HOCON object to a Scala case class you would usually build on top of the `config` decoder,
 which decodes a nested object into an instance that has the same API for querying values as the root.
 
-```scala
+```scala mdoc:silent
+import laika.config._
+
 implicit val decoder: ConfigDecoder[Person] = 
   ConfigDecoder.config.flatMap { config =>
     for {
@@ -185,13 +195,13 @@ We are going to demonstrate how to write encoders for the same objects we used f
 
 We can encode our `Color` enumeration, assuming it has a `name` property, like this:
 
-```scala
+```scala mdoc:silent
 implicit val colorEncoder: ConfigEncoder[Color] = ConfigEncoder.string.contramap(_.name)
 ``` 
 
 For our Person case class we can use the convenient shortcuts in `ObjectBuilder`:
 
-```scala
+```scala mdoc:silent
 implicit val encoder: ConfigEncoder[Person] = ConfigEncoder[Person] { person =>
   ConfigEncoder.ObjectBuilder.empty
     .withValue("name", person.name)
@@ -208,7 +218,7 @@ The builder deals with optional values by omitting the property altogether when 
 
 Laika currently does not contain functionality for automatically deriving encoders or decoders for case classes.
 One reason is that in contrast to JSON libraries the likeliness you need to map larger structures is much smaller.
-Therefore the amount of boilerplate is usually tolerable.
+Therefore, the amount of boilerplate is usually tolerable.
 
 Secondly we are so close to a Scala 3 release that will make automatic derivation much easier,
 that the step of building something on top of shapeless for Scala 2 (and paying the compile time tax)
@@ -237,7 +247,7 @@ whereas the latter should be preferred for creating configuration data in-memory
 
 A `ConfigBuilder` allows to assemble arbitrary values as long as they have a `ConfigEncoder` in scope.
 
-```scala
+```scala mdoc:compile-only
 val config = ConfigBuilder.empty
   .withValue("laika.epub.coverImage", "/images/epub-cover.jpg")
   .withValue("laika.pdf.coverImage", "/images/pdf-cover.jpg")
@@ -255,7 +265,7 @@ You can alternatively create your own encoder as shown above.
 
 If you have a fallback instance, you can pass it to the constructor:
 
-```scala
+```scala mdoc:compile-only
 val parentConfig: Config = ???
 
 val config = ConfigBuilder.withFallback(parentConfig)
@@ -269,7 +279,9 @@ The fallback will be used for resolving any values not present in the current in
 Finally, if you are building a `Config` instance that you want to assign to a `Document` instance in cases
 where you build an entire tree programmatically, you also have to provide a correct `Origin` instance:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.Document
+
 val doc: Document = ???
 val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
@@ -288,10 +300,10 @@ This is essential for resolving relative paths defined in that configuration cor
 
 The `ConfigParser` has a very simple API:
 
-```scala
+```scala mdoc:compile-only
 val hoconInput: String = ???
 
-val config: Config = ConfigParser
+val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
   .resolve()
 ```
@@ -303,11 +315,11 @@ The `resolve` step then finally creates a `Config` instance, resolving and valid
 
 If you have a fallback instance, you can pass it via `resolve`:
 
-```scala
+```scala mdoc:compile-only
 val hoconInput: String = ???
 val parentConfig: Config = ???
 
-val config: Config = ConfigParser
+val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
   .resolve(fallback = parentConfig)
 ```
@@ -317,16 +329,19 @@ The fallback will be used for resolving any values not present in the current in
 Finally, if you are building a `Config` instance that you want to assign to a `Document` instance in cases
 where you build an entire tree programmatically, you also have to provide a correct `Origin` instance:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.Document
+
 val hoconInput: String = ???
 val doc: Document = ???
 val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
-val config: Config = ConfigParser
+val result: Either[ConfigError, Document] = ConfigParser
   .parse(hoconInput)
   .resolve(origin = docOrigin)
-  
-val finalDoc = doc.copy(config = config)
+  .map { config =>
+    doc.copy(config = config)
+  }
 ```
 
 This is essential for resolving relative paths defined in that configuration correctly.
