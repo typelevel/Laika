@@ -80,12 +80,6 @@ h4, h5, h6 {
 p.title {
   font-weight: bold;
 }
-h1 > code { font-size: var(--header1-font-size); }
-h2 > code { font-size: var(--header2-font-size); }
-h3 > code { font-size: var(--header3-font-size); }
-h4 > code { font-size: var(--header4-font-size); }
-h5 > code { font-size: var(--header5-font-size); }
-h6 > code { font-size: var(--header6-font-size); }
 
 /* links ========================================= */
 

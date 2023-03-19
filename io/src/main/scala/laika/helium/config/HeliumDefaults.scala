@@ -161,7 +161,7 @@ private[helium] object HeliumDefaults {
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = px(15),
-      code = px(14),
+      code = em(0.9),
       title = px(34),
       header2 = px(28),
       header3 = px(20),
