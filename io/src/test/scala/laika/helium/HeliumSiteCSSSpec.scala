@@ -91,7 +91,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--header-font: "Lato", sans-serif;
                                |--code-font: "Fira Code", monospace;
                                |--body-font-size: 15px;
-                               |--code-font-size: 14px;
+                               |--code-font-size: 0.9em;
                                |--small-font-size: 12px;
                                |--title-font-size: 34px;
                                |--header2-font-size: 28px;
