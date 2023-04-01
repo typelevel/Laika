@@ -35,7 +35,7 @@ object ManualSettings {
     val current = v019
     val all     = Seq(v019, v018, v017, v016)
 
-    val config  = Versions(
+    val config = Versions(
       currentVersion = current,
       olderVersions = all.dropWhile(_ != current).drop(1),
       newerVersions = all.takeWhile(_ != current)
@@ -60,7 +60,7 @@ object ManualSettings {
 
     }
 
-    object pdf  {
+    object pdf {
 
       val coverSbt =
         CoverImage(images / "pdf" / s"e-book-cover-sbt-${versions.current.displayValue}.png", "sbt")
@@ -73,14 +73,14 @@ object ManualSettings {
     }
 
     val latestVersion = Root / versions.current.pathSegment
-    val api        = Root / "api" / "laika" / "api" / "index.html"
-    val downloads  = Root / "downloads.gen"
-    val logo       = images / "site" / "laika-dog-big@1.5x.png"
-    val favicon    = images / "site" / "laika-favicon.png"
-    val docsURL    = "https://planet42.github.io/Laika/"
-    val srcURL     = "https://github.com/planet42/Laika"
-    val docsSrcURL = "https://github.com/planet42/Laika/tree/master/docs/src"
-    val demoURL    = "http://planet42.org"
+    val api           = Root / "api" / "laika" / "api" / "index.html"
+    val downloads     = Root / "downloads.gen"
+    val logo          = images / "site" / "laika-dog-big@1.5x.png"
+    val favicon       = images / "site" / "laika-favicon.png"
+    val docsURL       = "https://planet42.github.io/Laika/"
+    val srcURL        = "https://github.com/planet42/Laika"
+    val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs/src"
+    val demoURL       = "http://planet42.org"
   }
 
   private object text {

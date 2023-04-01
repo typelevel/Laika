@@ -74,7 +74,7 @@ val catsEffect = "org.typelevel" %% "cats-effect"         % versions.catsEffect
 val fs2IO      = "co.fs2"        %% "fs2-io"              % versions.fs2
 val munitCE3   = "org.typelevel" %% "munit-cats-effect-3" % versions.munitCE3 % "test"
 
-val fop    = "org.apache.xmlgraphics" % "fop" % versions.fop
+val fop = "org.apache.xmlgraphics" % "fop" % versions.fop
 
 val http4s = Seq(
   "org.http4s" %% "http4s-dsl"          % versions.http4s,
