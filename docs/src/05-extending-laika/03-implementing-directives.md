@@ -159,7 +159,7 @@ a directive has to stick to the standard directive syntax, for which we'll pick 
 
 Let's walk through the implementation of our little ticket directive:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.ast._
 import laika.directive.Spans
 import Spans.dsl._

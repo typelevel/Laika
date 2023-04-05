@@ -127,7 +127,7 @@ The instances are immutable and thread-safe.
 
 Example for creating a transformer for Markdown, including the GitHub-Flavor extensions:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
@@ -139,7 +139,7 @@ val transformer = Transformer
 
 Example for creating a transformer for reStructuredText:
 
-```scala mdoc
+```scala mdoc:silent
 val rstTransformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
@@ -238,7 +238,7 @@ is not referentially transparent).
 Assuming we reuse the `createTransformer` method from the previous section, you can then run a transformation
 and obtain the resulting effect:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.io.model.RenderedTreeRoot
 
 val result: IO[RenderedTreeRoot[IO]] = createTransformer[IO].use {
@@ -266,7 +266,7 @@ in your application.
 One common scenario is a toolkit like Akka HTTP or Play where you execute a route that is expected to return a `Future`.
 This can achieved by a simple translation:
 
-```scala mdoc
+```scala mdoc:silent
 import scala.concurrent.Future
 
 val futureResult: Future[RenderedTreeRoot[IO]] = result.unsafeToFuture()
@@ -298,7 +298,7 @@ Finally, if you intend to reuse the transformer, for example in a web applicatio
 it is more efficient to split the resource allocation , use and release into three distinct effects that you can run
 independently, as the sample `IO` above would re-create the transformer for each invocation:
 
-```scala mdoc
+```scala mdoc:silent
 val alloc = createTransformer[IO].allocated
 val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync()
 ```
@@ -306,7 +306,7 @@ val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync
 You would usually run the above when initializing your web application. 
 The obtained transformer can then be used in your controllers and each transformation would produce a new `Future`:
 
-```scala mdoc:nest
+```scala mdoc:nest:silent
 val futureResult: Future[RenderedTreeRoot[IO]] = transformer
   .fromDirectory("docs")
   .toDirectory("target")
@@ -334,7 +334,7 @@ The effectful transformer is the most powerful variant and also the one that is 
 It expands the functionality beyond just processing markup input to also parsing templates and configuration files
 as well as copying static files over to the target directory.
 
-```scala mdoc:nest
+```scala mdoc:nest:silent
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -345,7 +345,7 @@ val transformer = Transformer
 
 The above transformer can then be used to process a directory of markup, template and configuration files:
 
-```scala mdoc
+```scala mdoc:silent
 val res: IO[RenderedTreeRoot[IO]] = transformer.use {
   _.fromDirectory("src")
    .toDirectory("target")
@@ -362,7 +362,7 @@ This is because these formats always produce a single binary result,
 merging all content from the input directories into a single, linearized e-book:
 
 
-```scala mdoc
+```scala mdoc:silent
 val epubTransformer = Transformer
   .from(Markdown)
   .to(EPUB)
@@ -382,7 +382,7 @@ val epubRes: IO[Unit] = epubTransformer.use {
 
 All previous examples read content from the single input directory. But you can also merge the contents of multiple directories:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.io.model.FilePath
 
 val directories = Seq(
@@ -406,7 +406,7 @@ If you need even more flexibility instead of just configuring one or more input 
 e.g. when there is a need to generate content on-the-fly before starting the transformation,
 you can use the `InputTree` builder. 
 
-```scala mdoc
+```scala mdoc:silent
 import laika.io.model._
 import laika.ast.Path.Root
 import laika.rewrite.DefaultTemplatePath
@@ -511,7 +511,7 @@ The following code example demonstrates the third scenario listed above: Renderi
 
 First we create a parser that reads from a directory:
 
-```scala mdoc
+```scala mdoc:silent
 val parser = MarkupParser
   .of(Markdown)
   .using(GitHubFlavor)
@@ -521,7 +521,7 @@ val parser = MarkupParser
 
 Next we create the renderers for the three output formats:
 
-```scala mdoc
+```scala mdoc:silent
 val htmlRenderer = Renderer.of(HTML).parallel[IO].build
 val epubRenderer = Renderer.of(EPUB).parallel[IO].build
 val pdfRenderer  = Renderer.of(PDF).parallel[IO].build
@@ -529,7 +529,7 @@ val pdfRenderer  = Renderer.of(PDF).parallel[IO].build
 
 Since all four processors are a cats-effect `Resource`, we combine them into one:
 
-```scala mdoc
+```scala mdoc:silent
 val allResources = for {
   parse <- parser
   html  <- htmlRenderer
@@ -540,7 +540,7 @@ val allResources = for {
 
 Finally, we define the actual transformation by wiring the parser and the three renderers:
 
-```scala mdoc
+```scala mdoc:silent
 import cats.syntax.all._
 
 val transformOp: IO[Unit] = allResources.use { 
@@ -583,7 +583,7 @@ You can also specify an empty theme if you want to put all templates and styles 
 
 Example for applying a few Helium settings:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.helium.Helium
 
 val theme = Helium.defaults
@@ -662,7 +662,7 @@ This includes auto-refreshing whenever changes to any input document are detecte
 It is the basis of the `laikaPreview` task of the sbt plugin, 
 but can alternatively be launched via the library API:
 
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.preview.ServerBuilder
 
 val parser = MarkupParser
@@ -683,7 +683,7 @@ The above example creates a server based on its default configuration.
 Open `localhost:4242` for the landing page of your site.
 You can override the defaults by passing a `ServerConfig` instance explicitly:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.preview.ServerConfig
 import com.comcast.ip4s._
 import scala.concurrent.duration.DurationInt

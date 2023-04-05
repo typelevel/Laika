@@ -84,7 +84,7 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala mdoc
+```scala mdoc:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor

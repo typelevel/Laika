@@ -164,7 +164,7 @@ Like with our string literal example, we define two kinds of escapes that can oc
 
 There are shortcuts for the most common types of decimal, hex, octal and binary number literals:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common._
 

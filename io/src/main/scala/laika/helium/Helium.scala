@@ -63,7 +63,7 @@ import laika.theme._
   *   .from(Markdown)
   *   .to(EPUB)
   *   .parallel[IO]
-  *   .witTheme(theme)
+  *   .withTheme(theme)
   *   .build
   * }}}
   *

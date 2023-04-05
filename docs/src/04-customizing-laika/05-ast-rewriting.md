@@ -75,7 +75,7 @@ the Transformer API offers a hook to do this in one go, as a step in the transfo
 
 Again we replace all `Emphasized` nodes with `Strong` nodes:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.api._
 import laika.ast._
 import laika.format._

@@ -72,7 +72,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc
+```scala mdoc:silent
 import laika.api._
 import laika.ast.Path.Root
 import laika.format._
@@ -143,7 +143,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.ast.ExternalTarget
 import laika.format._
@@ -262,7 +262,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -296,7 +296,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -343,7 +343,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -384,7 +384,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -607,7 +607,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -657,7 +657,7 @@ laikaExtensions += PrettyURLs
 ```
 
 @:choice(library)
-```scala mdoc:nest
+```scala mdoc:nest:silent
 import laika.api._
 import laika.format._
 import laika.rewrite.nav.PrettyURLs

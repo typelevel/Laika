@@ -43,7 +43,7 @@ show the three different ways to register such a function.
 In the following example only the HTML output for emphasized text will be modified,
 adding a specific style class:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.ast._
 import laika.render.HTMLFormatter
 
@@ -98,7 +98,7 @@ laikaExtensions += laikaHtmlRenderer {
 
 **Using the Transformer API**
 
-```scala mdoc
+```scala mdoc:silent
 import laika.api._
 import laika.ast._
 import laika.format._

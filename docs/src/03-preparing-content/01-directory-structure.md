@@ -238,7 +238,7 @@ For this to work, the library or plugin needs to know where your site is hosted.
 
 If you are using the Helium theme, there is a property you can use for this purpose:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.helium.Helium
 
 Helium.defaults.site.baseURL("https://my-docs/site")
@@ -257,7 +257,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc
+```scala mdoc:silent
 import laika.config.LaikaKeys
 import laika.api._
 import laika.format._
@@ -319,7 +319,7 @@ Therefore, configuration for versioned documentation involves two steps:
 
 This is a global configuration artifact that you can define with the Helium configuration API:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.rewrite.{ Version, Versions }
 
 val versions = Versions(
@@ -431,7 +431,7 @@ them to originate in the sources for the newest version.
 You can achieve this by setting the `renderUnversioned` flag to `false` in your version config on
 the maintenance branch:
 
-```scala mdoc:nest
+```scala mdoc:nest:silent
 val versions = Versions(
   currentVersion = Version("0.42.x", "0.42"),
   olderVersions = Seq(),

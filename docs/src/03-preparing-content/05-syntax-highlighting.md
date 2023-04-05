@@ -39,7 +39,7 @@ When using reStructuredText input only the `SyntaxHighlighting` extension is nee
 
 When using the Library API highlighting can be activated like all other extension bundles:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor

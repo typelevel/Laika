@@ -8,7 +8,7 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.1")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
 
-addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.3.7" )
+addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.3.7")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
 

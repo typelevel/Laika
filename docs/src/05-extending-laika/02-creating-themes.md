@@ -28,7 +28,7 @@ laikaTheme := Theme.empty
 
 @:choice(library)
 
-```scala mdoc
+```scala mdoc:silent
 import cats.effect.IO
 import laika.api._
 import laika.format._
@@ -135,7 +135,7 @@ for the PDF output so that the content looks good when printed.
 The Helium API solves this by requiring a selector in front of all configuration methods which is either
 `all`, `site`, `epub` or `pdf`:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.helium.Helium
 
 val theme = Helium.defaults
@@ -237,7 +237,7 @@ allowing you to reduce the boilerplate and stringly logic of rendering the forma
 
 The below example shows how the `ThemeBuilder` API can be used to pre-populate the transformer configuration:
 
-```scala mdoc
+```scala mdoc:silent
 import cats.effect.IO
 import laika.ast.Image
 import laika.ast.Path.Root

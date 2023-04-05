@@ -30,7 +30,7 @@ See [sbt Plugin] for more details.
 
 When using the library API, the `EPUB` and `PDF` renderers can be passed to the `Transformer` or `Renderer` APIs:
 
-```scala mdoc
+```scala mdoc:silent
 import cats.effect.IO
 import laika.api._
 import laika.format._
@@ -125,7 +125,7 @@ EPUB Navigation in iBooks:
 
 The navigation depth can be configured with the Helium API:
 
-```scala mdoc
+```scala mdoc:silent
 import laika.helium.Helium
 
 Helium.defaults
