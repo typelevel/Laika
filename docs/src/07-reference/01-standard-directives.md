@@ -220,13 +220,27 @@ The available icon set can be registered as part of the transformer setup:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+```scala mdoc:compile-only
+import laika.ast._
+import laika.rewrite.link.IconRegistry
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.ast._
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.link.IconRegistry
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -362,7 +376,9 @@ This is how the settings for Laika's manual look:
 
 @:choice(sbt)
 
-```scala
+```scala mdoc:compile-only
+import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(Selections(
     SelectionConfig("config",
@@ -374,7 +390,13 @@ laikaConfig := LaikaConfig.defaults
 
 @:choice(library)
 
-```scala
+```scala mdoc:compile-only
+import laika.ast._
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -426,7 +448,7 @@ the corresponding parent directive to mark specific sections within the directiv
 Can only be used in block elements in text markup.
 
 Produces a block element which is not part of the main body of the markup document.
-Instead it can be referred to by `${cursor.currentDocument.fragments.<fragmentName>}`.
+Instead, it can be referred to by `${cursor.currentDocument.fragments.<fragmentName>}`.
 
 This allows to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.

@@ -91,17 +91,25 @@ Markup extensions enabled by default are:
 
 * Support for [Substitution Variables] in markup in the form of `${some.key}`.
 
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+```
+
 To disable all these extensions you can use the `strict` flag:
 
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults.strict
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -135,12 +143,16 @@ You can enable verbatim HTML and other raw formats explicitly in the configurati
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults.withRawContent
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -161,13 +173,17 @@ When you need to work with different encodings you can override the default:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import scala.io.Codec
+
 laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
 ```
 
 @:choice(library)
-```scala
-implicit val codec:Codec = Codec.UTF8
+```scala mdoc:compile-only
+import scala.io.Codec
+
+implicit val codec:Codec = Codec.ISO8859
 ```
 
 This has to be in scope where you specify the input and ouput files for your transformer
@@ -225,14 +241,21 @@ You can achieve this by basically flipping the two default values in the configu
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.ast.MessageFilter
+
 laikaConfig := LaikaConfig.defaults
   .failOnMessages(MessageFilter.None)
   .renderMessages(MessageFilter.Error)
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.ast.MessageFilter
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -269,10 +292,13 @@ laikaAST
 This task is a shortcut for `laikaGenerate ast`
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+
 val input = "some *text* example"
 
-Transformer
+val res = Transformer
   .from(Markdown)
   .to(AST)
   .build
@@ -311,14 +337,18 @@ This is an example for defining two variables globally:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
   .withConfigValue("version.latest", "2.4.6")
   .withConfigValue("license", "Apache 2.0")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)

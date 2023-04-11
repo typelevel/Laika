@@ -2,6 +2,12 @@
 Theme Settings
 ==============
 
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
 If you use the sbt plugin or the parsers, renderers or transformers from the `laika-io` module,
 each transformation is based on a theme that provides a set of default templates and styles for all output formats.
 
@@ -17,7 +23,7 @@ The Helium Theme
 The name of Laika's default theme reflects its lightweight nature as it is not based on any CSS or JavaScript libraries
 like Bootstrap, but instead only comes with a minimal set of hand-crafted CSS and JavaScript.
 
-Helium includes default styles for web sites, EPUB and PDF documents, 
+Helium includes default styles for websites, EPUB and PDF documents, 
 so you can generate a documentation site complete with a download page for e-book formats in one go.
 
 The generated site is responsive and designed to work well on smaller devices.
@@ -28,17 +34,25 @@ which is equivalent to the following configuration:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.helium.Helium
+
 laikaTheme := Helium.defaults.build
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:silent
+import cats.effect.IO
+import laika.api._
+import laika.format._
+import laika.io.implicits._
+import laika.helium.Helium
+
 val transformer = Transformer
   .from(Markdown)
   .to(EPUB)
   .parallel[IO]
-  .witTheme(Helium.defaults.build)
+  .withTheme(Helium.defaults.build)
   .build
 ```
 @:@
@@ -77,7 +91,9 @@ Not all options are available for all formats, but the IDE's context help and th
 In the minimal example below we only specify some metadata for all formats as well as the navigation depth
 for EPUB and PDF:
 
-```scala
+```scala mdoc:silent
+import laika.helium.Helium
+
 val theme = Helium.defaults
   .all.metadata(
     title = Some("Project Name"),
@@ -99,17 +115,17 @@ or the `laikaTheme` sbt setting:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaTheme := theme
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:nest:silent
 val transformer = Transformer
   .from(Markdown)
   .to(EPUB)
   .parallel[IO]
-  .witTheme(theme)
+  .withTheme(theme)
   .build
 ```
 @:@
@@ -130,7 +146,10 @@ You can override these defaults by defining your own set of fonts.
 
 This is an excerpt of Laika's default configuration as an example:
 
-```scala
+```scala mdoc:silent
+import laika.theme.config._
+
+val fontPath = "<file-path-to-your-fonts>"
 val latoURL = "http://fonts.googleapis.com/css?family=Lato:400,700"
 val firaURL = 
   "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"
@@ -175,7 +194,9 @@ This ensures that no unused font resources will be embedded.
 
 Additionally you can define the font families and font sizes for the site and e-books:
 
-```scala
+```scala mdoc:silent
+import laika.ast.LengthUnit._
+
 Helium.defaults
   .all.fontFamilies(
     body = "MyBodyFont",
@@ -219,7 +240,9 @@ and backgrounds as well as the syntax coloring scheme to be used for all code bl
 
 The following example overrides Laika's theme colors for all output formats:
 
-```scala
+```scala mdoc:silent
+import laika.theme.config.Color
+
 Helium.defaults
   .all.themeColors(
     primary = Color.hex("007c99"),
@@ -309,7 +332,10 @@ a0742d wheel-3
 
 They can be overridden per format or for all at once:
 
-```scala
+```scala mdoc:silent
+import laika.theme.config.Color._
+import laika.helium.config.ColorQuintet
+
 Helium.defaults
   .all.syntaxHighlightingColors(
     base = ColorQuintet(
@@ -342,7 +368,7 @@ whenever the user has switched on dark mode in the OS or in the reader software.
 
 The following example defines custom theme colors for dark mode in EPUB output:
 
-```scala
+```scala mdoc:silent
 Helium.defaults
   .epub.darkMode.themeColors(
     primary = Color.hex("a7d4de"),
@@ -386,7 +412,10 @@ that are the most like candidates for frequent adjustments.
 
 These are the options for the site:
 
-```scala
+```scala mdoc:silent
+import laika.ast.LengthUnit._
+import laika.helium.config.AnchorPlacement
+
 Helium.defaults
   .site.layout(
     contentWidth = px(860),
@@ -409,7 +438,9 @@ that override additional styles.
 
 For PDF output you can also define the page size and margins:
 
-```scala
+```scala mdoc:silent
+import laika.ast.LengthUnit._
+
 Helium.defaults
   .pdf.layout(
     pageWidth = cm(21),
@@ -442,7 +473,9 @@ in a way that the respective readers understand.
 Like many other options, you can specify metadata either with the `all` selector for all formats,
 or define them separately with the `epub`, `pdf` or `site` selectors.
 
-```scala
+```scala mdoc:silent
+import java.time.OffsetDateTime
+
 Helium.defaults
   .pdf.metadata(
     title = Some("Project Name"),
@@ -450,7 +483,7 @@ Helium.defaults
     identifier = Some("XSD-9876-XVT"),
     authors = Seq("Maria Green", "Helena Brown"),
     language = Some("de"),
-    datePublished = Some(Instant.now),
+    datePublished = Some(OffsetDateTime.now),
     version = Some("2.3.4") 
   )
 ```
@@ -512,7 +545,10 @@ of your input directories and is up to 2 levels deep.
 
 You can override some defaults and add additional menu entries via the configuration API:
 
-```scala
+```scala mdoc:silent
+import laika.helium.config.{ ThemeNavigationSection, TextLink }
+import laika.ast.Path.Root
+
 Helium.defaults.site
   .mainNavigation(
     depth = 3,
@@ -548,7 +584,10 @@ The home link, unless overridden, points to `index.html` and uses the `HeliumIco
 The navigation links on the right are empty by default.
 The left corner of the top bar is always reserved for the button to open or close the navigation.
 
-```scala
+```scala mdoc:silent
+import laika.helium.config._
+import laika.ast.Path.Root
+
 Helium.defaults.site
   .topNavigationBar(
     homeLink = IconLink.internal(Root / "README.md", HeliumIcon.home),
@@ -632,12 +671,12 @@ to the two top layers of the sections on that page.
 
 The configuration API allows for some customization:
 
-```scala
+```scala mdoc:silent
 Helium.defaults
   .site.pageNavigation(
     enabled = true,
     depth = 1,
-    sourceBaseURL = "https://github.com/my/project",
+    sourceBaseURL = Some("https://github.com/my/project"),
     sourceLinkText = "Source for this Page"
   )
 ```
@@ -673,7 +712,7 @@ reader's navigation bars in case of EPUB or PDF) which Helium will always produc
 It is an optional, separate page that can be included in e-books or the site.
 For PDF format this is essential, as the reader's navigation would be lost if the user prints the PDF.
 
-```scala
+```scala mdoc:silent
 Helium.defaults
   .site.tableOfContent(title = "Contents", depth = 3)
   .pdf.tableOfContent(title = "Contents", depth = 4)
@@ -688,7 +727,7 @@ for the site it will become a link at the top of the left navigation pane.
 
 Finally, the navigation depth for the reader's navigation for EPUB and PDF can also be controlled:
 
-```scala
+```scala mdoc:silent
 Helium.defaults
   .epub.navigationDepth(4)
   .pdf.navigationDepth(4)
@@ -707,7 +746,9 @@ If you increase this setting make sure you verify it's looking good in the targe
 
 You can specify one or more favicons for your site:
 
-```scala
+```scala mdoc:silent
+import laika.helium.config.Favicon
+
 Helium.defaults
   .site.favIcons(
     Favicon.internal(Root / "favicon32x32.png", sizes = "32x32"),
@@ -721,13 +762,15 @@ By default, the theme includes a footer pointing to the Laika project.
 There is no requirement to keep this footer though, and the API gives you the following options:
 
 Set a raw HTML string as the footer:
-```scala
+```scala mdoc:silent
 Helium.defaults
   .site.footer("""This is a <a href="https://foo.com/">Foo</a> project under the Bar licence.""")
 ```
 
 Set the footer as a sequence of AST nodes:
-```scala
+```scala mdoc:silent
+import laika.ast._
+
 Helium.defaults
   .site.footer(
     TemplateString("This is a "),
@@ -737,7 +780,7 @@ Helium.defaults
 ```
 
 Remove the footer entirely:
-```scala
+```scala mdoc:silent
 Helium.defaults
   .site.footer()
 ```
@@ -753,7 +796,9 @@ Download Page
 A page offering generated EPUB and PDF files with the same content and structure as the site for download
 can be added via Helium configuration:
 
-```scala
+```scala mdoc:silent
+import laika.ast.Path.Root
+
 Helium.defaults
   .site.downloadPage(
     title = "Documentation Downloads",
@@ -780,10 +825,14 @@ If you don't mind that users arrive straight at the content pages, you can stick
 Alternatively Helium offers a dedicated landing page tailored for software documentation sites.
 This is the full set of content options available:
 
-```scala
+```scala mdoc:silent
+import laika.ast.Path.Root
+import laika.ast.{ Image, ExternalTarget }
+import laika.helium.config._
+
 Helium.defaults
   .site.landingPage(
-    logo = Some(Image()),
+    logo = Some(Image(ExternalTarget("http://my-site/my-image.jpg"))),
     title = Some("Project Name"),
     subtitle = Some("Fancy Hyperbole Goes Here"),
     latestReleases = Seq(
@@ -870,7 +919,10 @@ Cover Images for E-books
 You can include cover images for EPUB and PDF files. 
 They will also be used to display little thumbnails on the download page.
 
-```scala
+```scala mdoc:silent
+import laika.ast.Path.Root
+import laika.rewrite.nav.CoverImage
+
 Helium.defaults
   .epub.coverImages(CoverImage(Root / "cover.png"))
   .pdf.coverImages(CoverImage(Root / "cover.png"))
@@ -894,7 +946,9 @@ They will always be included in a way that they have higher precedence than the 
 If you want to prevent Helium from scanning all input directories for CSS files, 
 you can alternatively specify one or more directories explicitly:
 
-```scala
+```scala mdoc:silent
+import laika.ast.Path.Root
+
 Helium.defaults
   .site.autoLinkCSS(Root / "my-css")
   .site.autoLinkJS(Root / "my-js")

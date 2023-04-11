@@ -76,12 +76,14 @@ We are going to build a simple span parser for a ticket reference in the form of
 
 We require a mandatory `#` symbol followed by one or more digits.
 
-```scala
+```scala mdoc:silent
 import laika.ast._
 import laika.parse.implicits._
+import laika.parse.text._
+import TextParsers.someOf
 
 val ticketParser: PrefixedParser[Span] = 
-  ("#" ~> someOf(CharGroup.digits)).map { num =>
+  ("#" ~> someOf(CharGroup.digit)).map { num =>
     val url = s"http://our-tracker.com/$num"
     SpanLink(Seq(Text("#" + num)), ExternalTarget(url))
   }
@@ -106,11 +108,15 @@ For bundling all your Laika extensions, you need to extend `ExtensionBundle`.
 In our case we only need to override the `parsers` property 
 and leave everything else at the empty default implementations.
 
-```scala
+```scala mdoc:silent
+import laika.bundle._
+
 object TicketSyntax extends ExtensionBundle {
 
+  val description: String = "Parser Extension for Tickets"
+
   override val parsers: ParserBundle = ParserBundle(
-    spanParsers = Seq(SpanParser.standalone(tickerParser))
+    spanParsers = Seq(SpanParser.standalone(ticketParser))
   )
 
 }
@@ -124,7 +130,15 @@ Finally you can register your extension together with any built-in extensions yo
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+
 laikaExtensions := Seq(
   GitHubFlavor,
   TicketSyntax
@@ -132,7 +146,11 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -153,15 +171,26 @@ as each parser executes in isolation and multiple input documents are processed 
 But your parser can return an instance that implements `SpanResolver` instead of directly producing a link.
 Such a resolver will then participate in the AST transformation phase where its `resolve` method will be invoked:
 
-```scala
-case class TicketResolver (num: String, options: Options = NoOpt) extends SpanResolver {
+```scala mdoc:silent
+import laika.parse.SourceFragment
+
+case class TicketResolver (num: String, 
+                           source: SourceFragment, 
+                           options: Options = NoOpt) extends SpanResolver {
+
+  type Self = TicketResolver
 
   def resolve (cursor: DocumentCursor): Span = {
     cursor.config.get[String]("ticket.baseURL").fold(
-      error => InvalidElement(s"Invalid base URL: $error", "#" + num).asSpan,
+      error => InvalidSpan(s"Invalid base URL: $error", source),
       baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
     )
   }
+  
+  val unresolvedMessage: String = s"Unresolved reference to ticket $num"
+  
+  def runsIn(phase: RewritePhase): Boolean          = true
+  def withOptions(options: Options): TicketResolver = copy(options = options)
 }
 ```
 
@@ -173,7 +202,7 @@ The API of the `cursor.config` property is documented in @:api(laika.config.Conf
 
 In our case we expect a string, but we also need to handle errors now, as the access might fail
 when the value is missing or it's not a string. 
-We return an `InvalidElement` for errors, which is a useful kind of AST node as it allows the user to control the
+We return an `InvalidSpan` for errors, which is a useful kind of AST node as it allows the user to control the
 error handling. 
 The presence of such an element will by default cause the transformation to fail with the provided error message
 shown alongside any other errors encountered.
@@ -189,13 +218,17 @@ With this change in place, the user can now provide the base URL in the builder 
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -207,12 +240,19 @@ val transformer = Transformer
 
 The original ticket parser then only needs to be adjusted to return our resolver instead:
 
-```scala
-val ticketParser: PrefixedParser[Span] = 
-  ("#" ~> someOf(CharGroup.digits)).map(TicketResolver(_))
+```scala mdoc:silent
+val tickets: PrefixedParser[Span] = 
+  ("#" ~> someOf(CharGroup.digit)).withCursor.map { case (num, source) =>
+    TicketResolver(num, source)
+  }
 ```
 
 The registration steps are identical to the previous example.
+
+The `withCursor` combinator is a convenient helper for any AST node that can trigger a failed state 
+in a later stage of AST transformation. 
+The additional `SourceFragement` instance that this combinator provides preserves context info
+for the parsed input that can be used to print precise line and column location in case this node is invalid.
 
 
 ### Detecting Markup Boundaries
@@ -228,16 +268,20 @@ while in Markdown the definition is somewhat more fuzzy.
 Laika's parser combinators come with convenient helpers to check conditions on preceding and following characters
 without consuming them. Let's fix our parser implementation:
 
-```scala
-val ticketParser: PrefixedParser[Span] = {
+```scala mdoc:silent
+import laika.parse.text.TextParsers.{ delimiter, nextNot }
+
+val parser: PrefixedParser[Span] = {
   val letterOrDigit: Char => Boolean = { c => 
     Character.isDigit(c) || Character.isLetter(c)
   }
   val delim = delimiter("#").prevNot(letterOrDigit)
-  val ticketNum = someOf(CharGroup.digits)
+  val ticketNum = someOf(CharGroup.digit)
   val postCond = nextNot(letterOrDigit)
   
-  (delim ~> ticketNum <~ postCond).map(TicketResolver(_))
+  (delim ~> ticketNum <~ postCond).withCursor.map { case (num, source) =>
+    TicketResolver(num, source)
+  }
 }
 ```
 
@@ -258,9 +302,12 @@ In our example we used the `SpanParser.standalone` method for registration.
 In cases where your parser needs access to the parser of the host language for recursive parsing
 we need to use the `SpanParser.recursive` entry point instead:
 
-```scala
+```scala mdoc:silent
+import laika.parse.implicits._
+import laika.parse.text.TextParsers.delimitedBy
+
 SpanParser.recursive { recParsers =>
-  ('*' ~> recParsers.recursiveSpans(delimitedBy("*"))).map(Emphasized(_))
+  ("*" ~> recParsers.recursiveSpans(delimitedBy("*"))).map(Emphasized(_))
 } 
 ```
 
@@ -302,9 +349,12 @@ But this line isn't
 
 Let's look at the implementation and examine it line by line:
 
-```scala
+```scala mdoc:silent
 import laika.ast._
+import laika.bundle.BlockParser
 import laika.parse.implicits._
+import laika.parse.markup.BlockParsers
+import laika.parse.text.TextParsers.ws
 
 val quotedBlockParser = BlockParser.recursive { recParsers =>
 
@@ -343,9 +393,11 @@ For bundling all your Laika extensions, you need to extend `ExtensionBundle`.
 In our case we only need to override the `parsers` property 
 and leave everything else at the empty default implementations.
 
-```scala
+```scala mdoc:silent
 object QuotedBlocks extends ExtensionBundle {
 
+  val description: String = "Parser extension for quoted blocks"
+  
   override val parsers: ParserBundle = 
     ParserBundle(blockParsers = Seq(quotedBlockParser))
 
@@ -357,7 +409,9 @@ Finally you can register your extension together with any built-in extensions yo
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+
 laikaExtensions := Seq(
   GitHubFlavor,
   QuotedBlocks
@@ -365,8 +419,12 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala
-val transformer = Transformer
+```scala mdoc:silent
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
+val extendedTransformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
@@ -390,7 +448,7 @@ which is the utility we used in our example for parsing a quoted block:
 
 ```scala
 def block (firstLinePrefix: Parser[Any], 
-           linePrefix: Parser[Any]): Parser[List[String]]
+           linePrefix: => Parser[Any]): Parser[BlockSource]
 ```
 
 It expects two parsers, one for parsing the prefix of the first line, one for parsing it for all subsequent lines.
@@ -409,22 +467,26 @@ For cases where parsing may need to continue beyond blank lines,
 there is a second overload of this method that allows this: 
 
 ```scala
-def block (firstLinePrefix: Parser[Any], 
-           linePrefix: Parser[Any], 
-           nextBlockPrefix: Parser[Any]): Parser[List[String]]
+def block(
+  firstLinePrefix: Parser[Any],
+  linePrefix: => Parser[Any],
+  nextBlockPrefix: => Parser[Any]
+): Parser[BlockSource] = {
 ```
 
 It simply adds a third prefix parser that gets invoked on the beginning of a line following a blank line
 and is expected to succeed when the line should be treated as a continuation of the block element.
 
-Finally there is a second utility that can be used for indented blocks:
+Finally, there is a second utility that can be used for indented blocks:
 
 ```scala
-def indentedBlock (minIndent: Int = 1,
+def indentedBlock(
+    minIndent: Int = 1,
     linePredicate: => Parser[Any] = success(()),
     endsOnBlankLine: Boolean = false,
     firstLineIndented: Boolean = false,
-    maxIndent: Int = Int.MaxValue): Parser[String]
+    maxIndent: Int = Int.MaxValue
+): Parser[BlockSource] =
 ```
 
 Like the other utility it allows to specify a few predicates. 
@@ -437,7 +499,7 @@ Precedence
 
 Both, block and span parsers can specify a precedence:
 
-```scala
+```scala mdoc:silent
 BlockParser.recursive { implicit recParsers =>
   ??? // parser impl here
 }.withLowPrecedence

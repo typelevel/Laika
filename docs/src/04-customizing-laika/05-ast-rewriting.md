@@ -52,7 +52,13 @@ on nodes obtained by a separate parse operation. All three options are described
 The following example of an sbt build file shows how to turn each `Emphasized` node
 into a `Strong` node while processing everything else with default rules:
 
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
 import laika.ast._
 
 laikaExtensions += laikaSpanRewriteRule { 
@@ -69,7 +75,11 @@ the Transformer API offers a hook to do this in one go, as a step in the transfo
 
 Again we replace all `Emphasized` nodes with `Strong` nodes:
 
-```scala
+```scala mdoc:silent
+import laika.api._
+import laika.ast._
+import laika.format._
+
 val transformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
@@ -91,7 +101,9 @@ instead of using a full transformer. This is described in detail in [Separate Pa
 
 Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes for our example:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast._
+
 val doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forSpans {
@@ -102,7 +114,11 @@ val newDoc = doc.rewrite(RewriteRules.forSpans {
 For a slightly more advanced example, let's assume you only want to replace `Emphasized` nodes inside headers. 
 To accomplish this you need to nest a rewrite operation inside another one:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast._
+
+val doc: Document = ??? // obtained through the Parser API
+
 val newDoc = doc.rewrite(RewriteRules.forBlocks {
   case h: Header => Replace(h.rewriteSpans {
     case Emphasized(content, opts) => Replace(Strong(content, opts))

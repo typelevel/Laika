@@ -52,7 +52,9 @@ while the parsers for a new format need to be registered in a `MarkupFormat`.
 
 The contract a markup implementation has to adhere to is captured in the following trait:
 
-```scala
+```scala mdoc
+import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+
 trait MarkupFormat {
 
   def fileSuffixes: Set[String]
@@ -92,7 +94,7 @@ These are the four abstract method each parser has to implement.
   Whenever a format that defines extensions is used, they are merged with the user-supplied extensions.
   This collection may very well remain empty for some formats.
 
-Finally there are three concrete methods that may be overridden if required:
+Finally, there are three concrete methods that may be overridden if required:
 
 ```scala
 def description: String = toString
@@ -165,7 +167,10 @@ not just a subset like an override.
 
 A renderer has to implement the following trait:
 
-```scala
+```scala mdoc
+import laika.ast.Element
+import laika.factory.RenderContext
+
 trait RenderFormat[FMT] {
   
   def fileSuffix: String
@@ -221,7 +226,10 @@ This `defaultRenderer` function should usually adhere to these rules:
   
 Let's look at a minimal excerpt of a hypothetical HTML render function:
 
-```scala
+```scala mdoc
+import laika.ast._
+import laika.render.HTMLFormatter
+
 def renderElement (fmt: HTMLFormatter, elem: Element): String = {
 
   elem match {

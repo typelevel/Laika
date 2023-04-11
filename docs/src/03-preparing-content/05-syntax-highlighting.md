@@ -12,7 +12,12 @@ Not relying on external tools for this task has several advantages:
   
 This manual itself is a showcase for this functionality. 
 All code samples shown are highlighted by Laika's own syntax support. 
-  
+
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
   
 Configuration
 -------------
@@ -22,7 +27,10 @@ so that you can still choose other existing solutions if you prefer.
 
 When using the sbt plugin it can be added to the `laikaExtensions` setting:
 
-```scala
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
+
 laikaExtensions ++= Seq(GitHubFlavor, SyntaxHighlighting)  
 ```
 
@@ -31,7 +39,12 @@ When using reStructuredText input only the `SyntaxHighlighting` extension is nee
 
 When using the Library API highlighting can be activated like all other extension bundles:
 
-```scala
+```scala mdoc:silent
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -136,7 +149,19 @@ as a starting point.
 
 Once you have implemented and tested your highlighter you can add it to the built-in ones like this:
 
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.{SyntaxHighlighting, CodeSpanParser }
+import laika.bundle.SyntaxHighlighter
+import cats.data.NonEmptyList
+
+object MyHighlighter extends SyntaxHighlighter {
+  def language: NonEmptyList[String] = NonEmptyList.of("my-language")
+  def spanParsers: Seq[CodeSpanParser] = ???
+}
+
 laikaExtensions ++= Seq(
   GitHubFlavor, 
   SyntaxHighlighting.withSyntax(MyHighlighter)
