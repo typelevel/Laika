@@ -9,12 +9,12 @@ scalaVersion := "2.12.6"
 
 val TestDirectives = new DirectiveRegistry {
 
-  val spanDirectives     = Seq(Spans.create("span") {
+  val spanDirectives = Seq(Spans.create("span") {
     import Spans.dsl._
     attribute(0).as[String] map (Literal(_))
   })
 
-  val blockDirectives    = Seq(Blocks.create("block") {
+  val blockDirectives = Seq(Blocks.create("block") {
     import Blocks.dsl._
     attribute(0).as[String] map (LiteralBlock(_))
   })
@@ -24,7 +24,7 @@ val TestDirectives = new DirectiveRegistry {
     attribute(0).as[String] map { TemplateString(_) }
   })
 
-  val linkDirectives     = Nil
+  val linkDirectives = Nil
 }
 
 enablePlugins(LaikaPlugin)
