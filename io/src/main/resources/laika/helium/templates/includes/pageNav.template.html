@@ -1,5 +1,5 @@
 @:if(helium.site.pageNavigation.enabled)
-<nav id="page-nav">
+<nav id="page-nav"@:if(helium.site.pageNavigation.keepOnSmallScreens) class="all-screens"@:@>
   <p class="header"><a href="#">${cursor.currentDocument.title}</a></p>
 
   @:navigationTree {

@@ -627,7 +627,9 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       keepOnSmallScreens: Boolean = currentContent.pageNavigation.keepOnSmallScreens
   ): Helium = {
     val newContent = helium.siteSettings.content
-      .copy(pageNavigation = PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText))
+      .copy(pageNavigation =
+        PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText, keepOnSmallScreens)
+      )
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
