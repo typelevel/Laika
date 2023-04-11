@@ -114,6 +114,7 @@ private[laika] object ConfigGenerator {
         .withValue("enabled", pageNav.enabled)
         .withValue("depth", pageNav.depth)
         .withValue("sourceEditLinks", editLinks)
+        .withValue("keepOnSmallScreens", pageNav.keepOnSmallScreens)
         .build
   }
 
