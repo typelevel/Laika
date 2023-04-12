@@ -75,7 +75,7 @@ class HeliumTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExt
          |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
          |<title>Contents</title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-         |<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+         |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
          |<script src="helium/laika-helium.js"></script>

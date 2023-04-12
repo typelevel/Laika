@@ -51,7 +51,7 @@ object TestTheme {
     Root / "laika" / "fonts" / "Lato-Italic.ttf",
     Root / "laika" / "fonts" / "Lato-Bold.ttf",
     Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
-    Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+    Root / "laika" / "fonts" / "FiraMono-Medium.otf",
     Root / "laika" / "fonts" / "icofont.ttf",
     Root / "helium" / "laika-helium.js",
     Root / "helium" / "landing.page.css",
