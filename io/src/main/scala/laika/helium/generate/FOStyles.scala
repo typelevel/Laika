@@ -30,6 +30,10 @@ private[laika] class FOStyles(helium: Helium) {
 
   val input: String =
     s"""
+       |ContentWrapper {
+       |  font-size: ${fontSizes.body.displayValue};
+       |}
+       |
        |Paragraph {
        |  font-family: ${themeFonts.body};
        |  font-size: ${fontSizes.body.displayValue};

@@ -93,6 +93,11 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   def results(range: Range): String = range.map(result).reduceLeft(_ + _)
 
+  def wrapped(content: String): String =
+    s"""<fo:wrapper font-size="10pt">
+       |$content
+       |</fo:wrapper>""".stripMargin
+
   def result(num: Int): String = {
     s"""
        |
@@ -174,14 +179,14 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   test("render a tree with all structure elements disabled") {
 
-    result(navigationDepth = 0).assertEquals(withDefaultTemplate(results(1 to 6)))
+    result(navigationDepth = 0).assertEquals(withDefaultTemplate(wrapped(results(1 to 6))))
   }
 
   test("render a tree with navigation elements enabled") {
 
     result().assertEquals(
       withDefaultTemplate(
-        results(1 to 6),
+        wrapped(results(1 to 6)),
         bookmarkRootResult +
           bookmarkTreeResult(1, 3) + bookmarkTreeResult(2, 5) +
           closeBookmarks
@@ -195,9 +200,11 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
     result(useTitleDocuments = true).assertEquals(
       withDefaultTemplate(
-        results(1 to 2) +
-          treeTitleResult(2) + results(3 to 4) +
-          treeTitleResult(3) + results(5 to 6),
+        wrapped(
+          results(1 to 2) +
+            treeTitleResult(2) + results(3 to 4) +
+            treeTitleResult(3) + results(5 to 6)
+        ),
         bookmarkRootResult +
           bookmarkTreeResult(1, 3, titleDoc = true) + bookmarkTreeResult(2, 5, titleDoc = true) +
           closeBookmarks

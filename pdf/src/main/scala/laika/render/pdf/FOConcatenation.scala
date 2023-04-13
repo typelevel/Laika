@@ -16,23 +16,16 @@
 
 package laika.render.pdf
 
-import cats.data.NonEmptySet
 import cats.implicits._
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
 import laika.ast._
-import laika.config.{ Config, ConfigException, LaikaKeys, ValidationError }
+import laika.config.{ Config, ConfigException }
 import laika.format.{ PDF, XSLFO }
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
-import laika.rewrite.nav.{
-  ConfigurablePathTranslator,
-  PathAttributes,
-  PathTranslator,
-  TranslatorConfig
-}
+import laika.render.FOFormatter.ContentWrapper
+import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -66,12 +59,11 @@ object FOConcatenation {
     }
 
     def applyTemplate(foString: String, template: TemplateDocument): Either[Throwable, String] = {
-      val foElement       = RawContent(NonEmptySet.one("fo"), foString)
       val finalConfig     = ensureAbsoluteCoverImagePath
       val virtualPath     = Path.Root / "merged.fo"
       val finalDoc        = Document(
         virtualPath,
-        RootElement(foElement),
+        RootElement(ContentWrapper(foString)),
         fragments = PDFNavigation.generateBookmarks(result, config.navigationDepth),
         config = finalConfig
       )
