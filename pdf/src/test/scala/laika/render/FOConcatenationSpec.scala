@@ -62,7 +62,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
       failOnMessages = MessageFilter.None
     )
     val expected =
-      """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="9pt">faulty input</fo:inline>"""
+      """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
     assertEquals(FOConcatenation(result, PDF.BookConfig(), config), Right(expected))
   }
 

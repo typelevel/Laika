@@ -624,8 +624,8 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val fo   =
       s"""<fo:block space-after="6mm">
          |  <fo:block space-after="3mm" text-align="center"><fo:external-graphic content-width="scale-down-to-fit" height="auto" scaling="uniform" src="/image.jpg" width="85%"/></fo:block>
-         |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
-         |  <fo:block font-size="9pt" font-style="italic">
+         |  <fo:block font-family="serif" font-size="0.9em" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
+         |  <fo:block font-size="0.9em" font-style="italic">
          |    <fo:block $defaultParagraphStyles>aaa</fo:block>
          |    $ruleBlock
          |    <fo:block $defaultParagraphStyles>bbb</fo:block>
@@ -749,14 +749,14 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a paragraph containing a literal span") {
     val elem = p(Text("some "), Literal("code"), Text(" span"))
     val fo   =
-      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="9pt">code</fo:inline> span</fo:block>"""
+      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="0.9em">code</fo:inline> span</fo:block>"""
     run(elem, fo)
   }
 
   test("render a paragraph containing a code span") {
     val elem = p(Text("some "), InlineCode("banana-script", List(Text("code"))), Text(" span"))
     val fo   =
-      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="9pt">code</fo:inline> span</fo:block>"""
+      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="0.9em">code</fo:inline> span</fo:block>"""
     run(elem, fo)
   }
 
@@ -943,7 +943,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val elem =
       p(Text("some "), LinkIdReference("id", generatedSource("[link] [id]"))("link"), Text(" span"))
     val fo   =
-      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="9pt">[link] [id]</fo:inline> span</fo:block>"""
+      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="0.9em">[link] [id]</fo:inline> span</fo:block>"""
     run(elem, fo)
   }
 
@@ -954,7 +954,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       Text(" span")
     )
     val fo   =
-      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="9pt">![img] [id]</fo:inline> span</fo:block>"""
+      s"""<fo:block $defaultParagraphStyles>some <fo:inline font-family="monospaced" font-size="0.9em">![img] [id]</fo:inline> span</fo:block>"""
     run(elem, fo)
   }
 
@@ -1075,7 +1075,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   val defaultCodeBlockStyles =
-    """background-color="#F6F1EF" color="#362E21" font-family="monospaced" font-size="9pt" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve""""
+    """background-color="#F6F1EF" color="#362E21" font-family="monospaced" font-size="0.9em" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve""""
 
   val monoBlock = s"""<fo:block $defaultCodeBlockStyles>"""
 
