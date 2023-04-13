@@ -402,7 +402,7 @@ trait FOProperties {
     "bookmark-tree"   -> Set.empty,
     "bookmark"        -> Set("external-destination", "internal-destination", "starting-state"),
     "bookmark-title"  -> Set("color", "font-style", "font-weight"),
-    "wrapper"         -> Set("id"),
+    "wrapper"         -> Set("id", "font-size"),
     "declarations"    -> Set.empty,
     "color-profile"   -> Set("src")
   ).withDefaultValue(Set())

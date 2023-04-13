@@ -217,6 +217,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderSimpleBlock(block: Block): String = block match {
+      case e: ContentWrapper             => renderContentWrapper(e)
       case e: Preamble                   => renderPreamble(e)
       case e @ ListItemLabel(content, _) => fmt.listItemLabel(e, content)
       case e: Rule                       =>
@@ -369,6 +370,11 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       fmt.forMessage(message) {
         fmt.text(message.withStyle(message.level.toString.toLowerCase), message.content)
       }
+    }
+
+    def renderContentWrapper(cw: ContentWrapper): String = {
+      val inner = fmt.newLine + cw.content + fmt.newLine
+      fmt.rawElement("fo:wrapper", cw, inner)
     }
 
     def renderPreamble(p: Preamble): String = {

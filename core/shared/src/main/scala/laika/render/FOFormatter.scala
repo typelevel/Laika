@@ -317,6 +317,15 @@ case class FOFormatter(
   */
 object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
+  /** A wrapper around pre-rendered content which can be used to set default
+    * attributes that can be inherited by any node in the document.
+    */
+  case class ContentWrapper(content: String, options: Options = NoOpt) extends Block {
+    type Self = ContentWrapper
+
+    def withOptions(options: Options): ContentWrapper = copy(options = options)
+  }
+
   /** A preamble for a document, only used in PDF output where multiple XSL-FO documents get concatenated
     * before being passed to the PDF renderer.
     */
