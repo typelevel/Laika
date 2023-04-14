@@ -31,7 +31,6 @@ trait FOProperties {
     "border-right",
     "border-color",
     "border-style",
-    "border-spacing",
     "border-width",
     "border-before-color",
     "border-before-style",
@@ -92,9 +91,7 @@ trait FOProperties {
     "margin-left",
     "margin-right",
     "space-before",
-    "space-after",
-    "start-indent",
-    "end-indent"
+    "space-after"
   )
 
   private val absolutePosition =
@@ -111,19 +108,8 @@ trait FOProperties {
     "dominant-baseline"
   )
 
-  private val break    = Set("break-after", "break-before", "page-break-after", "page-break-before")
-  private val keep     = Set("keep-with-next", "keep-with-previous")
-  private val keepPlus = keep ++ Set("page-break-inside", "keep-together")
-  private val font     = Set("font", "font-family", "font-size", "font-style", "font-weight")
-
-  private val hyphenation = Set(
-    "country",
-    "language",
-    "hyphenate",
-    "hyphenation-character",
-    "hyphenation-push-character-count",
-    "hyphenation-remain-character-count"
-  )
+  private val break = Set("break-after", "break-before", "page-break-after", "page-break-before")
+  private val keep  = Set("keep-with-next", "keep-with-previous")
 
   private val region =
     border ++
@@ -133,27 +119,19 @@ trait FOProperties {
         "region-name",
         "extent",
         "precedence",
-        "display-align",
         "overflow",
-        "reference-orientation",
-        "writing-mode"
+        "reference-orientation"
       )
 
   private val pageNumber =
     border ++
       padding ++
       background ++
-      font ++
       areaAlign ++
       keep ++
       Set(
         "id",
-        "letter-spacing",
-        "line-height",
-        "text-decoration",
-        "text-transform",
-        "word-spacing",
-        "wrap-option"
+        "text-decoration"
       )
 
   private val embedded =
@@ -168,10 +146,7 @@ trait FOProperties {
         "content-height",
         "content-width",
         "scaling",
-        "display-align",
-        "line-height",
-        "overflow",
-        "text-align"
+        "overflow"
       )
 
   private val tablePart: Set[String] = border ++ padding ++ background
@@ -179,18 +154,15 @@ trait FOProperties {
   private val map = Map[String, Set[String]](
     "page-sequence"                       -> Set(
       "id",
-      "country",
       "flow-map-reference",
       "format",
-      "language",
       "letter-value",
       "grouping-separator",
       "grouping-size",
       "initial-page-number",
       "force-page-count",
       "master-reference",
-      "reference-orientation",
-      "writing-mode"
+      "reference-orientation"
     ),
     "layout-master-set"                   -> Set.empty,
     "page-sequence-master"                -> Set("master-name"),
@@ -207,8 +179,7 @@ trait FOProperties {
       "master-name",
       "page-height",
       "page-width",
-      "reference-orientation",
-      "writing-mode"
+      "reference-orientation"
     )),
     "region-body"                         -> (border ++
       padding ++
@@ -217,10 +188,8 @@ trait FOProperties {
         "region-name",
         "column-count",
         "column-gap",
-        "display-align",
         "overflow",
-        "reference-orientation",
-        "writing-mode"
+        "reference-orientation"
       )),
     "region-before"                       -> region,
     "region-after"                        -> region,
@@ -230,35 +199,15 @@ trait FOProperties {
     "static-content"                      -> Set("id", "flow-name"),
     "title"                               -> (border ++
       padding ++
-      background ++
-      font ++ Set("color", "line-height")),
+      background),
     "block"                               -> (border ++
       padding ++
       background ++
-      font ++
       blockMargin ++
-      hyphenation ++
       break ++
-      keepPlus ++ Set(
+      keep ++ Set(
         "id",
-        "orphans",
-        "widows",
-        "color",
-        "hyphenation-ladder-count",
-        "last-line-end-indent",
-        "line-height",
-        "line-height-shift-adjustment",
-        "line-stacking-strategy",
-        "span",
-        "text-align",
-        "text-align-last",
-        "text-indent",
-        "text-transform", // not applicable to fo:block according to the spec, but supported by Apache FOP
-        "white-space",
-        "white-space-treatment",
-        "white-space-collapse",
-        "linefeed-treatment",
-        "wrap-option"
+        "span"
       )),
     "block-container"                     -> (border ++
       padding ++
@@ -267,91 +216,58 @@ trait FOProperties {
       absolutePosition ++
       dimension ++
       break ++
-      keepPlus ++ Set(
+      keep ++ Set(
         "id",
-        "display-align",
         "reference-orientation",
         "overflow",
-        "span",
-        "writing-mode"
+        "span"
       )),
     "inline"                              -> (border ++
       padding ++
       background ++
-      font ++
       dimension ++
-      keepPlus ++
-      areaAlign ++ Set("id", "color", "line-height", "text-decoration", "wrap-option")),
+      keep ++
+      areaAlign ++ Set("id", "text-decoration")),
     "leader"                              -> (border ++
       padding ++
       background ++
-      font ++
       keep ++
-      areaAlign ++ Set(
-        "id",
-        "color",
-        "leader-length",
-        "leader-pattern",
-        "leader-pattern-width",
-        "rule-style",
-        "rule-thickness",
-        "line-height",
-        "word-spacing"
-      )),
+      areaAlign ++ Set("id")),
     "page-number"                         -> pageNumber,
     "page-number-citation"                -> (pageNumber + "ref-id"),
     "page-number-citation-last"           -> (pageNumber + "ref-id"),
     "character"                           -> (border ++
       padding ++
       background ++
-      font ++
-      hyphenation ++
       keep ++
       areaAlign ++ Set(
         "id",
-        "color",
         "character",
-        "letter-spacing",
-        "line-height",
-        "text-decoration",
-        "text-transform",
-        "word-spacing"
+        "text-decoration"
       )),
     "basic-link"                          -> (border ++
       padding ++
       background ++
-      keepPlus ++
-      font ++
+      keep ++
       areaAlign ++ Set(
         "id",
-        "color",
-        "line-height",
         "external-destination",
         "internal-destination",
         "show-destination"
       )),
     "external-graphic"                    -> (embedded + "src"),
     "instream-foreign-object"             -> embedded,
-    "bidi-override"                       -> (font ++ Set(
-      "color",
-      "direction",
-      "letter-spacing",
-      "line-height",
-      "word-spacing"
-    )),
+    "bidi-override"                       -> Set.empty,
     "table"                               -> (border ++
       padding ++
       background ++
       blockMargin ++
       dimension ++
       break ++
-      keepPlus ++ Set(
+      keep ++ Set(
         "id",
-        "border-separation",
-        "border-collapse",
         "table-omit-footer-at-break",
-        "table-omit-header-at-break",
-        "writing-mode"
+        "table-omit-header-at-break"
       )),
     "table-column"                        -> (border ++
       padding ++
@@ -367,42 +283,40 @@ trait FOProperties {
     "table-row"                           -> (tablePart ++
       dimension ++
       break ++
-      keepPlus),
+      keep),
     "table-cell"                          -> (tablePart ++
-      font ++ // not in spec, but supported by FOP
       dimension ++
       break ++
-      keepPlus ++ Set(
+      keep ++ Set(
         "id",
-        "display-align",
         "column-number",
         "starts-row",
         "ends-row",
         "number-columns-spanned",
         "number-rows-spanned"
       )),
-    "list-block"      -> (border ++
+    "list-block"                          -> (border ++
       padding ++
       background ++
       blockMargin ++
       break ++
-      keepPlus ++ Set("id", "provisional-distance-between-starts", "provisional-label-separation")),
-    "list-item"       -> (border ++
+      keep + "id"),
+    "list-item"                           -> (border ++
       padding ++
       background ++
       blockMargin ++
       break ++
-      keepPlus ++ Set("id")),
-    "list-item-label" -> Set("id", "keep-together", "end-indent"),
-    "list-item-body"  -> Set("id", "keep-together", "start-indent"),
-    "footnote"        -> Set("id"),
-    "footnote-body"   -> Set("id"),
-    "marker"          -> Set("marker-class-name"),
+      keep + "id"),
+    "list-item-label"                     -> Set("id"),
+    "list-item-body"                      -> Set("id"),
+    "footnote"                            -> Set("id"),
+    "footnote-body"                       -> Set("id"),
+    "marker"                              -> Set("marker-class-name"),
     "retrieve-marker" -> Set("retrieve-class-name", "retrieve-position", "retrieve-boundary"),
     "bookmark-tree"   -> Set.empty,
     "bookmark"        -> Set("external-destination", "internal-destination", "starting-state"),
-    "bookmark-title"  -> Set("color", "font-style", "font-weight"),
-    "wrapper"         -> Set("id", "font-size"),
+    "bookmark-title"  -> Set(),
+    "wrapper"         -> Set("id"),
     "declarations"    -> Set.empty,
     "color-profile"   -> Set("src")
   ).withDefaultValue(Set())
@@ -419,7 +333,104 @@ trait FOProperties {
       attributes: Seq[(String, String)]
   ): Seq[(String, String)] = {
     val supportedProps = map(tagName.drop(3))
-    attributes.filter(pair => supportedProps(pair._1))
+    attributes.filter(pair => FOProperties.inherited(pair._1) || supportedProps(pair._1))
   }
+
+}
+
+object FOProperties {
+
+  /* https://www.w3.org/TR/xsl11/#prtab1 */
+  private val inherited = Set(
+    "allowed-height-scale",
+    "allowed-width-scale",
+    "auto-restore",
+    "azimuth",
+    "border-collapse",
+    "border-separation",
+    "border-spacing",
+    "change-bar-color",
+    "change-bar-offset",
+    "change-bar-placement",
+    "change-bar-style",
+    "change-bar-width",
+    "color",
+    "country",
+    "direction",
+    "display-align",
+    "elevation",
+    "empty-cells",
+    "end-indent",
+    "font",
+    "font-family",
+    "font-selection-strategy",
+    "font-size",
+    "font-size-adjust",
+    "font-stretch",
+    "font-style",
+    "font-variant",
+    "font-weight",
+    "glyph-orientation-horizontal",
+    "glyph-orientation-vertical",
+    "hyphenate",
+    "hyphenation-character",
+    "hyphenation-keep",
+    "hyphenation-ladder-count",
+    "hyphenation-push-character-count",
+    "hyphenation-remain-character-count",
+    "intrinsic-scale-value",
+    "intrusion-displace",
+    "keep-together",
+    "language",
+    "last-line-end-indent",
+    "leader-alignment",
+    "leader-length",
+    "leader-pattern",
+    "leader-pattern-width",
+    "letter-spacing",
+    "linefeed-treatment",
+    "line-height",
+    "line-height-shift-adjustment",
+    "line-stacking-strategy",
+    "merge-pages-across-index-key-references",
+    "merge-ranges-across-index-key-references",
+    "merge-sequential-page-numbers",
+    "orphans",
+    "page-break-inside",
+    "page-number-treatment",
+    "pitch",
+    "pitch-range",
+    "provisional-distance-between-starts",
+    "provisional-label-separation",
+    "relative-align",
+    "richness",
+    "rule-style",
+    "rule-thickness",
+    "scale-option",
+    "score-spaces",
+    "script",
+    "speak",
+    "speak-header",
+    "speak-numeral",
+    "speak-punctuation",
+    "speech-rate",
+    "start-indent",
+    "stress",
+    "text-align",
+    "text-align-last",
+    "text-indent",
+    "text-transform",
+    "visibility",
+    "voice-family",
+    "volume",
+    "white-space",
+    "white-space-collapse",
+    "white-space-treatment",
+    "widows",
+    "word-spacing",
+    "wrap-option",
+    "writing-mode",
+    "xml:lang"
+  )
 
 }

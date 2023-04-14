@@ -279,8 +279,10 @@ class TreeRendererSpec extends CatsEffectSuite
     val customStyle: StyleDeclaration =
       StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")
 
-    val customThemeStyles: Set[StyleDeclaration] =
-      TestTheme.foStyles.styles + customStyle.increaseOrderBy(1)
+    val customThemeStyles: Set[StyleDeclaration] = {
+      val baseStyles = TestTheme.foStyles.styles
+      baseStyles + customStyle.increaseOrderBy(baseStyles.size)
+    }
 
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     val subElem: RootElement                 = RootElement(titleWithId("Sub Title"), p("ccc"))

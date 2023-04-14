@@ -243,7 +243,7 @@ private[laika] class FOStyles(helium: Helium) {
        |  padding: 2mm;
        |}
        |
-       |FootnoteLink, CitationLink, SpanLink {
+       |SpanLink {
        |  color: ${colors.theme.secondary.displayValue};
        |}
        |
@@ -403,6 +403,10 @@ private[laika] class FOStyles(helium: Helium) {
        |  leader-length: 100%;
        |  rule-style: solid;
        |  rule-thickness: 2pt;
+       |  space-after: ${layout.defaultBlockSpacing.displayValue};
+       |}
+       |
+       |.rule-block {
        |  space-after: ${layout.defaultBlockSpacing.displayValue};
        |}
        |
