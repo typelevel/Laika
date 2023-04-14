@@ -223,7 +223,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: Rule                       =>
         fmt.rawElement(
           "fo:block",
-          e,
+          BlockSequence.empty.withOptions(e.options + Styles("rule-block")),
           fmt.textElement("fo:leader", e, "", "leader-pattern" -> "rule")
         )
       case Selection(name, choices, opt) => renderChoices(name, choices, opt)
