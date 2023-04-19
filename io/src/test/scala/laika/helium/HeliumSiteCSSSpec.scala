@@ -89,7 +89,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   private val defaultFonts = """--body-font: "Lato", sans-serif;
                                |--header-font: "Lato", sans-serif;
-                               |--code-font: "Fira Code", monospace;
+                               |--code-font: "Fira Mono", monospace;
                                |--body-font-size: 15px;
                                |--code-font-size: 0.9em;
                                |--small-font-size: 12px;

@@ -97,7 +97,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--syntax-wheel5: #6498AE;
                       |--body-font: "Lato", sans-serif;
                       |--header-font: "Lato", sans-serif;
-                      |--code-font: "Fira Code", monospace;
+                      |--code-font: "Fira Mono", monospace;
                       |--body-font-size: 1em;
                       |--code-font-size: 0.9em;
                       |--small-font-size: 0.8em;
@@ -138,10 +138,10 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |src: url("../laika/fonts/Lato-BoldItalic.ttf");
         |}
         |@font-face {
-        |font-family: "Fira Code";
+        |font-family: "Fira Mono";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/FiraCode-Medium.otf");
+        |src: url("../laika/fonts/FiraMono-Medium.otf");
         |}
         |@font-face {
         |font-family: "IcoFont";
@@ -257,7 +257,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--syntax-wheel5: #110055;
                                 |--body-font: "Lato", sans-serif;
                                 |--header-font: "Lato", sans-serif;
-                                |--code-font: "Fira Code", monospace;
+                                |--code-font: "Fira Mono", monospace;
                                 |--body-font-size: 1em;
                                 |--code-font-size: 0.9em;
                                 |--small-font-size: 0.8em;
@@ -444,7 +444,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--syntax-wheel5: #6498AE;
                       |--body-font: "Lato", sans-serif;
                       |--header-font: "Lato", sans-serif;
-                      |--code-font: "Fira Code", monospace;
+                      |--code-font: "Fira Mono", monospace;
                       |--body-font-size: 1em;
                       |--code-font-size: 0.9em;
                       |--small-font-size: 0.8em;

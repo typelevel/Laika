@@ -256,7 +256,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
         ColorQuintet(hex("990011"), hex("990022"), hex("990033"), hex("990044"), hex("990055"))
     )
     val expected =
-      """<fo:block background-color="#000011" color="#000055" font-family="Fira Code" font-size="9pt" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" page-break-inside="avoid" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve"><fo:inline color="#990022">val</fo:inline> <fo:inline color="#000044">stuff</fo:inline> = <fo:inline color="#990055">Seq</fo:inline>(
+      """<fo:block background-color="#000011" color="#000055" font-family="Fira Mono" font-size="9pt" fox:border-radius="2mm" line-height="1.4" linefeed-treatment="preserve" margin-left="2mm" margin-right="2mm" padding="2mm" page-break-inside="avoid" space-after="6mm" white-space-collapse="false" white-space-treatment="preserve"><fo:inline color="#990022">val</fo:inline> <fo:inline color="#000044">stuff</fo:inline> = <fo:inline color="#990055">Seq</fo:inline>(
         |<fo:inline color="#990044">&quot;text&quot;</fo:inline>,
         |<fo:inline color="#990044">7</fo:inline>,
         |<fo:inline color="#990022">new</fo:inline> <fo:inline color="#990055">Foo</fo:inline>

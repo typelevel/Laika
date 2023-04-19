@@ -151,8 +151,7 @@ import laika.theme.config._
 
 val fontPath = "<file-path-to-your-fonts>"
 val latoURL = "http://fonts.googleapis.com/css?family=Lato:400,700"
-val firaURL = 
-  "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"
+val firaURL = "https://fonts.googleapis.com/css?family=Fira+Mono:500"
 
 Helium.defaults.all.fontResources(
   FontDefinition(

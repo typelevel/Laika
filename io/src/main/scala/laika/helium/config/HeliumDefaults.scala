@@ -55,10 +55,10 @@ private[helium] object HeliumDefaults {
       FontStyle.Italic
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS(
-        "https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"
+      Font.embedResource(fontPath + "FiraMono/FiraMono-Medium.otf").webCSS(
+        "https://fonts.googleapis.com/css?family=Fira+Mono:500"
       ),
-      "Fira Code",
+      "Fira Mono",
       FontWeight.Normal,
       FontStyle.Normal
     ),
@@ -70,7 +70,7 @@ private[helium] object HeliumDefaults {
     )
   )
 
-  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Code")
+  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Mono")
 
   private val defaultMessageColors = MessageColors(
     info = Color.hex("007c99"),

@@ -222,7 +222,7 @@ class TreeRendererSpec extends CatsEffectSuite
       Root / "laika" / "fonts" / "Lato-Italic.ttf",
       Root / "laika" / "fonts" / "Lato-Bold.ttf",
       Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
-      Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+      Root / "laika" / "fonts" / "FiraMono-Medium.otf",
       Root / "laika" / "fonts" / "icofont.ttf",
       Root / "helium" / "fonts" / "icofont.woff",
       Root / "helium" / "fonts" / "icofont.woff2"
@@ -268,7 +268,7 @@ class TreeRendererSpec extends CatsEffectSuite
       Root / "laika" / "fonts" / "Lato-Italic.ttf",
       Root / "laika" / "fonts" / "Lato-Bold.ttf",
       Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
-      Root / "laika" / "fonts" / "FiraCode-Medium.otf",
+      Root / "laika" / "fonts" / "FiraMono-Medium.otf",
       Root / "laika" / "fonts" / "icofont.ttf",
       Root / "helium" / "fonts" / "icofont.woff",
       Root / "helium" / "fonts" / "icofont.woff2"
