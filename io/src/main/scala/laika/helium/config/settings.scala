@@ -609,16 +609,44 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
+  /** Configures the page navigation bar on the top-right side of the content pane
+    *
+    * @param enabled indicates whether the page navigation should be included.
+    * @param depth the of the navigation structure, two by default.
+    * @param sourceBaseURL the base URL for the markup sources of the rendered pages.
+    * @param sourceLinkText the link text to show on links to markup sources.
+    * @param keepOnSmallScreens indicates whether the page navigation should be included on small screens,
+    *                           where it will move from a top-right box to the top of the main content pane.
+    * @return
+    */
   def pageNavigation(
       enabled: Boolean = currentContent.pageNavigation.enabled,
       depth: Int = currentContent.pageNavigation.depth,
       sourceBaseURL: Option[String] = currentContent.pageNavigation.sourceBaseURL,
-      sourceLinkText: String = currentContent.pageNavigation.sourceLinkText
+      sourceLinkText: String = currentContent.pageNavigation.sourceLinkText,
+      keepOnSmallScreens: Boolean = currentContent.pageNavigation.keepOnSmallScreens
   ): Helium = {
     val newContent = helium.siteSettings.content
-      .copy(pageNavigation = PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText))
+      .copy(pageNavigation =
+        PageNavigation(enabled, depth, sourceBaseURL, sourceLinkText, keepOnSmallScreens)
+      )
     copyWith(helium.siteSettings.copy(content = newContent))
   }
+
+  @deprecated
+  def pageNavigation(
+      enabled: Boolean,
+      depth: Int,
+      sourceBaseURL: Option[String],
+      sourceLinkText: String
+  ): Helium =
+    pageNavigation(
+      enabled,
+      depth,
+      sourceBaseURL,
+      sourceLinkText,
+      currentContent.pageNavigation.keepOnSmallScreens
+    )
 
   /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
     *

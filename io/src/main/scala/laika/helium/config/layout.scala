@@ -104,7 +104,8 @@ private[helium] case class PageNavigation(
     enabled: Boolean = true,
     depth: Int = 2,
     sourceBaseURL: Option[String] = None,
-    sourceLinkText: String = "Source for this page"
+    sourceLinkText: String = "Source for this page",
+    keepOnSmallScreens: Boolean = false
 )
 
 private[helium] case class DownloadPage(

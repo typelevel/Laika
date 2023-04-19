@@ -284,6 +284,27 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     )
   }
 
+  test("page navigation - show on small screens, configured globally") {
+    val expected =
+      """<p class="header"><a href="#">Doc 1</a></p>
+        |<ul class="nav-list">
+        |<li class="level1 nav-node"><a href="#section-1">Section 1</a></li>
+        |<li class="level2 nav-leaf"><a href="#section-1-1">Section 1.1</a></li>
+        |<li class="level1 nav-node"><a href="#section-2">Section 2</a></li>
+        |<li class="level2 nav-leaf"><a href="#section-2-1">Section 2.1</a></li>
+        |</ul>
+        |<p class="footer"></p>""".stripMargin
+    val helium   = Helium.defaults.site.landingPage().site.pageNavigation(keepOnSmallScreens = true)
+    transformAndExtract(
+      flatInputs,
+      helium,
+      "<nav id=\"page-nav\" class=\"all-screens\">",
+      "</nav>"
+    ).assertEquals(
+      expected
+    )
+  }
+
   test("page navigation - one level only, configured in configuration header in markup") {
     val expected =
       """<p class="header"><a href="#">Doc 1</a></p>
@@ -299,6 +320,28 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       "<nav id=\"page-nav\">",
       "</nav>"
     ).assertEquals(expected)
+  }
+
+  test("page navigation - show on small screens, configured in configuration header in markup") {
+    val expected =
+      """<p class="header"><a href="#">Doc 1</a></p>
+        |<ul class="nav-list">
+        |<li class="level1 nav-node"><a href="#section-1">Section 1</a></li>
+        |<li class="level2 nav-leaf"><a href="#section-1-1">Section 1.1</a></li>
+        |<li class="level1 nav-node"><a href="#section-2">Section 2</a></li>
+        |<li class="level2 nav-leaf"><a href="#section-2-1">Section 2.1</a></li>
+        |</ul>
+        |<p class="footer"></p>""".stripMargin
+    val config   = "helium.site.pageNavigation.keepOnSmallScreens = true"
+    val helium   = Helium.defaults.site.landingPage()
+    transformAndExtract(
+      flatInputsWithConfig(config),
+      helium,
+      "<nav id=\"page-nav\" class=\"all-screens\">",
+      "</nav>"
+    ).assertEquals(
+      expected
+    )
   }
 
   test("page navigation - disabled globally") {
