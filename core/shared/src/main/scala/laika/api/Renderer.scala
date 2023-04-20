@@ -72,7 +72,8 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
 
   /** Renders the specified document as a String.
     */
-  def render(doc: Document): Either[RendererError, String] = render(doc.content, doc.path)
+  def render(doc: Document): Either[RendererError, String] =
+    render(doc, doc.content, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified document as a String, using the given path translator and styles.
     *
@@ -83,7 +84,7 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
       pathTranslator: PathTranslator,
       styles: StyleDeclarationSet
   ): Either[RendererError, String] =
-    render(doc.content, doc.path, pathTranslator, styles)
+    render(doc, doc.content, pathTranslator, styles)
 
   /** Renders the specified element as a String.
     */
@@ -110,22 +111,32 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
       styles: StyleDeclarationSet
   ): Either[RendererError, String] = {
 
+    val rootElement = element match {
+      case root: RootElement => root
+      case block: Block      => RootElement(block)
+      case span: Span        => RootElement(Paragraph(span))
+      case other             => RootElement(Paragraph(TemplateElement(other)))
+    }
+    render(Document(path, rootElement), element, pathTranslator, styles)
+  }
+
+  private def render(
+      doc: Document,
+      targetElement: Element,
+      pathTranslator: PathTranslator,
+      styles: StyleDeclarationSet
+  ): Either[RendererError, String] = {
+
     def rewrite: Either[RendererError, Element] = {
-      val rootElement = element match {
-        case root: RootElement => root
-        case block: Block      => RootElement(block)
-        case span: Span        => RootElement(Paragraph(span))
-        case other             => RootElement(Paragraph(TemplateElement(other)))
-      }
       config
-        .rewriteRulesFor(Document(path, rootElement), RewritePhase.Render(OutputContext(format)))
-        .map(_.rewriteElement(element))
-        .leftMap(RendererError(_, path))
+        .rewriteRulesFor(doc, RewritePhase.Render(OutputContext(format)))
+        .map(_.rewriteElement(targetElement))
+        .leftMap(RendererError(_, doc.path))
     }
 
-    (if (skipRewrite) Right(element) else rewrite).map { elementToRender =>
+    (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
       val renderContext =
-        RenderContext(renderFunction, elementToRender, styles, path, pathTranslator, config)
+        RenderContext(renderFunction, elementToRender, styles, doc.path, pathTranslator, config)
 
       val formatter = format.formatterFactory(renderContext)
 

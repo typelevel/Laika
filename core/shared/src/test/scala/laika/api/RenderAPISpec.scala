@@ -16,9 +16,12 @@
 
 package laika.api
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
+import laika.config.ConfigBuilder
 import laika.format._
+import laika.parse.{ GeneratedSource, SourceFragment }
 import munit.FunSuite
 
 class RenderAPISpec extends FunSuite
@@ -42,6 +45,26 @@ class RenderAPISpec extends FunSuite
     }.build
     val modifiedResult = expected.replace("Text", "String")
     assertEquals(renderer.render(rootElem), Right(modifiedResult))
+  }
+
+  test("use Document's configuration for rewrite rules") {
+    case class TestResolver(options: Options = NoOpt) extends BlockResolver {
+      type Self = TestResolver
+      def resolve(cursor: DocumentCursor): Block      = {
+        cursor.config
+          .get[String]("testKey")
+          .fold[Block](e => InvalidBlock(e.message, source), str => Paragraph(str))
+      }
+      def runsIn(phase: RewritePhase): Boolean        = phase.isInstanceOf[RewritePhase.Render]
+      def source: SourceFragment                      = GeneratedSource
+      def unresolvedMessage: String                   = "unresolved test block"
+      def withOptions(options: Options): TestResolver = copy(options = options)
+    }
+    val renderer = Renderer.of(HTML).build
+    val config   = ConfigBuilder.empty.withValue("testKey", "foo").build
+    val doc      = Document(Root / "doc", RootElement(TestResolver()), config = config)
+    val expected = "<p>foo</p>"
+    assertEquals(renderer.render(doc), Right(expected))
   }
 
 }
