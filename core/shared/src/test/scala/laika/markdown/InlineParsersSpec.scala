@@ -234,6 +234,18 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     )
   }
 
+  test("images - inline image with internal target") {
+    val input = "some ![link](images/foo.jpg) here"
+    runEnclosed(
+      input,
+      ImagePathReference(
+        RelativePath.parse("images/foo.jpg"),
+        source("![link](images/foo.jpg)", input),
+        alt = Some("link")
+      )
+    )
+  }
+
   test("images - inline image with an optional title enclosed in double quotes") {
     runEnclosed(
       """some ![link](http://foo.jpg "a title") here""",
