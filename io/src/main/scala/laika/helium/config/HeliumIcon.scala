@@ -49,7 +49,8 @@ object HeliumIcon {
   val error: Icon          = IconGlyph('\ueedd', None, glyphStyles("error"))
   val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), glyphStyles("twitter"))
   val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"), Styles("api"))
-  val github: Icon = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
+  val github: Icon   = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
+  val mastodon: Icon = InlineSVGIcon(SVGIcons.mastodonIcon, Some("Mastodon"), Styles("mastodon"))
 
   val registry: IconRegistry = IconRegistry(
     "navigationMenu" -> navigationMenu,
