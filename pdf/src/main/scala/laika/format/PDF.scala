@@ -89,7 +89,7 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
-      Dispatcher[F].evalMap { dispatcher =>
+      Dispatcher.parallel[F].evalMap { dispatcher =>
         val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
         FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs, dispatcher).map {
           fopFactory =>
