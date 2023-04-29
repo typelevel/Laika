@@ -676,12 +676,17 @@ Helium.defaults
     enabled = true,
     depth = 1,
     sourceBaseURL = Some("https://github.com/my/project"),
-    sourceLinkText = "Source for this Page"
+    sourceLinkText = "Source for this Page",
+    keepOnSmallScreens = true
   )
 ```
 
 The `enabled` property is true by default. Setting it to false completely removes it from the rendered pages.
 In this case all other properties won't have any effect unless the flag is set to true on individual pages as shown below.
+
+The `keepOnSmallScreens` property is false by default. In this case the responsive design of Helium will
+remove the page navigation entirely on small screens.
+Setting it to true will instead move it to the top of the content pane on small screens.
 
 The `depth` property allows to change the navigation depth.
 The default is 2, meaning it will link to all level 1 and level 2 headers of the page.

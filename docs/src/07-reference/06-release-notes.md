@@ -2,6 +2,38 @@
 Release Notes
 =============
 
+0.19.1 (April 29, 2023)
+-----------------------
+
+* Build, Documentation & Project Setup
+    * Make Laika more contributor-friendly, filling some gaps left by still mostly running the original 2012 setup by
+      integrating scalasteward, scalafmt, mima, mdoc and add a code of conduct.
+    * Add imports to the code samples in the manual.
+    * A CI-based release process will follow in the 1.0 milestone series which will begin in the coming months.
+    * None of these changes are directly reflected in the binary artefacts of this release.
+* Helium Theme
+    * Switch the default code font from Fira Code to Fira Mono to avoid unwanted ligatures in code samples.
+    * Introduce `helium.site.pageNavigation.keepOnSmallScreens` configuration attribute that allows to keep
+      the page navigation on small screens, moving it to the top of the main content pain in that case.
+    * Fix the size for code spans in headlines and other places that do not use 
+      the standard body font size by using relative sizes by default for HTML and PDF. 
+      EPUP output was not affected as it has always used relative sizes.
+    * Add the Mastodon logo, available via `HeliumIcon.mastodon` in code and `@:icon(mastodon)` in templates.
+* Core Renderer and Transformer
+    * Fixing a regression introduced in 0.19.0 where the pure/standalone Renderer and Transformer implementations 
+      that transform a single string input drop the configuration that has been specified by the user in the builder.
+      The sbt plugin and the transformer for an entire input tree/directory were not affected, 
+      as they use a different code path to apply user configuration.
+* Spec Compliance
+    * **Markdown**: support spaces in link destinations inside angle brackets (e.g. `[link](<some image.jpg>)`)
+    * **PDF**: avoid filtering of inheritable XSL-FO attributes when they are not processed by the node
+      they are placed in, as they may be processed by nested tags instead.
+      In practice this issue meant that attributes assigned via Laika's CSS for PDF functionality were
+      ignored in some cases.
+* Updates
+    * cats 2.9.0, cats-effect 3.4.9, fs2 3.6.1, http4s 0.23.18
+
+
 0.19.0 (Oct 9, 2022)
 ---------------------
 

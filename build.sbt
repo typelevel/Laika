@@ -112,7 +112,7 @@ lazy val docs = project.in(file("docs"))
     Laika / target            := baseDirectory.value / "target",
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
-      "LAIKA_VERSION" -> "0.19.0"
+      "LAIKA_VERSION" -> "0.19.1"
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene")
   )
