@@ -134,7 +134,7 @@ or the <code>laikaTheme</code> sbt setting:</p><p>Example for sbt plugin:</p><pr
   .from(Markdown)
   .to(EPUB)
   .parallel[IO]
-  .witTheme(theme)
+  .withTheme(theme)
   .build</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.helium">helium</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
@@ -924,9 +924,9 @@ It is recommended to always define the language and title as the minimum set of 
               
         </dd></dl></div>
     </li><li name="laika.helium.config.SiteOps#pageNavigation" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String):laika.helium.Helium"></a><a id="pageNavigation(Boolean,Int,Option[String],String):Helium"></a>
+      <a id="pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String,keepOnSmallScreens:Boolean):laika.helium.Helium"></a><a id="pageNavigation(Boolean,Int,Option[String],String,Boolean):Helium"></a>
       <span class="permalink">
-      <a href="../../laika/helium/Helium$site$.html#pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String):laika.helium.Helium" title="Permalink">
+      <a href="../../laika/helium/Helium$site$.html#pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String,keepOnSmallScreens:Boolean):laika.helium.Helium" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -935,10 +935,13 @@ It is recommended to always define the language and title as the minimum set of 
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">pageNavigation</span><span class="params">(<span name="enabled">enabled: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="defval" name="currentContent.pageNavigation.enabled">...</span></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">currentContent.pageNavigation.depth</span></span>, <span name="sourceBaseURL">sourceBaseURL: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="defval" name="currentContent.pageNavigation.sourceBaseURL">...</span></span>, <span name="sourceLinkText">sourceLinkText: <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name="currentContent.pageNavigation.sourceLinkText">...</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+        <span class="name">pageNavigation</span><span class="params">(<span name="enabled">enabled: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="defval" name="currentContent.pageNavigation.enabled">...</span></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">currentContent.pageNavigation.depth</span></span>, <span name="sourceBaseURL">sourceBaseURL: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="defval" name="currentContent.pageNavigation.sourceBaseURL">...</span></span>, <span name="sourceLinkText">sourceLinkText: <span class="extype" name="scala.Predef.String">String</span> = <span class="defval" name="currentContent.pageNavigation.sourceLinkText">...</span></span>, <span name="keepOnSmallScreens">keepOnSmallScreens: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="defval" name="currentContent.pageNavigation.keepOnSmallScreens">...</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SiteOps</dd></dl></div>
+      <p class="shortcomment cmt">Configures the page navigation bar on the top-right side of the content pane
+</p><div class="fullcomment"><div class="comment cmt"><p>Configures the page navigation bar on the top-right side of the content pane
+</p></div><dl class="paramcmts block"><dt class="param">enabled</dt><dd class="cmt"><p>indicates whether the page navigation should be included.</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the of the navigation structure, two by default.</p></dd><dt class="param">sourceBaseURL</dt><dd class="cmt"><p>the base URL for the markup sources of the rendered pages.</p></dd><dt class="param">sourceLinkText</dt><dd class="cmt"><p>the link text to show on links to markup sources.</p></dd><dt class="param">keepOnSmallScreens</dt><dd class="cmt"><p>indicates whether the page navigation should be included on small screens,
+                          where it will move from a top-right box to the top of the main content pane.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>SiteOps</dd></dl></div>
     </li><li name="laika.helium.config.SiteOps#resetDefaults" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="resetDefaults(mainNavigation:Boolean,topNavigation:Boolean,favIcons:Boolean):laika.helium.Helium"></a><a id="resetDefaults(Boolean,Boolean,Boolean):Helium"></a>
       <span class="permalink">
@@ -1269,6 +1272,25 @@ adding the menu to the landing page where it is not included by default.
                 <span class="name">@deprecated</span>
               
         </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.19.0)</i> use the corresponding properties of the new pageNavigation method</p></dd></dl></div>
+    </li><li name="laika.helium.config.SiteOps#pageNavigation" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String):laika.helium.Helium"></a><a id="pageNavigation(Boolean,Int,Option[String],String):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$site$.html#pageNavigation(enabled:Boolean,depth:Int,sourceBaseURL:Option[String],sourceLinkText:String):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: ">pageNavigation</span><span class="params">(<span name="enabled">enabled: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="sourceBaseURL">sourceBaseURL: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="sourceLinkText">sourceLinkText: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SiteOps</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"></dd></dl></div>
     </li></ol>
             </div>
         </div>

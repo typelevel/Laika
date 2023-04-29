@@ -29,9 +29,9 @@
   --syntax-wheel5: #4dbed4;
   --body-font: "Lato", sans-serif;
   --header-font: "Lato", sans-serif;
-  --code-font: "Fira Code", monospace;
+  --code-font: "Fira Mono", monospace;
   --body-font-size: 15px;
-  --code-font-size: 14px;
+  --code-font-size: 0.9em;
   --small-font-size: 12px;
   --title-font-size: 34px;
   --header2-font-size: 28px;
@@ -807,6 +807,18 @@ ul.nav-list, #page-nav ul {
 @media (min-width: 1450px) {
   #page-nav {
     display: inline-block;
+  }
+}
+@media (max-width: 1450px) {
+  #page-nav.all-screens {
+    display: block;
+    position: static;
+    width: 100%;
+    max-width: var(--content-width);
+    background-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 75px 45px 10px 45px;
   }
 }
 
