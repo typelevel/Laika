@@ -18,7 +18,7 @@ package laika.io.ops
 
 import java.io.File
 import cats.effect.Sync
-import laika.io.model.{DirectoryOutput, FilePath, TreeOutput}
+import laika.io.model.{ DirectoryOutput, FilePath, TreeOutput }
 
 import scala.io.Codec
 
@@ -37,14 +37,14 @@ trait TextOutputOps[F[_]] {
 
   /** Builder step that instructs the runtime to render the document tree to files
     * in the specified directory and its subdirectories.
-    * 
+    *
     * The virtual paths of the document tree will be translated to a directory structure,
     * with the root of the virtual path being the directory specified with this method.
-    * 
+    *
     * @param name the name of the directory to write to
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (name: String)(implicit codec: Codec): Result = toDirectory(FilePath.parse(name))
+  def toDirectory(name: String)(implicit codec: Codec): Result = toDirectory(FilePath.parse(name))
 
   /** Builder step that instructs the runtime to render the document tree to files
     * in the specified directory and its subdirectories.
@@ -55,13 +55,17 @@ trait TextOutputOps[F[_]] {
     * @param dir the directory to write to
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: FilePath)(implicit codec: Codec): Result = toOutput(DirectoryOutput(dir, codec))
+  def toDirectory(dir: FilePath)(implicit codec: Codec): Result = toOutput(
+    DirectoryOutput(dir, codec)
+  )
 
   @deprecated("use toDirectory(String) or toDirectory(FilePath)", "0.19.0")
-  def toDirectory (dir: File)(implicit codec: Codec): Result = toDirectory(FilePath.fromJavaFile(dir))
+  def toDirectory(dir: File)(implicit codec: Codec): Result = toDirectory(
+    FilePath.fromJavaFile(dir)
+  )
 
   @deprecated("use toDirectory(String) or toDirectory(FilePath) using a relative path", "0.19.0")
-  def toWorkingDirectory (implicit codec: Codec): Result = 
+  def toWorkingDirectory(implicit codec: Codec): Result =
     toOutput(DirectoryOutput(FilePath.parse(System.getProperty("user.dir")), codec))
 
   /** Builder step that instructs the runtime to render
@@ -70,6 +74,6 @@ trait TextOutputOps[F[_]] {
     * This is a generic method based on Laika's IO model that concrete
     * methods delegate to.
     */
-  def toOutput (tree: TreeOutput): Result
+  def toOutput(tree: TreeOutput): Result
 
 }

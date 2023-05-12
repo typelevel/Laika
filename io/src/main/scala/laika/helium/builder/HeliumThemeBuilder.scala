@@ -16,30 +16,28 @@
 
 package laika.helium.builder
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import laika.ast.RewritePhase
 import laika.bundle.BundleOrigin
-import laika.directive.{Blocks, DirectiveRegistry, Links, Spans, Templates}
-import laika.format.{EPUB, HTML, XSLFO}
+import laika.directive.{ Blocks, DirectiveRegistry, Links, Spans, Templates }
+import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.generate._
-import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
+import laika.theme.{ Theme, ThemeBuilder, ThemeProvider }
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
-private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
+private[helium] class HeliumThemeBuilder(helium: Helium) extends ThemeProvider {
 
   object directives extends DirectiveRegistry {
-    override def origin: BundleOrigin = BundleOrigin.Theme
-    override val description: String = "Directives for theme 'Helium'"
-    val spanDirectives: Seq[Spans.Directive] = Nil
-    val blockDirectives: Seq[Blocks.Directive] = Nil
+    override def origin: BundleOrigin                = BundleOrigin.Theme
+    override val description: String                 = "Directives for theme 'Helium'"
+    val spanDirectives: Seq[Spans.Directive]         = Nil
+    val blockDirectives: Seq[Blocks.Directive]       = Nil
     val templateDirectives: Seq[Templates.Directive] = HeliumDirectives.all
-    val linkDirectives: Seq[Links.Directive] = Nil
+    val linkDirectives: Seq[Links.Directive]         = Nil
   }
-  
-  
+
   def build[F[_]: Async]: Resource[F, Theme[F]] = {
 
     import helium._
@@ -50,7 +48,9 @@ private[helium] class HeliumThemeBuilder (helium: Helium) extends ThemeProvider 
       .addInputs(HeliumInputBuilder.build(helium))
       .addBaseConfig(ConfigGenerator.populateConfig(helium))
       .addRewriteRules(HeliumRewriteRules.build(helium))
-      .addRenderOverrides(HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement)))
+      .addRenderOverrides(
+        HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement))
+      )
       .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
       .addExtensions(directives)

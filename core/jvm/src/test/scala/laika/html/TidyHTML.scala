@@ -16,19 +16,18 @@
 
 package laika.html
 
-import java.io.{StringReader, StringWriter}
+import java.io.{ StringReader, StringWriter }
 
 import org.w3c.tidy.Tidy
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object TidyHTML {
 
   def apply(html: String): String = {
-    val in = new StringReader(html)
+    val in  = new StringReader(html)
     val out = new StringWriter
-    val t = new Tidy
+    val t   = new Tidy
     t.setTabsize(4)
     t.setPrintBodyOnly(true)
     t.setShowWarnings(false)
@@ -38,5 +37,5 @@ object TidyHTML {
     t.parse(in, out)
     out.toString
   }
-  
+
 }

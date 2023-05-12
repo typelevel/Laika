@@ -25,11 +25,12 @@ import laika.helium.config._
 
 private[laika] object ConfigGenerator {
 
-  implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] { releaseInfo =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("title", releaseInfo.title)
-      .withValue("version", releaseInfo.version)
-      .build
+  implicit val releaseEncoder: ConfigEncoder[ReleaseInfo] = ConfigEncoder[ReleaseInfo] {
+    releaseInfo =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("title", releaseInfo.title)
+        .withValue("version", releaseInfo.version)
+        .build
   }
 
   implicit val teaserEncoder: ConfigEncoder[Teaser] = ConfigEncoder[Teaser] { teaser =>
@@ -38,75 +39,83 @@ private[laika] object ConfigGenerator {
       .withValue("description", teaser.description)
       .build
   }
-  
-  private def buildTeaserRows (teasers: Seq[Teaser]): Seq[ObjectValue] = if (teasers.isEmpty) Nil else
+
+  private def buildTeaserRows(teasers: Seq[Teaser]): Seq[ObjectValue] = if (teasers.isEmpty) Nil
+  else
     BalancedGroups.create(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
       ObjectBuilder.empty.withValue("teasers", row).build
     }
 
-  implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] { landingPage =>
-    val titleLinks = 
-      if (landingPage.titleLinks.isEmpty) None
-      else Some(GenericLinkGroup(landingPage.titleLinks))
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("logo", landingPage.logo)
-      .withValue("title", landingPage.title)
-      .withValue("subtitle", landingPage.subtitle)
-      .withValue("latestReleases", landingPage.latestReleases)
-      .withValue("license", landingPage.license)
-      .withValue("titleLinks", titleLinks)
-      .withValue("documentationLinks", landingPage.documentationLinks)
-      .withValue("projectLinks", landingPage.projectLinks)
-      .withValue("teaserRows", buildTeaserRows(landingPage.teasers))
-      .build
+  implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] {
+    landingPage =>
+      val titleLinks =
+        if (landingPage.titleLinks.isEmpty) None
+        else Some(GenericLinkGroup(landingPage.titleLinks))
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("logo", landingPage.logo)
+        .withValue("title", landingPage.title)
+        .withValue("subtitle", landingPage.subtitle)
+        .withValue("latestReleases", landingPage.latestReleases)
+        .withValue("license", landingPage.license)
+        .withValue("titleLinks", titleLinks)
+        .withValue("documentationLinks", landingPage.documentationLinks)
+        .withValue("projectLinks", landingPage.projectLinks)
+        .withValue("teaserRows", buildTeaserRows(landingPage.teasers))
+        .build
   }
 
-  implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] { navBar =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("home", navBar.homeLink)
-      .withValue("links", navBar.navLinks)
-      .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
-      .withValue("versionMenu", navBar.versionMenu)
-      .build
+  implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] {
+    navBar =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("home", navBar.homeLink)
+        .withValue("links", navBar.navLinks)
+        .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
+        .withValue("versionMenu", navBar.versionMenu)
+        .build
   }
 
-  implicit val mainNavEncoder: ConfigEncoder[MainNavigation] = ConfigEncoder[MainNavigation] { mainNav =>
-    def encodeLink (link: TextLink): ConfigValue = ConfigEncoder.ObjectBuilder.empty
-      .withValue("target", link.target.render())
-      .withValue("title", link.text)
-      .withValue("depth", 1)
-      .build
-    def encodeSection (section: ThemeNavigationSection): ConfigValue = ConfigEncoder.ObjectBuilder.empty
-      .withValue("title", section.title)
-      .withValue("entries", section.links.map(encodeLink).toList)
-      .build
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("depth", mainNav.depth)
-      .withValue("excludeSections", !mainNav.includePageSections)
-      .withValue("prependLinks", mainNav.prependLinks.map(encodeSection))
-      .withValue("appendLinks", mainNav.appendLinks.map(encodeSection))
-      .build
+  implicit val mainNavEncoder: ConfigEncoder[MainNavigation] = ConfigEncoder[MainNavigation] {
+    mainNav =>
+      def encodeLink(link: TextLink): ConfigValue = ConfigEncoder.ObjectBuilder.empty
+        .withValue("target", link.target.render())
+        .withValue("title", link.text)
+        .withValue("depth", 1)
+        .build
+      def encodeSection(section: ThemeNavigationSection): ConfigValue =
+        ConfigEncoder.ObjectBuilder.empty
+          .withValue("title", section.title)
+          .withValue("entries", section.links.map(encodeLink).toList)
+          .build
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("depth", mainNav.depth)
+        .withValue("excludeSections", !mainNav.includePageSections)
+        .withValue("prependLinks", mainNav.prependLinks.map(encodeSection))
+        .withValue("appendLinks", mainNav.appendLinks.map(encodeSection))
+        .build
   }
 
-  private case class SourceEditLinks (baseURL: String, text: String, icon: Icon)
+  private case class SourceEditLinks(baseURL: String, text: String, icon: Icon)
 
-  private implicit val sourceEditLinksEncoder: ConfigEncoder[SourceEditLinks] = ConfigEncoder[SourceEditLinks] { editLinks =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("baseURL", editLinks.baseURL)
-      .withValue("text", editLinks.text)
-      .withValue("icon", editLinks.icon)
-      .build
-  }
-  
-  implicit val pageNavEncoder: ConfigEncoder[PageNavigation] = ConfigEncoder[PageNavigation] { pageNav =>
-    val editLinks = pageNav.sourceBaseURL.map { baseURL =>
-      SourceEditLinks(baseURL.stripSuffix("/"), pageNav.sourceLinkText, HeliumIcon.edit)
+  private implicit val sourceEditLinksEncoder: ConfigEncoder[SourceEditLinks] =
+    ConfigEncoder[SourceEditLinks] { editLinks =>
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("baseURL", editLinks.baseURL)
+        .withValue("text", editLinks.text)
+        .withValue("icon", editLinks.icon)
+        .build
     }
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("enabled", pageNav.enabled)
-      .withValue("depth", pageNav.depth)
-      .withValue("sourceEditLinks", editLinks)
-      .build
+
+  implicit val pageNavEncoder: ConfigEncoder[PageNavigation] = ConfigEncoder[PageNavigation] {
+    pageNav =>
+      val editLinks = pageNav.sourceBaseURL.map { baseURL =>
+        SourceEditLinks(baseURL.stripSuffix("/"), pageNav.sourceLinkText, HeliumIcon.edit)
+      }
+      ConfigEncoder.ObjectBuilder.empty
+        .withValue("enabled", pageNav.enabled)
+        .withValue("depth", pageNav.depth)
+        .withValue("sourceEditLinks", editLinks)
+        .withValue("keepOnSmallScreens", pageNav.keepOnSmallScreens)
+        .build
   }
 
   implicit val pdfLayoutEncoder: ConfigEncoder[PDFLayout] = ConfigEncoder[PDFLayout] { layout =>
@@ -127,7 +136,7 @@ private[laika] object ConfigGenerator {
       .withValue("code", fonts.code)
       .build
   }
-  
+
   implicit val favIconEncoder: ConfigEncoder[Favicon] = ConfigEncoder[Favicon] { icon =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("target", icon.target.render())
@@ -135,14 +144,14 @@ private[laika] object ConfigGenerator {
       .withValue("type", icon.mediaType)
       .build
   }
-  
+
   private val templatePaths: Map[String, Path] = {
     Seq("head", "topNav", "mainNav", "pageNav", "footer").map { name =>
       name -> Root / "helium" / "templates" / s"$name.template.html"
     }.toMap
   }
 
-  def populateConfig (helium: Helium): Config =
+  def populateConfig(helium: Helium): Config =
     ConfigBuilder.empty
       .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
       .withValue("helium.site.topNavigation", helium.siteSettings.content.topNavigationBar)
@@ -156,12 +165,30 @@ private[laika] object ConfigGenerator {
       .withValue("laika.pdf", helium.pdfSettings.bookConfig)
       .withValue("helium.pdf", helium.pdfSettings.layout)
       .withValue("helium.webFonts", helium.siteSettings.fontResources.flatMap { _.resource.webCSS })
-      .withValue("helium.site.includeEPUB", helium.siteSettings.content.downloadPage.fold(false)(_.includeEPUB))
-      .withValue("helium.site.includePDF", helium.siteSettings.content.downloadPage.fold(false)(_.includePDF))
-      .withValue(LaikaKeys.site.css.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeCSS)
-      .withValue(LaikaKeys.site.js.child("globalSearchPaths"), (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeJS)
-      .withValue(LaikaKeys.epub.css.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS)
-      .withValue(LaikaKeys.epub.js.child("globalSearchPaths"), (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS)
+      .withValue(
+        "helium.site.includeEPUB",
+        helium.siteSettings.content.downloadPage.fold(false)(_.includeEPUB)
+      )
+      .withValue(
+        "helium.site.includePDF",
+        helium.siteSettings.content.downloadPage.fold(false)(_.includePDF)
+      )
+      .withValue(
+        LaikaKeys.site.css.child("globalSearchPaths"),
+        (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeCSS
+      )
+      .withValue(
+        LaikaKeys.site.js.child("globalSearchPaths"),
+        (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeJS
+      )
+      .withValue(
+        LaikaKeys.epub.css.child("globalSearchPaths"),
+        (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS
+      )
+      .withValue(
+        LaikaKeys.epub.js.child("globalSearchPaths"),
+        (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS
+      )
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)
@@ -169,30 +196,36 @@ private[laika] object ConfigGenerator {
       .withValue(LaikaKeys.versions, helium.siteSettings.versions)
       .withValue("laika.pdf.coverImages", helium.pdfSettings.coverImages)
       .withValue("laika.epub.coverImages", helium.epubSettings.coverImages)
-      .withValue("laika.pdf.coverImage", helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
-      .withValue("laika.epub.coverImage", helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path))
+      .withValue(
+        "laika.pdf.coverImage",
+        helium.pdfSettings.coverImages.find(_.classifier.isEmpty).map(_.path)
+      )
+      .withValue(
+        "laika.epub.coverImage",
+        helium.epubSettings.coverImages.find(_.classifier.isEmpty).map(_.path)
+      )
       .withValue(HeliumIcon.registry)
       .withValue("helium.landingPage", helium.siteSettings.content.landingPage) // legacy key
       .withValue("helium.topBar", helium.siteSettings.content.topNavigationBar) // legacy key
-      .withValue("helium.favIcons", helium.siteSettings.content.favIcons) // legacy key
+      .withValue("helium.favIcons", helium.siteSettings.content.favIcons)       // legacy key
       .build
-  
+
 }
 
-/** Utility for splitting a collection into a balanced group of items as opposed to the unbalanced 
+/** Utility for splitting a collection into a balanced group of items as opposed to the unbalanced
   * `grouped` method of the Scala collection API.
   */
 object BalancedGroups {
 
   /** Creates a balanced group of items based on the given desired size.
     */
-  def create[A] (items: Vector[A], size: Int): Vector[Vector[A]] = {
-    val mod = items.size % size
-    val loSize = items.size / size
-    val hiSize = loSize + 1
-    val (hi,lo) = items.splitAt(mod * hiSize)
-    val hiBatch = if (mod > 0)    hi.grouped(hiSize) else Vector()
-    val loBatch = if (loSize > 0) lo.grouped(loSize) else Vector()
+  def create[A](items: Vector[A], size: Int): Vector[Vector[A]] = {
+    val mod      = items.size % size
+    val loSize   = items.size / size
+    val hiSize   = loSize + 1
+    val (hi, lo) = items.splitAt(mod * hiSize)
+    val hiBatch  = if (mod > 0) hi.grouped(hiSize) else Vector()
+    val loBatch  = if (loSize > 0) lo.grouped(loSize) else Vector()
     hiBatch.toVector ++ loBatch.toVector
   }
 

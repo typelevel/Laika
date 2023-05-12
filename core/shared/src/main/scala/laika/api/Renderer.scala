@@ -17,27 +17,27 @@
 package laika.api
 
 import cats.syntax.all._
-import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
+import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
 import laika.ast.Path.Root
 import laika.ast._
-import laika.factory.{MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.markup.DocumentParser.RendererError
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
+import laika.rewrite.nav.{ BasicPathTranslator, PathTranslator }
 
 /** Performs a render operation from a document AST to a target format
-  * as a string. The document AST may be obtained by a preceding parse 
-  * operation or constructed programmatically. 
+  * as a string. The document AST may be obtained by a preceding parse
+  * operation or constructed programmatically.
   *
-  * In cases where a parse operation should precede immediately, it is more 
-  * convenient to use a [[laika.api.Transformer]] instead which 
+  * In cases where a parse operation should precede immediately, it is more
+  * convenient to use a [[laika.api.Transformer]] instead which
   * combines a parse and a render operation directly.
   *
   * Example for rendering HTML:
   *
   * {{{
   *  val doc: Document = ???
-  *  
+  *
   *  val res: String = Renderer
   *    .of(HTML)
   *    .build
@@ -45,84 +45,107 @@ import laika.rewrite.nav.{BasicPathTranslator, PathTranslator}
   * }}}
   *
   * This is a pure API that does not perform any side-effects.
-  * For additional options like File and Stream I/O, templating 
-  * or parallel processing, use the corresponding builders in 
+  * For additional options like File and Stream I/O, templating
+  * or parallel processing, use the corresponding builders in
   * the laika-io module.
   *
   * @author Jens Halm
   */
-abstract class Renderer (val config: OperationConfig, skipRewrite: Boolean = false) { self =>
+abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = false) { self =>
 
   type Formatter
 
   def format: RenderFormat[Formatter]
-  
-  def forInputFormat (markupFormat: MarkupFormat): Renderer = 
+
+  def forInputFormat(markupFormat: MarkupFormat): Renderer =
     new RendererBuilder(format, config.withBundlesFor(markupFormat), skipRewrite).build
 
   private lazy val renderFunction: (Formatter, Element) => String = (fmt, element) =>
-    config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String]((fmt, element), {
-      case (f, e) => format.defaultRenderer(f, e)
-    })
+    config.renderOverridesFor(format).value.applyOrElse[(Formatter, Element), String](
+      (fmt, element),
+      { case (f, e) =>
+        format.defaultRenderer(f, e)
+      }
+    )
 
   private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
 
   /** Renders the specified document as a String.
     */
-  def render (doc: Document): Either[RendererError, String] = render(doc.content, doc.path)
+  def render(doc: Document): Either[RendererError, String] =
+    render(doc, doc.content, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified document as a String, using the given path translator and styles.
-    * 
+    *
     * Currently only PDF/XSL-FO output processes styles, all other formats will ignore them.
     */
-  def render (doc: Document, pathTranslator: PathTranslator, styles: StyleDeclarationSet): Either[RendererError, String] = 
-    render(doc.content, doc.path, pathTranslator, styles)
+  def render(
+      doc: Document,
+      pathTranslator: PathTranslator,
+      styles: StyleDeclarationSet
+  ): Either[RendererError, String] =
+    render(doc, doc.content, pathTranslator, styles)
 
   /** Renders the specified element as a String.
     */
-  def render (element: Element): Either[RendererError, String] = 
+  def render(element: Element): Either[RendererError, String] =
     render(element, (Root / "doc").withSuffix(format.fileSuffix))
 
   /** Renders the specified element as a String.
-    * 
+    *
     * The provided (virtual) path may be used by renderers for cross-linking between documents.
     */
-  def render (element: Element, path: Path): Either[RendererError, String] = 
+  def render(element: Element, path: Path): Either[RendererError, String] =
     render(element, path, defaultPathTranslator, StyleDeclarationSet.empty)
 
   /** Renders the specified element as a String, using the given path translator and styles.
-    * 
+    *
     * Currently only PDF/XSL-FO output processes styles, all other formats will ignore them.
     *
     * The provided (virtual) path may be used by renderers for cross-linking between documents.
     */
-  def render (element: Element, path: Path, pathTranslator: PathTranslator, styles: StyleDeclarationSet): Either[RendererError, String] = {
+  def render(
+      element: Element,
+      path: Path,
+      pathTranslator: PathTranslator,
+      styles: StyleDeclarationSet
+  ): Either[RendererError, String] = {
+
+    val rootElement = element match {
+      case root: RootElement => root
+      case block: Block      => RootElement(block)
+      case span: Span        => RootElement(Paragraph(span))
+      case other             => RootElement(Paragraph(TemplateElement(other)))
+    }
+    render(Document(path, rootElement), element, pathTranslator, styles)
+  }
+
+  private def render(
+      doc: Document,
+      targetElement: Element,
+      pathTranslator: PathTranslator,
+      styles: StyleDeclarationSet
+  ): Either[RendererError, String] = {
 
     def rewrite: Either[RendererError, Element] = {
-      val rootElement = element match {
-        case root: RootElement => root
-        case block: Block => RootElement(block)
-        case span: Span => RootElement(Paragraph(span))
-        case other => RootElement(Paragraph(TemplateElement(other)))
-      }
       config
-        .rewriteRulesFor(Document(path, rootElement), RewritePhase.Render(OutputContext(format)))
-        .map(_.rewriteElement(element))
-        .leftMap(RendererError(_, path))
+        .rewriteRulesFor(doc, RewritePhase.Render(OutputContext(format)))
+        .map(_.rewriteElement(targetElement))
+        .leftMap(RendererError(_, doc.path))
     }
 
-    (if (skipRewrite) Right(element) else rewrite).map { elementToRender =>
-      
-      val renderContext = RenderContext(renderFunction, elementToRender, styles, path, pathTranslator, config)
-  
+    (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
+      val renderContext =
+        RenderContext(renderFunction, elementToRender, styles, doc.path, pathTranslator, config)
+
       val formatter = format.formatterFactory(renderContext)
-  
+
       renderFunction(formatter, elementToRender)
     }
   }
 
   /** Creates a new instance that will skip the rewrite phase when rendering elements.
-    * 
+    *
     * Useful when rewriting has already been performed by a processing step external to the the library's core APIs.
     */
   def skipRewritePhase: Renderer = new Renderer(config, skipRewrite = true) {
@@ -139,23 +162,23 @@ abstract class Renderer (val config: OperationConfig, skipRewrite: Boolean = fal
 object Renderer {
 
   /** Returns a new builder instance for the specified render format.
-    * 
+    *
     * The format is usually an object provided by the library
-    * or a plugin that is capable of producing a specific output format like HTML. 
+    * or a plugin that is capable of producing a specific output format like HTML.
     */
-  def of [FMT] (format: RenderFormat[FMT]): RendererBuilder[FMT] =
+  def of[FMT](format: RenderFormat[FMT]): RendererBuilder[FMT] =
     new RendererBuilder[FMT](format, OperationConfig.default)
 
   /** Returns a new builder instance for the specified two-phase render format.
-    * 
+    *
     * The format is usually an object provided by the library
     * or a plugin that is capable of producing a specific output format like EPUB or PDF.
-    * 
+    *
     * While the builder API for two-phase renderers is defined as part of the laika-core module, the concrete
-    * implementations of this renderer type that this library provides (EPUB and PDF) 
+    * implementations of this renderer type that this library provides (EPUB and PDF)
     * reside in sub-modules as they require the functionality of the laika-io module.
     */
-  def of [FMT, PP] (format: TwoPhaseRenderFormat[FMT, PP]): TwoPhaseRendererBuilder[FMT, PP] =
+  def of[FMT, PP](format: TwoPhaseRenderFormat[FMT, PP]): TwoPhaseRendererBuilder[FMT, PP] =
     new TwoPhaseRendererBuilder[FMT, PP](format, OperationConfig.default)
 
 }

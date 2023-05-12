@@ -1,4 +1,3 @@
-
 name := "site-pdf"
 
 version := "0.1"

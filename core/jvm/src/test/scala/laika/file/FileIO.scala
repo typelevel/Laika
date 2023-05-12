@@ -18,18 +18,17 @@ package laika.file
 
 import scala.io.Codec
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object FileIO {
 
-  def classPathResourcePath (path: String): String = getClass.getResource(path).getFile
+  def classPathResourcePath(path: String): String = getClass.getResource(path).getFile
 
-  def readFile (name: String): String = {
+  def readFile(name: String): String = {
     val source = scala.io.Source.fromFile(name)(Codec.UTF8)
-    val lines = source.mkString
+    val lines  = source.mkString
     source.close()
     lines
   }
-  
+
 }

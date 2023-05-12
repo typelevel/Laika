@@ -19,65 +19,81 @@ package laika.api
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
-import laika.ast.sample.{ParagraphCompanionShortcuts, TestSourceBuilders}
-import laika.format.{HTML, Markdown}
+import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.format.{ HTML, Markdown }
 import laika.parse.markup.DocumentParser.ParserError
 import laika.rewrite.OutputContext
 import munit.FunSuite
 
-
 class ParseAPISpec extends FunSuite
-                   with ParagraphCompanionShortcuts
-                   with TestSourceBuilders 
-                   with RenderPhaseRewrite {
-  
-  
+    with ParagraphCompanionShortcuts
+    with TestSourceBuilders
+    with RenderPhaseRewrite {
+
   val parser: MarkupParser = MarkupParser.of(Markdown).build
 
-  
   test("Markdown from a string") {
     val input = """aaa
-      |bbb
-      |ccc""".stripMargin
+                  |bbb
+                  |ccc""".stripMargin
     assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(input))))
   }
-  
+
   test("Markdown with all link references resolved through the default rewrite rules") {
     val input = """[link][id]
-      |
-      |[id]: http://foo/""".stripMargin
-    assertEquals(parser.parse(input).map(_.content), Right(RootElement(p(
-      SpanLink.external("http://foo/")("link")
-    ))))
+                  |
+                  |[id]: http://foo/""".stripMargin
+    assertEquals(
+      parser.parse(input).map(_.content),
+      Right(
+        RootElement(
+          p(
+            SpanLink.external("http://foo/")("link")
+          )
+        )
+      )
+    )
   }
 
   test("set a config value programmatically") {
-    val input = "aa ${prop} bb"
+    val input  = "aa ${prop} bb"
     val parser = MarkupParser.of(Markdown).withConfigValue("prop", "foo").build
     val result = parser.parse(input).flatMap(rewrite(parser, HTML)).map(_.content)
-    assertEquals(result, Right(RootElement(p(
-      Text("aa foo bb")
-    ))))
+    assertEquals(
+      result,
+      Right(
+        RootElement(
+          p(
+            Text("aa foo bb")
+          )
+        )
+      )
+    )
   }
-  
+
   test("parse Markdown into a raw document, without applying the default rewrite rules") {
-    val input = """[link][id]
-      |
-      |[id]: http://foo/""".stripMargin
+    val input  = """[link][id]
+                  |
+                  |[id]: http://foo/""".stripMargin
     val parser = MarkupParser.of(Markdown).build
-    assertEquals(parser.parseUnresolved(input).map(_.document.content), Right(RootElement(
-      p(LinkIdReference(List(Text("link")), "id", source("[link][id]", input, defaultPath))), 
-      LinkDefinition("id", ExternalTarget("http://foo/"), None)
-    )))
+    assertEquals(
+      parser.parseUnresolved(input).map(_.document.content),
+      Right(
+        RootElement(
+          p(LinkIdReference(List(Text("link")), "id", source("[link][id]", input, defaultPath))),
+          LinkDefinition("id", ExternalTarget("http://foo/"), None)
+        )
+      )
+    )
   }
-  
+
   test("collect errors from runtime messages") {
     val input = """[invalid1]
                   |
                   |Text
                   |
                   |[invalid2]""".stripMargin
-    val msg = """One or more error nodes in result:
+    val msg   = """One or more error nodes in result:
                 |  [1]: unresolved link id reference: invalid1
                 |
                 |  [invalid1]
@@ -89,23 +105,41 @@ class ParseAPISpec extends FunSuite
                 |  ^""".stripMargin
     assertEquals(MarkupParser.of(Markdown).build.parse(input), Left(ParserError(msg, Root / "doc")))
   }
-  
+
   test("replace unresolved nodes with invalid elements") {
     val input = """[invalid1]
                   |
                   |Text
                   |
                   |[invalid2]""".stripMargin
-    val doc = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
-    val res = for {
-      rules <- OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(OutputContext(HTML)))
+    val doc   = MarkupParser.of(Markdown).build.parseUnresolved(input).toOption.get.document
+    val res   = for {
+      rules     <- OperationConfig.default.rewriteRulesFor(
+        doc,
+        RewritePhase.Render(OutputContext(HTML))
+      )
       rewritten <- doc.rewrite(rules)
     } yield rewritten.content
-    assertEquals(res, Right(RootElement(
-      p(InvalidSpan("Unresolved link id reference 'invalid1'", source("[invalid1]", input, defaultPath))),
-      p("Text"),
-      p(InvalidSpan("Unresolved link id reference 'invalid2'", source("[invalid2]", input, defaultPath))),
-    )))
+    assertEquals(
+      res,
+      Right(
+        RootElement(
+          p(
+            InvalidSpan(
+              "Unresolved link id reference 'invalid1'",
+              source("[invalid1]", input, defaultPath)
+            )
+          ),
+          p("Text"),
+          p(
+            InvalidSpan(
+              "Unresolved link id reference 'invalid2'",
+              source("[invalid2]", input, defaultPath)
+            )
+          )
+        )
+      )
+    )
   }
-  
+
 }

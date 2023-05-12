@@ -16,21 +16,26 @@
 
 package laika.parse.code.languages
 
-import cats.data.{NonEmptyList, NonEmptySet}
-import laika.ast.{CodeSpan, ~}
+import cats.data.{ NonEmptyList, NonEmptySet }
+import laika.ast.{ CodeSpan, ~ }
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.code.common.{Comment, EmbeddedCodeSpans, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.common.{
+  Comment,
+  EmbeddedCodeSpans,
+  Keywords,
+  NumberLiteral,
+  StringLiteral
+}
 import laika.parse.code.implicits._
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
-import laika.parse.text.TextParsers.{lookAhead, ws, _}
+import laika.parse.text.TextParsers.{ lookAhead, ws, _ }
 
 import scala.collection.immutable.SortedSet
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object HOCONSyntax extends SyntaxHighlighter {
 
@@ -40,62 +45,70 @@ object HOCONSyntax extends SyntaxHighlighter {
   )
 
   val quotedAttributeName: StringParser = string
-    .withPostCondition(lookAhead(ws ~ oneOf(':','=','{')).void)
+    .withPostCondition(lookAhead(ws ~ oneOf(':', '=', '{')).void)
     .copy(defaultCategories = Set(CodeCategory.AttributeName))
-  
+
   val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
 
-  private val invalidUnquotedChar: NonEmptySet[Char] = 
-    NonEmptySet.of('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@', '*', '&', '\\', ' ', '\t','\n')
-  
+  private val invalidUnquotedChar: NonEmptySet[Char] =
+    NonEmptySet.of('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@',
+      '*', '&', '\\', ' ', '\t', '\n')
+
   private val unquotedStartChar: NonEmptySet[Char] = {
     // this will need a different approach of optimization for full unicode support
     val startChars = (for (i <- 33 to 255) yield {
       Character.toChars(i)(0)
     })
       .filterNot(c => invalidUnquotedChar.contains(c) || Character.isWhitespace(c))
-    NonEmptySet.fromSetUnsafe(SortedSet(startChars:_*))
+    NonEmptySet.fromSetUnsafe(SortedSet(startChars: _*))
   }
-  
+
   private val unquotedChar = {
     val validChar = oneNot(invalidUnquotedChar)
-    
+
     validChar | oneOf(' ') <~ lookAhead(ws ~ validChar)
   }.rep.source
-  
+
   val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
-    PrefixedParser(unquotedStartChar)(unquotedChar <~ lookAhead(ws ~ oneOf(':','=','{')))
+    PrefixedParser(unquotedStartChar)(unquotedChar <~ lookAhead(ws ~ oneOf(':', '=', '{')))
   }
-  
+
   val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral) {
     PrefixedParser(unquotedStartChar)(unquotedChar)
   }
-  
+
   def functionNames(names: String*): CodeSpanParser = names.map { name =>
     CodeSpanParser(CodeCategory.Identifier) {
       literal(name) <~ nextIn('(')
     }
   }.reduceLeft(_ ++ _)
-  
+
   val includeStatement: CodeSpanParser = CodeSpanParser {
 
     val resourceFunctions: PrefixedParser[Seq[CodeSpan]] = {
-      val fName = (literal("file") | literal("url") | literal("classpath")).asCode(CodeCategory.Identifier)
-      (fName ~ literal("(").asCode() ~ EmbeddedCodeSpans.parser(delimitedBy(")"), Seq(CodeSpanParser(string)))).map {
-        case name ~ paren ~ rest => name +: paren +: rest :+ CodeSpan(")")
+      val fName =
+        (literal("file") | literal("url") | literal("classpath")).asCode(CodeCategory.Identifier)
+      (fName ~ literal("(").asCode() ~ EmbeddedCodeSpans.parser(
+        delimitedBy(")"),
+        Seq(CodeSpanParser(string))
+      )).map { case name ~ paren ~ rest =>
+        name +: paren +: rest :+ CodeSpan(")")
       }
     }
 
     val requiredFunction: PrefixedParser[Seq[CodeSpan]] = {
       val fName = literal("required").asCode(CodeCategory.Identifier)
-      val fArg = EmbeddedCodeSpans.parser(delimitedBy(")"), Seq(CodeSpanParser(resourceFunctions | string)))
-      (fName ~ literal("(").asCode() ~ fArg).map {
-        case name ~ paren ~ rest => name +: paren +: rest :+ CodeSpan(")")
+      val fArg  =
+        EmbeddedCodeSpans.parser(delimitedBy(")"), Seq(CodeSpanParser(resourceFunctions | string)))
+      (fName ~ literal("(").asCode() ~ fArg).map { case name ~ paren ~ rest =>
+        name +: paren +: rest :+ CodeSpan(")")
       }
     }
-    
-    (literal("include").asCode(CodeCategory.Keyword) ~ ws.min(1).asCode() ~ (string | requiredFunction | resourceFunctions)).map {
-      case inc ~ space ~ rest => inc +: space +: rest
+
+    (literal("include").asCode(CodeCategory.Keyword) ~ ws.min(
+      1
+    ).asCode() ~ (string | requiredFunction | resourceFunctions)).map { case inc ~ space ~ rest =>
+      inc +: space +: rest
     }
   }
 
@@ -117,5 +130,5 @@ object HOCONSyntax extends SyntaxHighlighter {
     unquotedAttributeName,
     unquotedStringValue
   )
-  
+
 }

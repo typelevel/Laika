@@ -16,7 +16,7 @@
 
 package laika.markdown.bundle
 
-import laika.ast.{Element, Span, TextContainer}
+import laika.ast.{ Element, Span, TextContainer }
 import laika.markdown.ast._
 import laika.render.HTMLFormatter
 
@@ -37,20 +37,21 @@ import laika.render.HTMLFormatter
   */
 object HTMLRenderer {
 
-  def prepareAttributeValue (spans: List[TextContainer]): String =
+  def prepareAttributeValue(spans: List[TextContainer]): String =
     spans.foldLeft("") {
       case (acc, span: HTMLCharacterReference) => acc + span.content
-      case (acc, text)                         => acc + text.content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
+      case (acc, text)                         =>
+        acc + text.content.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "$#39;")
     }
 
-  def tagStart (tagName: String, attributes: List[HTMLAttribute]): String = {
-    
+  def tagStart(tagName: String, attributes: List[HTMLAttribute]): String = {
+
     val renderedAttrs = attributes.map { at =>
-      val name = " " + at.name
+      val name  = " " + at.name
       val value = at match {
-        case HTMLAttribute(_, value, Some(char))  => s"=$char${prepareAttributeValue(value)}$char"
-        case HTMLAttribute(_, Nil, None)          => ""
-        case HTMLAttribute(_, value, None)        => "=" + prepareAttributeValue(value)
+        case HTMLAttribute(_, value, Some(char)) => s"=$char${prepareAttributeValue(value)}$char"
+        case HTMLAttribute(_, Nil, None)         => ""
+        case HTMLAttribute(_, value, None)       => "=" + prepareAttributeValue(value)
       }
       name + value
     }.mkString
@@ -59,15 +60,18 @@ object HTMLRenderer {
 
   val custom: PartialFunction[(HTMLFormatter, Element), String] = {
 
-    case (fmt, HTMLElement(st @ HTMLStartTag("pre", _,_), content, _)) => fmt.child(st) + fmt.withoutIndentation(_.children(content)) + s"</${st.name}>"
-    case (fmt, HTMLElement(startTag, content,_))   => fmt.child(startTag) + fmt.children(content) + s"</${startTag.name}>"
-    case (_, HTMLStartTag(name, attributes,_))     => tagStart(name, attributes) + ">"
-    case (_, HTMLEmptyElement(name, attributes,_)) => tagStart(name, attributes) + "/>"
-    case (_, HTMLEndTag(name,_))                   => s"</$name>"
-    case (_, HTMLComment(content,_))               => s"<!--$content-->"
-    case (_, HTMLScriptElement(attr, content, _))  => tagStart("script", attr) + s">$content</script>"
-    case (_, HTMLCharacterReference(ref,_))        => ref
-    case (fmt, HTMLBlock(root,_))                  => fmt.child(root)
+    case (fmt, HTMLElement(st @ HTMLStartTag("pre", _, _), content, _)) =>
+      fmt.child(st) + fmt.withoutIndentation(_.children(content)) + s"</${st.name}>"
+    case (fmt, HTMLElement(startTag, content, _))                       =>
+      fmt.child(startTag) + fmt.children(content) + s"</${startTag.name}>"
+    case (_, HTMLStartTag(name, attributes, _))     => tagStart(name, attributes) + ">"
+    case (_, HTMLEmptyElement(name, attributes, _)) => tagStart(name, attributes) + "/>"
+    case (_, HTMLEndTag(name, _))                   => s"</$name>"
+    case (_, HTMLComment(content, _))               => s"<!--$content-->"
+    case (_, HTMLScriptElement(attr, content, _))   =>
+      tagStart("script", attr) + s">$content</script>"
+    case (_, HTMLCharacterReference(ref, _))        => ref
+    case (fmt, HTMLBlock(root, _))                  => fmt.child(root)
   }
 
 }

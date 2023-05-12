@@ -25,20 +25,19 @@ import laika.theme.config.BookConfig
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class ThemeConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
 
-  def decode[T: ConfigDecoder: DefaultKey] (input: String): ConfigResult[T] =
+  def decode[T: ConfigDecoder: DefaultKey](input: String): ConfigResult[T] =
     ConfigParser.parse(input).resolve().flatMap(_.get[T])
 
-  def decode[T: ConfigDecoder] (config: Config): ConfigResult[T] = config.get[T](testKey)
-  
+  def decode[T: ConfigDecoder](config: Config): ConfigResult[T] = config.get[T](testKey)
+
   test("decode an instance with all fields populated") {
-    val input =
+    val input    =
       """{
         |laika {
         |  metadata {
@@ -75,7 +74,7 @@ class ThemeConfigCodecSpec extends FunSuite {
   }
 
   test("decode an instance with some fields populated") {
-    val input =
+    val input    =
       """{
         |laika {
         |  metadata {
@@ -94,8 +93,13 @@ class ThemeConfigCodecSpec extends FunSuite {
   }
 
   test("round-trip encode and decode") {
-    val input = BookConfig(DocumentMetadata(Some("XX-33-FF-01")), Some(3), TestTheme.fonts, Some(Root / "cover.jpg"))
-    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    val input    = BookConfig(
+      DocumentMetadata(Some("XX-33-FF-01")),
+      Some(3),
+      TestTheme.fonts,
+      Some(Root / "cover.jpg")
+    )
+    val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
     val expected = BookConfig(
       DocumentMetadata(
         Some("XX-33-FF-01")

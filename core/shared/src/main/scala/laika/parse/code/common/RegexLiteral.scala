@@ -16,20 +16,20 @@
 
 package laika.parse.code.common
 
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.CharGroup
 import laika.parse.builders._
 
 /** Base parsers for regular expression literals in code blocks.
-  * 
+  *
   * @author Jens Halm
   */
 object RegexLiteral {
-  
+
   /** Parses a regular expression between `/` delimiters, followed by optional modifier characters. */
   val standard: CodeSpanParser = {
     val startDelim = literal("/")
-    val endDelim = (startDelim ~ anyOf(CharGroup.alpha)).source
+    val endDelim   = (startDelim ~ anyOf(CharGroup.alpha)).source
     StringLiteral
       .singleLine(startDelim, endDelim)
       .embed(StringLiteral.Escape.char)

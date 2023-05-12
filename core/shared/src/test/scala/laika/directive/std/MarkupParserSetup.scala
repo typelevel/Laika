@@ -18,21 +18,20 @@ package laika.directive.std
 
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast.{Document, MessageFilter, Path}
+import laika.ast.{ Document, MessageFilter, Path }
 import laika.format.Markdown
 import laika.parse.markup.DocumentParser.ParserError
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 trait MarkupParserSetup {
 
   lazy val markupParser = MarkupParser.of(Markdown).failOnMessages(MessageFilter.None).build
 
-  def parse (input: String, path: Path = Root / "doc"): Either[ParserError, Document] = 
+  def parse(input: String, path: Path = Root / "doc"): Either[ParserError, Document] =
     markupParser.parse(input, path)
-  
-  def parseUnresolved (input: String, path: Path = Root / "doc"): Either[ParserError, Document] = 
+
+  def parseUnresolved(input: String, path: Path = Root / "doc"): Either[ParserError, Document] =
     markupParser.parseUnresolved(input, path).map(_.document)
 
 }

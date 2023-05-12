@@ -17,44 +17,47 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{CodeSpan, ~}
+import laika.ast.{ CodeSpan, ~ }
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, TagParser}
-import laika.parse.code.{CodeCategory, CodeSpanParser}
+import laika.parse.code.common.{ EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, TagParser }
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.code.implicits._
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 object LaikaExtensionSyntax {
-  
+
   val substitution: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
 
   val hoconBlock: CodeSpanParser = CodeSpanParser {
     embeddedHocon("{%", "%}", Set(CodeCategory.Keyword))
   }
 
-  def embeddedHocon (start: String, end: String, delimCategory: Set[CodeCategory] = Set()): PrefixedParser[Seq[CodeSpan]] = {
-    (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCONSyntax)).map { hocon => // TODO - support nested objects
-      CodeSpan(start, delimCategory) +: hocon :+ CodeSpan(end, delimCategory)
+  def embeddedHocon(
+      start: String,
+      end: String,
+      delimCategory: Set[CodeCategory] = Set()
+  ): PrefixedParser[Seq[CodeSpan]] = {
+    (literal(start) ~> EmbeddedCodeSpans.parser(delimitedBy(end), HOCONSyntax)).map {
+      hocon => // TODO - support nested objects
+        CodeSpan(start, delimCategory) +: hocon :+ CodeSpan(end, delimCategory)
     }
   }
 
   val directive: CodeSpanParser = CodeSpanParser {
-    val nameParser = Identifier.alphaNum.map(name => 
-      Seq(CodeSpan("@:", CodeCategory.Keyword), name)
-    )
+    val nameParser =
+      Identifier.alphaNum.map(name => Seq(CodeSpan("@:", CodeCategory.Keyword), name))
     val whiteSpace = ws.min(1).asCode()
-    
+
     val defaultAttribute = (ws.asCode() ~ ("(" ~> delimitedBy(")")).map { attr =>
       Seq(CodeSpan("("), CodeSpan(attr, CodeCategory.StringLiteral), CodeSpan(")"))
     }).concat.rep.max(1).map(_.flatten)
-    
+
     val hoconParser = (whiteSpace ~ embeddedHocon("{", "}")).concat.rep.max(1).map(_.flatten)
-    
+
     ("@:" ~> nameParser ~ defaultAttribute ~ hoconParser).concat
   }
 
@@ -63,7 +66,7 @@ object LaikaExtensionSyntax {
   val allExtensions: Seq[CodeSpanParser] = Seq(substitution, directive, fence, hoconBlock)
 
   lazy val forMarkdown: SyntaxHighlighter = new SyntaxHighlighter {
-    val language: NonEmptyList[String] = NonEmptyList.of("laikaMarkdown", "laika-md")
+    val language: NonEmptyList[String]        = NonEmptyList.of("laikaMarkdown", "laika-md")
     lazy val spanParsers: Seq[CodeSpanParser] = allExtensions ++ MarkdownSyntax.spanParsers
   }
 
@@ -77,7 +80,7 @@ object LaikaExtensionSyntax {
     StringLiteral.singleLine('"').embed(HTMLSyntax.ref, substitution),
     HTMLSyntax.name(CodeCategory.AttributeName)
   )
-  
+
   val modifiedHTMLParsers: Seq[CodeSpanParser] = Seq(
     HTMLSyntax.docType,
     HTMLSyntax.comment,
@@ -90,8 +93,8 @@ object LaikaExtensionSyntax {
   )
 
   lazy val forHTML: SyntaxHighlighter = new SyntaxHighlighter {
-    val language: NonEmptyList[String] = NonEmptyList.of("laikaHTML", "laika-html")
+    val language: NonEmptyList[String]        = NonEmptyList.of("laikaHTML", "laika-html")
     lazy val spanParsers: Seq[CodeSpanParser] = allExtensions ++ modifiedHTMLParsers
   }
-  
+
 }

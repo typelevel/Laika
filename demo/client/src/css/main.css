@@ -1,6 +1,6 @@
 
 @import url('http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic');
-@import url('https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css');
+@import url('https://fonts.googleapis.com/css?family=Fira+Mono:500');
 
 html {
   height: 100%;
@@ -73,7 +73,7 @@ a:hover {
 }
 textarea {
   color: #006180;
-  font-family: "Fira Code", monospace;
+  font-family: "Fira Mono", monospace;
   font-size: 14px;
   padding-left: 7px;
   padding-right: 7px;

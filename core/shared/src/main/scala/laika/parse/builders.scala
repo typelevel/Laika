@@ -16,16 +16,16 @@
 
 package laika.parse
 
-import laika.parse.markup.{BlockParsers, InlineParsers}
+import laika.parse.markup.{ BlockParsers, InlineParsers }
 import laika.parse.text.TextParsers
 
 /** Grouping of all parser builders that allows to construct most common parsers with a single import.
-  * 
+  *
   * These include the base parsers like `opt` and `not`, the text parsers like `literal` and `anyOf(Char*)`,
   * as well as the more specialized parsers for text markup like `spans` and `blocks`.
-  * 
+  *
   * Alternatively these groups can be brought into scope individually.
-  * 
+  *
   * @author Jens Halm
   */
 object builders extends TextParsers with InlineParsers with BlockParsers

@@ -118,7 +118,10 @@ You can examine the source code of Laika's built-in highlighters for more comple
 
 There are shortcuts for defining single- and multi-line strings together with escape sequences:
 
-```scala
+```scala mdoc:compile-only
+import laika.parse.code.CodeSpanParser
+import laika.parse.code.common._
+
 val spanParsers: Seq[CodeSpanParser] = Seq(
   StringLiteral.multiLine("\"\"\""),
   StringLiteral.singleLine('"').embed(
@@ -142,7 +145,10 @@ e.g. Scala's `s"some $ref"` syntax.
 
 Character literals have fewer options than string literals, but are otherwise quite similar:
 
-```scala
+```scala mdoc:compile-only
+import laika.parse.code.CodeSpanParser
+import laika.parse.code.common._
+
 val spanParsers: Seq[CodeSpanParser] = Seq(
   CharLiteral.standard.embed(
     StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
@@ -158,7 +164,10 @@ Like with our string literal example, we define two kinds of escapes that can oc
 
 There are shortcuts for the most common types of decimal, hex, octal and binary number literals:
 
-```scala
+```scala mdoc:silent
+import laika.parse.code.CodeSpanParser
+import laika.parse.code.common._
+
 val spanParsers: Seq[CodeSpanParser] = Seq(
   NumberLiteral.hex
     .withUnderscores
@@ -181,7 +190,7 @@ existing parsers for widely used syntax (`NumericSuffix.long` parses `L` or `l` 
 
 This is how the identifier category is defined for the Scala highlighter:
 
-```scala
+```scala mdoc:compile-only
 val identifier = Identifier.alphaNum
   .withIdStartChars('_','$')
   .withCategoryChooser(Identifier.upperCaseTypeName)
@@ -205,10 +214,9 @@ Many highlighters you might be using with other tools are equally pragmatic.
 
 Keywords can simply be listed as string literals:
 
-```scala
-val spanParsers: Seq[CodeSpanParser] = Seq(
+```scala mdoc:compile-only
+val keywords =
   Keywords("abstract", "case", "catch", "class", "def")
-)
 ```
 
 It detects word boundaries so that it will not match on sub-strings.
@@ -216,7 +224,9 @@ It detects word boundaries so that it will not match on sub-strings.
 By default the parser will assign `CodeCategory.Keyword` to any matching string.
 If you want to use literal matches, but with a different code category, there is an alternative constructor:
 
-```scala
+```scala mdoc:compile-only
+import laika.parse.code.CodeCategory
+
 Keywords(CodeCategory.BooleanLiteral)("true", "false")
 ```
 
@@ -225,7 +235,7 @@ Keywords(CodeCategory.BooleanLiteral)("true", "false")
 
 Shortcuts exist for defining single- and multi-line comments:
 
-```scala
+```scala mdoc:compile-only
 val spanParsers: Seq[CodeSpanParser] = Seq(
   Comment.singleLine("//"),
   Comment.multiLine("/*", "*/")
@@ -245,9 +255,10 @@ but in most cases you end up with the need to have at least a handful of hand-wr
 For a little example, let's implement a highlighter for Scala's backtick identifiers (e.g. `` `tag-name` ``)
 which is quite straightforward, but not included in the reusable builders since it's not a very common construct:
 
-```scala
+```scala mdoc:compile-only
 import laika.parse.builders._
 import laika.parse.implicits._
+import laika.parse.code.CodeCategory
 
 val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
     (oneOf('`') ~ anyNot('\n', '`') ~ oneOf('`')).source
@@ -284,7 +295,14 @@ Laika comes with a parser builder that helps with the creation of such a parser.
 
 Let's pick CSS in HTML as an example and show a simplified definition for a such a style tag:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.CodeSpan
+import laika.parse.builders._
+import laika.parse.code.CodeCategory
+import laika.parse.code.common.EmbeddedCodeSpans
+import laika.parse.code.languages.CSSSyntax
+import laika.parse.text.PrefixedParser
+
 val styleTagParser: PrefixedParser[Seq[CodeSpan]] = {
   val cat = CodeCategory.Tag.Name
   val bodyAndEndTag = 
@@ -293,6 +311,7 @@ val styleTagParser: PrefixedParser[Seq[CodeSpan]] = {
   (literal("<style>") ~> bodyAndEndTag).map { css =>
     CodeSpan("<style>", cat) +: css :+ CodeSpan("</style>", cat)
   }
+}
 ``` 
 
 The key here is the third line.
@@ -336,7 +355,11 @@ Registering a Highlighter
 
 First you have to assemble all the parsers in a `SyntaxHighlighter` implementation:
 
-```scala
+```scala mdoc:silent
+import cats.data.NonEmptyList
+import laika.bundle.SyntaxHighlighter
+import laika.parse.code.CodeSpanParser
+
 object FooHighlighter extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.one("foo")
@@ -350,8 +373,12 @@ object FooHighlighter extends SyntaxHighlighter {
 
 Finally, like all other types of extensions, the highlighter needs to be registered with an `ExtensionBundle`:
 
-```scala
+```scala mdoc:silent
+import laika.bundle.{ ExtensionBundle, ParserBundle }
+
 case object MyExtensions extends ExtensionBundle {
+  
+  val description: String = "Foo Syntax Highlighter"
   
   override def parsers: ParserBundle = ParserBundle(
     syntaxHighlighters = Seq(
@@ -363,12 +390,20 @@ case object MyExtensions extends ExtensionBundle {
 
 You can bundle multiple highlighters in a single instance.
 
-Finally you can register your extension together with any built-in extensions you may use:
+Finally, you can register your extension together with any built-in extensions you may use:
 
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+
 laikaExtensions := Seq(
   GitHubFlavor,
   MyExtensions
@@ -376,7 +411,11 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:silent
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)

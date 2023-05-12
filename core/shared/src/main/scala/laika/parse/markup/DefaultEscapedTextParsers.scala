@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.parse.Parser
-import laika.parse.text.{DelimitedText, PrefixedParser, TextParsers}
+import laika.parse.text.{ DelimitedText, PrefixedParser, TextParsers }
 import laika.parse.implicits._
 
 /** Default implementation for parsing escape sequences.
@@ -46,6 +46,8 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     * while also processing escaped characters, but no other nested
     *  spans. The final character is not included in the result.
     */
-  def escapedUntil(char: Char, chars: Char*): Parser[String] = escapedText(TextParsers.delimitedBy(char, chars: _*).nonEmpty)
+  def escapedUntil(char: Char, chars: Char*): Parser[String] = escapedText(
+    TextParsers.delimitedBy(char, chars: _*).nonEmpty
+  )
 
 }

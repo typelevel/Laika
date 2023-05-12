@@ -23,17 +23,18 @@ import munit.FunSuite
 class HTMLNavRendererSpec extends FunSuite {
 
   val renderer = new HtmlNavRenderer
-  val title = "Tree 1"
-  
-  def result (navItems: String): String = renderer.fileContent(title, "", navItems)
-  
-  def render (input: RenderedTreeRoot[IO], depth: Int = 1): String =
+  val title    = "Tree 1"
+
+  def result(navItems: String): String = renderer.fileContent(title, "", navItems)
+
+  def render(input: RenderedTreeRoot[IO], depth: Int = 1): String =
     renderer.render(input, title, Some(depth))
-  
-  def run (input: RenderedTreeRoot[IO], expectedNavItems: String, depth: Int = 1)(implicit loc: munit.Location): Unit =
+
+  def run(input: RenderedTreeRoot[IO], expectedNavItems: String, depth: Int = 1)(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(render(input, depth), result(expectedNavItems))
 
-  
   test("render an empty tree") {
     run(EmptyTree.input, "")
   }
@@ -52,47 +53,48 @@ class HTMLNavRendererSpec extends FunSuite {
   test("render a tree with two documents") {
     val expected =
       """      <ol class="toc">
-       |        <li id="toc-li-0">
-       |          <a href="content/foo.epub.xhtml">Title 2</a>
-       |
-       |        </li>
-       |        <li id="toc-li-1">
-       |          <a href="content/bar.epub.xhtml">Title 3</a>
-       |
-       |        </li>
-       |      </ol>""".stripMargin
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |
+        |        </li>
+        |        <li id="toc-li-1">
+        |          <a href="content/bar.epub.xhtml">Title 3</a>
+        |
+        |        </li>
+        |      </ol>""".stripMargin
     run(TwoDocuments.input, expected)
   }
 
   test("render a tree with a single document and a CSS file") {
-    val html =
+    val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
         |
         |        </li>
         |      </ol>""".stripMargin
-    val cssLink = """<link rel="stylesheet" type="text/css" href="content/test-style.css" />"""
+    val cssLink  = """<link rel="stylesheet" type="text/css" href="content/test-style.css" />"""
     val expected = renderer.fileContent(title, cssLink, html)
     assertEquals(render(DocumentPlusStyle.input), expected)
   }
 
   test("render a tree with a title document") {
-    val html =
+    val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/bar.epub.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>""".stripMargin
-    val title = "From TitleDoc"
-    val expected = renderer.fileContent(title, "", html, titleDoc = Some("content/title.epub.xhtml"))
-    val actual = renderer.render(DocumentPlusTitle.input, "From TitleDoc", Some(1))
+    val title    = "From TitleDoc"
+    val expected =
+      renderer.fileContent(title, "", html, titleDoc = Some("content/title.epub.xhtml"))
+    val actual   = renderer.render(DocumentPlusTitle.input, "From TitleDoc", Some(1))
     assertEquals(actual, expected)
   }
 
   test("render a tree with a cover image") {
-    val html =
+    val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
         |          <a href="content/foo.epub.xhtml">Title 2</a>
@@ -101,7 +103,8 @@ class HTMLNavRendererSpec extends FunSuite {
         |          <a href="content/bar.epub.xhtml">Title 3</a>
         |        </li>
         |      </ol>""".stripMargin
-    val expected = renderer.fileContent(title, "", html, coverDoc = Some("content/cover.epub.xhtml"))
+    val expected =
+      renderer.fileContent(title, "", html, coverDoc = Some("content/cover.epub.xhtml"))
     assertEquals(render(DocumentPlusCover.input), expected)
   }
 
@@ -148,11 +151,11 @@ class HTMLNavRendererSpec extends FunSuite {
   test("not render a nested tree if the depth is 1") {
     val expected =
       """      <ol class="toc">
-       |        <li id="toc-li-0">
-       |          <a href="content/foo.epub.xhtml">Title 2</a>
-       |
-       |        </li>
-       |      </ol>""".stripMargin
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |
+        |        </li>
+        |      </ol>""".stripMargin
     run(NestedTree.input, expected)
   }
 
@@ -191,15 +194,15 @@ class HTMLNavRendererSpec extends FunSuite {
 
   test("not render a document with sections when the depth is 1") {
     val expected = """      <ol class="toc">
-     |        <li id="toc-li-0">
-     |          <a href="content/foo.epub.xhtml">Title 2</a>
-     |
-     |        </li>
-     |        <li id="toc-li-1">
-     |          <a href="content/bar.epub.xhtml">Title 3</a>
-     |
-     |        </li>
-     |      </ol>""".stripMargin
+                     |        <li id="toc-li-0">
+                     |          <a href="content/foo.epub.xhtml">Title 2</a>
+                     |
+                     |        </li>
+                     |        <li id="toc-li-1">
+                     |          <a href="content/bar.epub.xhtml">Title 3</a>
+                     |
+                     |        </li>
+                     |      </ol>""".stripMargin
     run(DocumentsWithSections.input, expected)
   }
 

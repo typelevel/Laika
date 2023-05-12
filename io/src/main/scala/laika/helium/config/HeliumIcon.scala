@@ -16,24 +16,24 @@
 
 package laika.helium.config
 
-import laika.ast.{Icon, IconGlyph, InlineSVGIcon, Styles}
+import laika.ast.{ Icon, IconGlyph, InlineSVGIcon, Styles }
 import laika.helium.builder.SVGIcons
 import laika.rewrite.link.IconRegistry
 
 /** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
-  * 
+  *
   * Several options like those for the landing page or the top navigation bar allow the addition of icon links
   * where these pre-built selection can be used.
-  * 
+  *
   * They are based on the `icofont` which is licensed under the Open Font license and part of the `laika-io`
   * artifact.
-  * 
+  *
   * @author Jens Halm
   */
 object HeliumIcon {
-  
-  private def glyphStyles (iconRef: String) = Styles("icofont-laika", iconRef)
-  
+
+  private def glyphStyles(iconRef: String) = Styles("icofont-laika", iconRef)
+
   val navigationMenu: Icon = IconGlyph('\uefa2', Some("Navigation"), glyphStyles("navigationMenu"))
   val home: Icon           = IconGlyph('\uef47', Some("Home"), glyphStyles("home"))
   val link: Icon           = IconGlyph('\uef71', None, glyphStyles("link"))
@@ -49,8 +49,9 @@ object HeliumIcon {
   val error: Icon          = IconGlyph('\ueedd', None, glyphStyles("error"))
   val twitter: Icon        = IconGlyph('\ued7a', Some("Twitter"), glyphStyles("twitter"))
   val api: Icon            = InlineSVGIcon(SVGIcons.apiIcon, Some("API"), Styles("api"))
-  val github: Icon         = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
-  
+  val github: Icon   = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
+  val mastodon: Icon = InlineSVGIcon(SVGIcons.mastodonIcon, Some("Mastodon"), Styles("mastodon"))
+
   val registry: IconRegistry = IconRegistry(
     "navigationMenu" -> navigationMenu,
     "home"           -> home,
@@ -68,5 +69,7 @@ object HeliumIcon {
     "twitter"        -> twitter,
     "api"            -> api,
     "github"         -> github,
+    "mastodon"       -> mastodon
   )
+
 }

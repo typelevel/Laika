@@ -23,20 +23,20 @@ import laika.io.ops.TreeMapperOps
 import laika.theme.Theme.TreeProcessor
 
 /** Provides several shortcuts for constructing a `TreeProcessor` (which is just a type alias for a plain `Kleisli`).
-  * 
+  *
   * @author Jens Halm
   */
 abstract class TreeProcessorBuilder[F[_]: Sync] extends TreeMapperOps[F] {
 
   type MapRes = TreeProcessor[F]
 
-  def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): TreeProcessor[F] = Kleisli(f)
+  def evalMapTree(f: ParsedTree[F] => F[ParsedTree[F]]): TreeProcessor[F] = Kleisli(f)
 }
 
 /** Entry point for the TreeProcessorBuilder API.
   */
 object TreeProcessorBuilder {
-  
-  def apply[F[_]: Sync]: TreeProcessorBuilder[F] = new TreeProcessorBuilder[F] { }
-  
+
+  def apply[F[_]: Sync]: TreeProcessorBuilder[F] = new TreeProcessorBuilder[F] {}
+
 }

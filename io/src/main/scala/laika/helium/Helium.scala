@@ -21,13 +21,13 @@ import laika.helium.config._
 import laika.theme._
 
 /** Configuration API for the Helium theme settings.
-  * 
+  *
   * Helium can be fully configured with its Scala API and does not require any configuration files.
   *
   * The entry point for all configuration steps is always `Helium.defaults` to ensure there are sensible defaults
   * in place for all the options you omit in your configuration.
   *
-  * For each configuration step you need to choose one of the four selectors, 
+  * For each configuration step you need to choose one of the four selectors,
   * either `all` to specify options for all three output formats or `site`, `epub` or `pdf` to select a single format.
   * Not all options are available for all formats, but the IDE's context help and the documentation below can guide you.
   *
@@ -46,7 +46,7 @@ import laika.theme._
   * }}}
   *
   * Laika also provides convenient constructors for some of the data types used frequently in its theme API.
-  * You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` or `rgb(255, 0, 0)` and 
+  * You can import `laika.theme.Color._` for specifying colors with `hex("ffaaff")` or `rgb(255, 0, 0)` and
   * `laika.ast.LengthUnit._` for specifying sizes with `px(12)` or `pt(9)` or other available units.
   *
   * The final call to `build` produces a `ThemeProvider` that can be passed to Laika's transformers
@@ -56,23 +56,25 @@ import laika.theme._
   * {{{
   *   laikaTheme := theme
   * }}}
-  * 
+  *
   * Example for the library API:
   * {{{
   * val transformer = Transformer
   *   .from(Markdown)
   *   .to(EPUB)
   *   .parallel[IO]
-  *   .witTheme(theme)
+  *   .withTheme(theme)
   *   .build
   * }}}
-  * 
+  *
   * @author Jens Halm
   */
-class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
-                             private[laika] val epubSettings: EPUBSettings,
-                             private[laika] val pdfSettings: PDFSettings,
-                             private[laika] val extensions: Seq[ThemeProvider]) { self =>
+class Helium private[laika] (
+    private[laika] val siteSettings: SiteSettings,
+    private[laika] val epubSettings: EPUBSettings,
+    private[laika] val pdfSettings: PDFSettings,
+    private[laika] val extensions: Seq[ThemeProvider]
+) { self =>
 
   /** Selects the configuration options available for site generation.
     */
@@ -93,7 +95,7 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
   }
 
   /** Selects the configuration options available for all three output formats.
-    * 
+    *
     * This means that it only contains the options that exist in all three formats,
     * for anything specific to one or two formats you need to use their respective selectors.
     */
@@ -106,7 +108,7 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
     * The exact mechanics of extending a theme vary depending on the type of functionality supported by themes.
     * They are roughly as follows:
     *
-    * - For functionality that is an accumulation of features, for example input files, parser extensions, 
+    * - For functionality that is an accumulation of features, for example input files, parser extensions,
     *   renderer overrides or AST rewrite rules, the effect is accumulative,
     *   this theme and the extensions will be merged to a single set of features.
     *
@@ -114,7 +116,7 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
     *   the effect is replacement, where the instance in the extension replaces the corresponding instance in the base,
     *   if present.
     */
-  def extendWith (theme: ThemeProvider): Helium = 
+  def extendWith(theme: ThemeProvider): Helium =
     new Helium(siteSettings, epubSettings, pdfSettings, extensions :+ theme)
 
   /** Builds a theme provider that can be passed to the sbt plugin's `laikaTheme` setting
@@ -124,20 +126,20 @@ class Helium private[laika] (private[laika] val siteSettings: SiteSettings,
     val base: ThemeProvider = new HeliumThemeBuilder(this)
     extensions.foldLeft(base)(_.extendWith(_))
   }
-  
+
 }
 
 /** Entry point for the configuration API of the Helium theme.
-  * 
+  *
   * See the documentation for the `Helium` class for a full introduction.
   */
 object Helium {
 
   /** The defaults of the Helium theme which are always used as an entry point for any customizations.
-    * 
+    *
     * If you do not override any defaults, the generated site and e-books will look like those for the
     * Laika manual, including all color and font choices.
     */
   val defaults: Helium = HeliumDefaults.instance
-    
+
 }

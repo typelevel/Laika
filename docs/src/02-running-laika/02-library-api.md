@@ -19,21 +19,21 @@ If you want to stick to pure transformations from string to string and don't nee
 any of the binary output formats like EPUB or PDF, you are fine with just using the `laika-core` module:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.19.0" 
+libraryDependencies += "org.planet42" %% "laika-core" % "@LAIKA_VERSION@" 
 ```
 
 This module is also 100% supported for Scala.js, so you can alternatively use the triple `%%%` syntax
 if you want to cross-build for Scala.js and the JVM:
 
 ```scala
-libraryDependencies += "org.planet42" %%% "laika-core" % "0.19.0" 
+libraryDependencies += "org.planet42" %%% "laika-core" % "@LAIKA_VERSION@" 
 ```
 
 If you want to add support for file and stream IO and/or output in the EPUB format, 
 you need to depend on the `laika-io` module instead:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-io" % "0.19.0" 
+libraryDependencies += "org.planet42" %% "laika-io" % "@LAIKA_VERSION@" 
 ```
 
 This depends on `laika-core` in turn, so you always only need to add one module as a dependency and will get
@@ -43,7 +43,7 @@ are in JVM land here.
 Finally PDF support comes with its own module as it adds a whole range of additional dependencies:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.19.0" 
+libraryDependencies += "org.planet42" %% "laika-pdf" % "@LAIKA_VERSION@" 
 ```
 
 Again, this builds on top of the other modules, so adding just this one dependency is sufficient.
@@ -116,7 +116,7 @@ as input, and for HTML as output. EPUB and PDF both require additional modules a
 
 For most cases where you don't use any of the customization hooks, you should be fine with just these imports:
 
-```scala
+```scala mdoc
 import laika.api._
 import laika.format._
 ```
@@ -127,7 +127,9 @@ The instances are immutable and thread-safe.
 
 Example for creating a transformer for Markdown, including the GitHub-Flavor extensions:
 
-```scala
+```scala mdoc:silent
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -137,8 +139,8 @@ val transformer = Transformer
 
 Example for creating a transformer for reStructuredText:
 
-```scala
-val transformer = Transformer
+```scala mdoc:silent
+val rstTransformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
   .build
@@ -149,7 +151,7 @@ step immediately before calling `build`. They are identical for the pure and IO 
 
 Finally you can use the transformer with text markup as input:
 
-```scala
+```scala mdoc
 val result = transformer.transform("hello *there*")
 ```
 
@@ -168,7 +170,7 @@ This module depends on cats-effect, and models all side effects in an abstract e
 
 With the dependency in place you also need to add a third import to those you used for pure transformations:
 
-```scala
+```scala mdoc:reset
 import laika.api._
 import laika.format._
 import laika.io.implicits._
@@ -189,7 +191,11 @@ and whether you keep all of your code in an abstract `F[_]` instead of coding ag
 The following example assumes the use case of an application written around abstract effect types and using `IOApp`
 from cats.IO for initialization:
 
-```scala
+```scala mdoc
+import cats.effect.{ Async, Resource }
+import laika.io.api.TreeTransformer
+import laika.markdown.github.GitHubFlavor
+
 def createTransformer[F[_]: Async]: Resource[F, TreeTransformer[F]] =
   Transformer
     .from(Markdown)
@@ -203,12 +209,15 @@ def createTransformer[F[_]: Async]: Resource[F, TreeTransformer[F]] =
 
 The setup method above can then be used inside `IOApp` initialization logic:
 
-```scala
+```scala mdoc
+import cats.effect.{ IO, IOApp, ExitCode }
+
 object MyApp extends IOApp {
 
   def run(args: List[String]) = {
     createTransformer[IO].use { transformer =>
       // create modules depending on transformer
+      IO.unit
     }.as(ExitCode.Success)
   }
 }
@@ -229,8 +238,10 @@ is not referentially transparent).
 Assuming we reuse the `createTransformer` method from the previous section, you can then run a transformation
 and obtain the resulting effect:
 
-```scala
-val result: IO[String] = createTransformer[IO].use {
+```scala mdoc:silent
+import laika.io.model.RenderedTreeRoot
+
+val result: IO[RenderedTreeRoot[IO]] = createTransformer[IO].use {
   _.fromDirectory("docs")
    .toDirectory("target")
    .transform
@@ -245,7 +256,7 @@ you have several options depending on the stack you are using.
 
 First, for any of the following options, you need to add the following import:
 
-```scala
+```scala mdoc
 import cats.effect.unsafe.implicits.global
 ```
 
@@ -255,19 +266,24 @@ in your application.
 One common scenario is a toolkit like Akka HTTP or Play where you execute a route that is expected to return a `Future`.
 This can achieved by a simple translation:
 
-```scala
-val futureResult: Future[String] = result.unsafeToFuture()
+```scala mdoc:silent
+import scala.concurrent.Future
+
+val futureResult: Future[RenderedTreeRoot[IO]] = result.unsafeToFuture()
 ```
 
 Other options not involving `Future` are either blocking, synchronous execution:
 
-```scala
-val syncResult: String = result.unsafeRunSync()
+```scala mdoc:compile-only
+val syncResult: RenderedTreeRoot[IO] = result.unsafeRunSync()
 ```
 
 Or asynchronous execution based on a callback:
 
-```scala
+```scala mdoc:compile-only
+def handleError(error: Throwable): Unit = ???
+def handleResult(result: RenderedTreeRoot[IO]): Unit = ???
+
 result.unsafeRunAsync {
   case Left(throwable) => handleError(throwable)
   case Right(result)   => handleResult(result)
@@ -282,7 +298,7 @@ Finally, if you intend to reuse the transformer, for example in a web applicatio
 it is more efficient to split the resource allocation , use and release into three distinct effects that you can run
 independently, as the sample `IO` above would re-create the transformer for each invocation:
 
-```scala
+```scala mdoc:silent
 val alloc = createTransformer[IO].allocated
 val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync()
 ```
@@ -290,8 +306,8 @@ val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync
 You would usually run the above when initializing your web application. 
 The obtained transformer can then be used in your controllers and each transformation would produce a new `Future`:
 
-```scala
-val futureResult: Future[String] = transformer
+```scala mdoc:nest:silent
+val futureResult: Future[RenderedTreeRoot[IO]] = transformer
   .fromDirectory("docs")
   .toDirectory("target")
   .transform
@@ -300,8 +316,8 @@ val futureResult: Future[String] = transformer
 
 In this case you also need to ensure you run the release function on shutdown:
 
-```scala
-releaseF.unsfaceRunSync()
+```scala mdoc:compile-only
+releaseF.unsafeRunSync()
 ```
 
 The default Helium theme currently has a no-op release function, but this might change in the future and 3rd-party
@@ -315,10 +331,10 @@ Entire Directories as Input
 ---------------------------
 
 The effectful transformer is the most powerful variant and also the one that is the basis for the sbt plugin.
-It expands the functionality beyond just processing markup files to also parsing templates and configuration files
+It expands the functionality beyond just processing markup input to also parsing templates and configuration files
 as well as copying static files over to the target directory.
 
-```scala
+```scala mdoc:nest:silent
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -329,7 +345,7 @@ val transformer = Transformer
 
 The above transformer can then be used to process a directory of markup, template and configuration files:
 
-```scala
+```scala mdoc:silent
 val res: IO[RenderedTreeRoot[IO]] = transformer.use {
   _.fromDirectory("src")
    .toDirectory("target")
@@ -345,8 +361,16 @@ the API will be slightly different, as the `toDirectory` option is replaced by `
 This is because these formats always produce a single binary result, 
 merging all content from the input directories into a single, linearized e-book:
 
-```scala
-val res: IO[Unit] = transformer.use {
+
+```scala mdoc:silent
+val epubTransformer = Transformer
+  .from(Markdown)
+  .to(EPUB)
+  .using(GitHubFlavor)
+  .parallel[IO]
+  .build
+  
+val epubRes: IO[Unit] = epubTransformer.use {
   _.fromDirectory("src")
    .toFile("output.epub")
    .transform
@@ -358,9 +382,15 @@ val res: IO[Unit] = transformer.use {
 
 All previous examples read content from the single input directory. But you can also merge the contents of multiple directories:
 
-```scala
-val res: IO[RenderedTreeRoot[IO]] = transformer.use {
-  _.fromDirectories("markup", "theme")
+```scala mdoc:silent
+import laika.io.model.FilePath
+
+val directories = Seq(
+  FilePath.parse("markup"),
+  FilePath.parse("theme")
+)
+val mergedRes: IO[RenderedTreeRoot[IO]] = transformer.use {
+  _.fromDirectories(directories)
    .toDirectory("target")
    .transform
 }
@@ -376,12 +406,18 @@ If you need even more flexibility instead of just configuring one or more input 
 e.g. when there is a need to generate content on-the-fly before starting the transformation,
 you can use the `InputTree` builder. 
 
-```scala
-val inputs = InputTree[F]
+```scala mdoc:silent
+import laika.io.model._
+import laika.ast.Path.Root
+import laika.rewrite.DefaultTemplatePath
+
+def generateStyles: String = "???"
+
+val inputs = InputTree[IO]
   .addDirectory("/path-to-my/markup-files")
   .addDirectory("/path-to-my/images", Root / "images")
-  .addClasspathResource("templates/default.html", DefaultTemplatePath.forHTML)
-  .addString(generateStyles(), Root / "css" / "site.css")
+  .addClassResource("templates/default.html", DefaultTemplatePath.forHTML)
+  .addString(generateStyles, Root / "css" / "site.css")
 ```
 
 In the example above we specify two directories, a classpath resource and a string containing CSS generated on the fly.
@@ -419,9 +455,9 @@ For the complete API see @:api(laika.io.model.InputTreeBuilder).
 
 The customized input tree can then be passed to the transformer:
 
-```scala
-val res: IO[RenderedTreeRoot[IO]] = transformer.use {
-  _.fromInputTree(inputs)
+```scala mdoc:compile-only
+val composedRes: IO[RenderedTreeRoot[IO]] = transformer.use {
+  _.fromInput(inputs)
    .toDirectory("target")
    .transform
 }
@@ -475,8 +511,8 @@ The following code example demonstrates the third scenario listed above: Renderi
 
 First we create a parser that reads from a directory:
 
-```scala
-val parserRes = MarkupParser
+```scala mdoc:silent
+val parser = MarkupParser
   .of(Markdown)
   .using(GitHubFlavor)
   .parallel[IO]
@@ -485,26 +521,28 @@ val parserRes = MarkupParser
 
 Next we create the renderers for the three output formats:
 
-```scala
-val htmlRendererRes = Renderer.of(HTML).parallel[IO].build
-val epubRendererRes = Renderer.of(EPUB).parallel[IO].build
-val pdfRendererRes  = Renderer.of(PDF).parallel[IO].build
+```scala mdoc:silent
+val htmlRenderer = Renderer.of(HTML).parallel[IO].build
+val epubRenderer = Renderer.of(EPUB).parallel[IO].build
+val pdfRenderer  = Renderer.of(PDF).parallel[IO].build
 ```
 
 Since all four processors are a cats-effect `Resource`, we combine them into one:
 
-```scala
+```scala mdoc:silent
 val allResources = for {
-  parser <- parserRes
-  html <- htmlRendererRes
-  epub <- epubRendererRes
-  pdf <- pdfRendererRes
-} yield (parser, html, epub, pdf)
+  parse <- parser
+  html  <- htmlRenderer
+  epub  <- epubRenderer
+  pdf   <- pdfRenderer
+} yield (parse, html, epub, pdf)
 ```
 
-Finally we define the actual transformation by wiring the parser and the three renderers:
+Finally, we define the actual transformation by wiring the parser and the three renderers:
 
-```scala
+```scala mdoc:silent
+import cats.syntax.all._
+
 val transformOp: IO[Unit] = allResources.use { 
   case (parser, htmlRenderer, epubRenderer, pdfRenderer) =>
     parser.fromDirectory("source").parse.flatMap { tree =>
@@ -545,7 +583,9 @@ You can also specify an empty theme if you want to put all templates and styles 
 
 Example for applying a few Helium settings:
 
-```scala
+```scala mdoc:silent
+import laika.helium.Helium
+
 val theme = Helium.defaults
   .all.metadata(
     title = Some("Project Name"),
@@ -555,19 +595,13 @@ val theme = Helium.defaults
   .pdf.navigationDepth(4)
   .build
   
-val transformer = Transformer
+val heliumTransformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
   .parallel[IO]
   .withTheme(theme)
   .build
-```
-
-Setting an empty theme:
-
-```scala
-laikaTheme := Theme.empty
 ```
 
 If you do not explicitly pass a theme configuration Laika will run with the default settings of the Helium theme, 
@@ -628,7 +662,9 @@ This includes auto-refreshing whenever changes to any input document are detecte
 It is the basis of the `laikaPreview` task of the sbt plugin, 
 but can alternatively be launched via the library API:
 
-```scala
+```scala mdoc:nest:silent
+import laika.preview.ServerBuilder
+
 val parser = MarkupParser
   .of(Markdown)
   .using(GitHubFlavor)
@@ -647,10 +683,14 @@ The above example creates a server based on its default configuration.
 Open `localhost:4242` for the landing page of your site.
 You can override the defaults by passing a `ServerConfig` instance explicitly:
 
-```scala
+```scala mdoc:silent
+import laika.preview.ServerConfig
+import com.comcast.ip4s._
+import scala.concurrent.duration.DurationInt
+
 val config =
   ServerConfig.defaults
-    .withPort(8080)
+    .withPort(port"8080")
     .withPollInterval(5.seconds)
     .withEPUBDownloads
     .withPDFDownloads

@@ -16,7 +16,7 @@
 
 package laika.io.model
 
-import laika.ast.{DocumentTree, DocumentTreeRoot, Path, StaticDocument}
+import laika.ast.{ DocumentTree, DocumentTreeRoot, Path, StaticDocument }
 
 /** The result of a parsing operation for an entire document tree.
   *
@@ -29,34 +29,37 @@ import laika.ast.{DocumentTree, DocumentTreeRoot, Path, StaticDocument}
   * might copy them into a target directory, or embed them into an output format
   * like EPUB.
   */
-case class ParsedTree[F[_]] (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) {
+case class ParsedTree[F[_]](root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput[F]]) {
 
   /** Creates a new instance by applying the specified function to the root tree.
     */
-  def modifyRoot (f: DocumentTreeRoot => DocumentTreeRoot): ParsedTree[F] = copy(root = f(root))
+  def modifyRoot(f: DocumentTreeRoot => DocumentTreeRoot): ParsedTree[F] = copy(root = f(root))
 
   /** Creates a new instance by applying the specified function to the nested tree.
     */
-  def modifyTree (f: DocumentTree => DocumentTree): ParsedTree[F] = copy(root = root.modifyTree(f))
+  def modifyTree(f: DocumentTree => DocumentTree): ParsedTree[F] = copy(root = root.modifyTree(f))
 
   /** Removes all static documents of this instance that match the specified filter.
     */
-  def removeStaticDocuments (filter: Path => Boolean): ParsedTree[F] = copy(
+  def removeStaticDocuments(filter: Path => Boolean): ParsedTree[F] = copy(
     root = root.copy(staticDocuments = root.staticDocuments.filterNot(doc => filter(doc.path))),
     staticDocuments = staticDocuments.filterNot(doc => filter(doc.path))
   )
 
   /** Removes all static documents of this instance and replaces them with the specified alternatives.
     */
-  def replaceStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
-    root = root.copy(staticDocuments = newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
+  def replaceStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
+    root =
+      root.copy(staticDocuments = newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
     staticDocuments = newStaticDocs
   )
 
   /** Adds the specified static documents to this instance.
     */
-  def addStaticDocuments (newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
-    root = root.copy(staticDocuments = root.staticDocuments ++ newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
+  def addStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = copy(
+    root = root.copy(staticDocuments =
+      root.staticDocuments ++ newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))
+    ),
     staticDocuments = staticDocuments ++ newStaticDocs
   )
 

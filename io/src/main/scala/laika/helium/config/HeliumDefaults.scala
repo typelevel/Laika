@@ -19,7 +19,7 @@ package laika.helium.config
 import java.util.Locale
 
 import laika.ast.DocumentMetadata
-import laika.ast.LengthUnit.{cm, em, mm, pt, px}
+import laika.ast.LengthUnit.{ cm, em, mm, pt, px }
 import laika.helium.Helium
 import laika.theme.config._
 
@@ -29,63 +29,101 @@ private[helium] object HeliumDefaults {
 
   private val defaultFonts = Seq(
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS("https://fonts.googleapis.com/css?family=Lato:400,700"),
-      "Lato", FontWeight.Normal, FontStyle.Normal
+      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS(
+        "https://fonts.googleapis.com/css?family=Lato:400,700"
+      ),
+      "Lato",
+      FontWeight.Normal,
+      FontStyle.Normal
     ),
     FontDefinition(
       Font.embedResource(fontPath + "Lato/Lato-Italic.ttf"),
-      "Lato", FontWeight.Normal, FontStyle.Italic
+      "Lato",
+      FontWeight.Normal,
+      FontStyle.Italic
     ),
     FontDefinition(
       Font.embedResource(fontPath + "Lato/Lato-Bold.ttf"),
-      "Lato", FontWeight.Bold, FontStyle.Normal
+      "Lato",
+      FontWeight.Bold,
+      FontStyle.Normal
     ),
     FontDefinition(
       Font.embedResource(fontPath + "Lato/Lato-BoldItalic.ttf"),
-      "Lato", FontWeight.Bold, FontStyle.Italic
+      "Lato",
+      FontWeight.Bold,
+      FontStyle.Italic
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "FiraCode/FiraCode-Medium.otf").webCSS("https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css"),
-      "Fira Code", FontWeight.Normal, FontStyle.Normal
+      Font.embedResource(fontPath + "FiraMono/FiraMono-Medium.otf").webCSS(
+        "https://fonts.googleapis.com/css?family=Fira+Mono:500"
+      ),
+      "Fira Mono",
+      FontWeight.Normal,
+      FontStyle.Normal
     ),
     FontDefinition(
       Font.embedResource(fontPath + "icofont/fonts/icofont.ttf"),
-      "IcoFont", FontWeight.Normal, FontStyle.Normal
-    ),
+      "IcoFont",
+      FontWeight.Normal,
+      FontStyle.Normal
+    )
   )
-  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Code")
+
+  private val defaultThemeFonts = ThemeFonts("Lato", "Lato", "Fira Mono")
+
   private val defaultMessageColors = MessageColors(
     info = Color.hex("007c99"),
     infoLight = Color.hex("ebf6f7"),
     warning = Color.hex("b1a400"),
     warningLight = Color.hex("fcfacd"),
     error = Color.hex("d83030"),
-    errorLight = Color.hex("ffe9e3"),
+    errorLight = Color.hex("ffe9e3")
   )
+
   private val darkModeMessageColors = MessageColors(
     info = Color.hex("ebf6f7"),
     infoLight = Color.hex("007c99"),
     warning = Color.hex("fcfacd"),
     warningLight = Color.hex("b1a400"),
     error = Color.hex("ffe9e3"),
-    errorLight = Color.hex("d83030"),
+    errorLight = Color.hex("d83030")
   )
+
   private val syntaxDarkScheme = SyntaxColors(
     base = ColorQuintet(
-      Color.hex("2a3236"), Color.hex("8c878e"), Color.hex("b2adb4"), Color.hex("bddcee"), Color.hex("e8e8e8")
+      Color.hex("2a3236"),
+      Color.hex("8c878e"),
+      Color.hex("b2adb4"),
+      Color.hex("bddcee"),
+      Color.hex("e8e8e8")
     ),
     wheel = ColorQuintet(
-      Color.hex("e28e93"), Color.hex("ef9725"), Color.hex("ffc66d"), Color.hex("7fb971"), Color.hex("4dbed4")
+      Color.hex("e28e93"),
+      Color.hex("ef9725"),
+      Color.hex("ffc66d"),
+      Color.hex("7fb971"),
+      Color.hex("4dbed4")
     )
   )
+
   private val syntaxLightScheme = SyntaxColors(
     base = ColorQuintet(
-      Color.hex("F6F1EF"), Color.hex("AF9E84"), Color.hex("937F61"), Color.hex("645133"), Color.hex("362E21")
+      Color.hex("F6F1EF"),
+      Color.hex("AF9E84"),
+      Color.hex("937F61"),
+      Color.hex("645133"),
+      Color.hex("362E21")
     ),
     wheel = ColorQuintet(
-      Color.hex("9A6799"), Color.hex("9F4C46"), Color.hex("A0742D"), Color.hex("7D8D4C"), Color.hex("6498AE")
+      Color.hex("9A6799"),
+      Color.hex("9F4C46"),
+      Color.hex("A0742D"),
+      Color.hex("7D8D4C"),
+      Color.hex("6498AE")
     )
   )
+
   private val themeColors = ThemeColors(
     primary = Color.hex("007c99"),
     secondary = Color.hex("931813"),
@@ -95,17 +133,18 @@ private[helium] object HeliumDefaults {
     background = Color.hex("ffffff"),
     bgGradient = (Color.hex("095269"), Color.hex("007c99"))
   )
+
   private val darkModeThemeColors = ThemeColors(
     primary = Color.hex("a7d4de"),
-    secondary = Color.hex("f1c47b"), // d08a81 / c16868 / d4c478 / e4afad
+    secondary = Color.hex("f1c47b"),                        // d08a81 / c16868 / d4c478 / e4afad
     primaryMedium = Color.hex("a7d4de"),
     primaryLight = Color.hex("125d75"),
     text = Color.hex("eeeeee"),
     background = Color.hex("064458"),
     bgGradient = (Color.hex("064458"), Color.hex("197286")) // 007c99
   )
-  
-  def colors (syntaxScheme: SyntaxColors): ColorSet = ColorSet(
+
+  def colors(syntaxScheme: SyntaxColors): ColorSet = ColorSet(
     theme = themeColors,
     messages = defaultMessageColors,
     syntaxHighlighting = syntaxScheme
@@ -116,13 +155,13 @@ private[helium] object HeliumDefaults {
     messages = darkModeMessageColors,
     syntaxHighlighting = syntaxDarkScheme
   )
-  
+
   private val defaultSiteSettings = SiteSettings(
     fontResources = defaultFonts,
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = px(15),
-      code = px(14),
+      code = em(0.9),
       title = px(34),
       header2 = px(28),
       header3 = px(20),
@@ -144,20 +183,23 @@ private[helium] object HeliumDefaults {
       language = Some(Locale.getDefault.toLanguageTag)
     )
   )
+
   private val defaultEPUBSettings = EPUBSettings(
     bookConfig = BookConfig(
-      fonts = defaultFonts, 
-      navigationDepth = Some(2) // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
+      fonts = defaultFonts,
+      navigationDepth = Some(
+        2
+      ) // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
     ),
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
-      body    = em(1.0),
-      code    = em(0.9),
-      title   = em(2.0),
+      body = em(1.0),
+      code = em(0.9),
+      title = em(2.0),
       header2 = em(1.6),
       header3 = em(1.3),
       header4 = em(1.1),
-      small   = em(0.8)
+      small = em(0.8)
     ),
     colors = colors(syntaxLightScheme),
     darkMode = Some(darkModeColors),
@@ -175,7 +217,7 @@ private[helium] object HeliumDefaults {
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = pt(10),
-      code = pt(9),
+      code = em(0.9),
       title = pt(24),
       header2 = pt(14),
       header3 = pt(12),
@@ -197,6 +239,7 @@ private[helium] object HeliumDefaults {
     coverImages = Nil
   )
 
-  val instance: Helium = new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings, Nil)
-  
+  val instance: Helium =
+    new Helium(defaultSiteSettings, defaultEPUBSettings, defaultPDFSettings, Nil)
+
 }

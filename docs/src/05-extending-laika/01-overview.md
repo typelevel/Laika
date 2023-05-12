@@ -51,12 +51,15 @@ See @:api(laika.bundle.ExtensionBundle) for its API documentation.
 The trait comes with empty default implementations for most of its properties,
 so that you only need to override the ones you intend to use.
 
-```scala
+```scala mdoc
+import laika.bundle.ExtensionBundle
+import laika.ast.{ DocumentType, Path }
+
 object MyExtensions extends ExtensionBundle {
 
-  override val docTypeMatcher: PartialFunction[Path, DocumentType] = ???
+  val description: String = "My Sample Bundle"
 
-  // ... optionally other customizations
+  // ... customizations
 }
 ```
 
@@ -65,7 +68,15 @@ Such a bundle can then be passed to the transformer:
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+
 laikaExtensions := Seq(
   GitHubFlavor,
   MyExtensions
@@ -73,7 +84,11 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:silent
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)

@@ -159,7 +159,9 @@ a directive has to stick to the standard directive syntax, for which we'll pick 
 
 Let's walk through the implementation of our little ticket directive:
 
-```scala
+```scala mdoc:silent
+import laika.ast._
+import laika.directive.Spans
 import Spans.dsl._
 
 val ticketDirective = Spans.create("ticket") {
@@ -197,7 +199,9 @@ This is a sub-trait of `ExtensionBundle`.
 
 For our case we only need to register our ticket directive, which is a span directive: 
 
-```scala
+```scala mdoc
+import laika.directive.DirectiveRegistry
+
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq(ticketDirective)
   val blockDirectives = Seq()
@@ -211,7 +215,15 @@ Finally we need to register our registry together with any built-in extensions y
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+
+```scala mdoc:compile-only
+import laika.markdown.github.GitHubFlavor
+
 laikaExtensions := Seq(
   GitHubFlavor,
   MyDirectives
@@ -219,7 +231,11 @@ laikaExtensions := Seq(
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:silent
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -239,13 +255,16 @@ This will enhance the previous example by making the base URL configurable.
 One of the combinators we can use when defining the directive can ask for a document cursor to be
 provided alongside the expected attribute value:
 
-```scala
+```scala mdoc:silent
+import cats.syntax.all._
+import laika.ast._
+import laika.directive.Spans
 import Spans.dsl._
 
-val ticketDirective = Spans.create("ticket") {
-  (attribute(0).as[Int], cursor).mapN { (num, cursor) => 
+val spanDirective = Spans.create("ticket") {
+  (attribute(0).as[Int], cursor, source).mapN { (num, cursor, source) => 
     cursor.config.get[String]("ticket.baseURL").fold(
-      error => InvalidElement(s"Invalid base URL: $error", "#" + num).asSpan,
+      error   => InvalidSpan(s"Invalid base URL: $error", source),
       baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
     )
   }
@@ -272,13 +291,13 @@ With this change in place, the user can now provide the base URL in the builder 
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -327,7 +346,7 @@ Combinators:
   
 Combinator Example:
 
-```scala
+```scala mdoc:compile-only
 val ticketDirective = Spans.create("directive-name") {
   attribute(0).as[Int].map { ticketNo => 
     ??? // produce AST span node
@@ -368,7 +387,7 @@ Combinator Example:
 
 We'll use the `allAttributes` combinator together with the one for accessing body elements:
 
-```scala
+```scala mdoc:compile-only
 val directive = Spans.create("custom") {
   (allAttributes, parsedBody).mapN { (attributes, bodyContent) => 
     val path = attributes.getOpt[Path]("filePath")
@@ -385,7 +404,7 @@ Positional and named attributes can be marked as optional.
 
 Combinator Example:
 
-```scala
+```scala mdoc:compile-only
 attribute("width").as[Int].optional
 ```
 
@@ -397,7 +416,7 @@ from `T` to `Option[T]` where `T` is either the type returned by your converter 
 
 You can specify a decoder for all attributes with the `as[T]` method:
 
-```scala
+```scala mdoc:compile-only
 attribute("depth").as[Int].optional
 ```
 
@@ -421,7 +440,7 @@ you can set the `inherited` flag:
 
 Combinator Example:
 
-```scala
+```scala mdoc:compile-only
 attribute("width").as[Int].inherited
 ```
 
@@ -458,7 +477,7 @@ Combinators:
   
 Combinator Example:
 
-```scala
+```scala mdoc:compile-only
 val directive = Spans.create("custom") {
   (attribute("name"), parsedBody).mapN { (nameAttribute, bodyContent) => 
     ??? // produce AST span node, bodyContent will be Seq[Span] here
@@ -473,11 +492,14 @@ Access to the Parser
 You can request access to the parser of the host language with all extensions the user had installed
 with an overload of the `parsedBody` combinator:
 
-```scala
-val bodyPart = parsedBody { recursiveParsers =>
+```scala mdoc:compile-only
+import laika.parse.implicits._
+import laika.parse.text.TextParsers._
+
+val bodyPart = parsedBody { recParsers =>
   anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line)
 }
-(defaultAttribute, bodyPart).mapN { (attrValue, bodyContent) =>
+(attribute(0), bodyPart).mapN { (attrValue, bodyContent) =>
   ??? // produce AST span node, bodyContent will be Seq[Span] here
 }
 ```
@@ -526,7 +548,9 @@ The directive implementation you need to provide is then merely a simple functio
 
 Example:
 
-```scala
+```scala mdoc:compile-only
+import laika.directive.Links
+
 val directive = Links.create("github") { (path, _) =>
   val url = s"https://github.com/our-project/$path"
   SpanLink(Seq(Text(s"GitHub ($path)")), ExternalTarget(url))
@@ -583,7 +607,7 @@ In this section we'll just show a very small, contrived example.
 Declaring a separator directive looks just like declaring a normal directive, 
 only that you call `separator` instead of `create`:
 
-```scala
+```scala mdoc:silent
 case class Child (content: Seq[Span])
 
 val sepDir = Spans.separator("child", min = 1) { parsedBody.map(Child) }   
@@ -596,7 +620,7 @@ in this case only the `parsedBody` that you map to the `Child` type.
 
 Now you can use this directive in the parent:
 
-```scala
+```scala mdoc:compile-only
 val directive = Spans.create("parent") { 
   separatedBody(Seq(sepDir)) map { multipart =>
     val seps = multipart.children.flatMap { sep => 

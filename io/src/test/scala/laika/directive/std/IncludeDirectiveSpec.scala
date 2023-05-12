@@ -16,20 +16,19 @@
 
 package laika.directive.std
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.ConfigException
-import laika.format.{HTML, Markdown}
+import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
-import laika.rewrite.{DefaultTemplatePath, OutputContext}
+import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.Theme
 import munit.CatsEffectSuite
-
 
 class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
 
@@ -38,15 +37,15 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     .parallel[IO]
     .withTheme(Theme.empty)
     .build
-  
-  def inputs (docUnderTest: String): Seq[(Path, String)] = {
+
+  def inputs(docUnderTest: String): Seq[(Path, String)] = {
     Seq(
-      Root / "dir1" / "doc-1.md" -> "# Ref",
-      Root / "dir1" / "doc-2.md" -> "# Ref",
-      Root / "dir2" / "doc-3.md" -> "# Ref",
-      Root / "dir2" / "doc-4.md" -> docUnderTest,
-      Root / "inc" / "inc-1.md" -> "aaa (${?_.key}) bbb",
-      Root / "inc" / "inc-2.md" ->
+      Root / "dir1" / "doc-1.md"           -> "# Ref",
+      Root / "dir1" / "doc-2.md"           -> "# Ref",
+      Root / "dir2" / "doc-3.md"           -> "# Ref",
+      Root / "dir2" / "doc-4.md"           -> docUnderTest,
+      Root / "inc" / "inc-1.md"            -> "aaa (${?_.key}) bbb",
+      Root / "inc" / "inc-2.md"            ->
         """aaa (${?_.key}) bbb
           |
           |${?_.embeddedBody}
@@ -57,40 +56,45 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
       Root / "inc" / "inc-2.template.html" -> """aaa (${?_.key}) bbb <${?_.embeddedBody}> ccc"""
     )
   }
-  
-  
-  def embedResult (firstPara: String): Seq[Block] = Seq(BlockSequence(
-    Paragraph(firstPara),
-    Paragraph(
-      TemplateElement(
-        BlockSequence(
-          Paragraph("Par 1"),
-          Paragraph("Par 2")
+
+  def embedResult(firstPara: String): Seq[Block] = Seq(
+    BlockSequence(
+      Paragraph(firstPara),
+      Paragraph(
+        TemplateElement(
+          BlockSequence(
+            Paragraph("Par 1"),
+            Paragraph("Par 2")
+          )
         )
-      )
-    ),
-    Paragraph("ccc")
-  ))
-  
-  def parseAndExtract (input: String, template: Option[String] = None): IO[Seq[Block]] = {
+      ),
+      Paragraph("ccc")
+    )
+  )
+
+  def parseAndExtract(input: String, template: Option[String] = None): IO[Seq[Block]] = {
     val inputTree = build(inputs(input) ++ template.map((DefaultTemplatePath.forHTML, _)).toSeq)
-    parser.use { _
-      .fromInput(inputTree)
-      .parse
+    parser.use {
+      _
+        .fromInput(inputTree)
+        .parse
     }
-    .flatMap { tree =>
-      IO.fromEither {
-        tree.root.applyTemplates(OperationConfig.default.rewriteRulesFor(tree.root, RewritePhase.Render(HTML)), OutputContext(HTML))
-          .left.map(ConfigException.apply)
-          .flatMap { root =>
-            root.tree.selectDocument("dir2/doc-4.md")
-              .map(_.content.content)
-              .toRight(new RuntimeException("document under test missing"))
+      .flatMap { tree =>
+        IO.fromEither {
+          tree.root.applyTemplates(
+            OperationConfig.default.rewriteRulesFor(tree.root, RewritePhase.Render(HTML)),
+            OutputContext(HTML)
+          )
+            .left.map(ConfigException.apply)
+            .flatMap { root =>
+              root.tree.selectDocument("dir2/doc-4.md")
+                .map(_.content.content)
+                .toRight(new RuntimeException("document under test missing"))
             }
+        }
       }
-    }
   }
-  
+
   test("block include without attributes") {
     val markup = "@:include(../inc/inc-1.md)"
     parseAndExtract(markup).assertEquals(Seq(BlockSequence(Paragraph("aaa () bbb"))))
@@ -126,8 +130,8 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
       """.stripMargin
     parseAndExtract(markup).assertEquals(embedResult("aaa (foo) bbb"))
   }
-  
-  def includeTemplateResult (ref: String): TemplateRoot = TemplateRoot(
+
+  def includeTemplateResult(ref: String): TemplateRoot = TemplateRoot(
     TemplateString("111 "),
     TemplateSpanSequence(
       TemplateString("aaa ("),
@@ -139,14 +143,14 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     TemplateString(" 333")
   )
 
-  def embedTemplateResult (ref: String): TemplateRoot = TemplateRoot(
+  def embedTemplateResult(ref: String): TemplateRoot = TemplateRoot(
     TemplateString("111 "),
     TemplateSpanSequence(
       TemplateString("aaa ("),
       TemplateString(ref),
       TemplateString(") bbb <"),
       TemplateSpanSequence(TemplateString(" body ")),
-      TemplateString("> ccc"),
+      TemplateString("> ccc")
     ),
     TemplateString(" 222 "),
     EmbeddedRoot(Paragraph("Text")),
@@ -154,23 +158,27 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
   )
 
   test("template include without attributes") {
-    val template = "111 @:include(../inc/inc-1.template.html) 222 ${cursor.currentDocument.content} 333"
+    val template =
+      "111 @:include(../inc/inc-1.template.html) 222 ${cursor.currentDocument.content} 333"
     parseAndExtract("Text", Some(template)).assertEquals(Seq(includeTemplateResult("")))
   }
 
   test("template include with attributes") {
-    val template = "111 @:include(../inc/inc-1.template.html) { key = foo } 222 ${cursor.currentDocument.content} 333"
+    val template =
+      "111 @:include(../inc/inc-1.template.html) { key = foo } 222 ${cursor.currentDocument.content} 333"
     parseAndExtract("Text", Some(template)).assertEquals(Seq(includeTemplateResult("foo")))
   }
 
   test("template embed without attributes") {
-    val template = "111 @:embed(../inc/inc-2.template.html) body @:@ 222 ${cursor.currentDocument.content} 333"
+    val template =
+      "111 @:embed(../inc/inc-2.template.html) body @:@ 222 ${cursor.currentDocument.content} 333"
     parseAndExtract("Text", Some(template)).assertEquals(Seq(embedTemplateResult("")))
   }
 
   test("template embed with attributes") {
-    val template = "111 @:embed(../inc/inc-2.template.html) { key = foo } body @:@ 222 ${cursor.currentDocument.content} 333"
+    val template =
+      "111 @:embed(../inc/inc-2.template.html) { key = foo } body @:@ 222 ${cursor.currentDocument.content} 333"
     parseAndExtract("Text", Some(template)).assertEquals(Seq(embedTemplateResult("foo")))
   }
-  
+
 }

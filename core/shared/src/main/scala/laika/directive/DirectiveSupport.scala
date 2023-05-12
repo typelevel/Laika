@@ -17,14 +17,31 @@
 package laika.directive
 
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.ast.{DocumentCursor, InvalidSpan, LinkIdReference, NoOpt, Options, Replace, RewritePhase, RewriteRules, Span, SpanResolver}
-import laika.bundle.{BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle}
+import laika.ast.{
+  DocumentCursor,
+  InvalidSpan,
+  LinkIdReference,
+  NoOpt,
+  Options,
+  Replace,
+  RewritePhase,
+  RewriteRules,
+  Span,
+  SpanResolver
+}
+import laika.bundle.{ BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle }
 import laika.config.ConfigParser
-import laika.parse.{Parser, SourceFragment}
-import laika.parse.builders.{delimitedBy, text, ws}
+import laika.parse.{ Parser, SourceFragment }
+import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers
 import laika.parse.implicits._
-import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, DirectiveParsers, SpanDirectiveParsers, TemplateParsers}
+import laika.parse.directive.{
+  BlockDirectiveParsers,
+  ConfigHeaderParser,
+  DirectiveParsers,
+  SpanDirectiveParsers,
+  TemplateParsers
+}
 import laika.parse.text.TextParsers
 
 /** Internal API that processes all directives defined
@@ -34,44 +51,61 @@ import laika.parse.text.TextParsers
   *
   * @author Jens Halm
   */
-class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
-                        spanDirectives: Seq[Spans.Directive],
-                        templateDirectives: Seq[Templates.Directive],
-                        linkDirectives: Seq[Links.Directive],
-                        strictMode: Boolean) extends ExtensionBundle { self =>
+class DirectiveSupport(
+    blockDirectives: Seq[Blocks.Directive],
+    spanDirectives: Seq[Spans.Directive],
+    templateDirectives: Seq[Templates.Directive],
+    linkDirectives: Seq[Links.Directive],
+    strictMode: Boolean
+) extends ExtensionBundle { self =>
 
   val description: String = "Laika's directive support"
 
   override val origin: BundleOrigin = BundleOrigin.Library
-  
+
   private val configProvider: ConfigProvider = new ConfigProvider {
-    def markupConfigHeader: Parser[ConfigParser] = 
-      if (strictMode) Parsers.success(ConfigParser.empty) else ConfigHeaderParser.withDefaultLineDelimiters
-    def templateConfigHeader: Parser[ConfigParser] = ConfigHeaderParser.withDefaultLineDelimiters
-    def configDocument (input: String): ConfigParser = ConfigParser.parse(input)
+
+    def markupConfigHeader: Parser[ConfigParser] =
+      if (strictMode) Parsers.success(ConfigParser.empty)
+      else ConfigHeaderParser.withDefaultLineDelimiters
+
+    def templateConfigHeader: Parser[ConfigParser]  = ConfigHeaderParser.withDefaultLineDelimiters
+    def configDocument(input: String): ConfigParser = ConfigParser.parse(input)
   }
-  
+
   override lazy val parsers: ParserBundle = ParserBundle(
-    blockParsers = if (strictMode) Nil else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
-    spanParsers = if (strictMode) Nil else Seq(
-      SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))), 
-      SpanDirectiveParsers.contextRef
-    ),
+    blockParsers =
+      if (strictMode) Nil
+      else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
+    spanParsers =
+      if (strictMode) Nil
+      else
+        Seq(
+          SpanDirectiveParsers.spanDirective(
+            Spans.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))
+          ),
+          SpanDirectiveParsers.contextRef
+        ),
     configProvider = Some(configProvider),
     templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
   )
-  
+
   private val linkDirectiveMap = linkDirectives.map(d => (d.name, d)).toMap
-  private val linkParser = (DirectiveParsers.nameDecl <~ ws) ~ ("(" ~> text(delimitedBy(')')).embed("\\" ~> TextParsers.oneChar))
-  
-  case class LinkDirectiveResolver(ref: LinkIdReference,
-                                   directiveName: String,
-                                   typeName: String,
-                                   source: SourceFragment,
-                                   options: Options = NoOpt) extends SpanResolver {
+
+  private val linkParser = (DirectiveParsers.nameDecl <~ ws) ~ ("(" ~> text(delimitedBy(')')).embed(
+    "\\" ~> TextParsers.oneChar
+  ))
+
+  case class LinkDirectiveResolver(
+      ref: LinkIdReference,
+      directiveName: String,
+      typeName: String,
+      source: SourceFragment,
+      options: Options = NoOpt
+  ) extends SpanResolver {
     type Self = LinkDirectiveResolver
 
-    def resolve (cursor: DocumentCursor): Span = linkDirectiveMap.get(directiveName)
+    def resolve(cursor: DocumentCursor): Span = linkDirectiveMap.get(directiveName)
       .fold[Span](InvalidSpan(s"Unknown link directive: $directiveName", source)) { dir =>
         dir(typeName, cursor).fold(
           err => InvalidSpan(s"Invalid link directive: $err", source),
@@ -81,35 +115,42 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
 
     def withOptions(options: Options): LinkDirectiveResolver = copy(options = options)
 
-    def runsIn (phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+    def runsIn(phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
 
     def unresolvedMessage: String = s"unresolved api directive for type $typeName"
   }
-  
-  override lazy val rewriteRules: RewritePhaseBuilder = { 
-    case RewritePhase.Resolve => if (strictMode) Nil else Seq(RewriteRules.forSpans {
-      case ref: LinkIdReference if ref.ref.startsWith("@:") =>
-        linkParser.parse(ref.ref.drop(2)).toEither.fold(
-          err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
-          res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
-        )
+
+  override lazy val rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
+    if (strictMode) Nil
+    else
+      Seq(RewriteRules.forSpans {
+        case ref: LinkIdReference if ref.ref.startsWith("@:") =>
+          linkParser.parse(ref.ref.drop(2)).toEither.fold(
+            err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
+            res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
+          )
       }.asBuilder)
-    }
+  }
 
   /** Hook for extension registries for adding block, span and template directives.
     */
-  def withDirectives (newBlockDirectives: Seq[Blocks.Directive],
-                      newSpanDirectives: Seq[Spans.Directive],
-                      newTemplateDirectives: Seq[Templates.Directive],
-                      newLinkDirectives: Seq[Links.Directive]) : DirectiveSupport =
-    new DirectiveSupport(blockDirectives ++ newBlockDirectives,
+  def withDirectives(
+      newBlockDirectives: Seq[Blocks.Directive],
+      newSpanDirectives: Seq[Spans.Directive],
+      newTemplateDirectives: Seq[Templates.Directive],
+      newLinkDirectives: Seq[Links.Directive]
+  ): DirectiveSupport =
+    new DirectiveSupport(
+      blockDirectives ++ newBlockDirectives,
       spanDirectives ++ newSpanDirectives,
       templateDirectives ++ newTemplateDirectives,
       linkDirectives ++ newLinkDirectives,
-      strictMode)
+      strictMode
+    )
 
-  override def forStrictMode: Option[ExtensionBundle] = 
+  override def forStrictMode: Option[ExtensionBundle] =
     Some(new DirectiveSupport(Nil, Nil, templateDirectives, Nil, strictMode = true))
+
 }
 
 /** Empty default instance without any directives installed.

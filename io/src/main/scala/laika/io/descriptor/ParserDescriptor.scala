@@ -24,15 +24,17 @@ import laika.io.api.TreeParser
 /** Provides a description of a parsing operation, including the parsers
   * and extension bundles used, as well as the input sources.
   * This functionality is mostly intended for tooling support.
-  * 
+  *
   * @author Jens Halm
   */
-case class ParserDescriptor (parsers: NonEmptyList[String], 
-                             bundles: Seq[ExtensionBundleDescriptor],
-                             inputs: TreeInputDescriptor,
-                             theme: ThemeDescriptor,
-                             strict: Boolean,
-                             acceptRawContent: Boolean) {
+case class ParserDescriptor(
+    parsers: NonEmptyList[String],
+    bundles: Seq[ExtensionBundleDescriptor],
+    inputs: TreeInputDescriptor,
+    theme: ThemeDescriptor,
+    strict: Boolean,
+    acceptRawContent: Boolean
+) {
 
   def formatted: String = {
     s"""Parser(s):
@@ -47,13 +49,12 @@ case class ParserDescriptor (parsers: NonEmptyList[String],
        |Sources:
        |  ${inputs.formatted}""".stripMargin
   }
-  
-  
+
 }
 
 object ParserDescriptor {
-  
-  def create[F[_]: Sync] (op: TreeParser.Op[F]): F[ParserDescriptor] = 
+
+  def create[F[_]: Sync](op: TreeParser.Op[F]): F[ParserDescriptor] =
     op.input.describe(op.config.docTypeMatcher)
       .map { inputDesc =>
         apply(
@@ -65,5 +66,5 @@ object ParserDescriptor {
           op.config.bundleFilter.acceptRawContent
         )
       }
-  
+
 }

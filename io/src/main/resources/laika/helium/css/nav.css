@@ -353,6 +353,18 @@ ul.nav-list, #page-nav ul {
     display: inline-block;
   }
 }
+@media (max-width: 1450px) {
+  #page-nav.all-screens {
+    display: block;
+    position: static;
+    width: 100%;
+    max-width: var(--content-width);
+    background-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 75px 45px 10px 45px;
+  }
+}
 
 .icofont-laika {
   font-size: 1.75em;

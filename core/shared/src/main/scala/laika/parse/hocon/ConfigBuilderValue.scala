@@ -16,21 +16,22 @@
 
 package laika.parse.hocon
 
-import laika.config.{Key, SimpleConfigValue}
+import laika.config.{ Key, SimpleConfigValue }
 import laika.parse.Failure
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).
-  * 
+  *
   * This type is not exposed to public APIs as it will be translated to a final object
   * structure later. It contains instances representing interim constructs like concatenated
   * values or substitution variables which will not be present in the final model.
-  * 
+  *
   * @author Jens Halm
   */
 sealed trait ConfigBuilderValue extends Product with Serializable
 
 /** A concatenated value (either all objects, all arrays, all simple values or invalid). */
-case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart]) extends ConfigBuilderValue {
+case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart])
+    extends ConfigBuilderValue {
   val allParts: Seq[ConcatPart] = ConcatPart("", first) +: rest
 }
 
@@ -42,15 +43,17 @@ case class MergedValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderVal
 
 /** A substitution reference that may be marked as optional. */
 case class SubstitutionValue(ref: Key, optional: Boolean) extends ConfigBuilderValue
+
 object SubstitutionValue {
-  def apply (ref: String, optional: Boolean): SubstitutionValue = apply(Key(ref), optional)
+  def apply(ref: String, optional: Boolean): SubstitutionValue = apply(Key(ref), optional)
 }
 
 sealed trait StringBuilderValue extends ConfigBuilderValue {
   def value: String
 }
-case class ValidStringValue (value: String) extends StringBuilderValue
-case class InvalidStringValue (value: String, failure: Failure) extends StringBuilderValue
+
+case class ValidStringValue(value: String)                     extends StringBuilderValue
+case class InvalidStringValue(value: String, failure: Failure) extends StringBuilderValue
 
 /** A marker for a self reference, a reference to an earlier definition with the same key. */
 case object SelfReference extends ConfigBuilderValue
@@ -65,12 +68,14 @@ case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderVa
 case class BuilderField(key: Either[InvalidStringValue, Key], value: ConfigBuilderValue) {
   def validKey: Key = key.getOrElse(Key.root)
 }
+
 object BuilderField {
-  def apply (key: String, value: ConfigBuilderValue): BuilderField = apply(Right(Key(key)), value)
-  def apply (key: Key, value: ConfigBuilderValue): BuilderField = apply(Right(key), value)
+  def apply(key: String, value: ConfigBuilderValue): BuilderField = apply(Right(Key(key)), value)
+  def apply(key: Key, value: ConfigBuilderValue): BuilderField    = apply(Right(key), value)
 }
 
-case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure) extends ConfigBuilderValue
+case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure)
+    extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
 case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue
@@ -79,16 +84,26 @@ case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderV
 sealed trait IncludeResource {
   def resourceId: StringBuilderValue
   def isRequired: Boolean
+
   def asRequired: IncludeResource = this match {
-    case i: IncludeUrl => i.copy(isRequired = true)
-    case i: IncludeFile => i.copy(isRequired = true)
+    case i: IncludeUrl       => i.copy(isRequired = true)
+    case i: IncludeFile      => i.copy(isRequired = true)
     case i: IncludeClassPath => i.copy(isRequired = true)
-    case i: IncludeAny => i.copy(isRequired = true)
+    case i: IncludeAny       => i.copy(isRequired = true)
   }
+
 }
-case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeClassPath(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
-case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false) extends IncludeResource
+
+case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false)
+    extends IncludeResource
+
+case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false)
+    extends IncludeResource
+
+case class IncludeClassPath(resourceId: StringBuilderValue, isRequired: Boolean = false)
+    extends IncludeResource
+
+case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false)
+    extends IncludeResource
 
 case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue

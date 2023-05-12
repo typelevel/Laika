@@ -14,19 +14,32 @@ and simply place all necessary templates and CSS files in your regular input dir
 @:select(config)
 
 @:choice(sbt)
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
 
-```scala
+```scala mdoc:compile-only
+import laika.theme.Theme
+
 laikaTheme := Theme.empty
 ```
 
 @:choice(library)
 
-```scala
+```scala mdoc:silent
+import cats.effect.IO
+import laika.api._
+import laika.format._
+import laika.io.implicits._
+import laika.theme.Theme
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .parallel[IO]
-  .witTheme(Theme.empty)
+  .withTheme(Theme.empty)
   .build
 ```
 
@@ -39,8 +52,17 @@ The Theme Trait
 Before describing the typical steps for implementing a theme, let's have a quick look at the (simple) `Theme` trait,
 to get an idea of what a theme represents in technical terms.
 
-```scala
+```scala mdoc:compile-only
+import cats.data.Kleisli
+import laika.bundle.ExtensionBundle
+import laika.factory.Format
+import laika.io.descriptor.ThemeDescriptor
+import laika.io.model.{ InputTree, ParsedTree }
+import laika.theme.Theme.TreeProcessor
+
 trait Theme[F[_]] {
+
+  def descriptor: ThemeDescriptor
 
   def inputs: InputTree[F]
   
@@ -113,7 +135,9 @@ for the PDF output so that the content looks good when printed.
 The Helium API solves this by requiring a selector in front of all configuration methods which is either
 `all`, `site`, `epub` or `pdf`:
 
-```scala
+```scala mdoc:silent
+import laika.helium.Helium
+
 val theme = Helium.defaults
   .all.metadata(
     title = Some("Project Name"),
@@ -159,6 +183,9 @@ There are two approaches you can choose from:
   add the result to the `InputTreeBuilder`:
   
     ```scala
+    import laika.io.model.InputTreeBuilder
+    import laika.rewrite.DefaultTemplatePath
+  
     val builder: InputTreeBuilder[F] = ???
     val templateString: String = MyTemplateGenerator.generate(config)
     builder.addString(templateString, DefaultTemplatePath.forHTML)
@@ -170,9 +197,12 @@ There are two approaches you can choose from:
 * Or place the entire default template into the resource folder of your library and load it from there:
 
     ```scala
+    import laika.io.model.InputTreeBuilder
+    import laika.rewrite.DefaultTemplatePath
+  
     val builder: InputTreeBuilder[F] = ???
     val resourcePath = "my-theme/templates/default.template.html"
-    builder.addClasspathResource(resourcePath, DefaultTemplatePath.forHTML)
+    builder.addClassResource(resourcePath, DefaultTemplatePath.forHTML)
     ```
   
   In this case you would use Laika's template syntax to access your theme's configuration, 
@@ -207,8 +237,14 @@ allowing you to reduce the boilerplate and stringly logic of rendering the forma
 
 The below example shows how the `ThemeBuilder` API can be used to pre-populate the transformer configuration:
 
-```scala
-val logo = Logo.internal(
+```scala mdoc:silent
+import cats.effect.IO
+import laika.ast.Image
+import laika.ast.Path.Root
+import laika.config.ConfigBuilder
+import laika.theme.ThemeBuilder
+
+val logo = Image.internal(
   path = Root / "logo.png", 
   alt = Some("Project Logo")
 )
@@ -217,14 +253,14 @@ val baseConfig = ConfigBuilder.empty
   .withValue("theme-name.logo", logo)
   .build
 
-ThemeBuilder("Theme Name")
+ThemeBuilder[IO]("Theme Name")
   .addBaseConfig(baseConfig)
   .build
 ```
 
 It defines a logo AST element, based on the virtual path `Root / "logo.png"` and associates it with the key
 `theme-name.logo`.
-Finally it passes the configuration to the theme builder, making the logo available for templates via a
+Finally, it passes the configuration to the theme builder, making the logo available for templates via a
 substitution reference (`${theme-name.logo}`).
 
 The indirection via the configuration key means that even if the user customizes the default templates
@@ -241,13 +277,17 @@ Here the most convenient approach might be to place static CSS files into the re
 and use CSS variables to capture all aspects which the user can configure. 
 This is the approach that Helium has also chosen.
 
-```scala
-val builder: InputTreeBuilder[F] = ???
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.ast.Path.Root
+import laika.io.model.InputTreeBuilder
+
+val builder: InputTreeBuilder[IO] = ???
 val resourcePath = "my-theme/css/theme.css"
-val vars: String = MyCSSVarsGenerator.generate(config)
+val vars: String = "<... generated-CSS ...>"
 builder
   .addString(vars, Root / "my-theme" / "vars.css")
-  .addClasspathResource(resourcePath, Root / "my-theme" / "theme.css")
+  .addClassResource(resourcePath, Root / "my-theme" / "theme.css")
 ```
 
 
@@ -268,14 +308,19 @@ The API should accept a sequence of `FontDefinition` instances that define the f
 These definitions can then be passed to the base configuration of the theme (which will be merged with the 
 user configuration):
 
-```scala
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.config.ConfigBuilder
+import laika.theme.ThemeBuilder
+import laika.theme.config.FontDefinition
+
 val fonts: Seq[FontDefinition] = ???
 val baseConfig = ConfigBuilder.empty
   .withValue("laika.epub.fonts", fonts)
   .withValue("laika.pdf.fonts", fonts)
   .build
   
-ThemeBuilder("Theme Name")
+ThemeBuilder[IO]("Theme Name")
   .addBaseConfig(baseConfig)
   .build
 ```
@@ -288,33 +333,41 @@ Of course, like with Laika's default Helium theme, you can allow to define diffe
 Constructing a Theme Instance
 -----------------------------
 
-Finally all the templates, styles, configuration and fonts that you gather from the user's theme configuration
+Finally, all the templates, styles, configuration and fonts that you gather from the user's theme configuration
 or from your defaults if omitted, need to be assembled into a theme provider instance.
 
 This step will be very different for each theme depending on its feature set, 
-so we just show Laika's own Helium theme builder as an example:
+so we just show an excerpt of Laika's own Helium theme builder as an example:
 
 ```scala
+package laika.helium.builder
+
+import cats.effect.{ Async, Resource }
+import laika.format.{ EPUB, HTML, XSLFO }
+import laika.helium.Helium
+import laika.helium.generate._
+import laika.theme.{ Theme, ThemeBuilder, ThemeProvider }
+
 class HeliumThemeBuilder (helium: Helium) extends ThemeProvider {
 
-  def build[F[_]: Sync]: Resource[F, Theme[F]] = {
+  def build[F[_]: Async]: Resource[F, Theme[F]] = {
 
     import helium._
-
+    
     val treeProcessor = new HeliumTreeProcessor[F](helium)
-    val htmlOverrides = HeliumRenderOverrides
-                          .forHTML(siteSettings.layout.anchorPlacement)
 
     ThemeBuilder("Helium")
       .addInputs(HeliumInputBuilder.build(helium))
       .addBaseConfig(ConfigGenerator.populateConfig(helium))
       .addRewriteRules(HeliumRewriteRules.build(helium))
-      .addRenderOverrides(HTML.Overrides(htmlOverrides))
+      .addRenderOverrides(
+        HTML.Overrides(HeliumRenderOverrides.forHTML(siteSettings.layout.anchorPlacement))
+      )
+      .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
       .processTree(treeProcessor.forHTML, HTML)
       .processTree(treeProcessor.forAllFormats)
       .build
-
   }
 }
 ```

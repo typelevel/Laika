@@ -26,23 +26,23 @@ object MimeTypes {
   /** Maps files suffixes to mime types.
     */
   val supportedTypes: Map[String, String] = Map(
-    "jpg"   -> "image/jpeg",
-    "jpeg"  -> "image/jpeg",
-    "gif"   -> "image/gif",
-    "png"   -> "image/png",
-    "svg"   -> "image/svg+xml",
-    "mp3"   -> "audio/mpeg",
-    "mp4"   -> "audio/mp4",
-    "html"  -> "application/xhtml+xml",
-    "xhtml" -> "application/xhtml+xml",
+    "jpg"        -> "image/jpeg",
+    "jpeg"       -> "image/jpeg",
+    "gif"        -> "image/gif",
+    "png"        -> "image/png",
+    "svg"        -> "image/svg+xml",
+    "mp3"        -> "audio/mpeg",
+    "mp4"        -> "audio/mp4",
+    "html"       -> "application/xhtml+xml",
+    "xhtml"      -> "application/xhtml+xml",
     "epub.js"    -> "application/javascript",
     "shared.js"  -> "application/javascript",
     "epub.css"   -> "text/css",
     "shared.css" -> "text/css",
-    "woff2" -> "font/woff2",
-    "woff"  -> "application/font-woff",
-    "ttf"   -> "application/font-sfnt",
-    "otf"   -> "application/font-sfnt",
+    "woff2"      -> "font/woff2",
+    "woff"       -> "application/font-woff",
+    "ttf"        -> "application/font-sfnt",
+    "otf"        -> "application/font-sfnt"
   )
 
 }

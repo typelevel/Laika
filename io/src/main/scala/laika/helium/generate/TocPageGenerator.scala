@@ -19,9 +19,19 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{Document, InternalTarget, NavigationBuilderContext, NavigationLink, NavigationList, RootElement, Style, Styles, Title}
+import laika.ast.{
+  Document,
+  InternalTarget,
+  NavigationBuilderContext,
+  NavigationLink,
+  NavigationList,
+  RootElement,
+  Style,
+  Styles,
+  Title
+}
 import laika.factory.Format
-import laika.format.{EPUB, HTML, XSLFO}
+import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.config.TableOfContent
 import laika.render.FOFormatter.Preamble
@@ -29,16 +39,16 @@ import laika.theme.Theme.TreeProcessor
 
 private[helium] object TocPageGenerator {
 
-  def generate[F[_]: Sync] (helium: Helium, format: Format): TreeProcessor[F] = {
+  def generate[F[_]: Sync](helium: Helium, format: Format): TreeProcessor[F] = {
     val tocConfig = (format match {
-      case HTML => helium.siteSettings.content.tableOfContent
+      case HTML       => helium.siteSettings.content.tableOfContent
       case EPUB.XHTML => helium.epubSettings.layout.tableOfContent
-      case XSLFO => helium.pdfSettings.layout.tableOfContent
-      case _ => None
+      case XSLFO      => helium.pdfSettings.layout.tableOfContent
+      case _          => None
     }).filter(_.depth > 0)
     tocConfig.fold[TreeProcessor[F]](Kleisli(Sync[F].pure))(generate(_))
   }
-  
+
   def generate[F[_]: Sync](tocConfig: TableOfContent): TreeProcessor[F] = Kleisli { tree =>
     val result =
       if (tocConfig.depth < 1) tree
@@ -47,23 +57,32 @@ private[helium] object TocPageGenerator {
           refPath = Root,
           itemStyles = Set("toc"),
           maxLevels = tocConfig.depth,
-          currentLevel = 0)
-        val navItem = tree.root.tree.asNavigationItem(navContext)
+          currentLevel = 0
+        )
+        val navItem    = tree.root.tree.asNavigationItem(navContext)
         val navContent = navItem.content.filter { item =>
           item.link match {
-            case Some(NavigationLink(in: InternalTarget, _, _)) => 
+            case Some(NavigationLink(in: InternalTarget, _, _)) =>
               val path = in.relativeTo(Root / "doc").absolutePath
               path != Root / "downloads.gen" && path != Root / "cover"
-            case _ => true
+            case _                                              => true
           }
         }
-        val navList = NavigationList(navContent, Styles("toc"))
-        val title = Title(tocConfig.title).withOptions(Style.title)
-        val root = RootElement(Preamble(tocConfig.title), title, navList) // TODO - Preamble should be inserted in PDF.prepareTree
-        val doc = Document(Root / "table-of-content", root, config = tree.root.config.withValue("helium.site.pageNavigation.enabled", false).build)
+        val navList    = NavigationList(navContent, Styles("toc"))
+        val title      = Title(tocConfig.title).withOptions(Style.title)
+        val root       = RootElement(
+          Preamble(tocConfig.title),
+          title,
+          navList
+        ) // TODO - Preamble should be inserted in PDF.prepareTree
+        val doc = Document(
+          Root / "table-of-content",
+          root,
+          config = tree.root.config.withValue("helium.site.pageNavigation.enabled", false).build
+        )
         tree.modifyTree(_.prependContent(doc))
       }
     Sync[F].pure(result)
   }
-  
+
 }

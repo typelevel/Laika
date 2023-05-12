@@ -18,35 +18,34 @@ package laika.io.ops
 
 import cats.implicits._
 import cats.effect.Sync
-import laika.ast.{Document, DocumentTree, TreeContent}
+import laika.ast.{ Document, DocumentTree, TreeContent }
 import laika.io.model.ParsedTree
 
 /** Operations for builders of transformers that allow to modify the tree
   * or documents between parsing and rendering.
-  * 
+  *
   * This hook differs from the rewrite rules in two ways: first it does not
   * only operate on the AST nodes of a document, therefore it can also change
   * its path or config. Secondly it allows for effectful transformations
   * which are not available in the pure laika-core module.
-  * 
+  *
   * @author Jens Halm
   */
 abstract class TreeMapperOps[F[_]: Sync] {
 
   val F: Sync[F] = Sync[F]
-  
+
   type MapRes
 
   /** Creates a new transformer that applies the specified function to each document in the parsed tree
     * before rendering.
     */
-  def mapDocuments (f: Document => Document): MapRes = evalMapDocuments(f.andThen(F.pure))
+  def mapDocuments(f: Document => Document): MapRes = evalMapDocuments(f.andThen(F.pure))
 
   /** Creates a new transformer that applies the specified effectful function to each document in the parsed tree
     * before rendering.
     */
-  def evalMapDocuments (f: Document => F[Document]): MapRes = evalMapTree { parsed =>
-
+  def evalMapDocuments(f: Document => F[Document]): MapRes = evalMapTree { parsed =>
     def mapTree(tree: DocumentTree): F[DocumentTree] = for {
       newContent <- tree.content.toList.traverse {
         case doc: Document      => f(doc).widen[TreeContent]
@@ -65,11 +64,11 @@ abstract class TreeMapperOps[F[_]: Sync] {
   /** Creates a new transformer that applies the specified function to the parsed tree
     * before rendering.
     */
-  def mapTree (f: ParsedTree[F] => ParsedTree[F]): MapRes = evalMapTree(f.andThen(F.pure))
+  def mapTree(f: ParsedTree[F] => ParsedTree[F]): MapRes = evalMapTree(f.andThen(F.pure))
 
   /** Creates a new transformer that applies the specified effectful function to the parsed tree
     * before rendering.
     */
-  def evalMapTree (f: ParsedTree[F] => F[ParsedTree[F]]): MapRes
-  
+  def evalMapTree(f: ParsedTree[F] => F[ParsedTree[F]]): MapRes
+
 }

@@ -19,7 +19,7 @@ package laika.ast
 import laika.parse.SourceFragment
 
 /** The base class for all Elements forming the document tree.
-  * Usually not extended directly, instead either `Span` or `Block` should be picked as the base type 
+  * Usually not extended directly, instead either `Span` or `Block` should be picked as the base type
   * for new element types.
   *
   * All node types have an optional id and zero or more associated styles serving as render hints.
@@ -27,12 +27,12 @@ import laika.parse.SourceFragment
 abstract class Element extends Product with Serializable {
 
   type Self <: Element
-  
+
   def options: Options
 
   /** Indicates whether this element has the specified style assigned.
     */
-  def hasStyle (name: String): Boolean = options.styles.contains(name)
+  def hasStyle(name: String): Boolean = options.styles.contains(name)
 
   /** Indicates whether this element has an id assigned.
     */
@@ -44,38 +44,40 @@ abstract class Element extends Product with Serializable {
 
   /** Returns a new instance of this element with its id set to the specified value, overriding any existing value.
     */
-  def withId (id: String): Self = modifyOptions(opt => Options(Some(id), opt.styles))
+  def withId(id: String): Self = modifyOptions(opt => Options(Some(id), opt.styles))
 
   /** Returns a new instance of this element with the specified style added to its existing styles.
     */
-  def withStyle (name: String): Self = mergeOptions(Styles(name))
+  def withStyle(name: String): Self = mergeOptions(Styles(name))
 
   /** Returns a new instance of this element with the specified styles added to its existing styles.
     */
-  def withStyles (style: String, styles: String*): Self = mergeOptions(Styles((style +: styles).toSet))
+  def withStyles(style: String, styles: String*): Self = mergeOptions(
+    Styles((style +: styles).toSet)
+  )
 
   /** Returns a new instance of this element with the specified styles added to its existing styles.
     */
-  def withStyles (styles: Iterable[String]): Self = mergeOptions(Styles(styles.toSet))
+  def withStyles(styles: Iterable[String]): Self = mergeOptions(Styles(styles.toSet))
 
   /** Returns a new instance of this element with its options merged with the specified options.
     */
-  def mergeOptions (opt: Options): Self = modifyOptions(_ + opt)
+  def mergeOptions(opt: Options): Self = modifyOptions(_ + opt)
 
   /** Returns a new instance of this element with the new options obtained from applying the specified function
     * to the existing value.
     */
-  def modifyOptions (f: Options => Options): Self = withOptions(f(options))
+  def modifyOptions(f: Options => Options): Self = withOptions(f(options))
 
   /** Returns a new instance of this element with the specified options replacing the current value.
     */
-  def withOptions (options: Options): Self
+  def withOptions(options: Options): Self
 }
 
 /** Provides a fallback for elements the renderer does not know how to deal with.
   */
 trait Fallback {
-  
+
   /** Defines a fallback for this element in case the renderer does not know how to deal with it.
     */
   def fallback: Element
@@ -112,20 +114,20 @@ trait Unresolved extends Element {
     * the consumed input.
     */
   def source: SourceFragment
-  
+
   /** An error message to display when this element remains unresolved until after the final AST transformation step.
     */
   def unresolvedMessage: String
 }
 
-/** Represents an invalid element. 
+/** Represents an invalid element.
   * Renderers can choose to either render the fallback or the runtime message or both,
   * depending on the configuration of the transformer or renderer.
   */
 trait Invalid extends Element with Fallback {
 
   type FallbackElement <: Element
-  
+
   /** The fragment from the input source that produced this element.
     * Can be used to report the line of the error or to render a fallback that simply renders back
     * the consumed input.
@@ -162,7 +164,7 @@ trait Definition extends Block { type Self <: Definition }
 
 /** The base type for all link elements.
   *
-  * In contrast to the reference type, it is only mixed in by elements representing resolved links 
+  * In contrast to the reference type, it is only mixed in by elements representing resolved links
   * that can be dealt with by renderers.
   */
 trait Link extends Span { type Self <: Link }
@@ -171,7 +173,7 @@ trait Link extends Span { type Self <: Link }
   */
 trait LocalLink extends Link {
   type Self <: LocalLink
-  
+
   /** The id of the node within the same document that this link points to. */
   def refId: String
 }
@@ -186,10 +188,11 @@ trait GlobalLink extends Link {
 
   /** Creates a new instance of this node pointing to the specified target instead.
     */
-  def withTarget (target: Target): Self
-  
+  def withTarget(target: Target): Self
+
   /** Indicates whether this node type supports external targets for *all* output formats.
-    * This is not true for images, for example, as they require embedding for EPUB and PDF formats. */
+    * This is not true for images, for example, as they require embedding for EPUB and PDF formats.
+    */
   def supportsExternalTargets: Boolean
 }
 

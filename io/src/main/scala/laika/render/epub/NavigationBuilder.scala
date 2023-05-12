@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast.Path.Root
-import laika.ast.{InternalTarget, _}
+import laika.ast.{ InternalTarget, _ }
 import laika.io.model.RenderedTree
 
 object NavigationBuilder {
@@ -25,28 +25,32 @@ object NavigationBuilder {
   /** Provides the full path to the document relative to the EPUB container root
     * from the specified virtual path of the Laika document tree.
     */
-  def fullPath (path: Path, forceXhtml: Boolean = false): String = {
-    val finalPath = if (forceXhtml || path.suffix.contains("html")) path.withSuffix("epub.xhtml") else path
-    val parent = finalPath.parent match {
+  def fullPath(path: Path, forceXhtml: Boolean = false): String = {
+    val finalPath =
+      if (forceXhtml || path.suffix.contains("html")) path.withSuffix("epub.xhtml") else path
+    val parent    = finalPath.parent match {
       case Root => ""
-      case _ => finalPath.parent.toString
+      case _    => finalPath.parent.toString
     }
     s"content$parent/${finalPath.name}"
   }
 
-  def forTree (tree: RenderedTree, depth: Option[Int]): Seq[NavigationItem] = {
-    
-    def adjustPath (item: NavigationItem): NavigationItem = item.copy(
+  def forTree(tree: RenderedTree, depth: Option[Int]): Seq[NavigationItem] = {
+
+    def adjustPath(item: NavigationItem): NavigationItem = item.copy(
       content = item.content.map(adjustPath),
       link = item.link.map {
-        case nl@ NavigationLink(it: InternalTarget, _, _) =>
-          val adjustedPath = (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("epub.xhtml")
+        case nl @ NavigationLink(it: InternalTarget, _, _) =>
+          val adjustedPath =
+            (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("epub.xhtml")
           nl.copy(target = InternalTarget(adjustedPath.relative))
-        case other => other
+        case other                                         => other
       }
     )
-    
-    tree.asNavigationItem(NavigationBuilderContext(maxLevels = depth.getOrElse(Int.MaxValue), currentLevel = 0))
+
+    tree.asNavigationItem(
+      NavigationBuilderContext(maxLevels = depth.getOrElse(Int.MaxValue), currentLevel = 0)
+    )
       .content.map(adjustPath)
   }
 

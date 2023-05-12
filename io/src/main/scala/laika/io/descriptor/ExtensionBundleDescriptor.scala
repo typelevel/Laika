@@ -19,10 +19,10 @@ package laika.io.descriptor
 import laika.bundle.ExtensionBundle
 
 /** Provides a short description of an extension bundle for tooling or logging.
-  * 
+  *
   * @author Jens Halm
   */
-case class ExtensionBundleDescriptor (bundle: ExtensionBundle) {
+case class ExtensionBundleDescriptor(bundle: ExtensionBundle) {
 
   def formatted: String = {
     s"${bundle.description} (supplied by ${bundle.origin.toString.toLowerCase})"

@@ -17,25 +17,25 @@
 package laika.format
 
 import laika.ast.Element
-import laika.factory.{RenderContext, RenderFormat}
-import laika.render.{HTMLFormatter, HTMLRenderer}
+import laika.factory.{ RenderContext, RenderFormat }
+import laika.render.{ HTMLFormatter, HTMLRenderer }
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
- * 
- *  {{{
- *  Renderer.of(HTML).build.render(document)
- *  
- *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
- *  }}}
- * 
- *  @author Jens Halm
- */
+  *
+  *  {{{
+  *  Renderer.of(HTML).build.render(document)
+  *
+  *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
+  *  }}}
+  *
+  *  @author Jens Halm
+  */
 case object HTML extends RenderFormat[HTMLFormatter] {
-  
+
   val fileSuffix = "html"
 
   val defaultRenderer: (HTMLFormatter, Element) => String = HTMLRenderer
 
   val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = HTMLFormatter
- 
+
 }

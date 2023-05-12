@@ -1,7 +1,7 @@
 
 ![Laika](docs/src/img/site/laika-dog@1.5x.png)
 
-Toolkit for transforming lightweight text markup and template based site and e-book generation.
+Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js
 
 ![Build Status](https://github.com/planet42/Laika/workflows/CI/badge.svg)
 ![Maven Central Release](https://img.shields.io/maven-central/v/org.planet42/laika-core_2.12.svg)
@@ -10,7 +10,7 @@ Toolkit for transforming lightweight text markup and template based site and e-b
 Latest Release
 --------------
 
-The latest release is version **0.19.0**.  
+The latest release is version **0.19.1**.  
 
 The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.
 The sbt plugin is published for sbt 1.x.

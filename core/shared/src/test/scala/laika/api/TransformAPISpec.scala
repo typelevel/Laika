@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 package laika.api
 
 import laika.ast._
@@ -23,23 +23,21 @@ import munit.FunSuite
 
 class TransformAPISpec extends FunSuite {
 
-
   private val input = """# Title äöü
-    |
-    |text zzz *foo*""".stripMargin 
-  
-  private val output = """RootElement - Blocks: 2
-    |. Title(Id(title-äöü) + Styles(title)) - Spans: 1
-    |. . Text - 'Title äöü'
-    |. Paragraph - Spans: 2
-    |. . Text - 'text zzz '
-    |. . Emphasized - Spans: 1
-    |. . . Text - 'foo'""".stripMargin
+                        |
+                        |text zzz *foo*""".stripMargin
 
-  private val builder = 
+  private val output = """RootElement - Blocks: 2
+                         |. Title(Id(title-äöü) + Styles(title)) - Spans: 1
+                         |. . Text - 'Title äöü'
+                         |. Paragraph - Spans: 2
+                         |. . Text - 'text zzz '
+                         |. . Emphasized - Spans: 1
+                         |. . . Text - 'foo'""".stripMargin
+
+  private val builder =
     Transformer.from(Markdown).to(AST).withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
-  
-  
+
   test("string to string") {
     assertEquals(builder.build.transform(input), Right(output))
   }
@@ -47,52 +45,57 @@ class TransformAPISpec extends FunSuite {
   test("empty string") {
     assertEquals(builder.build.transform(""), Right("RootElement - Blocks: 0"))
   }
-  
+
   test("render override for a specific element type") {
-    val modifiedOutput = output.replace(". Text", ". String")
-    val transformCustom = builder.rendering { case (_, Text(content,_)) => s"String - '$content'" }
+    val modifiedOutput  = output.replace(". Text", ". String")
+    val transformCustom = builder.rendering { case (_, Text(content, _)) => s"String - '$content'" }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
-  
+
   test("custom rewrite rule") {
-    val modifiedOutput = output.replace("zzz", "yyy")
-    val transformCustom = builder.usingSpanRule { case Text("text zzz ",_) => Replace(Text("text yyy ")) }
+    val modifiedOutput  = output.replace("zzz", "yyy")
+    val transformCustom = builder.usingSpanRule { case Text("text zzz ", _) =>
+      Replace(Text("text yyy "))
+    }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
-  
+
   test("multiple rewrite rules") {
-    val modifiedOutput = output.replace("zzz", "new").replace("foo", "bar")
+    val modifiedOutput  = output.replace("zzz", "new").replace("foo", "bar")
     val transformCustom = builder
-      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) } 
-      .usingSpanRule { case Text("text zzz ",_)    => Replace(Text("text new ")) }
+      .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
+      .usingSpanRule { case Text("text zzz ", _) => Replace(Text("text new ")) }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
   test("process a Replace followed by a Retain") {
-    val modifiedOutput = output.replace("foo", "bar")
+    val modifiedOutput  = output.replace("foo", "bar")
     val transformCustom = builder
-      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) }
-      .usingSpanRule { case Text(_,_) => Retain }
+      .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
+      .usingSpanRule { case Text(_, _) => Retain }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
-  
+
   test("custom rewrite rule that depends on the document") {
-    val modifiedOutput = output.replace("zzz", "2")
-    val transformCustom = builder.buildingRules { cursor => Right(RewriteRules.forSpans { 
-      case Text("text zzz ",_) => Replace(Text("text " + cursor.target.content.content.length + " ")) 
-    })}
+    val modifiedOutput  = output.replace("zzz", "2")
+    val transformCustom = builder.buildingRules { cursor =>
+      Right(RewriteRules.forSpans { case Text("text zzz ", _) =>
+        Replace(Text("text " + cursor.target.content.content.length + " "))
+      })
+    }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
   test("process rules with access to a document cursor in a later phase") {
-    val modifiedOutput = output.replace("foo", "baz")
+    val modifiedOutput  = output.replace("foo", "baz")
     val transformCustom = builder
-      .buildingRules { _ => Right(RewriteRules.forSpans {
-        case Text("bar",_) => Replace(Text("baz"))
-      })}
-      .usingSpanRule { case Text("foo" ,_) => Replace(Text("bar")) }
+      .buildingRules { _ =>
+        Right(RewriteRules.forSpans { case Text("bar", _) =>
+          Replace(Text("baz"))
+        })
+      }
+      .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
 }
-  

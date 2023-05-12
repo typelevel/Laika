@@ -17,24 +17,32 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{BlockSequence, Image, InternalTarget, LengthUnit, VirtualPath, SpanSequence, Styles}
-import laika.directive.{Blocks, Spans}
+import laika.ast.{
+  BlockSequence,
+  Image,
+  InternalTarget,
+  LengthUnit,
+  VirtualPath,
+  SpanSequence,
+  Styles
+}
+import laika.directive.{ Blocks, Spans }
 
 /** Provides the implementation for the image directives included in Laika.
   *
   * This includes the block-level and span-level image directives.
-  * 
+  *
   * For full documentation see the section about
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#image Image Directives]]
   * in the manual.
-  * 
+  *
   * @author Jens Halm
   */
 object ImageDirectives {
 
   /** Markup directive for inserting an image as a block level element.
     *
-    * The image source must be set with a positional attribute (in parenthesis). 
+    * The image source must be set with a positional attribute (in parenthesis).
     * It is the only required attribute and can be a local path (absolute or relative) in the virtual tree
     * of your input sources, or an external URL (`http:` or `https:`).
     *
@@ -42,20 +50,21 @@ object ImageDirectives {
     * of the image to avoid layout shifts when loading the page.
     *
     * For controlling the actual display size you can use the `style` attribute together with a matching declaration
-    * in one of your site's CSS documents. 
+    * in one of your site's CSS documents.
     * If omitted the theme in use will usually have a sensible default size.
-    *
     */
   val forBlocks: Blocks.Directive = Blocks.create("image") {
     import Blocks.dsl._
-    (attribute(0).as[String].widen,
+    (
+      attribute(0).as[String].widen,
       attribute("intrinsicWidth").as[Int].optional,
       attribute("intrinsicHeight").as[Int].optional,
       attribute("style").as[String].optional,
       attribute("alt").as[String].optional,
       attribute("title").as[String].optional,
-      cursor).mapN { (src, width, height, style, alt, title, cursor) =>
-      val img = Image(
+      cursor
+    ).mapN { (src, width, height, style, alt, title, cursor) =>
+      val img     = Image(
         InternalTarget(VirtualPath.parse(src)).relativeTo(cursor.path),
         width.map(LengthUnit.px(_)),
         height.map(LengthUnit.px(_)),
@@ -69,7 +78,7 @@ object ImageDirectives {
 
   /** Markup directive for inserting an image as an inline element.
     *
-    * The image source must be set with a positional attribute (in parenthesis). 
+    * The image source must be set with a positional attribute (in parenthesis).
     * It is the only required attribute and can be a local path (absolute or relative) in the virtual tree
     * of your input sources, or an external URL (`http:` or `https:`).
     *
@@ -77,19 +86,20 @@ object ImageDirectives {
     * of the image to avoid layout shifts when loading the page.
     *
     * For controlling the actual display size you can use the `style` attribute together with a matching declaration
-    * in one of your site's CSS documents. 
+    * in one of your site's CSS documents.
     * If omitted the theme in use will usually have a sensible default size.
-    *
     */
   val forSpans: Spans.Directive = Spans.create("image") {
     import Spans.dsl._
-    (attribute(0).as[String].widen,
+    (
+      attribute(0).as[String].widen,
       attribute("intrinsicWidth").as[Int].optional,
       attribute("intrinsicHeight").as[Int].optional,
       attribute("style").as[String].optional,
       attribute("alt").as[String].optional,
       attribute("title").as[String].optional,
-      cursor).mapN { (src, width, height, style, alt, title, cursor) =>
+      cursor
+    ).mapN { (src, width, height, style, alt, title, cursor) =>
       val options = Styles(style.getOrElse("default-image-span"))
       Image(
         InternalTarget(VirtualPath.parse(src)).relativeTo(cursor.path),
@@ -101,5 +111,5 @@ object ImageDirectives {
       )
     }
   }
-  
+
 }

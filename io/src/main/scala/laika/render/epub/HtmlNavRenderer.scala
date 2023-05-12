@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.ast.{NavigationItem, NavigationLink}
+import laika.ast.{ NavigationItem, NavigationLink }
 import laika.io.model.RenderedTreeRoot
 import laika.render.TagFormatter
 import laika.render.epub.StyleSupport.collectStylePaths
@@ -27,11 +27,16 @@ import laika.render.epub.StyleSupport.collectStylePaths
   */
 class HtmlNavRenderer {
 
-
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (title: String, styles: String, navItems: String, coverDoc: Option[String] = None, titleDoc: Option[String] = None): String =
+  def fileContent(
+      title: String,
+      styles: String,
+      navItems: String,
+      coverDoc: Option[String] = None,
+      titleDoc: Option[String] = None
+  ): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<!DOCTYPE html>
        |<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -53,21 +58,21 @@ class HtmlNavRenderer {
 
   /** Renders a single navigation link.
     */
-  private def navLink (title: String, link: String, pos: Int, children: String): String =
+  private def navLink(title: String, link: String, pos: Int, children: String): String =
     s"""        <li id="toc-li-$pos">
        |          <a href="$link">${TagFormatter.escape(title)}</a>
        |$children
        |        </li>""".stripMargin
 
   /** Always use the link to the first child of a navigation header.
-    * Despite the fact that the EPUB spec supports "unlinked headers", 
+    * Despite the fact that the EPUB spec supports "unlinked headers",
     * which are just a `<span>` element instead of an `<a>` element,
     * many e-book readers such as iBooks choke on them to the point of rendering navigation menus useless.
-    * 
+    *
     * Unlinked navigation headers are described in the EPUB spec here:
     * https://www.w3.org/publishing/epub32/epub-packages.html#sec-package-nav-def-model
     */
-  private def linkOfFirstChild (children: Seq[NavigationItem]): NavigationLink = 
+  private def linkOfFirstChild(children: Seq[NavigationItem]): NavigationLink =
     children.head.link.getOrElse(linkOfFirstChild(children.head.content))
 
   /** Generates navigation entries for the structure of the DocumentTree. Individual
@@ -78,16 +83,20 @@ class HtmlNavRenderer {
     * @param bookNav the navigation items to generate navPoints for
     * @return the navPoint XML nodes for the specified document tree as a String
     */
-  private def navItems (bookNav: Seq[NavigationItem], pos: Iterator[Int] = Iterator.from(0)): String =
+  private def navItems(
+      bookNav: Seq[NavigationItem],
+      pos: Iterator[Int] = Iterator.from(0)
+  ): String =
     if (bookNav.isEmpty) ""
-    else bookNav.map { item =>
-      navLink(
-        item.title.extractText, 
-        item.link.getOrElse(linkOfFirstChild(item.content)).target.render(),
-        pos.next(), 
-        navItems(item.content, pos)
-      )
-    }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
+    else
+      bookNav.map { item =>
+        navLink(
+          item.title.extractText,
+          item.link.getOrElse(linkOfFirstChild(item.content)).target.render(),
+          pos.next(),
+          navItems(item.content, pos)
+        )
+      }.mkString("      <ol class=\"toc\">\n", "\n", "\n      </ol>")
 
   /** Renders the entire content of an EPUB HTML navigation file for
     * the specified document tree. The recursion depth will be applied
@@ -95,17 +104,18 @@ class HtmlNavRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render[F[_]] (result: RenderedTreeRoot[F], title: String, depth: Option[Int]): String = {
-    val bookNav = NavigationBuilder.forTree(result.tree, depth)
-    val styles = collectStylePaths(result).map { path =>
+  def render[F[_]](result: RenderedTreeRoot[F], title: String, depth: Option[Int]): String = {
+    val bookNav           = NavigationBuilder.forTree(result.tree, depth)
+    val styles            = collectStylePaths(result).map { path =>
       s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    val coverDoc = result.coverDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
-    val titleDoc = result.titleDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
+    val coverDoc          =
+      result.coverDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
+    val titleDoc          =
+      result.titleDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
 
     fileContent(title, styles, renderedNavPoints, coverDoc, titleDoc)
   }
-
 
 }

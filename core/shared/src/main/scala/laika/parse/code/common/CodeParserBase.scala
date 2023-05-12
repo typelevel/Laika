@@ -17,22 +17,22 @@
 package laika.parse.code.common
 
 import cats.data.NonEmptySet
-import laika.ast.{CategorizedCode, CodeSpan, CodeSpanSequence}
+import laika.ast.{ CategorizedCode, CodeSpan, CodeSpanSequence }
 import laika.parse.code.CodeSpanParser
 import laika.parse.text.PrefixedParser
 
 /** Convenient base trait that allows for passing the implementing
   * instances anywhere either a `PrefixedParser[Seq[CodeSpan]]` or
   * a `CodeSpanParser` is required for easier composition.
-  * 
+  *
   * @author Jens Halm
   */
 trait CodeParserBase extends PrefixedParser[Seq[CodeSpan]] with CodeSpanParser {
-  
+
   def underlying: PrefixedParser[Seq[CodeSpan]]
 
   override def startChars: NonEmptySet[Char] = underlying.startChars
-  
+
   override def parsers: Seq[PrefixedParser[CategorizedCode]] = Seq(map(CodeSpanSequence(_)))
-  
+
 }

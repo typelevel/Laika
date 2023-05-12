@@ -17,34 +17,37 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{DocumentCursor, SpanLink, Target, Text}
+import laika.ast.{ DocumentCursor, SpanLink, Target, Text }
 import laika.directive.Links
 import laika.rewrite.link.LinkConfig
 
 /** Provides the implementation for the link directives included in Laika.
   *
   * These include:
-  * 
+  *
   * - `api`: Convenience directive that allows to reference an api documentation entry (e.g. scaladoc, javadoc)
   * - `source`: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
   *
   * For full documentation see the section about
   * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#navigation Navigation Directives]]
   * in the manual.
-  * 
+  *
   * @author Jens Halm
   */
 object LinkDirectives {
 
-  private def linkConfig[T] (cursor: DocumentCursor, extract: LinkConfig => Seq[T]): Either[String, Seq[T]] =
+  private def linkConfig[T](
+      cursor: DocumentCursor,
+      extract: LinkConfig => Seq[T]
+  ): Either[String, Seq[T]] =
     linkConfig(cursor).map(extract)
 
-  private def linkConfig[T] (cursor: DocumentCursor): Either[String, LinkConfig] =
+  private def linkConfig[T](cursor: DocumentCursor): Either[String, LinkConfig] =
     cursor.config
       .getOpt[LinkConfig]
       .map(_.getOrElse(LinkConfig()))
       .leftMap(_.message)
-  
+
   /** Implementation of the `api` directive that creates links to API documentation based
     * on a specified fully-qualified type name. The type name is the only (required) attribute
     * of the directive.
@@ -55,24 +58,31 @@ object LinkDirectives {
   lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
     linkConfig(cursor)
       .flatMap { linkConfig =>
-        val matching = linkConfig.apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(_.packagePrefix.length)
-        matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[String, SpanLink]] (
+        val matching = linkConfig.apiLinks.toList.filter(l =>
+          linkId.startsWith(l.packagePrefix)
+        ).maximumByOption(_.packagePrefix.length)
+        matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[
+          String,
+          SpanLink
+        ]](
           Left(s"No base URI defined for '$linkId' and no default URI available.")
         ) { link =>
-          def splitAtLast(in: String, char: Char): (String, Option[String]) = in.split(char).toSeq match {
-            case Seq(single)  => (single, None)
-            case init :+ last => (init.mkString(char.toString), Some(last))
-          }
-          
-          val (fqName, method) = splitAtLast(linkId, '#')
+          def splitAtLast(in: String, char: Char): (String, Option[String]) =
+            in.split(char).toSeq match {
+              case Seq(single)  => (single, None)
+              case init :+ last => (init.mkString(char.toString), Some(last))
+            }
+
+          val (fqName, method)         = splitAtLast(linkId, '#')
           val (packageName, className) = splitAtLast(fqName, '.')
-          val isPackage = className.contains("package")
-          
+          val isPackage                = className.contains("package")
+
           val linkText = {
-            val typeText = if (isPackage) packageName else className.getOrElse(fqName).stripSuffix("$")
+            val typeText =
+              if (isPackage) packageName else className.getOrElse(fqName).stripSuffix("$")
             typeText + method.fold("")(m => "." + m.split('(').head)
           }
-          
+
           val uri = {
             val typePath =
               if (isPackage) packageName.replace(".", "/") + "/" + link.packageSummary
@@ -85,7 +95,7 @@ object LinkDirectives {
   }
 
   /** Implementation of the `source` directive that creates links to hosted sources based
-    * on a specified fully-qualified type name or a path to markup source file. 
+    * on a specified fully-qualified type name or a path to markup source file.
     * The type name or path is the only (required) attribute of the directive.
     *
     * The directive relies on base URIs defined in the transformation's configuration and will
@@ -98,15 +108,15 @@ object LinkDirectives {
           .filter(l => linkId.startsWith(l.packagePrefix))
           .maximumByOption(_.packagePrefix.length)
           .orElse(sourceLinks.find(_.packagePrefix == "*"))
-          .fold[Either[String, SpanLink]] (
+          .fold[Either[String, SpanLink]](
             Left(s"No base URI defined for '$linkId' and no default URI available.")
           ) { link =>
             val typePath = linkId.replace(".", "/") + "." + link.suffix
-            val uri = link.baseUri + typePath
-            val text = linkId.split('.').last
+            val uri      = link.baseUri + typePath
+            val text     = linkId.split('.').last
             cursor.validate(SpanLink(Target.parse(uri))(text))
           }
-        }
+      }
   }
-  
+
 }

@@ -16,14 +16,13 @@
 
 package laika.helium
 
-import laika.api.{MarkupParser, RenderPhaseRewrite}
-import laika.format.{AST, Markdown}
+import laika.api.{ MarkupParser, RenderPhaseRewrite }
+import laika.format.{ AST, Markdown }
 import laika.helium.builder.HeliumRewriteRules
 import laika.markdown.github.GitHubFlavor
 import munit.FunSuite
 
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class LineEstimatesSpec extends FunSuite with RenderPhaseRewrite {
 
@@ -31,17 +30,17 @@ class LineEstimatesSpec extends FunSuite with RenderPhaseRewrite {
     .of(Markdown)
     .using(GitHubFlavor)
     .build
-  
-  def run (input: String, expected: Int)(implicit loc: munit.Location): Unit = {
+
+  def run(input: String, expected: Int)(implicit loc: munit.Location): Unit = {
     val actual = parser
       .parse(input)
       .flatMap(rewrite(parser, AST))
       .fold(_ => 0, doc => HeliumRewriteRules.estimateLines(doc.content.content))
     assertEquals(actual, expected)
   }
-  
+
   test("count paragraph lines") {
-    val input = 
+    val input =
       """
         |1
         |2
@@ -80,9 +79,9 @@ class LineEstimatesSpec extends FunSuite with RenderPhaseRewrite {
       """.stripMargin
     run(input, 3)
   }
-  
+
   test("count sections and navigation list items") {
-    val input = 
+    val input =
       """
         |# 1
         |
@@ -102,5 +101,5 @@ class LineEstimatesSpec extends FunSuite with RenderPhaseRewrite {
       """.stripMargin
     run(input, 12)
   }
-  
+
 }

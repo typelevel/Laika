@@ -43,7 +43,13 @@ val transformer = Transformer
 
 After:
 
-```scala
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.api._
+import laika.format._
+import laika.io.implicits._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -68,7 +74,8 @@ If you are using the sbt plugin, you are not affected by this API change.
 When using the library API the necessary code changes are quite trivial. Change:
 
 ```scala
-val transformer = ??? // build your transformer like before
+// build your transformer like before
+val transformer = ???
 
 transformer
   .fromDirectory("docs")
@@ -78,8 +85,12 @@ transformer
 
 to
 
-```scala
-val transformer = ??? // build your transformer like before
+```scala mdoc:compile-only
+import cats.effect.{ IO, Resource }
+import laika.io.api.TreeTransformer
+
+// build your transformer like before
+val transformer: Resource[IO, TreeTransformer[IO]] = ???
 
 transformer.use {
   _.fromDirectory("docs")
@@ -231,7 +242,12 @@ val res: String = transformer
 
 After
 
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+import laika.parse.markup.DocumentParser.TransformationError
+
 val input = "some *text* example"
 
 val transformer = Transformer
@@ -240,7 +256,7 @@ val transformer = Transformer
   .using(GitHubFlavor)
   .build
   
-val res: Either[ParserError, String] = transformer
+val res: Either[TransformationError, String] = transformer
   .transform(input)
 ```
 
@@ -264,7 +280,11 @@ val res: Unit = transformer
 
 After (ensure you added the new `laika-io` dependency):
 
-```scala
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
 import laika.io.implicits._
 
 val transformer = Transformer
@@ -278,6 +298,7 @@ val res: IO[Unit] = transformer.use {
   _.fromDirectory("src")
    .toDirectory("target")
    .transform
+   .void
 }
 ```
 
@@ -307,7 +328,11 @@ val transformer = Transform
 
 After
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.Emphasized
+import laika.api._
+import laika.format._
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -350,7 +375,11 @@ val transformer = Transform
 
 After
 
-```scala
+```scala mdoc:compile-only
+import laika.ast._
+import laika.api._
+import laika.format._
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -443,15 +472,20 @@ val spanDirective = Spans.create("note") {
 
 After
 
-```scala
+```scala mdoc:compile-only
 import cats.implicits._
 import laika.ast._
+import laika.directive.Spans
 import Spans.dsl._
 
 case class Note (title: String, 
                  content: Seq[Span], 
                  options: Options = NoOpt) extends Span 
-                                           with SpanContainer[Note]
+                                           with SpanContainer {
+  type Self = Note  
+  def withOptions(options: Options): Self = copy(options = options)  
+  def withContent(content: Seq[Span]): Self = copy(content = content)                                  
+}
  
 val spanDirective = Spans.create("note") {
   (attribute(0).as[String], parsedBody).mapN(Note(_,_))

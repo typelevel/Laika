@@ -27,19 +27,19 @@ This is encapsulated in the single abstract method of the `Parser` trait:
 
 ```scala
 trait Parser[T] {
-  def parse (in: ParserContext): Parsed[T]
+  def parse (in: SourceCursor): Parsed[T]
 }
 ```
 
-The `ParserContext` contains an API for reading from the input at the current offset and for capturing or consuming
+The `SourceCursor` contains an API for reading from the input at the current offset and for capturing or consuming
 some of the input.
 
 The returned result of type `Parsed[T]` is a little ADT with the following types:
 
 ```scala
-case class Success[+T] (result: T, next: ParserContext) extends Parsed[T]
+case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T]
 
-case class Failure (msg: Message, next: ParserContext) extends Parsed[Nothing]
+case class Failure (msg: Message, next: SourceCursor) extends Parsed[Nothing]
 ```
 
 In case of success the result will be returned alongside a new `ParserContext` that may have consumed
@@ -64,11 +64,18 @@ They deliberately do not integrate with or otherwise use regular expressions and
 While being significantly more verbose, combinators are a more type-safe, composable and also often more legible
 way to define text parsers, in particular with larger, more complex expressions.
 
-For defining parsers you need the following two imports:
+For defining parsers you usually need at least the following imports:
 
-```scala
+```scala mdoc:silent
+import laika.ast.~
 import laika.parse.builders._
 import laika.parse.implicits._
+```
+
+When working with character groups this additional import can be used:
+
+```scala mdoc:silent
+import laika.parse.text.CharGroup
 ```
 
 The following section demonstrate some of the most commonly used text parsers.
@@ -146,7 +153,7 @@ constructs.
 
 The `~` combines the result of two parsers and only succeeds if both of them succeed:
 
-```scala
+```scala mdoc:silent
 val p = oneOf('$','_') ~ someOf(range('a', 'z'))
 ```
 
@@ -156,7 +163,7 @@ a lowercase letter.
 The result will be `String ~ String`, where `~` is a case class that allows to map on the result with the
 same symbol:
 
-```scala
+```scala mdoc:silent
 p.map { case firstChar ~ lowerCaseLetter => Seq(firstChar, lowerCaseLetter) }
 ```
 
@@ -164,7 +171,7 @@ In many cases we are only interested in one of the results of a concatenation,
 when some of the results are known for example.
 The `~>` combinator ignores the left result, `<~` ignores the right one: 
 
-```scala
+```scala mdoc:nest:silent
 val p = "<" ~> someOf(range('a', 'z')) <~ ">"
 ```
 
@@ -176,8 +183,8 @@ The result of this parser will be `String` as the first and last result will be 
 Two parsers can be defined to be tried as alternatives, 
 where the second will only be invoked if the first parser fails:
 
-```scala
-("\"" ~> anyBut('"') <~ "\"") | someBut(' ')
+```scala mdoc:silent
+("\"" ~> anyNot('"') <~ "\"") | someNot(' ')
 ```
 
 The example above parses either text enclosed in double quotes or a string without spaces. 
@@ -193,8 +200,8 @@ In many cases this will be the error message that is the most helpful for the us
 
 The same parser can be invoked repeatedly, while collecting all individual results on the way:
 
-```scala
-someOf(CharGroup.alphaNum) ~ (',' ~> someOf(CharGroup.alphaNum).rep)
+```scala mdoc:silent
+someOf(CharGroup.alphaNum) ~ ("," ~> someOf(CharGroup.alphaNum).rep)
 ```
 
 The above reads a non-empty sequence of alphanumerical characters followed by zero or more repetitions
@@ -203,15 +210,15 @@ The result will be `String ~ Seq[String]`
 
 This pattern is so common that there is also a shortcut for repeating with a separator:
 
-```scala
-someOf(CharGroup.alphaNum).rep(',')
+```scala mdoc:silent
+someOf(CharGroup.alphaNum).rep(",")
 ```
 
 This parser's behaviour is identical to the previous one.
 
 The number of repetitions can be further constrained:
 
-```scala
+```scala mdoc:silent
 someOf(CharGroup.hexDigit).max(4)
 ```
 
@@ -249,7 +256,7 @@ def collect [U] (f: PartialFunction[T, U]): Parser[U]
 While `evalMap` maps to an `Either` where a `Left` result will cause the parser to fail,
 `collect` applies a partial function and causes the parser to fail if the function is not defined for the result.
 
-```scala
+```scala mdoc:silent
 someOf(CharGroup.digit).evalMap { res =>
   val num = res.toInt
   Either.cond(num % 3 == 0, num, "Number must be divisible by three")
@@ -261,9 +268,9 @@ The example above creates a parser that reads any number divisible by 3 or fails
 You can also chain parsers with `flatMap`.
 The example parses a start delimiter out of 3 options and then looks for a matching delimiter to close the span:
 
-```scala
+```scala mdoc:silent
 oneOf('*', '-', '+').flatMap { res =>
-  someBut(res.charAt(0)) <~ literal(res)
+  someNot(res.charAt(0)) <~ literal(res)
 }
 ```
 
@@ -272,7 +279,7 @@ by the first.
 
 You can also ignore the original result of a parser and hard-code a result that should be used if the parser succeeds:
 
-```scala
+```scala mdoc:silent
 case object Fence
 
 literal("```").as(Fence)
@@ -280,8 +287,8 @@ literal("```").as(Fence)
 
 Another option is to ignore the results of a concatenation and instead use the entire consumed input as a result:
 
-```scala
-("\"" ~> anyBut('"') <~ "\"").source
+```scala mdoc:silent
+("\"" ~> anyNot('"') <~ "\"").source
 ```
 
 This is usually more convenient in all cases where the result you would produce would have been the string concatenation
@@ -293,8 +300,8 @@ the `laika.parse.implicits._` import also provides a few convenient shortcuts fo
 
 A result of concatenating a single result with a repetition can be combined into a single list with `concat` for example:
 
-```scala
-someOf(CharGroup.alphaNum) ~ (',' ~> someOf(CharGroup.alphaNum).rep).concat
+```scala mdoc:silent
+someOf(CharGroup.alphaNum) ~ ("," ~ someOf(CharGroup.alphaNum).rep).concat
 ```
 
 This will turn a parser with the result `String ~ Seq[String]` into a parser for `Seq[String]`.
@@ -318,7 +325,7 @@ Doing this manually with existing low-level combinators is possible, but much mo
 
 A simplified definition of such a parser for an emphasized span could look like this:
 
-```scala
+```scala mdoc:silent
 val letterOrDigit: Char => Boolean = { c => 
   Character.isDigit(c) || Character.isLetter(c)
 }
@@ -337,7 +344,7 @@ a specified delimiter is seen.
 
 The last line in the previous example can be shortened to:
 
-```scala
+```scala mdoc:silent
 start ~> delimitedBy(end)
 ```
 
@@ -349,7 +356,7 @@ even if it would later see the given delimiter.
 Let's assume we want an emphasized span that is not allowed to span multiple lines.
 We can express this with `failOn`:  
 
-```scala
+```scala mdoc:silent
 start ~> delimitedBy(end).failOn('\n')
 ```
 
@@ -370,7 +377,11 @@ We don't allow this syntax to span multiple lines.
 
 This is how a simplified implementation could look like:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.Span
+import laika.parse.markup.InlineParsers
+import laika.parse.text.PrefixedParser
+
 val nestedSpanParsers: Seq[PrefixedParser[Span]] = ???
 val linkSpanParser = delimitedBy("]").failOn('\n')
 

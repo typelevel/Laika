@@ -18,9 +18,9 @@ package laika.io.ops
 
 import cats.effect.Async
 import laika.ast.Path.Root
-import laika.io.model.{BinaryOutput, FilePath}
+import laika.io.model.{ BinaryOutput, FilePath }
 
-import java.io.{File, OutputStream}
+import java.io.{ File, OutputStream }
 
 /** API for specifying the output for a binary format like EPUB or PDF.
   *
@@ -40,26 +40,26 @@ trait BinaryOutputOps[F[_]] {
     *
     *  @param name the name of the file to write to
     */
-  def toFile (name: String): Result = toFile(FilePath.parse(name))
+  def toFile(name: String): Result = toFile(FilePath.parse(name))
 
   @deprecated("use toFile(String) or toFile(FilePath)", "0.19.0")
-  def toFile (file: File): Result = toFile(FilePath.fromJavaFile(file))
+  def toFile(file: File): Result = toFile(FilePath.fromJavaFile(file))
 
   /** Builder step that instructs the runtime to render
     * to the specified file.
     *
     *  @param file the file to write to
     */
-  def toFile (file: FilePath): Result =
+  def toFile(file: FilePath): Result =
     toOutput(BinaryOutput.forFile(file, Root / file.name)(F))
 
   /** Builder step that instructs the runtime to render
     * to the specified output stream.
-    * 
+    *
     * @param stream the binary stream to render to
-    * @param autoClose indicates whether the stream should be closed after all output had been written                 
+    * @param autoClose indicates whether the stream should be closed after all output had been written
     */
-  def toStream (stream: F[OutputStream], autoClose: Boolean = true): Result =
+  def toStream(stream: F[OutputStream], autoClose: Boolean = true): Result =
     toOutput(BinaryOutput.forStream(stream, Root, autoClose)(F))
 
   /** Builder step that instructs the runtime to render
@@ -68,6 +68,6 @@ trait BinaryOutputOps[F[_]] {
     * This is a generic method based on Laika's IO model that concrete
     * methods delegate to.
     */
-  def toOutput (output: BinaryOutput[F]): Result
+  def toOutput(output: BinaryOutput[F]): Result
 
 }

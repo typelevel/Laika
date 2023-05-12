@@ -18,23 +18,23 @@ package laika.parse.text
 
 import cats.data.NonEmptySet
 import laika.ast.~
-import laika.parse.{Parsed, Parser, SourceCursor, SourceFragment}
+import laika.parse.{ Parsed, Parser, SourceCursor, SourceFragment }
 
-/** A parser that is associated with a non-empty set of trigger 
+/** A parser that is associated with a non-empty set of trigger
   * characters for performance optimizations.
-  * 
+  *
   * There is usually no need to create such a parser manually,
   * as some of the basic building blocks in `TextParsers` create
   * such a parser (e.g. the `literal`, `oneOf` or `someOf`
   * parsers).
   *
   * This set only has only an effect when this parser is used in
-  * an optimized parser for recursive spans, meaning it is 
+  * an optimized parser for recursive spans, meaning it is
   * either registered as a top-level parser (with `SpanParser.standalone`
   * or `SpanParser.recursive`) or passed to a custom span parser
   * with `InlineParser.embed`. In all other use cases this
   * parser behaves just like plain parser.
-  * 
+  *
   * @author Jens Halm
   */
 trait PrefixedParser[+T] extends Parser[T] { self =>
@@ -48,27 +48,33 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
     */
   def underlying: Parser[T]
 
-  def parse (in: SourceCursor): Parsed[T] = underlying.parse(in)
+  def parse(in: SourceCursor): Parsed[T] = underlying.parse(in)
 
+  override def ~ [U](p: Parser[U]): PrefixedParser[T ~ U] = PrefixedParser(startChars)(super.~(p))
+  override def ~> [U](p: Parser[U]): PrefixedParser[U]    = PrefixedParser(startChars)(super.~>(p))
+  override def <~ [U](p: Parser[U]): PrefixedParser[T]    = PrefixedParser(startChars)(super.<~(p))
 
-  override def ~ [U] (p: Parser[U]): PrefixedParser[T ~ U]       = PrefixedParser(startChars)(super.~(p))
-  override def ~> [U] (p: Parser[U]): PrefixedParser[U]          = PrefixedParser(startChars)(super.~>(p))
-  override def <~[U] (p: Parser[U]): PrefixedParser[T]           = PrefixedParser(startChars)(super.<~(p))
+  override def ~ (value: String): PrefixedParser[T ~ String] = this.~(TextParsers.literal(value))
+  override def ~> (value: String): PrefixedParser[String]    = this.~>(TextParsers.literal(value))
+  override def <~ (value: String): PrefixedParser[T]         = this.<~(TextParsers.literal(value))
 
-  override def ~ (value: String): PrefixedParser[T ~ String]     = this.~(TextParsers.literal(value))
-  override def ~> (value: String): PrefixedParser[String]        = this.~>(TextParsers.literal(value))
-  override def <~ (value: String): PrefixedParser[T]             = this.<~(TextParsers.literal(value))
-  
-  override def flatMap[U] (f: T => Parser[U]): PrefixedParser[U] = PrefixedParser(startChars)(super.flatMap(f))
-  override def >>[U] (fq: T => Parser[U]): PrefixedParser[U]     = PrefixedParser(startChars)(super.flatMap(fq))
-  override def map[U] (f: T => U): PrefixedParser[U]             = PrefixedParser(startChars)(super.map(f))
-  override def ^^[U] (f: T => U): PrefixedParser[U]              = PrefixedParser(startChars)(super.map(f))
-  override def as[U] (v: => U): PrefixedParser[U]               = PrefixedParser(startChars)(super.as(v))
-  
-  override def evalMap[U] (f: T => Either[String, U]): PrefixedParser[U] = PrefixedParser(startChars)(super.evalMap(f))
+  override def flatMap[U](f: T => Parser[U]): PrefixedParser[U] =
+    PrefixedParser(startChars)(super.flatMap(f))
 
-  override def collect[U, V >: T] (f: PartialFunction[T, U],
-                                   error: V => String = (r:V) => s"Constructor function not defined at $r"): PrefixedParser[U] =
+  override def >> [U](fq: T => Parser[U]): PrefixedParser[U] =
+    PrefixedParser(startChars)(super.flatMap(fq))
+
+  override def map[U](f: T => U): PrefixedParser[U] = PrefixedParser(startChars)(super.map(f))
+  override def ^^ [U](f: T => U): PrefixedParser[U] = PrefixedParser(startChars)(super.map(f))
+  override def as[U](v: => U): PrefixedParser[U]    = PrefixedParser(startChars)(super.as(v))
+
+  override def evalMap[U](f: T => Either[String, U]): PrefixedParser[U] =
+    PrefixedParser(startChars)(super.evalMap(f))
+
+  override def collect[U, V >: T](
+      f: PartialFunction[T, U],
+      error: V => String = (r: V) => s"Constructor function not defined at $r"
+  ): PrefixedParser[U] =
     PrefixedParser(startChars)(super.collect(f, error))
 
   /**  Applies the specified parser when this parser fails.
@@ -79,7 +85,8 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
     *  base trait that preserves the nature of the `PrefixedParser`
     *  if both original parsers implement this trait.
     */
-  def orElse[U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(startChars  ++ p.startChars)(super.orElse(p))
+  def orElse[U >: T](p: => PrefixedParser[U]): PrefixedParser[U] =
+    PrefixedParser(startChars ++ p.startChars)(super.orElse(p))
 
   /**  Applies the specified parser when this parser fails.
     *
@@ -89,14 +96,17 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
     *  base trait that preserves the nature of the `PrefixedParser`
     *  if both original parsers implement this trait.
     */
-  def | [U >: T] (p: => PrefixedParser[U]): PrefixedParser[U] = PrefixedParser(startChars ++ p.startChars)(super.orElse(p))
+  def | [U >: T](p: => PrefixedParser[U]): PrefixedParser[U] =
+    PrefixedParser(startChars ++ p.startChars)(super.orElse(p))
 
-  override def | (value: String)(implicit ev: T <:< String): PrefixedParser[String] = map(ev).orElse(TextParsers.literal(value))
+  override def | (value: String)(implicit ev: T <:< String): PrefixedParser[String] =
+    map(ev).orElse(TextParsers.literal(value))
 
-  override def withCursor: PrefixedParser[(T, SourceFragment)] = PrefixedParser(startChars)(super.withCursor)
-  
+  override def withCursor: PrefixedParser[(T, SourceFragment)] =
+    PrefixedParser(startChars)(super.withCursor)
+
   override def cursor: PrefixedParser[SourceFragment] = PrefixedParser(startChars)(super.cursor)
-  
+
   override def source: PrefixedParser[String] = PrefixedParser(startChars)(super.source)
 
 }
@@ -104,23 +114,23 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
 /** Factories and utilities for creating or processing PrefixedParser instances.
   */
 object PrefixedParser {
-  
+
   import cats.implicits._
 
-  /** Creates a new parser that is only triggered when a character in the specified 
+  /** Creates a new parser that is only triggered when a character in the specified
     * set is seen on the input.
     */
-  def apply[U] (sc: NonEmptySet[Char])(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
+  def apply[U](sc: NonEmptySet[Char])(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
     def startChars: NonEmptySet[Char] = sc
-    override def underlying = p
+    override def underlying           = p
   }
 
-  /** Creates a new parser that is only triggered when one of the specified characters 
+  /** Creates a new parser that is only triggered when one of the specified characters
     * is seen on the input.
     */
-  def apply[U] (char: Char, chars: Char*)(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
-    def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars:_*)
-    override def underlying = p
+  def apply[U](char: Char, chars: Char*)(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
+    def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars: _*)
+    override def underlying           = p
   }
 
   /** Creates a mapping from start characters to their corresponding parser
@@ -128,16 +138,16 @@ object PrefixedParser {
     * a trigger for more than one parser they will be combined using `orElse`
     * where the parser which comes first in the sequence has higher precedence.
     */
-  def mapAndMerge[T] (parsers: Seq[PrefixedParser[T]]): Map[Char, Parser[T]] = parsers
+  def mapAndMerge[T](parsers: Seq[PrefixedParser[T]]): Map[Char, Parser[T]] = parsers
     .flatMap { parserDef =>
       parserDef.startChars.toList.map(c => (c, parserDef))
     }
     .groupBy(_._1)
-    .map {
-      case (char, definitions) => (char, definitions.map(_._2).reduceLeft(_ | _))
+    .map { case (char, definitions) =>
+      (char, definitions.map(_._2).reduceLeft(_ | _))
     }
-  
-  private[laika] def fromLegacyMap[T] (map: Map[Char, Parser[T]]): Seq[PrefixedParser[T]] =
+
+  private[laika] def fromLegacyMap[T](map: Map[Char, Parser[T]]): Seq[PrefixedParser[T]] =
     map.toSeq.map { case (c, p) => PrefixedParser(c)(p) }
-  
+
 }

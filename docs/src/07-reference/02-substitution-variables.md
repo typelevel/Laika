@@ -134,13 +134,22 @@ You can add arbitrary configuration values when building a `Parser`, `Renderer` 
 @:select(config)
 
 @:choice(sbt)
-```scala
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+```
+```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
   .withConfigValue("project.version", "2.4.6")
 ```
 
 @:choice(library)
-```scala
+```scala mdoc:compile-only
+import laika.api._
+import laika.format._
+import laika.markdown.github.GitHubFlavor
+
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
@@ -199,7 +208,10 @@ are also available programmatically if you are working with a document tree.
 The `DocumentCursor`, `DocumentTree`, `Document` and `TemplateDocument` types 
 all have a `config` property that exposes those values:
 
-```scala
+```scala mdoc:compile-only
+import laika.ast.Document
+import laika.config.ConfigError
+
 val doc: Document = ???
 val version: Either[ConfigError, String] = 
   doc.config.get[String]("project.version")

@@ -16,44 +16,57 @@
 
 package laika.format
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.config.Config
-import laika.factory.{BinaryPostProcessor, BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat}
-import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.factory.{
+  BinaryPostProcessor,
+  BinaryPostProcessorBuilder,
+  RenderFormat,
+  TwoPhaseRenderFormat
+}
+import laika.io.model.{ BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.render.TextFormatter
 import laika.theme.Theme
 
-object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessorBuilder] {
+object TestRenderResultProcessor
+    extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessorBuilder] {
 
   val interimFormat: RenderFormat[TextFormatter] = AST
 
-  def prepareTree (tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
+  def prepareTree(tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 
   def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
 
-    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] = Resource.pure(new BinaryPostProcessor[F] {
+    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
+      Resource.pure(new BinaryPostProcessor[F] {
 
-      override def process (result: RenderedTreeRoot[F], output: BinaryOutput[F], config: OperationConfig): F[Unit] = {
+        override def process(
+            result: RenderedTreeRoot[F],
+            output: BinaryOutput[F],
+            config: OperationConfig
+        ): F[Unit] = {
 
-        def append(sb: StringBuilder, result: RenderedTree): Unit = {
-          result.content.foreach {
-            case d: RenderedDocument => sb.append(d.content + "\n")
-            case t: RenderedTree => append(sb, t)
-            //case _ => ()
+          def append(sb: StringBuilder, result: RenderedTree): Unit = {
+            result.content.foreach {
+              case d: RenderedDocument => sb.append(d.content + "\n")
+              case t: RenderedTree     => append(sb, t)
+              // case _ => ()
+            }
+          }
+
+          val sb           = new StringBuilder
+          append(sb, result.tree)
+          val resultString = sb.toString
+
+          output.resource.use { out =>
+            Async[F].delay(out.write(resultString.getBytes("UTF-8")))
           }
         }
 
-        val sb = new StringBuilder
-        append(sb, result.tree)
-        val resultString = sb.toString
+      })
 
-        output.resource.use { out =>
-          Async[F].delay(out.write(resultString.getBytes("UTF-8")))
-        }
-      }
-    })
   }
-  
+
 }

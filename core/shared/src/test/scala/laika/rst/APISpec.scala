@@ -20,8 +20,8 @@ import cats.implicits._
 import laika.api._
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.directive.{Blocks, DirectiveRegistry, Spans}
-import laika.format.{AST, ReStructuredText}
+import laika.directive.{ Blocks, DirectiveRegistry, Spans }
+import laika.format.{ AST, ReStructuredText }
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionProvider
@@ -29,77 +29,80 @@ import laika.rst.ext.TextRoles._
 import munit.FunSuite
 
 class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
-  
-  
+
   test("registration of native block directives") {
     val directives = List(
       BlockDirective("oneArg")(argument() map p),
-      BlockDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => p(arg1+arg2) })
+      BlockDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 =>
+        p(arg1 + arg2)
+      })
     )
-    val input = """.. oneArg:: arg
-      |
-      |.. twoArgs:: arg arg""".stripMargin
-    val parser = MarkupParser
+    val input      = """.. oneArg:: arg
+                  |
+                  |.. twoArgs:: arg arg""".stripMargin
+    val parser     = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(blocks = directives))
       .build
-    val res = parser
+    val res        = parser
       .parse(input)
       .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p("arg"), p("argarg"))))
   }
-  
+
   test("registration of native span directives") {
     val directives = List(
       SpanDirective("oneArg")(argument() map (Text(_))),
-      SpanDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 => Text(arg1+arg2) })
+      SpanDirective("twoArgs")((argument() ~ argument()).map { case arg1 ~ arg2 =>
+        Text(arg1 + arg2)
+      })
     )
-    val input = """foo |one| foo |two|
-      |
-      |.. |one| oneArg:: arg
-      |
-      |.. |two| twoArgs:: arg arg""".stripMargin
-    val parser = MarkupParser
+    val input      = """foo |one| foo |two|
+                  |
+                  |.. |one| oneArg:: arg
+                  |
+                  |.. |two| twoArgs:: arg arg""".stripMargin
+    val parser     = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(spans = directives))
       .build
-    val res = parser
+    val res        = parser
       .parse(input)
       .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p(Text("foo arg foo argarg")))))
   }
-  
+
   test("registration of text roles") {
-    import laika.rst.ext.TextRoles.{Parts => P}
-    val roles = List(
-      TextRole("oneArg", "foo1")(P.field("name")) { (res,text) =>
-       Text(res+text)
+    import laika.rst.ext.TextRoles.{ Parts => P }
+    val roles  = List(
+      TextRole("oneArg", "foo1")(P.field("name")) { (res, text) =>
+        Text(res + text)
       },
-      TextRole("twoArgs", "foo2")
-        ((P.field("name1") ~ P.field("name2")).map { case arg1 ~ arg2 => arg1+arg2 }) 
-        { (res,text) => Text(res+text) }
+      TextRole("twoArgs", "foo2")((P.field("name1") ~ P.field("name2")).map { case arg1 ~ arg2 =>
+        arg1 + arg2
+      }) { (res, text) => Text(res + text) }
     )
-    val input = """foo `one`:one: foo :two:`two`
-      |
-      |.. role::one(oneArg)
-      | :name: val
-      |
-      |.. role::two(twoArgs)
-      | :name1: val1
-      | :name2: val2""".stripMargin
+    val input  = """foo `one`:one: foo :two:`two`
+                  |
+                  |.. role::one(oneArg)
+                  | :name: val
+                  |
+                  |.. role::two(twoArgs)
+                  | :name1: val1
+                  | :name2: val2""".stripMargin
     val parser = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(roles = roles))
       .build
-    val res = parser
+    val res    = parser
       .parse(input)
       .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(p(Text("foo valone foo val1val2two")))))
   }
-  
+
   object BlockDirectives {
     import Blocks.dsl._
 
@@ -108,14 +111,17 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
       val blockDirectives: List[Blocks.Directive] = List(
         Blocks.create("oneArg")(attribute(0).as[String] map p),
         Blocks.create("twoArgs") {
-          (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) => p(arg1 + arg2) }
+          (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
+            p(arg1 + arg2)
+          }
         }
       )
 
-      val spanDirectives = Seq()
+      val spanDirectives     = Seq()
       val templateDirectives = Seq()
-      val linkDirectives = Seq()
+      val linkDirectives     = Seq()
     }
+
   }
 
   object SpanDirectives {
@@ -126,52 +132,53 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
       val spanDirectives: List[Spans.Directive] = List(
         Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
         Spans.create("twoArgs") {
-          (attribute(0).as[String], attribute("name").as[String].widen).mapN { 
-            (arg1, arg2) => Text(arg1+arg2) 
+          (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
+            Text(arg1 + arg2)
           }
         }
       )
 
-      val blockDirectives = Seq()
+      val blockDirectives    = Seq()
       val templateDirectives = Seq()
-      val linkDirectives = Seq()
+      val linkDirectives     = Seq()
     }
+
   }
-  
+
   test("registration of Laika block directives") {
     val input = """@:oneArg(arg)
-      |
-      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-    val res = MarkupParser
+                  |
+                  |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    val res   = MarkupParser
       .of(ReStructuredText)
       .using(BlockDirectives.Registry)
       .build
       .parse(input)
       .map(_.content)
-    assertEquals(res, Right(RootElement(p("arg"),p("arg1arg2"))))
+    assertEquals(res, Right(RootElement(p("arg"), p("arg1arg2"))))
   }
 
   test("ignore registration of Laika block directives in strict mode") {
     val input = """@:oneArg(arg)
-      |
-      |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-    val res = MarkupParser
+                  |
+                  |@:twoArgs(arg1) { name=arg2 }""".stripMargin
+    val res   = MarkupParser
       .of(ReStructuredText)
       .using(BlockDirectives.Registry)
       .strict
       .build
       .parse(input)
       .map(_.content)
-    assertEquals(res, Right(RootElement(p("@:oneArg(arg)"),p("@:twoArgs(arg1) { name=arg2 }"))))
+    assertEquals(res, Right(RootElement(p("@:oneArg(arg)"), p("@:twoArgs(arg1) { name=arg2 }"))))
   }
-  
+
   test("registration of Laika span directives") {
-    val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
+    val input  = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
     val parser = MarkupParser
       .of(ReStructuredText)
       .using(SpanDirectives.Registry)
       .build
-    val res = parser
+    val res    = parser
       .parse(input)
       .flatMap(rewrite(parser, AST))
       .map(_.content)
@@ -180,28 +187,30 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
 
   test("ignore registration of Laika span directives in strict mode") {
     val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-    val res = MarkupParser
+    val res   = MarkupParser
       .of(ReStructuredText)
       .using(SpanDirectives.Registry)
       .strict
       .build
       .parse(input)
       .map(_.content)
-    assertEquals(res, Right(RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"))))
+    assertEquals(
+      res,
+      Right(RootElement(p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")))
+    )
   }
-  
+
   test("pre-process tabs") {
     val input = " Line1\n\tLine2\n\tLine3"
-    val list = DefinitionList(
+    val list  = DefinitionList(
       DefinitionListItem("Line1", p("Line2\nLine3"))
     )
-    val res = MarkupParser
+    val res   = MarkupParser
       .of(ReStructuredText)
       .build
       .parse(input)
       .map(_.content)
     assertEquals(res, Right(RootElement(QuotedBlock(list))))
   }
-  
 
 }

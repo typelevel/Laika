@@ -22,29 +22,25 @@ import laika.parse.combinator.Parsers._
 import laika.parse.text.TextParsers
 import munit.FunSuite
 
-
-/**
-  * @author Jens Halm
+/** @author Jens Halm
   */
 class ParserSpec extends FunSuite {
 
+  private val parser1 = TextParsers.someOf('a', 'b')
+  private val parser2 = TextParsers.someOf('b', 'c')
 
-  private val parser1 = TextParsers.someOf('a','b')
-  private val parser2 = TextParsers.someOf('b','c')
-
-  def run[A] (parser: Parser[A], input: String, expected: A): Unit =
+  def run[A](parser: Parser[A], input: String, expected: A): Unit =
     assertEquals(parser.parse(input).toEither, Right(expected))
 
-  def run[A] (parser: Parser[A], input: SourceCursor, expected: A): Unit =
+  def run[A](parser: Parser[A], input: SourceCursor, expected: A): Unit =
     assertEquals(parser.parse(input).toEither, Right(expected))
 
-  def expectFailure[A] (parser: Parser[A], input: String): Unit =
+  def expectFailure[A](parser: Parser[A], input: String): Unit =
     assert(parser.parse(input).toEither.isLeft)
 
-  def expectFailure[A] (parser: Parser[A], input: SourceCursor): Unit =
+  def expectFailure[A](parser: Parser[A], input: SourceCursor): Unit =
     assert(parser.parse(input).toEither.isLeft)
-  
-  
+
   test("provide the result of the parsing operation") {
     run(parser1, "abc", "ab")
   }
@@ -84,7 +80,7 @@ class ParserSpec extends FunSuite {
   test("fail if the specified Either function produces a Left") {
     expectFailure(parser1.evalMap { res => Left("wrong") }, "abc")
   }
-  
+
   test("handle errors from a failed parser") {
     run(parser1.handleErrorWith(_ => parser2), "ccbb", "ccbb")
   }
@@ -100,32 +96,34 @@ class ParserSpec extends FunSuite {
   test("recover from a failed parser with information from the error") {
     run(parser1.recoverWith { case e => success(e.next.remaining.toString) }, "ccbb", "4")
   }
-  
 
   object Alternatives {
-    
+
     val parser: Parser[String] = parser1 | parser2
-    
-    private val p1 = TextParsers.anyOf('a','b').min(4).withFailureMessage("1")
-    private val p2 = TextParsers.anyOf('a','c').min(4).withFailureMessage("2")
-    private val p3 = TextParsers.anyOf('a','c','d').min(4).withFailureMessage("3")
-    private val p4 = TextParsers.anyOf('a','e').min(4).withFailureMessage("4")
-    private val p = p1 | p2 | p3 | p4
-  
-    def validateFailure (input: String, expectedParser: Int, expectedMaxOffset: Int): Unit = {
-      val res = p.parse(input)
+
+    private val p1 = TextParsers.anyOf('a', 'b').min(4).withFailureMessage("1")
+    private val p2 = TextParsers.anyOf('a', 'c').min(4).withFailureMessage("2")
+    private val p3 = TextParsers.anyOf('a', 'c', 'd').min(4).withFailureMessage("3")
+    private val p4 = TextParsers.anyOf('a', 'e').min(4).withFailureMessage("4")
+    private val p  = p1 | p2 | p3 | p4
+
+    def validateFailure(input: String, expectedParser: Int, expectedMaxOffset: Int): Unit = {
+      val res        = p.parse(input)
       assert(res.isFailure)
       val f: Failure = res.asInstanceOf[Failure]
       assertEquals(f.maxOffset, expectedMaxOffset)
       assertEquals(f.message, expectedParser.toString)
     }
+
   }
 
   test("alternatives - provide the result of the first parser if it succeeds") {
     run(Alternatives.parser, "bbcc", "bb")
   }
 
-  test("alternatives - provide the result of the second parser if the first fails, but the second succeeds") {
+  test(
+    "alternatives - provide the result of the second parser if the first fails, but the second succeeds"
+  ) {
     run(Alternatives.parser, "ccbb", "ccbb")
   }
 
@@ -141,10 +139,11 @@ class ParserSpec extends FunSuite {
     Alternatives.validateFailure("aeaxxx", 4, 3)
   }
 
-  test("alternatives - pick the error of the parser with highest precedence if multiple failures have the same max offset") {
+  test(
+    "alternatives - pick the error of the parser with highest precedence if multiple failures have the same max offset"
+  ) {
     Alternatives.validateFailure("acaxxx", 2, 3)
   }
-  
 
   test("concatenation - provide the combined result") {
     run(parser1 ~ parser2, "aabbcc", new ~("aabb", "cc"))
@@ -166,7 +165,6 @@ class ParserSpec extends FunSuite {
     run(parser1 ~> parser2, "aabbcc", "cc")
   }
 
-
   test("opt - produce a Some when the underlying parser succeeds") {
     run(opt(parser1), "abc", Option("ab"))
   }
@@ -174,7 +172,6 @@ class ParserSpec extends FunSuite {
   test("opt - produce a None when the underlying parser fails") {
     run(opt(parser1), "xxx", Option.empty[String])
   }
-
 
   test("not - fail when the underlying parser succeeds") {
     expectFailure(Parsers.not(parser1), "abc")
@@ -184,7 +181,6 @@ class ParserSpec extends FunSuite {
     run(Parsers.not(parser1), "xxx", ())
   }
 
-
   test("success parser always succeeds") {
     run(success(9), "foo", 9)
   }
@@ -193,13 +189,12 @@ class ParserSpec extends FunSuite {
     expectFailure(failure("expected failure"), "foo")
   }
 
-
   test("rep - produce an empty result when the first invocation fails") {
     run(parser1.rep, "xxx", List.empty[String])
   }
 
   test("rep - provide all matching substrings") {
-    run(parser1.max(1).rep, "abacc", List("a","b","a"))
+    run(parser1.max(1).rep, "abacc", List("a", "b", "a"))
   }
 
   test("rep.min - fail if the required minimum number of successful invocations is not reached") {
@@ -207,11 +202,11 @@ class ParserSpec extends FunSuite {
   }
 
   test("rep.min - succeed if at least one invocation succeeds") {
-    run(parser1.max(1).rep.min(1), "abc", List("a","b"))
+    run(parser1.max(1).rep.min(1), "abc", List("a", "b"))
   }
 
   test("rep.min - succeed if the specified number of successful invocations is reached") {
-    run(parser1.max(1).rep.min(2), "aba", List("a","b","a"))
+    run(parser1.max(1).rep.min(2), "aba", List("a", "b", "a"))
   }
 
   test("rep.max - produce an empty result when the first invocation fails") {
@@ -219,7 +214,7 @@ class ParserSpec extends FunSuite {
   }
 
   test("rep.max - provide only the maximum number of result allowed") {
-    run(parser1.max(1).rep.max(2), "abacc", List("a","b"))
+    run(parser1.max(1).rep.max(2), "abacc", List("a", "b"))
   }
 
   test("rep with separator - produce an empty result when the first invocation fails") {
@@ -227,27 +222,33 @@ class ParserSpec extends FunSuite {
   }
 
   test("rep with separator - provide all matching substrings") {
-    run(parser1.take(2).rep("-"), "ab-ba-c", List("ab","ba"))
+    run(parser1.take(2).rep("-"), "ab-ba-c", List("ab", "ba"))
   }
 
-  test("rep with separator - succeed if the specified number of successful invocations is reached") {
-    run(parser1.take(2).rep("-").min(3), "ab-ba-bb-cc", List("ab","ba","bb"))
+  test(
+    "rep with separator - succeed if the specified number of successful invocations is reached"
+  ) {
+    run(parser1.take(2).rep("-").min(3), "ab-ba-bb-cc", List("ab", "ba", "bb"))
   }
 
-  test("rep with separator - fail if the required minimum number of successful invocations is not reached") {
+  test(
+    "rep with separator - fail if the required minimum number of successful invocations is not reached"
+  ) {
     expectFailure(parser1.take(2).rep("-").min(3), "ab-cc-bb-cc")
   }
-  
 
   object RepWith {
-    
+
     import TextParsers._
 
-    val parser: Parser[List[String]] = literal("1").repWith { (res:String) => literal((res.toInt + 1).toString) }
+    val parser: Parser[List[String]] = literal("1").repWith { (res: String) =>
+      literal((res.toInt + 1).toString)
+    }
+
   }
 
   test("repWith - parse a sequence based on a dynamically changing parser") {
-    run(RepWith.parser, "12345999", List("1","2","3","4","5"))
+    run(RepWith.parser, "12345999", List("1", "2", "3", "4", "5"))
   }
 
   test("repWith - succeed when only the first parsing step succeeds") {
@@ -257,7 +258,6 @@ class ParserSpec extends FunSuite {
   test("repWith - succeed with an empty result when the first parsing step fails") {
     run(RepWith.parser, "999", List[String]())
   }
-
 
   test("lookAhead - succeeds when the underlying parser succeeds at the current offset") {
     run(TextParsers.lookAhead("a"), "abcd", "a")
@@ -275,11 +275,10 @@ class ParserSpec extends FunSuite {
     expectFailure(TextParsers.lookAhead(2, "a"), "abcd")
   }
 
-
   object LookBehind {
     val input: SourceCursor = SourceCursor("abcd").consume(2)
   }
-  
+
   test("lookBehind - succeeds when the specified parser succeeds at the given negative offset") {
     run(TextParsers.lookBehind(2, TextParsers.literal("a")), LookBehind.input, "a")
   }
@@ -292,7 +291,6 @@ class ParserSpec extends FunSuite {
     expectFailure(TextParsers.lookBehind(7, TextParsers.literal("a")), LookBehind.input)
   }
 
-
   test("consumeAll - succeeds when all input has been consumed") {
     run(consumeAll(parser1), "ababa", "ababa")
   }
@@ -301,31 +299,30 @@ class ParserSpec extends FunSuite {
     expectFailure(consumeAll(parser1), "ababaxx")
   }
 
-  
   test("source parser produces the consumed string as a result") {
     import TextParsers._
     val p = anyOf('a') ~ opt(oneOf('d')) ~ oneOf('b').rep
     run(p.source, "aabbcc", "aabb")
   }
 
-  
   test("count parser produces the length of the consumed string as a result") {
     import TextParsers._
     val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
     run(p.count, "aabbcc", 4)
   }
 
-  
   object MaxOffset {
+
     def validate(res: Parsed[_], expectedMaxOffset: Int): Unit = {
       assert(res.isFailure)
       assertEquals(res.asInstanceOf[Failure].maxOffset, expectedMaxOffset)
     }
+
   }
-  
+
   test("be set properly on a failing character parser") {
-    val p1 = TextParsers.anyOf('a','b')
-    val p2 = TextParsers.anyOf('c','d').min(3)
+    val p1 = TextParsers.anyOf('a', 'b')
+    val p2 = TextParsers.anyOf('c', 'd').min(3)
     MaxOffset.validate((p1 ~ p2).parse("ababcdef"), 6)
   }
 
@@ -338,5 +335,5 @@ class ParserSpec extends FunSuite {
     val p = TextParsers.delimitedBy("]")
     MaxOffset.validate(p.parse("[wrong"), 6)
   }
-    
+
 }

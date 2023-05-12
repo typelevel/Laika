@@ -16,59 +16,80 @@
 
 package laika.helium
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
-import laika.ast.{Icon, IconGlyph, Path}
+import laika.ast.{ Icon, IconGlyph, Path }
 import laika.ast.Path.Root
-import laika.format.{HTML, Markdown}
-import laika.helium.config.{AnchorPlacement, HeliumIcon}
+import laika.format.{ HTML, Markdown }
+import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
-import laika.io.helper.{InputBuilder, ResultExtractor, StringOps}
+import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.render.HTMLFormatter
 import laika.rewrite.link.LinkConfig
-import laika.rewrite.nav.{ChoiceConfig, SelectionConfig, Selections}
+import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.theme._
 import munit.CatsEffectSuite
 
-class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with ResultExtractor with StringOps {
+class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with StringOps {
 
   type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
-  
+
   private val heliumBase = Helium.defaults.site.landingPage()
-  
-  def transformer (theme: ThemeProvider, configure: ConfigureTransformer): Resource[IO, TreeTransformer[IO]] = {
+
+  def transformer(
+      theme: ThemeProvider,
+      configure: ConfigureTransformer
+  ): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
       .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
-    configure(builder)  
+    configure(builder)
       .parallel[IO]
       .withTheme(theme)
       .build
   }
-  
-  def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium, start: String, end: String, 
-                          configure: ConfigureTransformer): IO[String] = 
+
+  def transformAndExtract(
+      inputs: Seq[(Path, String)],
+      helium: Helium,
+      start: String,
+      end: String,
+      configure: ConfigureTransformer
+  ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-        res        <- IO.fromEither(resultTree.extractTidiedSubstring(Root / "doc.html", start, end)
-          .toRight(new RuntimeException("Missing document under test")))
+        res        <- IO.fromEither(
+          resultTree.extractTidiedSubstring(Root / "doc.html", start, end)
+            .toRight(new RuntimeException("Missing document under test"))
+        )
       } yield res
     }
-  
-  def transformAndExtract(input: String, helium: Helium = heliumBase, configure: ConfigureTransformer = identity): IO[String] = {
-    transformAndExtract(Seq(Root / "doc.md" -> input), helium, "<main class=\"content\">", "<hr class=\"footer-rule\"/>", configure)
+
+  def transformAndExtract(
+      input: String,
+      helium: Helium = heliumBase,
+      configure: ConfigureTransformer = identity
+  ): IO[String] = {
+    transformAndExtract(
+      Seq(Root / "doc.md" -> input),
+      helium,
+      "<main class=\"content\">",
+      "<hr class=\"footer-rule\"/>",
+      configure
+    )
   }
-  
-  def entity (icon: Icon): String = icon match {
+
+  def entity(icon: Icon): String = icon match {
     case fig: IconGlyph => fig.codePointAsEntity
-    case _ => ""
+    case _              => ""
   }
-    
+
   test("selections as tabs") {
-    val input =
+    val input                           =
       """
         |@:select(config)
         |
@@ -82,7 +103,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
         |
         |@:@
       """.stripMargin
-    val expected = 
+    val expected                        =
       """<div class="tab-container" data-tab-group="config">
         |<ul class="tab-group">
         |<li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
@@ -95,17 +116,20 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
         |<p>2nd choice</p>
         |</div>
         |</div>""".stripMargin
-    val configure: ConfigureTransformer = _.withConfigValue(Selections(
-      SelectionConfig("config",
-        ChoiceConfig("sbt", "sbt Plugin"),
-        ChoiceConfig("library", "Library API")
-      ).withSeparateEbooks
-    ))
+    val configure: ConfigureTransformer = _.withConfigValue(
+      Selections(
+        SelectionConfig(
+          "config",
+          ChoiceConfig("sbt", "sbt Plugin"),
+          ChoiceConfig("library", "Library API")
+        ).withSeparateEbooks
+      )
+    )
     transformAndExtract(input, configure = configure).assertEquals(expected)
   }
 
   test("callouts") {
-    val input =
+    val input    =
       """
         |@:callout(warning)
         |
@@ -113,14 +137,14 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
         |
         |@:@
       """.stripMargin
-    val expected = 
+    val expected =
       s"""<div class="callout warning">
          |<i class="icofont-laika warning">${entity(HeliumIcon.warning)}</i>
          |<p>You really should not do this.</p>
          |</div>""".stripMargin
     transformAndExtract(input).assertEquals(expected)
   }
-  
+
   private val headlineInput =
     """
       |Title
@@ -130,21 +154,31 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
     """.stripMargin
 
   // orig: <span class="anchor icofont-sm">
-  
+
   test("anchors for headers - left placement (default)") {
-    val expected = 
+    val expected =
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika link">${entity(HeliumIcon.link)}</i></a>Some Headline</h2>""".stripMargin
+         |<h2 id="some-headline" class="section"><a class="anchor-link left" href="#some-headline"><i class="icofont-laika link">${
+          entity(HeliumIcon.link)
+        }</i></a>Some Headline</h2>""".stripMargin
     transformAndExtract(headlineInput).assertEquals(expected)
   }
 
   test("anchors for headers - right placement") {
     val expected =
       s"""<h1 id="title" class="title">Title</h1>
-         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika link">${entity(HeliumIcon.link)}</i></a></h2>""".stripMargin
-    val layout = Helium.defaults.siteSettings.layout
-    val helium = heliumBase.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
-      layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.Right)
+         |<h2 id="some-headline" class="section">Some Headline<a class="anchor-link right" href="#some-headline"><i class="icofont-laika link">${
+          entity(HeliumIcon.link)
+        }</i></a></h2>""".stripMargin
+    val layout   = Helium.defaults.siteSettings.layout
+    val helium   = heliumBase.site.layout(
+      layout.contentWidth,
+      layout.navigationWidth,
+      layout.topBarHeight,
+      layout.defaultBlockSpacing,
+      layout.defaultLineHeight,
+      AnchorPlacement.Right
+    )
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }
 
@@ -152,9 +186,15 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
     val expected =
       """<h1 id="title" class="title">Title</h1>
         |<h2 id="some-headline" class="section">Some Headline</h2>""".stripMargin
-    val layout = Helium.defaults.siteSettings.layout
-    val helium = heliumBase.site.layout(layout.contentWidth, layout.navigationWidth, layout.topBarHeight,
-      layout.defaultBlockSpacing, layout.defaultLineHeight, AnchorPlacement.None)
+    val layout   = Helium.defaults.siteSettings.layout
+    val helium   = heliumBase.site.layout(
+      layout.contentWidth,
+      layout.navigationWidth,
+      layout.topBarHeight,
+      layout.defaultBlockSpacing,
+      layout.defaultLineHeight,
+      AnchorPlacement.None
+    )
     transformAndExtract(headlineInput, helium).assertEquals(expected)
   }
 

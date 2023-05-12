@@ -24,55 +24,54 @@ import laika.rst.ext.Directives._
 import laika.time.PlatformDateTime
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
- *  A span directive can be used in substitution definitions.
- * 
- *  The `replace` directive is fully supported. The other directives have the following
- *  adjustments or limitations compared to their counterparts in the reference parser:
- * 
- *  - `unicode`: does not support the various trim options, as that would require modifying adjacent elements
- *    (and no other directive has this requirement, therefore API/impl changes did not seem justified)
- * 
- *  - `date`: Uses the patterns of `java.text.SimpleDateFormat` instead of Python's `time.strftime` function.
- * 
- *  - `image`: Does not support the various layout options (`width`, `height`, `scale`, `align`), as no other
- *    tree nodes in Laika carry concrete layout information. It is recommended to use styles instead. 
- * 
- *  @author Jens Halm
- */
+  *  A span directive can be used in substitution definitions.
+  *
+  *  The `replace` directive is fully supported. The other directives have the following
+  *  adjustments or limitations compared to their counterparts in the reference parser:
+  *
+  *  - `unicode`: does not support the various trim options, as that would require modifying adjacent elements
+  *    (and no other directive has this requirement, therefore API/impl changes did not seem justified)
+  *
+  *  - `date`: Uses the patterns of `java.text.SimpleDateFormat` instead of Python's `time.strftime` function.
+  *
+  *  - `image`: Does not support the various layout options (`width`, `height`, `scale`, `align`), as no other
+  *    tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.
+  *
+  *  @author Jens Halm
+  */
 class StandardSpanDirectives {
 
-
   /** The replace directive,
-   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.
-   */
-  lazy val replace: DirectivePartBuilder[Span] = spanContent map (SpanSequence(_)) 
-  
-  /** The unicode directive, 
-   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#unicode-character-codes]] for details.
-   */
-  lazy val unicode: DirectivePartBuilder[Span] = argument(StandardDirectiveParsers.unicode, withWS = true) map (Text(_))
-  
-  /** The date directive, 
-   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
-   */
+    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.
+    */
+  lazy val replace: DirectivePartBuilder[Span] = spanContent map (SpanSequence(_))
+
+  /** The unicode directive,
+    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#unicode-character-codes]] for details.
+    */
+  lazy val unicode: DirectivePartBuilder[Span] =
+    argument(StandardDirectiveParsers.unicode, withWS = true) map (Text(_))
+
+  /** The date directive,
+    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
+    */
   lazy val date: DirectivePartBuilder[Span] = {
-    optArgument(withWS = true).evalMap { pattern => 
+    optArgument(withWS = true).evalMap { pattern =>
       PlatformDateTime.format(PlatformDateTime.now, pattern.getOrElse("yyyy-MM-dd")).fold(
         msg => Left(s"Unable to format date: $msg"),
         date => Right(Text(date))
       )
-    } 
+    }
   }
-  
+
   /** All standard reStructuredText span directives,
-   *  to be used in substitution references.
-   */
+    *  to be used in substitution references.
+    */
   lazy val spanDirectives: List[Directive[Span]] = List(
     SpanDirective.recursive("image")(StandardDirectiveParts.image),
     SpanDirective("replace")(replace),
     SpanDirective("unicode")(unicode),
     SpanDirective("date")(date)
   )
-  
-  
+
 }

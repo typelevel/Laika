@@ -16,7 +16,7 @@
 
 package laika.io
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.bundle.ExtensionBundle
 import laika.format.Markdown
@@ -24,7 +24,6 @@ import laika.io.api.TreeParser
 import laika.io.helper.TestThemeBuilder
 import laika.io.implicits._
 import laika.theme.Theme
-
 
 trait ParserSetup {
 
@@ -35,7 +34,7 @@ trait ParserSetup {
 
   val defaultParser: Resource[IO, TreeParser[IO]] = defaultBuilder.build
 
-  def parserWithBundle (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
+  def parserWithBundle(bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
     MarkupParser
       .of(Markdown)
       .using(bundle)
@@ -43,14 +42,17 @@ trait ParserSetup {
       .withTheme(Theme.empty)
       .build
 
-  def parserWithTheme (bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
+  def parserWithTheme(bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
     MarkupParser
       .of(Markdown)
       .parallel[IO]
       .withTheme(TestThemeBuilder.forBundle(bundle))
       .build
 
-  def parserWithThemeAndBundle (themeBundle: ExtensionBundle, appBundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
+  def parserWithThemeAndBundle(
+      themeBundle: ExtensionBundle,
+      appBundle: ExtensionBundle
+  ): Resource[IO, TreeParser[IO]] =
     MarkupParser
       .of(Markdown)
       .using(appBundle)
@@ -58,10 +60,18 @@ trait ParserSetup {
       .withTheme(TestThemeBuilder.forBundle(themeBundle))
       .build
 
-  def parserWithThemeExtension (themeBundle: ExtensionBundle, themeExtBundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
+  def parserWithThemeExtension(
+      themeBundle: ExtensionBundle,
+      themeExtBundle: ExtensionBundle
+  ): Resource[IO, TreeParser[IO]] =
     MarkupParser
       .of(Markdown)
       .parallel[IO]
-      .withTheme(TestThemeBuilder.forBundle(themeBundle).extendWith(TestThemeBuilder.forBundle(themeExtBundle)))
+      .withTheme(
+        TestThemeBuilder.forBundle(themeBundle).extendWith(
+          TestThemeBuilder.forBundle(themeExtBundle)
+        )
+      )
       .build
+
 }
