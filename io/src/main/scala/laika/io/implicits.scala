@@ -41,10 +41,11 @@ import laika.io.runtime.Batch
   *   .parallel[IO](4)
   *   .build
   *
-  * val res: IO[Unit] = transformer
-  *   .fromDirectory("src")
-  *   .toDirectory("target")
-  *   .transform
+  * val res: IO[Unit] = transformer.use {
+  *   _.fromDirectory("src")
+  *    .toDirectory("target")
+  *    .transform
+  * }
   * }}}
   *
   * These variants of parser, renderer and transformer are the most powerful of the library, and the only
