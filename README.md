@@ -68,8 +68,8 @@ Further Information
 * Ask questions or share ideas in [Discussions].
  
 
-[Manual]: https://planet42.github.io/Laika/index.html
+[Manual]: https://typelevel.org/Laika/
 [Demo App]: http://planet42.org/
-[API]: https://planet42.github.io/Laika/latest/api/laika/api/
-[Issues]: https://github.com/planet42/Laika/issues
-[Discussions]: https://github.com/planet42/Laika/discussions
+[API]: https://typelevel.org/Laika/latest/api/laika/api/
+[Issues]: https://github.com/typelevel/Laika/issues
+[Discussions]: https://github.com/typelevel/Laika/discussions

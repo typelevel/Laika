@@ -43,7 +43,7 @@ import scala.annotation.tailrec
   *   it is a value recognized as true.
   *
   * For full documentation see the section about
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#conditionals-and-loops Conditionals and Loops]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#conditionals-and-loops Conditionals and Loops]]
   * in the manual.
   *
   * @author Jens Halm

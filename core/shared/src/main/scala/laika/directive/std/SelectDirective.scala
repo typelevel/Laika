@@ -30,7 +30,7 @@ import laika.rewrite.nav.Selections
   * A valid `@:select` directive has at least two separator directives (`@:choice`) in the body.
   *
   * For full documentation see the section about the
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#select Select Directive]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#select Select Directive]]
   * in the manual.
   *
   * @author Jens Halm

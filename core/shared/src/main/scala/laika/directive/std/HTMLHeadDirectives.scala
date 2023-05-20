@@ -30,7 +30,7 @@ import laika.directive.Templates
   * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
   *
   * For full documentation see the section about
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#html-templates HTML Template Directives]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#html-templates HTML Template Directives]]
   * in the manual.
   *
   * @author Jens Halm
