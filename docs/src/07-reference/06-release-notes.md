@@ -14,7 +14,7 @@ Release Notes
 * Helium Theme
     * Switch the default code font from Fira Code to Fira Mono to avoid unwanted ligatures in code samples.
     * Introduce `helium.site.pageNavigation.keepOnSmallScreens` configuration attribute that allows to keep
-      the page navigation on small screens, moving it to the top of the main content pain in that case.
+      the page navigation on small screens, moving it to the top of the main content pane in that case.
     * Fix the size for code spans in headlines and other places that do not use 
       the standard body font size by using relative sizes by default for HTML and PDF. 
       EPUP output was not affected as it has always used relative sizes.

@@ -14,4 +14,4 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.1")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.1")
 
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.0")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.1")
