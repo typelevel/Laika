@@ -6,9 +6,9 @@ import Dependencies._
 
 lazy val basicSettings = Seq(
   version              := "0.19.2-SNAPSHOT",
-  homepage             := Some(new URL("https://planet42.github.io/Laika/")),
+  homepage             := Some(new URL("https://typelevel.org/Laika/")),
   organization         := "org.planet42",
-  organizationHomepage := Some(new URL("http://planet42.org")),
+  organizationHomepage := Some(new URL("http://typelevel.org")),
   description          := "Text Markup Transformer for sbt and Scala applications",
   startYear            := Some(2012),
   licenses     := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -49,8 +49,8 @@ lazy val publishSettings = Seq(
     else Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
   },
   pomExtra               := (<scm>
-      <url>https://github.com/planet42/Laika.git</url>
-      <connection>scm:git:https://github.com/planet42/Laika.git</connection>
+      <url>https://github.com/typelevel/Laika.git</url>
+      <connection>scm:git:https://github.com/typelevel/Laika.git</connection>
     </scm>
     <developers>
       <developer>

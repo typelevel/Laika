@@ -92,7 +92,7 @@ import scala.collection.immutable.TreeSet
   *   overcoming the limitation that Markdown does not have a native comment syntax.
   *
   * For extensive documentation see
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html Standard Directives]] in the manual.
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html Standard Directives]] in the manual.
   *
   *  @author Jens Halm
   */

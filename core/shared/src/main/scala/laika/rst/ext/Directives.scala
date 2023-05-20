@@ -41,7 +41,7 @@ import laika.rst.ext.ExtensionParsers.Result
   * - The directive may be used in other parsers, too, like in the Markdown parser.
   * - The directive may also be used in templates.
   * For details on these alternative directive types see
-  * [[http://planet42.github.io/Laika/05-extending-laika/03-implementing-directives.html]].
+  * [[http://typelevel.org/Laika/latest/05-extending-laika/03-implementing-directives.html]].
   *
   * =Implementing a Directive=
   *

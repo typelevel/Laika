@@ -77,9 +77,9 @@ object ManualSettings {
     val downloads     = Root / "downloads.gen"
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
-    val docsURL       = "https://planet42.github.io/Laika/"
-    val srcURL        = "https://github.com/planet42/Laika"
-    val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs/src"
+    val docsURL       = "https://typelevel.org/Laika/"
+    val srcURL        = "https://github.com/typelevel/Laika"
+    val docsSrcURL    = "https://github.com/typelevel/Laika/tree/main/docs/src"
     val demoURL       = "http://planet42.org"
   }
 

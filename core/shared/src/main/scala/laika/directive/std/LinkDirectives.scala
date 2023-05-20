@@ -29,7 +29,7 @@ import laika.rewrite.link.LinkConfig
   * - `source`: Convenience directive that allows to reference a hosted source (e.g. on GitHub)
   *
   * For full documentation see the section about
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#navigation Navigation Directives]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#navigation Navigation Directives]]
   * in the manual.
   *
   * @author Jens Halm

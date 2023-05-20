@@ -47,7 +47,7 @@ import laika.parse.{ GeneratedSource, SourceFragment }
   * trees from the input tree and manual entries, optionally to external targets, too.
   *
   * For full documentation see the section about the
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#navigationtree navigationTree Directive]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#navigationtree navigationTree Directive]]
   * in the manual.
   *
   * @author Jens Halm

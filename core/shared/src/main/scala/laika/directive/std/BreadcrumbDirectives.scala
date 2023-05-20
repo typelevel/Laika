@@ -28,7 +28,7 @@ import scala.annotation.tailrec
   * which builds a navigation list from the root node of the input tree to the current document.
   *
   * For full documentation see the section about the
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#breadcrumb Breadcrumb Directive]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#breadcrumb Breadcrumb Directive]]
   * in the manual.
   *
   * @author Jens Halm

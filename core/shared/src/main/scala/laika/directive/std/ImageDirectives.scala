@@ -33,7 +33,7 @@ import laika.directive.{ Blocks, Spans }
   * This includes the block-level and span-level image directives.
   *
   * For full documentation see the section about
-  * [[https://planet42.github.io/Laika/07-reference/01-standard-directives.html#image Image Directives]]
+  * [[https://typelevel.org/Laika/latest/07-reference/01-standard-directives.html#image Image Directives]]
   * in the manual.
   *
   * @author Jens Halm
