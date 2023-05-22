@@ -23,7 +23,7 @@ import laika.ast._
 import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.markup.DocumentParser.RendererError
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ BasicPathTranslator, PathTranslator }
+import laika.rewrite.nav.{ NoOpPathTranslator, PathTranslator }
 
 /** Performs a render operation from a document AST to a target format
   * as a string. The document AST may be obtained by a preceding parse
@@ -68,7 +68,7 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
       }
     )
 
-  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
+  private val defaultPathTranslator: PathTranslator = NoOpPathTranslator
 
   /** Renders the specified document as a String.
     */

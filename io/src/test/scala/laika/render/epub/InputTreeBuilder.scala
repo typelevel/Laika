@@ -20,11 +20,10 @@ import cats.effect.IO
 import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.ast.Path.Root
 import laika.ast._
-import laika.format.EPUB.ScriptedTemplate
 import laika.io.model._
 import laika.io.helper.InputBuilder
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.BasicPathTranslator
+import laika.rewrite.nav.NoOpPathTranslator
 
 trait InputTreeBuilder extends InputBuilder {
 
@@ -62,14 +61,13 @@ trait InputTreeBuilder extends InputBuilder {
     ConfigBuilder.empty.withValue(LaikaKeys.title, s"Tree $num").build
 
   def rootTree(path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
-    val outputContext  = OutputContext("ignored")
-    val pathTranslator = BasicPathTranslator(outputContext.fileSuffix)
+    val outputContext = OutputContext("ignored")
     RenderedTreeRoot(
       tree(path, titleNum, docs: _*),
       TemplateRoot.empty,
       Config.empty,
       outputContext,
-      pathTranslator
+      NoOpPathTranslator // not reflecting real result, but not part of any assertions
     )
   }
 

@@ -281,11 +281,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
             NavigationItem(
               SpanSequence("Link-2"),
               Nil,
-              Some(NavigationLink(InternalTarget(Root / "doc-2").relativeTo(refPath))),
+              Some(NavigationLink(InternalTarget(Root / "doc-2.html").relativeTo(refPath))),
               options = Style.level(2)
             )
           ),
-          Some(NavigationLink(InternalTarget(Root / "doc-1").relativeTo(refPath))),
+          Some(NavigationLink(InternalTarget(Root / "doc-1.html").relativeTo(refPath))),
           options = Style.level(1)
         ),
         NavigationItem(
@@ -295,7 +295,10 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
               SpanSequence("Link-4"),
               Nil,
               Some(
-                NavigationLink(InternalTarget(Root / "doc-4").relativeTo(refPath), selfLink = true)
+                NavigationLink(
+                  InternalTarget(Root / "doc-4.html").relativeTo(refPath),
+                  selfLink = true
+                )
               ),
               options = Style.level(2)
             )
@@ -305,7 +308,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
         NavigationItem(
           SpanSequence("Link-5"),
           Nil,
-          Some(NavigationLink(InternalTarget(Root / "doc-5").relativeTo(refPath))),
+          Some(NavigationLink(InternalTarget(Root / "doc-5.html").relativeTo(refPath))),
           options = Style.level(1)
         )
       )
@@ -605,17 +608,12 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("render a paragraph containing a internal link with a fragment part") {
-    val elem = testPar(SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")))
+    val elem = testPar(SpanLink.internal("/bar.html#foo")(Text("link"), Emphasized("text")))
     run(elem, """<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""")
   }
 
   test("render a paragraph containing a internal link without a fragment part") {
-    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
-    run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""")
-  }
-
-  test("render a paragraph containing a internal link with an input filename without suffix") {
-    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
+    val elem = testPar(SpanLink.internal("/bar.html")(Text("link"), Emphasized("text")))
     run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""")
   }
 
@@ -623,7 +621,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "render a paragraph containing an internal link while ignoring the restricted type parameter"
   ) {
     val target = ResolvedInternalTarget(
-      Path.parse("/doc#foo"),
+      Path.parse("/doc.html#foo"),
       RelativePath.parse("#foo"),
       TargetFormats.Selected("html")
     )
@@ -642,7 +640,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("render a raw internal link") {
-    val elem = testPar(RawLink.internal("/doc#foo"))
+    val elem = testPar(RawLink.internal("/doc.html#foo"))
     run(elem, """<p>some #foo span</p>""")
   }
 

@@ -28,7 +28,7 @@ import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.BasicPathTranslator
+import laika.rewrite.nav.NoOpPathTranslator
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -121,7 +121,7 @@ class ThemeBundleSpec extends FunSuite {
       DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
     val compoundTranslator = config(themeBundles, appBundles)
       .pathTranslatorFor(testTree, OutputContext("html"))
-      .getOrElse(BasicPathTranslator("html"))
+      .getOrElse(NoOpPathTranslator)
     assertEquals(compoundTranslator.translate(Root / "doc.md"), Root / "doc-theme-app.html")
   }
 

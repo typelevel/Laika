@@ -259,11 +259,19 @@ private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[Pa
 
 }
 
-/** Basic path translator implementation that only replaces the suffix of the path.
+/** Path translator implementation that returns all paths unmodified.
   *
   * Used in scenarios where only a single document gets rendered and there is no use case for
   * cross references or static or versioned documents.
   */
+object NoOpPathTranslator extends PathTranslator {
+  def getAttributes(path: Path): Option[PathAttributes] = None
+  def translate(input: Path): Path                      = input
+  def translate(input: RelativePath): RelativePath      = input
+  def forReferencePath(path: Path): PathTranslator      = this
+}
+
+@deprecated("use NoOpPathTranslator for transforming a single input", "0.19.2")
 case class BasicPathTranslator(outputSuffix: String) extends PathTranslator {
   private val defaultAttributes = Some(PathAttributes(isStatic = false, isVersioned = false))
   def getAttributes(path: Path): Option[PathAttributes] = defaultAttributes

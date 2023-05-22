@@ -47,7 +47,7 @@ import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.BasicPathTranslator
+import laika.rewrite.nav.NoOpPathTranslator
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -186,7 +186,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     TemplateRoot.fallback,
     Config.empty,
     outputContext,
-    BasicPathTranslator(outputContext.fileSuffix),
+    NoOpPathTranslator,
     coverDocument = coverDocument,
     staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
