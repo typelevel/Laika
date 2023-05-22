@@ -29,8 +29,8 @@ import laika.parse.code.CodeCategory
 import laika.parse.markup.DocumentParser.RendererError
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{
-  BasicPathTranslator,
   ConfigurablePathTranslator,
+  NoOpPathTranslator,
   PathAttributes,
   TargetFormats,
   TranslatorConfig
@@ -38,8 +38,6 @@ import laika.rewrite.nav.{
 import munit.FunSuite
 
 class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
-
-  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)
 
   private val defaultRenderer = Renderer.of(XSLFO).build
 
@@ -50,7 +48,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     """<fo:block space-after="3mm"><fo:leader leader-length="100%" leader-pattern="rule" rule-style="solid" rule-thickness="2pt"></fo:leader></fo:block>"""
 
   def render(elem: Element, style: StyleDeclarationSet): Either[RendererError, String] =
-    defaultRenderer.render(elem, Root / "doc", pathTranslator, style)
+    defaultRenderer.render(elem, Root / "doc", NoOpPathTranslator, style)
 
   def run(input: Element, expectedFO: String)(implicit loc: munit.Location): Unit =
     assertEquals(render(input, TestTheme.foStyles), Right(expectedFO))
@@ -64,7 +62,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       loc: munit.Location
   ): Unit =
     assertEquals(
-      defaultRenderer.render(input, Root / "doc", pathTranslator, style),
+      defaultRenderer.render(input, Root / "doc", NoOpPathTranslator, style),
       Right(expectedFO)
     )
 
@@ -74,7 +72,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(
       elem,
       Root / "doc",
-      pathTranslator,
+      NoOpPathTranslator,
       TestTheme.foStyles
     )
     assertEquals(res, Right(expectedFO))
@@ -84,7 +82,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val res = Renderer.of(XSLFO).unformatted.build.render(
       input,
       Root / "doc",
-      pathTranslator,
+      NoOpPathTranslator,
       TestTheme.foStyles
     )
     assertEquals(res, Right(expectedFO))

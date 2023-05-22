@@ -28,7 +28,7 @@ import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.BasicPathTranslator
+import laika.rewrite.nav.NoOpPathTranslator
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -46,7 +46,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
     outputContext = OutputContext(XSLFO),
-    pathTranslator = BasicPathTranslator("fo"),
+    pathTranslator = NoOpPathTranslator,
     styles = TestTheme.foStyles
   )
 
