@@ -147,7 +147,7 @@ We can modify the example to pass a few tags to the included template instead of
 
 ```laika-html
 <html>
-  @:include(../inc/head.template.html) 
+  @:embed(../inc/head.template.html) 
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="main.css">
   @:@
