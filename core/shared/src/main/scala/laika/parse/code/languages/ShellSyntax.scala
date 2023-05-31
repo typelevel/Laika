@@ -20,8 +20,8 @@ import laika.bundle.SyntaxHighlighter
 import cats.data.NonEmptyList
 import laika.parse.code.CodeSpanParser
 import laika.parse.implicits._
-import laika.parse.code.CodeCategory.{BooleanLiteral, LiteralValue}
-import laika.parse.code.common.{Comment, Identifier, Keywords, NumberLiteral, StringLiteral}
+import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
+import laika.parse.code.common.{ Comment, Identifier, Keywords, NumberLiteral, StringLiteral }
 import laika.parse.code.implicits._
 import laika.parse.builders._
 import laika.parse.code.CodeCategory
@@ -40,35 +40,58 @@ import laika.parse.markup.RecursiveParsers
 object ShellSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of[String]("sh")
-  
 
-  /**
-   * 
-   * A backslash cannot be used to escape a single-quote in a single-quoted string. 
-   * 
-  */
+  /** A backslash cannot be used to escape a single-quote in a single-quoted string.
+    */
   val singleQuoteEscape = CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("\\" ~ anyNot('\'')).source
-    }
-
+    ("\\" ~ anyNot('\'')).source
+  }
 
   /** The backslash retains its special meaning as an escape character (see Escape Character (Backslash) ) only when followed by one of the characters:
-  *  $   `   "   \   <newline>
-  * 
-  * for example, `"\$"` is turned into `$`, but `"\a"` remains `"\a"`
-  * 
-  */
-  val doubleQuoteEscape = CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("\\" ~ oneOf('$','`','"','\\')).source
-    }
+    *  $   `   "   \   <newline>
+    *
+    * for example, `"\$"` is turned into `$`, but `"\a"` remains `"\a"`
+    */
+  val doubleQuoteEscape                = CodeSpanParser(CodeCategory.EscapeSequence) {
+    ("\\" ~ oneOf('$', '`', '"', '\\')).source
+  }
+
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("#"),
     // note: function and select are reserved word in some systems.
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(
-      "break","case","continue","do","done","echo","else","esac","eval",
-      "exec","exit","export","fi","for","function","if","read","readonly","return",
-      "set","select","shift","then","trap","unlimit","unmask","unset","until","wait","while","!",
+      "break",
+      "case",
+      "continue",
+      "do",
+      "done",
+      "echo",
+      "else",
+      "esac",
+      "eval",
+      "exec",
+      "exit",
+      "export",
+      "fi",
+      "for",
+      "function",
+      "if",
+      "read",
+      "readonly",
+      "return",
+      "set",
+      "select",
+      "shift",
+      "then",
+      "trap",
+      "unlimit",
+      "unmask",
+      "unset",
+      "until",
+      "wait",
+      "while",
+      "!"
     ),
     Identifier.alphaNum,
     NumberLiteral.decimalInt,
@@ -80,9 +103,10 @@ object ShellSyntax extends SyntaxHighlighter {
     ),
     StringLiteral.singleLine('"').embed(
       doubleQuoteEscape,
-      StringLiteral.Substitution.between("${", "}"),
+      StringLiteral.Substitution.between("${", "}")
     ),
     StringLiteral.singleLine('\''),
     StringLiteral.singleLine('"')
   )
+
 }
