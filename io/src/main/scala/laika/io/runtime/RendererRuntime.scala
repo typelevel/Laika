@@ -137,7 +137,7 @@ object RendererRuntime {
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
-          val out = Files[F].writeAll(outFile.toFS2Path)
+          val out = Files.forAsync[F].writeAll(outFile.toFS2Path)
           doc.input.through(out).compile.drain.as(result)
         case _                                                  =>
           Sync[F].pure(result)
@@ -154,7 +154,8 @@ object RendererRuntime {
       val styles = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
       val pathTranslatorF = pathTranslator.translate(_: Path)
 
-      def createDirectory(file: FilePath): F[Unit] = Files[F].createDirectories(file.toFS2Path)
+      def createDirectory(file: FilePath): F[Unit] =
+        Files.forAsync[F].createDirectories(file.toFS2Path)
 
       op.output match {
         case StringTreeOutput            =>

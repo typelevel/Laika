@@ -43,7 +43,7 @@ object DirectoryInput {
   /** A filter that selects files that are hidden in a platform-dependent way.
     */
   val hiddenFileFilter: FileFilter = new FileFilter {
-    def filter[F[_]: Async](file: FilePath) = Files[F].isHidden(file.toFS2Path)
+    def filter[F[_]: Async](file: FilePath) = Files.forAsync[F].isHidden(file.toFS2Path)
   }
 
   @deprecated("use apply(FilePath)", "0.19.0")

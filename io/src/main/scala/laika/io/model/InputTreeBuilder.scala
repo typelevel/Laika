@@ -164,7 +164,7 @@ class InputTreeBuilder[F[_]](
   def addDirectory(dir: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(Some(dir)) {
       Kleisli { ctx =>
-        Files[F].isDirectory(dir.toFS2Path).ifM(
+        Files.forAsync[F].isDirectory(dir.toFS2Path).ifM(
           DirectoryScanner
             .scanDirectories[F](
               new DirectoryInput(Seq(dir), codec, ctx.docTypeMatcher, ctx.exclude, mountPoint)

@@ -59,7 +59,7 @@ object TextOutput {
   def forFile[F[_]: Async](file: FilePath, path: Path = Root / "doc")(implicit
       codec: Codec
   ): TextOutput[F] =
-    TextOutput[F](writeAll(Files[F].writeAll(file.toFS2Path), codec), path, Some(file))
+    TextOutput[F](writeAll(Files.forAsync[F].writeAll(file.toFS2Path), codec), path, Some(file))
 
   def forStream[F[_]: Async](
       stream: F[OutputStream],

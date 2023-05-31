@@ -40,7 +40,7 @@ private[preview] object StaticFileScanner {
           val vChild                        = vPath / filePath.name
           def result: (Path, SiteResult[F]) =
             (vChild, StaticResult(BinaryInput.fromFile(filePath, vPath).input))
-          Files[F].isDirectory(filePath.toFS2Path).ifM(
+          Files.forAsync[F].isDirectory(filePath.toFS2Path).ifM(
             collect(filePath, vChild),
             Async[F].pure(List(result))
           )

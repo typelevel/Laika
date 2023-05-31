@@ -59,7 +59,7 @@ object BinaryInput {
       mountPoint: Path = Root / "doc",
       targetFormats: TargetFormats = TargetFormats.All
   ): BinaryInput[F] = {
-    val stream = Files[F].readAll(file.toFS2Path)
+    val stream = Files.forAsync[F].readAll(file.toFS2Path)
     BinaryInput(stream, mountPoint, targetFormats, Some(file))
   }
 
