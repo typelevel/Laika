@@ -61,7 +61,7 @@ object ResourceLoader {
       )
     }
 
-    Files[F].exists(file.toFS2Path).ifM(
+    Files.forAsync[F].exists(file.toFS2Path).ifM(
       load.map(Option(_)),
       Async[F].pure(None)
     )

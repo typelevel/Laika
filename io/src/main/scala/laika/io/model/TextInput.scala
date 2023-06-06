@@ -68,7 +68,7 @@ object TextInput {
       docType: TextDocumentType = DocumentType.Markup
   )(implicit codec: Codec): TextInput[F] = {
 
-    val input = readAll(Files[F].readAll(file.toFS2Path), codec)
+    val input = readAll(Files.forAsync[F].readAll(file.toFS2Path), codec)
     TextInput[F](input, mountPoint, docType, Some(file))
   }
 

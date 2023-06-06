@@ -45,7 +45,7 @@ private[preview] class SourceChangeWatcher[F[_]: Async](
     DirectoryScanner.scanDirectory[F, List[FilePath]](dir) {
       _.toList
         .traverse { childPath =>
-          (Files[F].isDirectory(childPath.toFS2Path), fileFilter.filter(childPath)).tupled
+          (Files.forAsync[F].isDirectory(childPath.toFS2Path), fileFilter.filter(childPath)).tupled
             .flatMap { case (isDir, exclude) =>
               if (isDir && !exclude) scanDirectory(childPath) else List.empty[FilePath].pure[F]
             }
@@ -77,7 +77,7 @@ private[preview] class SourceChangeWatcher[F[_]: Async](
 
     val groupedInputs = inputs
       .traverse { input =>
-        Files[F].isDirectory(input.toFS2Path).map(
+        Files.forAsync[F].isDirectory(input.toFS2Path).map(
           if (_) (input, None)
           else (FilePath.fromNioPath(input.toNioPath.getParent), Some(input))
         )
@@ -124,7 +124,7 @@ private[preview] class SourceChangeWatcher[F[_]: Async](
       case p: java.nio.file.Path =>
         val file   = FilePath.fromNioPath(p)
         val target = targets.get(watchKey)
-        (fileFilter.filter(file), Files[F].isDirectory(file.toFS2Path)).tupled.flatMap {
+        (fileFilter.filter(file), Files.forAsync[F].isDirectory(file.toFS2Path)).tupled.flatMap {
           case (exclude, isDir) =>
             (exclude, isDir, target) match {
               case (false, true, Some(_))  => Async[F].pure(Some(Left(file)))

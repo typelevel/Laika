@@ -36,7 +36,7 @@ object DirectoryScanner {
   /** Scans the specified directory passing all child paths to the given function.
     */
   def scanDirectory[F[_]: Async, A](directory: FilePath)(f: Seq[FilePath] => F[A]): F[A] =
-    fs2.io.file.Files[F]
+    fs2.io.file.Files.forAsync[F]
       .list(directory.toFS2Path)
       .map(FilePath.fromFS2Path)
       .compile
@@ -70,7 +70,7 @@ object DirectoryScanner {
 
       input.fileFilter.filter(filePath).ifM(
         InputTree.empty[F].pure[F],
-        Files[F].isDirectory(filePath.toFS2Path).ifM(
+        Files.forAsync[F].isDirectory(filePath.toFS2Path).ifM(
           scanDirectory(filePath)(asInputCollection(childPath, input)),
           input.docTypeMatcher(childPath) match {
             case docType: TextDocumentType =>
