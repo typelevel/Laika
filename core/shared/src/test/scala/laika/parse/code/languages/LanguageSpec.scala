@@ -1894,7 +1894,7 @@ class LanguageSpec extends FunSuite {
     assertEquals(parse(input), expected)
   }
 
-  test("shell script") {
+  test("shell/bash") {
     val input    = """# Doc
                   |
                   |```sh
@@ -1903,6 +1903,10 @@ class LanguageSpec extends FunSuite {
                   |echo 'hello world'
                   |
                   |echo hello $(whoami)
+                  |
+                  |echo $(( 3+5 ))
+                  |
+                  |echo $FOO $?
                   |
                   |for i in ${array[@]}; do
                   |  read -p "" input
@@ -1917,42 +1921,40 @@ class LanguageSpec extends FunSuite {
     val expected = result(
       "sh",
       comment("# this is a comment\n"),
-      keyword("export"),
-      space,
-      id("KEY"),
-      other("="),
-      id("value"),
-      space,
+      id("export"),
+      other(" KEY=value "),
       comment("# this is a trailing comment\n"),
-      keyword("echo"),
+      id("echo"),
       space,
       string("'hello world'"),
       other("\n\n"),
-      keyword("echo"),
-      space,
-      id("hello"),
-      space,
+      id("echo"),
+      other(" hello "),
       subst("$(whoami)"),
       other("\n\n"),
+      id("echo"),
+      space,
+      subst("$(( 3+5 ))"),
+      other("\n\n"),
+      id("echo"),
+      space,
+      subst("$FOO"),
+      space,
+      subst("$?"),
+      other("\n\n"),
       keyword("for"),
-      space,
-      id("i"),
-      space,
-      id("in"),
+      other(" i "),
+      keyword("in"),
       space,
       subst("${array[@]}"),
       other("; "),
       keyword("do"),
       other("\n  "),
-      keyword("read"),
-      other(" -"),
-      id("p"),
-      space,
+      id("read"),
+      other(" -p "),
       string("\"\""),
-      space,
-      id("input"),
-      other("\n  "),
-      keyword("echo"),
+      other(" input\n  "),
+      id("echo"),
       space,
       string("\""),
       escape("\\\""),
@@ -1962,7 +1964,7 @@ class LanguageSpec extends FunSuite {
       other("\n"),
       keyword("done"),
       other("\n\n"),
-      keyword("exit")
+      id("exit")
     )
     assertEquals(parsed, expected)
   }

@@ -16,97 +16,100 @@
 
 package laika.parse.code.languages
 
-import laika.bundle.SyntaxHighlighter
 import cats.data.NonEmptyList
-import laika.parse.code.CodeSpanParser
-import laika.parse.implicits._
-import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
-import laika.parse.code.common.{ Comment, Identifier, Keywords, NumberLiteral, StringLiteral }
-import laika.parse.code.implicits._
+import laika.bundle.SyntaxHighlighter
 import laika.parse.builders._
-import laika.parse.code.CodeCategory
-import laika.bundle.SpanParser
-import laika.ast.CodeSpans
-import scala.io.Codec
-import laika.ast.CodeSpan
-import laika.ast.NoOpt
-import laika.ast.CodeSpanSequence
-import laika.parse.code.common.EmbeddedCodeSpans
-import laika.parse.code.common.TagParser
-import laika.parse.markup.RecursiveSpanParser
-import laika.parse.markup.RecursiveSpanParsers
-import laika.parse.markup.RecursiveParsers
+import laika.parse.code.CodeCategory.BooleanLiteral
+import laika.parse.code.{ CodeCategory, CodeSpanParser }
+import laika.parse.code.common.{ Comment, Keywords, NumberLiteral, StringLiteral }
+import laika.parse.implicits._
+import laika.parse.text.CharGroup
 
 object ShellSyntax extends SyntaxHighlighter {
 
-  val language: NonEmptyList[String] = NonEmptyList.of[String]("sh")
+  val language: NonEmptyList[String] = NonEmptyList.of[String]("shell", "sh", "bash")
 
   /** A backslash cannot be used to escape a single-quote in a single-quoted string.
     */
-  val singleQuoteEscape = CodeSpanParser(CodeCategory.EscapeSequence) {
+  private val singleQuoteEscape = CodeSpanParser(CodeCategory.EscapeSequence) {
     ("\\" ~ anyNot('\'')).source
   }
 
-  /** The backslash retains its special meaning as an escape character (see Escape Character (Backslash) ) only when followed by one of the characters:
+  /** The backslash retains its special meaning as an escape character only when followed by one of the characters:
     *  $   `   "   \   <newline>
     *
     * for example, `"\$"` is turned into `$`, but `"\a"` remains `"\a"`
     */
-  val doubleQuoteEscape                = CodeSpanParser(CodeCategory.EscapeSequence) {
+  private val doubleQuoteEscape = CodeSpanParser(CodeCategory.EscapeSequence) {
     ("\\" ~ oneOf('$', '`', '"', '\\')).source
   }
 
+  private val substitutions = Seq(
+    StringLiteral.Substitution.between("$((", "))"),
+    StringLiteral.Substitution.between("$(", ")"),
+    StringLiteral.Substitution.between("${", "}"),
+    StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source),
+    StringLiteral.Substitution(("$" ~ oneOf('@', '*', '#', '?', '-', '$', '!')).source)
+  )
+
   val spanParsers: Seq[CodeSpanParser] = Seq(
     Comment.singleLine("#"),
-    // note: function and select are reserved word in some systems.
     Keywords(BooleanLiteral)("true", "false"),
     Keywords(
-      "break",
+      "if",
+      "then",
+      "else",
+      "elif",
+      "fi",
       "case",
-      "continue",
+      "esac",
+      "for",
+      "select",
+      "while",
+      "until",
       "do",
       "done",
+      "in",
+      "function",
+      "time"
+    ),
+    Keywords(CodeCategory.Identifier)(
+      "alias",
+      "break",
+      "builtin",
+      "cd",
+      "command",
+      "continue",
+      "declare",
       "echo",
-      "else",
-      "esac",
       "eval",
       "exec",
       "exit",
       "export",
-      "fi",
-      "for",
-      "function",
-      "if",
+      "kill",
+      "let",
+      "logout",
+      "printf",
+      "pwd",
       "read",
-      "readonly",
       "return",
       "set",
-      "select",
-      "shift",
-      "then",
-      "trap",
-      "unlimit",
-      "unmask",
+      "source",
+      "type",
+      "ulimit",
+      "umask",
+      "unalias",
       "unset",
-      "until",
-      "wait",
-      "while",
-      "!"
+      "wait"
     ),
-    Identifier.alphaNum,
     NumberLiteral.decimalInt,
     NumberLiteral.decimalFloat,
-    StringLiteral.Substitution.between("$(", ")"),
-    StringLiteral.Substitution.between("${", "}"),
     StringLiteral.singleLine('\'').embed(
       singleQuoteEscape
     ),
     StringLiteral.singleLine('"').embed(
-      doubleQuoteEscape,
-      StringLiteral.Substitution.between("${", "}")
-    ),
-    StringLiteral.singleLine('\''),
-    StringLiteral.singleLine('"')
-  )
+      (substitutions :+ doubleQuoteEscape): _*
+    )
+  ) ++ substitutions
 
 }
