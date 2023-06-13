@@ -265,8 +265,6 @@ ebf6f7 primaryLight
 
 @:@
 
-@:pageBreak
-
 * `primary` is used for highlights and the text of navigation panes and inline code spans.
 * `secondary` is used for links and headlines.
 * `primaryMedium` is usually a shade slightly darker than `primaryLight`, used for borders and text on dark background.
@@ -309,7 +307,6 @@ ffc66d wheel-3
 
 @:@
 
-@:pageBreak
 
 For the light scheme (used by default in EPUB and PDF output) they are:
 

@@ -143,7 +143,6 @@ the structure will also be used by various features of the library that auto-gen
 
 The presence of title documents would determine how exactly chapter title are rendered in the navigation structure.
 
-@:pageBreak
 
 **Example for a structure with title documents** 
 

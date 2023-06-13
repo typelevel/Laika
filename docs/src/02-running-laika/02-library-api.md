@@ -424,8 +424,6 @@ In the example above we specify two directories, a classpath resource and a stri
 By default directories get merged into a single virtual root, but in the example we declare a mount point
 for the second directory, which causes the content of that directory to be assigned the corresponding logical path.
 
-@:pageBreak
-
 @:callout(info)
 
 Always keep in mind that declaring inputs and outputs are the only places in the Laika universe where you'd ever

@@ -2,12 +2,32 @@
 Release Notes
 =============
 
+0.19.2 (June ?, 2023)
+----------------------
+
+* Syntax Highlighting
+    * Adds a new highlighter for Shell/Bash syntax.
+* Bugfixes
+    * Reverts a regression in 0.19.1 where the font size for code blocks was significantly smaller than in 0.19.0.
+    * When transforming a single input string the transformer does no longer attempt to translate the path suffix
+      for internal links.
+    * Several fixes for code samples in the manual and API documentation.
+* Dependencies
+    * All Typelevel dependencies have been updated to versions compatible with Cats Effect 3.5.0 
+      (fs2 3.7.0, http4s 0.23.19). 
+      The Cats Effect update includes an important change to the cancellation semantics of the 
+      `Async#async` and `IO.async` methods. 
+      Please check the [Cats Effect release notes for v3.5.0](https://github.com/typelevel/cats-effect/releases/tag/v3.5.0) 
+      for more details.
+    * Updates Scala 2 versions to Scala 2.13.11 and 2.12.18.
+
+
 0.19.1 (April 29, 2023)
 -----------------------
 
 * Build, Documentation & Project Setup
     * Make Laika more contributor-friendly, filling some gaps left by still mostly running the original 2012 setup by
-      integrating scalasteward, scalafmt, mima, mdoc and add a code of conduct.
+      integrating scalasteward, scalafmt, mima, mdoc and adding a code of conduct.
     * Add imports to the code samples in the manual.
     * A CI-based release process will follow in the 1.0 milestone series which will begin in the coming months.
     * None of these changes are directly reflected in the binary artefacts of this release.

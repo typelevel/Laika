@@ -26,28 +26,28 @@ class PlatformDateTimeSpec extends FunSuite {
 
   test("parse a date without time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10").map(_.toISOString),
+      PlatformDateTime.parse("2011-10-10").map(_.toISOString()),
       Right(getDate("2011-10-10T00:00:00Z"))
     )
   }
 
   test("parse a local date time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00").map(_.toISOString),
+      PlatformDateTime.parse("2011-10-10T14:48:00").map(_.toISOString()),
       Right(getDate("2011-10-10T14:48:00"))
     )
   }
 
   test("parse a UTC date time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00Z").map(_.toISOString),
+      PlatformDateTime.parse("2011-10-10T14:48:00Z").map(_.toISOString()),
       Right(getDate("2011-10-10T14:48:00Z"))
     )
   }
 
   test("parse a date time with an offset") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00+0100").map(_.toISOString),
+      PlatformDateTime.parse("2011-10-10T14:48:00+0100").map(_.toISOString()),
       Right(getDate("2011-10-10T13:48:00Z"))
     )
   }

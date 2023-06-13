@@ -1894,6 +1894,81 @@ class LanguageSpec extends FunSuite {
     assertEquals(parse(input), expected)
   }
 
+  test("shell/bash") {
+    val input    = """# Doc
+                  |
+                  |```sh
+                  |# this is a comment
+                  |export KEY=value # this is a trailing comment
+                  |echo 'hello world'
+                  |
+                  |echo hello $(whoami)
+                  |
+                  |echo $(( 3+5 ))
+                  |
+                  |echo $FOO $?
+                  |
+                  |for i in ${array[@]}; do
+                  |  read -p "" input
+                  |  echo "\"${input}\""
+                  |done
+                  |
+                  |exit
+                  |```
+                  |
+                  |""".stripMargin
+    val parsed   = parse(input)
+    val expected = result(
+      "sh",
+      comment("# this is a comment\n"),
+      id("export"),
+      other(" KEY=value "),
+      comment("# this is a trailing comment\n"),
+      id("echo"),
+      space,
+      string("'hello world'"),
+      other("\n\n"),
+      id("echo"),
+      other(" hello "),
+      subst("$(whoami)"),
+      other("\n\n"),
+      id("echo"),
+      space,
+      subst("$(( 3+5 ))"),
+      other("\n\n"),
+      id("echo"),
+      space,
+      subst("$FOO"),
+      space,
+      subst("$?"),
+      other("\n\n"),
+      keyword("for"),
+      other(" i "),
+      keyword("in"),
+      space,
+      subst("${array[@]}"),
+      other("; "),
+      keyword("do"),
+      other("\n  "),
+      id("read"),
+      other(" -p "),
+      string("\"\""),
+      other(" input\n  "),
+      id("echo"),
+      space,
+      string("\""),
+      escape("\\\""),
+      subst("${input}"),
+      escape("\\\""),
+      string("\""),
+      other("\n"),
+      keyword("done"),
+      other("\n\n"),
+      id("exit")
+    )
+    assertEquals(parsed, expected)
+  }
+
   test("SQL") {
     val input =
       """# Doc

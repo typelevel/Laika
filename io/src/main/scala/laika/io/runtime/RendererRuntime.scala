@@ -110,9 +110,10 @@ object RendererRuntime {
           val renderer          = Renderer.of(op.renderer.format).withConfig(op.config).build
           val docPathTranslator = pathTranslator.forReferencePath(document.path)
           val outputPath        = docPathTranslator.translate(document.path)
+          val outputDoc         = document.copy(path = outputPath)
           for {
             renderResult <- Async[F].fromEither(
-              renderer.render(document.content, outputPath, docPathTranslator, styles)
+              renderer.render(outputDoc, docPathTranslator, styles)
             )
             _            <- output(outputPath).writer(renderResult)
           } yield {
