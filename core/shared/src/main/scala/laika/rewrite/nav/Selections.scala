@@ -232,7 +232,10 @@ object Selections {
         .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
         .toMap
 
-      val selections: ConfigResult[Map[String, String]] = cursor.config
+      val targetConfig =
+        if (cursor.root.config.hasKey(LaikaKeys.selections)) cursor.root.config else cursor.config
+
+      val selections: ConfigResult[Map[String, String]] = targetConfig
         .getOpt[Selections]
         .map(_.getOrElse(Selections.empty))
         .map(extractMap)

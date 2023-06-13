@@ -179,7 +179,7 @@ object ManualSettings {
         )
       ),
       subtitle = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.1")),
+      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.2")),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),

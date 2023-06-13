@@ -260,7 +260,6 @@ val res: Either[TransformationError, String] = transformer
   .transform(input)
 ```
 
-@:pageBreak
 
 **Transforming a directory of files from Markdown to HTML**
 
@@ -305,7 +304,6 @@ val res: IO[Unit] = transformer.use {
 Note that while the new code sample looks more verbose, it now gives you full
 control over where your effects are run.
 
-@:pageBreak
 
 **Customizing Renderers**
 
