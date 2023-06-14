@@ -127,10 +127,11 @@ suspended in the effect of your choice.</p><p>The requirements for the effect ar
   .parallel[IO](<span class="num">4</span>)
   .build
 
-<span class="kw">val</span> res: IO[<span class="std">Unit</span>] = transformer
-  .fromDirectory(<span class="lit">"src"</span>)
-  .toDirectory(<span class="lit">"target"</span>)
-  .transform</pre><p>These variants of parser, renderer and transformer are the most powerful of the library, and the only
+<span class="kw">val</span> res: IO[<span class="std">Unit</span>] = transformer.use {
+  _.fromDirectory(<span class="lit">"src"</span>)
+   .toDirectory(<span class="lit">"target"</span>)
+   .transform
+}</pre><p>These variants of parser, renderer and transformer are the most powerful of the library, and the only
 options that support templating, style sheets and the copying of static files from input to output directory.</p><p>This API can be used to produce an entire HTML site or e-books in the EPUB or PDF format.
 It is also the basis of all tasks in the sbt plugin, that only adds a thin layer of sbt tasks
 and settings on top of the library API.</p><p>The tree for all internal processing steps is based on a virtual path, where in case

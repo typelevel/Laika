@@ -832,8 +832,7 @@ pre {
   border-radius: 5px;
   padding: 12px 9px 9px 15px;
   margin: 0 0 var(--block-spacing);
-  font-size: var(--code-font-size);
-  line-height: 21px;
+  line-height: 1.4;
   word-break: break-all;
   word-wrap: break-word;
   white-space: pre-wrap;
@@ -847,7 +846,6 @@ code {
   padding: 0 0.1em;
 }
 pre code {
-  font-size: var(--code-font-size);
   color: var(--syntax-base5);
   background-color: transparent;
   padding: 0;

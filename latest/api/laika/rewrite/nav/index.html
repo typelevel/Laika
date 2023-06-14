@@ -139,8 +139,8 @@
                         <a href="AutonumberConfig.html" title="Configuration for autonumbering of documents and sections.">AutonumberConfig</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="class" href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path."></a>
-                        <a href="BasicPathTranslator.html" title="Basic path translator implementation that only replaces the suffix of the path.">BasicPathTranslator</a>
+                        <a class="class" href="BasicPathTranslator.html" title=""></a>
+                        <a href="BasicPathTranslator.html" title="">BasicPathTranslator</a>
                       </li><li class="current-entities indented3">
                         <a class="object" href="ChoiceConfig$.html" title=""></a>
                         <a class="class" href="ChoiceConfig.html" title="Configuration for a single choice within a selection."></a>
@@ -165,6 +165,10 @@
                         <span class="separator"></span>
                         <a class="object" href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees."></a>
                         <a href="NavigationOrder$.html" title="Responsible for applying the navigation order to the contents of a document tree, either based on user-specified configuration or by the alphabetical order of the names of the documents and subtrees.">NavigationOrder</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="NoOpPathTranslator$.html" title="Path translator implementation that returns all paths unmodified."></a>
+                        <a href="NoOpPathTranslator$.html" title="Path translator implementation that returns all paths unmodified.">NoOpPathTranslator</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="PathAttributes.html" title=""></a>
@@ -280,24 +284,6 @@
       </span>
       
       <p class="shortcomment cmt">Configuration for autonumbering of documents and sections.</p>
-    </li><li name="laika.rewrite.nav.BasicPathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="BasicPathTranslatorextendsPathTranslatorwithProductwithSerializable"></a><a id="BasicPathTranslator:BasicPathTranslator"></a>
-      <span class="permalink">
-      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a title="Basic path translator implementation that only replaces the suffix of the path." href="BasicPathTranslator.html"><span class="name">BasicPathTranslator</span></a><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Basic path translator implementation that only replaces the suffix of the path.</p><div class="fullcomment"><div class="comment cmt"><p>Basic path translator implementation that only replaces the suffix of the path.</p><p>Used in scenarios where only a single document gets rendered and there is no use case for
-cross references or static or versioned documents.
-</p></div></div>
     </li><li name="laika.rewrite.nav.ChoiceConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ChoiceConfigextendsProductwithSerializable"></a><a id="ChoiceConfig:ChoiceConfig"></a>
       <span class="permalink">
@@ -495,6 +481,25 @@ and offers them on the download page to cater for the fact that tabs do not work
       </span>
       
       <p class="shortcomment cmt">Describes the supported target (output) formats of a resource.</p>
+    </li><li name="laika.rewrite.nav.BasicPathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BasicPathTranslatorextendsPathTranslatorwithProductwithSerializable"></a><a id="BasicPathTranslator:BasicPathTranslator"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/BasicPathTranslator.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BasicPathTranslator.html"><span class="name deprecated" title="Deprecated: (Since version 0.19.2) use NoOpPathTranslator for transforming a single input">BasicPathTranslator</span></a><span class="params">(<span name="outputSuffix">outputSuffix: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.19.2)</i> use NoOpPathTranslator for transforming a single input</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -586,6 +591,24 @@ and offers them on the download page to cater for the fact that tabs do not work
  contents of a document tree, either based on user-specified
  configuration or by the alphabetical order of the names of
  the documents and subtrees.</p>
+    </li><li name="laika.rewrite.nav.NoOpPathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="NoOpPathTranslator"></a><a id="NoOpPathTranslator:NoOpPathTranslator"></a>
+      <span class="permalink">
+      <a href="../../../laika/rewrite/nav/NoOpPathTranslator$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Path translator implementation that returns all paths unmodified." href="NoOpPathTranslator$.html"><span class="name">NoOpPathTranslator</span></a><span class="result"> extends <a href="PathTranslator.html" class="extype" name="laika.rewrite.nav.PathTranslator">PathTranslator</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Path translator implementation that returns all paths unmodified.</p><div class="fullcomment"><div class="comment cmt"><p>Path translator implementation that returns all paths unmodified.</p><p>Used in scenarios where only a single document gets rendered and there is no use case for
+cross references or static or versioned documents.
+</p></div></div>
     </li><li name="laika.rewrite.nav.PathTranslator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PathTranslator"></a><a id="PathTranslator:PathTranslator"></a>
       <span class="permalink">
