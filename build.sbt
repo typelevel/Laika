@@ -5,7 +5,7 @@ import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 
 lazy val basicSettings = Seq(
-  version              := "0.19.2-SNAPSHOT",
+  version              := "0.19.2",
   homepage             := Some(new URL("https://typelevel.org/Laika/")),
   organization         := "org.planet42",
   organizationHomepage := Some(new URL("http://typelevel.org")),

@@ -2,7 +2,7 @@
 Release Notes
 =============
 
-0.19.2 (June ?, 2023)
+0.19.2 (June 14, 2023)
 ----------------------
 
 * Syntax Highlighting
