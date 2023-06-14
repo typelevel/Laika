@@ -44,7 +44,7 @@ import laika.io.runtime.TreeResultBuilder.{
   TemplateResult
 }
 
-import java.io.{ File, InputStream }
+import java.io.InputStream
 import scala.io.Codec
 import scala.reflect.ClassTag
 
@@ -146,18 +146,10 @@ class InputTreeBuilder[F[_]](
   def addDirectory(name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addDirectory(FilePath.parse(name), mountPoint)
 
-  @deprecated("use addDirectory(String) or addDirectory(FilePath)", "0.19.0")
-  def addDirectory(dir: File)(implicit codec: Codec): InputTreeBuilder[F] =
-    addDirectory(FilePath.fromJavaFile(dir), Root)
-
   /** Adds the specified directories to the input tree, placing it in the virtual root.
     */
   def addDirectory(dir: FilePath)(implicit codec: Codec): InputTreeBuilder[F] =
     addDirectory(dir, Root)
-
-  @deprecated("use addDirectory(String, Path) or addDirectory(FilePath, Path)", "0.19.0")
-  def addDirectory(dir: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
-    addDirectory(FilePath.fromJavaFile(dir), mountPoint)
 
   /** Adds the specified directories to the input tree, placing it at the specified mount point in the virtual tree.
     */
@@ -182,10 +174,6 @@ class InputTreeBuilder[F[_]](
     */
   def addFile(name: String, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addFile(FilePath.parse(name), mountPoint)
-
-  @deprecated("use addFile(String) or addFile(FilePath)", "0.19.0")
-  def addFile(file: File, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
-    addFile(FilePath.fromJavaFile(file), mountPoint)
 
   /** Adds the specified file to the input tree, placing it at the specified mount point in the virtual tree.
     *
@@ -236,17 +224,6 @@ class InputTreeBuilder[F[_]](
       case docType: TextDocumentType    =>
         _ + TextInput.fromClassLoaderResource(name, mountPoint, docType, classLoader)
     }
-
-  @deprecated("Use addClassResource or addClassLoaderResource", "0.19.0")
-  def addClasspathResource(name: String, mountPoint: Path)(implicit
-      codec: Codec
-  ): InputTreeBuilder[F] =
-    addClassLoaderResource(name, mountPoint)
-
-  @deprecated("use addInputStream", "0.19.0")
-  def addStream(stream: F[InputStream], mountPoint: Path, autoClose: Boolean = true)(implicit
-      codec: Codec
-  ): InputTreeBuilder[F] = addInputStream(stream, mountPoint, autoClose)
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
     *

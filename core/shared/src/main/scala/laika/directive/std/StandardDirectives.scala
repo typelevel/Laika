@@ -25,7 +25,6 @@ import laika.directive._
 import laika.rewrite.link.{ InvalidTarget, RecoveredTarget, ValidTarget }
 import laika.time.PlatformDateTime
 
-import scala.annotation.nowarn
 import scala.collection.immutable.TreeSet
 
 /** Provides the implementation for the standard directives included in Laika.
@@ -71,7 +70,6 @@ import scala.collection.immutable.TreeSet
   * - `target`: Translates a link target.
   *   External targets will be rendered verbatim, internal targets (absolute or relative paths) will be resolved
   *   from the perspective of a template to a path relative to the document the template had been applied to.
-  * - `path`: Deprecated, use the newer target directive instead which is a superset of its functionality
   * - `date`: renders a date with a specified formatting pattern
   * - `attribute`: renders an HTML attribute if the specified config value is defined
   *
@@ -121,29 +119,6 @@ object StandardDirectives extends DirectiveRegistry {
 
     (attribute(0).as[String].widen, parsedBody).mapN { (style, body) =>
       BlockSequence(body, Styles("callout", style))
-    }
-  }
-
-  @deprecated("use target directive instead", "0.19.0")
-  lazy val path: Templates.Directive = Templates.eval("path") {
-    import Templates.dsl._
-
-    (attribute(0).as[Path], attribute(0).as[String], cursor).mapN {
-      (literalPath, pathKey, cursor) =>
-        def resolvePath(path: Path): Either[String, TemplateSpan] = {
-          val it = InternalTarget(path)
-          cursor.validate(it) match {
-            case ValidTarget                 =>
-              Right(TemplateElement(RawLink.internal(path.relativeTo(cursor.path))))
-            case InvalidTarget(message)      => Left(message)
-            case RecoveredTarget(message, _) => Left(message)
-          }
-        }
-
-        val config = cursor.resolver.config
-        if (config.hasKey(pathKey))
-          config.get[Path](pathKey).leftMap(_.message).flatMap(resolvePath)
-        else resolvePath(literalPath)
     }
   }
 
@@ -323,7 +298,6 @@ object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for templates.
     */
-  @nowarn("cat=deprecation")
   lazy val templateDirectives: Seq[Templates.Directive] = List(
     BreadcrumbDirectives.forTemplates,
     NavigationTreeDirectives.forTemplates,
@@ -335,7 +309,6 @@ object StandardDirectives extends DirectiveRegistry {
     HTMLHeadDirectives.linkJS,
     iconTemplate,
     target,
-    path,
     date,
     attr
   )

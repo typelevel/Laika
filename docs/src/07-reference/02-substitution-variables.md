@@ -68,8 +68,6 @@ This is a complete list of values exposed in the `cursor` namespace:
 
     * `sourcePath`: the absolute (virtual) path of the document in the input tree.
 
-    * `path` (deprecated since 0.19.0): use `sourcePath`.
-    
 * Access to surrounding documents via `cursor.parentDocument`, `cursor.previousDocument`, `cursor.nextDocument`,
   `cursor.flattenedSiblings.previousDocument` and `cursor.flattenedSiblings.nextDocument`.
   Any of these references may be empty, depending on the position of the current document.
@@ -86,10 +84,6 @@ This is a complete list of values exposed in the `cursor` namespace:
     * `path`: the path of the document in the generated output, e.g. `../herbs/parsley.html`.
 
     * `sourcePath`: the absolute (virtual) path of the document in the input tree, e.g. `/herbs/parsley.md`.
-    
-    * `absolutePath` (deprecated since 0.19.0): use `sourcePath`.
-    
-    * `relativePath` (deprecated since 0.19.0): use `sourcePath`.
     
 * `root.title`: The title of the root node, usually the title of the website or e-book.
     

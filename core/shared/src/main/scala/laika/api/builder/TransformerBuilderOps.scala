@@ -163,7 +163,4 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
 
   })
 
-  @deprecated("use buildingRules", "0.19.0")
-  def buildingRule(newRules: RewriteRulesBuilder): ThisType = buildingRules(newRules)
-
 }

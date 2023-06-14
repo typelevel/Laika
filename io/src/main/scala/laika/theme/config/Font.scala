@@ -16,7 +16,6 @@
 
 package laika.theme.config
 
-import java.io.File
 import laika.ast.Path.Root
 import laika.ast.{ Path, VirtualPath }
 import laika.config._
@@ -43,9 +42,6 @@ case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[Str
     * not a path from the library's virtual path.
     */
   def embedFile(file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
-
-  @deprecated("use embedFile(String) or embedFile(FilePath)", "0.19.0")
-  def embedFile(file: File): Font = embedFile(FilePath.fromJavaFile(file))
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
@@ -83,9 +79,6 @@ object Font {
     * not a path from the library's virtual path.
     */
   def embedFile(file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), None)
-
-  @deprecated("use embedFile(String) or embedFile(FilePath)", "0.19.0")
-  def embedFile(file: File): Font = embedFile(FilePath.fromJavaFile(file))
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.

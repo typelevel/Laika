@@ -633,21 +633,6 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
-  @deprecated
-  def pageNavigation(
-      enabled: Boolean,
-      depth: Int,
-      sourceBaseURL: Option[String],
-      sourceLinkText: String
-  ): Helium =
-    pageNavigation(
-      enabled,
-      depth,
-      sourceBaseURL,
-      sourceLinkText,
-      currentContent.pageNavigation.keepOnSmallScreens
-    )
-
   /** Adds a dedicated page for a table of content, in addition to the left navigation bar.
     *
     * @param title the title to display on the page and in navigation that links to the page
@@ -684,12 +669,6 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       )
     copyWith(helium.siteSettings.copy(content = newContent))
   }
-
-  @deprecated("use the corresponding properties of the new pageNavigation method", "0.19.0")
-  def markupEditLinks(text: String, baseURL: String): Helium = pageNavigation(
-    sourceLinkText = text,
-    sourceBaseURL = Some(baseURL)
-  )
 
   /** Adds a dedicated landing page to the site that is tailored for software documentation sites.
     * By default no landing page will be included and the site will render the homepage (if present)
