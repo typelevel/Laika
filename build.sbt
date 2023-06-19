@@ -91,9 +91,7 @@ lazy val root = project.in(file("."))
     crossScalaVersions                         := Nil,
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
       plugin,
-      core.js,
-      demo.jvm,
-      demo.js
+      core.js
     )
   )
 
@@ -183,54 +181,4 @@ lazy val plugin = project.in(file("sbt"))
       "-Duser.country=GB"
     ),
     scriptedBufferLog  := false
-  )
-
-lazy val demo = crossProject(JSPlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .crossType(CrossType.Full)
-  .in(file("demo"))
-  .dependsOn(core)
-  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
-  .settings(basicSettings)
-  .settings(
-    name    := "laika-demo",
-    version := "0.16.0.0"
-  )
-  .jvmSettings(
-    libraryDependencies ++= http4s,
-    Universal / javaOptions ++= Seq(
-      "-J-Xms512M",
-      "-J-Xmx896M"
-    ),
-    docker / buildOptions := BuildOptions(
-      cache = false,
-      removeIntermediateContainers = BuildOptions.Remove.Always,
-      pullBaseImage = BuildOptions.Pull.Always
-    ),
-    docker / dockerfile   := {
-      val appDir: File = stage.value
-      val targetDir    = "/app"
-
-      new Dockerfile {
-        from("openjdk:8")
-        expose(8080)
-        env("VERSION", version.value)
-        entryPoint(s"$targetDir/bin/${executableScriptName.value}")
-        copy(appDir, targetDir)
-      }
-    },
-    docker / imageNames   := Seq(
-      ImageName(
-        namespace = None,
-        repository = name.value,
-        tag = Some(version.value)
-      )
-    )
-  )
-  .jsSettings(
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    Compile / fastOptJS / artifactPath :=
-      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer.mjs",
-    Compile / fullOptJS / artifactPath :=
-      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer-opt.mjs"
   )
