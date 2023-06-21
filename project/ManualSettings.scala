@@ -22,18 +22,22 @@ object ManualSettings {
 
   private object versions {
 
-    private def version(version: String, stable: Boolean = false): Version = {
-      val label       = if (stable) Some("Stable") else Some("EOL")
-      val pathSegment = if (stable) "latest" else version
-      Version(version, pathSegment, "/table-of-content.html", label, canonical = stable)
+    private def version(version: String, label: String = "EOL"): Version = {
+      val (pathSegment, canonical) = label match {
+        case "EOL"    => (version, false)
+        case "Stable" => ("latest", true)
+        case "Dev"    => ("dev", false)
+      }
+      Version(version, pathSegment, "/table-of-content.html", Some(label), canonical)
     }
 
-    val v019    = version("0.19", stable = true)
+    val v1      = version("1.x", "Dev")
+    val v019    = version("0.19", "Stable")
     val v018    = version("0.18")
     val v017    = version("0.17")
     val v016    = version("0.16")
-    val current = v019
-    val all     = Seq(v019, v018, v017, v016)
+    val current = v1
+    val all     = Seq(v1, v019, v018, v017, v016)
 
     val config = Versions(
       currentVersion = current,
