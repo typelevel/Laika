@@ -116,7 +116,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:path(theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      "laika.links.validation.scope = off",
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
@@ -127,7 +127,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:path(/theme/theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      "laika.links.validation.scope = off",
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
@@ -157,7 +157,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      "laika.links.validation.scope = off",
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -168,7 +168,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(/theme/theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      "laika.links.validation.scope = off",
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -193,7 +193,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(var.link) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]\nvar.link = \"/theme/theme.css\"",
+      "laika.links.validation.scope = off\nvar.link = \"/theme/theme.css\"",
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -204,7 +204,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(http://foo.com) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      "laika.links.validation.scope = off",
       TemplateString("aa "),
       TemplateElement(RawLink(ExternalTarget("http://foo.com"))),
       TemplateString(" bb")

@@ -38,7 +38,7 @@ import munit.FunSuite
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
   val disableInternalLinkValidation: Config =
-    ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
+    ConfigParser.parse("""{ laika.links.validation.scope = off }""").resolve().toOption.get
 
   def rewritten(root: RootElement, withTitles: Boolean = true): ConfigResult[RootElement] = {
     val config =
@@ -519,6 +519,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test(
     "internal links - allow links to missing target documents when one of the parent trees has the validateLinks flag set to false"
   ) {
+    // TODO - remove test and `noLinkValidation` property in 1.0
     InternalLinks.run(
       "doc99.md#ref",
       InternalLinks.build(RelativePath.parse("doc99.md#ref")),

@@ -28,7 +28,7 @@ import laika.format.{ AST, HTML, ReStructuredText }
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.rst.ast.{ Contents, Include, RstStyle }
 import munit.FunSuite
 
@@ -45,7 +45,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   private val docParser = MarkupParser
     .of(ReStructuredText)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .withConfigValue(LinkValidation.Off)
     .build
 
   def run(input: String, expected: Block*)(implicit loc: munit.Location): Unit = {

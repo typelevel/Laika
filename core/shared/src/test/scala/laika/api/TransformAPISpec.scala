@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.config.LaikaKeys
 import laika.format._
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.{ LinkConfig, LinkValidation }
 import munit.FunSuite
 
 class TransformAPISpec extends FunSuite {
@@ -115,9 +115,7 @@ class TransformAPISpec extends FunSuite {
     val transformer = Transformer
       .from(ReStructuredText)
       .to(HTML)
-      .withConfigValue(
-        LinkConfig(excludeFromValidation = Seq(Root))
-      ) // TODO - remove once validation is more constrained
+      .withConfigValue(LinkValidation.Local) // TODO - remove once validation defaults change
       .build
     assertEquals(transformer.transform(input), Right(expected))
   }

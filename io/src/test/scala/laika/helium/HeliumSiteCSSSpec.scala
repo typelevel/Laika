@@ -27,7 +27,7 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -37,7 +37,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .withConfigValue(LinkValidation.Off)
     .parallel[IO]
     .withTheme(theme)
     .build

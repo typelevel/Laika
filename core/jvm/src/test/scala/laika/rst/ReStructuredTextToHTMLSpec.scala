@@ -66,7 +66,7 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
   def transformAndCompare(name: String): Unit = {
     val noValidation =
       """{%
-        |laika.links.excludeFromValidation = ["/"] 
+        |laika.links.validation.scope = off
         |%}
         |""".stripMargin
 

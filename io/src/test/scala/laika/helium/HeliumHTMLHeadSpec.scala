@@ -27,7 +27,7 @@ import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
 import laika.io.implicits._
 import laika.io.model.{ InputTree, StringTreeOutput }
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.rewrite.{ Version, Versions }
 import laika.theme._
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
@@ -38,7 +38,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .withConfigValue(LinkValidation.Off)
     .parallel[IO]
     .build
 
@@ -59,7 +59,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LaikaKeys.links.child("excludeFromValidation"), Seq("/"))
+    .withConfigValue(LinkValidation.Off)
     .parallel[IO]
     .withTheme(theme)
     .build

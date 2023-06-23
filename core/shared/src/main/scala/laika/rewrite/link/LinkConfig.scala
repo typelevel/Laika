@@ -59,6 +59,47 @@ object LinkConfig {
 
 }
 
+sealed trait LinkValidation
+
+object LinkValidation {
+  case object Off                              extends LinkValidation
+  case object Local                            extends LinkValidation
+  case class Global(excluded: Seq[Path] = Nil) extends LinkValidation
+
+  private val keyValue                                         = LaikaKeys.links.child("validation")
+  implicit val key: DefaultKey[LinkValidation]                 = DefaultKey(keyValue)
+  implicit val globalKey: DefaultKey[LinkValidation.Global]    = DefaultKey(keyValue)
+  implicit val localKey: DefaultKey[LinkValidation.Local.type] = DefaultKey(keyValue)
+  implicit val offKey: DefaultKey[LinkValidation.Off.type]     = DefaultKey(keyValue)
+
+  implicit val decoder: ConfigDecoder[LinkValidation] = ConfigDecoder.config.flatMap { config =>
+    val result = for {
+      scope    <- config.getOpt[String]("scope")
+      excluded <- config.get[Seq[Path]]("excluded", Nil)
+    } yield (scope, excluded)
+    result.flatMap {
+      case (Some("global"), excluded) => Right(Global(excluded))
+      case (Some("local"), _)         => Right(Local)
+      case (Some("off"), _)           => Right(Off)
+      case (None, _)                  => Right(Global(Nil)) // TODO - switch to Local
+      case (Some(unknown), _) => Left(ValidationError(s"Unsupported value for scope: $unknown"))
+    }
+  }
+
+  implicit val encoder: ConfigEncoder[LinkValidation] = ConfigEncoder[LinkValidation] { config =>
+    val (scope, excluded) = config match {
+      case Global(excluded) => ("global", excluded)
+      case Local            => ("local", Nil)
+      case Off              => ("off", Nil)
+    }
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("scope", scope)
+      .withValue("excluded", excluded)
+      .build
+  }
+
+}
+
 case class TargetDefinition(id: String, target: Target)
 
 case class SourceLinks(baseUri: String, suffix: String, packagePrefix: String = "*")

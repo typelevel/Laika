@@ -28,7 +28,7 @@ import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.render.HTMLFormatter
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.theme._
 import munit.CatsEffectSuite
@@ -45,7 +45,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
     val builder = Transformer.from(Markdown).to(HTML)
-      .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+      .withConfigValue(LinkValidation.Off)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)
