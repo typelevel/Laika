@@ -27,7 +27,7 @@ import munit.FunSuite
   */
 class LinkValidatorSpec extends FunSuite {
 
-  private val defaultLinkValidation = LinkValidation.Global()
+  private val defaultLinkValidation = LinkValidation.Local
 
   private def testCursor(docConfig: LinkValidation = defaultLinkValidation): DocumentCursor = {
     import laika.ast.sample.SampleConfig._
@@ -70,8 +70,9 @@ class LinkValidatorSpec extends FunSuite {
   }
 
   test("invalid link target") {
+    val config = LinkValidation.Global()
     assertEquals(
-      testCursor().validate(testTarget("../tree-1/doc-9.md")),
+      testCursor(config).validate(testTarget("../tree-1/doc-9.md")),
       InvalidTarget("unresolved internal reference: ../tree-1/doc-9.md")
     )
   }
@@ -85,9 +86,8 @@ class LinkValidatorSpec extends FunSuite {
   }
 
   test("ignore invalid link target when validation is configured to be local") {
-    val config = LinkValidation.Local
     assertEquals(
-      testCursor(config).validate(testTarget("../tree-1/doc-9.md")),
+      testCursor().validate(testTarget("../tree-1/doc-9.md")),
       ValidTarget
     )
   }
@@ -101,9 +101,8 @@ class LinkValidatorSpec extends FunSuite {
   }
 
   test("invalid local link target") {
-    val config = LinkValidation.Local
     assertEquals(
-      testCursor(config).validate(testTarget("#foo")),
+      testCursor().validate(testTarget("#foo")),
       InvalidTarget("unresolved internal reference: #foo")
     )
   }
@@ -123,7 +122,8 @@ class LinkValidatorSpec extends FunSuite {
       msg(relPath.toString),
       ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
     )
-    assertEquals(testCursor().validate(testTarget("../tree-1/doc-4.md")), expected)
+    val config   = LinkValidation.Global()
+    assertEquals(testCursor(config).validate(testTarget("../tree-1/doc-4.md")), expected)
   }
 
   test("recoverable static link target") {
@@ -133,7 +133,8 @@ class LinkValidatorSpec extends FunSuite {
       msg(relPath.toString),
       ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
     )
-    assertEquals(testCursor().validate(testTarget("../static-2/doc-8.txt")), expected)
+    val config   = LinkValidation.Global()
+    assertEquals(testCursor(config).validate(testTarget("../static-2/doc-8.txt")), expected)
   }
 
   test("valid span link") {
@@ -142,26 +143,29 @@ class LinkValidatorSpec extends FunSuite {
   }
 
   test("invalid span link") {
-    val link = SpanLink.internal("../tree-1/doc-9.md")("text")
+    val config = LinkValidation.Global()
+    val link   = SpanLink.internal("../tree-1/doc-9.md")("text")
     assertEquals(
-      testCursor().validate(link),
+      testCursor(config).validate(link),
       Left("unresolved internal reference: ../tree-1/doc-9.md")
     )
   }
 
   test("recovered span link") {
+    val config          = LinkValidation.Global()
     val absPath         = Path.parse("/tree-1/doc-4.md")
     val relPath         = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
     val link            = SpanLink.internal(relPath)("text")
     val recoveredTarget = ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
-    assertEquals(testCursor().validate(link), Right(link.copy(target = recoveredTarget)))
+    assertEquals(testCursor(config).validate(link), Right(link.copy(target = recoveredTarget)))
   }
 
   test("unrecoverable image link") {
+    val config  = LinkValidation.Global()
     val absPath = Path.parse("/tree-1/doc-4.md")
     val relPath = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
     val link    = Image(InternalTarget(relPath))
-    assertEquals(testCursor().validate(link), Left(msg("../tree-1/doc-4.md")))
+    assertEquals(testCursor(config).validate(link), Left(msg("../tree-1/doc-4.md")))
   }
 
 }

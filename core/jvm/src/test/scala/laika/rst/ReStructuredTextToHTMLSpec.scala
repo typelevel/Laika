@@ -64,14 +64,8 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
   }
 
   def transformAndCompare(name: String): Unit = {
-    val noValidation =
-      """{%
-        |laika.links.validation.scope = off
-        |%}
-        |""".stripMargin
-
     val path  = FileIO.classPathResourcePath("/rstSpec") + "/" + name
-    val input = noValidation + FileIO.readFile(path + ".rst")
+    val input = FileIO.readFile(path + ".rst")
 
     def quotedBlockContent(content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content

@@ -73,6 +73,7 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
          |    { baseUri = "https://bar.api/", packagePrefix = foo.bar }
          |    { baseUri = "local/path/", packagePrefix = internal }
          |  ]
+         |  laika.links.validation.scope = global
          |%}
          |
          |$block

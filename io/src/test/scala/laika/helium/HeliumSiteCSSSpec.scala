@@ -37,7 +37,6 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LinkValidation.Off)
     .parallel[IO]
     .withTheme(theme)
     .build

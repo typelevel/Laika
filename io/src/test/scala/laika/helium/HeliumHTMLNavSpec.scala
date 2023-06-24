@@ -26,7 +26,6 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.rewrite.link.LinkValidation
 import laika.rewrite.{ Version, Versions }
 import laika.theme._
 import munit.CatsEffectSuite
@@ -45,16 +44,13 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     )
   )
 
-  def transformer(
-      theme: ThemeProvider,
-      validationConfig: LinkValidation = LinkValidation.Off
-  ): Resource[IO, TreeTransformer[IO]] = Transformer
-    .from(Markdown)
-    .to(HTML)
-    .withConfigValue(validationConfig)
-    .parallel[IO]
-    .withTheme(theme)
-    .build
+  def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] =
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .parallel[IO]
+      .withTheme(theme)
+      .build
 
   def inputWithTitle(num: Int): String =
     s"""
@@ -121,10 +117,9 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       helium: Helium,
       start: String,
       end: String,
-      docPath: Path = Root / "doc-1.html",
-      validationConfig: LinkValidation = LinkValidation.Off
+      docPath: Path = Root / "doc-1.html"
   ): IO[String] =
-    transformer(helium.build, validationConfig = validationConfig).use { t =>
+    transformer(helium.build).use { t =>
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
         res        <- IO.fromEither(
@@ -439,8 +434,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
       flatInputs,
       helium,
       "<header id=\"top-bar\">",
-      "</header>",
-      validationConfig = LinkValidation.Global()
+      "</header>"
     ).assertEquals(expected)
   }
 

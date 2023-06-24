@@ -19,6 +19,7 @@ package laika.ast.sample
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors }
+import laika.rewrite.link.LinkValidation
 
 object SampleTrees {
 
@@ -422,6 +423,8 @@ object SampleConfig {
     _.withValue(LaikaKeys.versioned, flag)
 
   val noLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue("laika.validateLinks", false)
+
+  val globalLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue(LinkValidation.Global())
 
   def targetFormats(formats: String*): ConfigBuilder => ConfigBuilder =
     _.withValue(LaikaKeys.targetFormats, formats)

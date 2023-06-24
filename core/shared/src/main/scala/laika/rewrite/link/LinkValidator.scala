@@ -81,7 +81,7 @@ private[laika] class LinkValidator(
         case LinkValidation.Global(_) => LinkValidation.Global(excludedPaths)
         case other                    => other
       }
-      .getOrElse(LinkValidation.Global())
+      .getOrElse(LinkValidation.Local)
 
   private def isExcluded(path: Path): Boolean = {
 

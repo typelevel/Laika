@@ -59,11 +59,25 @@ object LinkConfig {
 
 }
 
+/** Represents configuration options for link validation. */
 sealed trait LinkValidation
 
 object LinkValidation {
-  case object Off                              extends LinkValidation
-  case object Local                            extends LinkValidation
+
+  /** Completely disables any kind of link validation */
+  case object Off extends LinkValidation
+
+  /** Only validates link target within the same document.
+    * The default when using the `laika-core` transformer with a single input string.
+    */
+  case object Local extends LinkValidation
+
+  /** Validates link targets within the same document and in other documents.
+    * The default when using the sbt plugin or the `laika-io` transformer APIs.
+    *
+    * @param excluded one or more paths to link targets that should be excluded from validation -
+    *                 the values apply recursively and include subdirectories
+    */
   case class Global(excluded: Seq[Path] = Nil) extends LinkValidation
 
   private val keyValue                                         = LaikaKeys.links.child("validation")
@@ -81,7 +95,7 @@ object LinkValidation {
       case (Some("global"), excluded) => Right(Global(excluded))
       case (Some("local"), _)         => Right(Local)
       case (Some("off"), _)           => Right(Off)
-      case (None, _)                  => Right(Global(Nil)) // TODO - switch to Local
+      case (None, _)                  => Left(ValidationError(s"scope not specified"))
       case (Some(unknown), _) => Left(ValidationError(s"Unsupported value for scope: $unknown"))
     }
   }

@@ -34,10 +34,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
   private val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
 
-  private val parser = MarkupParser
-    .of(ReStructuredText)
-    .withConfigValue(LinkValidation.Off)
-    .build
+  private val parser = MarkupParser.of(ReStructuredText).build
 
   def parse(input: String): Either[TransformationError, RootElement] =
     parser

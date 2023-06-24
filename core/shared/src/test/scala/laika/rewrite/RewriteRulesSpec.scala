@@ -20,7 +20,12 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
 import laika.ast._
-import laika.ast.sample.SampleConfig.{ noLinkValidation, siteBaseURL, targetFormats }
+import laika.ast.sample.SampleConfig.{
+  globalLinkValidation,
+  noLinkValidation,
+  siteBaseURL,
+  targetFormats
+}
 import laika.ast.sample.{
   ParagraphCompanionShortcuts,
   SampleSixDocuments,
@@ -28,7 +33,7 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigParser, LaikaKeys }
+import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.parse.GeneratedSource
 import laika.rewrite.link.{ LinkConfig, TargetDefinition }
 import laika.rewrite.nav.TargetFormats
@@ -37,14 +42,11 @@ import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
-  val disableInternalLinkValidation: Config =
-    ConfigParser.parse("""{ laika.links.validation.scope = off }""").resolve().toOption.get
-
   def rewritten(root: RootElement, withTitles: Boolean = true): ConfigResult[RootElement] = {
     val config =
       if (withTitles)
-        disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
-      else disableInternalLinkValidation
+        ConfigBuilder.empty.withValue(LaikaKeys.firstHeaderAsTitle, true).build
+      else Config.empty
     val doc    = Document(Path.Root / "doc", root, config = config)
     OperationConfig.default
       .rewriteRulesFor(doc, RewritePhase.Resolve)
@@ -343,6 +345,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
       val root =
         SampleTrees.sixDocuments
           .root.config(_.withValue(linkConfig))
+          .root.config(globalLinkValidation)
           .docContent(linkTarget)
           .doc3.content(p(ref))
           .suffix("md")
@@ -398,6 +401,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
           .doc4.content(InternalLinkTarget(Id("target-4")))
           .suffix("md")
           .root.config(siteBaseURL("http://external/"))
+          .root.config(globalLinkValidation)
           .apply(builder)
           .build
 
