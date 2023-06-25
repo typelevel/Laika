@@ -76,14 +76,6 @@ Example:
 See [Disabling Validation] when you only want the path translation without the validation.
 
 
-### `@:path`
-
-Can only be used in templates.
-
-Deprecated since version 0.19.0 - use the `@:target` directive which is a superset of the functionality
-of the old `@:path` directive which did not support external targets.
-
-
 Inclusions
 ----------
 

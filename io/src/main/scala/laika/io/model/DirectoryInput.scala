@@ -22,7 +22,6 @@ import laika.ast.{ DocumentType, Path }
 import laika.ast.Path.Root
 import laika.bundle.DocumentTypeMatcher
 
-import java.io.File
 import scala.io.Codec
 
 /** A directory in the file system containing input documents for a tree transformation.
@@ -45,11 +44,6 @@ object DirectoryInput {
   val hiddenFileFilter: FileFilter = new FileFilter {
     def filter[F[_]: Async](file: FilePath) = Files.forAsync[F].isHidden(file.toFS2Path)
   }
-
-  @deprecated("use apply(FilePath)", "0.19.0")
-  def apply(directory: File)(implicit codec: Codec): DirectoryInput = apply(
-    FilePath.fromJavaFile(directory)
-  )
 
   /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
     * `fileFilter` properties.

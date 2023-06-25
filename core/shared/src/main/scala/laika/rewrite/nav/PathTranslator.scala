@@ -270,12 +270,3 @@ object NoOpPathTranslator extends PathTranslator {
   def translate(input: RelativePath): RelativePath      = input
   def forReferencePath(path: Path): PathTranslator      = this
 }
-
-@deprecated("use NoOpPathTranslator for transforming a single input", "0.19.2")
-case class BasicPathTranslator(outputSuffix: String) extends PathTranslator {
-  private val defaultAttributes = Some(PathAttributes(isStatic = false, isVersioned = false))
-  def getAttributes(path: Path): Option[PathAttributes] = defaultAttributes
-  def translate(input: Path): Path                      = input.withSuffix(outputSuffix)
-  def translate(input: RelativePath): RelativePath      = input.withSuffix(outputSuffix)
-  def forReferencePath(path: Path): PathTranslator      = this
-}

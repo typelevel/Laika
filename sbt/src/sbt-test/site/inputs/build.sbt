@@ -1,6 +1,6 @@
 import cats.effect.IO
 import laika.ast.Path.Root
-import laika.io.model.InputTree
+import laika.io.model.{ FilePath, InputTree }
 
 name := "site-inputs"
 
@@ -9,8 +9,14 @@ version := "0.1"
 scalaVersion := "2.12.6"
 
 laikaInputs := InputTree[IO]
-  .addFile(baseDirectory.value / "src/docs/hello.md", Root / "doc-1.md")
-  .addFile(baseDirectory.value / "src/docs/default.template.html", Root / "default.template.html")
+  .addFile(
+    FilePath.fromJavaFile(baseDirectory.value / "src/docs/hello.md"),
+    Root / "doc-1.md"
+  )
+  .addFile(
+    FilePath.fromJavaFile(baseDirectory.value / "src/docs/default.template.html"),
+    Root / "default.template.html"
+  )
   .addString(
     """# Title
       |

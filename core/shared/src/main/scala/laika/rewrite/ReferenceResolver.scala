@@ -85,7 +85,6 @@ object ReferenceResolver {
         rootKey.child("currentDocument"),
         ObjectValue(
           Seq(
-            Field("path", StringValue(document.path.toString)), // deprecated since 0.19.0
             Field("sourcePath", StringValue(document.path.toString)),
             Field("content", ASTValue(document.content), config.origin),
             Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
@@ -129,11 +128,6 @@ object ReferenceResolver {
             Seq(
               Field("path", ASTValue(RawLink.internal(doc.path))),
               Field("sourcePath", sourcePath),
-              Field("absolutePath", sourcePath), // deprecated since 0.19.0
-              Field(
-                "relativePath",
-                StringValue(doc.path.relativeTo(document.path).toString)
-              ),                                 // deprecated since 0.19.0
               Field("title", ASTValue(doc.title.getOrElse(emptyTitle)))
             )
           )

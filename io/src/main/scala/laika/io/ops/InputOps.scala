@@ -20,7 +20,6 @@ import cats.effect.Async
 import laika.api.builder.OperationConfig
 import laika.io.model.{ DirectoryInput, FileFilter, FilePath, InputTree, InputTreeBuilder }
 
-import java.io.File
 import scala.io.Codec
 
 /** API for specifying the tree of character inputs for a parsing operation.
@@ -70,10 +69,6 @@ trait InputOps[F[_]] {
   def fromDirectory(dir: FilePath)(implicit codec: Codec): Result =
     fromDirectory(dir, DirectoryInput.hiddenFileFilter)(codec)
 
-  @deprecated("use fromDirectory(String) or fromDirectory(FilePath)", "0.19.0")
-  def fromDirectory(dir: File)(implicit codec: Codec): Result =
-    fromDirectory(FilePath.fromJavaFile(dir), DirectoryInput.hiddenFileFilter)(codec)
-
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directory and its subdirectories.
     *
@@ -83,13 +78,6 @@ trait InputOps[F[_]] {
     */
   def fromDirectory(dir: FilePath, exclude: FileFilter)(implicit codec: Codec): Result =
     fromDirectories(Seq(dir), exclude)(codec)
-
-  @deprecated(
-    "use fromDirectory(String, FileFilter) or fromDirectory(FilePath, FileFilter)",
-    "0.19.0"
-  )
-  def fromDirectory(dir: File, exclude: FileFilter)(implicit codec: Codec): Result =
-    fromDirectories(Seq(FilePath.fromJavaFile(dir)), exclude)(codec)
 
   /**  Builder step that instructs the runtime to parse files from the
     *  specified directories and its subdirectories, merging them into
@@ -111,15 +99,6 @@ trait InputOps[F[_]] {
     */
   def fromDirectories(roots: Seq[FilePath], exclude: FileFilter)(implicit codec: Codec): Result =
     fromInput(InputTree[F](exclude)(F).addDirectories(roots))
-
-  @deprecated(
-    "use fromDirectory(String) or fromDirectory(FilePath) using a relative path",
-    "0.19.0"
-  )
-  def fromWorkingDirectory(exclude: FileFilter = DirectoryInput.hiddenFileFilter)(implicit
-      codec: Codec
-  ): Result =
-    fromDirectories(Seq(FilePath.parse(System.getProperty("user.dir"))), exclude)
 
   /** Builder step that instructs the runtime to use the specified input builder for all parsing operations.
     *

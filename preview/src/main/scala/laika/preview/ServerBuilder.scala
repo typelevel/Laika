@@ -16,7 +16,7 @@
 
 package laika.preview
 
-import java.io.{ File, PrintWriter, StringWriter }
+import java.io.{ PrintWriter, StringWriter }
 import cats.data.{ Kleisli, OptionT }
 import cats.effect._
 import cats.syntax.all._
@@ -215,9 +215,6 @@ class ServerConfig private (
     * This step is only necessary if you want to test links to API documentation with the preview server.
     */
   def withAPIDirectory(dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
-
-  @deprecated("use withAPIDirectory(FilePath)", "0.19.0")
-  def withAPIDirectory(dir: File): ServerConfig = copy(newAPIDir = Some(FilePath.fromJavaFile(dir)))
 
   /** Indicates that each served page and each detected file change should be logged to the console.
     */

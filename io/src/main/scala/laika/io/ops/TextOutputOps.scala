@@ -16,7 +16,6 @@
 
 package laika.io.ops
 
-import java.io.File
 import cats.effect.Sync
 import laika.io.model.{ DirectoryOutput, FilePath, TreeOutput }
 
@@ -58,15 +57,6 @@ trait TextOutputOps[F[_]] {
   def toDirectory(dir: FilePath)(implicit codec: Codec): Result = toOutput(
     DirectoryOutput(dir, codec)
   )
-
-  @deprecated("use toDirectory(String) or toDirectory(FilePath)", "0.19.0")
-  def toDirectory(dir: File)(implicit codec: Codec): Result = toDirectory(
-    FilePath.fromJavaFile(dir)
-  )
-
-  @deprecated("use toDirectory(String) or toDirectory(FilePath) using a relative path", "0.19.0")
-  def toWorkingDirectory(implicit codec: Codec): Result =
-    toOutput(DirectoryOutput(FilePath.parse(System.getProperty("user.dir")), codec))
 
   /** Builder step that instructs the runtime to render
     * to the specified tree output.
