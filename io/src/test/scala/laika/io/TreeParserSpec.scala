@@ -148,15 +148,16 @@ class TreeParserSpec
   }
 
   test("an empty tree") {
-    parsedTree(Nil).assertEquals(DocumentTreeRoot(DocumentTree(Root, Nil)))
+    parsedTree(Nil).assertEquals(DocumentTreeRoot(DocumentTree.empty))
   }
 
   test("tree with a single document") {
     val inputs     = Seq(
       Root / "name.md" -> Contents.name
     )
-    val docResult  = Document(Root / "name.md", RootElement(p("foo")))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder
+      .addDocument(Document(Root / "name.md", RootElement(p("foo"))))
+      .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -310,7 +311,7 @@ class TreeParserSpec
       Root / "main.template.html" -> Contents.name
     )
     val template   = TemplateDocument(Root / "main.template.html", TemplateRoot("foo"))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template)))
+    val treeResult = DocumentTree.builder.addTemplate(template).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -334,7 +335,7 @@ class TreeParserSpec
       Root / "omg.js" -> Contents.name
     )
     val staticDoc  = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil), staticDocuments = List(staticDoc))
+    val treeResult = DocumentTreeRoot(DocumentTree.empty, staticDocuments = List(staticDoc))
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -346,12 +347,12 @@ class TreeParserSpec
       Root / "doc-1.md" -> "[link](provided/ext.html)"
     )
     val target         = InternalTarget(providedPath).relativeTo(Root / "doc-1.md")
-    val expectedDocs   =
-      Seq(docResult(1, Seq(Paragraph(SpanLink.internal(providedPath)("link").withTarget(target)))))
-    val expectedResult = DocumentTreeRoot(
-      DocumentTree(Root, expectedDocs),
-      staticDocuments = List(StaticDocument(providedPath))
-    )
+    val expectedDoc    =
+      docResult(1, Seq(Paragraph(SpanLink.internal(providedPath)("link").withTarget(target))))
+    val expectedResult = DocumentTree.builder
+      .addDocument(expectedDoc)
+      .buildRoot
+      .copy(staticDocuments = List(StaticDocument(providedPath)))
     parsedTree(inputs, _.addProvidedPath(providedPath)).assertEquals(expectedResult)
   }
 
@@ -395,8 +396,10 @@ class TreeParserSpec
     def template(num: Int) =
       TemplateDocument(Root / s"main$num.template.html", TemplateRoot("$$foo"))
 
-    val treeResult =
-      DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template(1), template(2))))
+    val treeResult = DocumentTree.builder
+      .addTemplate(template(1))
+      .addTemplate(template(2))
+      .buildRoot
     parsedWith(inputs, BundleProvider.forTemplateParser(parser)).assertEquals(treeResult)
   }
 
@@ -420,7 +423,7 @@ class TreeParserSpec
       Root / "main3.aaa.css" -> Contents.name
     )
     val treeResult                            = DocumentTreeRoot(
-      DocumentTree(Root, Nil),
+      DocumentTree.empty,
       styles = Map(
         "aaa" -> StyleDeclarationSet(
           Set(Root / "main1.aaa.css", Root / "main3.aaa.css"),
@@ -473,7 +476,7 @@ class TreeParserSpec
         )
       )
     )
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder.addDocument(docResult).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -497,7 +500,7 @@ class TreeParserSpec
         )
       )
     )
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder.addDocument(docResult).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 

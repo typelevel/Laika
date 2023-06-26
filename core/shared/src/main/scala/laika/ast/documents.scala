@@ -17,12 +17,15 @@
 package laika.ast
 
 import cats.data.NonEmptySet
+import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.IncludeMap
 import laika.config._
 import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
+
+import scala.runtime.AbstractFunction6
 
 /** A navigatable object is anything that has an associated path.
   */
@@ -526,6 +529,22 @@ case class DocumentTree(
 
   protected val configScope: Origin.Scope = Origin.TreeScope
 
+}
+
+object DocumentTree
+    extends AbstractFunction6[
+      Path,
+      Seq[TreeContent],
+      Option[Document],
+      Seq[TemplateDocument],
+      Config,
+      TreePosition,
+      DocumentTree
+    ] {
+  // TODO - simplify for 1.x - signature is required to satisfy mima (companion introduced in 0.19.3)
+  val builder = new DocumentTreeBuilder()
+
+  val empty: DocumentTree = DocumentTree(Root, Nil)
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,

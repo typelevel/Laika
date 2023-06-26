@@ -37,12 +37,13 @@ import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocuments, Pars
   */
 object ParserRuntime {
 
+  import DocumentTreeBuilder._
+
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
   def run[F[_]: Async: Batch](op: TreeParser.Op[F]): F[ParsedTree[F]] = {
 
     import DocumentType.{ Config => ConfigType, _ }
-    import TreeResultBuilder._
 
     def mergeInputs(userInputs: InputTree[F], themeInputs: InputTree[F]): F[InputTree[F]] = {
 
@@ -82,10 +83,10 @@ object ParserRuntime {
       def parseDocument[D](
           doc: TextInput[F],
           parse: DocumentInput => Either[ParserError, D],
-          result: (D, Option[FilePath]) => ParserResult
+          result: D => BuilderPart
       ): F[ParserResult] =
         doc.asDocumentInput.flatMap(in =>
-          Sync[F].fromEither(parse(in).map(result(_, doc.sourceFile)))
+          Sync[F].fromEither(parse(in).map(result).map(ParserResult(_, doc.sourceFile)))
         )
 
       def parseConfig(input: DocumentInput): Either[ParserError, ConfigParser] =
@@ -96,18 +97,18 @@ object ParserRuntime {
           in.docType match {
             case Markup             =>
               selectParser(in.path).map(parser =>
-                Vector(parseDocument(in, parser.parseUnresolved, MarkupResult.apply))
+                Vector(parseDocument(in, parser.parseUnresolved, MarkupPart.apply))
               )
             case Template           =>
-              op.templateParser.map(parseDocument(in, _, TemplateResult.apply)).toVector.validNel
+              op.templateParser.map(parseDocument(in, _, TemplatePart.apply)).toVector.validNel
             case StyleSheet(format) =>
-              Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format, _))).validNel
+              Vector(parseDocument(in, op.styleSheetParser, StylePart(_, format))).validNel
             case ConfigType         =>
-              Vector(parseDocument(in, parseConfig, HoconResult(in.path, _, _))).validNel
+              Vector(parseDocument(in, parseConfig, HoconPart(in.path, _))).validNel
           }
       }.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
 
-      def rewriteTree(root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = { // TODO - move to TreeResultBuilder
+      def rewriteTree(root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = {
         val rootToRewrite = root.copy(
           staticDocuments = inputs.binaryInputs.map(doc =>
             StaticDocument(doc.path, doc.formats)
@@ -126,37 +127,43 @@ object ParserRuntime {
 
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
 
-        def toRequestedInclude(
-            includes: Seq[IncludeResource],
-            sourceFile: Option[FilePath]
-        ): Seq[RequestedInclude] =
-          includes.map { include =>
+        val includes = results.flatMap { res =>
+          res.includes.map { include =>
             RequestedInclude(
               include,
-              sourceFile.map(f => IncludeFile(ValidStringValue(f.toString)))
+              res.sourceFile.map(f => IncludeFile(ValidStringValue(f.toString)))
             )
           }
-
-        val includes = results.flatMap {
-          case HoconResult(_, config, sourceFile) => toRequestedInclude(config.includes, sourceFile)
-          case MarkupResult(doc, sourceFile) => toRequestedInclude(doc.config.includes, sourceFile)
-          case TemplateResult(doc, sourceFile) =>
-            toRequestedInclude(doc.config.includes, sourceFile)
-          case _                               => Vector()
         }
 
         IncludeHandler.load(includes)
       }
 
+      def resultMap(parsedResults: Seq[ParserResult]): Map[Path, BuilderPart] = {
+        // TODO - compatibility mode - remove in 1.x
+        val allResults = parsedResults.map(_.treePart) ++ inputs.parsedResults.flatMap {
+          case res: TreeResultBuilder.DocumentResult => Some(DocumentPart(res.doc))
+          case res: TreeResultBuilder.ConfigResult   => Some(ConfigPart(res.path, res.config))
+          case res: TreeResultBuilder.TemplateResult => Some(TemplatePart(res.doc))
+          case res: TreeResultBuilder.StyleResult    => Some(StylePart(res.doc, res.format))
+          case _                                     => None
+        }
+        allResults.map(res => (res.path, res)).toMap
+      }
+
+      def buildTree(
+          parsedResults: Seq[ParserResult],
+          includes: IncludeMap
+      ): Either[ParserError, DocumentTreeRoot] =
+        new DocumentTreeBuilder(resultMap(parsedResults))
+          .resolveAndBuildRoot(op.config.baseConfig, includes)
+          .leftMap(ParserError(_, Root))
+
       for {
         ops      <- Sync[F].fromEither(createOps)
         results  <- Batch[F].execute(ops)
         includes <- loadIncludes(results)
-        tree     <- Sync[F].fromEither(
-          buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(
-            ParserError(_, Root)
-          )
-        )
+        tree     <- Sync[F].fromEither(buildTree(results, includes))
         result   <- Sync[F].fromEither(rewriteTree(tree))
       } yield result
     }
@@ -166,6 +173,17 @@ object ParserRuntime {
       allInputs  <- mergeInputs(userInputs, op.theme.inputs)
       result     <- parseAll(allInputs)
     } yield result
+
+  }
+
+  case class ParserResult(treePart: BuilderPart, sourceFile: Option[FilePath]) {
+
+    def includes: Seq[IncludeResource] = treePart match {
+      case HoconPart(_, config) => config.includes
+      case MarkupPart(doc)      => doc.config.includes
+      case TemplatePart(doc)    => doc.config.includes
+      case _                    => Vector()
+    }
 
   }
 
