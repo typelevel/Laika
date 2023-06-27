@@ -36,8 +36,9 @@ import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.io.model.FilePath
 import laika.rewrite.nav.TitleDocumentConfig
 
-/** @author Jens Halm
-  */
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 object TreeResultBuilder {
 
   import laika.collection.TransitionalCollectionOps._
@@ -91,6 +92,7 @@ object TreeResultBuilder {
     val sourceFile: Option[FilePath] = None
   }
 
+  @deprecated("0.19.3", "internal API in version 1.x")
   def buildNode(path: Path, content: Seq[ParserResult]): TreeResult = {
 
     val treeContent = content.collect {
@@ -106,6 +108,7 @@ object TreeResultBuilder {
     TreeResult(path, treeContent, None, templates, hoconConfig, treeConfig)
   }
 
+  @deprecated("0.19.3", "internal API in version 1.x")
   def resolveConfig(
       doc: UnresolvedDocument,
       baseConfig: Config,
@@ -115,6 +118,7 @@ object TreeResultBuilder {
       doc.document.copy(config = config)
     )
 
+  @deprecated("0.19.3", "internal API in version 1.x")
   def resolveConfig(doc: Document, baseConfig: Config): Either[ConfigError, Document] =
     Right(
       doc.copy(config =
@@ -122,6 +126,7 @@ object TreeResultBuilder {
       )
     )
 
+  @deprecated("0.19.3", "internal API in version 1.x")
   def resolveConfig(
       result: TreeResult,
       baseConfig: Config,
@@ -163,6 +168,7 @@ object TreeResultBuilder {
     }
   }
 
+  @deprecated("0.19.3", "internal API in version 1.x")
   def buildTree(
       results: Seq[ParserResult],
       baseConfig: Config,

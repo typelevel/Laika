@@ -542,8 +542,12 @@ object DocumentTree
       DocumentTree
     ] {
   // TODO - simplify for 1.x - signature is required to satisfy mima (companion introduced in 0.19.3)
+
+  /** A new, empty builder for constructing a new `DocumentTree`.
+    */
   val builder = new DocumentTreeBuilder()
 
+  /** An empty `DocumentTree` without any documents, templates or configurations. */
   val empty: DocumentTree = DocumentTree(Root, Nil)
 }
 

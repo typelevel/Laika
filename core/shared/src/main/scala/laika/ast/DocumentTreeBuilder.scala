@@ -17,7 +17,6 @@
 package laika.ast
 
 import laika.config.{ Config, ConfigError, ConfigParser, Origin }
-import laika.ast.Path.Root
 import cats.implicits._
 import laika.ast.DocumentTreeBuilder.BuilderPart
 import laika.config.Config.IncludeMap
@@ -132,6 +131,11 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     )
     .withDefaultValue(StyleDeclarationSet.empty)
 
+  /** Internal entry point for the parser runtime in laika-io.
+    * Placed here as it shares a lot of functionality with the public builder API,
+    * but using additional sub-types of `BuilderPart` for parsed, but yet unresolved
+    * documents and configurations.
+    */
   private[laika] def resolveAndBuildRoot(
       baseConfig: Config,
       includes: IncludeMap
@@ -155,38 +159,69 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     new DocumentTreeBuilder(newMap)
   }
 
+  /** Add the specified documents to the builder.
+    * Existing instances with identical paths will be overridden.
+    */
   def addDocuments(docs: List[Document]): DocumentTreeBuilder =
     addParts(docs.map(DocumentPart(_)))
 
+  /** Add the specified document to the builder.
+    * Existing instances with identical paths will be overridden.
+    */
   def addDocument(doc: Document): DocumentTreeBuilder =
     new DocumentTreeBuilder(parts + ((doc.path, DocumentPart(doc))))
 
-//  def addConfig(mountPath: Path, config: Config): DocumentTreeBuilder =
-//    new DocumentTreeBuilder(parts + ((mountPath, ConfigPart(mountPath, config))))
-
+  /** Add the specified tree configuration to the builder.
+    * The path it will be assigned to will be taken from the `origin`
+    * property of the `Config` instance.
+    * Existing instances with identical paths will be overridden.
+    *
+    * For assigning a configuration to a specific document and not
+    * an entire tree or subtree, set the `config` property of
+    * a `Document` instance directly before adding it to the builder.
+    */
   def addConfig(config: Config): DocumentTreeBuilder =
     new DocumentTreeBuilder(parts + ((config.origin.path, ConfigPart(config.origin.path, config))))
 
+  /** Add the specified templates to the builder.
+    * Existing instances with identical paths will be overridden.
+    */
   def addTemplates(docs: List[TemplateDocument]): DocumentTreeBuilder =
     addParts(docs.map(TemplatePart(_)))
 
+  /** Add the specified template to the builder.
+    * Existing instances with identical paths will be overridden.
+    */
   def addTemplate(doc: TemplateDocument): DocumentTreeBuilder =
     new DocumentTreeBuilder(parts + ((doc.path, TemplatePart(doc))))
 
+  /** Builds a `DocumentTreeRoot` from the provided instances and wires the
+    * configuration of documents to that of parent trees for proper inheritance.
+    */
   def buildRoot: DocumentTreeRoot = buildRoot(Config.empty)
 
+  /** Builds a `DocumentTreeRoot` from the provided instances, using the specified
+    * `Config` instance as a base for the configuration of all trees and documents.
+    * Also wires configuration of documents to that of parent trees for proper inheritance.
+    */
   def buildRoot(baseConfig: Config): DocumentTreeRoot = {
     val allParts         = parts.values.toList
     val tree             = TreeBuilder.build(allParts, buildNode)
-    val styles           = collectStyles(allParts)
     val resolvedTree     = buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName)
     val (cover, content) = extract(resolvedTree.content, "cover")
     val rootTree         = resolvedTree.copy(content = content)
-    DocumentTreeRoot(rootTree, cover, styles)
+    DocumentTreeRoot(rootTree, cover)
   }
 
+  /** Builds a `DocumentTree` from the provided instances and wires the
+    * configuration of documents to that of parent trees for proper inheritance.
+    */
   def build: DocumentTree = build(Config.empty)
 
+  /** Builds a `DocumentTree` from the provided instances, using the specified
+    * `Config` instance as a base for the configuration of all trees and documents.
+    * Also wires configuration of documents to that of parent trees for proper inheritance.
+    */
   def build(baseConfig: Config): DocumentTree = {
     val tree = TreeBuilder.build(parts.values.toList, buildNode)
     buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName)
