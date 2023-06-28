@@ -1,6 +1,6 @@
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
-import sbt.Keys.{ artifactPath, crossScalaVersions }
+import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 
@@ -43,6 +43,11 @@ inThisBuild(
     )
   )
 )
+
+def disableMissingInterpolatorWarning(options: Seq[String]): Seq[String] =
+  options.map { opt =>
+    if (opt.startsWith("-Xlint")) opt + ",-missing-interpolator" else opt
+  }
 
 val munit = "org.scalameta" %% "munit" % versions.munit % "test"
 val jTidy = "net.sf.jtidy"   % "jtidy" % versions.jTidy % "test"
@@ -100,7 +105,8 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit"     % versions.munit % "test",
       "org.typelevel" %%% "cats-core" % versions.catsCore
-    )
+    ),
+    Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
   .jvmSettings(
     libraryDependencies += jTidy
@@ -115,7 +121,8 @@ lazy val io = project.in(file("io"))
   .dependsOn(core.jvm % "compile->compile;test->test")
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3)
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
+    Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
 
 lazy val pdf = project.in(file("pdf"))
