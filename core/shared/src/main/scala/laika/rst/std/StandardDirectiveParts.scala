@@ -65,7 +65,8 @@ object StandardDirectiveParts {
       Styles(s"align-$a")
     }
 
-    val scale = sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => LengthUnit.percent(amt.toInt) })
+    val scale =
+      sizeAndUnit | (anyOf(CharGroup.digit) ^^ { amt => LengthUnit.percent(amt.toDouble) })
 
     (argument(multilineURI, withWS = true) ~
       optField("alt") ~

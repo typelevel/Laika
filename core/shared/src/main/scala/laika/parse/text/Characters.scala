@@ -103,10 +103,10 @@ object Characters {
     *  for the specified characters.
     */
   def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
-    val max: Int = if (chars.nonEmpty) chars.max else -1
+    val max: Int = if (chars.nonEmpty) chars.max.toInt else -1
     val lookup   = new Array[Byte](max + 1)
 
-    for (c <- chars) lookup(c) = 1
+    for (c <- chars) lookup(c.toInt) = 1
 
     lookup
   }
@@ -128,7 +128,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max    = lookup.length - 1
-        c => c <= max && lookup(c) == 1
+        c => c <= max && lookup(c.toInt) == 1
     }
     new Characters(p, StringResultBuilder)
   }
@@ -150,7 +150,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max    = lookup.length - 1
-        c => c > max || lookup(c) == 0
+        c => c > max || lookup(c.toInt) == 0
     }
     new Characters(p, StringResultBuilder)
   }
