@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder, BlockParserBuilderOps }
+import laika.bundle.{ BlockParser, BlockParserBuilderOps }
 import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers

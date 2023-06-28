@@ -31,7 +31,6 @@ import laika.ast.{
 import laika.config.{ ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin }
 import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
-import laika.rewrite.TemplateRewriter
 
 /** Provides the implementation for the standard include and embed directives.
   *

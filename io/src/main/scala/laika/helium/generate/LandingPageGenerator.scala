@@ -20,7 +20,7 @@ import cats.data.Kleisli
 import cats.syntax.all._
 import cats.effect.Sync
 import laika.ast.Path.Root
-import laika.ast.{ /, Document, Element, RootElement }
+import laika.ast.{ Document, Element, RootElement }
 import laika.config.{ ConfigException, LaikaKeys }
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig

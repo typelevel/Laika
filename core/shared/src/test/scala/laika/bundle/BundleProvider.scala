@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
+import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.config.{ Config, ConfigParser }
 import laika.ast._
 import laika.directive.{ DirectiveRegistry, Templates }

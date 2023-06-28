@@ -18,7 +18,6 @@ package laika.render.epub
 
 import java.util.zip.{ CRC32, ZipEntry, ZipOutputStream }
 import cats.effect.{ Async, Sync }
-import cats.effect.kernel.Concurrent
 import cats.implicits._
 import laika.io.model.{ BinaryInput, BinaryOutput }
 

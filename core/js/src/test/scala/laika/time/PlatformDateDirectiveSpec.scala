@@ -6,7 +6,6 @@ import laika.directive.std.{ MarkupParserSetup, TemplateParserSetup }
 import munit.FunSuite
 
 import scala.scalajs.js
-import scala.util.Try
 
 class PlatformDateDirectiveSpec extends FunSuite
     with ParagraphCompanionShortcuts

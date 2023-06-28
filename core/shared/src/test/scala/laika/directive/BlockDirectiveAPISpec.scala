@@ -18,7 +18,6 @@ package laika.directive
 
 import cats.implicits._
 import laika.api.RenderPhaseRewrite
-import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
@@ -31,7 +30,6 @@ import laika.parse.combinator.Parsers
 import laika.parse.implicits._
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ BlockSource, Parser, SourceFragment }
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
 class BlockDirectiveAPISpec extends FunSuite

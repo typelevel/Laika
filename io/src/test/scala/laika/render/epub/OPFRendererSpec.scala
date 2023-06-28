@@ -16,8 +16,8 @@
 
 package laika.render.epub
 
-import java.time.{ Instant, OffsetDateTime }
-import java.util.{ Date, Locale }
+import java.time.OffsetDateTime
+import java.util.Locale
 import cats.effect.IO
 import laika.ast.Path.Root
 import laika.ast._

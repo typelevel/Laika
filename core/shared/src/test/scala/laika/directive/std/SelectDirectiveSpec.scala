@@ -17,13 +17,11 @@
 package laika.directive.std
 
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
-import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.{ RootCursor, TreePosition, _ }
+import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.config.ConfigBuilder
 import laika.format.{ HTML, Markdown }
-import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import munit.FunSuite
 

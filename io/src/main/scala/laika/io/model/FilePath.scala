@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.{ GenericPath, Path, RelativePath, SegmentedPath }
 import laika.collection.TransitionalCollectionOps.JIteratorWrapper
 
-import java.nio.file.{ InvalidPathException, Paths }
+import java.nio.file.Paths
 
 /** Represents an absolute path on the file system, pointing to a file or directory that may or may not exist.
   * Relative paths are interpreted as relative to the current working directory.

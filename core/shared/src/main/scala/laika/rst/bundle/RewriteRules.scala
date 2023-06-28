@@ -19,7 +19,6 @@ package laika.rst.bundle
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.config.Config.ConfigResult
-import laika.parse.SourceFragment
 import laika.rst.ast.{
   CustomizedTextRole,
   InterpretedText,

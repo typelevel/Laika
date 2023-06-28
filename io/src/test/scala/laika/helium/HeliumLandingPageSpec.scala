@@ -19,7 +19,7 @@ package laika.helium
 import java.util.Locale
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
-import laika.ast.{ /, Image, Path }
+import laika.ast.{ Image, Path }
 import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
 import laika.helium.config._

@@ -22,8 +22,7 @@ import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.Config.ConfigResult
-import laika.config.{ ConfigError, ConfigException, LaikaKeys, ValidationError }
+import laika.config.{ ConfigError, ConfigException, LaikaKeys }
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.model._
 import laika.io.runtime.TreeResultBuilder.{ ParserResult, StyleResult, TemplateResult }

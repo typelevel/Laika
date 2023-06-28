@@ -18,7 +18,6 @@ package laika.io
 
 import cats.effect.IO
 import fs2.io.file.Files
-import laika.ast.Path.Root
 import laika.io.model.{ FilePath, TextInput, TextOutput }
 
 import java.io.ByteArrayOutputStream

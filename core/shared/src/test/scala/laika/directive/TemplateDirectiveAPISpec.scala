@@ -25,7 +25,6 @@ import laika.config.ConfigBuilder
 import laika.format.HTML
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
 class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {

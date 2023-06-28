@@ -16,7 +16,7 @@
 
 package laika.config
 
-import cats.data.{ Chain, NonEmptyChain }
+import cats.data.NonEmptyChain
 import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree

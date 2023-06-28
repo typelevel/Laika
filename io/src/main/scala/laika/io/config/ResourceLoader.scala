@@ -26,7 +26,6 @@ import laika.io.model.{ FilePath, TextInput }
 
 import java.io.{ FileNotFoundException, InputStream }
 import java.net.URL
-import scala.io.Codec
 
 /** Internal utility for loading text resources from the file system, the classpath or via its URL.
   *

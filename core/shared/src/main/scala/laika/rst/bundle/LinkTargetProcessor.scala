@@ -17,7 +17,6 @@
 package laika.rst.bundle
 
 import laika.ast._
-import laika.rst.ast.{ CustomizedTextRole, ReferenceName }
 
 import scala.collection.mutable.ListBuffer
 

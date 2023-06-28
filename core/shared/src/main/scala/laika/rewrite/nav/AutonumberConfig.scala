@@ -16,7 +16,6 @@
 
 package laika.rewrite.nav
 
-import laika.config.Config.ConfigResult
 import laika.config.{
   Config,
   ConfigDecoder,

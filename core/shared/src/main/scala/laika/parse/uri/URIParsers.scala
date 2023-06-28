@@ -16,7 +16,6 @@
 
 package laika.parse.uri
 
-import laika.ast.~
 import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.implicits._

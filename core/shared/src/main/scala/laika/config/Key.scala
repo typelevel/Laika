@@ -16,9 +16,6 @@
 
 package laika.config
 
-import laika.ast.{ Path, SegmentedPath }
-import laika.ast.Path.Root
-
 /** @author Jens Halm
   */
 case class Key(segments: Seq[String]) {

@@ -26,7 +26,7 @@ import laika.ast.{
   RewriteRules,
   Selection
 }
-import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
+import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.ConfigResult
 import laika.config._
 

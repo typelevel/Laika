@@ -11,7 +11,6 @@ import laika.parse.code.common.{
   Identifier,
   Keywords,
   NumberLiteral,
-  NumericSuffix,
   StringLiteral
 }
 

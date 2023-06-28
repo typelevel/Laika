@@ -24,8 +24,6 @@ import laika.ast.{
   Length,
   Path,
   Span,
-  TemplateElement,
-  TemplateSpan,
   TemplateSpanSequence,
   TemplateString
 }

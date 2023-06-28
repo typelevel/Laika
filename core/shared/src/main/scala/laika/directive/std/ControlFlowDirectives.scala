@@ -28,7 +28,6 @@ import laika.config.{
   StringValue
 }
 import laika.directive.Templates
-import laika.rewrite.TemplateRewriter
 
 import scala.annotation.tailrec
 

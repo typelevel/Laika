@@ -19,12 +19,10 @@ package laika.io.model
 import cats.syntax.all._
 import cats.{ Applicative, Functor }
 import cats.effect.{ Async, Concurrent }
-import cats.instances.stream
 import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast.{ DocumentType, Navigatable, Path, TextDocumentType }
 import laika.parse.markup.DocumentParser.DocumentInput
-import laika.rewrite.nav.TargetFormats
 
 import java.io.InputStream
 import scala.io.Codec

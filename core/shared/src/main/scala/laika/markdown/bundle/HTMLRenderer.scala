@@ -16,7 +16,7 @@
 
 package laika.markdown.bundle
 
-import laika.ast.{ Element, Span, TextContainer }
+import laika.ast.{ Element, TextContainer }
 import laika.markdown.ast._
 import laika.render.HTMLFormatter
 

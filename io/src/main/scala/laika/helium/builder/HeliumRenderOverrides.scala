@@ -18,7 +18,7 @@ package laika.helium.builder
 
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast._
-import laika.helium.config.{ AnchorPlacement, HeliumIcon, HeliumStyles }
+import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.render.{ FOFormatter, HTMLFormatter }
 
 /** @author Jens Halm

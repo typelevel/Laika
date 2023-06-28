@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.{ Async, IO, Resource }
 import laika.api.{ MarkupParser, Renderer, Transformer }
-import laika.ast.{ /, Path }
+import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.LaikaKeys
 import laika.format.{ HTML, Markdown }

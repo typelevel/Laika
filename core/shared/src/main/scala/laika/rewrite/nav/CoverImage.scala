@@ -16,7 +16,6 @@
 
 package laika.rewrite.nav
 
-import cats.instances.map
 import laika.ast.Path
 import laika.config.Config.ConfigResult
 import laika.config.{ Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys }

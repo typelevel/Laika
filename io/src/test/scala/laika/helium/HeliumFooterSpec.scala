@@ -28,9 +28,6 @@ import laika.io.model.StringTreeOutput
 import laika.theme._
 import munit.CatsEffectSuite
 
-import java.lang.RuntimeException
-import java.util.Locale
-
 class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with StringOps {
 

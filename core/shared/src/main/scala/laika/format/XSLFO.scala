@@ -20,8 +20,6 @@ import laika.ast.Element
 import laika.factory.{ RenderContext, RenderFormat }
 import laika.render._
 
-import scala.language.existentials
-
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
   *
   *  {{{

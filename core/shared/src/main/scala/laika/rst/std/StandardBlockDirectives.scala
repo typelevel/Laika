@@ -19,9 +19,8 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.config.{ Field, LaikaKeys, ObjectValue, Origin, StringValue }
-import laika.parse.{ GeneratedSource, LineSource, SourceCursor, SourceFragment }
+import laika.parse.{ GeneratedSource, SourceFragment }
 import laika.parse.markup.RecursiveParsers
-import laika.parse.text.TextParsers.anyChars
 import laika.rst.ast.{ Contents, FieldList, Include, RstStyle }
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._

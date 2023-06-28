@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.ast.{ DocumentTreeRoot, Path }
+import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
 
 /** Processes CSS inputs for EPUB containers.

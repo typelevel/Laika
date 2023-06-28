@@ -23,11 +23,9 @@ import laika.ast.{ DocumentTree, DocumentTreeRoot }
 import laika.format.{ Markdown, PDF }
 import laika.io.FileIO
 import laika.io.implicits._
-import laika.io.model.{ FilePath, InputTree, ParsedTree }
+import laika.io.model.{ InputTree, ParsedTree }
 import laika.rewrite.DefaultTemplatePath
 import munit.CatsEffectSuite
-
-import java.io.{ BufferedInputStream, FileInputStream }
 
 /** Since there is no straightforward way to validate a rendered PDF document
   *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty

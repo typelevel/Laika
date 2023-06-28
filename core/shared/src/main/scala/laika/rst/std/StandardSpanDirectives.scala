@@ -16,8 +16,6 @@
 
 package laika.rst.std
 
-import java.util.Date
-
 import laika.ast._
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._

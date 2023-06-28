@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.ast.{ DocumentCursor, SpanLink, Target, Text }
+import laika.ast.{ DocumentCursor, SpanLink, Target }
 import laika.directive.Links
 import laika.rewrite.link.LinkConfig
 

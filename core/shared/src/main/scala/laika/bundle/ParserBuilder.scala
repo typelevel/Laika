@@ -20,8 +20,6 @@ import laika.ast.{ Block, Span }
 import laika.parse.Parser
 import laika.parse.markup.{ EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers }
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.implicits._
 
 /** Builds a parser definition lazily by passing the recursive parsers
   * of the host language.

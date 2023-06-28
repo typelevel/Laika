@@ -1,7 +1,7 @@
 package laika.rewrite.link
 
 import laika.ast.{ Element, Icon }
-import laika.config.{ ConfigEncoder, DefaultKey, LaikaKeys, NullValue }
+import laika.config.{ ConfigEncoder, DefaultKey, LaikaKeys }
 
 /** Registers Icon AST elements for use with the `@:icon` directive and the `IconReference` AST element.
   */

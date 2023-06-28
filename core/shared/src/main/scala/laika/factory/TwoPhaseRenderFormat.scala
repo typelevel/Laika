@@ -17,7 +17,6 @@
 package laika.factory
 
 import laika.ast.DocumentTreeRoot
-import laika.config.Config
 
 /** Render format based on a render phase for an interim result and a post processor.
   *

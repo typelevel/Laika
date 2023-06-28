@@ -17,7 +17,6 @@
 package laika.helium.builder
 
 import cats.effect.{ Async, Resource }
-import laika.ast.RewritePhase
 import laika.bundle.BundleOrigin
 import laika.directive.{ Blocks, DirectiveRegistry, Links, Spans, Templates }
 import laika.format.{ EPUB, HTML, XSLFO }

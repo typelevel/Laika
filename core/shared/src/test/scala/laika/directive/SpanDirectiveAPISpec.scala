@@ -25,13 +25,11 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.config.ConfigBuilder
 import laika.format.{ HTML, Markdown }
-import laika.parse.markup.DocumentParser.{ ParserError, TransformationError }
+import laika.parse.markup.DocumentParser.TransformationError
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ Parser, SourceFragment }
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
-import scala.concurrent.duration.span
 import scala.util.Try
 
 class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderPhaseRewrite {
