@@ -216,35 +216,6 @@ jobs:
           SONATYPE_CREDENTIAL_HOST: ${{ secrets.SONATYPE_CREDENTIAL_HOST }}
         run: sbt tlCiRelease
 
-  dependency-submission:
-    name: Submit Dependencies
-    if: github.event_name != 'pull_request'
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        java: [temurin@8]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout current branch (full)
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java (temurin@8)
-        id: setup-java-temurin-8
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 8
-          cache: sbt
-
-      - name: Submit Dependencies
-        uses: scalacenter/sbt-dependency-submission@v2
-        with:
-          modules-ignore: root rootJS docs rootJVM rootNative
-          configs-ignore: test scala-tool scala-doc-tool
-
   validate-steward:
     name: Validate Steward Config
     strategy:

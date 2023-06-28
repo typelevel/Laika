@@ -19,6 +19,7 @@ inThisBuild(
     tlFatalWarnings := false,
     tlSkipIrrelevantScalas := true,
     tlCiHeaderCheck        := false,
+    tlCiDependencyGraphJob := false,
     githubWorkflowJobSetup ~= (_.filterNot(_.name.contains("sbt update"))),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
