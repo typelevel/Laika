@@ -139,23 +139,22 @@ object ParserRuntime {
         IncludeHandler.load(includes)
       }
 
-      def resultMap(parsedResults: Seq[ParserResult]): Map[Path, BuilderPart] = {
+      def allResults(parsedResults: Seq[ParserResult]): Seq[BuilderPart] = {
         // TODO - compatibility mode - remove in 1.x
-        val allResults = parsedResults.map(_.treePart) ++ inputs.parsedResults.flatMap {
+        parsedResults.map(_.treePart) ++ inputs.parsedResults.flatMap {
           case res: TreeResultBuilder.DocumentResult => Some(DocumentPart(res.doc))
           case res: TreeResultBuilder.ConfigResult   => Some(ConfigPart(res.path, res.config))
           case res: TreeResultBuilder.TemplateResult => Some(TemplatePart(res.doc))
           case res: TreeResultBuilder.StyleResult    => Some(StylePart(res.doc, res.format))
           case _                                     => None
         }
-        allResults.map(res => (res.path, res)).toMap
       }
 
       def buildTree(
           parsedResults: Seq[ParserResult],
           includes: IncludeMap
       ): Either[ParserError, DocumentTreeRoot] =
-        new DocumentTreeBuilder(resultMap(parsedResults))
+        new DocumentTreeBuilder(allResults(parsedResults).toList)
           .resolveAndBuildRoot(op.config.baseConfig, includes)
           .leftMap(ParserError(_, Root))
 

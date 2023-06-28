@@ -23,6 +23,8 @@ import laika.config.Config.IncludeMap
 import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.rewrite.nav.TitleDocumentConfig
 
+import scala.collection.mutable
+
 /** API for a safe and concise way of constructing a `DocumentTree`.
   *
   * The hierarchy of the tree will be constructed based on the provided `Path` instances
@@ -31,10 +33,19 @@ import laika.rewrite.nav.TitleDocumentConfig
   *
   * @author Jens Halm
   */
-class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.empty) {
+class DocumentTreeBuilder private[laika] (parts: List[BuilderPart] = Nil) {
 
   import laika.collection.TransitionalCollectionOps._
   import DocumentTreeBuilder._
+
+  private lazy val distinctParts: List[BuilderPart] = {
+    /* distinctBy does not exist in 2.12
+       insertion happens at head, so later additions are dropped and the final result is reversed
+       this is cheaper than using `ListMap` which has O(n) insertion.
+     */
+    val paths = mutable.Set[Path]()
+    parts.filter(p => paths.add(p.path)).reverse
+  }
 
   private def extract(
       content: Seq[TreeContent],
@@ -140,9 +151,8 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
       baseConfig: Config,
       includes: IncludeMap
   ): Either[ConfigError, DocumentTreeRoot] = {
-    val allParts = parts.values.toList
-    val tree     = TreeBuilder.build(allParts, buildNode)
-    val styles   = collectStyles(allParts)
+    val tree   = TreeBuilder.build(distinctParts, buildNode)
+    val styles = collectStyles(distinctParts)
     for {
       resolvedTree <- resolveAndBuildTree(tree, baseConfig, includes)
     } yield {
@@ -152,12 +162,8 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     }
   }
 
-  private def addParts(newParts: List[BuilderPart]) = {
-    val newMap = newParts.foldLeft(parts) { case (map, part) =>
-      map + ((part.path, part))
-    }
-    new DocumentTreeBuilder(newMap)
-  }
+  private def addParts(newParts: List[BuilderPart]) =
+    new DocumentTreeBuilder(newParts.reverse ++ parts)
 
   /** Add the specified documents to the builder.
     * Existing instances with identical paths will be overridden.
@@ -169,7 +175,7 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     * Existing instances with identical paths will be overridden.
     */
   def addDocument(doc: Document): DocumentTreeBuilder =
-    new DocumentTreeBuilder(parts + ((doc.path, DocumentPart(doc))))
+    new DocumentTreeBuilder(DocumentPart(doc) +: parts)
 
   /** Add the specified tree configuration to the builder.
     * The path it will be assigned to will be taken from the `origin`
@@ -181,7 +187,7 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     * a `Document` instance directly before adding it to the builder.
     */
   def addConfig(config: Config): DocumentTreeBuilder =
-    new DocumentTreeBuilder(parts + ((config.origin.path, ConfigPart(config.origin.path, config))))
+    new DocumentTreeBuilder(ConfigPart(config.origin.path, config) +: parts)
 
   /** Add the specified templates to the builder.
     * Existing instances with identical paths will be overridden.
@@ -193,7 +199,7 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     * Existing instances with identical paths will be overridden.
     */
   def addTemplate(doc: TemplateDocument): DocumentTreeBuilder =
-    new DocumentTreeBuilder(parts + ((doc.path, TemplatePart(doc))))
+    new DocumentTreeBuilder(TemplatePart(doc) +: parts)
 
   /** Builds a `DocumentTreeRoot` from the provided instances and wires the
     * configuration of documents to that of parent trees for proper inheritance.
@@ -205,12 +211,9 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     * Also wires configuration of documents to that of parent trees for proper inheritance.
     */
   def buildRoot(baseConfig: Config): DocumentTreeRoot = {
-    val allParts         = parts.values.toList
-    val tree             = TreeBuilder.build(allParts, buildNode)
-    val resolvedTree     = buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName)
-    val (cover, content) = extract(resolvedTree.content, "cover")
-    val rootTree         = resolvedTree.copy(content = content)
-    DocumentTreeRoot(rootTree, cover)
+    val tree             = build(baseConfig)
+    val (cover, content) = extract(tree.content, "cover")
+    DocumentTreeRoot(tree.copy(content = content), cover)
   }
 
   /** Builds a `DocumentTree` from the provided instances and wires the
@@ -223,7 +226,7 @@ class DocumentTreeBuilder private[laika] (parts: Map[Path, BuilderPart] = Map.em
     * Also wires configuration of documents to that of parent trees for proper inheritance.
     */
   def build(baseConfig: Config): DocumentTree = {
-    val tree = TreeBuilder.build(parts.values.toList, buildNode)
+    val tree = TreeBuilder.build(distinctParts, buildNode)
     buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName)
   }
 
