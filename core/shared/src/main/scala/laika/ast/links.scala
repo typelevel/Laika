@@ -261,7 +261,7 @@ sealed trait Icon extends Span {
   */
 case class IconGlyph(codePoint: Char, title: Option[String] = None, options: Options = NoOpt)
     extends Icon {
-  def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint)};"
+  def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint.toInt)};"
   type Self = IconGlyph
   def withOptions(newOptions: Options): IconGlyph = copy(options = newOptions)
 }

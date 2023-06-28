@@ -53,7 +53,7 @@ object ZipWriter {
         val content = StaticContent.mimeType
         val crc32   = new CRC32
         entry.setMethod(ZipOutputStream.STORED)
-        entry.setSize(content.length)
+        entry.setSize(content.length.toLong)
         crc32.update(content.getBytes("UTF-8"))
         entry.setCrc(crc32.getValue)
       }

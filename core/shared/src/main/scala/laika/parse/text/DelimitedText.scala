@@ -88,7 +88,7 @@ private[laika] class DelimitedParser[T](val delimiter: Delimiter[T]) extends Par
       if (offset == end) delimiter.atEOF(charsConsumed, source)
       else {
         val char = sourceString.charAt(offset)
-        if (char <= maxChar && lookup(char) == 1)
+        if (char <= maxChar && lookup(char.toInt) == 1)
           delimiter.atStartChar(char, charsConsumed, source) match {
             case Complete(result) => result
             case Continue         => parse(offset + 1)

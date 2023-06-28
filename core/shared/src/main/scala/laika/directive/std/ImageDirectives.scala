@@ -57,8 +57,8 @@ object ImageDirectives {
     import Blocks.dsl._
     (
       attribute(0).as[String].widen,
-      attribute("intrinsicWidth").as[Int].optional,
-      attribute("intrinsicHeight").as[Int].optional,
+      attribute("intrinsicWidth").as[Double].optional,
+      attribute("intrinsicHeight").as[Double].optional,
       attribute("style").as[String].optional,
       attribute("alt").as[String].optional,
       attribute("title").as[String].optional,
@@ -93,8 +93,8 @@ object ImageDirectives {
     import Spans.dsl._
     (
       attribute(0).as[String].widen,
-      attribute("intrinsicWidth").as[Int].optional,
-      attribute("intrinsicHeight").as[Int].optional,
+      attribute("intrinsicWidth").as[Double].optional,
+      attribute("intrinsicHeight").as[Double].optional,
       attribute("style").as[String].optional,
       attribute("alt").as[String].optional,
       attribute("title").as[String].optional,
