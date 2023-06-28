@@ -98,6 +98,6 @@ object RstExtension {
     * and returns them as a map keyed by the name of the extension.
     */
   def createAsMap[P](ext: Seq[RstExtension[P]], recParsers: RecursiveParsers): Map[String, P] =
-    ext map { e => (e.name.toLowerCase, e.part(recParsers)) } toMap
+    ext.map { e => (e.name.toLowerCase, e.part(recParsers)) }.toMap
 
 }
