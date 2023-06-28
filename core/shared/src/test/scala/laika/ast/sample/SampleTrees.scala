@@ -23,11 +23,11 @@ import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors
 object SampleTrees {
 
   def twoDocuments: SampleTwoDocuments = new SampleTwoDocuments(
-    SampleRoot(0, 2, 0, SampleContent.text)
+    SampleRoot(0, 2, 0)
   )
 
   def sixDocuments: SampleSixDocuments = new SampleSixDocuments(
-    SampleRoot(2, 6, 2, SampleContent.text)
+    SampleRoot(2, 6, 2)
   )
 
 }
@@ -304,8 +304,7 @@ private[sample] object SampleRoot {
   def apply(
       numTrees: Int,
       numDocs: Int,
-      numStatic: Int,
-      defaultContent: BuilderKey => Seq[Block]
+      numStatic: Int
   ): SampleRoot =
     new SampleRoot(
       (0 to numTrees).map(num =>

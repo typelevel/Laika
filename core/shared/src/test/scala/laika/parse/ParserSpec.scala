@@ -78,7 +78,7 @@ class ParserSpec extends FunSuite {
   }
 
   test("fail if the specified Either function produces a Left") {
-    expectFailure(parser1.evalMap { res => Left("wrong") }, "abc")
+    expectFailure(parser1.evalMap { _ => Left("wrong") }, "abc")
   }
 
   test("handle errors from a failed parser") {

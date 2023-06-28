@@ -23,11 +23,10 @@ import laika.render.{ HTMLFormatter, HTMLRenderer }
   *
   *  @author Jens Halm
   */
-object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", format = "epub") {
+object XHTMLRenderer extends HTMLRenderer(format = "epub") {
 
   def renderChoices(
       fmt: HTMLFormatter,
-      name: String,
       choices: Seq[Choice],
       options: Options
   ): String = {
@@ -63,8 +62,8 @@ object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml", format = "e
     case Footnote(_, content, opt) =>
       fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
 
-    case Selection(name, choices, opt) =>
-      renderChoices(fmt, name, choices, opt)
+    case Selection(_, choices, opt) =>
+      renderChoices(fmt, choices, opt)
 
     case _ =>
       super.apply(fmt, element)

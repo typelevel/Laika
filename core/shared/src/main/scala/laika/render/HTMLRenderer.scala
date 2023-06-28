@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer(fileSuffix: String, format: String)
+class HTMLRenderer(format: String)
     extends ((HTMLFormatter, Element) => String) {
 
   def apply(fmt: HTMLFormatter, element: Element): String = {
@@ -248,7 +248,7 @@ class HTMLRenderer(fileSuffix: String, format: String)
       case unknown                => fmt.textElement("span", unknown.options, unknown.content)
     }
 
-    def renderChoices(name: String, choices: Seq[Choice], options: Options): String = {
+    def renderChoices(choices: Seq[Choice], options: Options): String = {
       val content = choices.flatMap { choice =>
         Paragraph(Strong(Text(choice.label))) +: choice.content
       }
@@ -258,7 +258,7 @@ class HTMLRenderer(fileSuffix: String, format: String)
     def renderSimpleBlock(block: Block): String = block match {
       case Rule(opt)                                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)                     => fmt.textElement("a", opt, "")
-      case Selection(name, choices, opt)               => renderChoices(name, choices, opt)
+      case Selection(_, choices, opt)                  => renderChoices(choices, opt)
       case TargetFormat(f, e, _) if f.contains(format) => fmt.child(e)
 
       case WithFallback(fallback) => fmt.child(fallback)
@@ -385,4 +385,4 @@ class HTMLRenderer(fileSuffix: String, format: String)
 
 }
 
-object HTMLRenderer extends HTMLRenderer(fileSuffix = "html", format = "html")
+object HTMLRenderer extends HTMLRenderer(format = "html")

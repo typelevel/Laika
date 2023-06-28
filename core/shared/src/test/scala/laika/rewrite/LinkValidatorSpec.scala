@@ -17,7 +17,7 @@
 package laika.rewrite
 
 import laika.ast.Path.Root
-import laika.ast.sample.{ BuilderKey, SampleTrees }
+import laika.ast.sample.SampleTrees
 import laika.ast._
 import laika.rewrite.link.{ InvalidTarget, RecoveredTarget, ValidTarget }
 import laika.rewrite.nav.TargetFormats
@@ -30,7 +30,7 @@ class LinkValidatorSpec extends FunSuite {
   private val testCursor: DocumentCursor = {
     import laika.ast.sample.SampleConfig._
 
-    def doc2(key: BuilderKey): Seq[Block] = Seq(
+    val doc2: Seq[Block] = Seq(
       Header(1, "Title").withOptions(Id("ref")),
       Paragraph("text")
     )
@@ -41,7 +41,7 @@ class LinkValidatorSpec extends FunSuite {
       .static2.config(targetFormats("html"))
       .staticDoc(Root / "static-1" / "doc-7.txt")
       .staticDoc(Root / "static-2" / "doc-8.txt", "html")
-      .docContent(doc2 _)
+      .docContent(doc2)
       .suffix("md")
       .buildCursor // TODO - buildCursor should be available on doc6
       .toOption

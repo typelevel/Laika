@@ -37,7 +37,6 @@ case class TextFormatter(
 ) extends BaseFormatter[TextFormatter](
       renderChild,
       currentElement,
-      parents,
       indentation,
       MessageFilter.Debug
     ) {

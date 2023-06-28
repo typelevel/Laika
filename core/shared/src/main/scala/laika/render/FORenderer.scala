@@ -209,7 +209,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case unknown                => fmt.text(unknown, unknown.content)
     }
 
-    def renderChoices(name: String, choices: Seq[Choice], options: Options): String = {
+    def renderChoices(choices: Seq[Choice], options: Options): String = {
       val content = choices.flatMap { choice =>
         Paragraph(Strong(Text(choice.label))) +: choice.content
       }
@@ -217,19 +217,19 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderSimpleBlock(block: Block): String = block match {
-      case e: ContentWrapper             => renderContentWrapper(e)
-      case e: Preamble                   => renderPreamble(e)
-      case e @ ListItemLabel(content, _) => fmt.listItemLabel(e, content)
-      case e: Rule                       =>
+      case e: ContentWrapper                                      => renderContentWrapper(e)
+      case e: Preamble                                            => renderPreamble(e)
+      case e @ ListItemLabel(content, _)                          => fmt.listItemLabel(e, content)
+      case e: Rule                                                =>
         fmt.rawElement(
           "fo:block",
           BlockSequence.empty.withOptions(e.options + Styles("rule-block")),
           fmt.textElement("fo:leader", e, "", "leader-pattern" -> "rule")
         )
-      case Selection(name, choices, opt) => renderChoices(name, choices, opt)
-      case e: InternalLinkTarget         => fmt.internalLinkTarget(e)
-      case e: PageBreak                  => fmt.block(e)
-      case e @ LineBlock(content, _)     => fmt.blockContainer(e, content)
+      case Selection(_, choices, opt)                             => renderChoices(choices, opt)
+      case e: InternalLinkTarget                                  => fmt.internalLinkTarget(e)
+      case e: PageBreak                                           => fmt.block(e)
+      case e @ LineBlock(content, _)                              => fmt.blockContainer(e, content)
       case TargetFormat(f, e, _) if f.intersect(formats).nonEmpty => fmt.child(e)
 
       case WithFallback(fallback) => fmt.child(fallback)

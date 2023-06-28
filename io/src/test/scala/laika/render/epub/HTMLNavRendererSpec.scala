@@ -88,7 +88,7 @@ class HTMLNavRendererSpec extends FunSuite {
         |      </ol>""".stripMargin
     val title    = "From TitleDoc"
     val expected =
-      renderer.fileContent(title, "", html, titleDoc = Some("content/title.epub.xhtml"))
+      renderer.fileContent(title, "", html)
     val actual   = renderer.render(DocumentPlusTitle.input, "From TitleDoc", Some(1))
     assertEquals(actual, expected)
   }
@@ -104,7 +104,7 @@ class HTMLNavRendererSpec extends FunSuite {
         |        </li>
         |      </ol>""".stripMargin
     val expected =
-      renderer.fileContent(title, "", html, coverDoc = Some("content/cover.epub.xhtml"))
+      renderer.fileContent(title, "", html)
     assertEquals(render(DocumentPlusCover.input), expected)
   }
 

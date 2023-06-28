@@ -118,8 +118,7 @@ private[laika] trait TemplateRewriter {
         resolver = ReferenceResolver.forDocument(
           cursor.target,
           cursor.parent,
-          mergedConfig,
-          cursor.position
+          mergedConfig
         ),
         templatePath = Some(template.path)
       )

@@ -51,7 +51,7 @@ class TemplateParsers(directives: Map[String, Templates.Directive])
     val separators = directives.values.flatMap(_.separators).toSet
 
     PrefixedParser('@') {
-      directiveParser(body, this).withCursor.map { case (res, source) =>
+      directiveParser(body).withCursor.map { case (res, source) =>
         if (separators.contains(res.name)) Templates.SeparatorInstance(res, source)
         else Templates.DirectiveInstance(directives.get(res.name), res, this, source)
       }

@@ -22,8 +22,6 @@ import laika.ast._
   *
   *  @param renderChild the function to use for rendering child elements
   *  @param currentElement the active element currently being rendered
-  *  @param parents the stack of parent elements of this formatter in recursive rendering,
-  *                 with the root element being the last in the list
   *  @param indentation the indentation mechanism for this formatter
   *  @param messageFilter the filter to apply before rendering runtime messages
   *
@@ -32,7 +30,6 @@ import laika.ast._
 abstract class BaseFormatter[Rep <: BaseFormatter[Rep]](
     renderChild: (Rep, Element) => String,
     currentElement: Element,
-    parents: List[Element],
     indentation: Indentation,
     messageFilter: MessageFilter
 ) { this: Rep =>

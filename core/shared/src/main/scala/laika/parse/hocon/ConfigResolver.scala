@@ -138,7 +138,7 @@ object ConfigResolver {
         else {
           resolvedParent(key).flatMap { case (obj, fieldPath) =>
             obj.values.find(_.validKey == fieldPath).map(_.value).foreach(
-              resolveField(fieldPath, _, obj)
+              resolveField(fieldPath, _)
             )
             resolvedValue(key).orElse(fallback.get[ConfigValue](key).toOption)
           }
@@ -180,8 +180,7 @@ object ConfigResolver {
 
       def resolveField(
           key: Key,
-          value: ConfigBuilderValue,
-          parent: ObjectBuilderValue
+          value: ConfigBuilderValue
       ): Option[ConfigValue] = {
         resolvedValue(key).orElse {
           activeFields += key
@@ -198,7 +197,7 @@ object ConfigResolver {
         startedObjects += ((key, obj))
 
         def resolve(field: BuilderField): Option[Field] =
-          resolveField(field.validKey, field.value, obj).map(
+          resolveField(field.validKey, field.value).map(
             Field(field.validKey.local.toString, _, origin)
           )
 

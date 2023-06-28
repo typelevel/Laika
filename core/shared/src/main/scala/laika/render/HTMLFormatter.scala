@@ -45,8 +45,6 @@ case class HTMLFormatter(
 ) extends TagFormatter[HTMLFormatter](
       renderChild,
       currentElement,
-      parents,
-      pathTranslator,
       indentation,
       messageFilter
     ) {

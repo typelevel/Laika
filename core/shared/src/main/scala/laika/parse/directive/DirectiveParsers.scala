@@ -17,14 +17,14 @@
 package laika.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
-import laika.ast._
+import laika.ast.*
 import laika.bundle.{ BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder }
 import laika.config.Key
-import laika.directive._
-import laika.parse.builders._
-import laika.parse.hocon._
-import laika.parse.implicits._
-import laika.parse.markup.{ EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers }
+import laika.directive.*
+import laika.parse.builders.*
+import laika.parse.hocon.*
+import laika.parse.implicits.*
+import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.{
   BlockSource,
@@ -93,7 +93,6 @@ object DirectiveParsers {
     * but not the body elements.
     */
   def declarationParser(
-      escapedText: EscapedTextParsers,
       supportsCustomFence: Boolean = false
   ): Parser[(String, ObjectBuilderValue, String)] = {
     import HoconParsers._
@@ -145,15 +144,13 @@ object DirectiveParsers {
     *  all attributes and all body elements.
     *
     *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
-    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
     *  @param supportsCustomFence indicates whether the directive declaration allows the addition of a custom closing fence
     */
   def directiveParser(
       bodyContent: BodyParserBuilder,
-      escapedText: EscapedTextParsers,
       supportsCustomFence: Boolean = false
   ): Parser[ParsedDirective] =
-    declarationParser(escapedText, supportsCustomFence) >> { case (name, attrs, fence) =>
+    declarationParser(supportsCustomFence) >> { case (name, attrs, fence) =>
       bodyContent(DirectiveSpec(name, fence)).map(content => ParsedDirective(name, attrs, content))
     }
 
@@ -189,7 +186,7 @@ object SpanDirectiveParsers {
       else success(None)
 
     PrefixedParser('@') {
-      directiveParser(body, recParsers).withCursor.map { case (res, source) =>
+      directiveParser(body).withCursor.map { case (res, source) =>
         if (separators.contains(res.name)) Spans.SeparatorInstance(res, source)
         else Spans.DirectiveInstance(directives.get(res.name), res, recParsers, source)
       }
@@ -229,14 +226,13 @@ object BlockDirectiveParsers {
       else noBody
 
     PrefixedParser('@') {
-      directiveParser(body, recParsers, supportsCustomFence = true).withCursor.map {
-        case (res, source) =>
-          val trimmedSource =
-            if (source.input.lastOption.contains('\n'))
-              LineSource(source.input.dropRight(1), source)
-            else source
-          if (separators.contains(res.name)) Blocks.SeparatorInstance(res, trimmedSource)
-          else Blocks.DirectiveInstance(directives.get(res.name), res, recParsers, trimmedSource)
+      directiveParser(body, supportsCustomFence = true).withCursor.map { case (res, source) =>
+        val trimmedSource =
+          if (source.input.lastOption.contains('\n'))
+            LineSource(source.input.dropRight(1), source)
+          else source
+        if (separators.contains(res.name)) Blocks.SeparatorInstance(res, trimmedSource)
+        else Blocks.DirectiveInstance(directives.get(res.name), res, recParsers, trimmedSource)
       }
     }
   }
