@@ -195,7 +195,7 @@ class DocumentTreeAPISpec extends FunSuite
     val title      = Seq(Text("from-content"))
     val treeConfig = createConfig(Root, Some("laika.title: from-config"), TreeScope)
     val docConfig  = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
-    val tree = DocumentTree.builder
+    val tree       = DocumentTree.builder
       .addDocument(Document(Root / "doc", RootElement(laika.ast.Title(title)), config = docConfig))
       .addConfig(treeConfig)
       .build
