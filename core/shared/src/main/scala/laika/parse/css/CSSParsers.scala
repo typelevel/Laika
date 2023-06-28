@@ -131,7 +131,7 @@ object CSSParsers {
   val styleDeclarations: Parser[Seq[StyleDeclaration]] =
     ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ (comment | style).rep <~ (wsOrNl ~ "}"))
       .mapN { (selectors, stylesAndComments) =>
-        val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
+        val styles = stylesAndComments.collect { case st: Style => (st.name, st.value) }.toMap;
         selectors map (StyleDeclaration(_, styles))
       }
 
