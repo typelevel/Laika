@@ -21,11 +21,13 @@ inThisBuild(
     tlCiHeaderCheck        := false,
     tlCiDependencyGraphJob := false,
     githubWorkflowJobSetup ~= (_.filterNot(_.name.contains("sbt update"))),
+    githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
     githubWorkflowBuildMatrixExclusions ++= {
-      List("2.13", "3").map(scala => MatrixExclude(Map("scala" -> scala, "project" -> "plugin")))
+      MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
+        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
     },
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
