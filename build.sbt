@@ -17,10 +17,8 @@ inThisBuild(
     scalaVersion       := versions.scala2_12,
     developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
     tlFatalWarnings := false,
-    tlSkipIrrelevantScalas := true,
-    tlCiHeaderCheck        := false,
+    tlCiHeaderCheck := false,
     tlCiDependencyGraphJob := false,
-    githubWorkflowJobSetup ~= (_.filterNot(_.name.contains("sbt update"))),
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
@@ -69,6 +67,8 @@ lazy val root = tlCrossRootProject
     root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
       .enablePlugins(ScalaUnidocPlugin)
       .settings(
+        crossScalaVersions                         := Nil,
+        scalaVersion                               := versions.scala2_12,
         ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
           plugin,
           core.js

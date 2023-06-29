@@ -61,6 +61,10 @@ jobs:
           java-version: 8
           cache: sbt
 
+      - name: sbt update
+        if: matrix.java == 'temurin@8' && steps.setup-java-temurin-8.outputs.cache-hit == 'false'
+        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' reload +update
+
       - name: Setup Java (temurin@17)
         id: setup-java-temurin-17
         if: matrix.java == 'temurin@17'
@@ -69,6 +73,10 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'temurin@17' && steps.setup-java-temurin-17.outputs.cache-hit == 'false'
+        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' reload +update
 
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
@@ -139,6 +147,10 @@ jobs:
           java-version: 8
           cache: sbt
 
+      - name: sbt update
+        if: matrix.java == 'temurin@8' && steps.setup-java-temurin-8.outputs.cache-hit == 'false'
+        run: sbt reload +update
+
       - name: Setup Java (temurin@17)
         id: setup-java-temurin-17
         if: matrix.java == 'temurin@17'
@@ -147,6 +159,10 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'temurin@17' && steps.setup-java-temurin-17.outputs.cache-hit == 'false'
+        run: sbt reload +update
 
       - name: Download target directories (2.12, rootJS)
         uses: actions/download-artifact@v3
