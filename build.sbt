@@ -18,6 +18,7 @@ inThisBuild(
     developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
     tlFatalWarnings := false,
     tlCiHeaderCheck := false,
+    tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
