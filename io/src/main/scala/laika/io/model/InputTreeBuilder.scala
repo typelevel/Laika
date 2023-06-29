@@ -283,7 +283,7 @@ class InputTreeBuilder[F[_]](
     */
   def addString(input: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(formats) => _ + BinaryInput.fromString(input, mountPoint, formats)
+      case DocumentType.Static(formats) => _ + BinaryInput.fromString[F](input, mountPoint, formats)
       case docType: TextDocumentType    => _ + TextInput.fromString[F](input, mountPoint, docType)
     }
 

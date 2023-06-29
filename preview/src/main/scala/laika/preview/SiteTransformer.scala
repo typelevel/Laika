@@ -35,6 +35,7 @@ import laika.rewrite.nav.{ Selections, TargetFormats }
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream
+import scala.annotation.nowarn
 
 private[preview] class SiteTransformer[F[_]: Async](
     val parser: TreeParser[F],
@@ -180,7 +181,7 @@ private[preview] object SiteTransformer {
 
 }
 
-class SiteResults[F[_]: Async](map: Map[Path, SiteResult[F]]) {
+class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 
   def get(path: Path): Option[SiteResult[F]] = map.get(path)
 
@@ -188,6 +189,8 @@ class SiteResults[F[_]: Async](map: Map[Path, SiteResult[F]]) {
 
 }
 
-sealed abstract class SiteResult[F[_]: Async]                      extends Product with Serializable
+@nowarn
+sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
+
 case class RenderedResult[F[_]: Async](content: String)            extends SiteResult[F]
 case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte]) extends SiteResult[F]

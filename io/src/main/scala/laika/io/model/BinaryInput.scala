@@ -36,7 +36,7 @@ import scala.reflect.ClassTag
   *                   if necessary (e.g. to only include it in HTML output, but omit it from PDF or EPUB)
   * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
-case class BinaryInput[F[_]: Sync](
+case class BinaryInput[F[_]](
     input: fs2.Stream[F, Byte],
     path: Path,
     formats: TargetFormats = TargetFormats.All,
@@ -45,7 +45,7 @@ case class BinaryInput[F[_]: Sync](
 
 object BinaryInput {
 
-  def fromString[F[_]: Sync](
+  def fromString[F[_]](
       input: String,
       mountPoint: Path = Root / "doc",
       targetFormats: TargetFormats = TargetFormats.All

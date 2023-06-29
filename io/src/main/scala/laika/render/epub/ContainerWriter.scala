@@ -48,7 +48,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Sync](
+  def collectInputs[F[_]](
       result: RenderedTreeRoot[F],
       config: EPUB.BookConfig
   ): Seq[BinaryInput[F]] = {
