@@ -504,7 +504,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       Root / "foo" / "bar.md" -> refSrc(sectionSlug)
     )
 
-    def assertTree(f: IO[RenderedTreeRoot[IO]], titleSlug: String, sectionSlug: String): Unit =
+    def assertTree(f: IO[RenderedTreeRoot[IO]], titleSlug: String, sectionSlug: String): IO[Unit] =
       f.assertEquals(
         renderedRoot(
           docs((Root / "baz.txt", targetRes(titleSlug, sectionSlug))).map(

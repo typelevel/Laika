@@ -16,7 +16,6 @@ inThisBuild(
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
     scalaVersion       := versions.scala2_12,
     developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
-    tlFatalWarnings := false,
     tlCiHeaderCheck := false,
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),

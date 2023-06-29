@@ -28,9 +28,9 @@ import laika.rewrite.nav.PathTranslator
   */
 object BundleProvider {
 
-  class TestExtensionBundle(override val origin: BundleOrigin = BundleOrigin.User)
-      extends ExtensionBundle {
-    val description: String = "Extensions under test"
+  class TestExtensionBundle(originP: BundleOrigin = BundleOrigin.User) extends ExtensionBundle {
+    override def origin: BundleOrigin = originP
+    val description: String           = "Extensions under test"
   }
 
   def forMarkupParser(

@@ -224,9 +224,9 @@ object BalancedGroups {
     val loSize   = items.size / size
     val hiSize   = loSize + 1
     val (hi, lo) = items.splitAt(mod * hiSize)
-    val hiBatch  = if (mod > 0) hi.grouped(hiSize) else Vector()
-    val loBatch  = if (loSize > 0) lo.grouped(loSize) else Vector()
-    hiBatch.toVector ++ loBatch.toVector
+    val hiBatch  = if (mod > 0) hi.grouped(hiSize).toVector else Vector()
+    val loBatch  = if (loSize > 0) lo.grouped(loSize).toVector else Vector()
+    hiBatch ++ loBatch
   }
 
 }
