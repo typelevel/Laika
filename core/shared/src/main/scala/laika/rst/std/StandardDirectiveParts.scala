@@ -83,12 +83,16 @@ object StandardDirectiveParts {
       val img      = Image(Target.parse(uri), width = actualWidth, height = actualHeight, alt = alt)
       val resolver = ImageResolver(img, GeneratedSource)
 
-      (target map {
-        case ref: SpanLink        =>
-          ref.copy(content = List(resolver.withOptions(opt)), options = alignOpt)
-        case ref: LinkIdReference =>
-          ref.copy(content = List(resolver.withOptions(opt)), options = alignOpt)
-      }).getOrElse(resolver.withOptions(alignOpt + opt))
+      target
+        .flatMap {
+          case sc: SpanContainer =>
+            // type inference not working properly here, but the cast is safe
+            Some(
+              sc.withContent(List(resolver.withOptions(opt))).withOptions(opt).asInstanceOf[Span]
+            )
+          case _                 => None
+        }
+        .getOrElse(resolver.withOptions(alignOpt + opt))
     }
   }
 

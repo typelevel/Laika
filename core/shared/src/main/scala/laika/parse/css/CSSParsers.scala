@@ -125,15 +125,16 @@ object CSSParsers {
     */
   val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl).void
 
-  /** Parses a sequence of style declarations, ignoring
-    *  any comments.
+  /** Parses a sequence of style declarations, ignoring any comments.
     */
-  val styleDeclarations: Parser[Seq[StyleDeclaration]] =
-    ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ (comment | style).rep <~ (wsOrNl ~ "}"))
+  val styleDeclarations: Parser[Seq[StyleDeclaration]] = {
+    val styleBody: Parser[Any] = comment | style
+    ((selectorGroup <~ wsOrNl ~ "{" ~ wsOrNl) ~ styleBody.rep <~ (wsOrNl ~ "}"))
       .mapN { (selectors, stylesAndComments) =>
         val styles = stylesAndComments.collect { case st: Style => (st.name, st.value) }.toMap;
         selectors map (StyleDeclaration(_, styles))
       }
+  }
 
   /** Parses an entire set of style declarations.
     *  This is the top level parser of this trait.

@@ -43,12 +43,12 @@ private[helium] object HeliumRenderOverrides {
   def renderChoices(
       fmt: HTMLFormatter,
       name: String,
-      choices: Seq[Choice],
+      choices: List[Choice],
       options: Options
   ): String = {
     choices match {
       case Nil           => ""
-      case first +: rest =>
+      case first :: rest =>
         val tabs    = Tabs(
           Tab(first.name, first.label, Style.active) +: rest.map(c => Tab(c.name, c.label))
         )
@@ -113,7 +113,7 @@ private[helium] object HeliumRenderOverrides {
       renderCallout(fmt, htmlCalloutOptions(b), b.content)
     case (fmt, b: BlockSequence) if b.hasStyle("menu-content") =>
       fmt.indentedElement("nav", b.options, b.content)
-    case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices, opt)
+    case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices.toList, opt)
 
     case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
     case (fmt, tab: TabContent) =>

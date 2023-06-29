@@ -136,14 +136,16 @@ object SegmentedVirtualPath {
     ) { lastSegment =>
       def splitAtLast(in: String, char: Char): (String, Option[String]) =
         in.split(char).toSeq match {
-          case Seq(single)  => (single, None)
-          case init :+ last => (init.mkString(char.toString), Some(last))
+          case Seq()       => ("", None)
+          case Seq(single) => (single, None)
+          case multiple    => (multiple.init.mkString(char.toString), Some(multiple.last))
         }
 
       def splitAtFirst(in: String, char: Char): (String, Option[String]) =
         in.split(char).toSeq match {
-          case Seq(single)   => (single, None)
-          case first +: rest => (first, Some(rest.mkString(char.toString)))
+          case Seq()       => ("", None)
+          case Seq(single) => (single, None)
+          case multiple    => (multiple.head, Some(multiple.tail.mkString(char.toString)))
         }
 
       val (name, fragment)   = splitAtLast(lastSegment, '#')

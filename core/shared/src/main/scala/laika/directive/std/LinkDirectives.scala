@@ -71,6 +71,7 @@ object LinkDirectives {
             in.split(char).toSeq match {
               case Seq(single)  => (single, None)
               case init :+ last => (init.mkString(char.toString), Some(last))
+              case _            => ("", None)
             }
 
           val (fqName, method)         = splitAtLast(linkId, '#')

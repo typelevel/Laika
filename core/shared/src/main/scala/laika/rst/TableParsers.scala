@@ -209,6 +209,7 @@ object TableParsers {
   private def flattenElements(result: Any): List[TableElement] = result match {
     case x: TableElement => List(x)
     case x ~ y           => flattenElements(x) ::: flattenElements(y)
+    case _               => Nil
   }
 
   /** Parses a grid table.
@@ -354,12 +355,12 @@ object TableParsers {
 
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParsers)
 
-        def addBlankLines(acc: ListBuffer[List[TableElement]], parentSource: SourceCursor) =
+        def addBlankLines(acc: ListBuffer[List[TableElement]], parentSource: SourceCursor): Unit =
           acc += cols.flatMap { case (cell, sep) =>
             List(CellElement(LineSource(" " * cell, parentSource)), CellSeparator(" " * sep))
           }
 
-        def addRowSeparators(acc: ListBuffer[List[TableElement]]) =
+        def addRowSeparators(acc: ListBuffer[List[TableElement]]): Unit =
           acc += (cols flatMap { _ => List(RowSeparator, Intersection) })
 
         /* in contrast to the grid table, some rows need to be processed in context,

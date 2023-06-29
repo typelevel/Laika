@@ -68,6 +68,7 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
 
   override def equals(obj: Any): Boolean = obj match {
     case tp: TreePosition => tp.positions == positions
+    case _                => false
   }
 
 }
