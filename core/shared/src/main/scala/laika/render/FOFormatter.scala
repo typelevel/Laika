@@ -47,8 +47,6 @@ case class FOFormatter(
 ) extends TagFormatter[FOFormatter](
       renderChild,
       currentElement,
-      parents,
-      pathTranslator,
       indentation,
       messageFilter
     ) with FOProperties {

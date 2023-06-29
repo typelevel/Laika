@@ -33,9 +33,7 @@ class HtmlNavRenderer {
   def fileContent(
       title: String,
       styles: String,
-      navItems: String,
-      coverDoc: Option[String] = None,
-      titleDoc: Option[String] = None
+      navItems: String
   ): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<!DOCTYPE html>
@@ -110,12 +108,7 @@ class HtmlNavRenderer {
       s"""<link rel="stylesheet" type="text/css" href="content${path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    val coverDoc          =
-      result.coverDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
-    val titleDoc          =
-      result.titleDocument.map(doc => NavigationBuilder.fullPath(doc.path, forceXhtml = true))
-
-    fileContent(title, styles, renderedNavPoints, coverDoc, titleDoc)
+    fileContent(title, styles, renderedNavPoints)
   }
 
 }

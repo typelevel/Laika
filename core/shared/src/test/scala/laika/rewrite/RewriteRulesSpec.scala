@@ -708,11 +708,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test(
     "duplicate ids - replace ambiguous references for a link alias pointing to duplicate ids with invalid spans"
   ) {
-    val target        = InternalLinkTarget(Id("ref"))
-    val targetMsg     = "Ambiguous reference: more than one link target with id 'ref' in path /doc"
-    val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
-    val rootElem      = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
-    val expected      = RootElement(
+    val target    = InternalLinkTarget(Id("ref"))
+    val targetMsg = "Ambiguous reference: more than one link target with id 'ref' in path /doc"
+    val rootElem  = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
+    val expected  = RootElement(
       p(invalidSpan(targetMsg, "[<name>]")),
       InternalLinkTarget(Id("ref-1")),
       InternalLinkTarget(Id("ref-2"))

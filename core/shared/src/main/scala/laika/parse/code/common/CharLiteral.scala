@@ -45,17 +45,17 @@ object CharLiteral {
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
-      def plainChar(char: String) = oneNot('\'', '\n').asCode(categories)
-      val delimParser             = oneOf(delim).asCode(categories)
+      val plainChar   = oneNot('\'', '\n').asCode(categories)
+      val delimParser = oneOf(delim).asCode(categories)
 
       (delim.toString ~> lookAhead(oneChar)).flatMap { char =>
-        (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(
-          char.head,
-          plainChar(char)
-        ) ~ delimParser).mapN { (span, delimSpan) =>
-          val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan
-          CodeSpans.merge(codeSpans)
-        }
+        (PrefixedParser
+          .mapAndMerge(embedded.flatMap(_.parsers))
+          .getOrElse(char.head, plainChar) ~ delimParser)
+          .mapN { (span, delimSpan) =>
+            val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan
+            CodeSpans.merge(codeSpans)
+          }
       }
 
     }

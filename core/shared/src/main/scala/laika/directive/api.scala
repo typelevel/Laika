@@ -17,14 +17,15 @@
 package laika.directive
 
 import cats.{ Functor, Semigroupal }
-import laika.ast.{ TemplateSpan, _ }
-import laika.collection.TransitionalCollectionOps._
+import laika.ast.{ TemplateSpan, * }
+import laika.collection.TransitionalCollectionOps.*
 import laika.config.Origin.DirectiveScope
-import laika.config._
+import laika.config.*
 import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
+import org.typelevel.scalaccompat.annotation.unused
 
 import scala.reflect.ClassTag
 
@@ -259,7 +260,7 @@ trait BuilderContext[E <: Element] {
         .asInstanceOf[E]
     }
 
-    def runsIn(phase: RewritePhase): Boolean = directive.fold(true)(_.runsIn(phase))
+    def runsIn(@unused phase: RewritePhase): Boolean = directive.fold(true)(_.runsIn(phase))
   }
 
   private[laika] trait SeparatorInstanceBase extends DirectiveProcessor {
@@ -280,7 +281,7 @@ trait BuilderContext[E <: Element] {
 
     }
 
-    def runsIn(phase: RewritePhase): Boolean = true
+    def runsIn(@unused phase: RewritePhase): Boolean = true
   }
 
   /** Provides combinators to describe the expected structure of a specific directive.

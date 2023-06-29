@@ -473,7 +473,7 @@ object DocumentCursor {
     apply(
       document,
       parent,
-      ReferenceResolver.forDocument(document, parent, config, position),
+      ReferenceResolver.forDocument(document, parent, config),
       config,
       None,
       position

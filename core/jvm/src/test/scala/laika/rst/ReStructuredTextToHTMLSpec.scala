@@ -154,9 +154,9 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
           fmt.childPerLine(
             Seq(it, Header(level, rest, opt))
           ) // move target out of the header content
-        case (fmt, Header(level, content, opt))                                        =>
+        case (fmt, Header(level, content, _))                                          =>
           fmt.element("h" + (level - 1), NoOpt, content) // rst special treatment of first header
-        case (fmt, Title(content, opt)) => fmt.element("h1", NoOpt, content, "class" -> "title")
+        case (fmt, Title(content, _)) => fmt.element("h1", NoOpt, content, "class" -> "title")
         case (fmt, TitledBlock(title, content, opt)) =>
           fmt.indentedElement("div", opt, Paragraph(title, Styles("admonition-title")) +: content)
         case (fmt, QuotedBlock(content, attr, opt))  =>

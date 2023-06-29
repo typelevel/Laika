@@ -87,7 +87,7 @@ class ServerBuilder[F[_]: Async](
     }
     val routeLogger                                             =
       if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
-      else (s: String) => Async[F].unit
+      else (_: String) => Async[F].unit
     Router("/" -> renderStacktrace(new RouteBuilder[F](cache, topic, routeLogger).build)).orNotFound
   }
 

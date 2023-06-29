@@ -117,7 +117,7 @@ object Characters {
   def include(chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
-        c => false
+        _ => false
       case 1 =>
         val c = chars(0)
         _ == c

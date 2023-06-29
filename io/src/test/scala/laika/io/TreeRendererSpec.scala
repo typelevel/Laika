@@ -330,7 +330,6 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("tree with a single document to HTML using the default template") {
     val html     = RenderResult.html.withDefaultTemplate(
-      "Title",
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )
@@ -548,7 +547,6 @@ class TreeRendererSpec extends CatsEffectSuite
       coverDocument = Some(Document(Root / "cover", HTMLRenderer.defaultContent))
     )
     val expected = RenderResult.html.withDefaultTemplate(
-      "Title",
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )
@@ -596,12 +594,10 @@ class TreeRendererSpec extends CatsEffectSuite
     )
     val treeRoot                     = DocumentTreeRoot(input)
     val expectedDefault              = RenderResult.html.withDefaultTemplate(
-      "Title",
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )
     val expectedContentWithLink      = RenderResult.html.withDefaultTemplate(
-      "Title",
       """<h1 id="title" class="title">Title</h1>
         |<p><a href="../doc-2/">Link Text</a></p>""".stripMargin
     )
@@ -631,7 +627,6 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("tree with a single document to EPUB.XHTML using the default template") {
     val html = RenderResult.epub.withDefaultTemplate(
-      "Title",
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )

@@ -188,14 +188,13 @@ case class DocumentTargets(document: Document, slugBuilder: String => String) {
     @tailrec
     def resolve(
         alias: LinkAliasResolver,
-        targetSelector: TargetIdSelector,
         visited: Set[TargetIdSelector]
     ): TargetResolver = {
       if (visited.contains(alias.targetSelector)) alias.circularReference
       else
         groupedTargets.get(alias.targetSelector) match {
           case Some(alias2: LinkAliasResolver) =>
-            resolve(alias, alias2.targetSelector, visited + alias2.sourceSelector)
+            resolve(alias, visited + alias2.sourceSelector)
           case Some(resolved)                  => alias.resolveWith(resolved.resolveReference)
           case None                            => alias
         }
@@ -207,7 +206,7 @@ case class DocumentTargets(document: Document, slugBuilder: String => String) {
     }
 
     val resolvedTargets = groupedTargets.toSeq.map {
-      case (_, alias: LinkAliasResolver) => resolve(alias, alias.targetSelector, Set())
+      case (_, alias: LinkAliasResolver) => resolve(alias, Set())
       case (_, resolved)                 => resolved
     }
 

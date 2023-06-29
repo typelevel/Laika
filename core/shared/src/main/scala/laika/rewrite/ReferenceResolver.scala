@@ -27,7 +27,7 @@ import laika.config.{
   ObjectValue,
   StringValue
 }
-import laika.ast.{ Document, DocumentTree, Path, RawLink, SpanSequence, TreeCursor, TreePosition }
+import laika.ast.{ Document, DocumentTree, Path, RawLink, SpanSequence, TreeCursor }
 
 /** A resolver for context references in templates or markup documents.
   *
@@ -73,8 +73,7 @@ object ReferenceResolver {
   def forDocument(
       document: Document,
       parent: TreeCursor,
-      config: Config,
-      position: TreePosition
+      config: Config
   ): ReferenceResolver = {
 
     val rootKey = Key("cursor")

@@ -19,7 +19,7 @@ package laika.rewrite
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast._
-import laika.ast.sample.{ BuilderKey, SampleConfig, SampleTrees }
+import laika.ast.sample.{ SampleConfig, SampleTrees }
 import laika.config.LaikaKeys
 import laika.format.HTML
 import laika.rewrite.nav.{
@@ -36,7 +36,7 @@ class PathTranslatorSpec extends FunSuite {
 
     val versions = Versions(Version("0.42.x", "0.42"), Nil)
 
-    def doc2(key: BuilderKey): Seq[Block] = Seq(
+    val doc2: Seq[Block] = Seq(
       Header(1, "Title").withOptions(Id("ref")),
       Paragraph("text")
     )
@@ -49,7 +49,7 @@ class PathTranslatorSpec extends FunSuite {
       .static1.config(SampleConfig.versioned(false))
       .staticDoc(Root / "static-1" / "doc-7.txt")
       .staticDoc(Root / "static-2" / "doc-8.txt")
-      .docContent(doc2 _)
+      .docContent(doc2)
       .suffix("md")
       .buildCursor
       .getOrElse(fail("unable to create cursor"))
