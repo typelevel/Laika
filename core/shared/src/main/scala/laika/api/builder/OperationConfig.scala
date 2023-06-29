@@ -302,9 +302,9 @@ object OperationConfig {
 
     @tailrec
     def processBundles(
-        past: Seq[ExtensionBundle],
-        pending: Seq[ExtensionBundle]
-    ): Seq[ExtensionBundle] = pending match {
+        past: List[ExtensionBundle],
+        pending: List[ExtensionBundle]
+    ): List[ExtensionBundle] = pending match {
       case Nil          => past
       case next :: rest =>
         val newPast    = past.map(ex => next.processExtension.lift(ex).getOrElse(ex)) :+ next
@@ -312,9 +312,10 @@ object OperationConfig {
         processBundles(newPast, newPending)
     }
 
-    processBundles(Nil, sortBundles(bundles)).reverse.reduceLeftOption(_ withBase _).getOrElse(
-      ExtensionBundle.Empty
-    )
+    processBundles(Nil, sortBundles(bundles).toList)
+      .reverse
+      .reduceLeftOption(_ withBase _)
+      .getOrElse(ExtensionBundle.Empty)
   }
 
   /** A configuration instance with all the libraries default extension bundles.

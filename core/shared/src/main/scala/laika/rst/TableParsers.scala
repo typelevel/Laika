@@ -209,6 +209,7 @@ object TableParsers {
   private def flattenElements(result: Any): List[TableElement] = result match {
     case x: TableElement => List(x)
     case x ~ y           => flattenElements(x) ::: flattenElements(y)
+    case _               => Nil
   }
 
   /** Parses a grid table.

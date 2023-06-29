@@ -307,11 +307,7 @@ class StandardBlockDirectives {
         if (hAlign.contains(style)) (pOpt + Styles(style), imgOpt)
         else (pOpt, imgOpt + Styles(style))
     }
-    val content        = img match {
-      case img: ImageResolver  => img.withOptions(imgOpt)
-      case el: SpanLink        => el.withOptions(imgOpt)
-      case lr: LinkIdReference => lr.withOptions(imgOpt)
-    }
+    val content        = img.withOptions(imgOpt)
     Paragraph(List(content), pOpt)
   }
 
