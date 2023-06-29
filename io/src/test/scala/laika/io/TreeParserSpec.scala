@@ -405,6 +405,7 @@ class TreeParserSpec
       val Stylesheet = """.+\.([a,b]+).css$""".r
       path.name match {
         case Stylesheet(kind) => StyleSheet(kind)
+        case _                => Ignored
       }
     }
 

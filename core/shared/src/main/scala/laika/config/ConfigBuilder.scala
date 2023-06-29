@@ -83,7 +83,7 @@ class ConfigBuilder(fields: Seq[Field], origin: Origin, fallback: Config = Empty
   private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
 
   private def expandPath(key: Key, value: ConfigValue): Field = {
-    key.segments match {
+    key.segments.toList match {
       case name :: Nil  => Field(name, value, origin)
       case name :: rest => Field(name, ObjectValue(Seq(expandPath(Key(rest), value))), origin)
       case Nil          => Field("", value, origin)
