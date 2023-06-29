@@ -653,21 +653,25 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
   }
 
   test("meta - creates config entries in the document instance") {
-    val input    = """.. meta::
+    val input = """.. meta::
                   | :key1: val1
                   | :key2: val2""".stripMargin
+
     val expected =
       ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
-    val res      = docParser.parse(input).flatMap(_.config.get[ConfigValue]("meta"))
+
+    val res: Either[Any, ConfigValue] =
+      docParser.parse(input).flatMap(_.config.get[ConfigValue]("meta"))
     assertEquals(res, Right(expected))
   }
 
   test("sectnum - creates config entries in the document instance") {
-    val input    = """.. sectnum::
+    val input = """.. sectnum::
                   | :depth: 3
                   | :start: 1
                   | :prefix: (
                   | :suffix: )""".stripMargin
+
     val expected = ObjectValue(
       Seq(
         Field("depth", StringValue("3")),
@@ -676,7 +680,9 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
         Field("suffix", StringValue(")"))
       )
     )
-    val res = docParser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+
+    val res: Either[Any, ConfigValue] =
+      docParser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
     assertEquals(res, Right(expected))
   }
 

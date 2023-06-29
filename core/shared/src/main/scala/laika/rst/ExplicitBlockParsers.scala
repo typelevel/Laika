@@ -141,7 +141,7 @@ object ExplicitBlockParsers {
   }
 
   private[rst] lazy val linkDefinitionBody: Parser[String] = {
-    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ ws.min(1) ~ not(blankLine))
+    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ ws.min(1) ~ not(blankLine)).void
 
     (notEmpty ~> indentedBlock()).map {
       _.lines.iterator.map(_.input.trim).mkString
