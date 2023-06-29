@@ -275,6 +275,10 @@ class ParserSpec extends FunSuite {
     expectFailure(TextParsers.lookAhead(2, "a"), "abcd")
   }
 
+  test("lookAhead - fails when the specified offset is too big") {
+    expectFailure(TextParsers.lookAhead(7, "a"), "abcd")
+  }
+
   object LookBehind {
     val input: SourceCursor = SourceCursor("abcd").consume(2)
   }
