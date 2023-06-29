@@ -85,7 +85,7 @@ case class Footnote(label: String, content: Seq[Block], options: Options = NoOpt
 
 /** Base type for all types of footnote labels.
   */
-abstract class FootnoteLabel
+sealed trait FootnoteLabel
 
 /** Label with automatic numbering.
   */

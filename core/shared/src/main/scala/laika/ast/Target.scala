@@ -62,7 +62,7 @@ case class ExternalTarget(url: String) extends Target {
 
 /** Represents a target within the virtual tree that can be referred to by links.
   */
-trait InternalTarget extends Target {
+sealed trait InternalTarget extends Target {
   def relativeTo(refPath: Path): ResolvedInternalTarget
 
   /** The underlying path reference, which is either a relative or absolute path,

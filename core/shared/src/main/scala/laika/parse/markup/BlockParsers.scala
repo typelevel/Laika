@@ -121,10 +121,11 @@ trait BlockParsers {
 
     import scala.math._
 
-    abstract class Line                                                      extends Product {
+    sealed trait Line extends Product {
       def curIndent: Int
       def source: LineSource
     }
+
     case class BlankLine(curIndent: Int, source: LineSource)                 extends Line
     case class IndentedLine(curIndent: Int, indent: Int, source: LineSource) extends Line
     case class FirstLine(source: LineSource) extends Line { val curIndent: Int = Int.MaxValue }

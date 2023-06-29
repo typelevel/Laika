@@ -49,11 +49,11 @@ object Table {
 
 /** A table element, like a row, cell or column.
   */
-trait TableElement extends Element { type Self <: TableElement }
+sealed trait TableElement extends Element { type Self <: TableElement }
 
 /** A container of table elements.
   */
-trait TableContainer extends TableElement with ElementContainer[TableElement] {
+sealed trait TableContainer extends TableElement with ElementContainer[TableElement] {
   type Self <: TableContainer
 }
 
