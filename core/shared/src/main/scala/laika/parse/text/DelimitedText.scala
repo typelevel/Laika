@@ -201,7 +201,7 @@ private[laika] object TextDelimiter {
   *
   * @tparam T the type of result produced by this delimiter
   */
-private[laika] trait DelimiterResult[+T]
+private[laika] sealed trait DelimiterResult[+T]
 
 private[laika] object DelimiterResult {
 

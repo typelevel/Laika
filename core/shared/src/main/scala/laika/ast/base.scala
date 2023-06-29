@@ -167,7 +167,7 @@ trait Definition extends Block { type Self <: Definition }
   * In contrast to the reference type, it is only mixed in by elements representing resolved links
   * that can be dealt with by renderers.
   */
-trait Link extends Span { type Self <: Link }
+sealed trait Link extends Span { type Self <: Link }
 
 /** A local link that always points to a target within the same document.
   */
