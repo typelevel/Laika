@@ -66,7 +66,7 @@ object BinaryTreeRenderer {
     *                      result, the implementing type may vary from format to format
     * @param description short string describing the output format for tooling and logging
     */
-  case class BinaryRenderer[F[_]: Async](
+  case class BinaryRenderer[F[_]](
       interimRenderer: Renderer,
       prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
       postProcessor: BinaryPostProcessor[F],

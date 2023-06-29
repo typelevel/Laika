@@ -306,7 +306,7 @@ object RendererRuntime {
     } yield res
   }
 
-  private def getDefaultTemplate[F[_]: Sync](
+  private def getDefaultTemplate[F[_]](
       themeInputs: InputTree[F],
       suffix: String
   ): TemplateRoot =

@@ -16,7 +16,6 @@
 
 package laika.io.runtime
 
-import cats.Monad
 import cats.effect.Async
 import cats.implicits._
 import laika.bundle.ExtensionBundle
@@ -47,7 +46,7 @@ import laika.theme.Theme.TreeProcessor
   */
 object TransformerRuntime {
 
-  private def themeWithoutInputs[F[_]: Monad](theme: Theme[F]): Theme[F] = new Theme[F] {
+  private def themeWithoutInputs[F[_]](theme: Theme[F]): Theme[F] = new Theme[F] {
     def descriptor: ThemeDescriptor               = theme.descriptor
     def inputs: InputTree[F]                      = InputTree.empty
     def extensions: Seq[ExtensionBundle]          = theme.extensions
