@@ -367,8 +367,6 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("directive with a missing optional named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir bb"
-      val msg   =
-        "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       run(Text("aa <> bb"))
     }
   }

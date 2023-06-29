@@ -286,8 +286,6 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
   test("parse a directive with a missing optional named int attribute") {
     new OptionalNamedAttribute with TemplateParser {
-      val msg =
-        "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       run("aa @:dir bb", TemplateString("<>"))
     }
   }

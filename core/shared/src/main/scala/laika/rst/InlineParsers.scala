@@ -288,13 +288,6 @@ object InlineParsers {
     markupStart("``", "``") ~> delimitedBy(markupEnd("``")).map(Literal(_))
   }
 
-  private def toSource(label: FootnoteLabel): String = label match {
-    case Autonumber            => "[#]_"
-    case Autosymbol            => "[*]_"
-    case AutonumberLabel(name) => s"[#$name]_"
-    case NumericLabel(name)    => s"[$name]_"
-  }
-
   /** Parses a footnote reference.
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].

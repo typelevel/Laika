@@ -169,8 +169,8 @@ private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Opti
   */
 case class Favicon private (
     target: Target,
-    sizes: Option[String] = None,
-    mediaType: Option[String] = None
+    sizes: Option[String],
+    mediaType: Option[String]
 )
 
 /** Companion for creating Favicon configuration instances.

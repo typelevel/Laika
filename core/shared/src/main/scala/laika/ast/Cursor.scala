@@ -85,7 +85,7 @@ sealed trait Cursor {
   */
 class RootCursor private (
     val target: DocumentTreeRoot,
-    renderContext: Option[(OutputContext, TranslatorConfig)] = None
+    renderContext: Option[(OutputContext, TranslatorConfig)]
 ) {
 
   type Target = DocumentTreeRoot
