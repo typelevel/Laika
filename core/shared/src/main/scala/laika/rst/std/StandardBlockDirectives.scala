@@ -205,7 +205,7 @@ class StandardBlockDirectives {
     DocumentFragment("footer", BlockSequence(blocks))
   }
 
-  private def tuple(name: String) = optField(name, Right(name, _))
+  private def tuple(name: String) = optField(name, s => Right((name, s)))
 
   lazy val sectnum: DirectivePartBuilder[Block] =
     (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")).map {

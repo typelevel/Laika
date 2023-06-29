@@ -268,7 +268,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
         |@:@
         |
         |Some *markup* here.""".stripMargin
-    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", content)
+    val inputsWithExtraDoc = inputs :+ ((Root / "landing-page.md", content))
     transformAndExtract(
       inputsWithExtraDoc,
       helium,
