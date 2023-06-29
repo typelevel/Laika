@@ -84,11 +84,12 @@ trait Parsers {
       s"Unable to look ahead with offset $o"
     }
     Parser { in =>
-      if (in.offset - offset < 0) Failure(errMsg(offset), in)
-      p.parse(in.consume(offset)) match {
-        case Success(s1, _) => Success(s1, in)
-        case e              => e
-      }
+      if (offset > in.remaining) Failure(errMsg(offset), in)
+      else
+        p.parse(in.consume(offset)) match {
+          case Success(s1, _) => Success(s1, in)
+          case e              => e
+        }
     }
   }
 
