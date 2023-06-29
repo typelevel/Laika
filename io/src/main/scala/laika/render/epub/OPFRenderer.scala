@@ -38,7 +38,7 @@ class OPFRenderer {
       coverImage: Option[String],
       timestamp: String,
       docRefs: Seq[DocumentRef],
-      authors: Seq[String] = Nil
+      authors: Seq[String]
   ): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package

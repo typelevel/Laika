@@ -105,7 +105,7 @@ object StandardDirectives extends DirectiveRegistry {
     case multiple     => BlockSequence(multiple, options)
   }
 
-  private def asSpan(spans: Seq[Span], options: Options = NoOpt): Span = spans match {
+  private def asSpan(spans: Seq[Span], options: Options): Span = spans match {
     case span :: Nil => span.mergeOptions(options)
     case multiple    => SpanSequence(multiple, options)
   }

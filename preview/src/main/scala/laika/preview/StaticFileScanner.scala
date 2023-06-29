@@ -32,7 +32,7 @@ private[preview] object StaticFileScanner {
 
   private def collect[F[_]: Async](
       filePath: FilePath,
-      vPath: Path = Root
+      vPath: Path
   ): F[List[(Path, SiteResult[F])]] = {
     DirectoryScanner.scanDirectory(filePath) { paths =>
       paths.toList
