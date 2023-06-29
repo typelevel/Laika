@@ -112,7 +112,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
       case DefinitionListItem(term, defn, _) =>
         lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
       case SectionNumber(pos, opt)           =>
-        "SectionNumber" + attributes(Seq(pos.mkString("."), opt).iterator)
+        "SectionNumber" + attributes(Seq[Object](pos.mkString("."), opt).iterator)
       case bc: BlockContainer                => elementContainerDesc(bc, "Blocks")
       case sc: SpanContainer                 => elementContainerDesc(sc, "Spans")
       case tsc: TemplateSpanContainer        => elementContainerDesc(tsc, "TemplateSpans")
