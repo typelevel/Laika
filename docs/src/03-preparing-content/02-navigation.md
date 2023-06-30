@@ -4,8 +4,6 @@ Navigation
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 Laika's functionality for navigation can roughly be divided into four categories:
@@ -72,7 +70,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.ast.Path.Root
 import laika.format._
@@ -143,7 +141,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:silent
 import laika.api._
 import laika.ast.ExternalTarget
 import laika.format._
@@ -262,7 +260,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -296,7 +294,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -343,7 +341,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -384,7 +382,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -607,7 +605,7 @@ laikaConfig := LaikaConfig.defaults
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
@@ -657,7 +655,7 @@ laikaExtensions += PrettyURLs
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
 import laika.rewrite.nav.PrettyURLs

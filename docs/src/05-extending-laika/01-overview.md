@@ -53,7 +53,6 @@ so that you only need to override the ones you intend to use.
 
 ```scala mdoc
 import laika.bundle.ExtensionBundle
-import laika.ast.{ DocumentType, Path }
 
 object MyExtensions extends ExtensionBundle {
 
@@ -70,8 +69,6 @@ Such a bundle can then be passed to the transformer:
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only

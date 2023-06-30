@@ -132,8 +132,6 @@ Finally you can register your extension together with any built-in extensions yo
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
@@ -500,7 +498,7 @@ Precedence
 Both, block and span parsers can specify a precedence:
 
 ```scala mdoc:silent
-BlockParser.recursive { implicit recParsers =>
+BlockParser.recursive { recParsers =>
   ??? // parser impl here
 }.withLowPrecedence
 ```

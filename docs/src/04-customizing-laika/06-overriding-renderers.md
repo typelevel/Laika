@@ -81,8 +81,6 @@ In case you want to combine it with other extensions, a render override can also
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
@@ -115,7 +113,7 @@ val transformer = Transformer
 **Using the Renderer API**
 
 ```scala mdoc:compile-only
-val doc: Document = ???
+def doc: Document = ???
 
 val renderer = Renderer
   .of(HTML)

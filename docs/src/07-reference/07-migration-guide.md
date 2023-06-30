@@ -90,7 +90,7 @@ import cats.effect.{ IO, Resource }
 import laika.io.api.TreeTransformer
 
 // build your transformer like before
-val transformer: Resource[IO, TreeTransformer[IO]] = ???
+def transformer: Resource[IO, TreeTransformer[IO]] = ???
 
 transformer.use {
   _.fromDirectory("docs")

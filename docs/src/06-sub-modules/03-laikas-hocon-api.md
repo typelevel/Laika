@@ -103,7 +103,7 @@ You have to provide the key you want to read and the type you expect:
 ```scala mdoc:compile-only
 import laika.config.Config
 
-val config: Config = ???
+def config: Config = ???
 
 val version = config.get[String]("project.version")
 ```
@@ -266,7 +266,7 @@ You can alternatively create your own encoder as shown above.
 If you have a fallback instance, you can pass it to the constructor:
 
 ```scala mdoc:compile-only
-val parentConfig: Config = ???
+def parentConfig: Config = ???
 
 val config = ConfigBuilder.withFallback(parentConfig)
   .withValue("laika.epub.coverImage", "/images/epub-cover.jpg")
@@ -282,7 +282,7 @@ where you build an entire tree programmatically, you also have to provide a corr
 ```scala mdoc:compile-only
 import laika.ast.Document
 
-val doc: Document = ???
+def doc: Document = ???
 val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
 val config = ConfigBuilder.withOrigin(docOrigin)
@@ -301,7 +301,7 @@ This is essential for resolving relative paths defined in that configuration cor
 The `ConfigParser` has a very simple API:
 
 ```scala mdoc:compile-only
-val hoconInput: String = ???
+def hoconInput: String = ???
 
 val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
@@ -316,8 +316,8 @@ The `resolve` step then finally creates a `Config` instance, resolving and valid
 If you have a fallback instance, you can pass it via `resolve`:
 
 ```scala mdoc:compile-only
-val hoconInput: String = ???
-val parentConfig: Config = ???
+def hoconInput: String = ???
+def parentConfig: Config = ???
 
 val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
@@ -332,8 +332,8 @@ where you build an entire tree programmatically, you also have to provide a corr
 ```scala mdoc:compile-only
 import laika.ast.Document
 
-val hoconInput: String = ???
-val doc: Document = ???
+def hoconInput: String = ???
+def doc: Document = ???
 val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
 val result: Either[ConfigError, Document] = ConfigParser

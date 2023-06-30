@@ -15,8 +15,6 @@ All code samples shown are highlighted by Laika's own syntax support.
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
   
 Configuration
@@ -151,9 +149,6 @@ as a starting point.
 Once you have implemented and tested your highlighter you can add it to the built-in ones like this:
 
 ```scala mdoc:compile-only
-import laika.api._
-import laika.format._
-import laika.markdown.github.GitHubFlavor
 import laika.parse.code.{SyntaxHighlighting, CodeSpanParser }
 import laika.bundle.SyntaxHighlighter
 import cats.data.NonEmptyList

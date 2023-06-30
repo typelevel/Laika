@@ -46,6 +46,11 @@ def disableMissingInterpolatorWarning(options: Seq[String]): Seq[String] =
     if (opt.startsWith("-Xlint")) opt + ",-missing-interpolator" else opt
   }
 
+def disableUnusedWarningsForMdoc(options: Seq[String]): Seq[String] =
+  options.map { opt =>
+    if (opt.startsWith("-Ywarn-unused")) opt + ",-locals,-explicits" else opt
+  }
+
 val munit = "org.scalameta" %% "munit" % versions.munit % "test"
 val jTidy = "net.sf.jtidy"   % "jtidy" % versions.jTidy % "test"
 
@@ -92,7 +97,8 @@ lazy val docs = project.in(file("docs"))
     mdocVariables             := Map(
       "LAIKA_VERSION" -> "0.19.2"
     ),
-    mdocExtraArguments        := Seq("--no-link-hygiene")
+    mdocExtraArguments        := Seq("--no-link-hygiene"),
+    scalacOptions ~= disableUnusedWarningsForMdoc
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)

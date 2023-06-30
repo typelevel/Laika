@@ -257,7 +257,6 @@ which is quite straightforward, but not included in the reusable builders since 
 
 ```scala mdoc:compile-only
 import laika.parse.builders._
-import laika.parse.implicits._
 import laika.parse.code.CodeCategory
 
 val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
@@ -397,8 +396,6 @@ Finally, you can register your extension together with any built-in extensions y
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
