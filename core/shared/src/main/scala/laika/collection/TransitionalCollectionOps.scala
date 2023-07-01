@@ -22,7 +22,7 @@ import scala.collection.{ AbstractIterator, Iterator }
   *
   * @author Jens Halm
   */
-object TransitionalCollectionOps {
+private[laika] object TransitionalCollectionOps {
 
   implicit class TransitionalMapOps[K, V](val map: Map[K, V]) extends AnyVal {
 

@@ -31,13 +31,13 @@ import laika.rewrite.nav.PathTranslator
   * @param pathTranslator translates paths of input documents to the corresponding output path
   * @param config additional configuration for the renderer
   */
-case class RenderContext[FMT](
-    renderChild: (FMT, Element) => String,
-    root: Element,
-    styles: StyleDeclarationSet,
-    path: Path,
-    pathTranslator: PathTranslator,
-    config: RenderConfig
+class RenderContext[FMT] private[laika] (
+    val renderChild: (FMT, Element) => String,
+    val root: Element,
+    val styles: StyleDeclarationSet,
+    val path: Path,
+    val pathTranslator: PathTranslator,
+    val config: RenderConfig
 ) {
 
   /** The indentation mechanism to use for rendering.
@@ -82,10 +82,7 @@ trait RenderFormat[FMT] extends Format {
     */
   def formatterFactory: RenderContext[FMT] => FMT
 
-  type CustomRenderFunction[FORMAT] =
-    PartialFunction[(FORMAT, Element), String] // TODO - move/promote
-
-  case class Overrides(value: CustomRenderFunction[FMT] = PartialFunction.empty)
+  case class Overrides(value: PartialFunction[(FMT, Element), String] = PartialFunction.empty)
       extends RenderOverrides {
 
     type Formatter = FMT

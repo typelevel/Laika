@@ -137,7 +137,14 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
 
     (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
       val renderContext =
-        RenderContext(renderFunction, elementToRender, styles, doc.path, pathTranslator, config)
+        new RenderContext[Formatter](
+          renderFunction,
+          elementToRender,
+          styles,
+          doc.path,
+          pathTranslator,
+          config
+        )
 
       val formatter = format.formatterFactory(renderContext)
 
