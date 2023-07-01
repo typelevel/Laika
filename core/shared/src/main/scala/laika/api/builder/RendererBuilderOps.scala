@@ -25,7 +25,7 @@ import laika.factory.RenderFormat
   *
   * @author Jens Halm
   */
-trait RendererBuilderOps[FMT] extends CommonBuilderOps {
+private[api] trait RendererBuilderOps[FMT] extends CommonBuilderOps {
 
   protected def renderFormat: RenderFormat[FMT]
 
@@ -54,12 +54,12 @@ trait RendererBuilderOps[FMT] extends CommonBuilderOps {
   /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
     */
   def renderMessages(filter: MessageFilter): ThisType = withConfig(
-    config.copy(renderMessages = filter)
+    config.withMessageFilters(render = filter)
   )
 
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.
     */
-  def unformatted: ThisType = withConfig(config.copy(renderFormatted = false))
+  def unformatted: ThisType = withConfig(config.renderUnformatted)
 
 }

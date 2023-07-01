@@ -52,14 +52,33 @@ import scala.annotation.tailrec
   * @param renderMessages the filter to apply to runtime messages that should be rendered in the output
   * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
   */
-case class OperationConfig(
-    bundles: Seq[ExtensionBundle] = Nil,
-    bundleFilter: BundleFilter = BundleFilter(),
+class OperationConfig private[laika] (
+    val bundles: Seq[ExtensionBundle] = Nil,
+    private[laika] val bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
-    failOnMessages: MessageFilter = MessageFilter.Error,
-    renderMessages: MessageFilter = MessageFilter.None,
-    renderFormatted: Boolean = true
+    val failOnMessages: MessageFilter = MessageFilter.Error,
+    val renderMessages: MessageFilter = MessageFilter.None,
+    val renderFormatted: Boolean = true
 ) extends RenderConfig {
+
+  private def copy(
+      bundles: Seq[ExtensionBundle] = this.bundles,
+      bundleFilter: BundleFilter = this.bundleFilter,
+      configBuilder: ConfigBuilder = this.configBuilder,
+      failOnMessages: MessageFilter = this.failOnMessages,
+      renderMessages: MessageFilter = this.renderMessages,
+      renderFormatted: Boolean = this.renderFormatted
+  ): OperationConfig = new OperationConfig(
+    bundles,
+    bundleFilter,
+    configBuilder,
+    failOnMessages,
+    renderMessages,
+    renderFormatted
+  )
+
+  private[laika] def withBundleFilter(filter: BundleFilter): OperationConfig =
+    copy(bundleFilter = filter)
 
   private lazy val mergedBundle: ExtensionBundle =
     OperationConfig.mergeBundles(bundleFilter(bundles))
@@ -69,6 +88,23 @@ case class OperationConfig(
     * directories and/or config headers in markup and template documents.
     */
   lazy val baseConfig: Config = configBuilder.build(mergedBundle.baseConfig)
+
+  /** Specifies the message filters to apply to the operation.
+    *
+    * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
+    * When switching to visual debugging, both filters are usually changed together.
+    * For example, when setting `failOn` to `None` and `render` to `Warning`,
+    * the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Warning` or higher will be rendered in the position they occurred.
+    *
+    * @param failOn the minimum message level that should cause the transformation to fail (default `Error`).
+    * @param render the minimum message level that should be rendered in the output (default `None`).
+    * @return
+    */
+  def withMessageFilters(
+      failOn: MessageFilter = this.failOnMessages,
+      render: MessageFilter = this.renderMessages
+  ): OperationConfig = copy(failOnMessages = failOn, renderMessages = render)
 
   /** Returns a new instance with the specified configuration value added.
     *
@@ -205,6 +241,11 @@ case class OperationConfig(
       t
     } :+ format.Overrides()).reduceLeft(_ withBase _)
 
+  /** Renders without any formatting (line breaks or indentation).
+    * Useful when storing the output in a database for example.
+    */
+  def renderUnformatted: OperationConfig = copy(renderFormatted = false)
+
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher
     * precedence that the already defined bundles and may thus overwrite features.
@@ -291,14 +332,14 @@ object OperationConfig {
     BundleOrigin.User
   )
 
-  def sortBundles(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] =
+  private def sortBundles(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] =
     bundles.distinct.sortBy(b => originOrder.indexOf(b.origin))
 
   /** Merges a sequence of bundles, including the invocation of their `processExtension` methods that allows
     * bundles to modify other bundles. The sequence is treated with decreasing precedence for features where
     * a bundle may overwrite other bundles.
     */
-  def mergeBundles(bundles: Seq[ExtensionBundle]): ExtensionBundle = {
+  private def mergeBundles(bundles: Seq[ExtensionBundle]): ExtensionBundle = {
 
     @tailrec
     def processBundles(
@@ -320,12 +361,12 @@ object OperationConfig {
 
   /** A configuration instance with all the libraries default extension bundles.
     */
-  val default: OperationConfig = OperationConfig(
+  val default: OperationConfig = new OperationConfig(
     bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives)
   )
 
   /** An empty configuration instance.
     */
-  val empty: OperationConfig = OperationConfig()
+  val empty: OperationConfig = new OperationConfig()
 
 }

@@ -59,11 +59,12 @@ object Settings {
     val userConfig = laikaConfig.value
 
     def mergedConfig(config: OperationConfig): OperationConfig = {
-      config.copy(
-        bundleFilter = userConfig.bundleFilter,
-        renderMessages = userConfig.renderMessages,
-        failOnMessages = userConfig.failOnMessages
-      )
+      config
+        .withMessageFilters(
+          render = userConfig.renderMessages,
+          failOn = userConfig.failOnMessages
+        )
+        .withBundleFilter(userConfig.bundleFilter)
     }
 
     def createParser(format: MarkupFormat): ParserBuilder = {
@@ -122,12 +123,13 @@ object Settings {
     val userConfig                                        = laikaConfig.value
     def createParser(format: MarkupFormat): ParserBuilder = {
       val parser       = MarkupParser.of(format)
-      val mergedConfig = parser.config.copy(
+      val mergedConfig = new OperationConfig(
         bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
         failOnMessages = userConfig.failOnMessages,
         renderMessages = userConfig.renderMessages,
-        configBuilder = userConfig.configBuilder
+        configBuilder = userConfig.configBuilder,
+        renderFormatted = parser.config.renderFormatted
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }

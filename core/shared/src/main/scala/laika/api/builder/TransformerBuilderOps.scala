@@ -25,7 +25,8 @@ import laika.bundle.ExtensionBundle
   *
   * @author Jens Halm
   */
-trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOps[FMT] {
+private[api] trait TransformerBuilderOps[FMT] extends ParserBuilderOps
+    with RendererBuilderOps[FMT] {
 
   type ThisType <: TransformerBuilderOps[FMT]
 

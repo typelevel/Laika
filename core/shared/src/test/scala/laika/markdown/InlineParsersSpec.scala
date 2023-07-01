@@ -27,7 +27,7 @@ import munit.FunSuite
 class InlineParsersSpec extends FunSuite with TestSourceBuilders {
 
   val rootParser =
-    new RootParserWrapper(Markdown, OperationConfig(Markdown.extensions).markupExtensions)
+    new RootParserWrapper(Markdown, new OperationConfig(Markdown.extensions).markupExtensions)
 
   val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser
 

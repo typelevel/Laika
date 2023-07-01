@@ -51,7 +51,7 @@ import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocument, Parse
   *
   * @author Jens Halm
   */
-class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
+class MarkupParser private[laika] (val format: MarkupFormat, val config: OperationConfig) {
 
   /** The file suffixes this parser will recognize
     * as a supported format.
@@ -78,7 +78,7 @@ class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
 
   /** Parses the specified markup input into a document AST structure.
     */
-  def parse(input: DocumentInput): Either[ParserError, Document] = {
+  private def parse(input: DocumentInput): Either[ParserError, Document] = {
 
     def resolveDocument(unresolved: UnresolvedDocument, docConfig: Config): Document = {
       val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue =>
@@ -131,9 +131,10 @@ class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
     *
     * This low-level hook is rarely used by application code.
     */
-  def parseUnresolved(input: DocumentInput): Either[ParserError, UnresolvedDocument] = docParser(
-    input
-  )
+  private[laika] def parseUnresolved(
+      input: DocumentInput
+  ): Either[ParserError, UnresolvedDocument] =
+    docParser(input)
 
 }
 

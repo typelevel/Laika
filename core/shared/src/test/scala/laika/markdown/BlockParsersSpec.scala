@@ -27,7 +27,10 @@ import munit.FunSuite
 class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val rootParser =
-    new RootParser(Markdown, OperationConfig(Markdown.extensions).forStrictMode.markupExtensions)
+    new RootParser(
+      Markdown,
+      new OperationConfig(Markdown.extensions).forStrictMode.markupExtensions
+    )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 

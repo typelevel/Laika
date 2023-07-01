@@ -57,10 +57,11 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
   }
 
   test("succeed when there are errors in the template result, but the filter is None") {
-    val config   = OperationConfig.default.copy(
-      renderMessages = MessageFilter.Warning,
-      failOnMessages = MessageFilter.None
-    )
+    val config   = OperationConfig.default
+      .withMessageFilters(
+        render = MessageFilter.Warning,
+        failOn = MessageFilter.None
+      )
     val expected =
       """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
     assertEquals(FOConcatenation(result, PDF.BookConfig(), config), Right(expected))

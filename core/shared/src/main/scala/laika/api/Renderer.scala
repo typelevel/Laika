@@ -51,7 +51,8 @@ import laika.rewrite.nav.{ NoOpPathTranslator, PathTranslator }
   *
   * @author Jens Halm
   */
-abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = false) { self =>
+abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite: Boolean = false) {
+  self =>
 
   type Formatter
 

@@ -28,7 +28,7 @@ import laika.factory.RenderFormat
   *
   * @author Jens Halm
   */
-class RendererBuilder[FMT](
+class RendererBuilder[FMT] private[laika] (
     val renderFormat: RenderFormat[FMT],
     val config: OperationConfig,
     skipRewritePhase: Boolean = false

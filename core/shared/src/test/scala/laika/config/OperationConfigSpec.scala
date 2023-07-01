@@ -58,8 +58,8 @@ class OperationConfigSpec extends FunSuite {
 
     val bundles1 = Seq(UserBundle1, LaikaDefaults, ThemeBundle, GitHubFlavor, UserBundle2)
     val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.Empty)
-    val config1  = OperationConfig(bundles1)
-    val config2  = OperationConfig(bundles2)
+    val config1  = new OperationConfig(bundles1)
+    val config2  = new OperationConfig(bundles2)
     assertEquals(
       config1.merge(config2).bundles,
       Seq(
