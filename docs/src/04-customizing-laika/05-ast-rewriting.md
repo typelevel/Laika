@@ -54,8 +54,6 @@ into a `Strong` node while processing everything else with default rules:
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
@@ -104,7 +102,7 @@ Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes f
 ```scala mdoc:compile-only
 import laika.ast._
 
-val doc: Document = ??? // obtained through the Parser API
+def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forSpans {
   case Emphasized(content, opts) => Replace(Strong(content, opts))
@@ -117,7 +115,7 @@ To accomplish this you need to nest a rewrite operation inside another one:
 ```scala mdoc:compile-only
 import laika.ast._
 
-val doc: Document = ??? // obtained through the Parser API
+def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forBlocks {
   case h: Header => Replace(h.rewriteSpans {

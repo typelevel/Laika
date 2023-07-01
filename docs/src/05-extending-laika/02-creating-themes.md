@@ -282,7 +282,7 @@ import cats.effect.IO
 import laika.ast.Path.Root
 import laika.io.model.InputTreeBuilder
 
-val builder: InputTreeBuilder[IO] = ???
+def builder: InputTreeBuilder[IO] = ???
 val resourcePath = "my-theme/css/theme.css"
 val vars: String = "<... generated-CSS ...>"
 builder
@@ -314,7 +314,7 @@ import laika.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 import laika.theme.config.FontDefinition
 
-val fonts: Seq[FontDefinition] = ???
+def fonts: Seq[FontDefinition] = ???
 val baseConfig = ConfigBuilder.empty
   .withValue("laika.epub.fonts", fonts)
   .withValue("laika.pdf.fonts", fonts)

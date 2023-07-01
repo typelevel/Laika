@@ -217,8 +217,6 @@ Finally we need to register our registry together with any built-in extensions y
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only

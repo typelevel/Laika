@@ -41,8 +41,6 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ### Title Documents

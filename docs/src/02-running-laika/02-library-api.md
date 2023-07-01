@@ -306,7 +306,7 @@ val (transformer: TreeTransformer[IO], releaseF: IO[Unit]) = alloc.unsafeRunSync
 You would usually run the above when initializing your web application. 
 The obtained transformer can then be used in your controllers and each transformation would produce a new `Future`:
 
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 val futureResult: Future[RenderedTreeRoot[IO]] = transformer
   .fromDirectory("docs")
   .toDirectory("target")
@@ -334,8 +334,8 @@ The effectful transformer is the most powerful variant and also the one that is 
 It expands the functionality beyond just processing markup input to also parsing templates and configuration files
 as well as copying static files over to the target directory.
 
-```scala mdoc:nest:silent
-val transformer = Transformer
+```scala mdoc:silent
+val transformerIO = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
@@ -346,7 +346,7 @@ val transformer = Transformer
 The above transformer can then be used to process a directory of markup, template and configuration files:
 
 ```scala mdoc:silent
-val res: IO[RenderedTreeRoot[IO]] = transformer.use {
+val res: IO[RenderedTreeRoot[IO]] = transformerIO.use {
   _.fromDirectory("src")
    .toDirectory("target")
    .transform
@@ -389,7 +389,7 @@ val directories = Seq(
   FilePath.parse("markup"),
   FilePath.parse("theme")
 )
-val mergedRes: IO[RenderedTreeRoot[IO]] = transformer.use {
+val mergedRes: IO[RenderedTreeRoot[IO]] = transformerIO.use {
   _.fromDirectories(directories)
    .toDirectory("target")
    .transform
@@ -454,7 +454,7 @@ For the complete API see @:api(laika.io.model.InputTreeBuilder).
 The customized input tree can then be passed to the transformer:
 
 ```scala mdoc:compile-only
-val composedRes: IO[RenderedTreeRoot[IO]] = transformer.use {
+val composedRes: IO[RenderedTreeRoot[IO]] = transformerIO.use {
   _.fromInput(inputs)
    .toDirectory("target")
    .transform
@@ -660,7 +660,7 @@ This includes auto-refreshing whenever changes to any input document are detecte
 It is the basis of the `laikaPreview` task of the sbt plugin, 
 but can alternatively be launched via the library API:
 
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.preview.ServerBuilder
 
 val parser = MarkupParser
@@ -682,6 +682,7 @@ Open `localhost:4242` for the landing page of your site.
 You can override the defaults by passing a `ServerConfig` instance explicitly:
 
 ```scala mdoc:silent
+import laika.preview.ServerBuilder
 import laika.preview.ServerConfig
 import com.comcast.ip4s._
 import scala.concurrent.duration.DurationInt

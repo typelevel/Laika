@@ -130,8 +130,6 @@ You can add arbitrary configuration values when building a `Parser`, `Renderer` 
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 ```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
@@ -206,7 +204,7 @@ all have a `config` property that exposes those values:
 import laika.ast.Document
 import laika.config.ConfigError
 
-val doc: Document = ???
+def doc: Document = ???
 val version: Either[ConfigError, String] = 
   doc.config.get[String]("project.version")
 ```

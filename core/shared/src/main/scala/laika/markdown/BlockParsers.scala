@@ -110,9 +110,9 @@ object BlockParsers {
 
     def decoratedHeaderLevel(decoration: String) = if (decoration.head == '=') 1 else 2
 
-    /**  Merges the specified list of lines into a single string,
-      *  while looking for lines ending with double spaces which (sadly) stand for a hard line break in Markdown.
-      */
+    /*  Merges the specified list of lines into a single string,
+     *  while looking for lines ending with double spaces which (sadly) stand for a hard line break in Markdown.
+     */
     def processLineBreaks(line: LineSource): LineSource =
       /* add a special sequence for hard line breaks so that the
        * inline parser does not have to stop at each space character */

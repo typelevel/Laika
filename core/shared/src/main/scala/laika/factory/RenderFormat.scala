@@ -82,7 +82,8 @@ trait RenderFormat[FMT] extends Format {
     */
   def formatterFactory: RenderContext[FMT] => FMT
 
-  type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - move/promote
+  type CustomRenderFunction[FORMAT] =
+    PartialFunction[(FORMAT, Element), String] // TODO - move/promote
 
   case class Overrides(value: CustomRenderFunction[FMT] = PartialFunction.empty)
       extends RenderOverrides {

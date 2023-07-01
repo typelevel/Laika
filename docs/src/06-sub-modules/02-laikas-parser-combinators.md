@@ -171,7 +171,7 @@ In many cases we are only interested in one of the results of a concatenation,
 when some of the results are known for example.
 The `~>` combinator ignores the left result, `<~` ignores the right one: 
 
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 val p = "<" ~> someOf(range('a', 'z')) <~ ">"
 ```
 
@@ -382,7 +382,7 @@ import laika.ast.Span
 import laika.parse.markup.InlineParsers
 import laika.parse.text.PrefixedParser
 
-val nestedSpanParsers: Seq[PrefixedParser[Span]] = ???
+def nestedSpanParsers: Seq[PrefixedParser[Span]] = ???
 val linkSpanParser = delimitedBy("]").failOn('\n')
 
 "[" ~> InlineParsers.spans(linkSpanParser).embedAll(nestedSpanParsers)

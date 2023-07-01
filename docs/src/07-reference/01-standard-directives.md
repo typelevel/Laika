@@ -214,8 +214,6 @@ The available icon set can be registered as part of the transformer setup:
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 ```scala mdoc:compile-only
 import laika.ast._
@@ -383,7 +381,6 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 
 ```scala mdoc:compile-only
-import laika.ast._
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor

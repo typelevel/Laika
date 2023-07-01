@@ -16,7 +16,6 @@ inThisBuild(
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
     scalaVersion       := versions.scala2_12,
     developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
-    tlFatalWarnings := false,
     tlCiHeaderCheck := false,
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
@@ -45,6 +44,11 @@ inThisBuild(
 def disableMissingInterpolatorWarning(options: Seq[String]): Seq[String] =
   options.map { opt =>
     if (opt.startsWith("-Xlint")) opt + ",-missing-interpolator" else opt
+  }
+
+def disableUnusedWarningsForMdoc(options: Seq[String]): Seq[String] =
+  options.map { opt =>
+    if (opt.startsWith("-Ywarn-unused")) opt + ",-locals,-explicits" else opt
   }
 
 val munit = "org.scalameta" %% "munit" % versions.munit % "test"
@@ -93,7 +97,8 @@ lazy val docs = project.in(file("docs"))
     mdocVariables             := Map(
       "LAIKA_VERSION" -> "0.19.2"
     ),
-    mdocExtraArguments        := Seq("--no-link-hygiene")
+    mdocExtraArguments        := Seq("--no-link-hygiene"),
+    scalacOptions ~= disableUnusedWarningsForMdoc
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)

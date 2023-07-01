@@ -18,10 +18,11 @@ package laika.preview
 
 import java.io.{ PrintWriter, StringWriter }
 import cats.data.{ Kleisli, OptionT }
-import cats.effect._
-import cats.syntax.all._
-import com.comcast.ip4s._
+import cats.effect.*
+import cats.syntax.all.*
+import com.comcast.ip4s.*
 import fs2.concurrent.Topic
+import fs2.io.net.Network
 import laika.ast
 import laika.ast.DocumentType
 import laika.format.{ EPUB, PDF }
@@ -30,11 +31,11 @@ import laika.io.model.{ FilePath, InputTreeBuilder }
 import laika.preview.ServerBuilder.Logger
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{ HttpApp, HttpRoutes, Request }
-import org.http4s.implicits._
+import org.http4s.implicits.*
 import org.http4s.server.{ Router, Server }
 import org.http4s.ember.server.EmberServerBuilder
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /** Configures and instantiates a resource for a preview server.
   *
@@ -92,7 +93,7 @@ class ServerBuilder[F[_]: Async](
   }
 
   private def createServer(httpApp: HttpApp[F]): Resource[F, Server] =
-    EmberServerBuilder.default[F]
+    EmberServerBuilder.default(Async[F], Network.forAsync(Async[F]))
       .withShutdownTimeout(2.seconds)
       .withPort(config.port)
       .withHost(config.host)
