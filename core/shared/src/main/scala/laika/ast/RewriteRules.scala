@@ -41,14 +41,16 @@ case class RewriteRules(
     templateRules: Seq[RewriteRule[TemplateSpan]] = Nil
 ) {
 
-  private lazy val chainedSpanRules: Span => RewriteAction[Span] = ChainedRewriteRules(spanRules)
+  private lazy val chainedSpanRules: Span => RewriteAction[Span] = new ChainedRewriteRules(
+    spanRules
+  )
 
-  private lazy val chainedBlockRules: Block => RewriteAction[Block] = ChainedRewriteRules(
+  private lazy val chainedBlockRules: Block => RewriteAction[Block] = new ChainedRewriteRules(
     blockRules
   )
 
   private lazy val chainedTemplateRules: TemplateSpan => RewriteAction[TemplateSpan] =
-    ChainedRewriteRules(templateRules)
+    new ChainedRewriteRules(templateRules)
 
   /** Combines the rules defined in this instance with the rules defined
     * in the specified other instance. If a rule in this instance matches the same
@@ -235,7 +237,7 @@ object RewriteRules {
   /** Chains the specified rewrite rules so that they get applied to matching elements
     * in the order specified in the given sequence.
     */
-  case class ChainedRewriteRules[T](rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
+  private class ChainedRewriteRules[T](rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
 
     def apply(element: T): RewriteAction[T] = {
 
