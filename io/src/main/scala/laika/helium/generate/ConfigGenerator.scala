@@ -46,11 +46,28 @@ private[laika] object ConfigGenerator {
       ObjectBuilder.empty.withValue("teasers", row).build
     }
 
-  implicit val landingPageEncoder: ConfigEncoder[LandingPage] = ConfigEncoder[LandingPage] {
-    landingPage =>
-      val titleLinks =
+  private def componentStyleFor(colors: ThemeColors, stylePrefix: String): String = {
+    val avgGradientLuminance =
+      (
+        colors.bgGradient._1.approximatePerceptualLuminance +
+          colors.bgGradient._2.approximatePerceptualLuminance
+      ) / 2.0
+    val primaryContrast      =
+      Math.abs(colors.primary.approximatePerceptualLuminance - avgGradientLuminance)
+    val mediumContrast       =
+      Math.abs(colors.primaryMedium.approximatePerceptualLuminance - avgGradientLuminance)
+    if (primaryContrast > mediumContrast) stylePrefix + "default"
+    else stylePrefix + "inverted"
+  }
+
+  private def landingPageEncoder(helium: Helium): ConfigEncoder[LandingPage] =
+    ConfigEncoder[LandingPage] { landingPage =>
+      val titleLinks     =
         if (landingPage.titleLinks.isEmpty) None
         else Some(GenericLinkGroup(landingPage.titleLinks))
+      val darkModeColors = helium.siteSettings.darkMode.getOrElse(helium.siteSettings.colors)
+      val headerStyle    = componentStyleFor(helium.siteSettings.colors.theme, "light-") + " " +
+        componentStyleFor(darkModeColors.theme, "dark-")
       ConfigEncoder.ObjectBuilder.empty
         .withValue("logo", landingPage.logo)
         .withValue("title", landingPage.title)
@@ -61,8 +78,9 @@ private[laika] object ConfigGenerator {
         .withValue("documentationLinks", landingPage.documentationLinks)
         .withValue("projectLinks", landingPage.projectLinks)
         .withValue("teaserRows", buildTeaserRows(landingPage.teasers))
+        .withValue("headerStyle", headerStyle)
         .build
-  }
+    }
 
   implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] {
     navBar =>
@@ -154,7 +172,8 @@ private[laika] object ConfigGenerator {
     }.toMap
   }
 
-  def populateConfig(helium: Helium): Config =
+  def populateConfig(helium: Helium): Config = {
+    implicit val landingEncoder: ConfigEncoder[LandingPage] = landingPageEncoder(helium)
     ConfigBuilder.empty
       .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
       .withValue("helium.site.topNavigation", helium.siteSettings.content.topNavigationBar)
@@ -212,6 +231,7 @@ private[laika] object ConfigGenerator {
       .withValue("helium.topBar", helium.siteSettings.content.topNavigationBar) // legacy key
       .withValue("helium.favIcons", helium.siteSettings.content.favIcons)       // legacy key
       .build
+  }
 
 }
 

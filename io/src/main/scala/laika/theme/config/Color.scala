@@ -34,6 +34,10 @@ sealed abstract class Color(val displayValue: String) {
     * which will not be supported in Scala 3.
     */
   def validate: Option[String]
+
+  /** Value between 0 (darkest) and roughly 100 (lightest). */
+  private[laika] def approximatePerceptualLuminance: Double
+
 }
 
 object Color {
@@ -59,6 +63,14 @@ object Color {
           )
         else None
       }
+
+      private[laika] def approximatePerceptualLuminance: Double = {
+        Color.approximatePerceptualLuminance(
+          ((1 - alpha) * 255 + alpha * red).toInt,
+          ((1 - alpha) * 255 + alpha * green).toInt,
+          ((1 - alpha) * 255 + alpha * blue).toInt
+        )
+      }
     }
   }
 
@@ -76,6 +88,34 @@ object Color {
         Some("value must be 3 or 6 hexadecimal digits")
       else None
 
+    private def toInt(hex: String): Int = Integer.parseInt(hex, 16)
+
+    private[laika] def approximatePerceptualLuminance: Double = {
+      val (r, g, b) = {
+        if (hexValue.length == 3) (hexValue(0).toString, hexValue(1).toString, hexValue(2).toString)
+        else (hexValue.substring(0, 2), hexValue.substring(2, 4), hexValue.substring(4, 6))
+      }
+      Color.approximatePerceptualLuminance(toInt(r), toInt(g), toInt(b))
+    }
+
+  }
+
+  private[laika] def approximatePerceptualLuminance(red: Int, green: Int, blue: Int): Double = {
+    /* Using https://stackoverflow.com/a/60126653 which is a simplified version 
+     * of https://stackoverflow.com/a/56678483 (same author).
+     * For our purposes approximation is sufficient.
+     * The scenarios where it might yield unsatisfactory results are only when the user configured
+     * a very low-contrast color set, which will most likely not look good anyway, 
+     * no matter what we do with it.
+     * This calculation is used to determine whether we use the default or inverted colors for
+     * the component set on the landing page, but might at some point find additional applications
+     * for determining sensible defaults.
+     */
+    val r    = Math.pow(red / 255.0, 2.218) * 0.2126
+    val g    = Math.pow(green / 255.0, 2.218) * 0.7156
+    val b    = Math.pow(blue / 255.0, 2.218) * 0.0722
+    val yLum = r + g + b
+    Math.pow(yLum, 0.43) * 100
   }
 
 }
