@@ -66,11 +66,14 @@ private[laika] object ConfigGenerator {
 
   implicit val topNavBarEncoder: ConfigEncoder[TopNavigationBar] = ConfigEncoder[TopNavigationBar] {
     navBar =>
+      val style =
+        if (navBar.highContrast) "light-inverted dark-inverted" else "light-default dark-default"
       ConfigEncoder.ObjectBuilder.empty
         .withValue("home", navBar.homeLink)
         .withValue("links", navBar.navLinks)
         .withValue("phoneLinks", navBar.navLinks.collect { case s: ThemeLinkSpan => s })
         .withValue("versionMenu", navBar.versionMenu)
+        .withValue("style", style)
         .build
   }
 
