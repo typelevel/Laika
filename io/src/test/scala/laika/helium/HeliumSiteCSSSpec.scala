@@ -70,6 +70,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--component-area-bg: var(--primary-light);
                                 |--component-hover: var(--secondary-color);
                                 |--component-border: var(--primary-medium);
+                                |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                 |--messages-info: #007c99;
                                 |--messages-info-light: #ebf6f7;
                                 |--messages-warning: #b1a400;
@@ -93,6 +94,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--component-area-bg: var(--primary-color);
                                 |--component-hover: var(--bg-color);
                                 |--component-border: var(--primary-light);
+                                |--subtle-highlight: rgba(255, 255, 255, 0.15);
                                 |}""".stripMargin
 
   private val darkInverted = """}
@@ -100,7 +102,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--component-color: var(--primary-medium);
                                |--component-area-bg: var(--primary-color);
                                |--component-hover: var(--bg-color);
-                               |--component-border: var(--primary-light);""".stripMargin
+                               |--component-border: var(--primary-light);
+                               |--subtle-highlight: rgba(0, 0, 0, 0.05);""".stripMargin
 
   private val defaultFonts = """--body-font: "Lato", sans-serif;
                                |--header-font: "Lato", sans-serif;
@@ -200,6 +203,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--component-area-bg: var(--primary-light);
                                 |--component-hover: var(--secondary-color);
                                 |--component-border: var(--primary-medium);
+                                |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                 |--messages-info: #aaaaaa;
                                 |--messages-info-light: #aaaaab;
                                 |--messages-warning: #aaaaac;
@@ -236,6 +240,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                    |--component-area-bg: var(--primary-light);
                                    |--component-hover: var(--secondary-color);
                                    |--component-border: var(--primary-medium);
+                                   |--subtle-highlight: rgba(255, 255, 255, 0.15);
                                    |--messages-info: #00aaaa;
                                    |--messages-info-light: #00aaab;
                                    |--messages-warning: #00aaac;

@@ -79,6 +79,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--component-area-bg: var(--primary-light);
                       |--component-hover: var(--secondary-color);
                       |--component-border: var(--primary-medium);
+                      |--subtle-highlight: rgba(0, 0, 0, 0.05);
                       |--messages-info: #007c99;
                       |--messages-info-light: #ebf6f7;
                       |--messages-warning: #b1a400;
@@ -167,6 +168,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--component-area-bg: var(--primary-light);
                                |--component-hover: var(--secondary-color);
                                |--component-border: var(--primary-medium);
+                               |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                |--messages-info: #007c99;
                                |--messages-info-light: #ebf6f7;
                                |--messages-warning: #b1a400;
@@ -239,6 +241,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--component-area-bg: var(--primary-light);
                                 |--component-hover: var(--secondary-color);
                                 |--component-border: var(--primary-medium);
+                                |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                 |--messages-info: #aaaaaa;
                                 |--messages-info-light: #aaaaab;
                                 |--messages-warning: #aaaaac;
@@ -284,6 +287,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                  |--component-area-bg: var(--primary-light);
                                  |--component-hover: var(--secondary-color);
                                  |--component-border: var(--primary-medium);
+                                 |--subtle-highlight: rgba(255, 255, 255, 0.15);
                                  |--messages-info: #00aaaa;
                                  |--messages-info-light: #00aaab;
                                  |--messages-warning: #00aaac;
@@ -426,6 +430,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--component-area-bg: var(--primary-light);
                       |--component-hover: var(--secondary-color);
                       |--component-border: var(--primary-medium);
+                      |--subtle-highlight: rgba(0, 0, 0, 0.05);
                       |--messages-info: #007c99;
                       |--messages-info-light: #ebf6f7;
                       |--messages-warning: #b1a400;

@@ -91,7 +91,7 @@ private[helium] object CSSVarGenerator {
     }
 
     def renderInverted(start: String, sep: String, end: String): String = if (includeInverted)
-      (invertedColorSet :+ ("subtle-highlight" -> (if (darkMode) darkHighlight
+      (invertedColorSet :+ ("--subtle-highlight" -> (if (darkMode) darkHighlight
                                                    else whiteHighlight)))
         .map { case (name, value) =>
           s"$name: $value;"
