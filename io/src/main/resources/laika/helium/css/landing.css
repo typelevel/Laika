@@ -259,7 +259,7 @@ li {
 }
 
 #header-left .menu-container a.menu-toggle:hover, #header-left a.button-link:hover {
-  color: var(--component-color);
+  color: var(--primary-medium);
   text-decoration: none;
 }
 
@@ -270,7 +270,7 @@ li {
 }
 
 #header-left .menu-toggle:hover:after {
-  border-top: 8px solid var(--component-color);
+  border-top: 8px solid var(--primary-medium);
 }
 
 #header-left .menu-content {
