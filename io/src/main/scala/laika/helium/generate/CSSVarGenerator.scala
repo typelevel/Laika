@@ -68,14 +68,18 @@ private[helium] object CSSVarGenerator {
     case (name, value) => (s"--$name", value)
   }
 
-  private val invertedColorSet: Seq[(String, String)] = toVars(
-    Seq(
-      "component-color"   -> ref("primary-medium"),
-      "component-area-bg" -> ref("primary-color"),
-      "component-hover"   -> ref("bg-color"),
-      "component-border"  -> ref("primary-light")
+  private val invertedColorSet: Seq[(String, String)] =
+    toVars(
+      Seq(
+        "component-color"   -> ref("primary-medium"),
+        "component-area-bg" -> ref("primary-color"),
+        "component-hover"   -> ref("bg-color"),
+        "component-border"  -> ref("primary-light")
+      )
     )
-  )
+
+  private val darkHighlight  = "rgba(0, 0, 0, 0.05)"
+  private val whiteHighlight = "rgba(255, 255, 255, 0.15)"
 
   private def renderStyles(
       styles: Seq[(String, String)],
@@ -87,7 +91,8 @@ private[helium] object CSSVarGenerator {
     }
 
     def renderInverted(start: String, sep: String, end: String): String = if (includeInverted)
-      invertedColorSet
+      (invertedColorSet :+ ("subtle-highlight" -> (if (darkMode) darkHighlight
+                                                   else whiteHighlight)))
         .map { case (name, value) =>
           s"$name: $value;"
         }
@@ -105,7 +110,7 @@ private[helium] object CSSVarGenerator {
 
   private def ref(name: String): String = s"var(--$name)"
 
-  def colorSet(colors: ColorSet): Seq[(String, String)] = {
+  def colorSet(colors: ColorSet, darkMode: Boolean): Seq[(String, String)] = {
     import colors._
     Seq(
       "primary-color"          -> theme.primary.displayValue,
@@ -120,6 +125,7 @@ private[helium] object CSSVarGenerator {
       "component-area-bg"      -> ref("primary-light"),
       "component-hover"        -> ref("secondary-color"),
       "component-border"       -> ref("primary-medium"),
+      "subtle-highlight"       -> (if (darkMode) whiteHighlight else darkHighlight),
       "messages-info"          -> messages.info.displayValue,
       "messages-info-light"    -> messages.infoLight.displayValue,
       "messages-warning"       -> messages.warning.displayValue,
@@ -154,7 +160,7 @@ private[helium] object CSSVarGenerator {
   ): String = {
     import common._
     val vars =
-      colorSet(common.colors) ++
+      colorSet(common.colors, darkMode = false) ++
         Seq(
           "body-font"         -> ("\"" + themeFonts.body + "\", sans-serif"),
           "header-font"       -> ("\"" + themeFonts.headlines + "\", sans-serif"),
@@ -176,7 +182,11 @@ private[helium] object CSSVarGenerator {
       case Some(darkModeColors) =>
         (
           Seq(("color-scheme", "light dark")),
-          renderStyles(toVars(colorSet(darkModeColors)), includeInverted, darkMode = true)
+          renderStyles(
+            toVars(colorSet(darkModeColors, darkMode = true)),
+            includeInverted,
+            darkMode = true
+          )
         )
       case None                 => (Nil, "")
     }
