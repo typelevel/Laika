@@ -15,7 +15,7 @@ body {
 }
 
 #header a, #header a:hover {
-  color: var(--primary-medium);
+  color: var(--component-color);
 }
 #header #docs a {
   font-weight: normal;
@@ -46,11 +46,11 @@ body {
 }
 
 #header-left {
-  color: var(--primary-medium);
+  color: var(--component-color);
   margin: 0 auto;
 }
 #header-right {
-  color: var(--primary-medium);
+  color: var(--component-color);
   padding: 0 20px;
   text-align: left;
   margin: 35px auto 0;
@@ -66,7 +66,7 @@ ul {
 }
 #docs {
   font-size: 17px;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-color);
   border-radius: 5px;
   margin-bottom: 15px;
   margin-top: 18px;
@@ -74,7 +74,7 @@ ul {
 }
 #docs p {
   padding: 6px 10px 6px 10px;
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-color);
   background-color: rgba(255, 255, 255, 0.15);
   margin-bottom: 5px;
 }
@@ -94,7 +94,7 @@ li {
   margin-bottom: 12px;
 }
 #header-left h1, #header-left h2 {
-  color: var(--primary-medium);
+  color: var(--component-color);
   line-height: 1.5;
   margin-bottom: 5px;
 }
@@ -177,7 +177,7 @@ li {
 /* link group ===================================================== */
 
 #header-left div.row.links > .row.links {
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-color);
   border-radius: 8px;
   height: 100%;
   padding-top: 2px;
@@ -204,10 +204,6 @@ li {
   padding-bottom: 4px;
 }
 
-.svg-shape {
-  fill: var(--primary-medium);
-}
-
 /* menus + button link ======================================================= */
 
 #header-left .menu-container, #header-left .button-link {
@@ -231,7 +227,7 @@ li {
   fill: white;
 }
 #header-left .button-link:hover .svg-shape {
-  fill: var(--primary-medium);
+  fill: var(--component-color);
 }
 
 #header-left a.menu-toggle, #header-left .button-link {
@@ -250,7 +246,7 @@ li {
 }
 
 #header-left .menu-container a.menu-toggle:hover, #header-left a.button-link:hover {
-  color: var(--primary-medium);
+  color: var(--component-color);
   text-decoration: none;
 }
 
@@ -261,7 +257,7 @@ li {
 }
 
 #header-left .menu-toggle:hover:after {
-  border-top: 8px solid var(--primary-medium);
+  border-top: 8px solid var(--component-color);
 }
 
 #header-left .menu-content {
