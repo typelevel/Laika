@@ -17,6 +17,10 @@ body {
 #header a, #header a:hover {
   color: var(--component-color);
 }
+#header a.icon-link:hover {
+  color: var(--component-hover);
+  text-decoration: none;
+}
 #header #docs a {
   font-weight: normal;
 }
@@ -176,7 +180,7 @@ li {
 
 /* link group ===================================================== */
 
-#header-left div.row.links > .row.links {
+#header-left div.row.links > .row.links, #header-right .row.links {
   border: 1px solid var(--component-color);
   border-radius: 8px;
   height: 100%;
@@ -185,6 +189,15 @@ li {
   align-items: center;
   justify-content: space-evenly;
   vertical-align: middle;
+}
+
+#header-right .row.links {
+  border: none;
+  justify-content: left;
+}
+
+#header-right .row.links > * {
+  margin-right: 25px;
 }
 
 #header-left .row.links a.icon-link:hover {

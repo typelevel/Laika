@@ -5,7 +5,7 @@ import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 
 lazy val basicSettings = Seq(
-  version              := "0.19.3-SNAPSHOT",
+  version              := "0.19.2.1",
   homepage             := Some(new URL("https://typelevel.org/Laika/")),
   organization         := "org.planet42",
   organizationHomepage := Some(new URL("http://typelevel.org")),
@@ -112,6 +112,7 @@ lazy val docs = project.in(file("docs"))
     mdocVariables             := Map(
       "LAIKA_VERSION" -> "0.19.2"
     ),
+    laikaIncludePDF           := false,
     mdocExtraArguments        := Seq("--no-link-hygiene")
   )
 

@@ -4,7 +4,7 @@
 header {
   display: flex;
   justify-content: space-between;
-  background-color: var(--component-bg);
+  background-color: var(--component-area-bg);
   margin: 0;
   position: fixed;
   top: 0;
@@ -65,24 +65,29 @@ nav .row {
   }
 }
 
+header .row.links .row.links {
+  display: inline-block;
+}
+
 .text-link {
   position: relative;
   bottom: 2px;
 }
 
-.button-link, #header-left .menu-toggle {
+.button-link, #header-right .button-link, #header-left .menu-toggle, nav .row a.button-link {
   position: relative;
   bottom: 2px;
   display: inline-block;
   border-radius: 9px;
   padding: 0 7px;
   background-color: var(--component-color);
-  color: var(--component-bg);
+  color: var(--component-area-bg);
   font-size: 0.9em;
 }
-.button-link:hover {
+.button-link:hover, #header-right .button-link:hover {
   background-color: var(--component-hover);
-  color: var(--component-bg);
+  color: var(--component-area-bg);
+  text-decoration: none;
 }
 
 /* menus =================================================== */
