@@ -36,7 +36,7 @@ sealed abstract class Color(val displayValue: String) {
   def validate: Option[String]
 
   /** Value between 0 (darkest) and roughly 100 (lightest). */
-  private[laika] def approximatePerceptualLuminance: Double
+  private[laika] def approximatePerceptualLuminance: Double = 0.0
 
 }
 
@@ -64,7 +64,7 @@ object Color {
         else None
       }
 
-      private[laika] def approximatePerceptualLuminance: Double = {
+      private[laika] override def approximatePerceptualLuminance: Double = {
         Color.approximatePerceptualLuminance(
           ((1 - alpha) * 255 + alpha * red).toInt,
           ((1 - alpha) * 255 + alpha * green).toInt,
@@ -90,7 +90,7 @@ object Color {
 
     private def toInt(hex: String): Int = Integer.parseInt(hex, 16)
 
-    private[laika] def approximatePerceptualLuminance: Double = {
+    private[laika] override def approximatePerceptualLuminance: Double = {
       val (r, g, b) = {
         if (hexValue.length == 3) (hexValue(0).toString, hexValue(1).toString, hexValue(2).toString)
         else (hexValue.substring(0, 2), hexValue.substring(2, 4), hexValue.substring(4, 6))
