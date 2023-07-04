@@ -101,11 +101,11 @@ object Color {
   }
 
   private[laika] def approximatePerceptualLuminance(red: Int, green: Int, blue: Int): Double = {
-    /* Using https://stackoverflow.com/a/60126653 which is a simplified version 
+    /* Using https://stackoverflow.com/a/60126653 which is a simplified version
      * of https://stackoverflow.com/a/56678483 (same author).
      * For our purposes approximation is sufficient.
      * The scenarios where it might yield unsatisfactory results are only when the user configured
-     * a very low-contrast color set, which will most likely not look good anyway, 
+     * a very low-contrast color set, which will most likely not look good anyway,
      * no matter what we do with it.
      * This calculation is used to determine whether we use the default or inverted colors for
      * the component set on the landing page, but might at some point find additional applications

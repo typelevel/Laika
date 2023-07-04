@@ -66,10 +66,10 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--bg-color: #ffffff;
                                 |--gradient-top: #095269;
                                 |--gradient-bottom: #007c99;
-                                |--top-color: var(--primary-color);
-                                |--top-bg: var(--primary-light);
-                                |--top-hover: var(--secondary-color);
-                                |--top-border: var(--primary-medium);
+                                |--component-color: var(--primary-color);
+                                |--component-area-bg: var(--primary-light);
+                                |--component-hover: var(--secondary-color);
+                                |--component-border: var(--primary-medium);
                                 |--messages-info: #007c99;
                                 |--messages-info-light: #ebf6f7;
                                 |--messages-warning: #b1a400;
@@ -86,6 +86,21 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--syntax-wheel3: #ffc66d;
                                 |--syntax-wheel4: #7fb971;
                                 |--syntax-wheel5: #4dbed4;""".stripMargin
+
+  private val lightInverted = """}
+                                |.light-inverted {
+                                |--component-color: var(--primary-medium);
+                                |--component-area-bg: var(--primary-color);
+                                |--component-hover: var(--bg-color);
+                                |--component-border: var(--primary-light);
+                                |}""".stripMargin
+
+  private val darkInverted = """}
+                               |.dark-inverted {
+                               |--component-color: var(--primary-medium);
+                               |--component-area-bg: var(--primary-color);
+                               |--component-hover: var(--bg-color);
+                               |--component-border: var(--primary-light);""".stripMargin
 
   private val defaultFonts = """--body-font: "Lato", sans-serif;
                                |--header-font: "Lato", sans-serif;
@@ -110,6 +125,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   private val colorScheme = "color-scheme: light dark;"
 
+  private val mediaQueryLine = "@media (prefers-color-scheme: dark) {"
+
   private val heliumBase = Helium.defaults.site.landingPage()
 
   test("defaults") {
@@ -117,8 +134,10 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |$defaultFonts
                       |$defaultLayout
                       |$landingPage
-                      |$colorScheme""".stripMargin
-    transformAndExtract(singleDoc, heliumBase, ":root {", "}").assertEquals(expected)
+                      |$colorScheme
+                      |$lightInverted""".stripMargin
+    transformAndExtract(singleDoc, heliumBase, ":root {", mediaQueryLine)
+      .assertEquals(expected)
   }
 
   private val customFonts = s"""$defaultColors
@@ -134,7 +153,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--header4-font-size: 14px;
                                |$defaultLayout
                                |$landingPage
-                               |$colorScheme""".stripMargin
+                               |$colorScheme
+                               |$lightInverted""".stripMargin
 
   test("custom font families and font sizes - via 'site' selector") {
     val helium = heliumBase
@@ -148,7 +168,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         header4 = px(14),
         small = px(11)
       )
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customFonts)
+    transformAndExtract(singleDoc, helium, ":root {", mediaQueryLine)
+      .assertEquals(customFonts)
   }
 
   test("custom font families and font sizes - via 'all' selector") {
@@ -163,7 +184,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         header4 = px(14),
         small = px(11)
       )
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customFonts)
+    transformAndExtract(singleDoc, helium, ":root {", mediaQueryLine)
+      .assertEquals(customFonts)
   }
 
   private val customColors = s"""--primary-color: rgb(1,1,1);
@@ -174,10 +196,10 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--bg-color: rgb(11,11,11);
                                 |--gradient-top: rgb(0,0,0);
                                 |--gradient-bottom: rgb(9,9,9);
-                                |--top-color: var(--primary-color);
-                                |--top-bg: var(--primary-light);
-                                |--top-hover: var(--secondary-color);
-                                |--top-border: var(--primary-medium);
+                                |--component-color: var(--primary-color);
+                                |--component-area-bg: var(--primary-light);
+                                |--component-hover: var(--secondary-color);
+                                |--component-border: var(--primary-medium);
                                 |--messages-info: #aaaaaa;
                                 |--messages-info-light: #aaaaab;
                                 |--messages-warning: #aaaaac;
@@ -197,39 +219,40 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |$defaultFonts
                                 |$defaultLayout
                                 |$landingPage
-                                |$colorScheme""".stripMargin
+                                |$colorScheme
+                                |$lightInverted""".stripMargin
 
-  private val darkModeColors = """}
-                                 |@media (prefers-color-scheme: dark) {
-                                 |:root {
-                                 |--primary-color: rgb(11,11,11);
-                                 |--primary-light: rgb(12,12,12);
-                                 |--primary-medium: rgb(14,14,14);
-                                 |--secondary-color: rgb(112,112,112);
-                                 |--text-color: rgb(110,110,110);
-                                 |--bg-color: rgb(111,111,111);
-                                 |--gradient-top: rgb(10,10,10);
-                                 |--gradient-bottom: rgb(19,19,19);
-                                 |--top-color: var(--primary-color);
-                                 |--top-bg: var(--primary-light);
-                                 |--top-hover: var(--secondary-color);
-                                 |--top-border: var(--primary-medium);
-                                 |--messages-info: #00aaaa;
-                                 |--messages-info-light: #00aaab;
-                                 |--messages-warning: #00aaac;
-                                 |--messages-warning-light: #00aaad;
-                                 |--messages-error: #00aaae;
-                                 |--messages-error-light: #00aaaf;
-                                 |--syntax-base1: #200011;
-                                 |--syntax-base2: #200022;
-                                 |--syntax-base3: #200033;
-                                 |--syntax-base4: #200044;
-                                 |--syntax-base5: #200055;
-                                 |--syntax-wheel1: #210011;
-                                 |--syntax-wheel2: #210022;
-                                 |--syntax-wheel3: #210033;
-                                 |--syntax-wheel4: #210044;
-                                 |--syntax-wheel5: #210055;""".stripMargin
+  private val darkModeColors = s"""|@media (prefers-color-scheme: dark) {
+                                   |:root {
+                                   |--primary-color: rgb(11,11,11);
+                                   |--primary-light: rgb(12,12,12);
+                                   |--primary-medium: rgb(14,14,14);
+                                   |--secondary-color: rgb(112,112,112);
+                                   |--text-color: rgb(110,110,110);
+                                   |--bg-color: rgb(111,111,111);
+                                   |--gradient-top: rgb(10,10,10);
+                                   |--gradient-bottom: rgb(19,19,19);
+                                   |--component-color: var(--primary-color);
+                                   |--component-area-bg: var(--primary-light);
+                                   |--component-hover: var(--secondary-color);
+                                   |--component-border: var(--primary-medium);
+                                   |--messages-info: #00aaaa;
+                                   |--messages-info-light: #00aaab;
+                                   |--messages-warning: #00aaac;
+                                   |--messages-warning-light: #00aaad;
+                                   |--messages-error: #00aaae;
+                                   |--messages-error-light: #00aaaf;
+                                   |--syntax-base1: #200011;
+                                   |--syntax-base2: #200022;
+                                   |--syntax-base3: #200033;
+                                   |--syntax-base4: #200044;
+                                   |--syntax-base5: #200055;
+                                   |--syntax-wheel1: #210011;
+                                   |--syntax-wheel2: #210022;
+                                   |--syntax-wheel3: #210033;
+                                   |--syntax-wheel4: #210044;
+                                   |--syntax-wheel5: #210055;
+                                   |$darkInverted""".stripMargin
 
   test("custom colors - via 'site' selector") {
     import laika.theme.config.Color._
@@ -257,7 +280,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         wheel =
           ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
+    transformAndExtract(singleDoc, helium, ":root {", mediaQueryLine)
+      .assertEquals(customColors)
   }
 
   test("custom colors - via 'all' selector") {
@@ -286,7 +310,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         wheel =
           ColorQuintet(hex("110011"), hex("110022"), hex("110033"), hex("110044"), hex("110055"))
       )
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customColors)
+    transformAndExtract(singleDoc, helium, ":root {", mediaQueryLine)
+      .assertEquals(customColors)
   }
 
   test("custom colors in dark mode") {
@@ -358,7 +383,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--nav-width: 300px;
                                 |--top-bar-height: 55px;
                                 |$landingPage
-                                |$colorScheme""".stripMargin
+                                |$colorScheme
+                                |$lightInverted""".stripMargin
 
   test("layout") {
     val helium = heliumBase
@@ -370,7 +396,8 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         defaultLineHeight = 1.2,
         anchorPlacement = AnchorPlacement.None
       )
-    transformAndExtract(singleDoc, helium, ":root {", "}").assertEquals(customLayout)
+    transformAndExtract(singleDoc, helium, ":root {", mediaQueryLine)
+      .assertEquals(customLayout)
   }
 
 }
