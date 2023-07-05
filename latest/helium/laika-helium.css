@@ -7,10 +7,11 @@
   --bg-color: #ffffff;
   --gradient-top: #095269;
   --gradient-bottom: #007c99;
-  --top-color: var(--primary-color);
-  --top-bg: var(--primary-light);
-  --top-hover: var(--secondary-color);
-  --top-border: var(--primary-medium);
+  --component-color: var(--primary-color);
+  --component-area-bg: var(--primary-light);
+  --component-hover: var(--secondary-color);
+  --component-border: var(--primary-medium);
+  --subtle-highlight: rgba(0, 0, 0, 0.05);
   --messages-info: #007c99;
   --messages-info-light: #ebf6f7;
   --messages-warning: #b1a400;
@@ -48,6 +49,14 @@
   color-scheme: light dark;
 }
 
+.light-inverted {
+  --component-color: var(--primary-medium);
+  --component-area-bg: var(--primary-color);
+  --component-hover: var(--bg-color);
+  --component-border: var(--primary-light);
+  --subtle-highlight: rgba(255, 255, 255, 0.15);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --primary-color: #a7d4de;
@@ -58,10 +67,11 @@
     --bg-color: #064458;
     --gradient-top: #064458;
     --gradient-bottom: #197286;
-    --top-color: var(--primary-color);
-    --top-bg: var(--primary-light);
-    --top-hover: var(--secondary-color);
-    --top-border: var(--primary-medium);
+    --component-color: var(--primary-color);
+    --component-area-bg: var(--primary-light);
+    --component-hover: var(--secondary-color);
+    --component-border: var(--primary-medium);
+    --subtle-highlight: rgba(255, 255, 255, 0.15);
     --messages-info: #ebf6f7;
     --messages-info-light: #007c99;
     --messages-warning: #fcfacd;
@@ -78,6 +88,14 @@
     --syntax-wheel3: #ffc66d;
     --syntax-wheel4: #7fb971;
     --syntax-wheel5: #4dbed4;
+  }
+
+  .dark-inverted {
+    --component-color: var(--primary-medium);
+    --component-area-bg: var(--primary-color);
+    --component-hover: var(--bg-color);
+    --component-border: var(--primary-light);
+    --subtle-highlight: rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -194,7 +212,7 @@ h1.title {
   padding-top: calc(40px + var(--top-bar-height));
   padding-bottom: 10px;
   margin-bottom: calc(var(--block-spacing) * 3);
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 h2 {
   font-size: var(--header2-font-size);
@@ -348,7 +366,7 @@ ul.tab-group {
 }
 li.tab {
   display: inline-block;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-radius: 5px 5px 0 0;
   background-color: var(--primary-light);
   padding: 2px 5px;
@@ -369,7 +387,7 @@ li.tab.active {
 .tab-content {
   display: none;
   padding: 12px 5px 5px;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-radius: 0 5px 5px 5px;
   margin-top: 0 !important;
 }
@@ -381,11 +399,11 @@ li.tab.active {
 
 table {
   margin: calc(var(--block-spacing) * 2) 0;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-collapse: collapse;
 }
 thead > tr {
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 td, th {
   padding: 5px 8px;
@@ -411,11 +429,11 @@ tbody > tr:nth-child(odd) {
 }
 
 .svg-shape {
-  fill: var(--primary-color);
+  fill: var(--component-color);
 }
 
 a:hover .svg-shape {
-  fill: var(--secondary-color);
+  fill: var(--component-hover);
 }
 
 /* footer ========================================== */
@@ -460,7 +478,7 @@ p.title {
 header {
   display: flex;
   justify-content: space-between;
-  background-color: var(--top-bg);
+  background-color: var(--component-area-bg);
   margin: 0;
   position: fixed;
   top: 0;
@@ -470,15 +488,15 @@ header {
   width: 100%;
   align-items: center;
   padding: 0 45px 0 20px;
-  border-bottom: 1px solid var(--top-border);
+  border-bottom: 1px solid var(--component-border);
 }
 header a, nav .row a {
-  color: var(--top-color);
+  color: var(--component-color);
 }
 header a:hover, nav .row a:hover {
   text-decoration: none;
   cursor: pointer;
-  color: var(--top-hover)
+  color: var(--component-hover)
 }
 
 header .image-link {
@@ -501,7 +519,7 @@ header .row.links {
 nav .row {
   margin: 10px 15px 3px 25px;
   padding-bottom: 7px;
-  border-bottom: 1px solid var(--top-border);
+  border-bottom: 1px solid var(--component-border);
 }
 
 #nav-icon {
@@ -521,24 +539,29 @@ nav .row {
   }
 }
 
+header .row.links .row.links {
+  display: inline-block;
+}
+
 .text-link {
   position: relative;
   bottom: 2px;
 }
 
-.button-link, #header-left .menu-toggle {
+.button-link, #header-right .button-link, #header-left .menu-toggle, nav .row a.button-link {
   position: relative;
   bottom: 2px;
   display: inline-block;
   border-radius: 9px;
   padding: 0 7px;
-  background-color: var(--top-color);
-  color: var(--top-bg);
+  background-color: var(--component-color);
+  color: var(--component-area-bg);
   font-size: 0.9em;
 }
-.button-link:hover {
-  background-color: var(--top-hover);
-  color: var(--top-bg);
+.button-link:hover, #header-right .button-link:hover {
+  background-color: var(--component-hover);
+  color: var(--component-area-bg);
+  text-decoration: none;
 }
 
 /* menus =================================================== */
@@ -552,11 +575,11 @@ nav .row {
   margin-bottom: 0.1em;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid var(--primary-color);
+  border-top: 8px solid var(--component-color);
 }
 
 .menu-toggle:hover:after {
-  border-top: 8px solid var(--secondary-color);
+  border-top: 8px solid var(--component-hover);
 }
 
 .menu-container {
@@ -571,7 +594,7 @@ nav .row {
   left: 20px;
   top: calc(var(--top-bar-height) - 10px);
   background-color: white;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-radius: 5px;
   white-space: nowrap;
 }
@@ -748,7 +771,7 @@ ul.nav-list, #page-nav ul {
   background-color: var(--primary-color);
 }
 #page-nav .footer {
-  border-top: 1px solid var(--primary-medium);
+  border-top: 1px solid var(--component-border);
 }
 
 #page-nav ul.nav-list {

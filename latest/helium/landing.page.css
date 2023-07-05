@@ -15,7 +15,11 @@ body {
 }
 
 #header a, #header a:hover {
-  color: var(--primary-medium);
+  color: var(--component-color);
+}
+#header a.icon-link:hover {
+  color: var(--component-hover);
+  text-decoration: none;
 }
 #header #docs a {
   font-weight: normal;
@@ -46,11 +50,11 @@ body {
 }
 
 #header-left {
-  color: var(--primary-medium);
+  color: var(--component-color);
   margin: 0 auto;
 }
 #header-right {
-  color: var(--primary-medium);
+  color: var(--component-color);
   padding: 0 20px;
   text-align: left;
   margin: 35px auto 0;
@@ -66,7 +70,7 @@ ul {
 }
 #docs {
   font-size: 17px;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-color);
   border-radius: 5px;
   margin-bottom: 15px;
   margin-top: 18px;
@@ -74,8 +78,8 @@ ul {
 }
 #docs p {
   padding: 6px 10px 6px 10px;
-  border-bottom: 1px solid var(--primary-medium);
-  background-color: rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid var(--component-color);
+  background-color: var(--subtle-highlight);
   margin-bottom: 5px;
 }
 li {
@@ -94,7 +98,7 @@ li {
   margin-bottom: 12px;
 }
 #header-left h1, #header-left h2 {
-  color: var(--primary-medium);
+  color: var(--component-color);
   line-height: 1.5;
   margin-bottom: 5px;
 }
@@ -176,8 +180,8 @@ li {
 
 /* link group ===================================================== */
 
-#header-left div.row.links > .row.links {
-  border: 1px solid var(--primary-medium);
+#header-left div.row.links > .row.links, #header-right .row.links {
+  border: 1px solid var(--component-color);
   border-radius: 8px;
   height: 100%;
   padding-top: 2px;
@@ -185,6 +189,15 @@ li {
   align-items: center;
   justify-content: space-evenly;
   vertical-align: middle;
+}
+
+#header-right .row.links {
+  border: none;
+  justify-content: left;
+}
+
+#header-right .row.links > * {
+  margin-right: 25px;
 }
 
 #header-left .row.links a.icon-link:hover {
@@ -202,10 +215,6 @@ li {
 .icon-link.svg-link {
   padding-top: 0;
   padding-bottom: 4px;
-}
-
-.svg-shape {
-  fill: var(--primary-medium);
 }
 
 /* menus + button link ======================================================= */
@@ -231,7 +240,7 @@ li {
   fill: white;
 }
 #header-left .button-link:hover .svg-shape {
-  fill: var(--primary-medium);
+  fill: var(--component-color);
 }
 
 #header-left a.menu-toggle, #header-left .button-link {

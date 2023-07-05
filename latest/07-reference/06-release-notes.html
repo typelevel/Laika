@@ -32,7 +32,7 @@
 
   <body>
 
-    <header id="top-bar">
+    <header id="top-bar" class="light-default dark-default">
 
   <div class="row">
     <a id="nav-icon">
@@ -144,6 +144,7 @@
   <p class="header"><a href="#">Release Notes</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#_0-19-3-july-5-2023">0.19.3 (July 5, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-2-june-14-2023">0.19.2 (June 14, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-1-april-29-2023">0.19.1 (April 29, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-0-oct-9-2022">0.19.0 (Oct 9, 2022)</a></li>
@@ -180,6 +181,37 @@
       <main class="content">
 
         <h1 id="release-notes" class="title">Release Notes</h1>
+        
+        <h2 id="_0-19-3-july-5-2023" class="section"><a class="anchor-link left" href="#_0-19-3-july-5-2023"><i class="icofont-laika link">&#xef71;</i></a>0.19.3 (July 5, 2023)</h2>
+        <ul>
+          <li>
+            Helium UI
+            <ul>
+              <li>
+                Fixes an issue where the selection of the color set for Helium&#39;s UI components was broken.
+                It has two style sets, one for light backgrounds and one for dark ones, but in some scenarios
+                the wrong colors were chosen:
+                <ul>
+                  <li>When setting <code>.site.topNavigationBar(highContrast = true)</code> in Helium config.</li>
+                  <li>In portrait mode on phones where some components move from the top bar to the left sidebar.</li>
+                  <li>When choosing a light background gradient for the landing page.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Code Cleanup
+            <ul>
+              <li>Reduces the number of warnings (even though only the new build on the main branch causes them to surface).</li>
+            </ul>
+          </li>
+          <li>
+            Dependencies
+            <ul>
+              <li>Scala.js 1.13.2, http4s 0.23.22</li>
+            </ul>
+          </li>
+        </ul>
         
         <h2 id="_0-19-2-june-14-2023" class="section"><a class="anchor-link left" href="#_0-19-2-june-14-2023"><i class="icofont-laika link">&#xef71;</i></a>0.19.2 (June 14, 2023)</h2>
         <ul>
