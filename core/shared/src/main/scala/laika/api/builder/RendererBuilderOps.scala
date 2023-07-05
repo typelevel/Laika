@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.ast.{ Element, MessageFilter, MessageLevel }
+import laika.ast.{ Element, MessageFilter }
 import laika.bundle.ExtensionBundle
 import laika.factory.RenderFormat
 
