@@ -23,7 +23,7 @@ lazy val basicSettings = Seq(
     (if (priorTo2_13(scalaVersion.value)) Seq("-Ypartial-unification") else Nil)
 )
 
-val mimaPreviousVersions = Set("0.19.0", "0.19.1")
+val mimaPreviousVersions = Set("0.19.0", "0.19.1", "0.19.2")
 
 val previousArtifacts = Seq(
   mimaPreviousArtifacts := mimaPreviousVersions
@@ -110,7 +110,7 @@ lazy val docs = project.in(file("docs"))
     Laika / target            := baseDirectory.value / "target",
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
-      "LAIKA_VERSION" -> "0.19.2"
+      "LAIKA_VERSION" -> "0.19.3"
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene")
   )
