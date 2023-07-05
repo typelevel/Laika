@@ -10,7 +10,7 @@ Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scal
 Latest Release
 --------------
 
-The latest release is version **0.19.2**.  
+The latest release is version **0.19.3**.  
 
 The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.
 The sbt plugin is published for sbt 1.x.
