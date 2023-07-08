@@ -73,7 +73,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
+    *  For more details on implementing Laika span directives see [[laika.directive.Spans.dsl]].
     */
   def spanDirectives: Seq[Spans.Directive]
 
@@ -98,7 +98,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
-    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
+    *  For more details on implementing Laika block directives see [[laika.directive.Blocks.dsl]].
     */
   def blockDirectives: Seq[Blocks.Directive]
 
@@ -130,7 +130,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
+    *  For more details on implementing Laika template directives see [[laika.directive.Templates.dsl]].
     */
   def templateDirectives: Seq[Templates.Directive]
 
@@ -161,7 +161,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:rfc(2356)` and turns it into an external link node for the
     *  URL `http://tools.ietf.org/html/rfc2356`.
     *
-    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
+    *  For more details on implementing Laika directives see [[laika.directive.Links]].
     */
   def linkDirectives: Seq[Links.Directive]
 

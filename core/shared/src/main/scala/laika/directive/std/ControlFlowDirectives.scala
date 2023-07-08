@@ -47,7 +47,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-object ControlFlowDirectives {
+private[laika] object ControlFlowDirectives {
 
   /** Implementation of the `for` directive for templates.
     */

@@ -94,7 +94,7 @@ import scala.collection.immutable.TreeSet
   *
   *  @author Jens Halm
   */
-object StandardDirectives extends DirectiveRegistry {
+private[laika] object StandardDirectives extends DirectiveRegistry {
 
   override val description: String = "Laika's built-in directives"
 

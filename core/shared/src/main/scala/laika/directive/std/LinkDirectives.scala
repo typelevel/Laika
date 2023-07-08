@@ -34,7 +34,7 @@ import laika.rewrite.link.LinkConfig
   *
   * @author Jens Halm
   */
-object LinkDirectives {
+private[laika] object LinkDirectives {
 
   private def linkConfig[T](
       cursor: DocumentCursor,

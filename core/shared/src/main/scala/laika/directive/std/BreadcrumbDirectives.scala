@@ -33,7 +33,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-object BreadcrumbDirectives {
+private[laika] object BreadcrumbDirectives {
 
   /** A block resolver that replaces itself with a navigation list from the root node of the input tree to the current document
     * during AST transformations.

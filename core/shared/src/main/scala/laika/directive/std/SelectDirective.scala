@@ -35,7 +35,7 @@ import laika.rewrite.nav.Selections
   *
   * @author Jens Halm
   */
-object SelectDirective {
+private[laika] object SelectDirective {
 
   /** Implementation of the `select` directive for block elements in markup documents.
     */
