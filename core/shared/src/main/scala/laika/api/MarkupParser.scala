@@ -16,14 +16,13 @@
 
 package laika.api
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
 import laika.config.Origin.DocumentScope
-import laika.config.{ Config, Origin }
+import laika.config.{ Config, ConfigBuilder, ConfigValue, Origin }
 import laika.factory.MarkupFormat
-import laika.parse.directive.ConfigHeaderParser
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocument, ParserError }
 
@@ -80,12 +79,17 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
     */
   private def parse(input: DocumentInput): Either[ParserError, Document] = {
 
+    def merge(config: Config, values: Seq[(String, ConfigValue)]): Config =
+      values.foldLeft(ConfigBuilder.withFallback(config)) { case (builder, (key, value)) =>
+        builder.withValue(key, value)
+      }.build
+
     def resolveDocument(unresolved: UnresolvedDocument, docConfig: Config): Document = {
       val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue =>
         (c.key, c.value)
       }
       unresolved.document.copy(
-        config = ConfigHeaderParser.merge(docConfig, embeddedConfig)
+        config = merge(docConfig, embeddedConfig)
       )
     }
 

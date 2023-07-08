@@ -28,7 +28,7 @@ import laika.parse.implicits._
   *
   * @author Jens Halm
   */
-class TemplateParsers(directives: Map[String, Templates.Directive])
+private[laika] class TemplateParsers(directives: Map[String, Templates.Directive])
     extends DefaultRecursiveSpanParsers {
 
   import DirectiveParsers._

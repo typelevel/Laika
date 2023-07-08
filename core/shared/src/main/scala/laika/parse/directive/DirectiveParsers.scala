@@ -41,7 +41,7 @@ import laika.parse.{
   *
   *  @author Jens Halm
   */
-object DirectiveParsers {
+private[laika] object DirectiveParsers {
 
   case class DirectiveSpec(name: String, fence: String)
 
@@ -160,7 +160,7 @@ object DirectiveParsers {
 
 /** Provides the parser definitions for span directives in markup documents.
   */
-object SpanDirectiveParsers {
+private[laika] object SpanDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Spans
@@ -197,7 +197,7 @@ object SpanDirectiveParsers {
 
 /** Provides the parser definitions for block directives in markup documents.
   */
-object BlockDirectiveParsers {
+private[laika] object BlockDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Blocks
