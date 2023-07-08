@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{ SpanParser, SpanParserBuilder }
+import laika.bundle.SpanParserBuilder
 import laika.parse.{ LineSource, Parser, SourceFragment }
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
@@ -51,7 +51,7 @@ object InlineParsers {
 
   /** Parses an explicit hard line break.
     */
-  val lineBreak: SpanParserBuilder = SpanParser.standalone(literal("\\\r").as(LineBreak()))
+  val lineBreak: SpanParserBuilder = SpanParserBuilder.standalone(literal("\\\r").as(LineBreak()))
 
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character.
     */
@@ -75,13 +75,13 @@ object InlineParsers {
 
   /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
     */
-  val enclosedByAsterisk: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
+  val enclosedByAsterisk: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     strong('*') | em('*')
   }
 
   /** Parses either strong spans enclosed in double underscores or emphasized spans enclosed in single underscores.
     */
-  val enclosedByUnderscore: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
+  val enclosedByUnderscore: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     strong('_') | em('_')
   }
 
@@ -110,7 +110,7 @@ object InlineParsers {
   /** Parses a literal span enclosed by one or more backticks.
     *  Does neither parse nested spans nor Markdown escapes.
     */
-  val literalSpan: SpanParserBuilder = SpanParser.standalone {
+  val literalSpan: SpanParserBuilder = SpanParserBuilder.standalone {
     someOf('`').count >> { cnt =>
       delimitedBy("`" * cnt).trim.map(Literal(_))
     }
@@ -123,7 +123,7 @@ object InlineParsers {
   /** Parses a link, including nested spans in the link text.
     *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
     */
-  lazy val link: SpanParserBuilder = SpanParser.recursive { recParsers =>
+  lazy val link: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     def unwrap(ref: LinkIdReference, suffix: String) = {
       if (ref.select(_.isInstanceOf[LinkIdReference]).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
@@ -157,7 +157,7 @@ object InlineParsers {
   /** Parses an inline image.
     *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
     */
-  val image: SpanParserBuilder = SpanParser.recursive { recParsers =>
+  val image: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     def escape(text: LineSource, input: SourceFragment, f: String => Span): Span =
       recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(
         InvalidSpan(_, input),
@@ -221,7 +221,7 @@ object InlineParsers {
 
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
     */
-  val simpleLink: SpanParserBuilder = SpanParser.standalone {
+  val simpleLink: SpanParserBuilder = SpanParserBuilder.standalone {
 
     def isAcceptedScheme(s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
 

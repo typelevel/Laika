@@ -73,7 +73,7 @@ class DirectiveSupport(
     def configDocument(input: String): ConfigParser = ConfigParser.parse(input)
   }
 
-  override lazy val parsers: ParserBundle = ParserBundle(
+  override lazy val parsers: ParserBundle = new ParserBundle(
     blockParsers =
       if (strictMode) Nil
       else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),

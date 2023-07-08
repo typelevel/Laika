@@ -17,7 +17,7 @@
 package laika.rst.ext
 
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ DelimitedText, PrefixedParser }
 import laika.parse.builders._
@@ -322,7 +322,7 @@ object ExtensionParsers {
       spanDirectives: Seq[Directive[Span]],
       textRoles: Seq[TextRole],
       defaultTextRole: String
-  ): BlockParserBuilder = BlockParser.recursive { recParsers =>
+  ): BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     new ExtensionParsers(
       recParsers,
       RstExtension.createAsMap(blockDirectives, recParsers),

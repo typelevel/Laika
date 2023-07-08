@@ -21,7 +21,7 @@ import laika.api.RenderPhaseRewrite
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.bundle.{ BlockParser, BlockParserBuilder, ParserBundle }
+import laika.bundle.{ BlockParserBuilder, ParserBundle }
 import laika.config.ConfigBuilder
 import laika.directive.std.StandardDirectives
 import laika.format.HTML
@@ -183,7 +183,7 @@ class BlockDirectiveAPISpec extends FunSuite
       Nil
     ).parsers
 
-    lazy val paragraphParser: BlockParserBuilder = BlockParser.recursive { recParser =>
+    lazy val paragraphParser: BlockParserBuilder = BlockParserBuilder.recursive { recParser =>
       recParser.recursiveSpans((Parsers.not(blankLine) ~> restOfLine).rep.min(1).mkLines.line) ^^ {
         Paragraph(_)
       }

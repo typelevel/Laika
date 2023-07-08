@@ -45,7 +45,7 @@ object GitHubFlavor extends ExtensionBundle {
 
   override val origin: BundleOrigin = BundleOrigin.Parser
 
-  override def parsers: ParserBundle = ParserBundle(
+  override def parsers: ParserBundle = new ParserBundle(
     blockParsers = Seq(
       Tables.parser
     ) ++ FencedCodeBlocks.parsers,

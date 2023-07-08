@@ -20,7 +20,7 @@ import laika.ast.{ DocumentType, Path }
 import laika.rewrite.nav.TargetFormats
 
 /** The default implementations for determining the document type
-  *  of the input based on its path.
+  * of the input based on its path.
   *
   *  @author Jens Halm
   */
@@ -39,7 +39,7 @@ object DocumentTypeMatcher {
     """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
   private val ConfigName = "directory.conf"
 
-  def staticTargetFormats(path: Path): TargetFormats = path.suffix match {
+  private def staticTargetFormats(path: Path): TargetFormats = path.suffix match {
     case Some("shared.css") | Some("shared.js") =>
       TargetFormats.Selected("html", "epub", "epub.xhtml")
     case Some("epub.css") | Some("epub.js")     => TargetFormats.Selected("epub", "epub.xhtml")

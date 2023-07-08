@@ -47,7 +47,7 @@ class RstExtensionSupport(
     Seq(new RewriteRules(textRoles))
   }
 
-  override lazy val parsers: ParserBundle = ParserBundle(
+  override lazy val parsers: ParserBundle = new ParserBundle(
     blockParsers = Seq(
       ExtensionParsers.allBlocks(blockDirectives, spanDirectives, textRoles, defaultTextRole)
     ),

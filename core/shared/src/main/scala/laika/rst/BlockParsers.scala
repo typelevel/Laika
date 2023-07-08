@@ -18,7 +18,7 @@ package laika.rst
 
 import cats.data.NonEmptyChain
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
@@ -58,14 +58,14 @@ object BlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
     */
-  val transition: BlockParserBuilder = BlockParser.standalone {
+  val transition: BlockParserBuilder = BlockParserBuilder.standalone {
     (punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine)).as(Rule())
   }
 
   /** Parses a single paragraph. Everything between two blank lines that is not
     * recognized as a special reStructuredText block type will be parsed as a regular paragraph.
     */
-  lazy val paragraph: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  lazy val paragraph: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val interruptions = recParsers.paragraphInterruptions()
     val lines         = textLine.line.repUntil(interruptions)
 
@@ -87,7 +87,7 @@ object BlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
     */
-  lazy val headerWithOverline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
+  lazy val headerWithOverline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = punctuationChar.take(1) >> { start =>
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
@@ -109,7 +109,7 @@ object BlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
     */
-  lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
+  lazy val headerWithUnderline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
         val char = start.charAt(0)
@@ -135,7 +135,7 @@ object BlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
     */
-  val doctest: BlockParserBuilder = BlockParser.standalone {
+  val doctest: BlockParserBuilder = BlockParserBuilder.standalone {
     val lineParser = restOfLine.rep(not(blankLine)).min(1)
     ">>> " ~> lineParser.mkLines.map(DoctestBlock(_))
   }
@@ -144,7 +144,7 @@ object BlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
     */
-  lazy val blockQuote: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  lazy val blockQuote: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val attributionStart = "---" | "--" | "\u2014" // em dash
 
     def attribution(indent: Int) = ws.take(indent) ~ attributionStart ~ ws.max(1) ~>

@@ -18,7 +18,7 @@ package laika.rst
 
 import cats.data.NonEmptyChain
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.collection.Stack
 import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.parse.builders._
@@ -216,7 +216,7 @@ object TableParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
     */
-  lazy val gridTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  lazy val gridTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersectChar = '+'
     val intersect     = oneOf(intersectChar).as(Intersection)
 
@@ -311,7 +311,7 @@ object TableParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
     */
-  lazy val simpleTable: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  lazy val simpleTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersect   = someOf(' ').count
     val tableBorder = someOf('=').count
     val columnSpec  = tableBorder ~ opt(intersect) ^^ {

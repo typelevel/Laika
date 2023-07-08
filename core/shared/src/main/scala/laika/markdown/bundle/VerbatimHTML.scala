@@ -43,7 +43,7 @@ object VerbatimHTML extends ExtensionBundle {
 
   override def rawContentDisabled: Option[ExtensionBundle] = None
 
-  override def parsers: ParserBundle = ParserBundle(
+  override def parsers: ParserBundle = new ParserBundle(
     blockParsers = Seq(HTMLParsers.htmlBlockFragment),
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)
   )

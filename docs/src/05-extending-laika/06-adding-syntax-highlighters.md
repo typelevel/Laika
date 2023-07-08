@@ -379,7 +379,7 @@ case object MyExtensions extends ExtensionBundle {
   
   val description: String = "Foo Syntax Highlighter"
   
-  override def parsers: ParserBundle = ParserBundle(
+  override def parsers: ParserBundle = new ParserBundle(
     syntaxHighlighters = Seq(
       FooHighlighter
     )

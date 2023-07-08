@@ -39,7 +39,7 @@ object BundleProvider {
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       blockParsers = blockParsers,
       spanParsers = spanParsers
     )
@@ -53,9 +53,9 @@ object BundleProvider {
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       markupParserHooks = Some(
-        ParserHooks(
+        new ParserHooks(
           postProcessBlocks = postProcessBlocks,
           postProcessDocument = postProcessDocument,
           preProcessInput = preProcessInput
@@ -70,7 +70,7 @@ object BundleProvider {
       origin: BundleOrigin = BundleOrigin.User
   ): TestExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       configProvider = Some(provider)
     )
 
@@ -142,7 +142,7 @@ object BundleProvider {
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       templateParser = Some(parser)
     )
 
@@ -167,7 +167,7 @@ object BundleProvider {
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       styleSheetParser = Some(parser)
     )
 

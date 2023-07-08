@@ -26,7 +26,7 @@ object RootParserProvider {
   def forParsers(
       blockParsers: Seq[BlockParserBuilder] = Nil,
       spanParsers: Seq[SpanParserBuilder] = Nil,
-      markupExtensions: MarkupExtensions = ParserBundle().markupExtensions
+      markupExtensions: MarkupExtensions = new ParserBundle().markupExtensions
   ): RootParserWrapper = {
 
     val bp = blockParsers

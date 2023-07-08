@@ -31,7 +31,7 @@ import scala.collection.immutable.TreeSet
   *
   * @author Jens Halm
   */
-class RootParser(markupParser: MarkupFormat, markupExtensions: MarkupExtensions)
+private[laika] class RootParser(markupParser: MarkupFormat, markupExtensions: MarkupExtensions)
     extends DefaultRecursiveParsers {
 
   private lazy val highlighterMap: Map[String, Parser[Seq[Span]]] =
@@ -76,7 +76,7 @@ class RootParser(markupParser: MarkupFormat, markupExtensions: MarkupExtensions)
   private lazy val allInterruptions: Parser[Block] = mergeInterruptions(sortedBlockParsers)
 
   protected lazy val spanParsers: Seq[PrefixedParser[Span]] = {
-    val escapedText = SpanParser.standalone(escapeSequence.map(Text(_))).withLowPrecedence
+    val escapedText = SpanParserBuilder.standalone(escapeSequence.map(Text(_))).withLowPrecedence
     val mainParsers = markupParser.spanParsers :+ escapedText
 
     createAndSortParsers(mainParsers, markupExtensions.spanParsers).map { parserDef =>

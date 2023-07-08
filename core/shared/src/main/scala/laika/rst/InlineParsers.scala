@@ -18,7 +18,7 @@ package laika.rst
 
 import cats.data.NonEmptySet
 import laika.ast._
-import laika.bundle.{ SpanParser, SpanParserBuilder }
+import laika.bundle.SpanParserBuilder
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.PrefixedParser
@@ -260,7 +260,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
     */
-  lazy val em: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
+  lazy val em: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     span(delimiter('*').prevNot('*'), delimiter("*").nextNot('*')).map(Emphasized(_))
   }.withLowPrecedence
 
@@ -268,7 +268,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
     */
-  lazy val strong: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
+  lazy val strong: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     val delim = literal("**")
     span(delim, delim).map(Strong(_))
   }
@@ -284,7 +284,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
     */
-  lazy val inlineLiteral: SpanParserBuilder = SpanParser.standalone {
+  lazy val inlineLiteral: SpanParserBuilder = SpanParserBuilder.standalone {
     markupStart("``", "``") ~> delimitedBy(markupEnd("``")).map(Literal(_))
   }
 
@@ -292,7 +292,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
     */
-  lazy val footnoteRef: SpanParserBuilder = SpanParser.standalone {
+  lazy val footnoteRef: SpanParserBuilder = SpanParserBuilder.standalone {
     (markupStart("[", "]_") ~> footnoteLabel <~ markupEnd("]_")).withCursor.map {
       case (label, source) =>
         FootnoteReference(label, source)
@@ -303,7 +303,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
     */
-  lazy val citationRef: SpanParserBuilder = SpanParser.standalone {
+  lazy val citationRef: SpanParserBuilder = SpanParserBuilder.standalone {
     (markupStart("[", "]_") ~> simpleRefName <~ markupEnd("]_")).withCursor.map {
       case (label, source) =>
         CitationReference(label, source)
@@ -314,7 +314,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
     */
-  lazy val substitutionRef: SpanParserBuilder = SpanParser.standalone {
+  lazy val substitutionRef: SpanParserBuilder = SpanParserBuilder.standalone {
     (markupStart("|", "|") ~> simpleRefName ~ (markupEnd("|__") | markupEnd("|_") | markupEnd("|")))
       .withCursor.map { case (refName ~ endDelim, source) =>
         val substRef = SubstitutionReference(refName, source)
@@ -330,7 +330,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
     */
-  lazy val internalTarget: SpanParserBuilder = SpanParser.recursive { recParsers =>
+  lazy val internalTarget: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     markupStart("_`", "`") ~>
       recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty).map { name =>
         val id = ReferenceName(name)
@@ -342,10 +342,11 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
     */
-  lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParser.recursive { recParsers =>
-    ((markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(
-      delimitedBy(markupEnd("`")).nonEmpty
-    ))).withCursor.map { case (role ~ text, src) => InterpretedText(role, text, src) }
+  lazy val interpretedTextWithRolePrefix: SpanParserBuilder = SpanParserBuilder.recursive {
+    recParsers =>
+      ((markupStart(":", ":") ~> simpleRefName) ~ (":`" ~> recParsers.escapedText(
+        delimitedBy(markupEnd("`")).nonEmpty
+      ))).withCursor.map { case (role ~ text, src) => InterpretedText(role, text, src) }
   }
 
   /** Parses an interpreted text element with the role name as a suffix.
@@ -353,7 +354,7 @@ object InlineParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
     */
   def interpretedTextWithRoleSuffix(defaultTextRole: String): SpanParserBuilder =
-    SpanParser.recursive { recParsers =>
+    SpanParserBuilder.recursive { recParsers =>
       val textParser =
         markupStart("`", "`") ~> recParsers.escapedText(delimitedBy(markupEnd("`")).nonEmpty)
       val roleSuffix = opt(":" ~> simpleRefName <~ markupEnd(":"))
@@ -366,7 +367,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
     */
-  lazy val phraseLinkRef: SpanParserBuilder = SpanParser.recursive { recParsers =>
+  lazy val phraseLinkRef: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     def ref(refName: String, url: String) = if (refName.isEmpty) url else refName
     val urlPart = "<" ~> delimitedBy('>').map { _.replaceAll("[ \n]+", "") }
     val refName =
@@ -391,7 +392,7 @@ object InlineParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
     */
-  lazy val simpleLinkRef: SpanParserBuilder = SpanParser.standalone {
+  lazy val simpleLinkRef: SpanParserBuilder = SpanParserBuilder.standalone {
     markupEnd("__" | "_").withCursor.flatMap { case (delim, source) =>
       reverse(delim.length, simpleRefName <~ nextNot(invalidBeforeStartMarkup)).map { refName =>
         val src = LineSource(s"$refName${delim}", source.root.consume(refName.length * -1))

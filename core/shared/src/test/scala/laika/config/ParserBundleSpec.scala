@@ -91,7 +91,7 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
   def blockFor(deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
   def blockFor(deco: Char, overrideDeco: Char): BlockParserBuilder =
-    BlockParser.withSpans { spanParsers =>
+    BlockParserBuilder.withSpans { spanParsers =>
       builders.oneOf(deco) ~> spanParsers.recursiveSpans(defaultTextBlockParser).map(
         DecoratedBlock(overrideDeco, _)
       )
@@ -145,7 +145,7 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
 
     val bundle = BundleProvider.forMarkupParser(blockParsers =
       Seq(
-        BlockParser.standalone(literal("+").map(_ => Rule())).withLowPrecedence
+        BlockParserBuilder.standalone(literal("+").map(_ => Rule())).withLowPrecedence
       )
     )
 
@@ -163,7 +163,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
 
   val input = ">aaa +bbb"
 
-  val blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
+  val blockParsers: Seq[BlockParserBuilder] = Seq(BlockParserBuilder.withSpans { spanParsers =>
     spanParsers.recursiveSpans(defaultTextBlockParser).map(Paragraph(_))
   })
 
@@ -176,7 +176,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
   def spanFor(deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
   def spanFor(deco: Char, overrideDeco: Char): SpanParserBuilder =
-    SpanParser.standalone {
+    SpanParserBuilder.standalone {
       (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
     }
 
@@ -237,7 +237,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
 
     val bundle = BundleProvider.forMarkupParser(spanParsers =
       Seq(
-        SpanParser.standalone(literal("+").map(Text(_))).withLowPrecedence
+        SpanParserBuilder.standalone(literal("+").map(Text(_))).withLowPrecedence
       )
     )
 
@@ -253,7 +253,7 @@ class ParserHookSpec extends FunSuite with ParserSetup {
 
   def parserBuilder(bundles: ExtensionBundle*): laika.api.builder.ParserBuilder = MarkupParser.of(
     createParser(
-      blocks = Seq(BlockParser.standalone {
+      blocks = Seq(BlockParserBuilder.standalone {
         TextParsers.textLine.map(Paragraph(_))
       }),
       bundles = bundles

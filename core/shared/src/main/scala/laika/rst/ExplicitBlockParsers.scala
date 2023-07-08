@@ -17,7 +17,7 @@
 package laika.rst
 
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -136,7 +136,7 @@ object ExplicitBlockParsers {
   /** The parser builder for all explicit block items that start with `..` except
     * for directives which are provided by an extension.
     */
-  val allBlocks: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  val allBlocks: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     new ExplicitBlockParsers(recParsers).explicitBlockItem
   }
 
@@ -153,7 +153,7 @@ object ExplicitBlockParsers {
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
-  lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.standalone {
+  lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParserBuilder.standalone {
     "__ " ~> linkDefinitionBody.map(LinkDefinition.create("", _))
   }
 
