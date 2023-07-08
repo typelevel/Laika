@@ -29,7 +29,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val rootParser = new RootParser(
     Markdown,
-    OperationConfig(Markdown.extensions)
+    new OperationConfig(Markdown.extensions)
       .withBundles(Seq(GitHubFlavor)).markupExtensions
   )
 

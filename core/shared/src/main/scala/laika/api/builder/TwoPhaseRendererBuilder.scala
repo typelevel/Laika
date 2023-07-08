@@ -28,7 +28,7 @@ import laika.factory.TwoPhaseRenderFormat
   *
   * @author Jens Halm
   */
-class TwoPhaseRendererBuilder[FMT, PP](
+class TwoPhaseRendererBuilder[FMT, PP] private[laika] (
     val twoPhaseFormat: TwoPhaseRenderFormat[FMT, PP],
     val config: OperationConfig
 ) extends RendererBuilderOps[FMT] {

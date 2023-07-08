@@ -21,7 +21,7 @@ package laika.collection
   *
   * @author Jens Halm
   */
-class Stack[T] {
+private[laika] class Stack[T] {
 
   private var underlying: List[T] = Nil
 

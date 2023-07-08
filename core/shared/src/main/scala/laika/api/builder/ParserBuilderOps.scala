@@ -24,7 +24,7 @@ import laika.config.{ ConfigEncoder, DefaultKey, Key }
   *
   * @author Jens Halm
   */
-trait ParserBuilderOps extends CommonBuilderOps {
+private[api] trait ParserBuilderOps extends CommonBuilderOps {
 
   /**  Turns strict mode on for the target parser, switching off any
     *  features not part of the original markup syntax.
@@ -46,7 +46,7 @@ trait ParserBuilderOps extends CommonBuilderOps {
     * The default is to fail transformations on messages of level `Error` or higher.
     */
   def failOnMessages(filter: MessageFilter): ThisType = withConfig(
-    config.copy(failOnMessages = filter)
+    config.withMessageFilters(failOn = filter)
   )
 
   /** Returns a new instance with the specified configuration value added.

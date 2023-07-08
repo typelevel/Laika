@@ -30,7 +30,10 @@ class HTMLBlockParserSpec extends FunSuite
     with HTMLModelBuilder {
 
   val rootParser =
-    new RootParser(Markdown, OperationConfig(Markdown.extensions).forRawContent.markupExtensions)
+    new RootParser(
+      Markdown,
+      new OperationConfig(Markdown.extensions).forRawContent.markupExtensions
+    )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 

@@ -28,7 +28,7 @@ import laika.theme.Theme
   *
   *  @author Jens Halm
   */
-abstract class BinaryPostProcessor[F[_]] {
+trait BinaryPostProcessor[F[_]] {
 
   /** Processes the interim render result and writes it to the specified final output.
     *

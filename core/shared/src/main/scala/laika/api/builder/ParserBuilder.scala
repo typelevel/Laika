@@ -17,8 +17,6 @@
 package laika.api.builder
 
 import laika.api.MarkupParser
-import laika.ast.DocumentType.Markup
-import laika.ast.TextDocumentType
 import laika.factory.MarkupFormat
 
 /** Builder API for Parser instances.
@@ -27,9 +25,8 @@ import laika.factory.MarkupFormat
   *
   * @author Jens Halm
   */
-class ParserBuilder(format: MarkupFormat, val config: OperationConfig) extends ParserBuilderOps {
-
-  val docType: TextDocumentType = Markup
+class ParserBuilder private[laika] (format: MarkupFormat, val config: OperationConfig)
+    extends ParserBuilderOps {
 
   type ThisType = ParserBuilder
 

@@ -23,7 +23,7 @@ import laika.bundle.ExtensionBundle
   *
   * @author Jens Halm
   */
-trait CommonBuilderOps {
+private[api] trait CommonBuilderOps {
 
   /** The type of the operation being configured by this instance.
     */

@@ -28,7 +28,7 @@ import laika.factory.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
   *
   * @author Jens Halm
   */
-class TwoPhaseTransformerBuilder[FMT, PP](
+class TwoPhaseTransformerBuilder[FMT, PP] private[api] (
     val markupFormat: MarkupFormat,
     val twoPhaseRenderFormat: TwoPhaseRenderFormat[FMT, PP],
     val config: OperationConfig

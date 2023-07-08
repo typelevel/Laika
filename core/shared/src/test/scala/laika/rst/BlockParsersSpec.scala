@@ -39,7 +39,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   val rootParser = new RootParser(
     ReStructuredText,
-    OperationConfig(ReStructuredText.extensions :+ interruptions).markupExtensions
+    new OperationConfig(ReStructuredText.extensions :+ interruptions).markupExtensions
   )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement

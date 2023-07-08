@@ -144,13 +144,11 @@ private[preview] object SiteTransformer {
       artifactBasename: String
   ): Resource[F, SiteTransformer[F]] = {
 
-    def adjustConfig(p: TreeParser[F]): TreeParser[F] = p.modifyConfig(oc =>
-      oc.copy(
-        failOnMessages = MessageFilter.None,
-        configBuilder = oc.configBuilder
-          .withValue(LaikaKeys.preview.enabled, true)
-      )
-    )
+    def adjustConfig(p: TreeParser[F]): TreeParser[F] = p.modifyConfig {
+      _
+        .withMessageFilters(failOn = MessageFilter.None)
+        .withConfigValue(LaikaKeys.preview.enabled, true)
+    }
 
     def asInputTree(map: ResultMap[F]): InputTree[F] = {
       val inputs = map.collect { case (path, static: StaticResult[F]) =>

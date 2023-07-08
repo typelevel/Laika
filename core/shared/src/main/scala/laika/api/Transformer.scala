@@ -43,7 +43,7 @@ import laika.parse.markup.DocumentParser.TransformationError
   *
   * @author Jens Halm
   */
-class Transformer(val parser: MarkupParser, val renderer: Renderer) {
+class Transformer private[laika] (val parser: MarkupParser, val renderer: Renderer) {
 
   def transform(input: String): Either[TransformationError, String] = transform(input, Root)
 

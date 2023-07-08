@@ -155,6 +155,8 @@ class RootCursor private (
 
 object RootCursor {
 
+  /** Creates a new cursor for the specified document tree.
+    */
   def apply(
       target: DocumentTreeRoot,
       outputContext: Option[OutputContext] = None
@@ -287,9 +289,11 @@ case class TreeCursor(
 
 object TreeCursor {
 
-  def apply(root: RootCursor): TreeCursor =
+  private[ast] def apply(root: RootCursor): TreeCursor =
     apply(root.target.tree, None, root, root.config, TreePosition.root)
 
+  /** Creates a new cursor for the specified document tree.
+    */
   def apply(
       root: DocumentTree,
       outputContext: Option[OutputContext] = None
@@ -464,7 +468,7 @@ object DocumentCursor {
   /** Creates a cursor for a document and full context information:
     * its parent, configuration and position within the document tree.
     */
-  def apply(
+  private[ast] def apply(
       document: Document,
       parent: TreeCursor,
       config: Config,
