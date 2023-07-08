@@ -24,7 +24,7 @@ import munit.FunSuite
   */
 class HoconParserSpec extends FunSuite with ResultBuilders {
 
-  def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  private def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
 
   private val nestedObject = BuilderField(
     "obj",
@@ -49,11 +49,9 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
 
   def parse(input: String): Either[String, ObjectBuilderValue] = rootObject.parse(input).toEither
 
-  def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
-    ObjectBuilderValue(fields)
-  )
-
-  def run(input: String, expectedFields: BuilderField*)(implicit loc: munit.Location): Unit =
+  private def run(input: String, expectedFields: BuilderField*)(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(parse(input), Right(ObjectBuilderValue(expectedFields)))
 
   test("empty root object that is not enclosed in braces") {

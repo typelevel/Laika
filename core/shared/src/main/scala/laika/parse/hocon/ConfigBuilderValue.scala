@@ -27,61 +27,67 @@ import laika.parse.Failure
   *
   * @author Jens Halm
   */
-sealed trait ConfigBuilderValue extends Product with Serializable
+private[laika] sealed trait ConfigBuilderValue extends Product with Serializable
 
 /** A concatenated value (either all objects, all arrays, all simple values or invalid). */
-case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart])
+private[laika] case class ConcatValue(first: ConfigBuilderValue, rest: Seq[ConcatPart])
     extends ConfigBuilderValue {
   val allParts: Seq[ConcatPart] = ConcatPart("", first) +: rest
 }
 
 /** A single part of a concatenated value with the whitespace between this and the previous value preserved. */
-case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
+private[laika] case class ConcatPart(whitespace: String, value: ConfigBuilderValue)
 
 /** A merged value with "last one wins" semantics for the provided values (objects will be merged instead). */
-case class MergedValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
+private[laika] case class MergedValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
 
 /** A substitution reference that may be marked as optional. */
-case class SubstitutionValue(ref: Key, optional: Boolean) extends ConfigBuilderValue
+private[laika] case class SubstitutionValue(ref: Key, optional: Boolean) extends ConfigBuilderValue
 
-object SubstitutionValue {
+private[laika] object SubstitutionValue {
   def apply(ref: String, optional: Boolean): SubstitutionValue = apply(Key(ref), optional)
 }
 
-sealed trait StringBuilderValue extends ConfigBuilderValue {
+private[laika] sealed trait StringBuilderValue extends ConfigBuilderValue {
   def value: String
 }
 
-case class ValidStringValue(value: String)                     extends StringBuilderValue
-case class InvalidStringValue(value: String, failure: Failure) extends StringBuilderValue
+private[laika] case class ValidStringValue(value: String) extends StringBuilderValue
+
+private[laika] case class InvalidStringValue(value: String, failure: Failure)
+    extends StringBuilderValue
 
 /** A marker for a self reference, a reference to an earlier definition with the same key. */
-case object SelfReference extends ConfigBuilderValue
+private[laika] case object SelfReference extends ConfigBuilderValue
 
 /** An array value with all its elements. */
-case class ArrayBuilderValue(values: Seq[ConfigBuilderValue]) extends ConfigBuilderValue
+private[laika] case class ArrayBuilderValue(values: Seq[ConfigBuilderValue])
+    extends ConfigBuilderValue
 
 /** An object value with all its fields. */
-case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
+private[laika] case class ObjectBuilderValue(values: Seq[BuilderField]) extends ConfigBuilderValue
 
 /** A single field of an object value. */
-case class BuilderField(key: Either[InvalidStringValue, Key], value: ConfigBuilderValue) {
+private[laika] case class BuilderField(
+    key: Either[InvalidStringValue, Key],
+    value: ConfigBuilderValue
+) {
   def validKey: Key = key.getOrElse(Key.root)
 }
 
-object BuilderField {
+private[laika] object BuilderField {
   def apply(key: String, value: ConfigBuilderValue): BuilderField = apply(Right(Key(key)), value)
   def apply(key: Key, value: ConfigBuilderValue): BuilderField    = apply(Right(key), value)
 }
 
-case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure)
+private[laika] case class InvalidBuilderValue(value: ConfigBuilderValue, failure: Failure)
     extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
-case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue
+private[laika] case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue
 
 /** Description of a resource to be included in the current configuration. */
-sealed trait IncludeResource {
+private[laika] sealed trait IncludeResource {
   def resourceId: StringBuilderValue
   def isRequired: Boolean
 
@@ -94,16 +100,18 @@ sealed trait IncludeResource {
 
 }
 
-case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false)
     extends IncludeResource
 
-case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false)
     extends IncludeResource
 
-case class IncludeClassPath(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeClassPath(
+    resourceId: StringBuilderValue,
+    isRequired: Boolean = false
+) extends IncludeResource
+
+private[laika] case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false)
     extends IncludeResource
 
-case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false)
-    extends IncludeResource
-
-case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue
+private[laika] case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue

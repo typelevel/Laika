@@ -23,9 +23,9 @@ import munit.FunSuite
   */
 class HoconJsonSpec extends FunSuite with ResultBuilders {
 
-  def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  private def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
 
-  def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
+  private def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
     ObjectBuilderValue(fields)
   )
 

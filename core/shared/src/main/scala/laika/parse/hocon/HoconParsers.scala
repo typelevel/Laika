@@ -24,7 +24,7 @@ import laika.parse.code.common.NumberLiteral.DigitParsers
 import laika.parse.text.{ CharGroup, Characters }
 import laika.parse.builders._
 import laika.parse.implicits._
-import laika.parse.{ Failure, Message, Parser, SourceCursor, Success }
+import laika.parse.{ Failure, Message, Parser, SourceCursor }
 
 import scala.annotation.nowarn
 import scala.util.Try
@@ -36,11 +36,7 @@ import scala.util.Try
   *
   * @author Jens Halm
   */
-object HoconParsers {
-
-  val consumeAllInput: Parser[Unit] = Parser { in =>
-    Success((), in.consume(in.remaining))
-  }
+private[laika] object HoconParsers {
 
   implicit class ClosingParserOps[T](parser: Parser[T]) {
 
@@ -61,7 +57,7 @@ object HoconParsers {
 
   }
 
-  def failWith[T](fallbackParser: Parser[Int], msg: => String)(
+  private def failWith[T](fallbackParser: Parser[Int], msg: => String)(
       captureError: Failure => T
   ): Parser[T] = {
 
