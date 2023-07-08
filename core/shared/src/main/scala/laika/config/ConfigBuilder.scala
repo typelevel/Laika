@@ -27,7 +27,7 @@ import laika.collection.TransitionalCollectionOps._
   *
   * @author Jens Halm
   */
-class ConfigBuilder(fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
+class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */

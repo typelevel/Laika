@@ -26,7 +26,7 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
 
   def parseAndResolve(
       input: String,
-      fallback: Config = EmptyConfig,
+      fallback: Config = Config.empty,
       includes: IncludeMap = Map.empty
   ): Either[ConfigError, ObjectValue] = for {
     builder <- ConfigParser.parse(input).unresolved
