@@ -291,10 +291,10 @@ or does not support the same set of output formats as the referring document.
 
 In some cases this kind of strict validation may not be desired. 
 You may, for example, have an external process that populates a directory before or after Laika is run.
-In this case you can disable validation for all link targets within that directory or its sub-directories:
+In this case you can disable validation for all link targets within that directory or its subdirectories:
 
 ```hocon
-laika.validateLinks = false
+laika.links.validation.excluded = [/generated, /styles]
 ```
 
 

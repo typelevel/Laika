@@ -31,7 +31,8 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.config.Origin.TreeScope
+import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
 import laika.format._
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
@@ -60,13 +61,11 @@ class TreeRendererSpec extends CatsEffectSuite
 
   object Inputs extends InputBuilder {
 
-    def twoDocs(rootDoc: RootElement, subDoc: RootElement): DocumentTree = DocumentTree(
-      Root,
-      List(
-        Document(Root / "doc", rootDoc),
-        DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subDoc)))
-      )
-    )
+    def twoDocs(rootDoc: RootElement, subDoc: RootElement): DocumentTree =
+      DocumentTree.builder
+        .addDocument(Document(Root / "doc", rootDoc))
+        .addDocument(Document(Root / "tree" / "subdoc", subDoc))
+        .build
 
     def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None): BinaryInput[IO] =
       ByteInput(
@@ -168,7 +167,7 @@ class TreeRendererSpec extends CatsEffectSuite
     def defaultTree: DocumentTree   = defaultTree(defaultContent)
 
     def defaultTree(content: RootElement): DocumentTree =
-      DocumentTree(Root, List(Document(Root / "doc", content)))
+      DocumentTree.builder.addDocument(Document(Root / "doc", content)).build
 
     def defaultRoot(input: DocumentTree): DocumentTreeRoot =
       DocumentTreeRoot(
@@ -303,8 +302,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("empty tree") {
-    val input = DocumentTree(Root, Nil)
-    ASTRenderer.render(input)
+    ASTRenderer.render(DocumentTree.empty)
       .assertEquals(
         Results.root(
           Nil,
@@ -854,10 +852,11 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a single static document from a theme") {
-    val input = DocumentTree(Root, Nil)
-
     val treeRoot =
-      DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
+      DocumentTreeRoot(
+        DocumentTree.empty,
+        staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path))
+      )
 
     val inputs = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F].addString("...", Root / "static1.txt")
