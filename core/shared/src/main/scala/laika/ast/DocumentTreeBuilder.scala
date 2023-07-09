@@ -17,8 +17,7 @@
 package laika.ast
 
 import laika.config.{ Config, ConfigError, ConfigParser, Origin }
-import cats.implicits._
-import laika.ast.DocumentTreeBuilder.BuilderPart
+import cats.implicits.*
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.rewrite.nav.TitleDocumentConfig
@@ -33,7 +32,7 @@ import scala.collection.mutable
   *
   * @author Jens Halm
   */
-class DocumentTreeBuilder private[laika] (parts: List[BuilderPart] = Nil) {
+class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.BuilderPart] = Nil) {
 
   import laika.collection.TransitionalCollectionOps._
   import DocumentTreeBuilder._

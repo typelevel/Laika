@@ -150,7 +150,6 @@ object ParserRuntime {
           case res: TreeResultBuilder.ConfigResult   => Some(ConfigPart(res.path, res.config))
           case res: TreeResultBuilder.TemplateResult => Some(TemplatePart(res.doc))
           case res: TreeResultBuilder.StyleResult    => Some(StylePart(res.doc, res.format))
-          case _                                     => None
         }
       }
 
