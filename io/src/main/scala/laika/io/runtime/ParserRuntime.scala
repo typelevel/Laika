@@ -23,13 +23,14 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.IncludeMap
-import laika.config.ConfigParser
+import laika.config.{ ConfigBuilder, ConfigParser }
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
 import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
 import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocuments, ParserError }
+import laika.rewrite.link.LinkValidation
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
   *
@@ -139,6 +140,9 @@ object ParserRuntime {
         IncludeHandler.load(includes)
       }
 
+      val globalFallbackConfig = ConfigBuilder.empty.withValue(LinkValidation.Global()).build
+      val baseConfig           = op.config.baseConfig.withFallback(globalFallbackConfig)
+
       def allResults(parsedResults: Seq[ParserResult]): Seq[BuilderPart] = {
         // TODO - compatibility mode - remove in 1.x
         parsedResults.map(_.treePart) ++ inputs.parsedResults.flatMap {
@@ -155,7 +159,7 @@ object ParserRuntime {
           includes: IncludeMap
       ): Either[ParserError, DocumentTreeRoot] =
         new DocumentTreeBuilder(allResults(parsedResults).toList)
-          .resolveAndBuildRoot(op.config.baseConfig, includes)
+          .resolveAndBuildRoot(baseConfig, includes)
           .leftMap(ParserError(_, Root))
 
       for {

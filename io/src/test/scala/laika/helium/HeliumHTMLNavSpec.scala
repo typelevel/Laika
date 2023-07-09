@@ -26,7 +26,6 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.rewrite.link.LinkConfig
 import laika.rewrite.{ Version, Versions }
 import laika.theme._
 import munit.CatsEffectSuite
@@ -45,16 +44,13 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     )
   )
 
-  def transformer(
-      theme: ThemeProvider,
-      excludeFromValidation: Seq[Path] = Seq(Root)
-  ): Resource[IO, TreeTransformer[IO]] = Transformer
-    .from(Markdown)
-    .to(HTML)
-    .withConfigValue(LinkConfig(excludeFromValidation = excludeFromValidation))
-    .parallel[IO]
-    .withTheme(theme)
-    .build
+  def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] =
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .parallel[IO]
+      .withTheme(theme)
+      .build
 
   def inputWithTitle(num: Int): String =
     s"""
@@ -116,15 +112,16 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   val nestedPathUnderTest = Root / "dir-A" / "doc-1.html"
 
+  private val defaultTopNavClasses = "light-default dark-default"
+
   def transformAndExtract(
       inputs: Seq[(Path, String)],
       helium: Helium,
       start: String,
       end: String,
-      docPath: Path = Root / "doc-1.html",
-      excludeFromValidation: Seq[Path] = Seq(Root)
+      docPath: Path = Root / "doc-1.html"
   ): IO[String] =
-    transformer(helium.build, excludeFromValidation = excludeFromValidation).use { t =>
+    transformer(helium.build).use { t =>
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
         res        <- IO.fromEither(
@@ -393,7 +390,25 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(
       flatInputs,
       Helium.defaults.site.landingPage(),
-      "<header id=\"top-bar\">",
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
+      "</header>"
+    ).assertEquals(expected)
+  }
+
+  test("top navigation - highContrast flag set") {
+    val expected =
+      """<div class="row">
+        |<a id="nav-icon">
+        |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+        |</a>
+        |</div>
+        |<a class="icon-link glyph-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+        |<div class="row links">
+        |</div>""".stripMargin
+    transformAndExtract(
+      flatInputs,
+      Helium.defaults.site.landingPage().site.topNavigationBar(highContrast = true),
+      "<header id=\"top-bar\" class=\"light-inverted dark-inverted\">",
       "</header>"
     ).assertEquals(expected)
   }
@@ -438,9 +453,8 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(
       flatInputs,
       helium,
-      "<header id=\"top-bar\">",
-      "</header>",
-      excludeFromValidation = Nil
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
+      "</header>"
     ).assertEquals(expected)
   }
 
@@ -478,7 +492,12 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
           )
         )
       )
-    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(
+    transformAndExtract(
+      flatInputs,
+      helium,
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
+      "</header>"
+    ).assertEquals(
       expected
     )
   }
@@ -523,7 +542,12 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
           )
         )
       )
-    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(
+    transformAndExtract(
+      flatInputs,
+      helium,
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
+      "</header>"
+    ).assertEquals(
       expected
     )
   }
@@ -554,7 +578,7 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformAndExtract(
       flatInputs :+ config,
       helium,
-      "<header id=\"top-bar\">",
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
       "</header>",
       Root / "0.42" / "doc-1.html"
     ).assertEquals(expected)
@@ -587,7 +611,12 @@ class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |<a class="icon-link glyph-link" href="index.html"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
         |<div class="row links">
         |</div>""".stripMargin
-    transformAndExtract(flatInputs, helium, "<header id=\"top-bar\">", "</header>").assertEquals(
+    transformAndExtract(
+      flatInputs,
+      helium,
+      s"""<header id="top-bar" class="$defaultTopNavClasses">""",
+      "</header>"
+    ).assertEquals(
       expected
     )
   }

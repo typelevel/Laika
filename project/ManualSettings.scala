@@ -127,7 +127,7 @@ object ManualSettings {
         apiLinks = Seq(
           ApiLinks("../api/")
         ), // TODO - will not work on top level pages, but fine for now - change to absolute path
-        excludeFromValidation = Seq(Root / "api")
+        excludeFromValidation = Seq(Root / "api") // TODO - adjust once 0.19.3 is out
       )
     )
     .withConfigValue(
@@ -179,7 +179,7 @@ object ManualSettings {
         )
       ),
       subtitle = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.2")),
+      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.3")),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),

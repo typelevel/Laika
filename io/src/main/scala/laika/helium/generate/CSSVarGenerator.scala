@@ -43,6 +43,7 @@ private[helium] object CSSVarGenerator {
     generate(
       settings,
       layoutStyles,
+      includeInverted = true,
       settings.content.topNavigationBar.highContrast,
       settings.content.landingPage
     )
@@ -54,40 +55,78 @@ private[helium] object CSSVarGenerator {
         generateFontFace(font, res.path.relativeTo(Root / "helium" / "laika-helium.epub.css"))
       }
     }.mkString("", "\n\n", "\n\n")
-    embeddedFonts + generate(settings, Nil, topBarHighContrast = false, landingPage = None)
+    embeddedFonts + generate(
+      settings,
+      Nil,
+      includeInverted = false,
+      topBarHighContrast = false,
+      landingPage = None
+    )
   }
 
   private def toVars(pairs: Seq[(String, String)]): Seq[(String, String)] = pairs.map {
     case (name, value) => (s"--$name", value)
   }
 
-  private def renderStyles(styles: Seq[(String, String)], darkMode: Boolean = false): String = {
+  private val invertedColorSet: Seq[(String, String)] =
+    toVars(
+      Seq(
+        "component-color"   -> ref("primary-medium"),
+        "component-area-bg" -> ref("primary-color"),
+        "component-hover"   -> ref("bg-color"),
+        "component-border"  -> ref("primary-light")
+      )
+    )
+
+  private val darkHighlight  = "rgba(0, 0, 0, 0.05)"
+  private val whiteHighlight = "rgba(255, 255, 255, 0.15)"
+
+  private def renderStyles(
+      styles: Seq[(String, String)],
+      includeInverted: Boolean,
+      darkMode: Boolean
+  ): String = {
     val renderedStyles = styles.map { case (name, value) =>
       s"$name: $value;"
     }
 
+    def renderInverted(start: String, sep: String, end: String): String = if (includeInverted)
+      (invertedColorSet :+ ("--subtle-highlight" -> (if (darkMode) darkHighlight
+                                                     else whiteHighlight)))
+        .map { case (name, value) =>
+          s"$name: $value;"
+        }
+        .mkString(start, sep, end)
+    else if (darkMode) "}\n\n"
+    else ""
+
     if (darkMode)
-      renderedStyles.mkString(s"$darkModeMediaQuery\n  :root {\n    ", "\n    ", "\n  }\n}\n\n")
-    else renderedStyles.mkString(":root {\n  ", "\n  ", "\n}\n\n")
+      renderedStyles.mkString(s"$darkModeMediaQuery\n  :root {\n    ", "\n    ", "\n  }\n") +
+        renderInverted(s"\n  .dark-inverted {\n    ", "\n    ", "\n  }\n}\n\n")
+    else
+      renderedStyles.mkString(":root {\n  ", "\n  ", "\n}\n\n") +
+        renderInverted(".light-inverted {\n  ", "\n  ", "\n}\n\n")
   }
 
-  def colorSet(colors: ColorSet, topBarHighContrast: Boolean): Seq[(String, String)] = {
+  private def ref(name: String): String = s"var(--$name)"
+
+  def colorSet(colors: ColorSet, darkMode: Boolean): Seq[(String, String)] = {
     import colors._
-    def ref(name: String): String = s"var(--$name)"
     Seq(
-      "primary-color"   -> theme.primary.displayValue,
-      "primary-light"   -> theme.primaryLight.displayValue,
-      "primary-medium"  -> theme.primaryMedium.displayValue,
-      "secondary-color" -> theme.secondary.displayValue,
-      "text-color"      -> theme.text.displayValue,
-      "bg-color"        -> theme.background.displayValue,
-      "gradient-top"    -> theme.bgGradient._1.displayValue,
-      "gradient-bottom" -> theme.bgGradient._2.displayValue,
-      "top-color"       -> (if (topBarHighContrast) ref("primary-light") else ref("primary-color")),
-      "top-bg"          -> (if (topBarHighContrast) ref("primary-color") else ref("primary-light")),
-      "top-hover"       -> (if (topBarHighContrast) ref("bg-color") else ref("secondary-color")),
-      "top-border"      -> (if (topBarHighContrast) ref("bg-color") else ref("primary-medium")),
-      "messages-info"   -> messages.info.displayValue,
+      "primary-color"          -> theme.primary.displayValue,
+      "primary-light"          -> theme.primaryLight.displayValue,
+      "primary-medium"         -> theme.primaryMedium.displayValue,
+      "secondary-color"        -> theme.secondary.displayValue,
+      "text-color"             -> theme.text.displayValue,
+      "bg-color"               -> theme.background.displayValue,
+      "gradient-top"           -> theme.bgGradient._1.displayValue,
+      "gradient-bottom"        -> theme.bgGradient._2.displayValue,
+      "component-color"        -> ref("primary-color"),
+      "component-area-bg"      -> ref("primary-light"),
+      "component-hover"        -> ref("secondary-color"),
+      "component-border"       -> ref("primary-medium"),
+      "subtle-highlight"       -> (if (darkMode) whiteHighlight else darkHighlight),
+      "messages-info"          -> messages.info.displayValue,
       "messages-info-light"    -> messages.infoLight.displayValue,
       "messages-warning"       -> messages.warning.displayValue,
       "messages-warning-light" -> messages.warningLight.displayValue,
@@ -115,12 +154,13 @@ private[helium] object CSSVarGenerator {
   def generate(
       common: DarkModeSupport,
       additionalVars: Seq[(String, String)],
+      includeInverted: Boolean,
       topBarHighContrast: Boolean,
       landingPage: Option[LandingPage]
   ): String = {
     import common._
     val vars =
-      colorSet(common.colors, topBarHighContrast) ++
+      colorSet(common.colors, darkMode = false) ++
         Seq(
           "body-font"         -> ("\"" + themeFonts.body + "\", sans-serif"),
           "header-font"       -> ("\"" + themeFonts.headlines + "\", sans-serif"),
@@ -142,12 +182,16 @@ private[helium] object CSSVarGenerator {
       case Some(darkModeColors) =>
         (
           Seq(("color-scheme", "light dark")),
-          renderStyles(toVars(colorSet(darkModeColors, topBarHighContrast)), darkMode = true)
+          renderStyles(
+            toVars(colorSet(darkModeColors, darkMode = true)),
+            includeInverted,
+            darkMode = true
+          )
         )
       case None                 => (Nil, "")
     }
 
-    renderStyles(toVars(vars) ++ colorScheme) + darkModeStyles
+    renderStyles(toVars(vars) ++ colorScheme, includeInverted, darkMode = false) + darkModeStyles
   }
 
 }

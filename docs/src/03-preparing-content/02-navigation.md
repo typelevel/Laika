@@ -65,10 +65,10 @@ you can explicitly disable validation for certain paths within the virtual tree:
 @:choice(sbt)
 ```scala mdoc:compile-only
 import laika.ast.Path.Root
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+  .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
 ```
 
 @:choice(library)
@@ -77,25 +77,22 @@ import laika.api._
 import laika.ast.Path.Root
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+  .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
   .build
 ```
 @:@
 
-Alternatively, if preferred, you can also disable validation via the `directory.conf` file right within that 
-directory:
+This disables validation for the specified directories and all their subdirectories.
 
-```hocon
-laika.validateLinks = false
-```
-
-This disables validation for that directory and all its sub-directories.
+In the unusual case you want to disable all validation you can alternatively use
+`LinkValidation.Off` or `LinkValidation.Local`, where the latter will still validate all links
+pointing to sections within the same document, but not those pointing elsewhere.
 
 
 Global Link Definitions

@@ -19,6 +19,7 @@ package laika.ast.sample
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors }
+import laika.rewrite.link.LinkValidation
 
 object SampleTrees {
 
@@ -421,7 +422,9 @@ object SampleConfig {
   def versioned(flag: Boolean): ConfigBuilder => ConfigBuilder =
     _.withValue(LaikaKeys.versioned, flag)
 
-  val noLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue(LaikaKeys.validateLinks, false)
+  val noLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue("laika.validateLinks", false)
+
+  val globalLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue(LinkValidation.Global())
 
   def targetFormats(formats: String*): ConfigBuilder => ConfigBuilder =
     _.withValue(LaikaKeys.targetFormats, formats)
@@ -430,8 +433,5 @@ object SampleConfig {
     _.withValue(LaikaKeys.siteBaseURL, value)
 
   def title(text: String): ConfigBuilder => ConfigBuilder = _.withValue(LaikaKeys.title, text)
-
-//  val versions: ConfigBuilder => ConfigBuilder = ???
-//  val selections: ConfigBuilder => ConfigBuilder = ???
 
 }

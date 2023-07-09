@@ -23,7 +23,7 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ AST, ReStructuredText }
 import laika.parse.markup.DocumentParser.TransformationError
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
@@ -34,10 +34,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
   private val imgTarget = InternalTarget(CurrentTree / "picture.jpg")
 
-  private val parser = MarkupParser
-    .of(ReStructuredText)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
-    .build
+  private val parser = MarkupParser.of(ReStructuredText).build
 
   def parse(input: String): Either[TransformationError, RootElement] =
     parser

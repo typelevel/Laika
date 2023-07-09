@@ -46,6 +46,7 @@ object LaikaKeys {
 
   val targetFormats: Key = root.child("targetFormats")
 
+  @deprecated("0.19.3", "use laika.links.validation.excluded = <list-of-paths>")
   val validateLinks: Key = root.child("validateLinks")
 
   val firstHeaderAsTitle: Key = root.child("firstHeaderAsTitle")

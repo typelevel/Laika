@@ -116,7 +116,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:path(theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
@@ -127,7 +127,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:path(/theme/theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink.internal("../theme/theme.css")),
       TemplateString(" bb")
@@ -141,7 +141,7 @@ class StandardDirectiveSpec extends FunSuite
       "One or more errors processing directive 'path': unresolved internal reference: ../theme/theme.css"
     runTemplate(
       input,
-      "",
+      "laika.links.validation.scope = global",
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
@@ -157,7 +157,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -168,7 +168,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(/theme/theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -182,7 +182,7 @@ class StandardDirectiveSpec extends FunSuite
       "One or more errors processing directive 'target': unresolved internal reference: ../theme/theme.css"
     runTemplate(
       input,
-      "",
+      "laika.links.validation.scope = global",
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
@@ -193,7 +193,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(var.link) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]\nvar.link = \"/theme/theme.css\"",
+      "var.link = \"/theme/theme.css\"",
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -204,7 +204,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(http://foo.com) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(ExternalTarget("http://foo.com"))),
       TemplateString(" bb")

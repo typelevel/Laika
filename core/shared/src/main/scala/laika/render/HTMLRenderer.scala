@@ -291,10 +291,12 @@ class HTMLRenderer(fileSuffix: String, format: String)
 
       case Image(target, width, height, alt, title, opt) =>
         def sizeAttr(size: Option[Length], styleName: String): (Option[String], Option[String]) =
-          size map {
-            case Length(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
-            case s: Length                     => (None, Some(s"$styleName:${s.displayValue}"))
-          } getOrElse (None, None)
+          size
+            .map {
+              case Length(amount, LengthUnit.px) => (Some(amount.toInt.toString), None)
+              case s: Length                     => (None, Some(s"$styleName:${s.displayValue}"))
+            }
+            .getOrElse((None, None))
         val (widthAttr, wStyle)  = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr            = (wStyle ++ hStyle).reduceLeftOption((a, b) => s"$a;$b")
