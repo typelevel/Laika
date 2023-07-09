@@ -20,12 +20,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
 import laika.ast._
-import laika.ast.sample.SampleConfig.{
-  globalLinkValidation,
-  noLinkValidation,
-  siteBaseURL,
-  targetFormats
-}
+import laika.ast.sample.SampleConfig.{ globalLinkValidation, siteBaseURL, targetFormats }
 import laika.ast.sample.{
   ParagraphCompanionShortcuts,
   SampleSixDocuments,
@@ -517,19 +512,6 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
       relPath,
       invalidSpan(msg, s"[<$relPath>]"),
       _.staticDoc(absPath, "pdf")
-    )
-  }
-
-  test(
-    "internal links - allow links to missing target documents when one of the parent trees has the validateLinks flag set to false"
-  ) {
-    // TODO - remove test and `noLinkValidation` property in 1.0
-    InternalLinks.run(
-      "doc99.md#ref",
-      InternalLinks.build(RelativePath.parse("doc99.md#ref")),
-      _
-        .doc4.config(targetFormats("pdf"))
-        .tree1.config(noLinkValidation)
     )
   }
 

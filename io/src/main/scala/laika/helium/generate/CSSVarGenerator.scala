@@ -44,7 +44,6 @@ private[helium] object CSSVarGenerator {
       settings,
       layoutStyles,
       includeInverted = true,
-      settings.content.topNavigationBar.highContrast,
       settings.content.landingPage
     )
   }
@@ -59,7 +58,6 @@ private[helium] object CSSVarGenerator {
       settings,
       Nil,
       includeInverted = false,
-      topBarHighContrast = false,
       landingPage = None
     )
   }
@@ -155,7 +153,6 @@ private[helium] object CSSVarGenerator {
       common: DarkModeSupport,
       additionalVars: Seq[(String, String)],
       includeInverted: Boolean,
-      topBarHighContrast: Boolean,
       landingPage: Option[LandingPage]
   ): String = {
     import common._

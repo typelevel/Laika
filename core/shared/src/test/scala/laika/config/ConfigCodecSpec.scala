@@ -184,7 +184,6 @@ class ConfigCodecSpec extends FunSuite {
         TargetDefinition("ext", ExternalTarget("http://ext.com")),
         TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))
       ),
-      Seq(Root / "foo", Root / "bar" / "baz"),
       Seq(
         ApiLinks("https://foo.api/", "foo", "package.html"),
         ApiLinks("https://bar.api/", "foo.bar")
@@ -206,10 +205,6 @@ class ConfigCodecSpec extends FunSuite {
         |      bar = bar
         |      ext = "http://ext.com"
         |    }
-        |    excludeFromValidation = [
-        |      /foo
-        |      /bar/baz
-        |    ]
         |    api = [
         |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
         |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }

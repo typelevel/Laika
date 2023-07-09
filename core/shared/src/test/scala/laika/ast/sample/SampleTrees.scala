@@ -421,8 +421,6 @@ object SampleConfig {
   def versioned(flag: Boolean): ConfigBuilder => ConfigBuilder =
     _.withValue(LaikaKeys.versioned, flag)
 
-  val noLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue("laika.validateLinks", false)
-
   val globalLinkValidation: ConfigBuilder => ConfigBuilder = _.withValue(LinkValidation.Global())
 
   def targetFormats(formats: String*): ConfigBuilder => ConfigBuilder =

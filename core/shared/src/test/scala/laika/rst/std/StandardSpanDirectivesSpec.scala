@@ -23,7 +23,6 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ AST, ReStructuredText }
 import laika.parse.markup.DocumentParser.TransformationError
-import laika.rewrite.link.LinkValidation
 import laika.time.PlatformDateTime
 import munit.FunSuite
 

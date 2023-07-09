@@ -131,7 +131,7 @@ object ManualSettings {
         apiLinks = Seq(
           ApiLinks("../api/")
         ), // TODO - will not work on top level pages, but fine for now - change to absolute path
-        excludeFromValidation = Seq(Root / "api") // TODO - adjust once 0.19.3 is out
+        excludeFromValidation = Seq(Root / "api") // TODO - adjust once 0.19.4 is out
       )
     )
     .withConfigValue(

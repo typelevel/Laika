@@ -169,7 +169,6 @@ object RootCursor {
 
     def validate(doc: Document): Option[DocumentConfigErrors] = List(
       doc.config.getOpt[Boolean](LaikaKeys.versioned).toEitherNec,
-      doc.config.getOpt[Boolean]("laika.validateLinks").toEitherNec, // deprecated key
       doc.config.getOpt[String](LaikaKeys.title).toEitherNec,
       doc.config.getOpt[TargetFormats].toEitherNec
     ).parSequence.left.toOption.map(DocumentConfigErrors.apply(doc.path, _))

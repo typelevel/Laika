@@ -27,7 +27,6 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
-import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 

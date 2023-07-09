@@ -23,7 +23,6 @@ import laika.config._
   */
 case class LinkConfig(
     targets: Seq[TargetDefinition] = Nil,
-    excludeFromValidation: Seq[Path] = Nil,
     apiLinks: Seq[ApiLinks] = Nil,
     sourceLinks: Seq[SourceLinks] = Nil
 )
@@ -37,21 +36,19 @@ object LinkConfig {
   implicit val decoder: ConfigDecoder[LinkConfig] = ConfigDecoder.config.flatMap { config =>
     for {
       targets     <- config.get[Map[String, String]]("targets", Map.empty[String, String])
-      exclude     <- config.get[Seq[Path]]("excludeFromValidation", Nil)
       apiLinks    <- config.get[Seq[ApiLinks]]("api", Nil)
       sourceLinks <- config.get[Seq[SourceLinks]]("source", Nil)
     } yield {
       val mappedTargets = targets.map { case (id, targetURL) =>
         TargetDefinition(id, Target.parse(targetURL))
       }
-      LinkConfig(mappedTargets.toSeq, exclude, apiLinks, sourceLinks)
+      LinkConfig(mappedTargets.toSeq, apiLinks, sourceLinks)
     }
   }
 
   implicit val encoder: ConfigEncoder[LinkConfig] = ConfigEncoder[LinkConfig] { config =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue("targets", config.targets.map(t => (t.id, t.target.render())).toMap)
-      .withValue("excludeFromValidation", config.excludeFromValidation)
       .withValue("api", config.apiLinks)
       .withValue("source", config.sourceLinks)
       .build

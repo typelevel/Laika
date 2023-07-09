@@ -31,8 +31,7 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.Origin.TreeScope
-import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
+import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.format._
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
