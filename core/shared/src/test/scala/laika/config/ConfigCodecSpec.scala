@@ -21,7 +21,14 @@ import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, Inter
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.rewrite.{ Version, VersionScannerConfig, Versions }
-import laika.rewrite.link.{ ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition }
+import laika.rewrite.link.{
+  ApiLinks,
+  IconRegistry,
+  LinkConfig,
+  LinkValidation,
+  SourceLinks,
+  TargetDefinition
+}
 import laika.rewrite.nav.{ AutonumberConfig, ChoiceConfig, SelectionConfig, Selections }
 import laika.time.PlatformDateTime
 import munit.FunSuite
@@ -177,7 +184,6 @@ class ConfigCodecSpec extends FunSuite {
         TargetDefinition("ext", ExternalTarget("http://ext.com")),
         TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))
       ),
-      Seq(Root / "foo", Root / "bar" / "baz"),
       Seq(
         ApiLinks("https://foo.api/", "foo", "package.html"),
         ApiLinks("https://bar.api/", "foo.bar")
@@ -199,10 +205,6 @@ class ConfigCodecSpec extends FunSuite {
         |      bar = bar
         |      ext = "http://ext.com"
         |    }
-        |    excludeFromValidation = [
-        |      /foo
-        |      /bar/baz
-        |    ]
         |    api = [
         |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
         |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
@@ -242,6 +244,36 @@ class ConfigCodecSpec extends FunSuite {
 
   test("LinkConfig - round-trip encode and decode") {
     roundTrip(links.fullyPopulatedInstance, links.sort)
+  }
+
+  test("LinkValidation - decode an instance with exclusions") {
+    val input =
+      """{
+        |  laika.links.validation {
+        |    scope = global
+        |    excluded = [/foo, /bar/baz]
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkValidation](
+      input,
+      LinkValidation.Global(Seq(Root / "foo", Root / "bar" / "baz"))
+    )
+  }
+
+  test("LinkValidation - decode an instance without exclusions") {
+    val input =
+      """{
+        |  laika.links.validation {
+        |    scope = local
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkValidation](input, LinkValidation.Local)
+  }
+
+  test("LinkValidation - round-trip encode and decode") {
+    roundTrip[LinkValidation](LinkValidation.Global(Seq(Root / "foo", Root / "bar" / "baz")))
   }
 
   object selections {

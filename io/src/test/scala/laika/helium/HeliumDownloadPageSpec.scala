@@ -28,7 +28,6 @@ import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.render.HTMLFormatter
-import laika.rewrite.link.LinkConfig
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.theme._
 import munit.CatsEffectSuite
@@ -42,8 +41,9 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
       theme: ThemeProvider,
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
-    val builder = Transformer.from(Markdown).to(HTML)
-      .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    val builder = Transformer
+      .from(Markdown)
+      .to(HTML)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)
@@ -98,7 +98,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<header id="top-bar">
+         |<header id="top-bar" class="light-default dark-default">
          |<div class="row">
          |<a id="nav-icon">
          |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>

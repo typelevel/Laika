@@ -2,6 +2,22 @@
 Release Notes
 =============
 
+0.19.3 (July 5, 2023)
+---------------------
+
+* Helium UI
+    * Fixes an issue where the selection of the color set for Helium's UI components was broken.
+      It has two style sets, one for light backgrounds and one for dark ones, but in some scenarios
+      the wrong colors were chosen:
+        * When setting `.site.topNavigationBar(highContrast = true)` in Helium config.
+        * In portrait mode on phones where some components move from the top bar to the left sidebar.
+        * When choosing a light background gradient for the landing page.
+* Code Cleanup
+    * Reduces the number of warnings (even though only the new build on the main branch causes them to surface).
+* Dependencies
+    * Scala.js 1.13.2, http4s 0.23.22
+
+
 0.19.2 (June 14, 2023)
 ----------------------
 

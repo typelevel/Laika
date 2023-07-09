@@ -60,7 +60,7 @@ h1 {
 h1.title {
   padding-bottom: 10px;
   margin-bottom: calc(var(--block-spacing) * 3);
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 h2 {
   font-size: var(--header2-font-size);
@@ -165,11 +165,11 @@ img.default-image-span {
 
 table {
   margin: calc(var(--block-spacing) * 2) 0;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-collapse: collapse;
 }
 thead > tr {
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 td {
   padding: 5px 8px;

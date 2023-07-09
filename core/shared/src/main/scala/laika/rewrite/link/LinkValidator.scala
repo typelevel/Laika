@@ -17,7 +17,7 @@
 package laika.rewrite.link
 
 import laika.ast.Path.Root
-import laika.ast.RelativePath.{ CurrentDocument, CurrentTree }
+import laika.ast.RelativePath.CurrentDocument
 import laika.ast.{
   DocumentCursor,
   GlobalLink,
@@ -26,7 +26,6 @@ import laika.ast.{
   Link,
   LocalLink,
   Path,
-  RelativePath,
   ResolvedInternalTarget,
   RootCursor,
   RootElement,
@@ -37,8 +36,7 @@ import laika.config.{ Config, LaikaKeys }
 import laika.parse.SourceFragment
 import laika.rewrite.Versions
 import laika.rewrite.nav.TargetFormats
-
-import scala.annotation.tailrec
+import cats.syntax.all._
 
 /** Validates internal links based on the presence and configuration of the targets it points to.
   * A link target may be valid for all formats or just some, and it may point to a sub-directory
@@ -63,27 +61,17 @@ private[laika] class LinkValidator(
     .getOrElse(Nil)
     .toSet
 
-  private val excludedPaths =
-    cursor.config.get[LinkConfig].getOrElse(
-      LinkConfig.empty
-    ).excludeFromValidation.toSet ++ versionRoots
+  private val validationConfig =
+    cursor.config.get[LinkValidation].getOrElse(LinkValidation.Local)
 
-  private def excludeFromValidation(path: Path): Boolean = {
-
-    @tailrec
-    def hasExcludedFlag(path: RelativePath): Boolean =
-      cursor.root.tree.target.selectSubtree(path) match {
-        case Some(tree) => !tree.config.get[Boolean](LaikaKeys.validateLinks).getOrElse(true)
-        case None if path == CurrentTree => false
-        case _                           => hasExcludedFlag(path.parent)
-      }
-
-    excludedPaths.exists(path.isSubPath) || hasExcludedFlag(path.relative)
-  }
+  private def isExcluded(path: Path, explicitExclusions: Seq[Path]): Boolean =
+    versionRoots.exists(path.isSubPath) || explicitExclusions.exists(path.isSubPath)
 
   def validate(target: InternalTarget): TargetValidation = {
 
     val resolvedTarget = target.relativeTo(cursor.path)
+
+    def isLocalTarget = resolvedTarget.relativePath.isInstanceOf[CurrentDocument]
 
     /*
     When a link target does exist, but does not support all of the output formats of the linking document,
@@ -133,18 +121,27 @@ private[laika] class LinkValidator(
         }
     }
 
-    findTargetFormats(resolvedTarget.absolutePath) match {
-      case None if excludeFromValidation(resolvedTarget.absolutePath) =>
-        val formats = cursor.root
-          .treeConfig(resolvedTarget.absolutePath.parent)
-          .get[TargetFormats]
-          .getOrElse(TargetFormats.All)
-        validateFormats(formats)
-      case None                                                       =>
-        InvalidTarget(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}")
-      case Some(targetFormats)                                        =>
-        validateFormats(targetFormats)
+    def validateTarget(explicitExclusions: Seq[Path]): TargetValidation =
+      findTargetFormats(resolvedTarget.absolutePath) match {
+        case None if isExcluded(resolvedTarget.absolutePath, explicitExclusions) =>
+          val formats = cursor.root
+            .treeConfig(resolvedTarget.absolutePath.parent)
+            .get[TargetFormats]
+            .getOrElse(TargetFormats.All)
+          validateFormats(formats)
+        case None                                                                =>
+          InvalidTarget(s"unresolved internal reference: ${resolvedTarget.relativePath.toString}")
+        case Some(targetFormats)                                                 =>
+          validateFormats(targetFormats)
+      }
+
+    validationConfig match {
+      case LinkValidation.Off                     => ValidTarget
+      case LinkValidation.Local if !isLocalTarget => ValidTarget
+      case LinkValidation.Local                   => validateTarget(Nil)
+      case LinkValidation.Global(excluded)        => validateTarget(excluded)
     }
+
   }
 
   /** Validates the specified link, verifying that the target exists and supports a matching set of target formats.
@@ -180,10 +177,8 @@ private[laika] class LinkValidator(
     * Those types of AST nodes require access to the original source that produced the element which is either
     * obtained from a parser or from a directive combinator.
     */
-  def validateAndRecover(link: Link, source: SourceFragment): Span = validate(link).fold(
-    InvalidSpan(_, source),
-    identity
-  )
+  def validateAndRecover(link: Link, source: SourceFragment): Span =
+    validate(link).valueOr(InvalidSpan(_, source))
 
 }
 
