@@ -26,6 +26,7 @@ import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.{ Failure, Message, Parser, SourceCursor, Success }
 
+import scala.annotation.nowarn
 import scala.util.Try
 
 /** The parser implementation for the HOCON format.
@@ -299,6 +300,7 @@ object HoconParsers {
   /** Parses the rest of the current line if it contains either just whitespace or a comment. */
   val wsOrComment: Parser[Any] = wsOrNl ~ (comment | wsOrNl.min(1)).rep
 
+  @nowarn
   private val separator: Parser[Unit] = ((oneOf(',') | eol | comment) ~ wsOrComment).void
 
   private val trailingComma: Parser[Any] = opt("," ~ wsOrComment)

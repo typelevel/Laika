@@ -98,7 +98,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<header id="top-bar">
+         |<header id="top-bar" class="light-default dark-default">
          |<div class="row">
          |<a id="nav-icon">
          |<i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>

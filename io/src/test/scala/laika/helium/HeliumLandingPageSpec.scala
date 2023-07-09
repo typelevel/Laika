@@ -29,6 +29,7 @@ import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.rewrite.{ Version, Versions }
 import laika.theme._
+import laika.theme.config.Color
 import munit.CatsEffectSuite
 
 class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
@@ -121,7 +122,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<div id="header">
+         |<div id="header" class="light-inverted dark-inverted">
          |<div id="header-left">
          |<img src="home.png" alt="Project Logo">
          |<h1>My Project</h1>
@@ -210,7 +211,9 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
       .assertEquals(expected)
   }
 
-  test("partial landing page configured with custom content and fragment") {
+  test(
+    "partial landing page configured with custom content and fragment and light background gradient"
+  ) {
     val expected           =
       s"""<head>
          |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -227,7 +230,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<div id="header">
+         |<div id="header" class="light-default dark-inverted">
          |<div id="header-left">
          |<img src="home.png" alt="Project Logo">
          |<h2>Awesome Hyperbole Overkill</h2>
@@ -244,29 +247,39 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<p>Some <em>markup</em> here.</p>
          |</body>""".stripMargin
     val imagePath          = Root / "home.png"
-    val helium             = Helium.defaults.site.landingPage(
-      logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
-      subtitle = Some("Awesome Hyperbole Overkill"),
-      latestReleases = Seq(
-        ReleaseInfo("Latest Release", "2.3.5")
-      ),
-      projectLinks = Seq(
-        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-        ButtonLink.external("http://somewhere.com/", "Somewhere")
-      ),
-      teasers = Seq(
-        Teaser("Teaser 1", "Description 1"),
-        Teaser("Teaser 2", "Description 2"),
-        Teaser("Teaser 3", "Description 3")
+    val helium             = Helium.defaults
+      .site.landingPage(
+        logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
+        subtitle = Some("Awesome Hyperbole Overkill"),
+        latestReleases = Seq(
+          ReleaseInfo("Latest Release", "2.3.5")
+        ),
+        projectLinks = Seq(
+          IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+          ButtonLink.external("http://somewhere.com/", "Somewhere")
+        ),
+        teasers = Seq(
+          Teaser("Teaser 1", "Description 1"),
+          Teaser("Teaser 2", "Description 2"),
+          Teaser("Teaser 3", "Description 3")
+        )
       )
-    )
+      .site.themeColors(
+        primary = Color.hex("007c99"),
+        secondary = Color.hex("931813"),
+        primaryMedium = Color.hex("a7d4de"),
+        primaryLight = Color.hex("ebf6f7"),
+        text = Color.hex("5f5f5f"),
+        background = Color.hex("ffffff"),
+        bgGradient = (Color.hex("a7d4de"), Color.hex("ebf6f7")) // light bg from medium to light
+      )
     val content            =
       """@:fragment(header)
         |Some *Header*
         |@:@
         |
         |Some *markup* here.""".stripMargin
-    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", content)
+    val inputsWithExtraDoc = inputs :+ ((Root / "landing-page.md", content))
     transformAndExtract(
       inputsWithExtraDoc,
       helium,

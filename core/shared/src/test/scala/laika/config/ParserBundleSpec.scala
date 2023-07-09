@@ -266,7 +266,7 @@ class ParserHookSpec extends FunSuite with ParserSetup {
   }
 
   def appendString(root: RootElement, append: String): RootElement =
-    root.copy(content = root.content.map { case Paragraph(Seq(Text(text, _)), _) =>
+    root.copy(content = root.content.collect { case Paragraph(Seq(Text(text, _)), _) =>
       Paragraph(text + append)
     })
 
@@ -277,7 +277,7 @@ class ParserHookSpec extends FunSuite with ParserSetup {
   }
 
   def processBlocks(append: String): Seq[Block] => Seq[Block] = { blocks =>
-    blocks map { case Paragraph(Seq(Text(text, _)), _) =>
+    blocks.collect { case Paragraph(Seq(Text(text, _)), _) =>
       Paragraph(text + append)
     }
   }
