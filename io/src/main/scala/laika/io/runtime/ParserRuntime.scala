@@ -23,13 +23,14 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.Config.IncludeMap
-import laika.config.ConfigParser
+import laika.config.{ ConfigBuilder, ConfigParser }
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
 import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
 import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocuments, ParserError }
+import laika.rewrite.link.LinkValidation
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
   *
@@ -148,12 +149,15 @@ object ParserRuntime {
         IncludeHandler.load(includes)
       }
 
+      val globalFallbackConfig = ConfigBuilder.empty.withValue(LinkValidation.Global()).build
+      val baseConfig           = op.config.baseConfig.withFallback(globalFallbackConfig)
+
       for {
         ops      <- Sync[F].fromEither(createOps)
         results  <- Batch[F].execute(ops)
         includes <- loadIncludes(results)
         tree     <- Sync[F].fromEither(
-          buildTree(results ++ inputs.parsedResults, op.config.baseConfig, includes).leftMap(
+          buildTree(results ++ inputs.parsedResults, baseConfig, includes).leftMap(
             ParserError(_, Root)
           )
         )

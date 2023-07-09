@@ -28,7 +28,7 @@ import laika.format.{ AST, HTML, ReStructuredText }
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
-import laika.rewrite.link.LinkConfig
+import laika.rewrite.link.LinkValidation
 import laika.rst.ast.{ Contents, Include, RstStyle }
 import munit.FunSuite
 
@@ -39,19 +39,12 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
 
-  private val parser = MarkupParser
-    .of(ReStructuredText)
-    .build
-
-  private val docParser = MarkupParser
-    .of(ReStructuredText)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
-    .build
+  private val parser = MarkupParser.of(ReStructuredText).build
 
   def run(input: String, expected: Block*)(implicit loc: munit.Location): Unit = {
-    val res = docParser
+    val res = parser
       .parse(input)
-      .flatMap(rewrite(docParser, AST))
+      .flatMap(rewrite(parser, AST))
       .map(_.content)
     assertEquals(res, Right(RootElement(expected)))
   }
@@ -76,7 +69,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       expectedFragments: Map[String, Element],
       expectedContent: RootElement
   ): Unit = {
-    val res = docParser.parse(input).map { doc =>
+    val res = parser.parse(input).map { doc =>
       (doc.fragments, doc.content)
     }
     assertEquals(res, Right((expectedFragments, expectedContent)))
@@ -649,7 +642,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   test("title - sets the title in the document instance") {
     val input = """.. title:: Title"""
-    assertEquals(docParser.parse(input).map(_.title), Right(Some(SpanSequence("Title"))))
+    assertEquals(parser.parse(input).map(_.title), Right(Some(SpanSequence("Title"))))
   }
 
   test("meta - creates config entries in the document instance") {
@@ -661,7 +654,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       ObjectValue(Seq(Field("key1", StringValue("val1")), Field("key2", StringValue("val2"))))
 
     val res: Either[Any, ConfigValue] =
-      docParser.parse(input).flatMap(_.config.get[ConfigValue]("meta"))
+      parser.parse(input).flatMap(_.config.get[ConfigValue]("meta"))
     assertEquals(res, Right(expected))
   }
 
@@ -682,7 +675,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
     )
 
     val res: Either[Any, ConfigValue] =
-      docParser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+      parser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
     assertEquals(res, Right(expected))
   }
 

@@ -28,7 +28,6 @@ import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
 import laika.rewrite.{ Version, Versions }
-import laika.rewrite.link.LinkConfig
 import laika.theme._
 import laika.theme.config.Color
 import munit.CatsEffectSuite
@@ -50,7 +49,6 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -160,7 +158,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |</div>
          |<p class="medium"><a class="text-link" href="doc-1.html">Text Link</a></p>
          |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
-         |<p class="medium"><span class="row links"><a class="icon-link glyph-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a><a class="icon-link glyph-link" href="doc-3.md"><i class="icofont-laika info">&#xef4e;</i></a></span></p>
+         |<p class="medium"><span class="row links"><a class="icon-link glyph-link" href="doc-1.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a><a class="icon-link glyph-link" href="doc-2.html"><i class="icofont-laika info">&#xef4e;</i></a></span></p>
          |</div>
          |</div>
          |$teaserHTML
@@ -193,8 +191,8 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           TextLink.internal(Root / "doc-1.md", "Text Link"),
           ButtonLink.external("http://somewhere.com/", "Somewhere"),
           LinkGroup.create(
-            IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-            IconLink.internal(Root / "doc-3.md", HeliumIcon.info)
+            IconLink.internal(Root / "doc-1.md", HeliumIcon.demo),
+            IconLink.internal(Root / "doc-2.md", HeliumIcon.info)
           )
         ),
         teasers = Seq(

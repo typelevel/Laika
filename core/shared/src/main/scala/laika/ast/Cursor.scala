@@ -33,7 +33,7 @@ import laika.config.{
 }
 import laika.parse.SourceFragment
 import laika.rewrite.{ OutputContext, ReferenceResolver }
-import laika.rewrite.link.{ LinkConfig, LinkValidator, TargetValidation }
+import laika.rewrite.link.{ LinkConfig, LinkValidation, LinkValidator, TargetValidation }
 import laika.rewrite.nav.{
   AutonumberConfig,
   ConfigurablePathTranslator,
@@ -167,14 +167,15 @@ object RootCursor {
 
     def validate(doc: Document): Option[DocumentConfigErrors] = List(
       doc.config.getOpt[Boolean](LaikaKeys.versioned).toEitherNec,
-      doc.config.getOpt[Boolean](LaikaKeys.validateLinks).toEitherNec,
+      doc.config.getOpt[Boolean]("laika.validateLinks").toEitherNec, // deprecated key
       doc.config.getOpt[String](LaikaKeys.title).toEitherNec,
       doc.config.getOpt[TargetFormats].toEitherNec
     ).parSequence.left.toOption.map(DocumentConfigErrors.apply(doc.path, _))
 
     def validateRoot: Seq[DocumentConfigErrors] = List(
       target.config.getOpt[String](LaikaKeys.siteBaseURL).toEitherNec,
-      target.config.getOpt[LinkConfig].toEitherNec
+      target.config.getOpt[LinkConfig].toEitherNec,
+      target.config.getOpt[LinkValidation].toEitherNec
     ).parSequence.fold(errs => Seq(DocumentConfigErrors(Root, errs)), _ => Nil)
 
     val validations = NonEmptyChain
