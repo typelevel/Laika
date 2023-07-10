@@ -168,10 +168,10 @@ trait Config {
 
 /** The default implementation of the Config API.
   */
-class ObjectConfig(
-    private[laika] val root: ObjectValue,
+private[laika] class ObjectConfig(
+    val root: ObjectValue,
     val origin: Origin,
-    private[laika] val fallback: Config = EmptyConfig
+    val fallback: Config = EmptyConfig
 ) extends Config {
 
   private def lookup(
@@ -237,7 +237,7 @@ class ObjectConfig(
 
 /** An empty configuration instance.
   */
-object EmptyConfig extends Config {
+private[config] object EmptyConfig extends Config {
 
   val origin: Origin = Origin.root
 
@@ -254,7 +254,7 @@ object Config {
 
   type ConfigResult[T] = Either[ConfigError, T]
 
-  type IncludeMap = Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]
+  private[laika] type IncludeMap = Map[IncludeResource, Either[ConfigError, ObjectBuilderValue]]
 
   val empty: Config = EmptyConfig
 

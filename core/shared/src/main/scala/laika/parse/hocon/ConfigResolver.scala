@@ -37,7 +37,7 @@ import scala.collection.mutable
   *
   * @author Jens Halm
   */
-object ConfigResolver {
+private[laika] object ConfigResolver {
 
   /** Translates the interim configuration model (usually obtained from a HOCON parser)
     * into the final object model. It turns a root `ObjectBuilderValue` into

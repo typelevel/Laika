@@ -43,7 +43,7 @@ trait ConfigParser {
     * can be used by a higher level API to resolve includes and pass them
     * to the `resolve` method.
     */
-  def includes: Seq[IncludeResource]
+  private[laika] def includes: Seq[IncludeResource]
 
   /** The unresolved result of the parser which can be used
     * for processing inclusions that will be resolved in the
@@ -70,16 +70,21 @@ trait ConfigParser {
     * the keys will be merged from this parser with those present in the fallback.
     * Simple values on the other hand will always override values with the same
     * key in the fallback.
-    *
-    * The specified includes contain all resources that could be loaded
+    */
+  def resolve(
+      origin: Origin = Origin.root,
+      fallback: Config = EmptyConfig
+  ): Either[ConfigError, Config] = resolve(origin, fallback, ConfigParser.includesNotSupported)
+
+  /** The specified includes contain all resources that could be loaded
     * based on the requested resources exposed by the `includes` property.
     * Keeping the actual loading separate allows the resource loading step
     * to be separate and in a module designed for effectful operations.
     */
-  def resolve(
-      origin: Origin = Origin.root,
-      fallback: Config = EmptyConfig,
-      includes: IncludeMap = ConfigParser.includesNotSupported
+  private[laika] def resolve(
+      origin: Origin,
+      fallback: Config,
+      includes: IncludeMap
   ): Either[ConfigError, Config]
 
 }
@@ -105,7 +110,7 @@ object ConfigParser {
         case f: Failure              => Left(ConfigParserError(f))
       }
 
-    lazy val includes: Seq[IncludeResource] = {
+    private[laika] lazy val includes: Seq[IncludeResource] = {
 
       def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
         case BuilderField(_, IncludeBuilderValue(resource)) => Seq(resource)
@@ -116,10 +121,10 @@ object ConfigParser {
       unresolved.fold(_ => Nil, extractIncludes)
     }
 
-    def resolve(
-        origin: Origin = Origin.root,
-        fallback: Config = EmptyConfig,
-        includes: IncludeMap = ConfigParser.includesNotSupported
+    private[laika] def resolve(
+        origin: Origin,
+        fallback: Config,
+        includes: IncludeMap
     ): Either[ConfigError, Config] =
       unresolved.flatMap(
         ConfigResolver
@@ -137,10 +142,10 @@ object ConfigParser {
 
     val unresolved: Either[ConfigError, ObjectBuilderValue] = Right(ObjectBuilderValue(Nil))
 
-    def resolve(
-        origin: Origin = Origin.root,
-        fallback: Config = EmptyConfig,
-        includes: IncludeMap = ConfigParser.includesNotSupported
+    private[laika] def resolve(
+        origin: Origin,
+        fallback: Config,
+        includes: IncludeMap
     ): Either[ConfigError, Config] =
       Right(ConfigBuilder.withFallback(fallback, origin).build)
 
