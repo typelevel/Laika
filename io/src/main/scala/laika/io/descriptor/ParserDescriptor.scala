@@ -27,13 +27,13 @@ import laika.io.api.TreeParser
   *
   * @author Jens Halm
   */
-case class ParserDescriptor(
-    parsers: NonEmptyList[String],
-    bundles: Seq[ExtensionBundleDescriptor],
-    inputs: TreeInputDescriptor,
-    theme: ThemeDescriptor,
-    strict: Boolean,
-    acceptRawContent: Boolean
+class ParserDescriptor(
+    val parsers: NonEmptyList[String],
+    val bundles: Seq[ExtensionBundleDescriptor],
+    val inputs: TreeInputDescriptor,
+    val theme: ThemeDescriptor,
+    val strict: Boolean,
+    val acceptRawContent: Boolean
 ) {
 
   def formatted: String = {
@@ -52,14 +52,14 @@ case class ParserDescriptor(
 
 }
 
-object ParserDescriptor {
+private[io] object ParserDescriptor {
 
   def create[F[_]: Sync](op: TreeParser.Op[F]): F[ParserDescriptor] =
     op.input.describe(op.config.docTypeMatcher)
       .map { inputDesc =>
-        apply(
+        new ParserDescriptor(
           op.parsers.map(_.format.description),
-          op.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+          op.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
           inputDesc,
           op.theme.descriptor,
           op.config.bundleFilter.strict,

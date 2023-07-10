@@ -26,12 +26,12 @@ import laika.io.model.{ BinaryOutput, DirectoryOutput, TreeOutput }
   *
   * @author Jens Halm
   */
-case class RendererDescriptor(
-    renderer: String,
-    bundles: Seq[ExtensionBundleDescriptor],
-    theme: ThemeDescriptor,
-    output: String,
-    renderFormatted: Boolean
+class RendererDescriptor(
+    val renderer: String,
+    val bundles: Seq[ExtensionBundleDescriptor],
+    val theme: ThemeDescriptor,
+    val output: String,
+    val renderFormatted: Boolean
 ) {
 
   def formatted: String = {
@@ -49,11 +49,11 @@ case class RendererDescriptor(
 
 }
 
-object RendererDescriptor {
+private[io] object RendererDescriptor {
 
   private def describeOutput[F[_]](out: BinaryOutput[F]): String = out.targetFile.fold(
     "In-memory bytes or stream"
-  )(f => s"File '${f.getPath}'")
+  )(f => s"File '${f.toString}'")
 
   private def describeOutput(out: TreeOutput): String = out match {
     case DirectoryOutput(dir, _) => s"Directory '${dir.toString}'"
@@ -62,9 +62,9 @@ object RendererDescriptor {
 
   def create[F[_]: Applicative](op: TreeRenderer.Op[F]): F[RendererDescriptor] =
     Applicative[F].pure(
-      apply(
+      new RendererDescriptor(
         op.renderer.format.description,
-        op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.renderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
         op.renderer.config.renderFormatted
@@ -73,9 +73,9 @@ object RendererDescriptor {
 
   def create[F[_]: Applicative](op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] =
     Applicative[F].pure(
-      apply(
+      new RendererDescriptor(
         op.renderer.description,
-        op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.renderer.interimRenderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
         op.renderer.interimRenderer.config.renderFormatted

@@ -19,8 +19,8 @@ package laika.io.runtime
 import cats.data.NonEmptyChain
 import cats.effect.kernel.Concurrent
 import cats.effect.{ Async, Sync }
-import cats.syntax.all._
-import laika.collection.TransitionalCollectionOps._
+import cats.syntax.all.*
+import laika.collection.TransitionalCollectionOps.*
 import laika.ast.DocumentType.{ Ignored, Static }
 import laika.ast.Path.Root
 import laika.ast.{ DocumentType, Path, SegmentedPath }
@@ -55,9 +55,9 @@ private[runtime] object VersionedLinkTargets {
     }
     val input = DirectoryInput(Seq(FilePath.parse(config.rootDirectory)), Codec.UTF8, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
-      tree.binaryInputs
+      tree.binaryInputs.map(_.path)
         .collect {
-          case BinaryInput(_, path: SegmentedPath, _, _) if path.depth > 1 =>
+          case path: SegmentedPath if path.depth > 1 =>
             (
               path.segments.head,
               SegmentedPath(NonEmptyChain.fromChainUnsafe(path.segments.tail), path.suffix, None)

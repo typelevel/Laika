@@ -37,7 +37,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   import laika.collection.TransitionalCollectionOps._
   import DocumentTreeBuilder._
 
-  private lazy val distinctParts: List[BuilderPart] = {
+  private[laika] lazy val distinctParts: List[BuilderPart] = {
     /* distinctBy does not exist in 2.12
        insertion happens at head, so later additions are dropped and the final result is reversed
        this is cheaper than using `ListMap` which has O(n) insertion.
@@ -161,7 +161,10 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
     }
   }
 
-  private def addParts(newParts: List[BuilderPart]) =
+  private[laika] def addPart(newPart: BuilderPart) =
+    new DocumentTreeBuilder(newPart +: parts)
+
+  private[laika] def addParts(newParts: List[BuilderPart]) =
     new DocumentTreeBuilder(newParts.reverse ++ parts)
 
   /** Add the specified documents to the builder.

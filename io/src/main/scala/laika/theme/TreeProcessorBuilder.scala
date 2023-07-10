@@ -16,6 +16,7 @@
 
 package laika.theme
 
+import cats.Monad
 import cats.data.Kleisli
 import cats.effect.Sync
 import laika.io.model.ParsedTree
@@ -26,7 +27,7 @@ import laika.theme.Theme.TreeProcessor
   *
   * @author Jens Halm
   */
-abstract class TreeProcessorBuilder[F[_]: Sync] extends TreeMapperOps[F] {
+abstract class TreeProcessorBuilder[F[_]: Monad] extends TreeMapperOps[F] {
 
   type MapRes = TreeProcessor[F]
 

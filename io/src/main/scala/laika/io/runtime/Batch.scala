@@ -25,7 +25,7 @@ import cats.effect.implicits._
   *
   * @author Jens Halm
   */
-trait Batch[F[_]] {
+private[io] trait Batch[F[_]] {
 
   /** Runs the specified batch, either sequentially or in parallel, depending on implementation.
     */
@@ -35,7 +35,7 @@ trait Batch[F[_]] {
 
 /** Constructors for Batch instances for parallel or sequential execution.
   */
-object Batch {
+private[io] object Batch {
 
   /** Summoner for implicit Batch instances.
     */

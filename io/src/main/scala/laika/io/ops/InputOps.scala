@@ -29,9 +29,9 @@ import scala.io.Codec
   *
   * @author Jens Halm
   */
-trait InputOps[F[_]] {
+private[io] trait InputOps[F[_]] {
 
-  def F: Async[F]
+  protected def F: Async[F]
 
   /** The type of the result returned by all operations of this trait.
     */

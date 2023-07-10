@@ -22,7 +22,7 @@ import laika.bundle.ExtensionBundle
   *
   * @author Jens Halm
   */
-case class ExtensionBundleDescriptor(bundle: ExtensionBundle) {
+class ExtensionBundleDescriptor(bundle: ExtensionBundle) {
 
   def formatted: String = {
     s"${bundle.description} (supplied by ${bundle.origin.toString.toLowerCase})"

@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import cats.effect.{ Async, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.{ OperationConfig, ParserBuilder }
-import laika.ast.{ DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType }
+import laika.ast.{ StyleDeclarationSet, TemplateDocument }
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{ InputTreeBuilder, ParsedTree }
 import laika.io.ops.InputOps
@@ -33,14 +33,14 @@ import laika.theme.{ Theme, ThemeProvider }
   *
   * @author Jens Halm
   */
-class TreeParser[F[_]: Async: Batch](parsers: NonEmptyList[MarkupParser], val theme: Theme[F])
-    extends InputOps[F] {
+class TreeParser[F[_]: Async: Batch] private (
+    parsers: NonEmptyList[MarkupParser],
+    val theme: Theme[F]
+) extends InputOps[F] {
 
   type Result = TreeParser.Op[F]
 
-  val F: Async[F] = Async[F]
-
-  val docType: TextDocumentType = DocumentType.Markup
+  protected val F: Async[F] = Async[F]
 
   lazy val config: OperationConfig = parsers
     .map(_.config)
@@ -52,7 +52,8 @@ class TreeParser[F[_]: Async: Batch](parsers: NonEmptyList[MarkupParser], val th
     new TreeParser(modifiedParsers, theme)
   }
 
-  def fromInput(input: InputTreeBuilder[F]): TreeParser.Op[F] = TreeParser.Op(parsers, theme, input)
+  def fromInput(input: InputTreeBuilder[F]): TreeParser.Op[F] =
+    new TreeParser.Op(parsers, theme, input)
 
 }
 
@@ -63,7 +64,7 @@ object TreeParser {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Batch](
+  class Builder[F[_]: Async: Batch] private[io] (
       parsers: NonEmptyList[MarkupParser],
       theme: ThemeProvider
   ) {
@@ -75,7 +76,7 @@ object TreeParser {
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser(parser: MarkupParser): Builder[F] =
-      copy(parsers = parsers.append(parser))
+      new Builder(parsers.append(parser), theme)
 
     /** Specifies an additional parser for text markup.
       *
@@ -84,11 +85,11 @@ object TreeParser {
       * `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser(parser: ParserBuilder): Builder[F] =
-      copy(parsers = parsers.append(parser.build))
+      new Builder(parsers.append(parser.build), theme)
 
     /** Applies the specified theme to this parser, overriding any previously specified themes.
       */
-    def withTheme(theme: ThemeProvider): Builder[F] = copy(theme = theme)
+    def withTheme(theme: ThemeProvider): Builder[F] = new Builder(parsers, theme)
 
     /** Final builder step that creates a parallel parser.
       */
@@ -102,10 +103,10 @@ object TreeParser {
     * default runtime implementation or by developing a custom runner that performs
     * the parsing based on this operation's properties.
     */
-  case class Op[F[_]: Async: Batch](
-      parsers: NonEmptyList[MarkupParser],
-      theme: Theme[F],
-      input: InputTreeBuilder[F]
+  class Op[F[_]: Async: Batch] private[io] (
+      private[io] val parsers: NonEmptyList[MarkupParser],
+      private[io] val theme: Theme[F],
+      private[io] val input: InputTreeBuilder[F]
   ) {
 
     /** The merged configuration of all markup parsers of this operation, including the theme extensions.
@@ -118,7 +119,8 @@ object TreeParser {
     /** The template parser for this operation. If this property is empty
       * templating is not supported for this operation.
       */
-    lazy val templateParser: Option[DocumentInput => Either[ParserError, TemplateDocument]] =
+    private[io] lazy val templateParser
+        : Option[DocumentInput => Either[ParserError, TemplateDocument]] =
       config.templateParser map { rootParser =>
         DocumentParser.forTemplate(rootParser, config.configProvider)
       }
@@ -127,7 +129,8 @@ object TreeParser {
       * will only be parsed for PDF output, in case of HTML or EPUB formats
       * CSS documents will merely copied to the target format.
       */
-    lazy val styleSheetParser: DocumentInput => Either[ParserError, StyleDeclarationSet] =
+    private[io] lazy val styleSheetParser
+        : DocumentInput => Either[ParserError, StyleDeclarationSet] =
       DocumentParser.forStyleSheets(config.styleSheetParser)
 
     /** Performs the parsing operation based on the library's

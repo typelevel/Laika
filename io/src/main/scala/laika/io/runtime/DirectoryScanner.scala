@@ -31,7 +31,7 @@ import scala.io.Codec
   *
   * @author Jens Halm
   */
-object DirectoryScanner {
+private[laika] object DirectoryScanner {
 
   /** Scans the specified directory passing all child paths to the given function.
     */
@@ -51,7 +51,7 @@ object DirectoryScanner {
         scanDirectory[F, InputTree[F]](d)(asInputCollection(input.mountPoint, input))
       )
     )
-      .map(_.copy(sourcePaths = input.directories))
+      .map(_.withSourcePaths(input.directories))
   }
 
   private def join[F[_]: Sync](collections: Seq[F[InputTree[F]]]): F[InputTree[F]] = collections
@@ -74,9 +74,9 @@ object DirectoryScanner {
           scanDirectory(filePath)(asInputCollection(childPath, input)),
           input.docTypeMatcher(childPath) match {
             case docType: TextDocumentType =>
-              InputTree[F](Seq(TextInput.fromFile(filePath, childPath, docType)), Nil, Nil).pure[F]
+              new InputTree[F](Seq(TextInput.fromFile(filePath, childPath, docType))).pure[F]
             case Static(formats)           =>
-              InputTree[F](Nil, Seq(BinaryInput.fromFile(filePath, childPath, formats)), Nil).pure[
+              new InputTree[F](Nil, Seq(BinaryInput.fromFile(filePath, childPath, formats))).pure[
                 F
               ]
             case _                         => InputTree.empty[F].pure[F]

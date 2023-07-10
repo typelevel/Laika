@@ -72,7 +72,7 @@ private[preview] class SiteTransformer[F[_]: Async](
           if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName    = artifactBaseName + classifier + "." + suffix
         val path       = downloadPath / docName
-        (path, StaticResult(renderBinary(renderer, tree.copy(root = root))))
+        (path, StaticResult(renderBinary(renderer, new ParsedTree(root, tree.staticDocuments))))
       }.toMap
     }
   }
@@ -152,7 +152,7 @@ private[preview] object SiteTransformer {
 
     def asInputTree(map: ResultMap[F]): InputTree[F] = {
       val inputs = map.collect { case (path, static: StaticResult[F]) =>
-        BinaryInput(static.content, path, TargetFormats.Selected("html"))
+        BinaryInput.fromStream(static.content, path, TargetFormats.Selected("html"))
       }
       new InputTree[F](binaryInputs = inputs.toSeq)
     }

@@ -22,6 +22,7 @@ import fs2.io.file.Files
 import laika.ast.Path.Root
 import laika.ast.{
   Document,
+  DocumentTreeBuilder,
   DocumentType,
   Path,
   StaticDocument,
@@ -36,13 +37,6 @@ import laika.io.descriptor.TreeInputDescriptor
 import laika.io.model.InputTree.{ BuilderContext, BuilderStep }
 import laika.io.runtime.DirectoryScanner
 import laika.io.runtime.ParserRuntime.{ MissingDirectory, ParserErrors }
-import laika.io.runtime.TreeResultBuilder.{
-  ConfigResult,
-  DocumentResult,
-  ParserResult,
-  StyleResult,
-  TemplateResult
-}
 
 import java.io.InputStream
 import scala.io.Codec
@@ -94,13 +88,14 @@ import scala.reflect.ClassTag
   * }
   * }}}
   */
-class InputTreeBuilder[F[_]](
+class InputTreeBuilder[F[_]] private[model] (
     private[laika] val exclude: FileFilter,
     private[model] val steps: Vector[BuilderStep[F]],
     private[laika] val fileRoots: Vector[FilePath]
 )(implicit F: Async[F]) {
 
-  import cats.implicits._
+  import cats.syntax.all._
+  import DocumentTreeBuilder._
 
   private def addStep(step: BuilderStep[F]): InputTreeBuilder[F] =
     addStep(None)(step)
@@ -125,8 +120,8 @@ class InputTreeBuilder[F[_]](
       }
     }
 
-  private def addParserResult(result: ParserResult): InputTreeBuilder[F] = addStep {
-    Kleisli[F, BuilderContext[F], BuilderContext[F]](_.modifyTree(_ + result).pure[F])
+  private def addBuilderPart(part: DocumentTreeBuilder.BuilderPart): InputTreeBuilder[F] = addStep {
+    Kleisli[F, BuilderContext[F], BuilderContext[F]](_.modifyTree(_ + part).pure[F])
   }
 
   /** Adds the specified directories to the input tree, merging them all into a single virtual root, recursively.
@@ -182,8 +177,10 @@ class InputTreeBuilder[F[_]](
     */
   def addFile(file: FilePath, mountPoint: Path)(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint, Some(file)) {
-      case DocumentType.Static(formats) => _ + BinaryInput.fromFile(file, mountPoint, formats)
-      case docType: TextDocumentType    => _ + TextInput.fromFile(file, mountPoint, docType)
+      case DocumentType.Static(formats) =>
+        _.addBinaryInput(BinaryInput.fromFile(file, mountPoint, formats))
+      case docType: TextDocumentType    =>
+        _.addTextInput(TextInput.fromFile(file, mountPoint, docType))
     }
 
   /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
@@ -199,9 +196,9 @@ class InputTreeBuilder[F[_]](
   ): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput.fromClassResource[F, T](name, mountPoint, formats)
+        _.addBinaryInput(BinaryInput.fromClassResource[F, T](name, mountPoint, formats))
       case docType: TextDocumentType    =>
-        _ + TextInput.fromClassResource[F, T](name, mountPoint, docType)
+        _.addTextInput(TextInput.fromClassResource[F, T](name, mountPoint, docType))
     }
 
   /** Adds the specified classpath resource to the input tree, placing it at the specified mount point in the virtual tree.
@@ -220,9 +217,11 @@ class InputTreeBuilder[F[_]](
   )(implicit codec: Codec): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput.fromClassLoaderResource(name, mountPoint, formats, classLoader)
+        _.addBinaryInput(
+          BinaryInput.fromClassLoaderResource(name, mountPoint, formats, classLoader)
+        )
       case docType: TextDocumentType    =>
-        _ + TextInput.fromClassLoaderResource(name, mountPoint, docType, classLoader)
+        _.addTextInput(TextInput.fromClassLoaderResource(name, mountPoint, docType, classLoader))
     }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
@@ -239,9 +238,9 @@ class InputTreeBuilder[F[_]](
   ): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput.fromInputStream(stream, mountPoint, autoClose, formats)
+        _.addBinaryInput(BinaryInput.fromInputStream(stream, mountPoint, autoClose, formats))
       case docType: TextDocumentType    =>
-        _ + TextInput.fromInputStream(stream, mountPoint, docType, autoClose)
+        _.addTextInput(TextInput.fromInputStream(stream, mountPoint, docType, autoClose))
     }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
@@ -255,9 +254,9 @@ class InputTreeBuilder[F[_]](
   def addBinaryStream(stream: fs2.Stream[F, Byte], mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput(stream, mountPoint, formats)
+        _.addBinaryInput(BinaryInput.fromStream(stream, mountPoint, formats))
       case docType: TextDocumentType    =>
-        _ + TextInput(stream.through(fs2.text.utf8.decode).compile.string, mountPoint, docType)
+        _.addTextInput(TextInput.fromBinaryStream(stream, mountPoint, docType))
     }
 
   /** Adds the specified input stream to the input tree, placing it at the specified mount point in the virtual tree.
@@ -271,9 +270,11 @@ class InputTreeBuilder[F[_]](
   def addTextStream(stream: fs2.Stream[F, String], mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
       case DocumentType.Static(formats) =>
-        _ + BinaryInput(stream.through(fs2.text.utf8.encode), mountPoint, formats)
+        _.addBinaryInput(
+          BinaryInput.fromStream(stream.through(fs2.text.utf8.encode), mountPoint, formats)
+        )
       case docType: TextDocumentType    =>
-        _ + TextInput(stream.compile.string, mountPoint, docType)
+        _.addTextInput(TextInput.fromTextStream(stream, mountPoint, docType))
     }
 
   /** Adds the specified string resource to the input tree, placing it at the specified mount point in the virtual tree.
@@ -283,8 +284,10 @@ class InputTreeBuilder[F[_]](
     */
   def addString(input: String, mountPoint: Path): InputTreeBuilder[F] =
     addStep(mountPoint) {
-      case DocumentType.Static(formats) => _ + BinaryInput.fromString[F](input, mountPoint, formats)
-      case docType: TextDocumentType    => _ + TextInput.fromString[F](input, mountPoint, docType)
+      case DocumentType.Static(formats) =>
+        _.addBinaryInput(BinaryInput.fromString[F](input, mountPoint, formats))
+      case docType: TextDocumentType    =>
+        _.addTextInput(TextInput.fromString[F](input, mountPoint, docType))
     }
 
   /** Adds the specified document AST to the input tree, by-passing the parsing step.
@@ -292,20 +295,20 @@ class InputTreeBuilder[F[_]](
     * In some cases when generating input on the fly, it might be more convenient or more type-safe to construct
     * the AST directly than to generate the text markup as input for the parser.
     */
-  def addDocument(doc: Document): InputTreeBuilder[F] = addParserResult(DocumentResult(doc))
+  def addDocument(doc: Document): InputTreeBuilder[F] = addBuilderPart(DocumentPart(doc))
 
   /** Adds the specified template AST to the input tree, by-passing the parsing step.
     *
     * In some cases when generating input on the fly, it might be more convenient or more type-safe to construct
     * the AST directly than to generate the template as a string as input for the template parser.
     */
-  def addTemplate(doc: TemplateDocument): InputTreeBuilder[F] = addParserResult(TemplateResult(doc))
+  def addTemplate(doc: TemplateDocument): InputTreeBuilder[F] = addBuilderPart(TemplatePart(doc))
 
   /** Adds the specified configuration instance and assigns it to the specified tree path in a way
     * that is equivalent to having a HOCON file called `directory.conf` in that directory.
     */
-  def addConfig(config: Config, treePath: Path): InputTreeBuilder[F] = addParserResult(
-    ConfigResult(treePath, config)
+  def addConfig(config: Config, treePath: Path): InputTreeBuilder[F] = addBuilderPart(
+    ConfigPart(treePath, config)
   )
 
   /** Adds the specified styles for PDF to the input tree.
@@ -317,14 +320,14 @@ class InputTreeBuilder[F[_]](
       path: Path,
       precedence: Precedence = Precedence.High
   ): InputTreeBuilder[F] =
-    addParserResult(StyleResult(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
+    addBuilderPart(StylePart(StyleDeclarationSet(Set(path), styles, precedence), "fo"))
 
   /** Adds a path to the input tree that represents a document getting processed by some external tool.
     * Such a path will be used in link validation, but no further processing for this document will be performed.
     */
   def addProvidedPath(path: Path): InputTreeBuilder[F] = addStep(path) {
-    case DocumentType.Static(formats) => _ + StaticDocument(path, formats)
-    case _                            => _ + StaticDocument(path)
+    case DocumentType.Static(formats) => _.addProvidedPath(StaticDocument(path, formats))
+    case _                            => _.addProvidedPath(StaticDocument(path))
   }
 
   /** Adds the specified paths to the input tree that represent documents getting processed by some external tool.
@@ -380,7 +383,7 @@ class InputTreeBuilder[F[_]](
     val ctx = BuilderContext(exclude, docTypeMatcher, InputTree.empty[F])
     build(ctx).flatMap { res =>
       res.missingDirectories match {
-        case Nil     => res.input.copy(sourcePaths = fileRoots).pure[F]
+        case Nil     => res.input.withSourcePaths(fileRoots).pure[F]
         case missing => F.raiseError(ParserErrors(missing.map(MissingDirectory(_)).toSet))
       }
     }
@@ -397,7 +400,7 @@ class InputTreeBuilder[F[_]](
     build(ctx).map { res =>
       val validSourcePaths = fileRoots.diff(res.missingDirectories)
       TreeInputDescriptor.create(
-        res.input.copy(sourcePaths = validSourcePaths),
+        res.input.withSourcePaths(validSourcePaths),
         res.missingDirectories
       )
     }

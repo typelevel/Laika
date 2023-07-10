@@ -171,7 +171,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
     inputs.flatMap(
       _.build.map(in =>
         new Theme[F] {
-          def descriptor: ThemeDescriptor      = ThemeDescriptor(themeName)
+          def descriptor: ThemeDescriptor      = new ThemeDescriptor(themeName)
           def inputs: InputTree[F]             = in
           def extensions: Seq[ExtensionBundle] = self.extensions ++ bundleBuilder.build.toSeq
 

@@ -31,7 +31,7 @@ import java.net.URL
   *
   * @author Jens Halm
   */
-object ResourceLoader {
+private[io] object ResourceLoader {
 
   /** Load the file with the specified name.
     *

@@ -36,16 +36,16 @@ import laika.io.runtime.Batch
   *
   * @author Jens Halm
   */
-case class TransformerDescriptor(
-    parsers: NonEmptyList[String],
-    renderer: String,
-    bundles: Seq[ExtensionBundleDescriptor],
-    inputs: TreeInputDescriptor,
-    theme: ThemeDescriptor,
-    output: String,
-    strict: Boolean,
-    acceptRawContent: Boolean,
-    renderFormatted: Boolean
+class TransformerDescriptor private (
+    val parsers: NonEmptyList[String],
+    val renderer: String,
+    val bundles: Seq[ExtensionBundleDescriptor],
+    val inputs: TreeInputDescriptor,
+    val theme: ThemeDescriptor,
+    val output: String,
+    val strict: Boolean,
+    val acceptRawContent: Boolean,
+    val renderFormatted: Boolean
 ) {
 
   def formatted: String = {
@@ -67,12 +67,25 @@ case class TransformerDescriptor(
        |  $output""".stripMargin
   }
 
+  private[laika] def withRendererDescription(desc: String): TransformerDescriptor =
+    new TransformerDescriptor(
+      parsers,
+      desc,
+      bundles,
+      inputs,
+      theme,
+      output,
+      strict,
+      acceptRawContent,
+      renderFormatted
+    )
+
 }
 
 object TransformerDescriptor {
 
   def apply(parser: ParserDescriptor, renderer: RendererDescriptor): TransformerDescriptor =
-    apply(
+    new TransformerDescriptor(
       parser.parsers,
       renderer.renderer,
       parser.bundles,
@@ -84,23 +97,26 @@ object TransformerDescriptor {
       renderer.renderFormatted
     )
 
-  def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
-    renderDesc <- RendererDescriptor.create(
-      TreeRenderer.Op(
-        op.renderer,
-        op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
-        op.output,
-        Nil
+  private[io] def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] =
+    for {
+      parserDesc <- ParserDescriptor.create(new TreeParser.Op(op.parsers, op.theme, op.input))
+      renderDesc <- RendererDescriptor.create(
+        new TreeRenderer.Op(
+          op.renderer,
+          op.theme,
+          DocumentTreeRoot(DocumentTree(Root, Nil)),
+          op.output,
+          Nil
+        )
       )
-    )
-  } yield apply(parserDesc, renderDesc)
+    } yield apply(parserDesc, renderDesc)
 
-  def create[F[_]: Async: Batch](op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
+  private[io] def create[F[_]: Async: Batch](
+      op: BinaryTreeTransformer.Op[F]
+  ): F[TransformerDescriptor] = for {
+    parserDesc <- ParserDescriptor.create(new TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(
-      BinaryTreeRenderer.Op(
+      new BinaryTreeRenderer.Op(
         op.renderer,
         op.theme,
         DocumentTreeRoot(DocumentTree(Root, Nil)),

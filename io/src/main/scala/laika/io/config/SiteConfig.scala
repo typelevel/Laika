@@ -25,7 +25,7 @@ import laika.config.{ Config, LaikaKeys }
   *
   * @author Jens Halm
   */
-object SiteConfig {
+private[laika] object SiteConfig {
 
   private val defaultDownloadPath: Path = Root / "downloads"
   private val defaultApiPath: Path      = Root / "api"
