@@ -23,12 +23,7 @@ import laika.io.model.RenderedTreeRoot
   *
   * @author Jens Halm
   */
-object StyleSupport {
-
-  /** Path for the fallback styles that will be inserted
-    * when the user has not added any CSS documents to the input tree.
-    */
-  val fallbackStylePath: Path = Path.Root / "styles" / "fallback.css"
+private[epub] object StyleSupport {
 
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).

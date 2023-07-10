@@ -32,7 +32,7 @@ import laika.rewrite.{ DefaultTemplatePath, OutputContext }
   *
   * @author Jens Halm
   */
-object FOConcatenation {
+private[laika] object FOConcatenation {
 
   /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
     * and applies the default XSL-FO template to the entire result.

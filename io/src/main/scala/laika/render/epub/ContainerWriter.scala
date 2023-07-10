@@ -30,7 +30,7 @@ import laika.render.TagFormatter
   *
   * @author Jens Halm
   */
-class ContainerWriter {
+private[laika] class ContainerWriter {
 
   private val opfRenderer = new OPFRenderer
   private val navRenderer = new HtmlNavRenderer

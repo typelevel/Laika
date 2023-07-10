@@ -23,7 +23,7 @@ import laika.render.{ HTMLFormatter, HTMLRenderer }
   *
   *  @author Jens Halm
   */
-object XHTMLRenderer extends HTMLRenderer(format = "epub") {
+private[laika] object XHTMLRenderer extends HTMLRenderer(format = "epub") {
 
   def renderChoices(
       fmt: HTMLFormatter,

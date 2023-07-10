@@ -38,8 +38,10 @@ import org.apache.xmlgraphics.io.{ Resource, ResourceResolver }
   *
   * @author Jens Halm
   */
-class FopResourceResolver[F[_]: Async](input: Seq[BinaryInput[F]], dispatcher: Dispatcher[F])
-    extends ResourceResolver {
+private[pdf] class FopResourceResolver[F[_]: Async](
+    input: Seq[BinaryInput[F]],
+    dispatcher: Dispatcher[F]
+) extends ResourceResolver {
 
   private val fallbackResolver = ResourceResolverFactory.createDefaultResourceResolver()
 
