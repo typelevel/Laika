@@ -117,12 +117,7 @@ private[helium] object DownloadPageGenerator {
           RootElement(blocks),
           config = tree.root.config.withValue("helium.markupEditLinks", false).build
         )
-        val newRoot = tree.root.copy(
-          tree = tree.root.tree.copy(
-            content = doc +: tree.root.tree.content
-          )
-        )
-        new ParsedTree(newRoot, tree.staticDocuments)
+        tree.modifyTree(_.prependContent(doc))
       }
 
       Sync[F].fromEither(treeWithDownloadPage.leftMap(ConfigException.apply))

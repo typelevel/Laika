@@ -18,7 +18,6 @@ package laika.theme
 
 import cats.Monad
 import cats.data.Kleisli
-import cats.effect.Sync
 import laika.io.model.ParsedTree
 import laika.io.ops.TreeMapperOps
 import laika.theme.Theme.TreeProcessor
@@ -27,7 +26,7 @@ import laika.theme.Theme.TreeProcessor
   *
   * @author Jens Halm
   */
-abstract class TreeProcessorBuilder[F[_]: Monad] extends TreeMapperOps[F] {
+class TreeProcessorBuilder[F[_]: Monad] private () extends TreeMapperOps[F] {
 
   type MapRes = TreeProcessor[F]
 
@@ -38,6 +37,6 @@ abstract class TreeProcessorBuilder[F[_]: Monad] extends TreeMapperOps[F] {
   */
 object TreeProcessorBuilder {
 
-  def apply[F[_]: Sync]: TreeProcessorBuilder[F] = new TreeProcessorBuilder[F] {}
+  def apply[F[_]: Monad]: TreeProcessorBuilder[F] = new TreeProcessorBuilder[F]()
 
 }

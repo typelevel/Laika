@@ -52,7 +52,7 @@ object HeliumIcon {
   val github: Icon   = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
   val mastodon: Icon = InlineSVGIcon(SVGIcons.mastodonIcon, Some("Mastodon"), Styles("mastodon"))
 
-  val registry: IconRegistry = IconRegistry(
+  private[helium] val registry: IconRegistry = IconRegistry(
     "navigationMenu" -> navigationMenu,
     "home"           -> home,
     "link"           -> link,

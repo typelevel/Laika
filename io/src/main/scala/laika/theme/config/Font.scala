@@ -107,6 +107,8 @@ object Font {
 /** Base trait for the types of embedded fonts Laika supports, which are either a file-system or classpath resource.
   */
 sealed trait EmbeddedFont {
+
+  /** The virtual path within the output tree that the font resource will be placed at. */
   def path: Path
 }
 
@@ -116,7 +118,7 @@ case class EmbeddedFontFile(file: FilePath) extends EmbeddedFont {
   val path: Path = Root / "laika" / "fonts" / file.name
 }
 
-/** Represent a font files as a classpath resource.
+/** Represent a font file as a classpath resource.
   */
 case class EmbeddedFontResource(name: String) extends EmbeddedFont {
   val path: Path = Root / "laika" / "fonts" / VirtualPath.parse(name).name

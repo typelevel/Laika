@@ -434,7 +434,7 @@ private[laika] class FOStyles(helium: Helium) {
 
 }
 
-object FOStyles {
+private[laika] object FOStyles {
 
   val defaultPath: Path = Root / "styles.fo.css"
 
