@@ -27,11 +27,11 @@ import scala.concurrent.duration.FiniteDuration
   * @param pollInterval the interval at which input file resources are polled for changes (default 3 seconds)
   * @param isVerbose whether each served page and each detected file change should be logged (default false)
   */
-class LaikaPreviewConfig(
-    val port: Port,
-    val host: Host,
-    val pollInterval: FiniteDuration,
-    val isVerbose: Boolean
+case class LaikaPreviewConfig private (
+    port: Port,
+    host: Host,
+    pollInterval: FiniteDuration,
+    isVerbose: Boolean
 ) {
 
   private def copy(
@@ -61,7 +61,7 @@ class LaikaPreviewConfig(
 
 }
 
-/** Companion for preview server configuration instances.
+/** Companion for creating preview server configuration instances.
   */
 object LaikaPreviewConfig {
 
@@ -72,5 +72,7 @@ object LaikaPreviewConfig {
     ServerConfig.defaultPollInterval,
     false
   )
+
+  private def unapply(conf: LaikaPreviewConfig) = conf
 
 }

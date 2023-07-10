@@ -19,12 +19,12 @@ package laika.sbt
 import cats.effect.{ Async, IO, Resource }
 import cats.effect.unsafe.implicits.global
 import laika.api.builder.{ OperationConfig, ParserBuilder }
-import laika.api.{ MarkupParser, Transformer }
+import laika.api.MarkupParser
 import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.config.Config.ConfigResult
 import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.factory.MarkupFormat
-import laika.format.{ HTML, Markdown, ReStructuredText }
+import laika.format.{ Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.config.SiteConfig
 import laika.io.implicits.*
@@ -52,52 +52,6 @@ object Settings {
       .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(
         laikaConfig.value.encoding
       )
-  }
-
-  val describe: Initialize[Task[String]] = task {
-
-    val userConfig = laikaConfig.value
-
-    def mergedConfig(config: OperationConfig): OperationConfig = {
-      config
-        .withMessageFilters(
-          render = userConfig.renderMessages,
-          failOn = userConfig.failOnMessages
-        )
-        .withBundleFilter(userConfig.bundleFilter)
-    }
-
-    def createParser(format: MarkupFormat): ParserBuilder = {
-      val parser = MarkupParser.of(format)
-      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value: _*)
-    }
-
-    val transformer = Transformer
-      .from(Markdown)
-      .to(HTML)
-      .withConfig(mergedConfig(createParser(Markdown).config))
-      .using(laikaExtensions.value: _*)
-      .parallel[IO]
-      .withTheme(laikaTheme.value)
-      .withAlternativeParser(createParser(ReStructuredText))
-      .build
-
-    val inputs = laikaInputs.value.delegate
-
-    val result = transformer
-      .use(
-        _
-          .fromInput(inputs)
-          .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
-          .describe
-      )
-      .unsafeRunSync()
-      .withRendererDescription("Depending on task")
-      .formatted
-
-    streams.value.log.success("\n" + result)
-
-    result
   }
 
   val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
@@ -157,7 +111,7 @@ object Settings {
 
   /** The set of targets for the transformation tasks of all supported output formats.
     */
-  val allTargets = setting {
+  val allTargets: Initialize[Set[File]] = setting {
     Set(
       (laikaSite / target).value,
       (laikaXSLFO / target).value,
@@ -168,7 +122,7 @@ object Settings {
   /** Adapts a Laika configuration value to the synchronous/impure APIs of sbt.
     * This method throws an exception in case the provided value is a `Left`.
     */
-  def validated[T](value: ConfigResult[T]): T = value.fold[T](
+  private[sbt] def validated[T](value: ConfigResult[T]): T = value.fold[T](
     err => throw new RuntimeException(s"Error in project configuration: ${err.message}"),
     identity
   )

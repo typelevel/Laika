@@ -30,7 +30,7 @@ import laika.io.api.TreeParser
 import laika.io.model.{ FilePath, InputTreeBuilder }
 import laika.preview.ServerBuilder.Logger
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{ HttpApp, HttpRoutes, Request }
+import org.http4s.{ HttpApp, HttpRoutes, Request, Response }
 import org.http4s.implicits.*
 import org.http4s.server.{ Router, Server }
 import org.http4s.ember.server.EmberServerBuilder
@@ -46,12 +46,12 @@ import scala.concurrent.duration.*
   *
   * @author Jens Halm
   */
-class ServerBuilder[F[_]: Async](
+class ServerBuilder[F[_]: Async] private (
     parser: Resource[F, TreeParser[F]],
     inputs: InputTreeBuilder[F],
     logger: Option[Logger[F]],
     config: ServerConfig
-) extends Http4sDsl[F] {
+) {
 
   private val RefreshEvent = "refresh"
 
@@ -76,6 +76,10 @@ class ServerBuilder[F[_]: Async](
     )
   }
 
+  private object ResponseBuilder extends Http4sDsl[F] {
+    def ok(output: String): F[Response[F]] = Ok(output)
+  }
+
   private def createApp(cache: Cache[F, SiteResults[F]], topic: Topic[F, String]): HttpApp[F] = {
     def renderStacktrace(service: HttpRoutes[F]): HttpRoutes[F] = Kleisli { (req: Request[F]) =>
       service(req).recoverWith { case err =>
@@ -83,7 +87,7 @@ class ServerBuilder[F[_]: Async](
           val sw = new StringWriter()
           err.printStackTrace(new PrintWriter(sw))
           sw.toString
-        }.flatMap(Ok(_)))
+        }.flatMap(ResponseBuilder.ok(_)))
       }
     }
     val routeLogger                                             =

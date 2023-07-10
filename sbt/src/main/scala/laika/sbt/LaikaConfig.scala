@@ -29,7 +29,7 @@ import scala.io.Codec
   *
   * @author Jens Halm
   */
-case class LaikaConfig(
+case class LaikaConfig private (
     encoding: Codec = Codec.UTF8,
     bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
@@ -106,5 +106,7 @@ object LaikaConfig {
   /** The default settings for the Laika plugin that can be modified with the methods of the returned instance.
     */
   def defaults: LaikaConfig = LaikaConfig()
+
+  private def unapply(conf: LaikaConfig) = conf
 
 }

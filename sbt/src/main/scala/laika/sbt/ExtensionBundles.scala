@@ -36,7 +36,7 @@ import laika.render.{ FOFormatter, HTMLFormatter }
   *
   * @author Jens Halm
   */
-trait ExtensionBundles {
+private[sbt] trait ExtensionBundles {
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
