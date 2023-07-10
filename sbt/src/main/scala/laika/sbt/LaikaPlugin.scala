@@ -157,7 +157,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaConfig                 := LaikaConfig(),
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,
-    laikaDescribe               := Settings.describe.value,
+    laikaDescribe               := Tasks.describe.value,
     laikaIncludeAPI             := false,
     laikaIncludeEPUB            := Settings.validated(
       Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includeEPUB", false)

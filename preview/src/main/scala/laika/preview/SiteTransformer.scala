@@ -179,7 +179,7 @@ private[preview] object SiteTransformer {
 
 }
 
-class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
+private[preview] class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 
   def get(path: Path): Option[SiteResult[F]] = map.get(path)
 
@@ -188,7 +188,9 @@ class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 }
 
 @nowarn
-sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
+private[preview] sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
 
-case class RenderedResult[F[_]: Async](content: String)            extends SiteResult[F]
-case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte]) extends SiteResult[F]
+private[preview] case class RenderedResult[F[_]: Async](content: String) extends SiteResult[F]
+
+private[preview] case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte])
+    extends SiteResult[F]

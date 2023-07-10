@@ -26,7 +26,7 @@ import sbt.Logger
   *
   * @author Jens Halm
   */
-object Logs {
+private[sbt] object Logs {
 
   def s(num: Int): String = if (num == 1) "" else "s"
 
