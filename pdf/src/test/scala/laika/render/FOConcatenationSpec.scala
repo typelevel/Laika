@@ -37,11 +37,11 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   private val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
 
-  private val result = RenderedTreeRoot[IO](
-    tree = RenderedTree(
+  private val result = new RenderedTreeRoot[IO](
+    tree = new RenderedTree(
       Root,
       None,
-      Seq(RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
+      Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
     ),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,

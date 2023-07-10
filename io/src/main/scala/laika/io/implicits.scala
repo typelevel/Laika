@@ -69,7 +69,7 @@ import laika.io.runtime.Batch
   */
 object implicits {
 
-  implicit class ImplicitParserOps(val builder: ParserBuilder)
+  implicit class ImplicitParserOps(builder: ParserBuilder)
       extends IOBuilderOps[TreeParser.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeParser.Builder[F] =
@@ -77,7 +77,7 @@ object implicits {
 
   }
 
-  implicit class ImplicitTextRendererOps(val builder: RendererBuilder[_])
+  implicit class ImplicitTextRendererOps(builder: RendererBuilder[_])
       extends IOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
@@ -85,7 +85,7 @@ object implicits {
 
   }
 
-  implicit class ImplicitTextTransformerOps(val builder: TransformerBuilder[_])
+  implicit class ImplicitTextTransformerOps(builder: TransformerBuilder[_])
       extends IOBuilderOps[TreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeTransformer.Builder[F] = {
@@ -101,7 +101,7 @@ object implicits {
   }
 
   implicit class ImplicitBinaryRendererOps(
-      val builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]
+      builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]
   ) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeRenderer.Builder[F] = {
@@ -115,7 +115,7 @@ object implicits {
   }
 
   implicit class ImplicitBinaryTransformerOps(
-      val builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]
+      builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]
   ) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeTransformer.Builder[F] = {

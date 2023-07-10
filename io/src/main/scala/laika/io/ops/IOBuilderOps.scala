@@ -23,7 +23,7 @@ import laika.io.runtime.Batch
   *
   * @author Jens Halm
   */
-abstract class IOBuilderOps[T[_[_]]] {
+private[io] abstract class IOBuilderOps[T[_[_]]] {
 
   /** Creates a builder for sequential execution.
     */

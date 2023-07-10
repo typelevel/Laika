@@ -62,7 +62,7 @@ class ContainerWriter {
     def toBinaryInput(content: String, path: Path): BinaryInput[F] =
       BinaryInput.fromString(content, path)
 
-    val finalResult = result.copy[F](staticDocuments = result.staticDocuments)
+    val finalResult = result.withStaticDocuments(result.staticDocuments)
 
     val staticDocs: Seq[BinaryInput[F]] = finalResult.staticDocuments
       .filter(in =>
@@ -72,7 +72,7 @@ class ContainerWriter {
         )
       )
       .map { doc =>
-        doc.copy(path = shiftContentPath(doc.path))
+        doc.withPath(shiftContentPath(doc.path))
       }
 
     val title = TagFormatter.escape(

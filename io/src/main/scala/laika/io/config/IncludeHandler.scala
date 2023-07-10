@@ -37,7 +37,7 @@ import laika.parse.hocon.{
   *
   * @author Jens Halm
   */
-object IncludeHandler {
+private[io] object IncludeHandler {
 
   case class RequestedInclude(resource: IncludeResource, parent: Option[IncludeResource])
 

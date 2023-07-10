@@ -20,7 +20,7 @@ package laika.io.descriptor
   *
   * @author Jens Halm
   */
-case class ThemeDescriptor(description: String, extensions: Seq[String] = Nil) {
+class ThemeDescriptor(val description: String, val extensions: Seq[String] = Nil) {
 
   def formatted: String = {
     val extensionDesc =
@@ -31,6 +31,6 @@ case class ThemeDescriptor(description: String, extensions: Seq[String] = Nil) {
   }
 
   def extendWith(extension: ThemeDescriptor): ThemeDescriptor =
-    copy(extensions = extensions ++ (extension.description +: extension.extensions))
+    new ThemeDescriptor(description, extensions ++ (extension.description +: extension.extensions))
 
 }

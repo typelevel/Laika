@@ -68,7 +68,7 @@ class OPFRendererSpec extends FunSuite {
     private val subtree = tree(Path.Root / "sub", 4, doc2)
 
     def input(hasJS: Boolean): RenderedTreeRoot[IO] = rootTree(Path.Root, 1, doc1, subtree)
-      .copy[IO](staticDocuments = if (hasJS) Seq(static1, static2, static3) else Seq(static3))
+      .withStaticDocuments(if (hasJS) Seq(static1, static2, static3) else Seq(static3))
 
   }
 

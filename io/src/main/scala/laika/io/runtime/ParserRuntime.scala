@@ -36,7 +36,7 @@ import laika.rewrite.link.LinkValidation
   *
   *  @author Jens Halm
   */
-object ParserRuntime {
+private[io] object ParserRuntime {
 
   import DocumentTreeBuilder._
 
@@ -123,7 +123,7 @@ object ParserRuntime {
         } yield result
         InvalidDocuments
           .from(finalTree, op.config.failOnMessages)
-          .map(ParsedTree(_, inputs.binaryInputs))
+          .map(new ParsedTree(_, inputs.binaryInputs))
       }
 
       def loadIncludes(results: Vector[ParserResult]): F[IncludeMap] = {
@@ -143,23 +143,15 @@ object ParserRuntime {
       val globalFallbackConfig = ConfigBuilder.empty.withValue(LinkValidation.Global()).build
       val baseConfig           = op.config.baseConfig.withFallback(globalFallbackConfig)
 
-      def allResults(parsedResults: Seq[ParserResult]): Seq[BuilderPart] = {
-        // TODO - compatibility mode - remove in 1.x
-        parsedResults.map(_.treePart) ++ inputs.parsedResults.flatMap {
-          case res: TreeResultBuilder.DocumentResult => Some(DocumentPart(res.doc))
-          case res: TreeResultBuilder.ConfigResult   => Some(ConfigPart(res.path, res.config))
-          case res: TreeResultBuilder.TemplateResult => Some(TemplatePart(res.doc))
-          case res: TreeResultBuilder.StyleResult    => Some(StylePart(res.doc, res.format))
-        }
-      }
-
       def buildTree(
           parsedResults: Seq[ParserResult],
           includes: IncludeMap
-      ): Either[ParserError, DocumentTreeRoot] =
-        new DocumentTreeBuilder(allResults(parsedResults).toList)
+      ): Either[ParserError, DocumentTreeRoot] = {
+        val allResults = parsedResults.map(_.treePart) ++ inputs.treeBuilder.distinctParts
+        new DocumentTreeBuilder(allResults.toList)
           .resolveAndBuildRoot(baseConfig, includes)
           .leftMap(ParserError(_, Root))
+      }
 
       for {
         ops      <- Sync[F].fromEither(createOps)

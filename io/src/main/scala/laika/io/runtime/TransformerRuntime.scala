@@ -44,7 +44,7 @@ import laika.theme.Theme.TreeProcessor
   *
   *  @author Jens Halm
   */
-object TransformerRuntime {
+private[io] object TransformerRuntime {
 
   private def themeWithoutInputs[F[_]](theme: Theme[F]): Theme[F] = new Theme[F] {
     def descriptor: ThemeDescriptor               = theme.descriptor
@@ -61,13 +61,13 @@ object TransformerRuntime {
   /** Process the specified transform operation for an entire input tree and a character output format.
     */
   def run[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[RenderedTreeRoot[F]] = for {
-    tree       <- TreeParser.Op(
+    tree       <- new TreeParser.Op(
       op.parsers,
       op.theme,
       op.input.withFileFilter(fileFilterFor(op.output))
     ).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- TreeRenderer.Op(
+    res        <- new TreeRenderer.Op(
       op.renderer,
       themeWithoutInputs(op.theme),
       mappedTree.root,
@@ -79,9 +79,9 @@ object TransformerRuntime {
   /** Process the specified transform operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Batch](op: BinaryTreeTransformer.Op[F]): F[Unit] = for {
-    tree       <- TreeParser.Op(op.parsers, op.theme, op.input).parse
+    tree       <- new TreeParser.Op(op.parsers, op.theme, op.input).parse
     mappedTree <- op.mapper.run(tree)
-    res        <- BinaryTreeRenderer.Op[F](
+    res        <- new BinaryTreeRenderer.Op[F](
       op.renderer,
       themeWithoutInputs(op.theme),
       mappedTree.root,

@@ -113,8 +113,8 @@ class TreeRendererSpec extends CatsEffectSuite
         titleDocument: Option[RenderedDocument] = None,
         coverDocument: Option[RenderedDocument] = None,
         staticDocuments: Seq[Path] = Nil
-    ): RenderedTreeRoot[IO] = RenderedTreeRoot(
-      RenderedTree(Root, title, content, titleDocument),
+    ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
+      new RenderedTree(Root, title, content, titleDocument),
       TemplateRoot.fallback,
       Config.empty,
       outputContext,
@@ -124,16 +124,16 @@ class TreeRendererSpec extends CatsEffectSuite
     )
 
     def tree(path: Path, content: Seq[RenderContent]): RenderedTree =
-      RenderedTree(path, None, content)
+      new RenderedTree(path, None, content)
 
     def doc(path: Path): RenderedDocument                   = doc(path, content, "Title")
     def doc(path: Path, expected: String): RenderedDocument = doc(path, expected, "Title")
 
     def doc(path: Path, expected: String, title: String): RenderedDocument =
-      RenderedDocument(path, Some(SpanSequence(title)), Nil, expected, Config.empty)
+      new RenderedDocument(path, Some(SpanSequence(title)), Nil, expected, Config.empty)
 
     def docNoTitle(path: Path, expected: String): RenderedDocument =
-      RenderedDocument(path, None, Nil, expected, Config.empty)
+      new RenderedDocument(path, None, Nil, expected, Config.empty)
 
     def docNoTitle(path: Path): RenderedDocument = docNoTitle(path, content)
 

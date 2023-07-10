@@ -92,7 +92,7 @@ object Settings {
           .describe
       )
       .unsafeRunSync()
-      .copy(renderer = "Depending on task")
+      .withRendererDescription("Depending on task")
       .formatted
 
     streams.value.log.success("\n" + result)

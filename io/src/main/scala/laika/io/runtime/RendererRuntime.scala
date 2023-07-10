@@ -25,7 +25,6 @@ import laika.ast._
 import laika.config.{ ConfigError, ConfigException, LaikaKeys }
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.model._
-import laika.io.runtime.TreeResultBuilder.{ ParserResult, StyleResult, TemplateResult }
 import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav._
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Versions }
@@ -35,7 +34,7 @@ import laika.rewrite.{ DefaultTemplatePath, OutputContext, Versions }
   *
   *  @author Jens Halm
   */
-object RendererRuntime {
+private[io] object RendererRuntime {
 
   private[laika] case class RenderConfig()
 
@@ -116,7 +115,7 @@ object RendererRuntime {
             )
             _            <- output(outputPath).writer(renderResult)
           } yield {
-            val result = RenderedDocument(
+            val result = new RenderedDocument(
               outputPath,
               document.title,
               document.sections,
@@ -133,7 +132,7 @@ object RendererRuntime {
         dir: Option[FilePath],
         pathTranslator: Path => Path
     ): Seq[F[RenderResult]] = docs.map { doc =>
-      val translatedDoc        = doc.copy(path = pathTranslator(doc.path))
+      val translatedDoc        = doc.withPath(pathTranslator(doc.path))
       val result: RenderResult = Left(translatedDoc)
       dir.map(file(_, translatedDoc.path)) match {
         case Some(outFile) if !doc.sourceFile.contains(outFile) =>
@@ -151,7 +150,7 @@ object RendererRuntime {
         staticDocs: Seq[BinaryInput[F]]
     ): RenderOps = {
 
-      val styles = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.parsedResults)
+      val styles          = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.treeBuilder)
       val pathTranslatorF = pathTranslator.translate(_: Path)
 
       def createDirectory(file: FilePath): F[Unit] =
@@ -193,7 +192,7 @@ object RendererRuntime {
           val titleDoc = content.collectFirst {
             case doc: RenderedDocument if titleName.contains(doc.path.basename) => doc
           }
-          RenderedTree(
+          new RenderedTree(
             path,
             title,
             content.filterNot(doc => titleDoc.exists(_.path == doc.path)),
@@ -208,7 +207,7 @@ object RendererRuntime {
         val template   =
           finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
 
-        RenderedTreeRoot[F](
+        new RenderedTreeRoot[F](
           resultRoot,
           template,
           finalRoot.config,
@@ -236,9 +235,12 @@ object RendererRuntime {
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }
 
-    def getThemeStyles(themeInputs: Seq[ParserResult]): StyleDeclarationSet = themeInputs.collect {
-      case StyleResult(doc, format, _) if format == op.renderer.format.fileSuffix => doc
-    }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
+    def getThemeStyles(themeInputs: DocumentTreeBuilder): StyleDeclarationSet =
+      themeInputs.distinctParts.collect {
+        case DocumentTreeBuilder.StylePart(doc, format)
+            if format == op.renderer.format.fileSuffix =>
+          doc
+      }.reduceLeftOption(_ ++ _).getOrElse(StyleDeclarationSet.empty)
 
     def generateVersionInfo(
         finalRoot: DocumentTreeRoot,
@@ -285,7 +287,7 @@ object RendererRuntime {
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs  =
       op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
-    val tree        = ParsedTree(op.input, staticDocs)
+    val tree        = new ParsedTree(op.input, staticDocs)
 
     for {
       mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
@@ -310,8 +312,9 @@ object RendererRuntime {
       themeInputs: InputTree[F],
       suffix: String
   ): TemplateRoot =
-    themeInputs.parsedResults.collectFirst {
-      case TemplateResult(doc, _) if doc.path == DefaultTemplatePath.forSuffix(suffix) =>
+    themeInputs.treeBuilder.distinctParts.collectFirst {
+      case DocumentTreeBuilder.TemplatePart(doc)
+          if doc.path == DefaultTemplatePath.forSuffix(suffix) =>
         doc.content
     }.getOrElse(TemplateRoot.fallback)
 
@@ -327,7 +330,7 @@ object RendererRuntime {
     for {
       preparedTree <- Async[F].fromEither(op.renderer.prepareTree(op.input))
       renderedTree <- run(
-        TreeRenderer.Op[F](
+        new TreeRenderer.Op[F](
           op.renderer.interimRenderer,
           op.theme,
           preparedTree,
@@ -337,7 +340,7 @@ object RendererRuntime {
         op.theme.inputs,
         context
       )
-      finalTree = renderedTree.copy[F](defaultTemplate = template)
+      finalTree = renderedTree.withDefaultTemplate(template)
       _ <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
   }

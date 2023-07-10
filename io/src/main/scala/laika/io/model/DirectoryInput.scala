@@ -29,7 +29,7 @@ import scala.io.Codec
   * The specified `docTypeMatcher` is responsible for determining the type of input
   * (e.g. text markup, template, etc.) based on the (virtual) document path.
   */
-case class DirectoryInput(
+private[io] case class DirectoryInput(
     directories: Seq[FilePath],
     codec: Codec,
     docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
@@ -37,7 +37,7 @@ case class DirectoryInput(
     mountPoint: Path = Root
 )
 
-object DirectoryInput {
+private[io] object DirectoryInput {
 
   /** A filter that selects files that are hidden in a platform-dependent way.
     */

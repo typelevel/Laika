@@ -30,7 +30,7 @@ trait InputTreeBuilder extends InputBuilder {
   val uuid = "some-uuid"
 
   def doc(path: Path, title: String): RenderedDocument =
-    RenderedDocument(
+    new RenderedDocument(
       path.withSuffix("xhtml"),
       Some(SpanSequence(Text(title))),
       Nil,
@@ -44,7 +44,7 @@ trait InputTreeBuilder extends InputBuilder {
       sections: Seq[SectionInfo] = Nil,
       config: Config = Config.empty
   ): RenderedDocument =
-    RenderedDocument(
+    new RenderedDocument(
       path.withSuffix("xhtml"),
       Some(SpanSequence(Text(s"Title $num"))),
       sections,
@@ -60,14 +60,23 @@ trait InputTreeBuilder extends InputBuilder {
   def configWithTreeTitle(num: Int): Config =
     ConfigBuilder.empty.withValue(LaikaKeys.title, s"Tree $num").build
 
-  def rootTree(path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] = {
+  def rootTree(path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot[IO] =
+    rootTree(path, titleNum, None, docs)
+
+  def rootTree(
+      path: Path,
+      titleNum: Int,
+      cover: Option[RenderedDocument],
+      docs: Seq[RenderContent]
+  ): RenderedTreeRoot[IO] = {
     val outputContext = OutputContext("ignored")
-    RenderedTreeRoot(
+    new RenderedTreeRoot(
       tree(path, titleNum, docs: _*),
       TemplateRoot.empty,
       Config.empty,
       outputContext,
-      NoOpPathTranslator // not reflecting real result, but not part of any assertions
+      NoOpPathTranslator, // not reflecting real result, but not part of any assertions
+      coverDocument = cover
     )
   }
 
@@ -79,7 +88,7 @@ trait InputTreeBuilder extends InputBuilder {
     val title    = titleDoc.fold(SpanSequence(s"Tree $titleNum")) { _ =>
       SpanSequence(s"From TitleDoc")
     }
-    RenderedTree(path, Some(title), content, titleDoc)
+    new RenderedTree(path, Some(title), content, titleDoc)
   }
 
 }
@@ -136,10 +145,8 @@ object DocumentPlusCover extends InputTreeBuilder {
   val doc2  = doc(Path.Root / "bar", 3)
   val cover = doc(Path.Root / "cover", 0)
 
-  val input = rootTree(Path.Root, 1, doc1, doc2).copy[IO](
-    coverDocument = Some(cover),
-    staticDocuments = Seq(ByteInput("", Root / "cover.png"))
-  )
+  val input = rootTree(Path.Root, 1, Some(cover), Seq(doc1, doc2))
+    .withStaticDocuments(Seq(ByteInput("", Root / "cover.png")))
 
 }
 
@@ -148,7 +155,7 @@ object DocumentPlusStyle extends InputTreeBuilder {
   val doc1 = doc(Path.Root / "foo", 2)
   val css  = ByteInput("{}", Path.Root / "test-style.css")
 
-  val input = rootTree(Path.Root, 1, doc1).copy[IO](staticDocuments = Seq(css))
+  val input = rootTree(Path.Root, 1, doc1).withStaticDocuments(Seq(css))
 }
 
 object NestedTree extends InputTreeBuilder {
@@ -193,7 +200,8 @@ object TreeWithStaticDocuments extends InputTreeBuilder {
   val subtree = tree(Path.Root / "sub", 4, doc2)
 
   val input =
-    rootTree(Path.Root, 1, doc1, subtree).copy[IO](staticDocuments = Seq(static1, static2, unknown))
+    rootTree(Path.Root, 1, doc1, subtree)
+      .withStaticDocuments(Seq(static1, static2, unknown))
 
 }
 

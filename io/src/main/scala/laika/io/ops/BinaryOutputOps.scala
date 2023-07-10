@@ -29,11 +29,11 @@ import java.io.OutputStream
   *
   * @author Jens Halm
   */
-trait BinaryOutputOps[F[_]] {
+private[io] trait BinaryOutputOps[F[_]] {
 
   type Result
 
-  def F: Async[F]
+  protected def F: Async[F]
 
   /** Builder step that instructs the runtime to render
     * to the file with the specified name.

@@ -181,8 +181,8 @@ class TreeTransformerSpec extends CatsEffectSuite
       coverDocument: Option[RenderedDocument] = None,
       staticDocuments: Seq[Path] = Nil,
       outputContext: OutputContext = OutputContext(AST)
-  ): RenderedTreeRoot[IO] = RenderedTreeRoot(
-    RenderedTree(Root, None, content, titleDocument),
+  ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
+    new RenderedTree(Root, None, content, titleDocument),
     TemplateRoot.fallback,
     Config.empty,
     outputContext,
@@ -192,10 +192,10 @@ class TreeTransformerSpec extends CatsEffectSuite
   )
 
   def renderedTree(path: Path, content: Seq[RenderContent]): RenderedTree =
-    RenderedTree(path, None, content)
+    new RenderedTree(path, None, content)
 
   def renderedDoc(path: Path, expected: String): RenderedDocument =
-    RenderedDocument(path, None, Nil, expected, Config.empty)
+    new RenderedDocument(path, None, Nil, expected, Config.empty)
 
   def docs(values: (Path, String)*): Seq[RenderedDocument] =
     values.map { case (path, content) => renderedDoc(path, content) }
@@ -507,10 +507,13 @@ class TreeTransformerSpec extends CatsEffectSuite
     def assertTree(f: IO[RenderedTreeRoot[IO]], titleSlug: String, sectionSlug: String): IO[Unit] =
       f.assertEquals(
         renderedRoot(
-          docs((Root / "baz.txt", targetRes(titleSlug, sectionSlug))).map(
-            _.copy(
-              title = Some(title),
-              sections = Seq(SectionInfo(sectionSlug, SpanSequence("Section Title"), Nil))
+          docs((Root / "baz.txt", targetRes(titleSlug, sectionSlug))).map(doc =>
+            new RenderedDocument(
+              doc.path,
+              Some(title),
+              Seq(SectionInfo(sectionSlug, SpanSequence("Section Title"), Nil)),
+              doc.content,
+              doc.config
             )
           ) ++
             trees((Root / "foo", docs((Root / "foo" / "bar.txt", refRes(sectionSlug))))),

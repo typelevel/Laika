@@ -16,7 +16,6 @@
 
 package laika.io.ops
 
-import cats.effect.Sync
 import laika.io.model.{ DirectoryOutput, FilePath, TreeOutput }
 
 import scala.io.Codec
@@ -28,9 +27,7 @@ import scala.io.Codec
   *
   * @author Jens Halm
   */
-trait TextOutputOps[F[_]] {
-
-  def F: Sync[F]
+private[io] trait TextOutputOps[F[_]] {
 
   type Result
 

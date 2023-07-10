@@ -19,7 +19,7 @@ package laika.io.model
 import cats.effect.{ Resource, Sync }
 import laika.ast.Path
 
-import java.io.{ File, OutputStream }
+import java.io.OutputStream
 
 /** A resource for binary output.
   *
@@ -29,10 +29,10 @@ import java.io.{ File, OutputStream }
   * This is the only I/O type not expressed through a generic `F[_]` or an `fs2.Stream` or `fs2.Pipe`
   * as Laika's binary output needs to work with Java libraries for its EPUB and PDF output.
   */
-case class BinaryOutput[F[_]](
-    resource: Resource[F, OutputStream],
-    path: Path,
-    targetFile: Option[File] = None
+class BinaryOutput[F[_]] private (
+    val resource: Resource[F, OutputStream],
+    val path: Path,
+    val targetFile: Option[FilePath] = None
 )
 
 object BinaryOutput {
@@ -43,7 +43,7 @@ object BinaryOutput {
         new java.io.BufferedOutputStream(new java.io.FileOutputStream(file.toJavaFile))
       )
     )
-    BinaryOutput(resource, path)
+    new BinaryOutput(resource, path, Some(file))
   }
 
   def forStream[F[_]: Sync](
@@ -52,7 +52,7 @@ object BinaryOutput {
       autoClose: Boolean = true
   ): BinaryOutput[F] = {
     val resource = if (autoClose) Resource.fromAutoCloseable(stream) else Resource.eval(stream)
-    BinaryOutput(resource, path)
+    new BinaryOutput(resource, path)
   }
 
 }
