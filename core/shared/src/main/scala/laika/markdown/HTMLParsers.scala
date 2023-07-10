@@ -18,7 +18,7 @@ package laika.markdown
 
 import cats.data.NonEmptySet
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder }
+import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
 import laika.markdown.ast._
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
@@ -156,7 +156,7 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
     */
-  val htmlSpan: SpanParserBuilder = SpanParser.recursive { recParsers =>
+  val htmlSpan: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     "<" ~> (htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(
       recParsers
     ) | htmlEndTag | htmlStartTag)
@@ -164,7 +164,7 @@ object HTMLParsers {
 
   /** Parses a numeric or named character reference.
     */
-  val htmlCharRef: SpanParserBuilder = SpanParser.standalone(htmlCharReference)
+  val htmlCharRef: SpanParserBuilder = SpanParserBuilder.standalone(htmlCharReference)
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
     */
@@ -249,6 +249,6 @@ object HTMLParsers {
     "<" ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
 
   lazy val htmlBlockFragment: BlockParserBuilder =
-    BlockParser.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
+    BlockParserBuilder.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
 
 }

@@ -56,13 +56,13 @@ sealed trait ParserDefinition[E <: Element] {
   * @param paragraphLineCheck a test for the start of each line in plain paragraphs that indicates whether the line might
   *                           be the start of a block identified by this parser
   */
-case class BlockParserDefinition(
-    startChars: Set[Char],
-    parser: Parser[Block],
-    isRecursive: Boolean,
-    position: BlockPosition,
-    precedence: Precedence,
-    paragraphLineCheck: Option[PrefixedParser[Any]] = None
+class BlockParserDefinition(
+    val startChars: Set[Char],
+    val parser: Parser[Block],
+    val isRecursive: Boolean,
+    val position: BlockPosition,
+    val precedence: Precedence,
+    val paragraphLineCheck: Option[PrefixedParser[Any]] = None
 ) extends ParserDefinition[Block]
 
 /** Defines a parser for a single kind of span element,
@@ -74,11 +74,11 @@ case class BlockParserDefinition(
   * @param precedence indicates whether the parser should be applied before the base parsers of
   * the host language (high precedence) or after them
   */
-case class SpanParserDefinition(
-    startChars: NonEmptySet[Char],
-    parser: Parser[Span],
-    isRecursive: Boolean,
-    precedence: Precedence
+class SpanParserDefinition(
+    val startChars: NonEmptySet[Char],
+    val parser: Parser[Span],
+    val isRecursive: Boolean,
+    val precedence: Precedence
 ) extends ParserDefinition[Span]
 
 /** Indicates whether a parser should be applied before the base parsers of

@@ -26,7 +26,7 @@ import munit.FunSuite
 
 class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
-  val rootParser = new RootParser(ReStructuredText, ParserBundle().markupExtensions)
+  val rootParser = new RootParser(ReStructuredText, new ParserBundle().markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   def textRow(cells: String*): Row = Row(cells.map(BodyCell(_)))

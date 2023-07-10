@@ -18,7 +18,7 @@ package laika.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
 import laika.ast.*
-import laika.bundle.{ BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder }
+import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
 import laika.config.Key
 import laika.directive.*
 import laika.parse.builders.*
@@ -41,7 +41,7 @@ import laika.parse.{
   *
   *  @author Jens Halm
   */
-object DirectiveParsers {
+private[laika] object DirectiveParsers {
 
   case class DirectiveSpec(name: String, fence: String)
 
@@ -160,16 +160,16 @@ object DirectiveParsers {
 
 /** Provides the parser definitions for span directives in markup documents.
   */
-object SpanDirectiveParsers {
+private[laika] object SpanDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Spans
 
   val contextRef: SpanParserBuilder =
-    SpanParser.standalone(hoconReference(MarkupContextReference(_, _, _), identity))
+    SpanParserBuilder.standalone(hoconReference(MarkupContextReference(_, _, _), identity))
 
   def spanDirective(directives: Map[String, Spans.Directive]): SpanParserBuilder =
-    SpanParser.recursive(rec => spanDirectiveParser(directives)(rec))
+    SpanParserBuilder.recursive(rec => spanDirectiveParser(directives)(rec))
 
   def spanDirectiveParser(
       directives: Map[String, Spans.Directive]
@@ -197,13 +197,13 @@ object SpanDirectiveParsers {
 
 /** Provides the parser definitions for block directives in markup documents.
   */
-object BlockDirectiveParsers {
+private[laika] object BlockDirectiveParsers {
 
   import DirectiveParsers._
   import laika.directive.Blocks
 
   def blockDirective(directives: Map[String, Blocks.Directive]): BlockParserBuilder =
-    BlockParser.recursive(blockDirectiveParser(directives))
+    BlockParserBuilder.recursive(blockDirectiveParser(directives))
 
   def blockDirectiveParser(
       directives: Map[String, Blocks.Directive]

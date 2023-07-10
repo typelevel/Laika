@@ -100,7 +100,7 @@ trait ExtensionBundle { self =>
   /** Specifies extensions and/or replacements for parsers that deal with
     * text markup, templates, CSS or configuration headers.
     */
-  def parsers: ParserBundle = ParserBundle()
+  def parsers: ParserBundle = new ParserBundle()
 
   /** Specifies rewrite rules to be applied to the document tree model between the
     * parse and render operations.
@@ -282,7 +282,7 @@ object ExtensionBundle {
     override val baseConfig: Config =
       ConfigBuilder.empty.withValue("laika.version", "0.19.3").build
 
-    override val parsers: ParserBundle = ParserBundle(
+    override val parsers: ParserBundle = new ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
 

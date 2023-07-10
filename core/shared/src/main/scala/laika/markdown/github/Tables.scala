@@ -17,7 +17,7 @@
 package laika.markdown.github
 
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.markdown.BlockParsers._
 import laika.parse.{ LineSource, Parser }
 import laika.parse.text.PrefixedParser
@@ -32,7 +32,7 @@ import laika.parse.implicits._
   */
 object Tables {
 
-  val parser: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
+  val parser: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     def cell(textParser: Parser[LineSource], cellType: CellType): Parser[Cell] =
       spanParsers.recursiveSpans(textParser).map { spans =>
         Cell(cellType, Seq(Paragraph(spans)))

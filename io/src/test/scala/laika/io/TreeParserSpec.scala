@@ -565,7 +565,7 @@ class TreeParserSpec
     def spanFor(deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
     def spanFor(deco: Char, overrideDeco: Char): SpanParserBuilder =
-      SpanParser.standalone {
+      SpanParserBuilder.standalone {
         (deco.toString ~> anyNot(' ')).map(DecoratedSpan(overrideDeco, _))
       }
 

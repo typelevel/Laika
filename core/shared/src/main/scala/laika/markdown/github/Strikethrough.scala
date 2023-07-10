@@ -17,7 +17,7 @@
 package laika.markdown.github
 
 import laika.ast.Deleted
-import laika.bundle.{ SpanParser, SpanParserBuilder }
+import laika.bundle.SpanParserBuilder
 import laika.markdown.InlineParsers.enclosedByDoubleChar
 
 /** Parser for spans with strike-through markup.
@@ -28,7 +28,7 @@ import laika.markdown.InlineParsers.enclosedByDoubleChar
   */
 object Strikethrough {
 
-  val parser: SpanParserBuilder = SpanParser.recursive { implicit recParsers =>
+  val parser: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     enclosedByDoubleChar('~').map { Deleted(_) }
   }
 

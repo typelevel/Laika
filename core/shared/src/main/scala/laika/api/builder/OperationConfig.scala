@@ -143,7 +143,7 @@ class OperationConfig private[laika] (
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.
     */
-  lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
+  private[laika] lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
 
   /** Provides the parser for configuration documents and configuration headers in text markup
     * and template documents.

@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.ast._
-import laika.bundle.{ BlockParser, BlockParserBuilder, BlockParserBuilderOps, BlockPosition }
+import laika.bundle.{ BlockParserBuilder, BlockPosition }
 import laika.parse.{ BlockSource, LineSource, Parser }
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
@@ -90,14 +90,14 @@ object BlockParsers {
     * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
     */
   lazy val rootHeaderOrParagraph: BlockParserBuilder =
-    BlockParser.recursive(headerOrParagraph(_, BlockPosition.RootOnly)).rootOnly
+    BlockParserBuilder.recursive(headerOrParagraph(_, BlockPosition.RootOnly)).rootOnly
 
   /** Parses either a setext header, or a plain paragraph if the second line of the block
     * is not a setext header decoration.
     * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
     */
   lazy val nestedHeaderOrParagraph: BlockParserBuilder =
-    BlockParser.recursive(headerOrParagraph(_, BlockPosition.NestedOnly)).nestedOnly
+    BlockParserBuilder.recursive(headerOrParagraph(_, BlockPosition.NestedOnly)).nestedOnly
 
   private def headerOrParagraph(recParsers: RecursiveParsers, pos: BlockPosition): Parser[Block] = {
 
@@ -139,7 +139,7 @@ object BlockParsers {
   /** Parses a link definition in the form `[id]: <url> "title"`.
     * The title is optional as well as the quotes around it and the angle brackets around the url.
     */
-  val linkTarget: BlockParserBuilder = BlockParser.withEscapedText { escapedParsers =>
+  val linkTarget: BlockParserBuilder = BlockParserBuilder.withEscapedText { escapedParsers =>
     import escapedParsers._
 
     val id  = "[" ~> escapedUntil(']').map(_.toLowerCase) <~ ":" <~ ws.void
@@ -163,7 +163,7 @@ object BlockParsers {
     *  Markdown also allows to decorate the line with trailing `'#'` characters which
     *  this parser will remove.
     */
-  val atxHeader: BlockParserBuilderOps = BlockParser.recursive { recParsers =>
+  val atxHeader: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     def stripDecoration(text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
 
     val level = someOf('#').max(6).count
@@ -175,7 +175,7 @@ object BlockParsers {
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
     *  characters with optional spaces between them
     */
-  val rules: BlockParserBuilder = BlockParser.standalone {
+  val rules: BlockParserBuilder = BlockParserBuilder.standalone {
     val decoChar = oneOf('*', '-', '_')
     val pattern  = (decoChar ~ (anyOf(' ').void ~ decoChar).rep.min(2)).as(Rule())
     pattern <~ wsEol
@@ -183,7 +183,7 @@ object BlockParsers {
 
   /** Parses a literal block, text indented by a tab or 4 spaces.
     */
-  val literalBlocks: BlockParserBuilder = BlockParser.standalone {
+  val literalBlocks: BlockParserBuilder = BlockParserBuilder.standalone {
     val wsPreProcessor = new WhitespacePreprocessor
     PrefixedParser(' ', '\t') {
       decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace).map { lines =>
@@ -195,7 +195,7 @@ object BlockParsers {
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
     *  with subsequent lines optionally starting with a `'>'`, too.
     */
-  val quotedBlock: BlockParserBuilder = BlockParser.recursive { recParsers =>
+  val quotedBlock: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     PrefixedParser('>') {
       val decoratedLine = ">" ~ ws.max(1).void
       recParsers
@@ -210,7 +210,7 @@ object BlockParsers {
     * This is necessary as a separate parser as the default markdown paragraph parser
     * is combined with potentially nested lists which makes that parser recursive.
     */
-  val fallbackParagraph: BlockParserBuilder = BlockParser.withSpans { spanParsers =>
+  val fallbackParagraph: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val block = textLine.rep.min(1).map(_.mkString).line
     spanParsers.recursiveSpans(block).map(Paragraph(_))
   }.nestedOnly.withLowPrecedence

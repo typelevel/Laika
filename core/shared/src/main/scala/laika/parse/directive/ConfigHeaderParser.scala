@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import laika.config.{ Config, ConfigBuilder, ConfigParser, ConfigValue }
+import laika.config.ConfigParser
 import laika.parse.Parser
 import laika.parse.builders._
 
@@ -51,12 +51,5 @@ object ConfigHeaderParser {
     * tried instead.
     */
   def forTextParser(parser: Parser[String]): Parser[ConfigParser] = parser.map(ConfigParser.parse)
-
-  // val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(Config.empty)) }
-
-  def merge(config: Config, values: Seq[(String, ConfigValue)]): Config =
-    values.foldLeft(ConfigBuilder.withFallback(config)) { case (builder, (key, value)) =>
-      builder.withValue(key, value)
-    }.build
 
 }

@@ -19,7 +19,7 @@ package laika.rst
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.bundle.{ BlockParser, BundleProvider }
+import laika.bundle.{ BlockParserBuilder, BundleProvider }
 import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.markup.RootParser
@@ -31,7 +31,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   private val interruptions = BundleProvider.forMarkupParser(
     blockParsers = Seq(
-      BlockParser
+      BlockParserBuilder
         .standalone(TextParsers.literal("£££").as(PageBreak()))
         .interruptsParagraphWith(TextParsers.literal("£££"))
     )

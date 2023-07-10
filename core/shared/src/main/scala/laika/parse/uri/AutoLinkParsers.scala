@@ -17,7 +17,7 @@
 package laika.parse.uri
 
 import laika.ast.{ Reverse, Span, SpanLink, Text, ~ }
-import laika.bundle.{ SpanParser, SpanParserBuilder }
+import laika.bundle.SpanParserBuilder
 import laika.parse.text.PrefixedParser
 import laika.parse.{ Failure, Parser, Success }
 import laika.parse.builders._
@@ -81,13 +81,13 @@ class AutoLinkParsers(
 
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
     */
-  lazy val http: SpanParserBuilder = SpanParser.standalone {
+  lazy val http: SpanParserBuilder = SpanParserBuilder.standalone {
     uri("ptth" | "sptth", ":" ~> URIParsers.httpUriNoScheme, ":")
   }.withLowPrecedence
 
   /** Parses a standalone www hyperlink (with no surrounding markup).
     */
-  lazy val www: SpanParserBuilder = SpanParser.standalone {
+  lazy val www: SpanParserBuilder = SpanParserBuilder.standalone {
     uri(
       literal("www"),
       "." ~> (regName ~ path ~ opt("?" ~ query) ~ opt("#" ~ fragment)).source,
@@ -97,7 +97,7 @@ class AutoLinkParsers(
 
   /** Parses a standalone email address (with no surrounding markup).
     */
-  lazy val email: SpanParserBuilder = SpanParser.standalone {
+  lazy val email: SpanParserBuilder = SpanParserBuilder.standalone {
     PrefixedParser('@') {
       val rev    = reverse(0, URIParsers.localPart <~ reverseMarkupStart)
       val fwd    = "@" ~> URIParsers.domain <~ lookAhead(eol | afterEndMarkup)

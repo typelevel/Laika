@@ -97,9 +97,9 @@ case object ReStructuredText extends MarkupFormat { self =>
 
     override val origin: BundleOrigin = BundleOrigin.Parser
 
-    override val parsers: ParserBundle = ParserBundle(
+    override val parsers: ParserBundle = new ParserBundle(
       markupParserHooks = Some(
-        ParserHooks(
+        new ParserHooks(
           preProcessInput = WhitespacePreprocessor.forInput,
           postProcessDocument = DocInfoExtractor,
           postProcessBlocks = LinkTargetProcessor

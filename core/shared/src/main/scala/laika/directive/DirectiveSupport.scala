@@ -51,7 +51,7 @@ import laika.parse.text.TextParsers
   *
   * @author Jens Halm
   */
-class DirectiveSupport(
+private[laika] class DirectiveSupport(
     blockDirectives: Seq[Blocks.Directive],
     spanDirectives: Seq[Spans.Directive],
     templateDirectives: Seq[Templates.Directive],
@@ -73,7 +73,7 @@ class DirectiveSupport(
     def configDocument(input: String): ConfigParser = ConfigParser.parse(input)
   }
 
-  override lazy val parsers: ParserBundle = ParserBundle(
+  override lazy val parsers: ParserBundle = new ParserBundle(
     blockParsers =
       if (strictMode) Nil
       else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
@@ -155,4 +155,5 @@ class DirectiveSupport(
 
 /** Empty default instance without any directives installed.
   */
-object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil, Nil, strictMode = false)
+private[laika] object DirectiveSupport
+    extends DirectiveSupport(Nil, Nil, Nil, Nil, strictMode = false)

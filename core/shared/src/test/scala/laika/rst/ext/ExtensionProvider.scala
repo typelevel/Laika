@@ -51,11 +51,11 @@ object RootParserProvider {
 
   def forBundle(bundle: ExtensionBundle): RootParserWrapper = {
     val finalBundle      = bundle.processExtension(RstExtensionSupport)
-    val markupExtensions = MarkupExtensions(
+    val markupExtensions = new MarkupExtensions(
       blockParsers = finalBundle.parsers.blockParsers,
       spanParsers = finalBundle.parsers.spanParsers,
       syntaxHighlighters = Nil,
-      parserHooks = ParserHooks(postProcessBlocks = LinkTargetProcessor)
+      parserHooks = new ParserHooks(postProcessBlocks = LinkTargetProcessor)
     )
     new RootParserWrapper(ReStructuredText, markupExtensions)
   }

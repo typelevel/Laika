@@ -31,12 +31,16 @@ import scala.reflect.ClassTag
 
 /** The id for a directive part.
   */
-sealed abstract class AttributeKey {
+private[laika] sealed abstract class AttributeKey {
+
+  /** The identifier of this key. */
   def key: String
+
+  /** A string representation of this attribute key. */
   def desc: String
 }
 
-object AttributeKey {
+private[laika] object AttributeKey {
 
   /** Represents the string identifier of an attribute or body part of a directive.
     */
@@ -73,6 +77,8 @@ trait BuilderContext[E <: Element] {
 
   protected def parse(parser: Parser, src: SourceFragment): Result[Seq[E]]
 
+  /** The result of a single directive part.
+    */
   type Result[+A] = Either[Seq[String], A]
 
   /** The content of a body element divided by separator directives.
@@ -82,9 +88,9 @@ trait BuilderContext[E <: Element] {
   }
 
   /** The content of a directive part, either an attribute or the body. */
-  sealed trait BodyContent
+  private[directive] sealed trait BodyContent
 
-  object BodyContent {
+  private[directive] object BodyContent {
 
     /** The content of a directive part in its raw, unparsed form. */
     case class Source(value: SourceFragment) extends BodyContent
@@ -95,15 +101,15 @@ trait BuilderContext[E <: Element] {
 
   /** The content of a parsed directive with the HOCON attributes captured in a `Config` instance.
     */
-  case class DirectiveContent(attributes: Config, body: Option[BodyContent])
+  private[directive] case class DirectiveContent(attributes: Config, body: Option[BodyContent])
 
   /** The context of a directive during execution.
     */
-  case class DirectiveContext(
-      content: DirectiveContent,
-      parser: Parser,
-      cursor: DocumentCursor,
-      source: SourceFragment
+  private[directive] class DirectiveContext(
+      val content: DirectiveContent,
+      val parser: Parser,
+      val cursor: DocumentCursor,
+      val source: SourceFragment
   ) {
 
     val body: Option[BodyContent] = content.body
@@ -112,6 +118,9 @@ trait BuilderContext[E <: Element] {
       case de: DecodingError => de.error // do not include key in message
       case other             => other.message
     }
+
+    def withContent(newContent: DirectiveContent): DirectiveContext =
+      new DirectiveContext(newContent, parser, cursor, source)
 
     def attribute[T](
         id: AttributeKey,
@@ -131,7 +140,9 @@ trait BuilderContext[E <: Element] {
   /** Represents a single part (attribute or body) of a directive
     * or a combination of multiple parts.
     */
-  abstract class DirectivePart[+A] extends (DirectiveContext => Result[A]) { self =>
+  abstract class DirectivePart[+A] { self =>
+
+    private[directive] def apply(context: DirectiveContext): Result[A]
 
     def map[B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply(p: DirectiveContext) = self(p) map f
@@ -201,7 +212,7 @@ trait BuilderContext[E <: Element] {
 
     def name: String = parsedResult.name
 
-    def process[T](
+    private[directive] def process[T](
         cursor: DocumentCursor,
         factory: Option[DirectiveContent => Result[T]]
     ): Result[T] = {
@@ -244,7 +255,7 @@ trait BuilderContext[E <: Element] {
     def resolve(cursor: DocumentCursor): E = {
 
       val factory: Option[DirectiveContent => Result[E]] = directive.map { dir => content =>
-        dir(DirectiveContext(content, parser, cursor, source))
+        dir(new DirectiveContext(content, parser, cursor, source))
       }
 
       process(cursor, factory)
@@ -267,14 +278,14 @@ trait BuilderContext[E <: Element] {
 
     val typeName: String = "separator"
 
-    def resolve[T](
+    private[directive] def resolve[T](
         context: DirectiveContext,
         body: Seq[E],
         directive: Option[SeparatorDirective[T]]
     ): Result[T] = {
 
       val factory: Option[DirectiveContent => Result[T]] = directive.map { dir => content =>
-        dir(context.copy(content = content.copy(body = Some(BodyContent.Parsed(body)))))
+        dir(context.withContent(content.copy(body = Some(BodyContent.Parsed(body)))))
       }
 
       process(context.cursor, factory)
@@ -324,7 +335,7 @@ trait BuilderContext[E <: Element] {
 
     class PositionalAttributes[T](decoder: ConfigDecoder[T]) extends DirectivePart[Seq[T]] {
 
-      def apply(context: DirectiveContext): Result[Seq[T]] =
+      private[directive] def apply(context: DirectiveContext): Result[Seq[T]] =
         context.attribute(AttributeKey.Positional, ConfigDecoder.seq(decoder), inherit = false).map(
           _.getOrElse(Nil)
         )
@@ -338,14 +349,14 @@ trait BuilderContext[E <: Element] {
       def widen: DirectivePart[Seq[T]] = this
     }
 
-    class AttributePart[T](
+    class AttributePart[T] private[directive] (
         key: AttributeKey,
         decoder: ConfigDecoder[T],
         isInherited: Boolean,
         requiredMsg: => String
     ) extends DirectivePart[T] {
 
-      def apply(context: DirectiveContext): Result[T] =
+      private[directive] def apply(context: DirectiveContext): Result[T] =
         context.attribute(key, decoder, isInherited).flatMap(_.toRight(Seq(requiredMsg)))
 
       def as[U](implicit decoder: ConfigDecoder[U]): AttributePart[U] =
@@ -369,10 +380,10 @@ trait BuilderContext[E <: Element] {
       def widen: DirectivePart[T] = this
     }
 
-    class SeparatedBodyPart[T](directives: Seq[SeparatorDirective[T]])
+    private class SeparatedBodyPart[T](directives: Seq[SeparatorDirective[T]])
         extends DirectivePart[Multipart[T]] {
 
-      def apply(context: DirectiveContext): Result[Multipart[T]] =
+      private[directive] def apply(context: DirectiveContext): Result[Multipart[T]] =
         getParsedBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(
           toMultipart(context)
         )
@@ -382,7 +393,9 @@ trait BuilderContext[E <: Element] {
 
       override def separators: Set[String] = directives.map(_.name).toSet
 
-      def toMultipart(context: DirectiveContext)(elements: Seq[E]): Result[Multipart[T]] = {
+      private[directive] def toMultipart(
+          context: DirectiveContext
+      )(elements: Seq[E]): Result[Multipart[T]] = {
 
         def splitNextBodyPart(remaining: Seq[E]): (Seq[E], Seq[E]) =
           remaining.span(!_.isInstanceOf[SeparatorInstanceBase])
@@ -557,9 +570,9 @@ trait BuilderContext[E <: Element] {
   /** Represents a directive, its name and its (combined) parts.
     */
   class Directive private[directive] (val name: String, part: DirectivePart[E]) {
-    def apply(context: DirectiveContext): Result[E] = part(context)
-    def hasBody: Boolean                            = part.hasBody
-    def separators: Set[String]                     = part.separators
+    private[directive] def apply(context: DirectiveContext): Result[E] = part(context)
+    def hasBody: Boolean                                               = part.hasBody
+    def separators: Set[String]                                        = part.separators
 
     def runsIn(phase: RewritePhase): Boolean = phase match {
       case RewritePhase.Render(_) => true
@@ -578,7 +591,7 @@ trait BuilderContext[E <: Element] {
       val min: Int = 0,
       val max: Int = Int.MaxValue
   ) {
-    def apply(context: DirectiveContext): Result[T] = part(context)
+    private[directive] def apply(context: DirectiveContext): Result[T] = part(context)
   }
 
   /** Creates a new directive with the specified name and part specification.
@@ -602,7 +615,7 @@ trait BuilderContext[E <: Element] {
   /** Turns a collection of directives into a map,
     * using the name of the directive as the key.
     */
-  def toMap(directives: Iterable[Directive]): Map[String, Directive] =
+  private[laika] def toMap(directives: Iterable[Directive]): Map[String, Directive] =
     directives.map(dir => (dir.name, dir)).toMap
 
   /**  Provides the basic building blocks for defining directives, Laika's extension
@@ -738,7 +751,7 @@ object Spans extends BuilderContext[Span] {
   protected def parse(parser: Parser, src: SourceFragment): Result[Seq[Span]] =
     parser.recursiveSpans.parse(src).toEither.left.map(Seq(_))
 
-  case class DirectiveInstance(
+  private[laika] case class DirectiveInstance(
       directive: Option[Directive],
       parsedResult: ParsedDirective,
       parser: RecursiveSpanParsers,
@@ -763,7 +776,7 @@ object Spans extends BuilderContext[Span] {
 
   }
 
-  case class SeparatorInstance(
+  private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
       options: Options = NoOpt
@@ -790,7 +803,7 @@ object Blocks extends BuilderContext[Block] {
   protected def parse(parser: Parser, src: SourceFragment): Result[Seq[Block]] =
     parser.recursiveBlocks.parse(src).toEither.left.map(Seq(_))
 
-  case class DirectiveInstance(
+  private[laika] case class DirectiveInstance(
       directive: Option[Directive],
       parsedResult: ParsedDirective,
       parser: RecursiveParsers,
@@ -815,7 +828,7 @@ object Blocks extends BuilderContext[Block] {
 
   }
 
-  case class SeparatorInstance(
+  private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
       options: Options = NoOpt
@@ -847,7 +860,7 @@ object Templates extends BuilderContext[TemplateSpan] {
       }
     }.toEither.left.map(Seq(_))
 
-  case class DirectiveInstance(
+  private[laika] case class DirectiveInstance(
       directive: Option[Directive],
       parsedResult: ParsedDirective,
       parser: RecursiveSpanParsers,
@@ -867,7 +880,7 @@ object Templates extends BuilderContext[TemplateSpan] {
 
   }
 
-  case class SeparatorInstance(
+  private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
       options: Options = NoOpt

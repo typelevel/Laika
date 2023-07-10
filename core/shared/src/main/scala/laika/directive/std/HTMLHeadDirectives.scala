@@ -35,7 +35,7 @@ import laika.directive.Templates
   *
   * @author Jens Halm
   */
-object HTMLHeadDirectives {
+private[laika] object HTMLHeadDirectives {
 
   private[std] case class SearchPaths(globalPaths: Seq[Path], localPaths: Seq[Path])
 

@@ -23,6 +23,9 @@ import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.EmbeddedCodeSpans
 import laika.parse.text.DelimitedText
 
+/** Captures the parser implementation and aliases of the syntax highlighter for
+  * a particular language.
+  */
 trait SyntaxHighlighter {
 
   /** The names of the language (and its optional aliases) as used in text markup */

@@ -177,7 +177,7 @@ object DocumentParser {
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup(
+  private[laika] def forMarkup(
       markupParser: MarkupFormat,
       markupExtensions: MarkupExtensions,
       configProvider: ConfigProvider
@@ -194,7 +194,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup(
+  private[laika] def forMarkup(
       rootParser: Parser[RootElement],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, UnresolvedDocument] =
@@ -206,7 +206,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  def forTemplate(
+  private[laika] def forTemplate(
       rootParser: Parser[TemplateRoot],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, TemplateDocument] =
@@ -216,7 +216,7 @@ object DocumentParser {
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
-  def forStyleSheets(
+  private[laika] def forStyleSheets(
       parser: Parser[Set[StyleDeclaration]]
   ): DocumentInput => Either[ParserError, StyleDeclarationSet] =
     forParser { path => parser.map(res => StyleDeclarationSet.forPath(path, res)) }
@@ -227,12 +227,13 @@ object DocumentParser {
     * The specified function is invoked for each parsed document, so that a parser
     * dependent on the input path can be created.
     */
-  def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = { in =>
-    Parsers
-      .consumeAll(p(in.path))
-      .parse(in.source)
-      .toEither
-      .left.map(ParserError(_, in.path))
+  private[laika] def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = {
+    in =>
+      Parsers
+        .consumeAll(p(in.path))
+        .parse(in.source)
+        .toEither
+        .left.map(ParserError(_, in.path))
   }
 
 }

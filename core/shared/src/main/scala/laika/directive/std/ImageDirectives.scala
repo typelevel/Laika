@@ -38,7 +38,7 @@ import laika.directive.{ Blocks, Spans }
   *
   * @author Jens Halm
   */
-object ImageDirectives {
+private[laika] object ImageDirectives {
 
   /** Markup directive for inserting an image as a block level element.
     *

@@ -41,7 +41,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
 
   val description: String = "Default Syntax Highlighters for Code"
 
-  override def parsers: ParserBundle = ParserBundle(
+  override def parsers: ParserBundle = new ParserBundle(
     syntaxHighlighters = Seq(
       ScalaSyntax,
       DottySyntax,
@@ -82,7 +82,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
 
     val description: String = "Customized collection of Syntax Highlighters for Code"
 
-    override def parsers: ParserBundle = ParserBundle(
+    override def parsers: ParserBundle = new ParserBundle(
       syntaxHighlighters = self.parsers.syntaxHighlighters ++ syntax
     )
 

@@ -37,14 +37,14 @@ import laika.parse.markup.DocumentParser.DocumentInput
   * @param templateParser parser for template documents
   * @param styleSheetParser parser for CSS documents
   */
-case class ParserBundle(
-    blockParsers: Seq[BlockParserBuilder] = Nil,
-    spanParsers: Seq[SpanParserBuilder] = Nil,
-    syntaxHighlighters: Seq[SyntaxHighlighter] = Nil,
-    markupParserHooks: Option[ParserHooks] = None,
-    configProvider: Option[ConfigProvider] = None,
-    templateParser: Option[Parser[TemplateRoot]] = None,
-    styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None
+class ParserBundle(
+    val blockParsers: Seq[BlockParserBuilder] = Nil,
+    val spanParsers: Seq[SpanParserBuilder] = Nil,
+    val syntaxHighlighters: Seq[SyntaxHighlighter] = Nil,
+    val markupParserHooks: Option[ParserHooks] = None,
+    val configProvider: Option[ConfigProvider] = None,
+    val templateParser: Option[Parser[TemplateRoot]] = None,
+    val styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None
 ) {
 
   /** Merges this instance with the specified base.
@@ -53,7 +53,7 @@ case class ParserBundle(
     * in the base (if defined), with the base only serving as a fallback.
     */
   def withBase(base: ParserBundle): ParserBundle =
-    ParserBundle(
+    new ParserBundle(
       blockParsers ++ base.blockParsers,
       spanParsers ++ base.spanParsers,
       syntaxHighlighters ++ base.syntaxHighlighters,
@@ -67,12 +67,12 @@ case class ParserBundle(
     * Fallback instances will be added where appropriate for parsers or hooks not defined
     * in this bundle.
     */
-  def markupExtensions: MarkupExtensions =
-    MarkupExtensions(
+  private[laika] def markupExtensions: MarkupExtensions =
+    new MarkupExtensions(
       blockParsers,
       spanParsers,
       syntaxHighlighters,
-      markupParserHooks.getOrElse(ParserHooks())
+      markupParserHooks.getOrElse(new ParserHooks())
     )
 
 }
@@ -84,17 +84,17 @@ case class ParserBundle(
   * @param postProcessDocument function invoked after parsing but before rewriting, allowing to modify the document
   * @param preProcessInput function invoked before parsing, allowing to pre-process the input
   */
-case class ParserHooks(
-    postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-    postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-    preProcessInput: DocumentInput => DocumentInput = identity
+class ParserHooks(
+    val postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+    val postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
+    val preProcessInput: DocumentInput => DocumentInput = identity
 ) {
 
   /** Merges this instance with the specified base.
     * The functions specified in the base are always invoked before
     * the functions in this instance.
     */
-  def withBase(base: ParserHooks): ParserHooks = ParserHooks(
+  def withBase(base: ParserHooks): ParserHooks = new ParserHooks(
     base.postProcessBlocks andThen postProcessBlocks,
     base.postProcessDocument andThen postProcessDocument,
     base.preProcessInput andThen preProcessInput
@@ -113,9 +113,9 @@ case class ParserHooks(
   * @param syntaxHighlighters parsers for syntax highlighting of code blocks
   * @param parserHooks hooks for markup parsers to control aspects beyond the individual span and block parsers
   */
-case class MarkupExtensions(
-    blockParsers: Seq[BlockParserBuilder],
-    spanParsers: Seq[SpanParserBuilder],
-    syntaxHighlighters: Seq[SyntaxHighlighter],
-    parserHooks: ParserHooks
+private[laika] class MarkupExtensions(
+    val blockParsers: Seq[BlockParserBuilder],
+    val spanParsers: Seq[SpanParserBuilder],
+    val syntaxHighlighters: Seq[SyntaxHighlighter],
+    val parserHooks: ParserHooks
 )

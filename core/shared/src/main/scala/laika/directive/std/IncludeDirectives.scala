@@ -43,7 +43,7 @@ import laika.parse.SourceFragment
   *
   * @author Jens Halm
   */
-object IncludeDirectives {
+private[laika] object IncludeDirectives {
 
   private def config(attributes: Config, body: Option[Element], path: Path): ObjectValue = {
     val attributeValues = attributes match {

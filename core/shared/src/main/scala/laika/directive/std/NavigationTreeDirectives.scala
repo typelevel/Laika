@@ -52,7 +52,7 @@ import laika.parse.{ GeneratedSource, SourceFragment }
   *
   * @author Jens Halm
   */
-object NavigationTreeDirectives {
+private[laika] object NavigationTreeDirectives {
 
   /** A block resolver that replaces itself with a navigation list according to this instances configuration.
     * The resulting navigation tree can either be automatically generated from specified root nodes

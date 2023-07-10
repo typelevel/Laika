@@ -18,7 +18,7 @@ package laika.markdown.github
 
 import cats.data.NonEmptyChain
 import laika.ast.{ CodeBlock, LiteralBlock, Span, Text }
-import laika.bundle.{ BlockParser, BlockParserBuilder }
+import laika.bundle.BlockParserBuilder
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.{ BlockSource, Failure, Parser, Success }
@@ -40,7 +40,7 @@ object FencedCodeBlocks {
 
   /** Creates a parser for a fenced code block with the specified fence character.
     */
-  def codeBlock(fenceChar: Char): BlockParserBuilder = BlockParser.recursive { recParsers =>
+  def codeBlock(fenceChar: Char): BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val infoString                       = restOfLine.map(
       Some(_)
         .filter(_.nonEmpty)
