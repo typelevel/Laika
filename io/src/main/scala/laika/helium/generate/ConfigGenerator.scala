@@ -238,7 +238,7 @@ private[laika] object ConfigGenerator {
 /** Utility for splitting a collection into a balanced group of items as opposed to the unbalanced
   * `grouped` method of the Scala collection API.
   */
-object BalancedGroups {
+private[laika] object BalancedGroups {
 
   /** Creates a balanced group of items based on the given desired size.
     */
