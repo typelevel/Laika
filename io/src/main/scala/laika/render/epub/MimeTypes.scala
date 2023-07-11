@@ -21,7 +21,7 @@ package laika.render.epub
   *
   * @author Jens Halm
   */
-object MimeTypes {
+private[epub] object MimeTypes {
 
   /** Maps files suffixes to mime types.
     */

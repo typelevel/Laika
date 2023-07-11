@@ -25,7 +25,7 @@ import java.io.OutputStream
 
 /** @author Jens Halm
   */
-object ZipWriter {
+private[epub] object ZipWriter {
 
   /** Writes an EPUB Zip file to the specified output.
     * The virtual path of the given inputs will also become the path within

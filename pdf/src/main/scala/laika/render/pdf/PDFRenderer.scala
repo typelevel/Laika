@@ -34,7 +34,7 @@ import org.apache.xmlgraphics.util.MimeConstants
   *
   * @author Jens Halm
   */
-class PDFRenderer[F[_]: Async](fopFactory: FopFactory, dispatcher: Dispatcher[F]) {
+private[laika] class PDFRenderer[F[_]: Async](fopFactory: FopFactory, dispatcher: Dispatcher[F]) {
 
   /** Render the given XSL-FO input as a PDF to the specified binary output.
     *

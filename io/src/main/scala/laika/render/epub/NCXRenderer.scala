@@ -26,7 +26,7 @@ import laika.render.TagFormatter
   *
   * @author Jens Halm
   */
-class NCXRenderer {
+private[epub] class NCXRenderer {
 
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.

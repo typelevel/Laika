@@ -23,7 +23,7 @@ import laika.io.model.RenderedTreeRoot
   *
   * @author Jens Halm
   */
-object PDFNavigation {
+private[pdf] object PDFNavigation {
 
   /** Generates bookmarks for the structure of the DocumentTree.
     *

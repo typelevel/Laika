@@ -28,7 +28,7 @@ import org.apache.fop.apps.{ FopConfParser, FopFactory }
   *
   * @author Jens Halm
   */
-object FopFactoryBuilder {
+private[laika] object FopFactoryBuilder {
 
   def generateXMLConfig(config: PDF.BookConfig): String = {
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here

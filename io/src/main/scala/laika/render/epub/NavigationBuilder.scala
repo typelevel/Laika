@@ -20,7 +20,7 @@ import laika.ast.Path.Root
 import laika.ast.{ InternalTarget, _ }
 import laika.io.model.RenderedTree
 
-object NavigationBuilder {
+private[epub] object NavigationBuilder {
 
   /** Provides the full path to the document relative to the EPUB container root
     * from the specified virtual path of the Laika document tree.

@@ -25,7 +25,7 @@ import laika.render.epub.StyleSupport.collectStylePaths
   *
   * @author Jens Halm
   */
-class HtmlNavRenderer {
+private[epub] class HtmlNavRenderer {
 
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.

@@ -20,7 +20,7 @@ package laika.render.epub
   *
   * @author Jens Halm
   */
-object StaticContent {
+private[epub] object StaticContent {
 
   /** The content of the `mimetype` file in the EPUB root directory.
     */

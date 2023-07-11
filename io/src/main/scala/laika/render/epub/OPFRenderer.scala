@@ -26,7 +26,7 @@ import laika.rewrite.link.SlugBuilder
   *
   * @author Jens Halm
   */
-class OPFRenderer {
+private[epub] class OPFRenderer {
 
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
