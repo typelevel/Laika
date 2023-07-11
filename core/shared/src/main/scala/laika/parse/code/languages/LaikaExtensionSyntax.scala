@@ -19,12 +19,18 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{ EmbeddedCodeSpans, Identifier, Keywords, StringLiteral, TagParser }
+import laika.parse.code.common.{
+  EmbeddedCodeSpans,
+  Identifier,
+  Keywords,
+  StringLiteral,
+  TagFormats
+}
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.implicits._
-import laika.parse.code.implicits._
+import laika.parse.builders.*
+import laika.parse.implicits.*
+import laika.parse.code.implicits.*
 
 /** @author Jens Halm
   */
@@ -75,21 +81,21 @@ object LaikaExtensionSyntax {
     lazy val spanParsers: Seq[CodeSpanParser] = allExtensions ++ ReStructuredTextSyntax.spanParsers
   }
 
-  val enhancedStartTag: CodeSpanParser = TagParser(CodeCategory.Tag.Name, "<", ">").embed(
-    StringLiteral.singleLine('\'').embed(HTMLSyntax.ref, substitution),
-    StringLiteral.singleLine('"').embed(HTMLSyntax.ref, substitution),
-    HTMLSyntax.name(CodeCategory.AttributeName)
+  val enhancedStartTag: CodeSpanParser = TagFormats.customTag("<", ">").embed(
+    StringLiteral.singleLine('\'').embed(TagFormats.ref, substitution),
+    StringLiteral.singleLine('"').embed(TagFormats.ref, substitution),
+    TagFormats.name(CodeCategory.AttributeName)
   )
 
   val modifiedHTMLParsers: Seq[CodeSpanParser] = Seq(
     HTMLSyntax.docType,
-    HTMLSyntax.comment,
-    HTMLSyntax.ref,
-    HTMLSyntax.emptyTag,
+    TagFormats.comment,
+    TagFormats.ref,
+    TagFormats.emptyTag,
     HTMLSyntax.scriptTag,
     HTMLSyntax.styleTag,
     enhancedStartTag,
-    HTMLSyntax.endTag
+    TagFormats.endTag
   )
 
   lazy val forHTML: SyntaxHighlighter = new SyntaxHighlighter {

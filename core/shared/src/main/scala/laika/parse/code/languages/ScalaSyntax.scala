@@ -26,7 +26,6 @@ import laika.parse.code.common.{
   Identifier,
   Keywords,
   NumberLiteral,
-  NumericSuffix,
   StringLiteral
 }
 import laika.parse.text.{ CharGroup, PrefixedParser }
@@ -71,9 +70,11 @@ object ScalaSyntax extends SyntaxHighlighter {
       )
 
   val numberLiteral: CodeSpanParser =
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long) ++
-      NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float) ++
-      NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float)
+    NumberLiteral.hex.withUnderscores.withSuffix(NumberLiteral.suffix.long) ++
+      NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float) ++
+      NumberLiteral.decimalInt.withUnderscores.withSuffix(
+        NumberLiteral.suffix.long | NumberLiteral.suffix.float
+      )
 
   /** Keywords for both Scala2 and Dotty/Scala3
     */

@@ -18,8 +18,14 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.common.{ CharLiteral, Comment, Keywords, NumberLiteral, StringLiteral }
+import laika.parse.code.common.{
+  CharLiteral,
+  Comment,
+  Identifier,
+  Keywords,
+  NumberLiteral,
+  StringLiteral
+}
 import laika.parse.code.languages.ScalaSyntax.charEscapes
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.CharGroup.{ digit, lowerAlpha, upperAlpha }
@@ -76,10 +82,12 @@ object HaskellSyntax extends SyntaxHighlighter {
   val numberLiteral =
     NumberLiteral.hex ++ NumberLiteral.octal ++ NumberLiteral.decimalFloat ++ NumberLiteral.decimalInt
 
-  val identifiers = IdParser(lowerAlpha.add('_'), digit ++ upperAlpha.add('\''))
+  val identifiers = Identifier
+    .forCharacterSets(lowerAlpha.add('_'), digit ++ upperAlpha.add('\''))
 
-  val types =
-    IdParser(upperAlpha.add('_'), digit ++ lowerAlpha.add('\'')).withCategory(CodeCategory.TypeName)
+  val types = Identifier
+    .forCharacterSets(upperAlpha.add('_'), digit ++ lowerAlpha.add('\''))
+    .withCategory(CodeCategory.TypeName)
 
   /** The parsers for individual code spans written in this language */
   override def spanParsers: Seq[CodeSpanParser] = Seq(

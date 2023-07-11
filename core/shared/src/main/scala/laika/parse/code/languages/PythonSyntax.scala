@@ -101,8 +101,8 @@ object PythonSyntax extends SyntaxHighlighter {
     NumberLiteral.binary.withUnderscores,
     NumberLiteral.octal.withUnderscores,
     NumberLiteral.hex.withUnderscores,
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.imaginary),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.imaginary)
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumberLiteral.suffix.imaginary),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumberLiteral.suffix.imaginary)
   )
 
 }

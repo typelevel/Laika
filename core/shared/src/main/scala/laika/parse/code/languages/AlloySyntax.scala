@@ -19,8 +19,7 @@ package laika.parse.code.languages
 import cats.data.NonEmptyList
 import laika.bundle.SyntaxHighlighter
 import laika.parse.code.CodeSpanParser
-import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.common.{ Comment, Keywords, NumberLiteral }
+import laika.parse.code.common.{ Comment, Identifier, Keywords, NumberLiteral }
 import laika.parse.text.CharGroup.{ digit, lowerAlpha, upperAlpha }
 
 /** https://alloytools.org/download/alloy-language-reference.pdf
@@ -76,7 +75,8 @@ object AlloySyntax extends SyntaxHighlighter {
 
   val numberLiteral = NumberLiteral.decimalInt
 
-  val identifiers = IdParser(lowerAlpha ++ upperAlpha, digit.add('_').add('\'').add('"'))
+  val identifiers =
+    Identifier.forCharacterSets(lowerAlpha ++ upperAlpha, digit.add('_').add('\'').add('"'))
 
   /** The parsers for individual code spans written in this language */
   override def spanParsers: Seq[CodeSpanParser] = Seq(

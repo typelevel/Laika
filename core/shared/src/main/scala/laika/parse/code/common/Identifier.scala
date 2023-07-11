@@ -40,33 +40,39 @@ object Identifier {
     if (s.nonEmpty && s.head.isUpper) CodeCategory.TypeName else CodeCategory.Identifier
 
   /** Configurable base parser for identifiers in code blocks. */
-  case class IdParser(
+  class IdParser private[Identifier] (
       idStartChars: NonEmptySet[Char],
       nonStartChars: NonEmptySet[Char],
       category: String => CodeCategory = _ => CodeCategory.Identifier,
       prefixParser: Option[PrefixedParser[String]] = None,
-      allowDigitBeforeStart: Boolean = false
+      digitBeforeStart: Boolean = false
   ) extends PrefixedParser[CodeSpan] with CodeSpanParser {
 
     /** Applies a function to the parser result to determine the code category.
       */
-    def withCategoryChooser(f: String => CodeCategory): IdParser = copy(category = f)
+    def withCategoryChooser(f: String => CodeCategory): IdParser =
+      new IdParser(idStartChars, nonStartChars, f, prefixParser, digitBeforeStart)
 
     /** Associates the result with the specified code category.
       */
-    def withCategory(category: CodeCategory): IdParser = copy(category = _ => category)
+    def withCategory(category: CodeCategory): IdParser =
+      withCategoryChooser(_ => category)
 
     /** Adds the specified characters to the set of characters allowed to start an identifier.
       * Will also be added to the set of characters for the parser of the rest of the identifier.
       */
-    def withIdStartChars(char: Char, chars: Char*): IdParser =
-      copy(idStartChars = idStartChars ++ NonEmptySet.of(char, chars: _*))
+    def withIdStartChars(char: Char, chars: Char*): IdParser = {
+      val startChars = idStartChars ++ NonEmptySet.of(char, chars: _*)
+      new IdParser(startChars, nonStartChars, category, prefixParser, digitBeforeStart)
+    }
 
     /** Adds the specified characters to the set of characters allowed as part of an identifier,
       * but not allowed as the first character.
       */
-    def withIdPartChars(char: Char, chars: Char*): IdParser =
-      copy(nonStartChars = nonStartChars ++ NonEmptySet.of(char, chars: _*))
+    def withIdPartChars(char: Char, chars: Char*): IdParser = {
+      val partChars = nonStartChars ++ NonEmptySet.of(char, chars: _*)
+      new IdParser(idStartChars, partChars, category, prefixParser, digitBeforeStart)
+    }
 
     /** Adds the specified prefix to this identifier.
       *
@@ -77,7 +83,14 @@ object Identifier {
       * An example would be an identifier like `#foo` in CSS, where `#` is the prefix,
       * and `foo` follows the rules of this identifier parser.
       */
-    def withPrefix(parser: PrefixedParser[String]): IdParser = copy(prefixParser = Some(parser))
+    def withPrefix(parser: PrefixedParser[String]): IdParser =
+      new IdParser(idStartChars, nonStartChars, category, Some(parser), digitBeforeStart)
+
+    /** Allows an identifier to be recognized if it immediately follows a digit,
+      * for example in CSS length values: `1.2em`.
+      */
+    def allowDigitBeforeStart: IdParser =
+      new IdParser(idStartChars, nonStartChars, category, prefixParser, digitBeforeStart = true)
 
     lazy val underlying: PrefixedParser[CodeSpan] = {
 
@@ -85,7 +98,7 @@ object Identifier {
       val idStart   =
         prefixParser.fold[PrefixedParser[String]](firstChar)(p => (p ~ firstChar).source)
       val idDelim   = delimiter(idStart).prevNot { c =>
-        (Character.isDigit(c) && !allowDigitBeforeStart) || Character.isLetter(c)
+        (Character.isDigit(c) && !digitBeforeStart) || Character.isLetter(c)
       }
       val idRest    = anyOf(idStartChars ++ nonStartChars)
 
@@ -102,6 +115,15 @@ object Identifier {
     * Other characters like underscore are not allowed by this base parser, but can be added
     * to the returned instance with the `withIdStartChars` or `withIdPartChars` methods.
     */
-  def alphaNum: IdParser = IdParser(CharGroup.alpha, CharGroup.digit)
+  def alphaNum: IdParser = new IdParser(CharGroup.alpha, CharGroup.digit)
+
+  /** Parses an identifier based on the specified character sets.
+    *
+    * @param startChars the characters allowed to appear in any position of the identifier, including the first character
+    * @param partChars the characters not allowed to appear as the first character, but at any other position of the identifier
+    * @return
+    */
+  def forCharacterSets(startChars: NonEmptySet[Char], partChars: NonEmptySet[Char]): IdParser =
+    new IdParser(startChars, partChars)
 
 }

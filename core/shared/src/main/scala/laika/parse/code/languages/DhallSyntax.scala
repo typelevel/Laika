@@ -17,11 +17,10 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import cats.implicits._
 import laika.ast.~
 import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.NumberLiteral.{ DigitParsers, NumericParser }
+import laika.parse.code.common.NumberLiteral.digits
 import laika.parse.code.common._
 import laika.parse.code.implicits._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
@@ -60,7 +59,7 @@ object DhallSyntax extends SyntaxHighlighter {
   )
 
   val bracedUnicodeEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-    ("\\u{" ~ anyOf('0') ~ DigitParsers.hex.min(1).max(6) ~ "}").source
+    ("\\u{" ~ anyOf('0') ~ digits.hex.min(1).max(6) ~ "}").source
   }
 
   val singleLineEscapes: CodeSpanParser =
@@ -76,7 +75,7 @@ object DhallSyntax extends SyntaxHighlighter {
 
   val numberLiteral: CodeSpanParser = NumberLiteral.hex ++
     NumberLiteral.decimalFloat ++
-    NumericParser(CharGroup.digit, someOf('-', '+').max(1).some) ++
+    NumberLiteral.decimalInt.withPrefix(someOf('-', '+').max(1)) ++
     NumberLiteral.decimalInt
 
   val identifier: Identifier.IdParser = Identifier.alphaNum

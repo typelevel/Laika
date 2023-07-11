@@ -171,10 +171,10 @@ import laika.parse.code.common._
 val spanParsers: Seq[CodeSpanParser] = Seq(
   NumberLiteral.hex
     .withUnderscores
-    .withSuffix(NumericSuffix.long),
+    .withSuffix(NumberLiteral.suffix.long),
   NumberLiteral.decimalInt
     .withUnderscores
-    .withSuffix(NumericSuffix.long | NumericSuffix.float)
+    .withSuffix(NumberLiteral.suffix.long | NumberLiteral.suffix.float)
 )
 ```
 

@@ -20,7 +20,7 @@ import cats.implicits._
 import cats.data.NonEmptySet
 import laika.ast.~
 import laika.config._
-import laika.parse.code.common.NumberLiteral.DigitParsers
+import laika.parse.code.common.NumberLiteral.digits
 import laika.parse.text.{ CharGroup, Characters }
 import laika.parse.builders._
 import laika.parse.implicits._
@@ -152,7 +152,7 @@ private[laika] object HoconParsers {
       case "t" => "\t"
     }
     val literalChar = oneOf('"', '\\', '/')
-    val unicode     = "u" ~> DigitParsers.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
+    val unicode     = "u" ~> digits.hex.take(4).map(Integer.parseInt(_, 16).toChar.toString)
     val escape      =
       "\\" ~> ((literalChar | specialChar | unicode).map(Right(_)) | oneChar.withCursor.map(
         Left(_)

@@ -31,7 +31,8 @@ object CharLiteral {
 
   /** Configurable base parsers for character literals.
     */
-  case class CharParser(delim: Char, embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
+  class CharParser private[CharLiteral] (delim: Char, embedded: Seq[CodeSpanParser] = Nil)
+      extends CodeParserBase {
 
     private val categories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -40,7 +41,7 @@ object CharLiteral {
       * This is usually used for allowing escape sequences inside the literal.
       */
     def embed(childSpans: CodeSpanParser*): CharParser = {
-      copy(embedded = embedded ++ childSpans)
+      new CharParser(delim, embedded ++ childSpans)
     }
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
@@ -64,6 +65,10 @@ object CharLiteral {
 
   /** Parses a standard character literal enclosed by single quotes.
     */
-  def standard: CharParser = CharParser('\'')
+  def standard: CharParser = new CharParser('\'')
+
+  /** Parses a character literal enclosed by the specified delimiter.
+    */
+  def enclosedBy(delim: Char): CharParser = new CharParser(delim)
 
 }
