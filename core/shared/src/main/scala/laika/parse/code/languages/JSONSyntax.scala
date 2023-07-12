@@ -28,14 +28,14 @@ import laika.parse.builders._
   */
 object JSONSyntax extends SyntaxHighlighter {
 
-  val string: StringParser = StringLiteral.singleLine('"').embed(
+  private val string: StringParser = StringLiteral.singleLine('"').embed(
     StringLiteral.Escape.unicode,
     StringLiteral.Escape.char
   )
 
-  val attributeName: StringParser = string
+  private val attributeName: StringParser = string
     .withPostCondition(lookAhead(ws ~ ":").void)
-    .copy(defaultCategories = Set(CodeCategory.AttributeName))
+    .withCategory(CodeCategory.AttributeName)
 
   val language: NonEmptyList[String] = NonEmptyList.of("json")
 

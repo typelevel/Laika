@@ -30,12 +30,12 @@ import laika.parse.code.implicits._
   */
 object MarkdownSyntax extends SyntaxHighlighter {
 
-  def span(category: CodeCategory, delim: String): CodeSpanParser =
+  private def span(category: CodeCategory, delim: String): CodeSpanParser =
     StringLiteral
       .multiLine(delimiter(delim).nextNot(' '), delimiter(delim).prevNot(' '))
       .withCategory(category)
 
-  def singleLine(category: CodeCategory, start: String, end: Char): CodeSpanParser =
+  private def singleLine(category: CodeCategory, start: String, end: Char): CodeSpanParser =
     StringLiteral
       .singleLine(start, end.toString)
       .withCategory(category)
@@ -57,10 +57,10 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }
   }
 
-  val link: CodeSpanParser  = CodeSpanParser(linkParser("["))
-  val image: CodeSpanParser = CodeSpanParser(linkParser("!["))
+  private val link: CodeSpanParser  = CodeSpanParser(linkParser("["))
+  private val image: CodeSpanParser = CodeSpanParser(linkParser("!["))
 
-  val linkTarget: CodeSpanParser = CodeSpanParser.onLineStart {
+  private val linkTarget: CodeSpanParser = CodeSpanParser.onLineStart {
     ("[" ~> delimitedBy("]:").failOn('\n') ~ restOfLine).map { case ref ~ target =>
       Seq(
         CodeSpan(s"[$ref]:", CodeCategory.Identifier),
@@ -70,30 +70,31 @@ object MarkdownSyntax extends SyntaxHighlighter {
     }
   }
 
-  val atxHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
+  private val atxHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     (someOf('#').max(6) ~ anyNot('\n')).source
   }
 
-  val setexHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    val deco = (someOf('=') | someOf('-')) <~ lookAhead(wsEol)
-    (restOfLine ~ deco).source
-  }
+  private val setexHeader: CodeSpanParser =
+    CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
+      val deco = (someOf('=') | someOf('-')) <~ lookAhead(wsEol)
+      (restOfLine ~ deco).source
+    }
 
-  val codeFence: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
+  private val codeFence: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     (anyOf('`').take(3) ~ anyNot('\n')).source
   }
 
-  val rules: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
+  private val rules: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     Seq('*', '-', '_').map { decoChar =>
       (oneOf(decoChar) ~ (anyOf(' ') ~ oneOf(decoChar)).rep.min(2) ~ ws ~ "\n").source
     }.reduceLeft(_ | _)
   }
 
-  val quoteChars: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Quote) {
+  private val quoteChars: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Quote) {
     someOf('>').source
   }
 
-  val mdSpans: CodeSpanParser =
+  private val mdSpans: CodeSpanParser =
     span(CodeCategory.Markup.Emphasized, "**") ++
       span(CodeCategory.Markup.Emphasized, "*") ++
       span(CodeCategory.Markup.Emphasized, "__") ++

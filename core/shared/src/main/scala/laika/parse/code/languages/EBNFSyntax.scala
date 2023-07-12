@@ -33,7 +33,7 @@ object EBNFSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("ebnf")
 
-  val declarationName: CodeSpanParser = CodeSpanParser.onLineStart {
+  private val declarationName: CodeSpanParser = CodeSpanParser.onLineStart {
     val declName = Identifier.alphaNum.withCategory(CodeCategory.DeclarationName)
     (declName ~ ws.asCode() ~ ("::=" | "=").asCode(CodeCategory.Tag.Punctuation)).mapN {
       Seq(_, _, _)

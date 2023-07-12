@@ -20,13 +20,13 @@ object DartSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("dart")
 
-  val annotation: CodeSpanParser = CodeSpanParser {
+  private val annotation: CodeSpanParser = CodeSpanParser {
     "@" ~> Identifier.alphaNum.withCategory(CodeCategory.Annotation).map { name =>
       Seq(name.copy(content = "@" + name.content))
     }
   }
 
-  val charEscapes: CodeSpanParser =
+  private val charEscapes: CodeSpanParser =
     StringLiteral.Escape.unicode ++
       StringLiteral.Escape.octal ++
       StringLiteral.Escape.char

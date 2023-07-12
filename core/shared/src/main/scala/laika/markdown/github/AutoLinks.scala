@@ -26,7 +26,6 @@ import laika.parse.uri.AutoLinkParsers
   *
   * In contrast to the rather informal description of the GitHub-Flavored-Markdown spec,
   * parsing of the http or email URIs is based on the corresponding RFCs.
-  * See [[laika.parse.uri.URIParsers]] for details.
   *
   * @author Jens Halm
   */

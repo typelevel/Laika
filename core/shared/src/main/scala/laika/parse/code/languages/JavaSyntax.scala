@@ -27,7 +27,6 @@ import laika.parse.code.common.{
   Identifier,
   Keywords,
   NumberLiteral,
-  NumericSuffix,
   StringLiteral
 }
 
@@ -37,13 +36,13 @@ object JavaSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("java")
 
-  val annotation: CodeSpanParser = CodeSpanParser {
+  private[languages] val annotation: CodeSpanParser = CodeSpanParser {
     "@" ~> Identifier.alphaNum.withCategory(CodeCategory.Annotation).map { name =>
       Seq(name.copy(content = "@" + name.content))
     }
   }
 
-  val charEscapes: CodeSpanParser =
+  private val charEscapes: CodeSpanParser =
     StringLiteral.Escape.unicode ++
       StringLiteral.Escape.octal ++
       StringLiteral.Escape.char
@@ -106,12 +105,14 @@ object JavaSyntax extends SyntaxHighlighter {
     Identifier.alphaNum.withIdStartChars('_', '$').withCategoryChooser(
       Identifier.upperCaseTypeName
     ),
-    NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
-    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float),
-    NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long | NumericSuffix.float)
+    NumberLiteral.binary.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+    NumberLiteral.octal.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+    NumberLiteral.hexFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float),
+    NumberLiteral.hex.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+    NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float),
+    NumberLiteral.decimalInt.withUnderscores.withSuffix(
+      NumberLiteral.suffix.long | NumberLiteral.suffix.float
+    )
   )
 
 }

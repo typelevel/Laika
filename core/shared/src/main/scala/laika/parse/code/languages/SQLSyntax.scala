@@ -28,9 +28,10 @@ object SQLSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("sql")
 
-  val singleQuoteEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence)(literal("''"))
+  private val singleQuoteEscape: CodeSpanParser =
+    CodeSpanParser(CodeCategory.EscapeSequence)(literal("''"))
 
-  val doubleQuoteEscape: CodeSpanParser =
+  private val doubleQuoteEscape: CodeSpanParser =
     CodeSpanParser(CodeCategory.EscapeSequence)(literal("\"\""))
 
   private def caseInsensitiveKeywords(category: CodeCategory)(kws: String*): CodeSpanParser = {
@@ -39,7 +40,7 @@ object SQLSyntax extends SyntaxHighlighter {
       Keywords(category)(upper.head, upper.tail: _*)
   }
 
-  val keywords: CodeSpanParser = caseInsensitiveKeywords(CodeCategory.Keyword)(
+  private val keywords: CodeSpanParser = caseInsensitiveKeywords(CodeCategory.Keyword)(
     "absolute",
     "action",
     "add",
@@ -269,7 +270,7 @@ object SQLSyntax extends SyntaxHighlighter {
     "zone"
   )
 
-  val dataTypes: CodeSpanParser = caseInsensitiveKeywords(CodeCategory.TypeName)(
+  private val dataTypes: CodeSpanParser = caseInsensitiveKeywords(CodeCategory.TypeName)(
     "array",
     "bigint",
     "binary",
@@ -304,10 +305,10 @@ object SQLSyntax extends SyntaxHighlighter {
     "void"
   )
 
-  val boolean: CodeSpanParser =
+  private val boolean: CodeSpanParser =
     caseInsensitiveKeywords(CodeCategory.BooleanLiteral)("true", "false")
 
-  val literalValue: CodeSpanParser =
+  private val literalValue: CodeSpanParser =
     caseInsensitiveKeywords(CodeCategory.LiteralValue)("null", "unknown")
 
   val spanParsers: Seq[CodeSpanParser] = Seq(
