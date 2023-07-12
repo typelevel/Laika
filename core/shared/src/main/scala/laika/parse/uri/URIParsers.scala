@@ -26,7 +26,7 @@ import laika.parse.text.{ CharGroup, Characters }
   *
   * @author Jens Halm
   */
-object URIParsers {
+private[laika] object URIParsers {
 
   /** Parses letters according to RFC 2234.
     *

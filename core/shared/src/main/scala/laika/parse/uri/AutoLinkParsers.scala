@@ -32,7 +32,7 @@ import laika.parse.uri.URIParsers.{ fragment, path, query, regName }
   *
   * @author Jens Halm
   */
-class AutoLinkParsers(
+private[laika] class AutoLinkParsers(
     reverseMarkupStart: Parser[Any],
     afterEndMarkup: Parser[Any],
     stripStartChars: Set[Char],

@@ -28,7 +28,7 @@ import laika.parse.implicits._
   *
   * @author Jens Halm
   */
-object CSSParsers {
+private[laika] object CSSParsers {
 
   /** Represents a combinator between two predicates.
     */
