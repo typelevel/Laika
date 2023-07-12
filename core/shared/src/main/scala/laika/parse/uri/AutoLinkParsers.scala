@@ -28,7 +28,6 @@ import laika.parse.uri.URIParsers.{ fragment, path, query, regName }
   * inserted as links into the AST without any surrounding markup delimiters.
   *
   * The parsing of the http or email URIs is based on the corresponding RFCs.
-  * See [[URIParsers]] for details.
   *
   * @author Jens Halm
   */
