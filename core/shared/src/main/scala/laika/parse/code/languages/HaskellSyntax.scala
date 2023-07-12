@@ -77,7 +77,7 @@ object HaskellSyntax extends SyntaxHighlighter {
 
   private val charEscapes: CodeSpanParser =
     StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
-    
+
   private val stringLiteral =
     StringLiteral.singleLine('"').embed(charEscapes)
 
