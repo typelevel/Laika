@@ -39,16 +39,16 @@ import scala.collection.immutable.SortedSet
   */
 object HOCONSyntax extends SyntaxHighlighter {
 
-  val string: StringParser = StringLiteral.singleLine('"').embed(
+  private val string: StringParser = StringLiteral.singleLine('"').embed(
     StringLiteral.Escape.unicode,
     StringLiteral.Escape.char
   )
 
-  val quotedAttributeName: StringParser = string
+  private val quotedAttributeName: StringParser = string
     .withPostCondition(lookAhead(ws ~ oneOf(':', '=', '{')).void)
     .withCategory(CodeCategory.AttributeName)
 
-  val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
+  private val substitution: CodeSpanParser = CodeSpanParser(CodeCategory.Substitution, "${", "}")
 
   private val invalidUnquotedChar: NonEmptySet[Char] =
     NonEmptySet.of('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?', '!', '@',
@@ -69,15 +69,15 @@ object HOCONSyntax extends SyntaxHighlighter {
     validChar | oneOf(' ') <~ lookAhead(ws ~ validChar)
   }.rep.source
 
-  val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
+  private val unquotedAttributeName: CodeSpanParser = CodeSpanParser(CodeCategory.AttributeName) {
     PrefixedParser(unquotedStartChar)(unquotedChar <~ lookAhead(ws ~ oneOf(':', '=', '{')))
   }
 
-  val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral) {
+  private val unquotedStringValue: CodeSpanParser = CodeSpanParser(CodeCategory.StringLiteral) {
     PrefixedParser(unquotedStartChar)(unquotedChar)
   }
 
-  def functionNames(names: String*): CodeSpanParser = names.map { name =>
+  private def functionNames(names: String*): CodeSpanParser = names.map { name =>
     CodeSpanParser(CodeCategory.Identifier) {
       literal(name) <~ nextIn('(')
     }

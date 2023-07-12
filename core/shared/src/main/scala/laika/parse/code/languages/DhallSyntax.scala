@@ -36,10 +36,10 @@ object DhallSyntax extends SyntaxHighlighter {
   /** The names of the language (and its optional aliases) as used in text markup */
   override def language: NonEmptyList[String] = NonEmptyList.of("dhall")
 
-  val comment: CodeSpanParser =
+  private val comment: CodeSpanParser =
     Comment.singleLine("--") ++ Comment.multiLine("{-", "-}")
 
-  val keywords: CodeSpanParser = Keywords(
+  private val keywords: CodeSpanParser = Keywords(
     "if",
     "then",
     "else",
@@ -58,27 +58,28 @@ object DhallSyntax extends SyntaxHighlighter {
     "with"
   )
 
-  val bracedUnicodeEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
+  private val bracedUnicodeEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
     ("\\u{" ~ anyOf('0') ~ digits.hex.min(1).max(6) ~ "}").source
   }
 
-  val singleLineEscapes: CodeSpanParser =
+  private val singleLineEscapes: CodeSpanParser =
     bracedUnicodeEscape ++ StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
 
-  val multiLineEscapes: CodeSpanParser = Keywords(CodeCategory.EscapeSequence)("'''", "''${")
+  private val multiLineEscapes: CodeSpanParser =
+    Keywords(CodeCategory.EscapeSequence)("'''", "''${")
 
   val substitutions: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
 
-  val stringLiteral: CodeSpanParser =
+  private val stringLiteral: CodeSpanParser =
     StringLiteral.singleLine('"').embed(substitutions, singleLineEscapes) ++
       StringLiteral.multiLine("''").embed(substitutions, multiLineEscapes)
 
-  val numberLiteral: CodeSpanParser = NumberLiteral.hex ++
+  private val numberLiteral: CodeSpanParser = NumberLiteral.hex ++
     NumberLiteral.decimalFloat ++
     NumberLiteral.decimalInt.withPrefix(someOf('-', '+').max(1)) ++
     NumberLiteral.decimalInt
 
-  val identifier: Identifier.IdParser = Identifier.alphaNum
+  private val identifier: Identifier.IdParser = Identifier.alphaNum
 
   private val anyOfWs = anyOf(' ', '\t', '\n')
 
@@ -112,19 +113,20 @@ object DhallSyntax extends SyntaxHighlighter {
 
   private val colon = (anyOfWs ~ ": " ~ anyOfWs).source.map(s => Seq(CodeSpan(s)))
 
-  val typedDeclaration: CodeSpanParser = CodeSpanParser(
+  private val typedDeclaration: CodeSpanParser = CodeSpanParser(
     (beginningOfLet ~ colon ~ tpe ~ equals).concat
   )
 
-  val untypedDeclaration: CodeSpanParser = CodeSpanParser((beginningOfLet ~ equals).concat)
+  private val untypedDeclaration: CodeSpanParser = CodeSpanParser((beginningOfLet ~ equals).concat)
 
-  val attributeName: Identifier.IdParser = identifier.withCategory(CodeCategory.AttributeName)
+  private val attributeName: Identifier.IdParser =
+    identifier.withCategory(CodeCategory.AttributeName)
 
-  val recordEntry: CodeSpanParser = CodeSpanParser(
+  private val recordEntry: CodeSpanParser = CodeSpanParser(
     (attributeName ~ (anyOfWs ~ oneOf('=')).source.asCode()).mapN(Seq(_, _))
   )
 
-  val recordTypeEntry: CodeSpanParser =
+  private val recordTypeEntry: CodeSpanParser =
     CodeSpanParser((attributeName ~ colon ~ tpe).concat)
 
   /** The parsers for individual code spans written in this language */

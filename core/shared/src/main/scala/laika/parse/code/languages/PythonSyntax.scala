@@ -27,20 +27,20 @@ import laika.parse.code.common._
   */
 object PythonSyntax extends SyntaxHighlighter {
 
-  def embedEscapes(parser: StringParser): StringParser = parser.embed(
+  private def embedEscapes(parser: StringParser): StringParser = parser.embed(
     StringLiteral.Escape.unicode,
     StringLiteral.Escape.hex,
     StringLiteral.Escape.octal,
     StringLiteral.Escape.char
   )
 
-  def embedSubstitutions(parser: StringParser): StringParser = parser.embed(
+  private def embedSubstitutions(parser: StringParser): StringParser = parser.embed(
     StringLiteral.Escape.literal("{{"),
     StringLiteral.Escape.literal("}}"),
     StringLiteral.Substitution.between("{", "}")
   )
 
-  def stringLiteral(
+  private def stringLiteral(
       embed: StringParser => StringParser
   )(prefix: String, prefixes: String*): CodeSpanParser =
     (prefix +: prefixes).map { pref =>

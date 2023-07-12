@@ -28,20 +28,21 @@ import laika.parse.implicits._
   */
 object JavaScriptSyntax extends SyntaxHighlighter {
 
-  val unicodeCodePointEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-    ("\\u{" ~ digits.hex.min(1) ~ "}").source
-  }
+  private[languages] val unicodeCodePointEscape: CodeSpanParser =
+    CodeSpanParser(CodeCategory.EscapeSequence) {
+      ("\\u{" ~ digits.hex.min(1) ~ "}").source
+    }
 
-  val charEscapes: CodeSpanParser =
+  private val charEscapes: CodeSpanParser =
     unicodeCodePointEscape ++
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++
       StringLiteral.Escape.char
 
-  def number(parser: NumericParser): CodeSpanParser =
+  private[languages] def number(parser: NumericParser): CodeSpanParser =
     parser.withUnderscores.withSuffix(NumberLiteral.suffix.bigInt)
 
-  val keywords = Keywords(
+  private[languages] val keywords = Keywords(
     "async",
     "as",
     "await",
@@ -116,9 +117,9 @@ object JavaScriptSyntax extends SyntaxHighlighter {
     private def tagCategory(name: String): CodeCategory =
       if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
 
-    val emptyJsxTag: CodeSpanParser = emptyTag.withCategory(tagCategory(_))
+    private[languages] val emptyJsxTag: CodeSpanParser = emptyTag.withCategory(tagCategory(_))
 
-    lazy val element: CodeSpanParser = CodeSpanParser {
+    private[languages] lazy val element: CodeSpanParser = CodeSpanParser {
 
       val substitution = StringLiteral.Substitution.between("{", "}")
 

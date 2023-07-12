@@ -40,25 +40,26 @@ object ScalaSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("scala")
 
-  val comment: CodeSpanParser = Comment.singleLine("//") ++ Comment.multiLine("/*", "*/")
+  private val comment: CodeSpanParser = Comment.singleLine("//") ++ Comment.multiLine("/*", "*/")
 
-  val symbol: CodeSpanParser = Identifier.alphaNum
+  private val symbol: CodeSpanParser = Identifier.alphaNum
     .withPrefix(literal("'"))
     .withCategory(CodeCategory.SymbolLiteral)
 
-  val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
+  private val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
     (oneOf('`') ~ anyNot('\n', '`') ~ oneOf('`')).source
   }
 
-  val charEscapes: CodeSpanParser = StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
+  private val charEscapes: CodeSpanParser =
+    StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
 
-  val stringPrefixChar: PrefixedParser[String] = someOf(CharGroup.alpha)
+  private val stringPrefixChar: PrefixedParser[String] = someOf(CharGroup.alpha)
 
-  val substitutions: CodeSpanParser =
+  private val substitutions: CodeSpanParser =
     StringLiteral.Substitution.between("${", "}") ++
       StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source)
 
-  val stringLiteral: CodeSpanParser =
+  private val stringLiteral: CodeSpanParser =
     StringLiteral.multiLine("\"\"\"") ++
       StringLiteral.multiLine((stringPrefixChar ~ "\"\"\"").source, literal("\"\"\"")).embed(
         substitutions
@@ -69,7 +70,7 @@ object ScalaSyntax extends SyntaxHighlighter {
         substitutions
       )
 
-  val numberLiteral: CodeSpanParser =
+  private val numberLiteral: CodeSpanParser =
     NumberLiteral.hex.withUnderscores.withSuffix(NumberLiteral.suffix.long) ++
       NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float) ++
       NumberLiteral.decimalInt.withUnderscores.withSuffix(
@@ -78,7 +79,7 @@ object ScalaSyntax extends SyntaxHighlighter {
 
   /** Keywords for both Scala2 and Dotty/Scala3
     */
-  val keywords: CodeSpanParser =
+  private val keywords: CodeSpanParser =
     Keywords(BooleanLiteral)("true", "false") ++
       Keywords(LiteralValue)("null") ++
       Keywords(
@@ -118,11 +119,11 @@ object ScalaSyntax extends SyntaxHighlighter {
         "with"
       )
 
-  val identifier: IdParser = Identifier.alphaNum
+  private val identifier: IdParser = Identifier.alphaNum
     .withIdStartChars('_', '$')
     .withCategoryChooser(Identifier.upperCaseTypeName)
 
-  val declaration: CodeSpanParser = CodeSpanParser {
+  private val declaration: CodeSpanParser = CodeSpanParser {
     val keyword = literal("def").asCode(CodeCategory.Keyword)
     val name    = identifier.withCategory(CodeCategory.DeclarationName)
     (keyword ~ ws.asCode() ~ name).mapN { Seq(_, _, _) }
@@ -147,5 +148,42 @@ object ScalaSyntax extends SyntaxHighlighter {
     identifier,
     numberLiteral
   )
+
+  object Scala3 extends SyntaxHighlighter {
+
+    val language: NonEmptyList[String] = NonEmptyList.of("dotty")
+
+    /** Soft keywords would require too much context to be fully accurate.
+      * For example, we do not even attempt to detect inline matches.
+      * It should be sufficient to be right for the most basic cases.
+      */
+    private val softKeywords: CodeSpanParser = CodeSpanParser(CodeCategory.Keyword) {
+      "inline" <~ lookAhead(ws ~ ("def" | "val" | "if")) |
+        "opaque" <~ lookAhead(ws ~ "type") |
+        "open" <~ lookAhead(ws ~ "class") |
+        "infix " <~ lookAhead(ws ~ "def") |
+        "transparent" <~ lookAhead(ws ~ "inline") |
+        "as" <~ lookAhead(ws ~ identifier) |
+        "derives" <~ lookAhead(ws ~ identifier) |
+        "using" <~ lookAhead(ws ~ identifier) ~ lookBehind(6, literal("(")) |
+        "extension" <~ lookAhead(ws ~ ("(" | "["))
+    }
+
+    val spanParsers: Seq[CodeSpanParser] = Seq(
+      comment,
+      CharLiteral.standard.embed(charEscapes),
+      symbol,
+      backtickId,
+      stringLiteral,
+      JavaSyntax.annotation,
+      declaration,
+      keywords,
+      Keywords("do", "enum", "export", "given", "then"), // keywords added in Dotty/Scala3
+      softKeywords,
+      identifier,
+      numberLiteral
+    )
+
+  }
 
 }

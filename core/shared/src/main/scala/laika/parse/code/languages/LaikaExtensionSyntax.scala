@@ -36,13 +36,13 @@ import laika.parse.code.implicits.*
   */
 object LaikaExtensionSyntax {
 
-  val substitution: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
+  private val substitution: CodeSpanParser = StringLiteral.Substitution.between("${", "}")
 
-  val hoconBlock: CodeSpanParser = CodeSpanParser {
+  private val hoconBlock: CodeSpanParser = CodeSpanParser {
     embeddedHocon("{%", "%}", Set(CodeCategory.Keyword))
   }
 
-  def embeddedHocon(
+  private def embeddedHocon(
       start: String,
       end: String,
       delimCategory: Set[CodeCategory] = Set()
@@ -53,7 +53,7 @@ object LaikaExtensionSyntax {
     }
   }
 
-  val directive: CodeSpanParser = CodeSpanParser {
+  private val directive: CodeSpanParser = CodeSpanParser {
     val nameParser =
       Identifier.alphaNum.map(name => Seq(CodeSpan("@:", CodeCategory.Keyword), name))
     val whiteSpace = ws.min(1).asCode()
@@ -67,9 +67,9 @@ object LaikaExtensionSyntax {
     ("@:" ~> nameParser ~ defaultAttribute ~ hoconParser).concat
   }
 
-  val fence: CodeSpanParser = Keywords("@:@")
+  private val fence: CodeSpanParser = Keywords("@:@")
 
-  val allExtensions: Seq[CodeSpanParser] = Seq(substitution, directive, fence, hoconBlock)
+  private val allExtensions: Seq[CodeSpanParser] = Seq(substitution, directive, fence, hoconBlock)
 
   lazy val forMarkdown: SyntaxHighlighter = new SyntaxHighlighter {
     val language: NonEmptyList[String]        = NonEmptyList.of("laikaMarkdown", "laika-md")
@@ -81,13 +81,13 @@ object LaikaExtensionSyntax {
     lazy val spanParsers: Seq[CodeSpanParser] = allExtensions ++ ReStructuredTextSyntax.spanParsers
   }
 
-  val enhancedStartTag: CodeSpanParser = TagFormats.customTag("<", ">").embed(
+  private val enhancedStartTag: CodeSpanParser = TagFormats.customTag("<", ">").embed(
     StringLiteral.singleLine('\'').embed(TagFormats.ref, substitution),
     StringLiteral.singleLine('"').embed(TagFormats.ref, substitution),
     TagFormats.name(CodeCategory.AttributeName)
   )
 
-  val modifiedHTMLParsers: Seq[CodeSpanParser] = Seq(
+  private val modifiedHTMLParsers: Seq[CodeSpanParser] = Seq(
     HTMLSyntax.docType,
     TagFormats.comment,
     TagFormats.ref,

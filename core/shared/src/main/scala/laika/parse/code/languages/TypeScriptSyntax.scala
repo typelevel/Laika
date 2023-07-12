@@ -26,7 +26,7 @@ import laika.parse.code.common._
   */
 object TypeScriptSyntax extends SyntaxHighlighter {
 
-  val stringEmbeds: CodeSpanParser =
+  private val stringEmbeds: CodeSpanParser =
     JavaScriptSyntax.unicodeCodePointEscape ++
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++

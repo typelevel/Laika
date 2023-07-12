@@ -27,10 +27,12 @@ object XMLSyntax extends SyntaxHighlighter {
 
   import TagFormats._
 
-  val pi: CodeSpanParser    = CodeSpanParser(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
-  val cdata: CodeSpanParser = CodeSpanParser(CodeCategory.XML.CData, "<![CDATA[", "]]>")
+  private val pi: CodeSpanParser =
+    CodeSpanParser(CodeCategory.XML.ProcessingInstruction, "<?", "?>")
 
-  object DTD {
+  private val cdata: CodeSpanParser = CodeSpanParser(CodeCategory.XML.CData, "<![CDATA[", "]]>")
+
+  private object DTD {
 
     private[XMLSyntax] def dtdTag(name: String): TagParser =
       customTag("<!", ">")
@@ -75,7 +77,7 @@ object XMLSyntax extends SyntaxHighlighter {
 
   }
 
-  val xmlDecl: CodeSpanParser =
+  private val xmlDecl: CodeSpanParser =
     customTag("<?", "?>")
       .forTagName("xml")
       .embed(
@@ -83,7 +85,7 @@ object XMLSyntax extends SyntaxHighlighter {
         name(CodeCategory.AttributeName)
       )
 
-  val docType: CodeSpanParser = DTD.dtdTag("DOCTYPE").embed(
+  private val docType: CodeSpanParser = DTD.dtdTag("DOCTYPE").embed(
     Keywords("SYSTEM", "PUBLIC"),
     string,
     pi,

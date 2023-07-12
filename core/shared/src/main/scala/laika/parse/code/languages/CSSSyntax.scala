@@ -46,12 +46,12 @@ object CSSSyntax extends SyntaxHighlighter {
     base.withPrefix("@" | "#") ++ base
   }
 
-  lazy val escape: CodeSpanParser =
+  private lazy val escape: CodeSpanParser =
     CodeSpanParser(CodeCategory.EscapeSequence)(
       ("\\" ~ digits.hex.min(1)).source
     ) ++ StringLiteral.Escape.char
 
-  lazy val url: CodeSpanParser = CodeSpanParser {
+  private lazy val url: CodeSpanParser = CodeSpanParser {
     (literal("url(") ~ ws ~ anyNot('"', '\'', '(', ')', ' ', '\n') ~ ws ~ ")").map {
       case _ ~ ws1 ~ value ~ ws2 ~ _ =>
         Seq(
@@ -63,16 +63,16 @@ object CSSSyntax extends SyntaxHighlighter {
     }
   }
 
-  val color: CodeSpanParser =
+  private val color: CodeSpanParser =
     CodeSpanParser(CodeCategory.NumberLiteral)(("#" ~ digits.hex.min(1).max(6)).source)
 
-  val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
+  private val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)
 
-  val number: CodeSpanParser = NumberLiteral.decimalFloat.allowFollowingLetter ++
+  private val number: CodeSpanParser = NumberLiteral.decimalFloat.allowFollowingLetter ++
     NumberLiteral.decimalInt.allowFollowingLetter
 
-  val declaration: CodeSpanParser = {
+  private val declaration: CodeSpanParser = {
 
     val embedded: Seq[CodeSpanParser]                        = Seq(
       Comment.multiLine("/*", "*/"),

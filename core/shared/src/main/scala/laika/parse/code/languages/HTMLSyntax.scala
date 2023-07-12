@@ -28,7 +28,7 @@ import laika.parse.implicits.*
   */
 object HTMLSyntax extends SyntaxHighlighter {
 
-  val docType: CodeSpanParser = customTag("<!", ">")
+  private[languages] val docType: CodeSpanParser = customTag("<!", ">")
     .forTagName("DOCTYPE")
     .withCategory(CodeCategory.XML.DTDTagName)
     .embed(
@@ -46,11 +46,11 @@ object HTMLSyntax extends SyntaxHighlighter {
         name(CodeCategory.AttributeName)
       )
 
-  val scriptTag: CodeSpanParser = CodeSpanParser {
+  private[languages] val scriptTag: CodeSpanParser = CodeSpanParser {
     (startTag("script") ~ elementRest("script", JavaScriptSyntax.spanParsers)).concat
   }
 
-  val styleTag: CodeSpanParser = CodeSpanParser {
+  private[languages] val styleTag: CodeSpanParser = CodeSpanParser {
     (startTag("style") ~ elementRest("style", CSSSyntax.spanParsers)).concat
   }
 

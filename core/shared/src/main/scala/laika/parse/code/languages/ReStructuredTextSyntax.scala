@@ -33,10 +33,10 @@ import laika.rst.InlineParsers.{ markupEnd, markupStart }
 object ReStructuredTextSyntax extends SyntaxHighlighter {
 
   // raw = does not perform checks for rst inline markup recognition
-  def rawSpan(start: String, end: String, category: CodeCategory): Parser[CodeSpan] =
+  private def rawSpan(start: String, end: String, category: CodeCategory): Parser[CodeSpan] =
     (literal(start) ~ delimitedBy(end).failOn('\n')).source.asCode(category)
 
-  def rawSpan(end: String, category: CodeCategory): Parser[CodeSpan] =
+  private def rawSpan(end: String, category: CodeCategory): Parser[CodeSpan] =
     delimitedBy(end).failOn('\n').asCode(category)
 
   private def span(start: String, end: String, category: CodeCategory): CodeSpanParser =
@@ -45,23 +45,23 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
       (markupStart(start, end) ~ delimitedBy(markupEnd(endDelim))).source
     }
 
-  val strong: CodeSpanParser = span("**", "**", CodeCategory.Markup.Emphasized)
-  val em: CodeSpanParser     = span("*", "*", CodeCategory.Markup.Emphasized)
-  val lit: CodeSpanParser    = span("``", "``", CodeCategory.StringLiteral)
+  private val strong: CodeSpanParser = span("**", "**", CodeCategory.Markup.Emphasized)
+  private val em: CodeSpanParser     = span("*", "*", CodeCategory.Markup.Emphasized)
+  private val lit: CodeSpanParser    = span("``", "``", CodeCategory.StringLiteral)
 
-  val ref: CodeSpanParser = span("`", "`__", CodeCategory.Markup.LinkTarget) ++
+  private val ref: CodeSpanParser = span("`", "`__", CodeCategory.Markup.LinkTarget) ++
     span("`", "`_", CodeCategory.Markup.LinkTarget)
 
-  val subst: CodeSpanParser = span("|", "|__", CodeCategory.Substitution) ++
+  private val subst: CodeSpanParser = span("|", "|__", CodeCategory.Substitution) ++
     span("|", "|_", CodeCategory.Substitution) ++
     span("|", "|", CodeCategory.Substitution)
 
-  val interpretedText: CodeSpanParser = span("`", "`", CodeCategory.Substitution)
-  val roleName: CodeSpanParser        = span(":", ":", CodeCategory.Identifier)
-  val internalTarget: CodeSpanParser  = span("_`", "`", CodeCategory.Identifier)
-  val footnote: CodeSpanParser        = span("[", "]_", CodeCategory.Markup.LinkTarget)
+  private val interpretedText: CodeSpanParser = span("`", "`", CodeCategory.Substitution)
+  private val roleName: CodeSpanParser        = span(":", ":", CodeCategory.Identifier)
+  private val internalTarget: CodeSpanParser  = span("_`", "`", CodeCategory.Identifier)
+  private val footnote: CodeSpanParser        = span("[", "]_", CodeCategory.Markup.LinkTarget)
 
-  val header: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
+  private val header: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
     oneOf(BaseParsers.punctuationChars) >> { startChar =>
       (someOf(startChar.head) ~ ws ~ ("\n" ~> not(blankLine) ~> restOfLine) ~ someOf(
         startChar.head
@@ -70,22 +70,23 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val underlinedHeader: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
-    ((not(blankLine) ~> restOfLine.map(_ + "\n")) ~ oneOf(BaseParsers.punctuationChars)) >> {
-      case text ~ decoStart =>
-        (someOf(decoStart.head) ~ ws <~ nextIn('\n')).source.map { header =>
-          s"$text$decoStart$header"
-        }
+  private val underlinedHeader: CodeSpanParser =
+    CodeSpanParser.onLineStart(CodeCategory.Markup.Headline) {
+      ((not(blankLine) ~> restOfLine.map(_ + "\n")) ~ oneOf(BaseParsers.punctuationChars)) >> {
+        case text ~ decoStart =>
+          (someOf(decoStart.head) ~ ws <~ nextIn('\n')).source.map { header =>
+            s"$text$decoStart$header"
+          }
+      }
     }
-  }
 
-  val transition: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
+  private val transition: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Markup.Fence) {
     oneOf(BaseParsers.punctuationChars) >> { startChar =>
       someOf(startChar.head).map(startChar + _) <~ lookAhead(ws ~ "\n" ~ blankLine)
     }
   }
 
-  val explicitItems: CodeSpanParser = CodeSpanParser.onLineStart {
+  private val explicitItems: CodeSpanParser = CodeSpanParser.onLineStart {
 
     val subst      = (rawSpan("|", "|", CodeCategory.Substitution) ~ ws ~ delimitedBy("::")).map {
       case sub ~ space ~ name =>
@@ -101,7 +102,7 @@ object ReStructuredTextSyntax extends SyntaxHighlighter {
     }
   }
 
-  val fieldDef: CodeSpanParser = CodeSpanParser.onLineStart {
+  private val fieldDef: CodeSpanParser = CodeSpanParser.onLineStart {
     (ws ~ rawSpan(":", ":", CodeCategory.AttributeName)).map { case space ~ name =>
       Seq(CodeSpan(space), name)
     }

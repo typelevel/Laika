@@ -26,7 +26,6 @@ import laika.parse.code.common.{
   NumberLiteral,
   StringLiteral
 }
-import laika.parse.code.languages.ScalaSyntax.charEscapes
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.CharGroup.{ digit, lowerAlpha, upperAlpha }
 
@@ -37,9 +36,9 @@ object HaskellSyntax extends SyntaxHighlighter {
   /** The names of the language (and its optional aliases) as used in text markup */
   override def language: NonEmptyList[String] = NonEmptyList.of("hs", "haskell")
 
-  val comment: CodeSpanParser = Comment.singleLine("--") ++ Comment.multiLine("{-", "-}")
+  private val comment: CodeSpanParser = Comment.singleLine("--") ++ Comment.multiLine("{-", "-}")
 
-  val keywords =
+  private val keywords =
     Keywords(
       "as",
       "case",
@@ -76,16 +75,22 @@ object HaskellSyntax extends SyntaxHighlighter {
       "where"
     )
 
-  val stringLiteral =
+  private val charEscapes: CodeSpanParser =
+    StringLiteral.Escape.unicode ++ StringLiteral.Escape.char
+    
+  private val stringLiteral =
     StringLiteral.singleLine('"').embed(charEscapes)
 
-  val numberLiteral =
-    NumberLiteral.hex ++ NumberLiteral.octal ++ NumberLiteral.decimalFloat ++ NumberLiteral.decimalInt
+  private val numberLiteral =
+    NumberLiteral.hex ++
+      NumberLiteral.octal ++
+      NumberLiteral.decimalFloat ++
+      NumberLiteral.decimalInt
 
-  val identifiers = Identifier
+  private val identifiers = Identifier
     .forCharacterSets(lowerAlpha.add('_'), digit ++ upperAlpha.add('\''))
 
-  val types = Identifier
+  private val types = Identifier
     .forCharacterSets(upperAlpha.add('_'), digit ++ lowerAlpha.add('\''))
     .withCategory(CodeCategory.TypeName)
 
