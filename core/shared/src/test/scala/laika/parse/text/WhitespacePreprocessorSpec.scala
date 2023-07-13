@@ -20,7 +20,7 @@ import munit.FunSuite
 
 class WhitespacePreprocessorSpec extends FunSuite {
 
-  private val processor = new WhitespacePreprocessor
+  private val processor = WhitespacePreprocessor.forString
 
   test("replace form feeds and vertical tabs with single spaces") {
     val vt    = '\u000b'

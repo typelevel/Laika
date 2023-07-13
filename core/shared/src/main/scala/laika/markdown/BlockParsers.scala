@@ -184,7 +184,7 @@ object BlockParsers {
   /** Parses a literal block, text indented by a tab or 4 spaces.
     */
   val literalBlocks: BlockParserBuilder = BlockParserBuilder.standalone {
-    val wsPreProcessor = new WhitespacePreprocessor
+    val wsPreProcessor = WhitespacePreprocessor.forString
     PrefixedParser(' ', '\t') {
       decoratedBlock(tabOrSpace, tabOrSpace, tabOrSpace).map { lines =>
         LiteralBlock(wsPreProcessor(lines.input))

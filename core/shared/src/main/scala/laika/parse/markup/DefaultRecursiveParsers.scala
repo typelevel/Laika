@@ -24,13 +24,14 @@ import laika.parse.builders._
   *
   * @author Jens Halm
   */
-trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpanParsers {
+private[parse] trait DefaultRecursiveParsers extends RecursiveParsers
+    with DefaultRecursiveSpanParsers {
 
   /** The maximum level of block nesting. Some block types like lists
     * and blockquotes contain nested blocks. To protect against malicious
     * input or accidentally broken markup, the level of nesting is restricted.
     */
-  val maxNestLevel: Int = 12
+  private val maxNestLevel: Int = 12
 
   /** Parses any kind of top-level block supported by a concrete markup language.
     */

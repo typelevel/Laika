@@ -340,7 +340,7 @@ abstract class Parser[+T] {
   }
 
   /** Handle any error, potentially recovering from it, by mapping it to a new parser that
-    * will be applied at the same starting position than the failing parser.
+    * will be applied at the same starting position as the failing parser.
     *
     * This is similar to the `orElse` or `|` method, but allows the alternative
     * parser to inspect the error of the preceding one.

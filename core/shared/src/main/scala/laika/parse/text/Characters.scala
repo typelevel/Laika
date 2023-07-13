@@ -24,7 +24,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class Characters[T](
+class Characters[T] private (
     predicate: Char => Boolean,
     resultBuilder: Characters.ResultBuilder[T],
     minChar: Int = 0,
@@ -93,16 +93,18 @@ class Characters[T](
   */
 object Characters {
 
-  type ResultBuilder[T] = (SourceCursor, Int) => T
+  private[Characters] type ResultBuilder[T] = (SourceCursor, Int) => T
 
-  val StringResultBuilder: ResultBuilder[String] = (ctx, consumed) => ctx.capture(consumed)
-  val CountResultBuilder: ResultBuilder[Int]     = (_, consumed) => consumed
-  val UnitResultBuilder: ResultBuilder[Unit]     = (_, _) => ()
+  private[Characters] val StringResultBuilder: ResultBuilder[String] =
+    (ctx, consumed) => ctx.capture(consumed)
+
+  private[Characters] val CountResultBuilder: ResultBuilder[Int] = (_, consumed) => consumed
+  private[Characters] val UnitResultBuilder: ResultBuilder[Unit] = (_, _) => ()
 
   /**  Returns an optimized, Array-based lookup function
     *  for the specified characters.
     */
-  def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
+  private[text] def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
     val max: Int = if (chars.nonEmpty) chars.max.toInt else -1
     val lookup   = new Array[Byte](max + 1)
 

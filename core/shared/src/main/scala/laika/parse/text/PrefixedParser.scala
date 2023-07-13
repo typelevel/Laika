@@ -24,16 +24,15 @@ import laika.parse.{ Parsed, Parser, SourceCursor, SourceFragment }
   * characters for performance optimizations.
   *
   * There is usually no need to create such a parser manually,
-  * as some of the basic building blocks in `TextParsers` create
-  * such a parser (e.g. the `literal`, `oneOf` or `someOf`
-  * parsers).
+  * as some of the basic building blocks in `TextParsers` create such a parser
+  * (e.g. the `literal`, `oneOf` or `someOf` parsers).
   *
-  * This set only has only an effect when this parser is used in
-  * an optimized parser for recursive spans, meaning it is
-  * either registered as a top-level parser (with `SpanParser.standalone`
-  * or `SpanParser.recursive`) or passed to a custom span parser
-  * with `InlineParser.embed`. In all other use cases this
-  * parser behaves just like plain parser.
+  * This set only has only an effect when this parser is used
+  * in an optimized parser for recursive spans,
+  * meaning it is either registered as a top-level parser
+  * (with `SpanParser.standalone` or `SpanParser.recursive`)
+  * or passed to a custom span parser with `InlineParser.embed`.
+  * In all other use cases this parser behaves just like plain parser.
   *
   * @author Jens Halm
   */
@@ -115,7 +114,7 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   */
 object PrefixedParser {
 
-  import cats.implicits._
+  import cats.syntax.all._
 
   /** Creates a new parser that is only triggered when a character in the specified
     * set is seen on the input.
@@ -134,8 +133,8 @@ object PrefixedParser {
   }
 
   /** Creates a mapping from start characters to their corresponding parser
-    * from the specified sequence of PrefixedParsers. If a character is
-    * a trigger for more than one parser they will be combined using `orElse`
+    * from the specified sequence of PrefixedParsers.
+    * If a character is a trigger for more than one parser they will be combined using `orElse`
     * where the parser which comes first in the sequence has higher precedence.
     */
   def mapAndMerge[T](parsers: Seq[PrefixedParser[T]]): Map[Char, Parser[T]] = parsers
@@ -146,8 +145,5 @@ object PrefixedParser {
     .map { case (char, definitions) =>
       (char, definitions.map(_._2).reduceLeft(_ | _))
     }
-
-  private[laika] def fromLegacyMap[T](map: Map[Char, Parser[T]]): Seq[PrefixedParser[T]] =
-    map.toSeq.map { case (c, p) => PrefixedParser(c)(p) }
 
 }

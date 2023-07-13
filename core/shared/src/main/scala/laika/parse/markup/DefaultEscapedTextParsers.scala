@@ -24,7 +24,7 @@ import laika.parse.implicits._
   *
   * @author Jens Halm
   */
-trait DefaultEscapedTextParsers extends EscapedTextParsers {
+private[markup] trait DefaultEscapedTextParsers extends EscapedTextParsers {
 
   /** Parses a single escape character.
     * In the default implementation any character can be escaped.

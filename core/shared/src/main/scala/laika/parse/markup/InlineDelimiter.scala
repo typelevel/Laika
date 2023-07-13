@@ -26,7 +26,7 @@ import laika.parse.{ Parsed, SourceCursor, Success }
   *
   * @author Jens Halm
   */
-class InlineDelimiter(nestedDelimiters: Set[Char], endDelimiters: Delimiter[String])
+private[markup] class InlineDelimiter(nestedDelimiters: Set[Char], endDelimiters: Delimiter[String])
     extends Delimiter[InlineResult] {
 
   val startChars = nestedDelimiters ++ endDelimiters.startChars
@@ -57,12 +57,13 @@ class InlineDelimiter(nestedDelimiters: Set[Char], endDelimiters: Delimiter[Stri
 
 /** The result of text parsed with an `InlineDelimiter`.
   */
-sealed trait InlineResult
+private[markup] sealed trait InlineResult
 
 /** The result in case the start character of a nested span has been parsed.
   */
-case class NestedDelimiter(startChar: Char, capturedText: String) extends InlineResult
+private[markup] case class NestedDelimiter(startChar: Char, capturedText: String)
+    extends InlineResult
 
 /** The result in case the end delimiter for the text has been parsed.
   */
-case class EndDelimiter(capturedText: String) extends InlineResult
+private[markup] case class EndDelimiter(capturedText: String) extends InlineResult
