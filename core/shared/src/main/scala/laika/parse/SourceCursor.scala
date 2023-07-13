@@ -124,7 +124,8 @@ trait SourceFragment extends SourceCursor {
   * For creating a cursor for a fragment of the input, either `BlockSource` or `LineSource` must be used
   * to preserve position tracking in relation to the root input.
   */
-class RootSource(inputRef: InputString, val offset: Int, val nestLevel: Int) extends SourceCursor {
+class RootSource private[parse] (inputRef: InputString, val offset: Int, val nestLevel: Int)
+    extends SourceCursor {
 
   type Self = RootSource
 
@@ -284,11 +285,6 @@ object LineSource {
   * This type of source cursor solves this issue by providing a view to parsers that looks like a consecutive
   * string of inline markup without the stripped decoration, while maintaining the x- and y-offsets of each line
   * in relation to the root source.
-  *
-  * Such a source will be used in multi-pass parsers, where the root parser might strip some markup decoration
-  * from each line and then pass the result down to the next recursion.
-  * In such a case each line might have a different x-offset from the root input.
-  * The use of this instance ensures that the correct position can still be tracked.
   */
 class BlockSource(
     inputRef: InputString,

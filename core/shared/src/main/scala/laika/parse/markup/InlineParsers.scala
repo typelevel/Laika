@@ -179,8 +179,8 @@ object InlineParsers extends InlineParsers
 /** Generic base parser that parses inline elements with potentially nested spans.
   *
   * The two embed methods allow the registration of parsers for nested child spans.
-  * They can be invoked multiple times. Child parsers passed first have higher
-  * precedence than those passed later.
+  * They can be invoked multiple times.
+  * Child parsers passed first have higher precedence than those passed later.
   *
   * Only parsers of type `PrefixedParser[T]` can be passed to the embed methods,
   * which are parsers with known, stable prefixes of the child span consisting

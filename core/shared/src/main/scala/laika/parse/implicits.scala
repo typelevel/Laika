@@ -148,17 +148,17 @@ object implicits {
   implicit class LiteralStringOps(val str: String) extends AnyVal {
     def ~ [U](p: Parser[U]): PrefixedParser[String ~ U] = TextParsers.literal(str) ~ p
 
-    def ~ [U](value: String): PrefixedParser[String ~ String] =
+    def ~ (value: String): PrefixedParser[String ~ String] =
       TextParsers.literal(str) ~ TextParsers.literal(value)
 
     def <~ [U](p: Parser[U]): PrefixedParser[String] = TextParsers.literal(str) <~ p
 
-    def <~ [U](value: String): PrefixedParser[String] =
+    def <~ (value: String): PrefixedParser[String] =
       TextParsers.literal(str) <~ TextParsers.literal(value)
 
     def ~> [U](p: Parser[U]): PrefixedParser[U] = TextParsers.literal(str) ~> p
 
-    def ~> [U](value: String): PrefixedParser[String] =
+    def ~> (value: String): PrefixedParser[String] =
       TextParsers.literal(str) ~> TextParsers.literal(value)
 
     def | (p: PrefixedParser[String]): PrefixedParser[String] = TextParsers.literal(str) | p

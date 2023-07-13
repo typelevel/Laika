@@ -25,7 +25,8 @@ import laika.parse.text.{ DelimitedText, PrefixedParser }
   *
   * @author Jens Halm
   */
-trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscapedTextParsers {
+private[parse] trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers
+    with DefaultEscapedTextParsers {
 
   /** All default span parsers registered for a host markup language.
     */

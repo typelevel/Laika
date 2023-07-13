@@ -27,17 +27,18 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class DelimitedText(private[laika] val delimiter: TextDelimiter) extends Parser[String] {
+class DelimitedText private[text] (private[laika] val delimiter: TextDelimiter)
+    extends Parser[String] {
 
   private lazy val parser: DelimitedParser[String] = new DelimitedParser[String](delimiter)
 
-  /** Creates a delimiter that also allows reaching the end of the input.
+  /** Creates a delimiter that also allows reaching the end of the input before encountering the delimiter.
     * By default a delimiter based parser fails in that case.
     */
   def acceptEOF: DelimitedText = new DelimitedText(delimiter.copy(acceptEOF = true))
 
-  /** Creates a delimiter that also allows empty result, meaning reaching the delimiter before any non-delimiter
-    * characters have been parsed.
+  /** Creates a delimiter that also allows empty result,
+    * meaning reaching the delimiter before any non-delimiter characters have been parsed.
     * By default a delimiter based parser fails in that case.
     */
   def nonEmpty: DelimitedText = new DelimitedText(delimiter.copy(nonEmpty = true))
@@ -57,8 +58,8 @@ class DelimitedText(private[laika] val delimiter: TextDelimiter) extends Parser[
 
 object DelimitedText {
 
-  /** A parser that reads to the end of the input, unless further conditions
-    * are set on the returned `DelimiterOptions`.
+  /** A parser that reads to the end of the input,
+    * unless further conditions are set on the returned `DelimiterOptions`.
     */
   lazy val Undelimited: DelimitedText = new DelimitedText(TextDelimiter(None)).acceptEOF
 

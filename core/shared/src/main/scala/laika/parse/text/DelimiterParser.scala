@@ -43,7 +43,7 @@ import laika.parse.{ Failure, Message, Parser, Success }
   *
   * @author Jens Halm
   */
-class DelimiterParser(
+class DelimiterParser private[text] (
     prefix: PrefixedParser[String],
     prevCharInvalid: Char => Boolean = _ => false,
     nextCharInvalid: Char => Boolean = _ => false,
