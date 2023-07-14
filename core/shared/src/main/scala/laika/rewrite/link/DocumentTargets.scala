@@ -25,7 +25,7 @@ import scala.annotation.tailrec
   *
   *  @author Jens Halm
   */
-case class DocumentTargets(document: Document, slugBuilder: String => String) {
+private[link] class DocumentTargets(document: Document, slugBuilder: String => String) {
 
   /** Generates symbol identifiers.
     * Contains a predefined list of ten symbols to generate.

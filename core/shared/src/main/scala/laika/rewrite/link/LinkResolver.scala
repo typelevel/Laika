@@ -41,7 +41,7 @@ import scala.annotation.tailrec
   *
   *  @author Jens Halm
   */
-class LinkResolver(root: DocumentTreeRoot, slugBuilder: String => String)
+private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String => String)
     extends RewriteRulesBuilder {
 
   val targets = new TreeTargets(root, slugBuilder)

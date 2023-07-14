@@ -29,7 +29,7 @@ import scala.collection.mutable.ListBuffer
   *
   * @author Jens Halm
   */
-object SectionBuilder extends RewriteRulesBuilder {
+private[laika] object SectionBuilder extends RewriteRulesBuilder {
 
   private class DefaultRule(
       autonumberConfig: AutonumberConfig,

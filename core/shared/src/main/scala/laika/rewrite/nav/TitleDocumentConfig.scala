@@ -23,7 +23,7 @@ import laika.config.{ Config, LaikaKeys }
   *
   * @author Jens Halm
   */
-object TitleDocumentConfig {
+private[laika] object TitleDocumentConfig {
 
   val defaultInputName: String  = "README"
   val defaultOutputName: String = "index"

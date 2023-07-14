@@ -24,7 +24,7 @@ import laika.ast.{ DocumentTreeRoot, Path, StaticDocument }
   *
   * @author Jens Halm
   */
-class TreeTargets(root: DocumentTreeRoot, slugBuilder: String => String) {
+private[link] class TreeTargets(root: DocumentTreeRoot, slugBuilder: String => String) {
 
   private val targetMap: Map[(Path, Selector), TargetResolver] = {
 
@@ -42,7 +42,7 @@ class TreeTargets(root: DocumentTreeRoot, slugBuilder: String => String) {
       } yield ((path, target.selector), target)
 
     val targets                           = root.allDocuments.flatMap { doc =>
-      val targets = DocumentTargets(doc, slugBuilder).targets
+      val targets = new DocumentTargets(doc, slugBuilder).targets
       val global  =
         if (doc.path == Root) Nil
         else mapToKeys(allPaths(doc.path.parent), targets.filter(_.selector.global))

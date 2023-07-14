@@ -34,11 +34,9 @@ case class AutonumberConfig(
     maxDepth: Int = Int.MaxValue
 )
 
-case class ConfigurationException(msg: String) extends RuntimeException(msg)
+private[nav] sealed trait Scope
 
-sealed trait Scope
-
-object Scope {
+private[nav] object Scope {
   case object Documents extends Scope
   case object Sections  extends Scope
   case object All       extends Scope
