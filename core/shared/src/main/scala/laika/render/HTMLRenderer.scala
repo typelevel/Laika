@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer(format: String)
+private[laika] class HTMLRenderer(format: String)
     extends ((HTMLFormatter, Element) => String) {
 
   def apply(fmt: HTMLFormatter, element: Element): String = {
@@ -387,4 +387,4 @@ class HTMLRenderer(format: String)
 
 }
 
-object HTMLRenderer extends HTMLRenderer(format = "html")
+private[laika] object HTMLRenderer extends HTMLRenderer(format = "html")

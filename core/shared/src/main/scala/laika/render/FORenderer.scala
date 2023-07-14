@@ -25,7 +25,7 @@ import laika.rst.ast.{ Line, LineBlock }
   *
   * @author Jens Halm
   */
-object FORenderer extends ((FOFormatter, Element) => String) {
+private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
 
   private val formats: NonEmptySet[String] = NonEmptySet.of("pdf", "fo", "xslfo", "xsl-fo")
 

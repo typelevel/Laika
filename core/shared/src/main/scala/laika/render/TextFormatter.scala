@@ -29,7 +29,7 @@ import laika.factory.RenderContext
   *
   * @author Jens Halm
   */
-case class TextFormatter(
+class TextFormatter private[render] (
     renderChild: (TextFormatter, Element) => String,
     currentElement: Element,
     parents: List[Element],
@@ -42,27 +42,18 @@ case class TextFormatter(
     ) {
 
   protected def withChild(element: Element): TextFormatter =
-    copy(parents = currentElement :: parents, currentElement = element)
+    new TextFormatter(renderChild, element, currentElement :: parents, indentation)
 
   protected def withIndentation(newIndentation: Indentation): TextFormatter =
-    copy(indentation = newIndentation)
-
-}
-
-/** Default factory for TextFormatters, based on a provided RenderContext.
-  */
-object TextFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
-
-  def apply(context: RenderContext[TextFormatter]): TextFormatter =
-    TextFormatter(context.renderChild, context.root, Nil, context.indentation)
+    new TextFormatter(renderChild, currentElement, parents, newIndentation)
 
 }
 
 /** Default factory for ASTFormatters, based on a provided RenderContext.
   */
-object ASTFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
+private[laika] object ASTFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
 
   def apply(context: RenderContext[TextFormatter]): TextFormatter =
-    TextFormatter(context.renderChild, context.root, Nil, Indentation.dotted)
+    new TextFormatter(context.renderChild, context.root, Nil, Indentation.dotted)
 
 }

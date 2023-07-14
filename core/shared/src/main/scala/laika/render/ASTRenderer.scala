@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-object ASTRenderer extends ((TextFormatter, Element) => String) {
+private[laika] object ASTRenderer extends ((TextFormatter, Element) => String) {
 
   /**  The maximum width of a single text element.
     *  For any text that exceeds this limit only the beginning
@@ -31,7 +31,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
     *  for the majority of cases where primarily the document
     *  structure is relevant.
     */
-  val maxTextWidth = 50
+  private val maxTextWidth = 50
 
   private case class Content(content: Seq[Element], desc: String, options: Options = NoOpt)
       extends Element with ElementContainer[Element] {

@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 import laika.factory.RenderContext
 import laika.rewrite.nav.PathTranslator
 
@@ -33,12 +33,12 @@ import laika.rewrite.nav.PathTranslator
   *
   * @author Jens Halm
   */
-case class HTMLFormatter(
+class HTMLFormatter private[render] (
     renderChild: (HTMLFormatter, Element) => String,
     currentElement: Element,
     parents: List[Element],
-    pathTranslator: PathTranslator,
-    path: Path,
+    val pathTranslator: PathTranslator,
+    val path: Path,
     indentation: Indentation,
     messageFilter: MessageFilter,
     closeEmptyTags: Boolean
@@ -49,15 +49,33 @@ case class HTMLFormatter(
       messageFilter
     ) {
 
-  val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
+  private val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
 
   type StyleHint = Options
 
   protected def withChild(element: Element): HTMLFormatter =
-    copy(parents = currentElement :: parents, currentElement = element)
+    new HTMLFormatter(
+      renderChild,
+      element,
+      currentElement :: parents,
+      pathTranslator,
+      path,
+      indentation,
+      messageFilter,
+      closeEmptyTags
+    )
 
   protected def withIndentation(newIndentation: Indentation): HTMLFormatter =
-    copy(indentation = newIndentation)
+    new HTMLFormatter(
+      renderChild,
+      currentElement,
+      parents,
+      pathTranslator,
+      path,
+      newIndentation,
+      messageFilter,
+      closeEmptyTags
+    )
 
   def attributes(tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String = {
     val id     = styleHint.id.map("id" -> _).toSeq
@@ -82,7 +100,7 @@ case class HTMLFormatter(
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
 
   def apply(context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(
+    new HTMLFormatter(
       context.renderChild,
       context.root,
       Nil,
@@ -103,7 +121,7 @@ object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
 object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
 
   def apply(context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(
+    new HTMLFormatter(
       context.renderChild,
       context.root,
       Nil,
