@@ -20,14 +20,13 @@ import laika.config.{ Config, LaikaKeys }
 import laika.ast._
 import laika.config.Config.ConfigResult
 
-/** Responsible for applying the navigation order to the
-  *  contents of a document tree, either based on user-specified
-  *  configuration or by the alphabetical order of the names of
-  *  the documents and subtrees.
+/** Responsible for applying the navigation order to the contents of a document tree,
+  * either based on user-specified configuration
+  * or by the alphabetical order of the names of the documents and subtrees.
   *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-object NavigationOrder {
+private[laika] object NavigationOrder {
 
   def applyTo(
       content: Seq[Cursor],

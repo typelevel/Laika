@@ -23,7 +23,7 @@ import laika.rewrite.nav.TargetFormats
 /** Represents the source of a link, its document path
   * and the actual inline span that is representing the link.
   */
-case class LinkSource(span: Span, path: Path)
+private[link] case class LinkSource(span: Span, path: Path)
 
 /** Represents a resolver for a target that has its final identifier generated
   * (if necessary) and can be used to resolve matching reference nodes.
@@ -31,7 +31,7 @@ case class LinkSource(span: Span, path: Path)
   * @param selector the selector to use to identify reference nodes matching this target
   * @param precedence the precedence in comparison to other resolvers with the same selector
   */
-abstract sealed class TargetResolver(
+private[link] abstract sealed class TargetResolver(
     val selector: Selector,
     val targetFormats: TargetFormats = TargetFormats.All,
     val precedence: Int = 0
@@ -53,7 +53,7 @@ abstract sealed class TargetResolver(
 
 }
 
-object ReferenceResolver {
+private[link] object ReferenceResolver {
   def lift(f: PartialFunction[LinkSource, Span]): LinkSource => Option[Span] = f.lift
 
   def internalLink(target: Path): LinkSource => Option[Span] = lift {
@@ -78,14 +78,13 @@ object ReferenceResolver {
 
 }
 
-object TargetReplacer {
+private[link] object TargetReplacer {
   def lift(f: PartialFunction[Block, Block]): Block => Option[Block] = f.lift
   def addId(id: String): Block => Option[Block] = block => Some(block.withId(id))
-  val removeId: Block => Option[Block]          = block => Some(block.withoutId)
   val removeTarget: Block => Option[Block]      = Function.const(None)
 }
 
-object TargetResolver {
+private[link] object TargetResolver {
 
   def create(
       selector: Selector,
@@ -201,7 +200,7 @@ object TargetResolver {
 /** Represents a resolver for a sequence of targets where matching reference nodes get determined by position.
   * The `resolveReference` and `resolveTarget` methods can be invoked as many times as this sequence contains elements.
   */
-case class TargetSequenceResolver(targets: Seq[TargetResolver], sel: Selector)
+private[link] case class TargetSequenceResolver(targets: Seq[TargetResolver], sel: Selector)
     extends TargetResolver(sel) {
   private val refIt    = targets.iterator
   private val targetIt = targets.iterator
@@ -216,7 +215,7 @@ case class TargetSequenceResolver(targets: Seq[TargetResolver], sel: Selector)
 
 }
 
-case class LinkAliasResolver(
+private[link] case class LinkAliasResolver(
     sourceSelector: TargetIdSelector,
     targetSelector: TargetIdSelector,
     referenceResolver: LinkSource => Option[Span],
@@ -241,7 +240,7 @@ case class LinkAliasResolver(
 
 }
 
-object LinkAliasResolver {
+private[link] object LinkAliasResolver {
 
   def unresolved(
       sourceSelector: TargetIdSelector,

@@ -21,7 +21,7 @@ package laika.render
   *
   *  @author Jens Halm
   */
-trait FOProperties {
+private[laika] trait FOProperties {
 
   private val border = Set(
     "border",
@@ -338,7 +338,7 @@ trait FOProperties {
 
 }
 
-object FOProperties {
+private[laika] object FOProperties {
 
   /* https://www.w3.org/TR/xsl11/#prtab1 */
   private val inherited = Set(

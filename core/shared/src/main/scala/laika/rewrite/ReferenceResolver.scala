@@ -39,10 +39,9 @@ case class ReferenceResolver(config: Config) {
 
 }
 
-/** Companion for constructing ReferenceResolvers for a particular
-  *  target Document.
+/** Companion for constructing ReferenceResolvers for a particular target Document.
   */
-object ReferenceResolver {
+private[laika] object ReferenceResolver {
 
   object CursorKeys {
 

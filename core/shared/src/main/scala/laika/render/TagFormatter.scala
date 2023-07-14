@@ -43,7 +43,7 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]](
   type StyleHint
 
   /** Renders the specified string on the same line,
-    *  with all special XML/HTML characters converted to entities.
+    * with all special XML/HTML characters converted to entities.
     */
   def text(str: String): String = TagFormatter.escape(str, newLine)
 
@@ -128,7 +128,7 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]](
 
 }
 
-object TagFormatter {
+private[laika] object TagFormatter {
 
   /** Replaces all special XML/HTML characters with entities. */
   def escape(str: String, newLine: String = "\n"): String = {

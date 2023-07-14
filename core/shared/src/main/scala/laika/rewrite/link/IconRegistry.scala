@@ -5,7 +5,7 @@ import laika.config.{ ConfigEncoder, DefaultKey, LaikaKeys }
 
 /** Registers Icon AST elements for use with the `@:icon` directive and the `IconReference` AST element.
   */
-case class IconRegistry(icons: Map[String, Icon])
+case class IconRegistry private (icons: Map[String, Icon])
 
 object IconRegistry {
 

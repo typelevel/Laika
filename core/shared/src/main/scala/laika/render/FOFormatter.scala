@@ -17,7 +17,7 @@
 package laika.render
 
 import laika.ast.Path.Root
-import laika.ast.{ InternalTarget, _ }
+import laika.ast.*
 import laika.factory.RenderContext
 import laika.rewrite.nav.PathTranslator
 
@@ -35,13 +35,13 @@ import laika.rewrite.nav.PathTranslator
   *
   * @author Jens Halm
   */
-case class FOFormatter(
+class FOFormatter private (
     renderChild: (FOFormatter, Element) => String,
     currentElement: Element,
-    parents: List[Element],
-    pathTranslator: PathTranslator,
-    path: Path,
-    styles: StyleDeclarationSet,
+    val parents: List[Element],
+    val pathTranslator: PathTranslator,
+    val path: Path,
+    val styles: StyleDeclarationSet,
     indentation: Indentation,
     messageFilter: MessageFilter
 ) extends TagFormatter[FOFormatter](
@@ -54,10 +54,28 @@ case class FOFormatter(
   type StyleHint = Element
 
   protected def withChild(element: Element): FOFormatter =
-    copy(parents = currentElement :: parents, currentElement = element)
+    new FOFormatter(
+      renderChild,
+      element,
+      currentElement :: parents,
+      pathTranslator,
+      path,
+      styles,
+      indentation,
+      messageFilter
+    )
 
   protected def withIndentation(newIndentation: Indentation): FOFormatter =
-    copy(indentation = newIndentation)
+    new FOFormatter(
+      renderChild,
+      currentElement,
+      parents,
+      pathTranslator,
+      path,
+      styles,
+      newIndentation,
+      messageFilter
+    )
 
   private lazy val (footnotes, citations) = parents.lastOption.getOrElse(currentElement) match {
     case et: ElementTraversal =>
@@ -100,7 +118,7 @@ case class FOFormatter(
   /** Generates an id that is unique within the entire document tree for the
     * specified local reference.
     */
-  def buildLocalId(ref: String): String = {
+  private def buildLocalId(ref: String): String = {
     if (ref.isEmpty) buildId(path)
     else if (path == Root) buildId(Path.parse(s"#$ref"))
     else buildId(path.withFragment(ref))
@@ -128,8 +146,8 @@ case class FOFormatter(
   def block(styleHint: Element, attr: (String, String)*): String =
     emptyElement("fo:block", styleHint, attr: _*)
 
-  /** Renders an FO `block` element and the specified nested spans, preserving
-    *  all whitespace within the text elements of those spans.
+  /** Renders an FO `block` element and the specified nested spans,
+    * preserving all whitespace within the text elements of those spans.
     */
   def blockWithWS(styleHint: Element, content: Seq[Span], attr: (String, String)*): String =
     withoutIndentation(_.element("fo:block", styleHint, content, attr: _*))
@@ -385,7 +403,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   /** Creates a new formatter instance based on the specified render context.
     */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
-    FOFormatter(
+    new FOFormatter(
       context.renderChild,
       context.root,
       Nil,

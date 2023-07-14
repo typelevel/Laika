@@ -27,7 +27,7 @@ object DefaultTemplatePath {
 
   private val base: Path = Root / "default"
 
-  def forSuffix(suffix: String): Path = base.withSuffix(s"template.$suffix")
+  private[laika] def forSuffix(suffix: String): Path = base.withSuffix(s"template.$suffix")
 
   def forHTML: Path = forSuffix("html")
   def forEPUB: Path = forSuffix("epub.xhtml")

@@ -23,7 +23,7 @@ import laika.ast.Path
   *  from both, the ids rendered in the final document
   *  and the ids used for display.
   */
-sealed trait Selector {
+private[link] sealed trait Selector {
 
   /** Indicates whether this selector is applicable
     * beyond the boundaries of a single document.
@@ -43,14 +43,14 @@ sealed trait Selector {
 
 /** A selector that can be used for a sequence of targets.
   */
-sealed trait SequenceSelector extends Selector {
+private[link] sealed trait SequenceSelector extends Selector {
   val global = false
   val unique = false
 }
 
 /** A selector that can is a globally unique identifier.
   */
-sealed trait UniqueSelector extends Selector {
+private[link] sealed trait UniqueSelector extends Selector {
   val global = true
   val unique = true
   def description: String
@@ -58,30 +58,30 @@ sealed trait UniqueSelector extends Selector {
 
 /** A selector for a rendered target in a document.
   */
-case class TargetIdSelector(id: String) extends UniqueSelector {
+private[link] case class TargetIdSelector(id: String) extends UniqueSelector {
   val description = s"link target with id '$id'"
 }
 
 /** A selector for a definition for an internal or external link.
   */
-case class LinkDefinitionSelector(id: String) extends UniqueSelector {
+private[link] case class LinkDefinitionSelector(id: String) extends UniqueSelector {
   val description = s"link definition with id '$id'"
 }
 
 /** A selector based on a path, optionally including a fragment component.
   */
-case class PathSelector(path: Path) extends UniqueSelector {
+private[link] case class PathSelector(path: Path) extends UniqueSelector {
   val description = s"link target with path '$path'"
 }
 
 /** An anonymous selector (usually matched by position).
   */
-case object AnonymousSelector extends SequenceSelector
+private[link] case object AnonymousSelector extends SequenceSelector
 
 /** An auto-number selector (usually matched by position).
   */
-case object AutonumberSelector extends SequenceSelector
+private[link] case object AutonumberSelector extends SequenceSelector
 
 /** An auto-symbol selector (usually matched by position).
   */
-case object AutosymbolSelector extends SequenceSelector
+private[link] case object AutosymbolSelector extends SequenceSelector

@@ -53,7 +53,7 @@ object CoverImage {
 
 }
 
-case class CoverImages(default: Option[Path], classified: Map[String, Path]) {
+private[laika] case class CoverImages(default: Option[Path], classified: Map[String, Path]) {
 
   def getImageFor(classifier: String): Option[Path] = classified.get(classifier).orElse(default)
 
@@ -63,7 +63,7 @@ case class CoverImages(default: Option[Path], classified: Map[String, Path]) {
 
 }
 
-object CoverImages {
+private[laika] object CoverImages {
 
   def forPDF(config: Config): ConfigResult[CoverImages] =
     extract(config, LaikaKeys.root.child("pdf"), LaikaKeys.root)
