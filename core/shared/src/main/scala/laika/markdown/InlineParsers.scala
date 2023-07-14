@@ -16,35 +16,33 @@
 
 package laika.markdown
 
-import laika.ast._
+import laika.ast.*
 import laika.bundle.SpanParserBuilder
 import laika.parse.{ LineSource, Parser, SourceFragment }
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.builders.*
+import laika.parse.implicits.*
 import laika.parse.text.{ DelimitedText, PrefixedParser }
 
 import scala.util.Try
 
-/** Provides all inline parsers for Markdown text except for those dealing
-  *  with verbatim HTML markup which this library treats as an optional
-  *  feature that has to be explicitly mixed in.
+/** Provides all inline parsers for Markdown text except for those dealing with verbatim HTML markup
+  * which this library treats as an optional feature that has to be explicitly mixed in.
   *
-  *  Inline parsers deal with markup within a block of text, such as a
-  *  link or emphasized text. They are used in the second phase of parsing,
-  *  after the block parsers have cut the document into a (potentially nested)
-  *  block structure.
+  * Inline parsers deal with markup within a block of text, such as a link or emphasized text.
+  * They are used in the second phase of parsing,
+  * after the block parsers have cut the document into a (potentially nested) block structure.
   *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-object InlineParsers {
+private[laika] object InlineParsers {
 
-  /**  Parses a single escaped character, only recognizing the characters the Markdown syntax document
-    *  specifies as escapable.
-    *  The `|` has been added to that list to support escaping in tables in the GitHub Flavor syntax.
+  /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
+    * specifies as escapable.
+    * The `|` has been added to that list to support escaping in tables in the GitHub Flavor syntax.
     *
-    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
+    * Note: escaping > is not mandated by the official syntax description, but by the official test suite.
     */
   val escapedChar: Parser[String] =
     oneOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>', '|')
@@ -88,7 +86,7 @@ object InlineParsers {
   /** Parses a span enclosed by a single occurrence of the specified character.
     *  Recursively parses nested spans, too.
     */
-  def enclosedBySingleChar(
+  private def enclosedBySingleChar(
       c: Char
   )(implicit recParsers: RecursiveSpanParsers): PrefixedParser[List[Span]] = {
     val start = delimiter(c).nextNot(' ', '\n', c)
@@ -117,8 +115,6 @@ object InlineParsers {
   }
 
   private def normalizeId(id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
-
-  type RecParser = String => List[Span]
 
   /** Parses a link, including nested spans in the link text.
     *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.

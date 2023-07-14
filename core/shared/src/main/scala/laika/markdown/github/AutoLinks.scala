@@ -29,7 +29,7 @@ import laika.parse.uri.AutoLinkParsers
   *
   * @author Jens Halm
   */
-object AutoLinks {
+private[github] object AutoLinks {
 
   private val startChars = NonEmptySet.of('*', '_', '~', '(', ' ', '\n')
   private val endChars   = NonEmptySet.of('*', '_', '~', ')', '?', '!', '.', ',', ':', ' ', '\n')

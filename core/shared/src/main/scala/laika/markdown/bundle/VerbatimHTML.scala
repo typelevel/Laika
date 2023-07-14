@@ -20,22 +20,21 @@ import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, RenderOverrid
 import laika.format.HTML
 import laika.markdown.HTMLParsers
 
-/**  Markdown extension that also parses verbatim HTML elements alongside
-  *  the standard Markdown markup.
+/** Markdown extension that also parses verbatim HTML elements alongside the standard Markdown markup.
   *
-  *  Since verbatim HTML is treated as an optional feature
-  *  by this library as it aims to also support renderers for other formats than HTML,
-  *  this extension is disabled by default.
+  * Since verbatim HTML is treated as an optional feature by this library
+  * as it aims to also support renderers for other formats than HTML,
+  * this extension is disabled by default.
   *
-  *  You can enable it with the Transform API:
+  * You can enable it with the Transform API:
   *
-  *  {{{
-  *  val transformer = Transformer.from(Markdown).to(HTML).withRawContent
-  *  }}}
+  * {{{
+  * val transformer = Transformer.from(Markdown).to(HTML).withRawContent
+  * }}}
   *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-object VerbatimHTML extends ExtensionBundle {
+private[laika] object VerbatimHTML extends ExtensionBundle {
 
   val description: String = "Support for verbatim HTML in markup"
 
