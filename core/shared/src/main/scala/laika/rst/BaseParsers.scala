@@ -25,12 +25,12 @@ import laika.parse.text.{ CharGroup, Characters }
 
 /** @author Jens Halm
   */
-object BaseParsers {
+private[laika] object BaseParsers {
 
   /** Set of punctuation characters as supported by transitions (rules) and
     * overlines and underlines for header sections.
     */
-  private[laika] val punctuationChars: NonEmptySet[Char] =
+  val punctuationChars: NonEmptySet[Char] =
     NonEmptySet.of('!', '"', '#', '$', '%', '&', '\'', '(', ')', '[', ']', '{', '}', '*', '+', ',',
       '-', '.', ':', ';', '/', '<', '>', '=', '?', '@', '\\', '^', '_', '`', '|', '~')
 

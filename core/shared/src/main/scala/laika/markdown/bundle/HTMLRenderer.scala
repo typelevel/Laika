@@ -20,31 +20,27 @@ import laika.ast.{ Element, TextContainer }
 import laika.markdown.ast._
 import laika.render.HTMLFormatter
 
-/**  Renderer for verbatim HTML elements. Since verbatim HTML is treated as an optional feature
-  *  by this library as it aims to also support renderers for other formats than HTML,
-  *  the nodes in the document tree produced by the verbatim HTML parsers are not known by the standard
-  *  renderers. This partial renderer complements the regular HTML renderer and simply writes
-  *  the HTML elements out as they were read. Of course, in contrast to regular text, without
-  *  escaping any of the special HTML characters.
-  *
-  *  It must be applied explicitly as part of the `VerbatimHTML` bundle when enabling verbatim HTML:
-  *
-  *  {{{
-  *  val transformer = Transformer.from(Markdown).to(HTML).withRawContent
-  *  }}}
+/** Renderer for verbatim HTML elements.
+  * Since verbatim HTML is treated as an optional feature by this library
+  * as it aims to also support renderers for other formats than HTML,
+  * the nodes in the document tree produced by the verbatim HTML parsers are not known
+  * by the standard renderers.
+  * This partial renderer complements the regular HTML renderer and simply writes
+  * the HTML elements out as they were read.
+  * Of course, in contrast to regular text, without escaping any of the special HTML characters.
   *
   *  @author Jens Halm
   */
-object HTMLRenderer {
+private[bundle] object HTMLRenderer {
 
-  def prepareAttributeValue(spans: List[TextContainer]): String =
+  private def prepareAttributeValue(spans: List[TextContainer]): String =
     spans.foldLeft("") {
       case (acc, span: HTMLCharacterReference) => acc + span.content
       case (acc, text)                         =>
         acc + text.content.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "$#39;")
     }
 
-  def tagStart(tagName: String, attributes: List[HTMLAttribute]): String = {
+  private def tagStart(tagName: String, attributes: List[HTMLAttribute]): String = {
 
     val renderedAttrs = attributes.map { at =>
       val name  = " " + at.name

@@ -16,12 +16,12 @@
 
 package laika.rst.std
 
-import laika.ast._
+import laika.ast.*
 import laika.parse.{ BlockSource, Parser, SourceFragment }
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParser }
 import laika.parse.text.CharGroup
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.builders.*
+import laika.parse.implicits.*
 import laika.rst.BaseParsers.simpleRefName
 import laika.rst.TableParsers
 import laika.rst.ast.ReferenceName
@@ -33,7 +33,7 @@ import laika.rst.ast.ReferenceName
   *
   *  @author Jens Halm
   */
-object StandardDirectiveParsers {
+private[std] object StandardDirectiveParsers {
 
   /** Utility method to be used by custom parsers for directive argument or body.
     *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.

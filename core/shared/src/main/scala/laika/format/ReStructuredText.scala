@@ -25,29 +25,22 @@ import laika.rst._
 import laika.rst.bundle._
 
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
-  *  to the `Parseer` or `Transformer` APIs:
+  * to the `Parseer` or `Transformer` APIs:
   *
-  *  {{{
-  *  val document = MarkupParser.of(ReStructuredText).build.parse(inputString)
+  * {{{
+  * val document = MarkupParser.of(ReStructuredText).build.parse(inputString)
   *
-  *  Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)
-  *  }}}
+  * Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)
+  * }}}
   *
-  *  reStructuredText has several types of extension points that are fully supported by Laika.
-  *  For more information on how to implement and register those see [[laika.rst.bundle.RstExtensionRegistry]].
+  * In addition to the implementing the standard reStructuredText directives,
+  * the Laika APIs also supports a custom directive type unique to Laika.
+  * They represent a library-wide extension mechanism and allow you to implement
+  * tags which can be used in any of the supported markup formats or in templates.
   *
-  *  In addition to the standard reStructuredText directives, the API also supports a custom directive
-  *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
-  *  tags which can be used in any of the supported markup formats or in templates. If you need this
-  *  level of flexibility, it is recommended to use the Laika directives, if you want to stay compatible
-  *  with the reStructuredText reference parser, you should pick the standard directives.
+  * Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
   *
-  *  Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
-  *  The DSLs for creating directives are similar, but still different,
-  *  due to differences in the feature set of the two variants. The Laika directives try to avoid some
-  *  of the unnecessary complexities of reStructuredText directives.
-  *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
 case object ReStructuredText extends MarkupFormat { self =>
 
@@ -89,9 +82,9 @@ case object ReStructuredText extends MarkupFormat { self =>
     InlineParsers.email
   )
 
-  override lazy val escapedChar = InlineParsers.escapedChar
+  override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
-  object BundledDefaults extends ExtensionBundle {
+  private object BundledDefaults extends ExtensionBundle {
 
     val description: String = "Default extensions for reStructuredText"
 

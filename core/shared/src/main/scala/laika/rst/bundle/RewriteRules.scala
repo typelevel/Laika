@@ -27,26 +27,25 @@ import laika.rst.ast.{
 }
 import laika.rst.ext.TextRoles.TextRole
 
-/**  The default rewrite rules that get applied to the raw document tree after parsing
-  *  reStructuredText markup. These rules are responsible for resolving  substitution
-  *  references and interpreted text which are specific to reStructuredText and get usually
-  *  executed alongside the generic rules. .
+/** The default rewrite rules that get applied to the raw document tree after parsing reStructuredText markup.
+  * These rules are responsible for resolving  substitution references and interpreted text
+  * which are specific to reStructuredText and get usually executed alongside the generic rules.
   *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-class RewriteRules(textRoles: Seq[TextRole]) extends RewriteRulesBuilder {
+private[bundle] class RewriteRules(textRoles: Seq[TextRole]) extends RewriteRulesBuilder {
 
-  val baseRoleElements: Map[String, String => Span] = textRoles.map { role =>
+  private val baseRoleElements: Map[String, String => Span] = textRoles.map { role =>
     (role.name, role.default)
   }.toMap
 
-  class DefaultRules(cursor: DocumentCursor) {
+  private class DefaultRules(cursor: DocumentCursor) {
 
-    val substitutions: Map[String, Span] = cursor.target.content.collect {
+    private val substitutions: Map[String, Span] = cursor.target.content.collect {
       case SubstitutionDefinition(id, content, _) => (id, content)
     }.toMap
 
-    val textRoles: Map[String, String => Span] = cursor.target.content.collect {
+    private val textRoles: Map[String, String => Span] = cursor.target.content.collect {
       case CustomizedTextRole(id, f, _) => (id, f)
     }.toMap ++ baseRoleElements
 

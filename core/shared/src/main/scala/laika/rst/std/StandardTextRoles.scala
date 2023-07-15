@@ -68,7 +68,7 @@ import scala.collection.immutable.TreeSet
   *
   *  @author Jens Halm
   */
-class StandardTextRoles {
+private[rst] class StandardTextRoles {
 
   private val classOption = optField(
     "class",

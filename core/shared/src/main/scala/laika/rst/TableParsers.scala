@@ -34,7 +34,7 @@ import scala.collection.mutable.ListBuffer
   *
   * @author Jens Halm
   */
-object TableParsers {
+private[laika] object TableParsers {
 
   private abstract class TableElement
 
@@ -62,8 +62,8 @@ object TableParsers {
     private var currentLine: Option[LineSource]      = None
     private def allLines: mutable.Buffer[LineSource] = previousLines ++ currentLine.toBuffer
 
-    var rowSpan = 1
-    var colSpan = 1
+    private var rowSpan = 1
+    private var colSpan = 1
 
     var removed: Boolean = false
 
@@ -92,7 +92,7 @@ object TableParsers {
     }
 
     @nowarn("cat=deprecation")
-    def trimmedCellContent: Option[BlockSource] = {
+    private def trimmedCellContent: Option[BlockSource] = {
       NonEmptyChain.fromSeq(allLines.toSeq).map { nonEmptyLines =>
         val minIndent    = nonEmptyLines.map { line =>
           if (line.input.trim.isEmpty) Int.MaxValue
@@ -109,7 +109,7 @@ object TableParsers {
       }
     }
 
-    def parsedCellContent: Seq[Block] = trimmedCellContent.fold[Seq[Block]](Nil)(src =>
+    private def parsedCellContent: Seq[Block] = trimmedCellContent.fold[Seq[Block]](Nil)(src =>
       recParser.recursiveBlocks.parse(src).getOrElse(Nil)
     )
 
@@ -214,7 +214,7 @@ object TableParsers {
 
   /** Parses a grid table.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
     */
   lazy val gridTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersectChar = '+'
@@ -309,7 +309,7 @@ object TableParsers {
 
   /** Parses a simple table.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
     */
   lazy val simpleTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersect   = someOf(' ').count

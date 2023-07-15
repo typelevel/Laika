@@ -37,7 +37,7 @@ import laika.time.PlatformDateTime
   *
   *  @author Jens Halm
   */
-class StandardSpanDirectives {
+private[rst] class StandardSpanDirectives {
 
   /** The replace directive,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.

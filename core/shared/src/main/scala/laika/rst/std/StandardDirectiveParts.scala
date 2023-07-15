@@ -16,18 +16,18 @@
 
 package laika.rst.std
 
-import laika.ast._
-import laika.parse.implicits._
+import laika.ast.*
+import laika.parse.implicits.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, TextParsers }
 import laika.parse.{ GeneratedSource, SourceFragment }
 import laika.rst.BaseParsers.sizeAndUnit
 import laika.rst.ext.Directives.DirectivePartBuilder
-import laika.rst.ext.Directives.Parts._
+import laika.rst.ext.Directives.Parts.*
 
 /** @author Jens Halm
   */
-object StandardDirectiveParts {
+private[std] object StandardDirectiveParts {
 
   /** The name option which is supported by almost all reStructuredText directives.
     */
@@ -35,7 +35,7 @@ object StandardDirectiveParts {
 
   /** The class option which is supported by almost all reStructuredText directives.
     */
-  val classOpt: DirectivePartBuilder[Option[String]] = optField("class")
+  private val classOpt: DirectivePartBuilder[Option[String]] = optField("class")
 
   /** The standard class and name options supported by most directives,
     *  combined in the result into an Options instance.

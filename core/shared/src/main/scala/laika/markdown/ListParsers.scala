@@ -16,20 +16,20 @@
 
 package laika.markdown
 
-import laika.ast._
+import laika.ast.*
 import laika.bundle.BlockParserBuilder
 import laika.parse.Parser
 import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, PrefixedParser }
-import laika.parse.builders._
+import laika.parse.builders.*
 
 /** Provides parsers for bullet lists ("unordered list" in the Markdown spec)
   * and enumerated lists ("ordered list" in the Markdown spec).
   *
   * @author Jens Halm
   */
-object ListParsers {
+private[laika] object ListParsers {
 
   private val bulletChar: Parser[String] = oneOf('*', '-', '+')
   private val enumChar: Parser[String]   = oneOf(CharGroup.digit)
@@ -39,22 +39,15 @@ object ListParsers {
   private val enumStartRest: Parser[String] =
     (anyOf(CharGroup.digit) ~ "." ~ wsAfterItemStart).as("")
 
-  /** Parses the start of a bullet list item.
-    */
-  val bulletListItemStart: Parser[String] = bulletChar <~ wsAfterItemStart
-
-  /** Parses the start of an enumerated list item.
-    */
-  val enumListItemStart: Parser[String] = enumChar ~> enumStartRest
-
   /** Parses a list based on the specified helper parsers.
     *
-    *  @param itemStartChar the parser for the character that starts a list item
-    *  @param itemStartRest parser that recognizes the start of a list item after the first character, result will be discarded
-    *  @param newList function that produces a block element for the document tree
-    *  @param newItem function that produces a new list item element based on position and content arguments
+    * @param itemStartChar the parser for the character that starts a list item
+    * @param itemStartRest parser that recognizes the start of a list item after the first character,
+    *                      result will be discarded
+    * @param newList function that produces a block element for the document tree
+    * @param newItem function that produces a new list item element based on position and content arguments
     */
-  def list[T <: Block, I <: ListItem](
+  private def list[T <: Block, I <: ListItem](
       itemStartChar: Parser[Any],
       itemStartRest: Parser[Any],
       newList: List[I] => T,

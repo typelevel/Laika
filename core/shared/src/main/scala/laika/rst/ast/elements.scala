@@ -21,7 +21,8 @@ import laika.parse.SourceFragment
 
 /** A two-column table-like structure used for bibliographic fields or directive options.
   */
-case class FieldList(content: Seq[Field], options: Options = NoOpt) extends Block with ListContainer
+private[rst] case class FieldList(content: Seq[Field], options: Options = NoOpt) extends Block
+    with ListContainer
     with RewritableContainer {
   type Self = FieldList
 
@@ -36,7 +37,8 @@ case class FieldList(content: Seq[Field], options: Options = NoOpt) extends Bloc
 
 /** A single entry in a field list consisting of name and body.
   */
-case class Field(name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
+private[rst] case class Field(name: Seq[Span], content: Seq[Block], options: Options = NoOpt)
+    extends ListItem
     with BlockContainer {
 
   type Self = Field
@@ -50,7 +52,7 @@ case class Field(name: Seq[Span], content: Seq[Block], options: Options = NoOpt)
 
 /** A classifier for a term in a definition list.
   */
-case class Classifier(content: Seq[Span], options: Options = NoOpt) extends Span
+private[rst] case class Classifier(content: Seq[Span], options: Options = NoOpt) extends Span
     with SpanContainer {
   type Self = Classifier
   def withContent(newContent: Seq[Span]): Classifier = copy(content = newContent)
@@ -59,7 +61,8 @@ case class Classifier(content: Seq[Span], options: Options = NoOpt) extends Span
 
 /** A list of command line options and descriptions.
   */
-case class OptionList(content: Seq[OptionListItem], options: Options = NoOpt) extends Block
+private[rst] case class OptionList(content: Seq[OptionListItem], options: Options = NoOpt)
+    extends Block
     with ListContainer
     with RewritableContainer {
   type Self = OptionList
@@ -72,7 +75,7 @@ case class OptionList(content: Seq[OptionListItem], options: Options = NoOpt) ex
 
 /** A single item in an option list. The content property serves as the description of the option.
   */
-case class OptionListItem(
+private[rst] case class OptionListItem(
     programOptions: Seq[ProgramOption],
     content: Seq[Block],
     options: Options = NoOpt
@@ -85,44 +88,54 @@ case class OptionListItem(
 
 /** A single option, including its name and all arguments, but not the description.
   */
-case class ProgramOption(name: String, argument: Option[OptionArgument], options: Options = NoOpt)
-    extends Element {
+private[rst] case class ProgramOption(
+    name: String,
+    argument: Option[OptionArgument],
+    options: Options = NoOpt
+) extends Element {
   type Self = ProgramOption
   def withOptions(options: Options): ProgramOption = copy(options = options)
 }
 
 /** A single option argument.
   */
-case class OptionArgument(value: String, delimiter: String, options: Options = NoOpt)
+private[rst] case class OptionArgument(value: String, delimiter: String, options: Options = NoOpt)
     extends Element {
   type Self = OptionArgument
   def withOptions(options: Options): OptionArgument = copy(options = options)
 }
 
 /** A substitution definition with its span content that will be inserted
-  *  wherever this substitution is referenced in flow content.
+  * wherever this substitution is referenced in flow content.
   */
-case class SubstitutionDefinition(name: String, content: Span, options: Options = NoOpt)
-    extends Definition with Hidden {
+private[rst] case class SubstitutionDefinition(
+    name: String,
+    content: Span,
+    options: Options = NoOpt
+) extends Definition with Hidden {
   type Self = SubstitutionDefinition
   def withOptions(options: Options): SubstitutionDefinition = copy(options = options)
 }
 
 /** Refers to a substitution definition with the same name.
-  *  This type of element will only temporarily be part of the document tree and replaced
-  *  by the content of the substitution definition in a rewrite step.
+  * This type of element will only temporarily be part of the document tree and replaced
+  * by the content of the substitution definition in a rewrite step.
   */
-case class SubstitutionReference(name: String, source: SourceFragment, options: Options = NoOpt)
-    extends Reference {
+private[rst] case class SubstitutionReference(
+    name: String,
+    source: SourceFragment,
+    options: Options = NoOpt
+) extends Reference {
   type Self = SubstitutionReference
   def withOptions(options: Options): SubstitutionReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved substitution reference with name '$name'"
 }
 
-/** Represents an interactive Python session. Somewhat unlikely to be used in
-  *  the context of this library, but included for the sake of completeness.
+/** Represents an interactive Python session.
+  * Somewhat unlikely to be used in the context of this library,
+  * but included for the sake of completeness.
   */
-case class DoctestBlock(content: String, options: Options = NoOpt) extends Block
+private[rst] case class DoctestBlock(content: String, options: Options = NoOpt) extends Block
     with TextContainer {
   type Self = DoctestBlock
   def withOptions(options: Options): DoctestBlock = copy(options = options)
@@ -130,17 +143,17 @@ case class DoctestBlock(content: String, options: Options = NoOpt) extends Block
 
 /** Header decoration consisting of both an overline and an underline.
   */
-case class OverlineAndUnderline(char: Char) extends HeaderDecoration
+private[rst] case class OverlineAndUnderline(char: Char) extends HeaderDecoration
 
 /** Header decoration consisting of an underline only.
   */
-case class Underline(char: Char) extends HeaderDecoration
+private[rst] case class Underline(char: Char) extends HeaderDecoration
 
 /** Temporary element to represent interpreted text with its associated role name.
-  *  In a post-processing step this text will be replaced by the result of calling
-  *  the corresponding role function.
+  * In a post-processing step this text will be replaced by the result of calling
+  * the corresponding role function.
   */
-case class InterpretedText(
+private[rst] case class InterpretedText(
     role: String,
     content: String,
     source: SourceFragment,
@@ -156,8 +169,11 @@ case class InterpretedText(
   *  to spans of interpreted text referring to the name of this role and passing
   *  the text as the argument to the function.
   */
-case class CustomizedTextRole(name: String, apply: String => Span, options: Options = NoOpt)
-    extends Definition with Hidden {
+private[rst] case class CustomizedTextRole(
+    name: String,
+    apply: String => Span,
+    options: Options = NoOpt
+) extends Definition with Hidden {
   type Self = CustomizedTextRole
   def withOptions(options: Options): CustomizedTextRole = copy(options = options)
 }
@@ -165,7 +181,8 @@ case class CustomizedTextRole(name: String, apply: String => Span, options: Opti
 /** Temporary element representing a file inclusion.
   * The path is interpreted as relative to the path of the processed document if it is not an absolute path.
   */
-case class Include(path: String, source: SourceFragment, options: Options = NoOpt) extends Block
+private[rst] case class Include(path: String, source: SourceFragment, options: Options = NoOpt)
+    extends Block
     with BlockResolver {
 
   type Self = Include
@@ -183,7 +200,7 @@ case class Include(path: String, source: SourceFragment, options: Options = NoOp
 
 /** Generates a table of contents element inside a topic.
   */
-case class Contents(
+private[rst] case class Contents(
     title: String,
     source: SourceFragment,
     depth: Int = Int.MaxValue,
@@ -211,27 +228,28 @@ case class Contents(
 
 /** A single item inside a line block.
   */
-abstract class LineBlockItem extends Block with RewritableContainer {
+private[rst] abstract class LineBlockItem extends Block with RewritableContainer {
   type Self <: LineBlockItem
 }
 
 /** A single line inside a line block.
   */
-case class Line(content: Seq[Span], options: Options = NoOpt) extends LineBlockItem
+private[laika] case class Line(content: Seq[Span], options: Options = NoOpt) extends LineBlockItem
     with SpanContainer {
   type Self = Line
   def withContent(newContent: Seq[Span]): Line = copy(content = newContent)
   def withOptions(options: Options): Line      = copy(options = options)
 }
 
-object Line extends SpanContainerCompanion {
+private[laika] object Line extends SpanContainerCompanion {
   type ContainerType = Line
   protected def createSpanContainer(spans: Seq[Span]): Line = Line(spans)
 }
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
   */
-case class LineBlock(content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem
+private[laika] case class LineBlock(content: Seq[LineBlockItem], options: Options = NoOpt)
+    extends LineBlockItem
     with ElementTraversal with RewritableContainer {
   type Self = LineBlock
 
@@ -241,14 +259,14 @@ case class LineBlock(content: Seq[LineBlockItem], options: Options = NoOpt) exte
   def withOptions(options: Options): LineBlock = copy(options = options)
 }
 
-object LineBlock {
+private[laika] object LineBlock {
   def apply(item: LineBlockItem, items: LineBlockItem*): LineBlock = LineBlock(item +: items.toList)
 }
 
 /** Represent a reference name.
-  *  When resolving references whitespace needs to be normalized
-  *  and the name converted to lower case.
+  * When resolving references whitespace needs to be normalized
+  * and the name converted to lower case.
   */
-case class ReferenceName(original: String) {
+private[rst] case class ReferenceName(original: String) {
   lazy val normalized: String = original.replaceAll("[\n ]+", " ").toLowerCase
 }

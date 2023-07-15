@@ -16,12 +16,13 @@
 
 package laika.markdown.ast
 
-import laika.ast._
+import laika.ast.*
 
-/** A top level HTML block as defined by the Markdown syntaxt description. It is surrounded by blank lines
-  *  and has a block-level element (one that is not classified as "phrasing content" in the HTML specification)
-  *  as its root element. It may contain other nested HTML elements and tags, but no spans produced by standard
-  *  Markdown markup.
+/** A top level HTML block as defined by the Markdown syntax description.
+  * It is surrounded by blank lines and has a block-level element
+  * (one that is not classified as "phrasing content" in the HTML specification)
+  * as its root element.
+  * It may contain other nested HTML elements and tags, but no spans produced by standard Markdown markup.
   */
 case class HTMLBlock(root: HTMLElement, options: Options = NoOpt) extends Block {
   type Self = HTMLBlock
@@ -32,8 +33,9 @@ case class HTMLBlock(root: HTMLElement, options: Options = NoOpt) extends Block 
   */
 abstract class HTMLSpan extends Span
 
-/** Represents a full HTML element with matching start and end tags. The content of this span container
-  *  may contain further nested HTML elements and tags as well as simple text elements.
+/** Represents a full HTML element with matching start and end tags.
+  * The content of this span container may contain further nested HTML elements
+  * and tags as well as simple text elements.
   */
 case class HTMLElement(startTag: HTMLStartTag, content: Seq[Span], options: Options = NoOpt)
     extends HTMLSpan with SpanContainer {
@@ -42,11 +44,13 @@ case class HTMLElement(startTag: HTMLStartTag, content: Seq[Span], options: Opti
   def withOptions(options: Options): HTMLElement      = copy(options = options)
 }
 
-/** Represent a start tag. When this element is part of a final document tree, it represents
-  *  an orphaned start tag without matching end tag. In HTML this may be legal (some tags like the p
-  *  tag are defined as "auto-closing" under certain circumstances). This library however does not
-  *  implement the full logic of a proper HTML parser to distinguish between legal and faulty
-  *  occurrences of unmatched start tags.
+/** Represent a start tag.
+  * When this element is part of a final document tree,
+  * it represents an orphaned start tag without matching end tag.
+  *
+  * In HTML this may be legal (some tags like the `p` tag are defined as "auto-closing" under certain circumstances).
+  * This library however does not implement the full logic of a proper HTML parser
+  * to distinguish between legal and faulty occurrences of unmatched start tags.
   */
 case class HTMLStartTag(name: String, attributes: List[HTMLAttribute], options: Options = NoOpt)
     extends HTMLSpan with Block {
@@ -54,8 +58,9 @@ case class HTMLStartTag(name: String, attributes: List[HTMLAttribute], options: 
   def withOptions(options: Options): HTMLStartTag = copy(options = options)
 }
 
-/** Represents an empty element (like `&lt;br/&gt;` or `&lt;hr/&gt;`) in case it contains the explicit
-  *  slash to mark it as closed. Otherwise it will be classified as a start tag.
+/** Represents an empty element (like `&lt;br/&gt;` or `&lt;hr/&gt;`)
+  * in case it contains the explicit slash to mark it as closed.
+  * Otherwise it will be classified as a start tag.
   */
 case class HTMLEmptyElement(name: String, attributes: List[HTMLAttribute], options: Options = NoOpt)
     extends HTMLSpan with Block {

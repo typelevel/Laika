@@ -34,7 +34,7 @@ import laika.rst.ext.TextRoles._
   *
   * @author Jens Halm
   */
-class ExtensionParsers(
+private[rst] class ExtensionParsers(
     recParsers: RecursiveParsers,
     blockDirectives: Map[String, DirectivePartBuilder[Block]],
     spanDirectives: Map[String, DirectivePartBuilder[Span]],
@@ -57,7 +57,7 @@ class ExtensionParsers(
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
     */
-  lazy val substitutionDefinition: Parser[Block] = {
+  private lazy val substitutionDefinition: Parser[Block] = {
     val prefix = delimiter('|').nextNot(' ') ~>
       escapedText(delimitedBy(delimiter('|').prevNot(' ')).failOn('\n').nonEmpty)
 
@@ -149,7 +149,7 @@ class ExtensionParsers(
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
     */
-  lazy val roleDirective: Parser[Block] = {
+  private lazy val roleDirective: Parser[Block] = {
 
     val nameParser = reverseWS ~ ("role::" ~ ws ~> simpleRefName) ~ opt("(" ~> simpleRefName <~ ")")
 
@@ -223,23 +223,23 @@ class ExtensionParsers(
       }
     }
 
-    def requiredArg(p: => Parser[SourceFragment]): Parser[SourceFragment] =
+    private def requiredArg(p: => Parser[SourceFragment]): Parser[SourceFragment] =
       p.withFailureMessage("missing required argument")
 
-    val arg: Parser[SourceFragment] = requiredArg((someNot(' ', '\n') <~ ws).line)
+    private val arg: Parser[SourceFragment] = requiredArg((someNot(' ', '\n') <~ ws).line)
 
-    val argWithWS: Parser[SourceFragment] = {
+    private val argWithWS: Parser[SourceFragment] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true).evalMap { block =>
         if (block.input.nonEmpty) Right(block) else Left("missing required argument")
       }
       requiredArg(p)
     }
 
-    val bodyParser: Parser[SourceFragment] =
+    private val bodyParser: Parser[SourceFragment] =
       prevIn('\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
 
     // TODO - some duplicate logic with original fieldList parser
-    lazy val directiveFieldList: Parser[Vector[Part]] = {
+    private lazy val directiveFieldList: Parser[Vector[Part]] = {
 
       val nameParser = ":" ~> escapedUntil(':') <~ (lookAhead(eol).as("") | " ")
 
@@ -265,7 +265,7 @@ class ExtensionParsers(
       }
     }
 
-    val contentSeparator: Parser[Unit] =
+    private val contentSeparator: Parser[Unit] =
       ((prevIn('\n') | eol) ~ blankLine).void | failure(
         "blank line required to separate arguments and/or options from the body"
       )
@@ -311,7 +311,7 @@ class ExtensionParsers(
   *
   * @author Jens Halm
   */
-object ExtensionParsers {
+private[rst] object ExtensionParsers {
 
   type Result[+A] = Either[String, A]
 
