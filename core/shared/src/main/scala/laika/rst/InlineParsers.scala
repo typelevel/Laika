@@ -38,7 +38,7 @@ import laika.rst.ast.{ InterpretedText, ReferenceName, RstStyle, SubstitutionRef
   *
   *  @author Jens Halm
   */
-object InlineParsers {
+private[laika] object InlineParsers {
 
   /** Parses an escaped character. For most characters it produces the character
     * itself as the result with the only exception being an escaped space character
@@ -258,7 +258,7 @@ object InlineParsers {
 
   /** Parses a span of emphasized text.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
     */
   lazy val em: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     span(delimiter('*').prevNot('*'), delimiter("*").nextNot('*')).map(Emphasized(_))
@@ -266,7 +266,7 @@ object InlineParsers {
 
   /** Parses a span of text with strong emphasis.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
     */
   lazy val strong: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     val delim = literal("**")
@@ -282,7 +282,7 @@ object InlineParsers {
 
   /** Parses an inline literal element.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
     */
   lazy val inlineLiteral: SpanParserBuilder = SpanParserBuilder.standalone {
     markupStart("``", "``") ~> delimitedBy(markupEnd("``")).map(Literal(_))
@@ -426,13 +426,13 @@ object InlineParsers {
 
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
     */
   lazy val uri: SpanParserBuilder = autoLinks.http
 
   /** Parses a standalone email address (with no surrounding markup).
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
     */
   lazy val email: SpanParserBuilder = autoLinks.email
 

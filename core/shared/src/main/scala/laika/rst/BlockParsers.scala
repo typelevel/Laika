@@ -48,11 +48,10 @@ import scala.collection.mutable.ListBuffer
   *
   * @author Jens Halm
   */
-object BlockParsers {
+private[laika] object BlockParsers {
 
-  val ws: Characters[String] = anyOf(
-    ' '
-  ) // other whitespace has been replaced with spaces by preprocessor
+  // other whitespace has been replaced with spaces by preprocessor
+  val ws: Characters[String] = anyOf(' ')
 
   /** Parses a transition (rule).
     *
@@ -62,8 +61,9 @@ object BlockParsers {
     (punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine)).as(Rule())
   }
 
-  /** Parses a single paragraph. Everything between two blank lines that is not
-    * recognized as a special reStructuredText block type will be parsed as a regular paragraph.
+  /** Parses a single paragraph.
+    * Everything between two blank lines that is not recognized
+    * as a special reStructuredText block type will be parsed as a regular paragraph.
     */
   lazy val paragraph: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val interruptions = recParsers.paragraphInterruptions()
@@ -85,7 +85,7 @@ object BlockParsers {
 
   /** Parses a section header with both overline and underline.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
     */
   lazy val headerWithOverline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = punctuationChar.take(1) >> { start =>
@@ -107,7 +107,7 @@ object BlockParsers {
 
   /** Parses a section header with an underline, but no overline.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
     */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
@@ -127,11 +127,9 @@ object BlockParsers {
     }
   }
 
-  /** Parses a doctest block. This is a feature which is very specific to the
-    *  world of Python where reStructuredText originates. Therefore the resulting
-    *  `DoctestBlock` tree element is not part of the standard Laika AST model.
-    *  When this block type is used the corresponding special renderers must
-    *  be enabled (e.g. the `ExtendedHTMLRenderer` renderer for HTML).
+  /** Parses a doctest block.
+    * This is a feature which is very specific to the world of Python where reStructuredText originates.
+    * Therefore the resulting `DoctestBlock` tree element is not part of the standard Laika AST model.
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
     */
@@ -142,7 +140,7 @@ object BlockParsers {
 
   /** Parses a block quote with an optional attribution.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
     */
   lazy val blockQuote: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val attributionStart = "---" | "--" | "\u2014" // em dash
@@ -161,9 +159,9 @@ object BlockParsers {
   }
 
   /** Parses a literal block, either quoted or indented.
-    *  Only used when the preceding block ends with a double colon (`::`).
+    * Only used when the preceding block ends with a double colon (`::`).
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
     */
   val literalBlock: Parser[Block] = {
     val indented = indentedBlock(firstLineIndented = true).map(src => LiteralBlock(src.input))
@@ -175,17 +173,17 @@ object BlockParsers {
     indented | quoted
   }
 
-  /**  Builds a parser for a list of blocks based on the parser for a single block.
+  /** Builds a parser for a list of blocks based on the parser for a single block.
     *
-    *  Adds the processing required for cases where a block has influence
-    *  on the parsing or processing of the subsequent block.
+    * Adds the processing required for cases where a block has influence
+    * on the parsing or processing of the subsequent block.
     *
-    *  This includes checking each Paragraph for a double colon ending which turns
-    *  the following block into a literal block as well as processing internal
-    *  link targets and section headers.
+    * This includes checking each Paragraph for a double colon ending which turns
+    * the following block into a literal block as well as processing internal
+    * link targets and section headers.
     *
-    *  @param blockParser the parser for a single block element
-    *  @return a parser for a list of blocks
+    * @param blockParser the parser for a single block element
+    * @return a parser for a list of blocks
     */
   def createBlockListParser(blockParser: Parser[Block]): Parser[Seq[Block]] = Parser { in =>
     val defaultBlock = blockParser <~ opt(blankLines)

@@ -19,7 +19,7 @@ package laika.rewrite
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.SampleConfig.{ globalLinkValidation, siteBaseURL, targetFormats }
 import laika.ast.sample.{
   ParagraphCompanionShortcuts,
@@ -32,7 +32,6 @@ import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.parse.GeneratedSource
 import laika.rewrite.link.{ LinkConfig, TargetDefinition }
 import laika.rewrite.nav.TargetFormats
-import laika.rst.ast.Underline
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -311,16 +310,6 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("link id refs - replace a surplus anonymous reference with an invalid span") {
     val rootElem = RootElement(p(linkIdRef("")))
     val resolved = RootElement(p(invalidSpan("too many anonymous references", "<<>>")))
-    runRoot(rootElem, resolved)
-  }
-
-  test("link id refs - resolve references when some parent element also gets rewritten") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource),
-      LinkDefinition("name", ExternalTarget("http://foo/"))
-    )
-    val resolved =
-      RootElement(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title))
     runRoot(rootElem, resolved)
   }
 
@@ -615,54 +604,6 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     val rootElem = RootElement(Header(1, List(Text("Header"))))
     val expected = RootElement(Title(List(Text("Header")), Id("header") + Style.title))
     runRoot(rootElem, expected)
-  }
-
-  test("decorated headers - set the level of the header in a flat list of headers") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-    )
-    runRoot(rootElem, expected)
-  }
-
-  test("decorated headers - set the level of the header in a nested list of headers") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(
-        Header(1, List(Text("Header 1")), Id("header-1") + Style.section),
-        List(Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))
-      ),
-      Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)
-    )
-    runRoot(rootElem, expected)
-  }
-
-  test(
-    "decorated headers - do not create title nodes in the default configuration for orphan documents"
-  ) {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-    )
-    runRootWithoutTitles(rootElem, expected)
   }
 
   test("duplicate ids - append auto-increment numbers") {

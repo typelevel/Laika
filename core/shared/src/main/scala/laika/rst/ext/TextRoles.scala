@@ -135,7 +135,7 @@ import laika.rst.ext.ExtensionParsers.Result
   *
   * @author Jens Halm
   */
-object TextRoles {
+private[rst] object TextRoles {
 
   /** API to implement by the actual directive parser.
     *

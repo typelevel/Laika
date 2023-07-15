@@ -19,15 +19,14 @@ package laika.rst.bundle
 import laika.ast._
 import laika.rst.ast.FieldList
 
-/** Responsible for extracting a docInfo block at the start
-  * of a reStructuredText document and inserting it into the
-  * `docInfo` element in the config object for that document.
+/** Responsible for extracting a docInfo block at the start of a reStructuredText document
+  * and inserting it into the `docInfo` element in the config object for that document.
   *
   * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bibliographic-fields]].
   *
   * @author Jens Halm
   */
-object DocInfoExtractor extends (UnresolvedDocument => UnresolvedDocument) {
+private[laika] object DocInfoExtractor extends (UnresolvedDocument => UnresolvedDocument) {
 
   def apply(doc: UnresolvedDocument): UnresolvedDocument = {
 

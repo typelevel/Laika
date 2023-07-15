@@ -476,9 +476,9 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
 
 class FieldListSpec extends FunSuite with ListParserRunner {
 
-  def fl(fields: Field*): FieldList = FieldList(fields.toList)
+  private def fl(fields: Field*): FieldList = FieldList(fields.toList)
 
-  def field(name: String, blocks: Block*): Field = Field(List(Text(name)), blocks.toList)
+  private def field(name: String, blocks: Block*): Field = Field(List(Text(name)), blocks.toList)
 
   test("list with all bodies on the same line as the name") {
     val input =
@@ -522,15 +522,15 @@ class FieldListSpec extends FunSuite with ListParserRunner {
 
 class OptionListSpec extends FunSuite with ListParserRunner {
 
-  def optL(items: OptionListItem*): OptionList = OptionList(items.toList)
+  private def optL(items: OptionListItem*): OptionList = OptionList(items.toList)
 
-  def oli(name: String, value: Block*): OptionListItem =
+  private def oli(name: String, value: Block*): OptionListItem =
     OptionListItem(List(ProgramOption(name, None)), value.toList)
 
-  def oli(name: String, value: String): OptionListItem =
+  private def oli(name: String, value: String): OptionListItem =
     OptionListItem(List(ProgramOption(name, None)), List(p(value)))
 
-  def oli(name: String, argDelim: String, arg: String, value: String): OptionListItem =
+  private def oli(name: String, argDelim: String, arg: String, value: String): OptionListItem =
     OptionListItem(List(ProgramOption(name, Some(OptionArgument(arg, argDelim)))), List(p(value)))
 
   test("list with short posix options") {

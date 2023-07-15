@@ -18,11 +18,12 @@ package laika.rst.ast
 
 import laika.ast.{ Options, Styles }
 
-/** Constants for style names wrapped in Options instances which are commonly used by Laika's reStructuredText parsers and rewrite rules.
+/** Constants for style names wrapped in Options instances
+  * which are commonly used by Laika's reStructuredText parsers and rewrite rules.
   *
   * @author Jens Halm
   */
-object RstStyle {
+private[rst] object RstStyle {
 
   val line: Options           = Styles("line")
   val lineBlock: Options      = Styles("line-block")

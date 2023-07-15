@@ -22,13 +22,12 @@ import scala.collection.mutable.ListBuffer
 
 /** Processes link targets in a sequence of blocks.
   *
-  * In reStructuredText internal link targets provide
-  * the id of subsequent block items. This functions gets
-  * applied recursively to all block lists.
+  * In reStructuredText internal link targets provide the id of subsequent block items.
+  * This functions gets applied recursively to all block lists.
   *
   * @author Jens Halm
   */
-object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
+private[laika] object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
   def apply(blocks: Seq[Block]): Seq[Block] = {
 

@@ -17,14 +17,14 @@
 package laika.rst.std
 
 import cats.data.NonEmptySet
-import laika.ast._
+import laika.ast.*
 import laika.config.{ Field, LaikaKeys, ObjectValue, Origin, StringValue }
 import laika.parse.{ GeneratedSource, SourceFragment }
 import laika.parse.markup.RecursiveParsers
 import laika.rst.ast.{ Contents, FieldList, Include, RstStyle }
-import laika.rst.ext.Directives.Parts._
-import laika.rst.ext.Directives._
-import laika.rst.std.StandardDirectiveParts._
+import laika.rst.ext.Directives.Parts.*
+import laika.rst.ext.Directives.*
+import laika.rst.std.StandardDirectiveParts.*
 
 import scala.collection.immutable.TreeSet
 
@@ -81,7 +81,7 @@ import scala.collection.immutable.TreeSet
   *
   *  @author Jens Halm
   */
-class StandardBlockDirectives {
+private[rst] class StandardBlockDirectives {
 
   private def positiveInt(value: SourceFragment) = try {
     val i = value.input.toInt
@@ -112,7 +112,7 @@ class StandardBlockDirectives {
   /** The admonition directive,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#generic-admonition]] for details.
     */
-  lazy val genericAdmonition: DirectivePartBuilder[Block] = {
+  private lazy val genericAdmonition: DirectivePartBuilder[Block] = {
     (spanArgument ~ blockContent ~ stdOpt).map { case title ~ content ~ opt =>
       TitledBlock(title, content, opt + RstStyle.admonition)
     }
@@ -160,7 +160,7 @@ class StandardBlockDirectives {
   /** The title directive,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
     */
-  lazy val titleDirective: DirectivePartBuilder[EmbeddedConfigValue] =
+  private lazy val titleDirective: DirectivePartBuilder[EmbeddedConfigValue] =
     argument().map(EmbeddedConfigValue(LaikaKeys.title.toString, _))
 
   /** The meta directive,
@@ -261,7 +261,7 @@ class StandardBlockDirectives {
   /** The parsed-literal directive, see
     *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block]] for details.
     */
-  lazy val parsedLiteral: DirectivePartBuilder[Block] = {
+  private lazy val parsedLiteral: DirectivePartBuilder[Block] = {
     (spanContent ~ stdOpt).map { case content ~ opt =>
       ParsedLiteralBlock(content, opt)
     }
@@ -298,7 +298,7 @@ class StandardBlockDirectives {
   /** The image directive for block elements,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
     */
-  def imageBlock(p: RecursiveParsers): DirectivePartBuilder[Block] = image(p) map { img =>
+  private def imageBlock(p: RecursiveParsers): DirectivePartBuilder[Block] = image(p) map { img =>
     val hAlign =
       Set("align-left", "align-right", "align-center") // promote horizontal align to parent block
     val (pOpt, imgOpt) = img.options.styles.foldLeft((NoOpt: Options, Options(img.options.id))) {

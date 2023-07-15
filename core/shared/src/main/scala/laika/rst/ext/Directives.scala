@@ -192,7 +192,7 @@ import laika.rst.ext.ExtensionParsers.Result
   *
   * @author Jens Halm
   */
-object Directives {
+private[rst] object Directives {
 
   /** API to implement by the actual directive parser.
     *

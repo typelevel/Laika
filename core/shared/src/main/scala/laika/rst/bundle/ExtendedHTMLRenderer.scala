@@ -33,7 +33,7 @@ import laika.rst.ast._
   *
   *  @author Jens Halm
   */
-class ExtendedHTMLRenderer {
+private[laika] class ExtendedHTMLRenderer {
 
   private case class ProgramOptions(opts: Seq[Element], options: Options = NoOpt) extends Block {
     type Self = ProgramOptions
@@ -42,7 +42,7 @@ class ExtendedHTMLRenderer {
 
   /** Converts an `OptionList` to an interim table model for rendering.
     */
-  def toTable(ol: OptionList): Table = {
+  private def toTable(ol: OptionList): Table = {
     def intersperse[T](list: List[T], sep: T): List[T] = list match {
       case one :: two :: rest => one :: sep :: intersperse(two :: rest, sep)
       case short              => short
@@ -63,7 +63,7 @@ class ExtendedHTMLRenderer {
 
   /** Converts a `FieldList` to an interim table model for rendering.
     */
-  def toTable(fl: FieldList): Table = {
+  private def toTable(fl: FieldList): Table = {
     def name(value: Seq[Span])  = HeadCell(SpanSequence(value :+ Text(":")))
     def body(value: Seq[Block]) = BodyCell(value)
     val rows                    = fl.content map (f => Row(List(name(f.name), body(f.content))))
@@ -94,4 +94,4 @@ class ExtendedHTMLRenderer {
 
 }
 
-object ExtendedHTMLRenderer extends ExtendedHTMLRenderer
+private[laika] object ExtendedHTMLRenderer extends ExtendedHTMLRenderer

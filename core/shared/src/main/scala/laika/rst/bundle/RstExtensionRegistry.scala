@@ -69,7 +69,7 @@ import laika.rst.std.{ StandardBlockDirectives, StandardSpanDirectives, Standard
   *    Specification entry:
   *    [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]]
   */
-trait RstExtensionRegistry extends ExtensionBundle {
+private[rst] trait RstExtensionRegistry extends ExtensionBundle {
 
   val description: String = "Registry for reStructuredText directives"
 
@@ -175,7 +175,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
   *
   * This extension is installed by default when using the reStructuredText parser.
   */
-object StandardExtensions extends RstExtensionRegistry {
+private[laika] object StandardExtensions extends RstExtensionRegistry {
 
   override val description: String = "Standard directives for reStructuredText"
 
@@ -199,7 +199,7 @@ object StandardExtensions extends RstExtensionRegistry {
   *   .build
   * }}}
   */
-object RawContentExtensions extends RstExtensionRegistry {
+private[laika] object RawContentExtensions extends RstExtensionRegistry {
 
   override val description: String = "Raw content extensions for reStructuredText"
 

@@ -32,7 +32,7 @@ import laika.rst.ext.TextRoles.TextRole
   *
   * @author Jens Halm
   */
-class RstExtensionSupport(
+private[rst] class RstExtensionSupport(
     blockDirectives: Seq[Directive[Block]],
     spanDirectives: Seq[Directive[Span]],
     textRoles: Seq[TextRole],
@@ -73,11 +73,12 @@ class RstExtensionSupport(
 
 /** Empty base instance as a basis for registering reStructuredText extensions.
   */
-object RstExtensionSupport extends RstExtensionSupport(Nil, Nil, Nil, "title-reference")
+private[laika] object RstExtensionSupport
+    extends RstExtensionSupport(Nil, Nil, Nil, "title-reference")
 
 /** Common base trait for reStructuredText extensions (directives and text roles).
   */
-trait RstExtension[P] {
+private[rst] trait RstExtension[P] {
 
   /** The name the extension is identified by in text markup.
     */
@@ -92,7 +93,7 @@ trait RstExtension[P] {
 
 /** Companion with utilities for initializing extensions.
   */
-object RstExtension {
+private[rst] object RstExtension {
 
   /** Initializes the specified extensions with the given recursive parsers
     * and returns them as a map keyed by the name of the extension.

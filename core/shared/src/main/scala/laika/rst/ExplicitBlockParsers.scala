@@ -32,7 +32,7 @@ import laika.parse.text.PrefixedParser
   *
   * @author Jens Halm
   */
-class ExplicitBlockParsers(recParsers: RecursiveParsers) {
+private[laika] class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   import recParsers._
 
@@ -40,7 +40,7 @@ class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   /** Parses all types of explicit block items.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
     */
   lazy val explicitBlockItem: PrefixedParser[Block] =
     (explicitStart ~> (footnote | citation | linkTarget | comment)) |
@@ -48,7 +48,7 @@ class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   /** Parses a footnote.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]].
     */
   lazy val footnote: Parser[FootnoteDefinition] = {
 
@@ -78,7 +78,7 @@ class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   /** Parses a citation.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]].
     */
   lazy val citation: Parser[Citation] = {
     val prefix = "[" ~> simpleRefName <~ "]" ~ ws
@@ -88,7 +88,7 @@ class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   /** Parses a link definition, either an internal, external or indirect link.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
     */
   lazy val linkTarget: Parser[Block with Span] = {
 
@@ -119,7 +119,7 @@ class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
   /** Parses a comment.
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
     */
   val comment: Parser[Comment] = indentedBlock().map(src => Comment(src.input.trim))
 
@@ -148,10 +148,10 @@ object ExplicitBlockParsers {
     }
   }
 
-  /**  Parses the short variant of an anonymous link definition
-    *  (that starts with `__` instead of `.. __:`)
+  /** Parses the short variant of an anonymous link definition
+    * (that starts with `__` instead of `.. __:`)
     *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
+    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
     */
   lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParserBuilder.standalone {
     "__ " ~> linkDefinitionBody.map(LinkDefinition.create("", _))
