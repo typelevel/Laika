@@ -131,7 +131,7 @@ private[laika] class ExplicitBlockParsers(recParsers: RecursiveParsers) {
   *
   * @author Jens Halm
   */
-object ExplicitBlockParsers {
+private[laika] object ExplicitBlockParsers {
 
   /** The parser builder for all explicit block items that start with `..` except
     * for directives which are provided by an extension.
