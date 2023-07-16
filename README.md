@@ -10,17 +10,34 @@ Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scal
 Latest Release
 --------------
 
-The latest release is version **0.19.3**.  
+* The latest stable release is version **0.19.3**.
+* The latest milestone release is version **1.0.0-M2**.
 
-The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.
+The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.  
 The sbt plugin is published for sbt 1.x.
+
+Open Source under the Apache 2.0 License.
+
+
+Adding Laika to your Build
+--------------------------
+
+Stable releases for 0.19 are still published under the `org.planet42` organization, 
+while the 1.0 milestones are now published under `org.typelevel`:
+
+```scala
+// for version 0.19.3:
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.3")
+
+// for version 1.0.0-M2:
+addSbtPlugin("org.typelevel" % "laika-sbt" % "1.0.0-M2")
+```
 
 In case you still need support for older versions of Scala, sbt or cats-effect, please use:
 * 0.17.1 for cats-effect 2.x
 * 0.10.0 for Scala 2.11
 * 0.7.0 for Scala 2.10 and sbt 0.13.x
 
-Open Source under the Apache 2.0 License.
 
 
 Features
