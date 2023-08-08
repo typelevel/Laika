@@ -99,13 +99,13 @@ object PathTranslator {
   /** Creates a new translator instance that applies the specified path translator function
     * before invoking the base translator.
     */
-  def preTranslate(baseTranslator: PathTranslator)(f: Path => Path) =
+  def preTranslate(baseTranslator: PathTranslator)(f: Path => Path): PathTranslator =
     new PathTranslatorExtension(baseTranslator, preTranslate = f)
 
   /** Creates a new translator instance that applies the specified path translator function
     * after invoking the base translator.
     */
-  def postTranslate(baseTranslator: PathTranslator)(f: Path => Path) =
+  def postTranslate(baseTranslator: PathTranslator)(f: Path => Path): PathTranslator =
     new PathTranslatorExtension(baseTranslator, postTranslate = f)
 
 }
