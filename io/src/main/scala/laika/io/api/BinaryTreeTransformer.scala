@@ -62,7 +62,7 @@ object BinaryTreeTransformer {
   /** Builder step that allows to specify the execution context
     * for blocking IO and CPU-bound tasks.
     */
-  case class Builder[F[_]: Async: Batch] private[io] (
+  class Builder[F[_]: Async: Batch] private[io] (
       parsers: NonEmptyList[MarkupParser],
       renderFormat: BinaryRenderFormat,
       config: OperationConfig,
@@ -82,7 +82,7 @@ object BinaryTreeTransformer {
       * e.g. `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser(parser: MarkupParser): Builder[F] =
-      copy(parsers = parsers.append(parser))
+      new Builder(parsers.append(parser), renderFormat, config, theme, mapper)
 
     /** Specifies an additional parser for text markup.
       *
@@ -91,11 +91,12 @@ object BinaryTreeTransformer {
       * e.g. `.md` for Markdown and `.rst` for reStructuredText.
       */
     def withAlternativeParser(parser: ParserBuilder): Builder[F] =
-      copy(parsers = parsers.append(parser.build))
+      withAlternativeParser(parser.build)
 
     /** Applies the specified theme to this transformer, overriding any previously specified themes.
       */
-    def withTheme(theme: ThemeProvider): Builder[F] = copy(theme = theme)
+    def withTheme(theme: ThemeProvider): Builder[F] =
+      new Builder(parsers, renderFormat, config, theme, mapper)
 
     /** Final builder step that creates a parallel transformer for binary output.
       */
