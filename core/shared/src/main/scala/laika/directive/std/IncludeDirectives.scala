@@ -107,7 +107,7 @@ private[laika] object IncludeDirectives {
 
     (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
-        resolvePath(literalPath, pathKey, cursor.resolver.config)
+        resolvePath(literalPath, pathKey, cursor.config)
           .flatMap(resolveTemplateReference(_, attributes, cursor, source))
     }
   }
@@ -126,7 +126,7 @@ private[laika] object IncludeDirectives {
       cursor,
       source
     ).mapN { case (literalPath, pathKey, attributes, body, cursor, source) =>
-      resolvePath(literalPath, pathKey, cursor.resolver.config)
+      resolvePath(literalPath, pathKey, cursor.config)
         .flatMap(resolveTemplateReference(_, attributes, cursor, source, Some(body)))
     }
   }
@@ -139,7 +139,7 @@ private[laika] object IncludeDirectives {
 
     (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
-        resolvePath(literalPath, pathKey, cursor.resolver.config)
+        resolvePath(literalPath, pathKey, cursor.config)
           .flatMap(resolveDocumentReference(_, attributes, cursor, source))
     }
   }
@@ -158,7 +158,7 @@ private[laika] object IncludeDirectives {
       cursor,
       source
     ).mapN { case (literalPath, pathKey, attributes, body, cursor, source) =>
-      resolvePath(literalPath, pathKey, cursor.resolver.config)
+      resolvePath(literalPath, pathKey, cursor.config)
         .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
     }
   }

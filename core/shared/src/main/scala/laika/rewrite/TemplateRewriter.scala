@@ -16,11 +16,10 @@
 
 package laika.rewrite
 
-import cats.implicits._
+import cats.implicits.*
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast._
-import laika.config.Origin.TemplateScope
-import laika.config.{ ConfigError, LaikaKeys, Origin, ValidationError }
+import laika.ast.*
+import laika.config.{ ConfigError, LaikaKeys, ValidationError }
 import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.{ LineSource, SourceCursor }
 import laika.rewrite.ReferenceResolver.CursorKeys
@@ -108,28 +107,15 @@ private[laika] trait TemplateRewriter {
       rules: RewriteRulesBuilder,
       template: TemplateDocument
   ): Either[ConfigError, Document] = {
-    template.config.resolve(
-      Origin(TemplateScope, template.path),
-      cursor.config,
-      cursor.root.target.includes
-    ).flatMap { mergedConfig =>
-      val cursorWithMergedConfig = cursor.copy(
-        config = mergedConfig,
-        resolver = ReferenceResolver.forDocument(
-          cursor.target,
-          cursor.parent,
-          mergedConfig
-        ),
-        templatePath = Some(template.path)
-      )
-      rules(cursorWithMergedConfig).map { docRules =>
+    cursor.applyTemplate(template).flatMap { mergedCursor =>
+      rules(mergedCursor).map { docRules =>
         val newContent = docRules.rewriteBlock(template.content)
         val newRoot    = newContent match {
           case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
           case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
           case other                                              => RootElement(other)
         }
-        cursorWithMergedConfig.target.copy(content = newRoot, config = mergedConfig)
+        mergedCursor.target.copy(content = newRoot, config = mergedCursor.config)
       }
     }
   }
