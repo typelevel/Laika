@@ -18,9 +18,8 @@ package laika.io.descriptor
 
 import cats.data.NonEmptyList
 import cats.effect.Async
-import cats.implicits._
-import laika.ast.Path.Root
-import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import cats.syntax.all.*
+import laika.ast.DocumentTree
 import laika.io.api.{
   BinaryTreeRenderer,
   BinaryTreeTransformer,
@@ -104,7 +103,7 @@ object TransformerDescriptor {
         new TreeRenderer.Op(
           op.renderer,
           op.theme,
-          DocumentTreeRoot(DocumentTree(Root, Nil)),
+          DocumentTree.builder.buildRoot,
           op.output,
           Nil
         )
@@ -119,7 +118,7 @@ object TransformerDescriptor {
       new BinaryTreeRenderer.Op(
         op.renderer,
         op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        DocumentTree.builder.buildRoot,
         op.output,
         Nil
       )

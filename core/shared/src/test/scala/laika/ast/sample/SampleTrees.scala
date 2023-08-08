@@ -276,8 +276,8 @@ class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
   def build: DocumentTreeRoot = {
     val tree = buildTree(0, 0, Config.empty)
     DocumentTreeRoot(
-      tree = tree.copy(
-        content = tree.content ++ Seq(
+      tree = tree.appendContent(
+        Seq(
           buildTree(1, 2, tree.config),
           buildTree(2, 4, tree.config),
           buildStaticTree(1, tree.config),
@@ -336,7 +336,7 @@ private[sample] case class SampleTree(
 
   def build(content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
     val conf = config.build(parentConfig, path)
-    DocumentTree(
+    new DocumentTree(
       path,
       content.map(_.build(path, conf, root)),
       titleDocument = titleDoc.map(_.build(path, conf, root)),

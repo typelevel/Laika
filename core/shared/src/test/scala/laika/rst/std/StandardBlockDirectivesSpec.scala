@@ -731,7 +731,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val tree     = DocumentTree(Root, content = List(document), templates = List(template))
+    val tree     = DocumentTree.builder.addDocument(document).addTemplate(template).build
     val result   = for {
       rewrittenTree <- tree.rewrite(
         OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(

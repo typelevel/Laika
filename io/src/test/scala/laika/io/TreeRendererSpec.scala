@@ -18,11 +18,11 @@ package laika.io
 
 import cats.data.{ Chain, NonEmptyChain }
 import cats.effect.{ Async, IO, Resource }
-import cats.syntax.all._
+import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{
   BuilderKey,
   ParagraphCompanionShortcuts,
@@ -32,17 +32,17 @@ import laika.ast.sample.{
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
 import laika.config.{ Config, ConfigBuilder, LaikaKeys }
-import laika.format._
+import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.helper.{ InputBuilder, RenderResult, TestThemeBuilder }
-import laika.io.implicits._
-import laika.io.model._
+import laika.io.implicits.*
+import laika.io.model.*
 import laika.io.runtime.RendererRuntime.{ DuplicatePath, RendererErrors }
 import laika.io.runtime.VersionInfoGenerator
 import laika.parse.GeneratedSource
 import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
-import laika.render._
+import laika.render.*
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
@@ -146,10 +146,10 @@ class TreeRendererSpec extends CatsEffectSuite
 
   trait TreeRendererSetup[FMT] {
 
-    val fontConfigTree: DocumentTree = DocumentTree(
+    val fontConfigTree: DocumentTree = new DocumentTree(
       Root / "laika",
       List(
-        DocumentTree(
+        new DocumentTree(
           Root / "laika" / "fonts",
           Nil,
           config = ConfigBuilder
@@ -200,11 +200,11 @@ class TreeRendererSpec extends CatsEffectSuite
 
     def addPosition(tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
-      tree.copy(content = tree.content.map {
+      tree.withContent(tree.content.map {
         case d: Document     => d.copy(position = TreePosition(pos :+ nextNum.next()))
         case t: DocumentTree =>
           val num = pos :+ nextNum.next()
-          addPosition(t.copy(position = TreePosition(num)), num)
+          addPosition(t.withPosition(TreePosition(num)), num)
       })
     }
 
@@ -344,7 +344,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("fail with duplicate paths") {
     val root  = HTMLRenderer.defaultContent
-    val input = DocumentTree(
+    val input = new DocumentTree(
       Root,
       List(
         Document(Root / "doc1", root),
@@ -410,7 +410,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = HTMLRenderer.defaultTree.copy(templates = Seq(template))
+    val input    = HTMLRenderer.defaultTree.withTemplates(Seq(template))
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
     HTMLRenderer
@@ -534,7 +534,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a cover and title document to HTML") {
-    val input    = DocumentTree(
+    val input    = new DocumentTree(
       Root,
       List(Document(Root / "doc", HTMLRenderer.defaultContent), HTMLRenderer.fontConfigTree),
       Some(Document(Root / "README", HTMLRenderer.defaultContent))
@@ -579,7 +579,7 @@ class TreeRendererSpec extends CatsEffectSuite
       Results.titleWithId("Title"),
       p(SpanLink.internal("doc-2.md")("Link Text"))
     )
-    val input                        = DocumentTree(
+    val input                        = new DocumentTree(
       Root,
       List(
         Document(Root / "doc-1.md", contentWithLink),
@@ -647,7 +647,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = EPUB_XHTMLRenderer.defaultTree.copy(templates = Seq(template))
+    val input    = EPUB_XHTMLRenderer.defaultTree.withTemplates(Seq(template))
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
     val path     = (Root / "doc").withSuffix("epub.xhtml")
@@ -740,7 +740,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = FORenderer.defaultTree.copy(templates = Seq(template))
+    val input    = FORenderer.defaultTree.withTemplates(Seq(template))
     val expected = s"""[${FORenderer.title("_doc_title", "Title")}
                       |<fo:block ${FORenderer.defaultParagraphStyles}>bbb</fo:block>]""".stripMargin
     val path     = Root / "doc.fo"
@@ -752,7 +752,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with two documents to XSL-FO using a custom style sheet in a theme") {
-    import FORenderer._
+    import FORenderer.*
 
     val inputs       = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F]
@@ -827,7 +827,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a single static document") {
-    val input = DocumentTree(Root, Seq(ASTRenderer.fontConfigTree))
+    val input = new DocumentTree(Root, Seq(ASTRenderer.fontConfigTree))
 
     val treeRoot =
       DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))

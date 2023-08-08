@@ -1,14 +1,15 @@
 package laika.ast
 
 import laika.ast.Path.Root
+import laika.ast.sample.DocumentTreeAssertions
 import laika.config.Origin.TreeScope
 import laika.config.{ ConfigBuilder, Origin }
 import munit.FunSuite
 
-class DocumentTreeBuilderSpec extends FunSuite {
+class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
 
   test("empty tree") {
-    assertEquals(DocumentTree.builder.build, DocumentTree.empty)
+    DocumentTree.builder.build.assertEquals(DocumentTree.empty)
   }
 
   test("tree with documents in root and sub-trees") {
@@ -19,15 +20,15 @@ class DocumentTreeBuilderSpec extends FunSuite {
     val tree     = DocumentTree.builder
       .addDocuments(List(doc1, doc2, doc3, doc4))
       .build
-    val expected = DocumentTree(
+    val expected = new DocumentTree(
       Root,
       Seq(
         doc1,
         doc2,
-        DocumentTree(Root / "tree", Seq(doc3, doc4))
+        new DocumentTree(Root / "tree", Seq(doc3, doc4))
       )
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("tree with documents and templates") {
@@ -41,15 +42,15 @@ class DocumentTreeBuilderSpec extends FunSuite {
       .addTemplate(template1)
       .addTemplate(template2)
       .build
-    val expected  = DocumentTree(
+    val expected  = new DocumentTree(
       Root,
       Seq(
         doc1,
-        DocumentTree(Root / "tree", Seq(doc2), templates = Seq(template2))
+        new DocumentTree(Root / "tree", Seq(doc2), templates = Seq(template2))
       ),
       templates = Seq(template1)
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("tree with title documents") {
@@ -63,15 +64,15 @@ class DocumentTreeBuilderSpec extends FunSuite {
       .addDocument(title1)
       .addDocument(title2)
       .build
-    val expected = DocumentTree(
+    val expected = new DocumentTree(
       Root,
       Seq(
         doc1,
-        DocumentTree(Root / "tree", Seq(doc2), titleDocument = Some(title2))
+        new DocumentTree(Root / "tree", Seq(doc2), titleDocument = Some(title2))
       ),
       titleDocument = Some(title1)
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("root tree with cover document") {
@@ -82,10 +83,10 @@ class DocumentTreeBuilderSpec extends FunSuite {
       .addDocument(cover)
       .buildRoot
     val expected = DocumentTreeRoot(
-      tree = DocumentTree(Root, Seq(doc)),
+      tree = new DocumentTree(Root, Seq(doc)),
       coverDocument = Some(cover)
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("document config inherits from tree config") {

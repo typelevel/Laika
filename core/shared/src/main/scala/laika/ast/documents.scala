@@ -21,11 +21,9 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.IncludeMap
-import laika.config._
+import laika.config.*
 import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
-
-import scala.runtime.AbstractFunction6
 
 /** A navigatable object is anything that has an associated path.
   */
@@ -226,200 +224,6 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
 
 }
 
-/** The structure of a document tree.
-  */
-trait TreeStructure { this: TreeContent =>
-
-  /** The actual document tree that this ast structure represents.
-    */
-  def targetTree: DocumentTree
-
-  /** The content of this tree structure, containing
-    * all markup documents and subtrees, except for the (optional) title document.
-    */
-  def content: Seq[TreeContent]
-
-  /** The title of this tree, obtained from configuration.
-    */
-  lazy val title: Option[SpanSequence] = titleDocument.flatMap(_.title).orElse(titleFromConfig)
-
-  /** The title document for this tree, if present.
-    *
-    * A document with the base name `title` and the corresponding
-    * suffix for the input markup, e.g. `title.md` for Markdown,
-    * can be used as an introductory section for a chapter represented
-    * by a directory tree.
-    */
-  def titleDocument: Option[Document]
-
-  /** All templates on this level of the tree hierarchy that might
-    * get applied to a document when it gets rendered.
-    */
-  def templates: Seq[TemplateDocument]
-
-  /** All documents contained in this tree, fetched recursively, depth-first.
-    */
-  lazy val allDocuments: Seq[Document] = {
-
-    def collect(tree: DocumentTree): Seq[Document] =
-      tree.titleDocument.toSeq ++ tree.content.flatMap {
-        case doc: Document     => Seq(doc)
-        case sub: DocumentTree => collect(sub)
-      }
-
-    collect(targetTree)
-  }
-
-  /** Indicates whether this tree does not contain any markup document.
-    * Template documents do not count, as they would be ignored in rendering
-    * when there is no markup document.
-    */
-  lazy val isEmpty: Boolean = {
-
-    def nonEmpty(tree: DocumentTree): Boolean = tree.titleDocument.nonEmpty || tree.content.exists {
-      case _: Document       => true
-      case sub: DocumentTree => nonEmpty(sub)
-    }
-
-    !nonEmpty(targetTree)
-  }
-
-  /** Selects a document from this tree or one of its subtrees by the specified path.
-    * The path needs to be relative and not point to a parent tree (neither start
-    * with `/` nor with `..`).
-    */
-  def selectDocument(path: String): Option[Document] = selectDocument(RelativePath.parse(path))
-
-  /** Selects a document from this tree or one of its subtrees by the specified path.
-    * The path must not point to a parent tree (start with `../`)
-    * as this instance is not aware of its parents.
-    */
-  def selectDocument(path: RelativePath): Option[Document] = path.withoutFragment match {
-    case CurrentTree / localName                     =>
-      (titleDocument.toSeq ++: content).collectFirst {
-        case d: Document if d.path.name == localName => d
-      }
-    case other / localName if path.parentLevels == 0 =>
-      selectSubtree(other).flatMap(_.selectDocument(localName))
-    case _                                           =>
-      None
-  }
-
-  /** Appends the specified content to this tree and return a new instance.
-    */
-  def appendContent(content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(
-    content +: contents
-  )
-
-  /** Appends the specified content to this tree and return a new instance.
-    */
-  def appendContent(content: Seq[TreeContent]): DocumentTree =
-    targetTree.copy(content = targetTree.content ++ content)
-
-  /** Prepends the specified content to this tree and return a new instance.
-    */
-  def prependContent(content: TreeContent, contents: TreeContent*): DocumentTree = prependContent(
-    content +: contents
-  )
-
-  /** Prepends the specified content to this tree and return a new instance.
-    */
-  def prependContent(content: Seq[TreeContent]): DocumentTree =
-    targetTree.copy(content = content ++ targetTree.content)
-
-  /** Selects a template from this tree or one of its subtrees by the specified path.
-    * The path needs to be relative.
-    */
-  def selectTemplate(path: String): Option[TemplateDocument] = selectTemplate(
-    RelativePath.parse(path)
-  )
-
-  /** Selects a template from this tree or one of its subtrees by the specified path.
-    * The path must not point to a parent tree (start with `../`)
-    * as this instance is not aware of its parents.
-    */
-  def selectTemplate(path: RelativePath): Option[TemplateDocument] = path match {
-    case CurrentTree / localName                     => templates.find(_.path.name == localName)
-    case other / localName if path.parentLevels == 0 =>
-      selectSubtree(other).flatMap(_.selectTemplate(localName))
-    case _                                           => None
-  }
-
-  /** Selects the template with the name `default.template.&lt;suffix&gt;` for the
-    * specified format suffix from this level of the document tree.
-    */
-  def getDefaultTemplate(formatSuffix: String): Option[TemplateDocument] = {
-    selectTemplate(DefaultTemplatePath.forSuffix(formatSuffix).relative)
-  }
-
-  /** Create a new document tree that contains the specified template as the default.
-    */
-  def withDefaultTemplate(template: TemplateRoot, formatSuffix: String): DocumentTree = {
-    val defPath = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
-    targetTree.copy(templates =
-      targetTree.templates.filterNot(_.path == defPath) :+
-        TemplateDocument(defPath, template)
-    )
-  }
-
-  /** Selects a subtree of this tree by the specified path.
-    *  The path needs to be relative and it may point to a deeply nested
-    *  subtree, not just immediate children.
-    */
-  def selectSubtree(path: String): Option[DocumentTree] = selectSubtree(RelativePath.parse(path))
-
-  /** Selects a subtree of this tree by the specified path.
-    * The path must not point to a parent tree (start with `../`)
-    * as this instance is not aware of its parents.
-    */
-  def selectSubtree(path: RelativePath): Option[DocumentTree] = path match {
-    case CurrentTree                                 => Some(targetTree)
-    case CurrentTree / localName                     =>
-      content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
-    case other / localName if path.parentLevels == 0 =>
-      selectSubtree(other).flatMap(_.selectSubtree(localName))
-    case _                                           => None
-  }
-
-  /** Creates the navigation structure for this tree up to the specified depth.
-    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections.
-    *
-    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
-    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
-    */
-  def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
-  ): NavigationItem = {
-    def hasLinks(item: NavigationItem): Boolean =
-      item.link.nonEmpty || item.content.exists(hasLinks)
-    val navContent                              = content
-      .filterNot(_.path == context.refPath && context.excludeSelf)
-      .filterNot(_.config.get[Boolean](LaikaKeys.excludeFromNavigation).getOrElse(false))
-    val children                                =
-      if (context.isComplete) Nil
-      else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
-    val navTitle                                = title.getOrElse(SpanSequence(path.name))
-    context.newNavigationItem(navTitle, titleDocument, children, targetFormats)
-  }
-
-  def runtimeMessages(filter: MessageFilter): Seq[RuntimeMessage] = filter match {
-    case MessageFilter.None => Nil
-    case _                  =>
-      titleDocument.toSeq.flatMap(_.runtimeMessages(filter)) ++ content.flatMap(
-        _.runtimeMessages(filter)
-      )
-  }
-
-  def invalidElements(filter: MessageFilter): Seq[Invalid] = filter match {
-    case MessageFilter.None => Nil
-    case _                  =>
-      titleDocument.toSeq.flatMap(_.invalidElements(filter)) ++ content.flatMap(
-        _.invalidElements(filter)
-      )
-  }
-
-}
-
 /** Represents a single document and provides access
   *  to the document content and structure as well
   *  as hooks for triggering rewrite operations.
@@ -480,22 +284,202 @@ case class Document(
 /** Represents a tree with all its documents, templates, configurations and subtrees.
   *
   *  @param path the full, absolute path of this (virtual) document tree
-  *  @param content the markup documents and subtrees
+  *  @param content the markup documents and subtrees except for the (optional) title document
   *  @param titleDocument the optional title document of this tree
   *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
   *  @param config the configuration associated with this tree
   *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
   */
-case class DocumentTree(
-    path: Path,
-    content: Seq[TreeContent],
-    titleDocument: Option[Document] = None,
-    templates: Seq[TemplateDocument] = Nil,
-    config: Config = Config.empty,
-    position: TreePosition = TreePosition.root
-) extends TreeStructure with TreeContent {
+class DocumentTree(
+    val path: Path,
+    val content: Seq[TreeContent],
+    val titleDocument: Option[Document] = None,
+    val templates: Seq[TemplateDocument] = Nil,
+    val config: Config = Config.empty,
+    val position: TreePosition = TreePosition.root
+) extends TreeContent {
 
-  val targetTree: DocumentTree = this
+  private def copy(
+      path: Path = this.path,
+      content: Seq[TreeContent] = this.content,
+      titleDocument: Option[Document] = this.titleDocument,
+      templates: Seq[TemplateDocument] = this.templates,
+      config: Config = this.config,
+      position: TreePosition = this.position
+  ): DocumentTree = new DocumentTree(path, content, titleDocument, templates, config, position)
+
+  def withConfig(config: Config): DocumentTree                = copy(config = config)
+  def withPosition(pos: TreePosition): DocumentTree           = copy(position = pos)
+  def withTitleDocument(doc: Document): DocumentTree          = copy(titleDocument = Some(doc))
+  def withTitleDocument(doc: Option[Document]): DocumentTree  = copy(titleDocument = doc)
+  def withContent(newContent: Seq[TreeContent]): DocumentTree = copy(content = newContent)
+  def withTemplates(templates: Seq[TemplateDocument]): DocumentTree = copy(templates = templates)
+
+  /** The title of this tree, obtained from configuration.
+    */
+  lazy val title: Option[SpanSequence] = titleDocument.flatMap(_.title).orElse(titleFromConfig)
+
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[Document] = {
+
+    def collect(tree: DocumentTree): Seq[Document] =
+      tree.titleDocument.toSeq ++ tree.content.flatMap {
+        case doc: Document     => Seq(doc)
+        case sub: DocumentTree => collect(sub)
+      }
+
+    collect(this)
+  }
+
+  /** Indicates whether this tree does not contain any markup document.
+    * Template documents do not count, as they would be ignored in rendering
+    * when there is no markup document.
+    */
+  lazy val isEmpty: Boolean = {
+
+    def nonEmpty(tree: DocumentTree): Boolean = tree.titleDocument.nonEmpty || tree.content.exists {
+      case _: Document       => true
+      case sub: DocumentTree => nonEmpty(sub)
+    }
+
+    !nonEmpty(this)
+  }
+
+  /** Selects a document from this tree or one of its subtrees by the specified path.
+    * The path needs to be relative and not point to a parent tree (neither start
+    * with `/` nor with `..`).
+    */
+  def selectDocument(path: String): Option[Document] = selectDocument(RelativePath.parse(path))
+
+  /** Selects a document from this tree or one of its subtrees by the specified path.
+    * The path must not point to a parent tree (start with `../`)
+    * as this instance is not aware of its parents.
+    */
+  def selectDocument(path: RelativePath): Option[Document] = path.withoutFragment match {
+    case CurrentTree / localName                     =>
+      (titleDocument.toSeq ++: content).collectFirst {
+        case d: Document if d.path.name == localName => d
+      }
+    case other / localName if path.parentLevels == 0 =>
+      selectSubtree(other).flatMap(_.selectDocument(localName))
+    case _                                           =>
+      None
+  }
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent(content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(
+    content +: contents
+  )
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent(newContent: Seq[TreeContent]): DocumentTree =
+    copy(content = content ++ newContent)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent(content: TreeContent, contents: TreeContent*): DocumentTree = prependContent(
+    content +: contents
+  )
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent(newContent: Seq[TreeContent]): DocumentTree =
+    copy(content = newContent ++ content)
+
+  /** Selects a template from this tree or one of its subtrees by the specified path.
+    * The path needs to be relative.
+    */
+  def selectTemplate(path: String): Option[TemplateDocument] = selectTemplate(
+    RelativePath.parse(path)
+  )
+
+  /** Selects a template from this tree or one of its subtrees by the specified path.
+    * The path must not point to a parent tree (start with `../`)
+    * as this instance is not aware of its parents.
+    */
+  def selectTemplate(path: RelativePath): Option[TemplateDocument] = path match {
+    case CurrentTree / localName                     => templates.find(_.path.name == localName)
+    case other / localName if path.parentLevels == 0 =>
+      selectSubtree(other).flatMap(_.selectTemplate(localName))
+    case _                                           => None
+  }
+
+  /** Selects the template with the name `default.template.&lt;suffix&gt;` for the
+    * specified format suffix from this level of the document tree.
+    */
+  def getDefaultTemplate(formatSuffix: String): Option[TemplateDocument] = {
+    selectTemplate(DefaultTemplatePath.forSuffix(formatSuffix).relative)
+  }
+
+  /** Create a new document tree that contains the specified template as the default.
+    */
+  def withDefaultTemplate(template: TemplateRoot, formatSuffix: String): DocumentTree = {
+    val defPath = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
+    copy(templates =
+      templates.filterNot(_.path == defPath) :+
+        TemplateDocument(defPath, template)
+    )
+  }
+
+  /** Selects a subtree of this tree by the specified path.
+    * The path needs to be relative and it may point to a deeply nested
+    * subtree, not just immediate children.
+    */
+  def selectSubtree(path: String): Option[DocumentTree] = selectSubtree(RelativePath.parse(path))
+
+  /** Selects a subtree of this tree by the specified path.
+    * The path must not point to a parent tree (start with `../`)
+    * as this instance is not aware of its parents.
+    */
+  def selectSubtree(path: RelativePath): Option[DocumentTree] = path match {
+    case CurrentTree                                 => Some(this)
+    case CurrentTree / localName                     =>
+      content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
+    case other / localName if path.parentLevels == 0 =>
+      selectSubtree(other).flatMap(_.selectSubtree(localName))
+    case _                                           => None
+  }
+
+  /** Creates the navigation structure for this tree up to the specified depth.
+    * The returned instance can be used as part of a bigger navigation structure comprising of trees, documents and their sections.
+    *
+    * @param context captures the navigation depth, reference path and styles for the navigation tree being built
+    * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
+    */
+  def asNavigationItem(
+      context: NavigationBuilderContext = NavigationBuilderContext()
+  ): NavigationItem = {
+    def hasLinks(item: NavigationItem): Boolean =
+      item.link.nonEmpty || item.content.exists(hasLinks)
+
+    val navContent = content
+      .filterNot(_.path == context.refPath && context.excludeSelf)
+      .filterNot(_.config.get[Boolean](LaikaKeys.excludeFromNavigation).getOrElse(false))
+    val children   =
+      if (context.isComplete) Nil
+      else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
+    val navTitle   = title.getOrElse(SpanSequence(path.name))
+    context.newNavigationItem(navTitle, titleDocument, children, targetFormats)
+  }
+
+  def runtimeMessages(filter: MessageFilter): Seq[RuntimeMessage] = filter match {
+    case MessageFilter.None => Nil
+    case _                  =>
+      titleDocument.toSeq.flatMap(_.runtimeMessages(filter)) ++ content.flatMap(
+        _.runtimeMessages(filter)
+      )
+  }
+
+  def invalidElements(filter: MessageFilter): Seq[Invalid] = filter match {
+    case MessageFilter.None => Nil
+    case _                  =>
+      titleDocument.toSeq.flatMap(_.invalidElements(filter)) ++ content.flatMap(
+        _.invalidElements(filter)
+      )
+  }
 
   /** Creates a new tree by applying the specified function to all documents in this tree recursively.
     */
@@ -505,7 +489,7 @@ case class DocumentTree(
       case d: Document     => f(d)
       case t: DocumentTree => t.mapDocuments(f)
     }
-    copy(titleDocument = newTitle, content = newContent)
+    new DocumentTree(path, newContent, newTitle, templates, config, position)
   }
 
   /** Returns a new tree, with all the document models contained in it
@@ -531,24 +515,14 @@ case class DocumentTree(
 
 }
 
-object DocumentTree
-    extends AbstractFunction6[
-      Path,
-      Seq[TreeContent],
-      Option[Document],
-      Seq[TemplateDocument],
-      Config,
-      TreePosition,
-      DocumentTree
-    ] {
-  // TODO - simplify for 1.x - signature is required to satisfy mima (companion introduced in 0.19.3)
+object DocumentTree {
 
   /** A new, empty builder for constructing a new `DocumentTree`.
     */
   val builder = new DocumentTreeBuilder()
 
   /** An empty `DocumentTree` without any documents, templates or configurations. */
-  val empty: DocumentTree = DocumentTree(Root, Nil)
+  val empty: DocumentTree = new DocumentTree(Root, Nil)
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,
@@ -614,7 +588,7 @@ case class DocumentTreeRoot(
   /** Creates a new tree by replacing its root configuration with the specified config instance.
     */
   def withConfig(config: Config): DocumentTreeRoot = {
-    copy(tree = tree.copy(config = config))
+    copy(tree = tree.withConfig(config))
   }
 
   /** Creates a new instance by applying the specified function to the root tree.

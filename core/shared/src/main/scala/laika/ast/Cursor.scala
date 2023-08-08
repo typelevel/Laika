@@ -241,7 +241,7 @@ class TreeCursor private (
       case (doc: Document, index)      =>
         DocumentCursor(doc.copy(position = position.forChild(index + 1)), this)
       case (tree: DocumentTree, index) =>
-        new TreeCursor(tree.copy(position = position.forChild(index + 1)), Some(this), root)
+        new TreeCursor(tree.withPosition(position.forChild(index + 1)), Some(this), root)
     }
   }
 
@@ -260,7 +260,7 @@ class TreeCursor private (
   }
 
   private[laika] def applyPosition(position: TreePosition): TreeCursor =
-    new TreeCursor(target.copy(position = position), parent, root)
+    new TreeCursor(target.withPosition(position), parent, root)
 
   /** Returns a new tree, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
@@ -289,7 +289,7 @@ class TreeCursor private (
       )
 
     (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
-      target.copy(content = content, titleDocument = title, position = position)
+      target.withContent(content).withTitleDocument(title).withPosition(position)
     }
       .leftMap(TreeConfigErrors.apply)
   }
@@ -507,7 +507,7 @@ object DocumentCursor {
       document: Document,
       outputContext: Option[OutputContext] = None
   ): Either[TreeConfigErrors, DocumentCursor] =
-    TreeCursor(DocumentTree(Root, Seq(document)), outputContext)
+    TreeCursor(DocumentTree.builder.addDocument(document).build, outputContext)
       .map(apply(document, _))
 
   /** Creates a cursor for a document and full context information:

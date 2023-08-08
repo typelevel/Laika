@@ -64,12 +64,12 @@ class DocumentTreeAPISpec extends FunSuite
       config: Option[String] = None
   ): DocumentTree = {
     val doc = Document(path / name, root, config = createConfig(path / name, config))
-    if (name == "README") DocumentTree(path, Nil, titleDocument = Some(doc))
-    else DocumentTree(path, List(doc))
+    if (name == "README") new DocumentTree(path, Nil, titleDocument = Some(doc))
+    else new DocumentTree(path, List(doc))
   }
 
   def treeWithTitleDoc(path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
-    DocumentTree(
+    new DocumentTree(
       path,
       Nil,
       Some(Document(path / "title", root, config = createConfig(path / "title", config)))
@@ -82,7 +82,7 @@ class DocumentTreeAPISpec extends FunSuite
       root: RootElement,
       config: Option[String] = None
   ): DocumentTree =
-    DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
+    new DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
 
   def treeWithTwoSubtrees(
       contextRef: Option[String] = None,
@@ -228,7 +228,7 @@ class DocumentTreeAPISpec extends FunSuite
 
   test("allow to select a subtree in a child directory using a relative path") {
     val tree     = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
-    val treeRoot = DocumentTree(Root, List(tree))
+    val treeRoot = new DocumentTree(Root, List(tree))
     assertEquals(
       treeRoot.selectSubtree(CurrentTree / "top" / "sub").map(_.path),
       Some(Root / "top" / "sub")
@@ -251,7 +251,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: /main.template.html")
-    ).copy(templates = List(template))
+    ).withTemplates(List(template))
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -264,7 +264,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.html.template: /main.template.html")
-    ).copy(templates = List(template))
+    ).withTemplates(List(template))
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -277,7 +277,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../main.template.html")
-    ).copy(templates = List(template))
+    ).withTemplates(List(template))
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -290,7 +290,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../missing.template.html")
-    ).copy(templates = List(template))
+    ).withTemplates(List(template))
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(
       result,

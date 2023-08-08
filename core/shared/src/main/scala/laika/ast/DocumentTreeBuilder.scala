@@ -34,8 +34,8 @@ import scala.collection.mutable
   */
 class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.BuilderPart] = Nil) {
 
-  import laika.collection.TransitionalCollectionOps._
-  import DocumentTreeBuilder._
+  import laika.collection.TransitionalCollectionOps.*
+  import DocumentTreeBuilder.*
 
   private[laika] lazy val distinctParts: List[BuilderPart] = {
     /* distinctBy does not exist in 2.12
@@ -109,7 +109,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       }
     } yield {
       val (title, content) = extract(resolvedContent, titleName)
-      DocumentTree(result.path, content, title, result.templates, treeConfig)
+      new DocumentTree(result.path, content, title, result.templates, treeConfig)
     }
   }
 
@@ -127,7 +127,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       case _: MarkupPart     => None
     }
     val (title, content) = extract(allContent, titleName)
-    DocumentTree(result.path, content, title, result.templates, treeConfig)
+    new DocumentTree(result.path, content, title, result.templates, treeConfig)
   }
 
   private def collectStyles(parts: Seq[BuilderPart]): Map[String, StyleDeclarationSet] = parts
@@ -156,7 +156,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       resolvedTree <- resolveAndBuildTree(tree, baseConfig, includes)
     } yield {
       val (cover, content) = extract(resolvedTree.content, "cover")
-      val rootTree         = resolvedTree.copy(content = content)
+      val rootTree         = resolvedTree.withContent(content)
       DocumentTreeRoot(rootTree, cover, styles, includes = includes)
     }
   }
@@ -215,7 +215,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   def buildRoot(baseConfig: Config): DocumentTreeRoot = {
     val tree             = build(baseConfig)
     val (cover, content) = extract(tree.content, "cover")
-    DocumentTreeRoot(tree.copy(content = content), cover)
+    DocumentTreeRoot(tree.withContent(content), cover)
   }
 
   /** Builds a `DocumentTree` from the provided instances and wires the

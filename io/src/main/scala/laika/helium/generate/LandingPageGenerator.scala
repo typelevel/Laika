@@ -17,7 +17,7 @@
 package laika.helium.generate
 
 import cats.data.Kleisli
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
@@ -70,10 +70,10 @@ private[helium] object LandingPageGenerator {
       )
 
       tree.modifyTree { tree =>
-        tree.copy(
-          titleDocument = Some(titleDocWithTemplate),
-          content = tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
-        )
+        tree
+          .withTitleDocument(titleDocWithTemplate)
+          .withContent(tree.content.filterNot(_.path.withoutSuffix.name == "landing-page"))
+        // TODO - M3 - this should ideally be .removeIfPresent(path) or .removeDocument
       }
     }
 

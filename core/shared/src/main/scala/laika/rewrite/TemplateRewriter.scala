@@ -81,11 +81,7 @@ private[laika] trait TemplateRewriter {
         case tree: TreeCursor    => applyTemplates(tree, rules, context)
       }
     } yield {
-      cursor.target.copy(
-        titleDocument = newTitle,
-        content = newContent,
-        templates = Nil
-      )
+      cursor.target.withContent(newContent).withTitleDocument(newTitle).withTemplates(Nil)
     }
   }
 

@@ -16,21 +16,21 @@
 
 package laika.directive.std
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast._
+import laika.ast.*
 import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.FunSuite
-import RewriteSetup._
+import RewriteSetup.*
 import laika.config.{ ConfigBuilder, LaikaKeys }
 import laika.format.HTML
 
 class HTMLHeadDirectiveSpec extends FunSuite {
 
-  val staticDocs = Seq(
+  private val staticDocs = Seq(
     StaticDocument(Root / "doc-1.css", TargetFormats.Selected("html")),
     StaticDocument(Root / "doc-2.epub.css", TargetFormats.Selected("epub", "epub.xhtml")),
     StaticDocument(Root / "doc-3.shared.css", TargetFormats.Selected("epub", "epub.xhtml", "html")),
@@ -55,7 +55,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
     def applyTemplate(root: TemplateRoot): Either[String, DocumentTreeRoot] = {
       val inputTree      =
         buildTree(Some((templatePath.name, root.content)), docConfigUnderTest = docConfig)
-      val treeWithConfig = inputTree.copy(config = rootConfig(ConfigBuilder.empty).build)
+      val treeWithConfig = inputTree.withConfig(rootConfig(ConfigBuilder.empty).build)
       val resolveRules   = OperationConfig.default.rewriteRulesFor(
         DocumentTreeRoot(treeWithConfig),
         RewritePhase.Resolve
