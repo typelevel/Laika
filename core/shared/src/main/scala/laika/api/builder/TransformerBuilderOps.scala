@@ -50,13 +50,8 @@ private[api] trait TransformerBuilderOps[FMT] extends ParserBuilderOps
     *  been processed.
     */
   def usingRules(newRules: RewriteRules): ThisType = using(new ExtensionBundle {
-    val description: String = "Custom rewrite rules"
-
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Build     => Seq(newRules.copy(templateRules = Nil).asBuilder)
-      case RewritePhase.Render(_) =>
-        Seq(RewriteRules(templateRules = newRules.templateRules).asBuilder)
-    }
+    val description: String                        = "Custom rewrite rules"
+    override def rewriteRules: RewritePhaseBuilder = newRules.asDefaultPhaseBuilder
 
   })
 

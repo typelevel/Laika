@@ -36,7 +36,7 @@ trait TemplateSpanContainer extends ElementContainer[TemplateSpan] with Rewritab
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
   def rewriteTemplateSpans(rules: RewriteRule[TemplateSpan]): Self = rewriteChildren(
-    RewriteRules(templateRules = Seq(rules))
+    RewriteRules.forTemplates(rules)
   )
 
   def rewriteChildren(rules: RewriteRules): Self = withContent(rules.rewriteTemplateSpans(content))

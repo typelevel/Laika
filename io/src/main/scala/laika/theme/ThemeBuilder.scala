@@ -121,11 +121,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
       themeName,
       inputs,
       extensions,
-      bundleBuilder.addRewriteRules {
-        case RewritePhase.Build     => Seq(rules.copy(templateRules = Nil).asBuilder)
-        case RewritePhase.Render(_) =>
-          Seq(RewriteRules(templateRules = rules.templateRules).asBuilder)
-      },
+      bundleBuilder.addRewriteRules(rules.asDefaultPhaseBuilder),
       treeProcessors
     )
 
