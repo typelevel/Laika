@@ -410,7 +410,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = HTMLRenderer.defaultTree.withTemplates(Seq(template))
+    val input    = HTMLRenderer.defaultTree.addTemplate(template)
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
     HTMLRenderer
@@ -647,7 +647,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = EPUB_XHTMLRenderer.defaultTree.withTemplates(Seq(template))
+    val input    = EPUB_XHTMLRenderer.defaultTree.addTemplate(template)
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
     val path     = (Root / "doc").withSuffix("epub.xhtml")
@@ -740,7 +740,7 @@ class TreeRendererSpec extends CatsEffectSuite
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val input    = FORenderer.defaultTree.withTemplates(Seq(template))
+    val input    = FORenderer.defaultTree.addTemplate(template)
     val expected = s"""[${FORenderer.title("_doc_title", "Title")}
                       |<fo:block ${FORenderer.defaultParagraphStyles}>bbb</fo:block>]""".stripMargin
     val path     = Root / "doc.fo"

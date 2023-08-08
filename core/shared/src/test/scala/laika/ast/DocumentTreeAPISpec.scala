@@ -251,7 +251,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: /main.template.html")
-    ).withTemplates(List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -264,7 +264,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.html.template: /main.template.html")
-    ).withTemplates(List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -277,7 +277,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../main.template.html")
-    ).withTemplates(List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -290,7 +290,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../missing.template.html")
-    ).withTemplates(List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(
       result,

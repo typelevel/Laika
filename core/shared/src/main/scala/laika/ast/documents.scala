@@ -309,12 +309,15 @@ class DocumentTree(
   ): DocumentTree = new DocumentTree(path, content, titleDocument, templates, config, position)
 
   private[laika] def withPosition(pos: TreePosition): DocumentTree = copy(position = pos)
+  private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
 
   def withConfig(config: Config): DocumentTree                = copy(config = config)
   def withTitleDocument(doc: Document): DocumentTree          = copy(titleDocument = Some(doc))
   def withTitleDocument(doc: Option[Document]): DocumentTree  = copy(titleDocument = doc)
   def withContent(newContent: Seq[TreeContent]): DocumentTree = copy(content = newContent)
-  def withTemplates(templates: Seq[TemplateDocument]): DocumentTree = copy(templates = templates)
+
+  def addTemplate(template: TemplateDocument): DocumentTree =
+    copy(templates = templates :+ template)
 
   /** The title of this tree, obtained from configuration.
     */

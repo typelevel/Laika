@@ -45,8 +45,8 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
   def buildInputTree(templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
     val treeWithTemplate = inputTree
-      .withTemplates(
-        Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get)
+      .addTemplate(
+        templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get
       )
       .withConfig(templateTree.root.config)
     DocumentTreeRoot(treeWithTemplate)
