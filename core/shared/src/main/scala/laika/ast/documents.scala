@@ -309,13 +309,24 @@ class DocumentTree(
   ): DocumentTree = new DocumentTree(path, content, titleDocument, templates, config, position)
 
   private[laika] def withPosition(pos: TreePosition): DocumentTree = copy(position = pos)
-  private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
+  private[laika] def withoutTemplates: DocumentTree                = copy(templates = Nil)
 
-  def withConfig(config: Config): DocumentTree                = copy(config = config)
-  def withTitleDocument(doc: Document): DocumentTree          = copy(titleDocument = Some(doc))
-  def withTitleDocument(doc: Option[Document]): DocumentTree  = copy(titleDocument = doc)
-  def withContent(newContent: Seq[TreeContent]): DocumentTree = copy(content = newContent)
+  /** Adds the specified document as the title document for this tree,
+    * replacing the existing title document if present.
+    */
+  def withTitleDocument(doc: Document): DocumentTree = copy(titleDocument = Some(doc))
 
+  /** Adds the specified document as the title document for this tree
+    * replacing the existing title document if present or, if empty,
+    * removes any existing title document.
+    */
+  def withTitleDocument(doc: Option[Document]): DocumentTree = copy(titleDocument = doc)
+
+  def withConfig(config: Config): DocumentTree = copy(config = config)
+
+  /** Adds the specified template document to this tree,
+    * retaining any previously added templates.
+    */
   def addTemplate(template: TemplateDocument): DocumentTree =
     copy(templates = templates :+ template)
 
@@ -371,6 +382,12 @@ class DocumentTree(
       None
   }
 
+  /** Removes all documents from this tree where the specified filter applies to its path.
+    * Does not recurse into nested sub-trees and does not apply to templates or title documents.
+    */
+  def removeContent(filter: Path => Boolean): DocumentTree =
+    copy(content = content.filterNot(c => filter(c.path)))
+
   /** Appends the specified content to this tree and return a new instance.
     */
   def appendContent(content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(
@@ -392,6 +409,17 @@ class DocumentTree(
     */
   def prependContent(newContent: Seq[TreeContent]): DocumentTree =
     copy(content = newContent ++ content)
+
+  /** Applies the specified function to all elements of the `content` property
+    * and returns a new document tree.
+    */
+  def modifyContent(f: TreeContent => TreeContent): DocumentTree =
+    copy(content = content.map(f))
+
+  /** Replaces the contents of this document tree.
+    * Consider using `modifyContent` instead when only intending to adjust existing content.
+    */
+  def replaceContent(newContent: Seq[TreeContent]): DocumentTree = copy(content = newContent)
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.

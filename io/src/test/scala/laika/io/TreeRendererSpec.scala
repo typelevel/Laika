@@ -200,12 +200,12 @@ class TreeRendererSpec extends CatsEffectSuite
 
     def addPosition(tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
-      tree.withContent(tree.content.map {
+      tree.modifyContent {
         case d: Document     => d.copy(position = TreePosition(pos :+ nextNum.next()))
         case t: DocumentTree =>
           val num = pos :+ nextNum.next()
           addPosition(t.withPosition(TreePosition(num)), num)
-      })
+      }
     }
 
   }

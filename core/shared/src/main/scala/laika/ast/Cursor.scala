@@ -289,7 +289,7 @@ class TreeCursor private (
       )
 
     (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
-      target.withContent(content).withTitleDocument(title).withPosition(position)
+      target.replaceContent(content).withTitleDocument(title).withPosition(position)
     }
       .leftMap(TreeConfigErrors.apply)
   }

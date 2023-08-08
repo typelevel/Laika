@@ -72,8 +72,7 @@ private[helium] object LandingPageGenerator {
       tree.modifyTree { tree =>
         tree
           .withTitleDocument(titleDocWithTemplate)
-          .withContent(tree.content.filterNot(_.path.withoutSuffix.name == "landing-page"))
-        // TODO - M3 - this should ideally be .removeIfPresent(path) or .removeDocument
+          .removeContent(_.withoutSuffix.name == "landing-page")
       }
     }
 

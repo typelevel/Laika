@@ -156,7 +156,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       resolvedTree <- resolveAndBuildTree(tree, baseConfig, includes)
     } yield {
       val (cover, content) = extract(resolvedTree.content, "cover")
-      val rootTree         = resolvedTree.withContent(content)
+      val rootTree         = resolvedTree.replaceContent(content)
       DocumentTreeRoot(rootTree, cover, styles, includes = includes)
     }
   }
@@ -215,7 +215,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   def buildRoot(baseConfig: Config): DocumentTreeRoot = {
     val tree             = build(baseConfig)
     val (cover, content) = extract(tree.content, "cover")
-    DocumentTreeRoot(tree.withContent(content), cover)
+    DocumentTreeRoot(tree.replaceContent(content), cover)
   }
 
   /** Builds a `DocumentTree` from the provided instances and wires the
