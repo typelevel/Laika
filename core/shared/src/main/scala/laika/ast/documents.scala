@@ -163,19 +163,29 @@ case class SectionInfo(
 
 }
 
-/** The structure of a markup document.
+/** Represents a single document and provides access
+  *  to the document content and structure as well
+  *  as hooks for triggering rewrite operations.
+  *
+  *  @param path the full, absolute path of this document in the (virtual) document tree
+  *  @param content the tree model obtained from parsing the markup document
+  *  @param fragments separate named fragments that had been extracted from the content
+  *  @param config the configuration for this document
+  *  @param position the position of this document inside a document tree hierarchy, expressed as a list of Ints
   */
-trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
-
-  /** The tree model obtained from parsing the markup document.
-    */
-  def content: RootElement
+case class Document(
+    path: Path,
+    content: RootElement,
+    fragments: Map[String, Element] = Map.empty,
+    config: Config = Config.empty,
+    position: TreePosition = TreePosition.orphan
+) extends DocumentNavigation with TreeContent {
 
   private def findRoot: Seq[Block] = {
     content.collect {
       case RootElement(TemplateRoot(_, _) :: Nil, _) => Nil
-      case RootElement(content, _)                   => Seq(content)
-      case EmbeddedRoot(content, _, _)               => Seq(content)
+      case RootElement(content, _) => Seq(content)
+      case EmbeddedRoot(content, _, _) => Seq(content)
     }.flatten.headOption.getOrElse(Nil)
   }
 
@@ -194,54 +204,35 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
   }
 
   /** The section structure of this document based on the hierarchy
-    *  of headers found in the original text markup.
+    * of headers found in the original text markup.
     */
   lazy val sections: Seq[SectionInfo] = {
 
-    def extractSections(blocks: Seq[Block]): Seq[SectionInfo] = {
+    def extractSections (blocks: Seq[Block]): Seq[SectionInfo] = {
       blocks collect { case Section(Header(_, header, Id(id)), content, _) =>
         SectionInfo(id, SpanSequence(header), extractSections(content))
       }
     }
+
     extractSections(findRoot)
   }
 
-  def runtimeMessages(filter: MessageFilter): Seq[RuntimeMessage] = filter match {
+  def runtimeMessages (filter: MessageFilter): Seq[RuntimeMessage] = filter match {
     case MessageFilter.None => Nil
-    case _                  =>
+    case _ =>
       content.collect {
         case msg: RuntimeMessage if filter(msg) => msg
       }
   }
 
-  def invalidElements(filter: MessageFilter): Seq[Invalid] = filter match {
+  def invalidElements (filter: MessageFilter): Seq[Invalid] = filter match {
     case MessageFilter.None => Nil
-    case _                  =>
+    case _ =>
       content.collect {
         case inv: Invalid if filter(inv.message) => inv
       }
   }
-
-}
-
-/** Represents a single document and provides access
-  *  to the document content and structure as well
-  *  as hooks for triggering rewrite operations.
-  *
-  *  @param path the full, absolute path of this document in the (virtual) document tree
-  *  @param content the tree model obtained from parsing the markup document
-  *  @param fragments separate named fragments that had been extracted from the content
-  *  @param config the configuration for this document
-  *  @param position the position of this document inside a document tree hierarchy, expressed as a list of Ints
-  */
-case class Document(
-    path: Path,
-    content: RootElement,
-    fragments: Map[String, Element] = Map.empty,
-    config: Config = Config.empty,
-    position: TreePosition = TreePosition.orphan
-) extends DocumentStructure with TreeContent {
-
+  
   /** Returns a new, rewritten document model based on the specified rewrite rules.
     *
     *  If the rule is not defined for a specific element or the rule returns
@@ -311,7 +302,7 @@ private[ast] case class TreeNodeContext(
   * @param titleDocument the optional title document of this tree
   * @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
   */
-class DocumentTree(
+class DocumentTree private[ast] (
     context: TreeNodeContext,
     val content: Seq[TreeContent],
     val titleDocument: Option[Document] = None,
