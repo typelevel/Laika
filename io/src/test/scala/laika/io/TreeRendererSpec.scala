@@ -31,7 +31,7 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
 import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
@@ -146,19 +146,13 @@ class TreeRendererSpec extends CatsEffectSuite
 
   trait TreeRendererSetup[FMT] {
 
-    val fontConfigTree: DocumentTree = new DocumentTree(
-      Root / "laika",
-      List(
-        new DocumentTree(
-          Root / "laika" / "fonts",
-          Nil,
-          config = ConfigBuilder
-            .empty
-            .withValue(LaikaKeys.targetFormats, Seq("epub", "epub.xhtml", "pdf"))
-            .build
-        )
-      )
-    )
+    val fontConfig: Config =
+      ConfigBuilder
+        .withOrigin(Origin(Origin.TreeScope, Root / "laika" / "fonts" / "directory.conf"))
+        .withValue(LaikaKeys.targetFormats, Seq("epub", "epub.xhtml", "pdf"))
+        .build
+
+    val fontConfigTree: TreeContent = DocumentTree.builder.addConfig(fontConfig).build.content.head
 
     def styles: StyleDeclarationSet = StyleDeclarationSet.empty
 
@@ -344,15 +338,12 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("fail with duplicate paths") {
     val root  = HTMLRenderer.defaultContent
-    val input = new DocumentTree(
-      Root,
-      List(
-        Document(Root / "doc1", root),
-        Document(Root / "doc2", root),
-        Document(Root / "doc2", root),
-        Document(Root / "sub" / "doc", root),
-        Document(Root / "sub" / "doc", root)
-      )
+    val input = DocumentTree.empty.appendContent(
+      Document(Root / "doc1", root),
+      Document(Root / "doc2", root),
+      Document(Root / "doc2", root),
+      Document(Root / "doc3", root),
+      Document(Root / "doc3", root)
     )
     HTMLRenderer.defaultRenderer
       .use(
@@ -364,7 +355,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .attempt
       .assertEquals(
         Left(
-          RendererErrors(Seq(DuplicatePath(Root / "doc2"), DuplicatePath(Root / "sub" / "doc")))
+          RendererErrors(Seq(DuplicatePath(Root / "doc2"), DuplicatePath(Root / "doc3")))
         )
       )
   }
@@ -534,15 +525,13 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a cover and title document to HTML") {
-    val input    = new DocumentTree(
-      Root,
-      List(Document(Root / "doc", HTMLRenderer.defaultContent), HTMLRenderer.fontConfigTree),
-      Some(Document(Root / "README", HTMLRenderer.defaultContent))
-    )
-    val treeRoot = DocumentTreeRoot(
-      input,
-      coverDocument = Some(Document(Root / "cover", HTMLRenderer.defaultContent))
-    )
+    val treeRoot = DocumentTree.builder
+      .addDocument(Document(Root / "doc", HTMLRenderer.defaultContent))
+      .addDocument(Document(Root / "README", HTMLRenderer.defaultContent))
+      .addDocument(Document(Root / "cover", HTMLRenderer.defaultContent))
+      .addConfig(HTMLRenderer.fontConfig)
+      .buildRoot
+
     val expected = RenderResult.html.withDefaultTemplate(
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
@@ -579,22 +568,19 @@ class TreeRendererSpec extends CatsEffectSuite
       Results.titleWithId("Title"),
       p(SpanLink.internal("doc-2.md")("Link Text"))
     )
-    val input                        = new DocumentTree(
-      Root,
-      List(
-        Document(Root / "doc-1.md", contentWithLink),
-        HTMLRenderer.fontConfigTree,
-        Document(Root / "doc-2.md", HTMLRenderer.defaultContent),
-        HTMLRenderer.fontConfigTree
-      ),
-      Some(Document(Root / "README.md", HTMLRenderer.defaultContent))
-    )
-    val treeRoot                     = DocumentTreeRoot(input)
-    val expectedDefault              = RenderResult.html.withDefaultTemplate(
+
+    val treeRoot = DocumentTree.builder
+      .addDocument(Document(Root / "doc-1.md", contentWithLink))
+      .addDocument(Document(Root / "doc-2.md", HTMLRenderer.defaultContent))
+      .addDocument(Document(Root / "README.md", HTMLRenderer.defaultContent))
+      .addConfig(HTMLRenderer.fontConfig)
+      .buildRoot
+
+    val expectedDefault         = RenderResult.html.withDefaultTemplate(
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )
-    val expectedContentWithLink      = RenderResult.html.withDefaultTemplate(
+    val expectedContentWithLink = RenderResult.html.withDefaultTemplate(
       """<h1 id="title" class="title">Title</h1>
         |<p><a href="../doc-2/">Link Text</a></p>""".stripMargin
     )
@@ -827,10 +813,10 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a single static document") {
-    val input = new DocumentTree(Root, Seq(ASTRenderer.fontConfigTree))
-
-    val treeRoot =
-      DocumentTreeRoot(input, staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
+    val treeRoot = DocumentTree.builder
+      .addConfig(ASTRenderer.fontConfig)
+      .buildRoot
+      .copy(staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     ASTRenderer.defaultRenderer
       .use(
@@ -851,11 +837,9 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with a single static document from a theme") {
-    val treeRoot =
-      DocumentTreeRoot(
-        DocumentTree.empty,
-        staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path))
-      )
+    val treeRoot = DocumentTree.builder
+      .buildRoot
+      .copy(staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     val inputs = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F].addString("...", Root / "static1.txt")
@@ -883,7 +867,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with all available file types") {
-    import ASTRenderer._
+    import ASTRenderer.*
 
     val input = addPosition(
       SampleTrees.sixDocuments
