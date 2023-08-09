@@ -17,7 +17,7 @@
 package laika.ast.sample
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors }
 import laika.rewrite.link.LinkValidation
 
@@ -151,14 +151,11 @@ trait SampleRootOps extends SampleOps { self =>
 
     def config(f: ConfigBuilder => ConfigBuilder): RootApi = addDocumentConfig(key, f)
 
-    // TODO - configValue API
-
     def content(f: BuilderKey => Seq[Block]): RootApi  = setDocumentContent(key, f)
     def content(blocks: Seq[Block]): RootApi           = setDocumentContent(key, _ => blocks)
     def content(block: Block, blocks: Block*): RootApi = content(block +: blocks)
     def suffix(value: String): RootApi                 = setDocumentSuffix(key, value)
 
-    def buildCursor: DocumentCursor = ???
   }
 
   abstract class TreeOps(num: Int) extends KeyedSampleOps {
@@ -244,7 +241,7 @@ class SampleTwoDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
 
 class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRootOps { self =>
 
-  import BuilderKey._
+  import BuilderKey.*
 
   type RootApi = SampleSixDocuments
 
@@ -335,13 +332,16 @@ private[sample] case class SampleTree(
   val path = if (key.num == 0) Root else Root / s"${key.prefix}-${key.num}"
 
   def build(content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
-    val conf = config.build(parentConfig, path)
+    val conf    = config.build(parentConfig, path)
+    val context = TreeNodeContext(
+      localPath = Some(path.name),
+      localConfig = conf
+    )
     new DocumentTree(
-      path,
+      context,
       content.map(_.build(path, conf, root)),
       titleDocument = titleDoc.map(_.build(path, conf, root)),
-      templates = templates,
-      config = conf
+      templates = templates
     )
   }
 

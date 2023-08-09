@@ -198,7 +198,7 @@ class TreeRendererSpec extends CatsEffectSuite
         case d: Document     => d.copy(position = TreePosition(pos :+ nextNum.next()))
         case t: DocumentTree =>
           val num = pos :+ nextNum.next()
-          addPosition(t.withPosition(TreePosition(num)), num)
+          addPosition(t.withPosition(num.last), num)
       }
     }
 

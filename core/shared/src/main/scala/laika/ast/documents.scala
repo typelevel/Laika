@@ -281,35 +281,66 @@ case class Document(
 
 }
 
-/** Represents a tree with all its documents, templates, configurations and subtrees.
+private[ast] case class TreeNodeContext(
+    localPath: Option[String] = None,
+    localConfig: Config = Config.empty,
+    index: Option[Int] = None,
+    parent: Option[TreeNodeContext] = None
+) {
+
+  lazy val path: Path = parent.map(_.path) match {
+    case Some(parentPath) => parentPath / localPath.getOrElse("")
+    case None             => localPath.fold[Path](Root)(Root / _)
+  }
+
+  lazy val config: Config = localConfig.withFallback(parent.fold(Config.empty)(_.config))
+
+  lazy val position: TreePosition = index match {
+    case Some(idx) => parent.fold(TreePosition.root)(_.position).forChild(idx)
+    case None      => TreePosition.root
+  }
+
+  def child(localName: String, config: Config = Config.empty): TreeNodeContext =
+    TreeNodeContext(Some(localName), localConfig = config, parent = Some(this))
+
+}
+
+/** Represents a virtual tree with all its documents, templates, configurations and subtrees.
   *
-  *  @param path the full, absolute path of this (virtual) document tree
-  *  @param content the markup documents and subtrees except for the (optional) title document
-  *  @param titleDocument the optional title document of this tree
-  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
-  *  @param config the configuration associated with this tree
-  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
+  * @param content the markup documents and subtrees except for the (optional) title document
+  * @param titleDocument the optional title document of this tree
+  * @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
   */
 class DocumentTree(
-    val path: Path,
+    context: TreeNodeContext,
     val content: Seq[TreeContent],
     val titleDocument: Option[Document] = None,
-    val templates: Seq[TemplateDocument] = Nil,
-    val config: Config = Config.empty,
-    val position: TreePosition = TreePosition.root
+    val templates: Seq[TemplateDocument] = Nil
 ) extends TreeContent {
 
+  /** The full, absolute path of this (virtual) document tree.
+    */
+  def path: Path = context.path
+
+  /** The configuration associated with this tree.
+    */
+  def config: Config = context.config
+
+  /** The position of this tree inside a document ast hierarchy, expressed as a list of Ints.
+    */
+  def position: TreePosition = context.position
+
   private def copy(
-      path: Path = this.path,
+      context: TreeNodeContext = context,
       content: Seq[TreeContent] = this.content,
       titleDocument: Option[Document] = this.titleDocument,
-      templates: Seq[TemplateDocument] = this.templates,
-      config: Config = this.config,
-      position: TreePosition = this.position
-  ): DocumentTree = new DocumentTree(path, content, titleDocument, templates, config, position)
+      templates: Seq[TemplateDocument] = this.templates
+  ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
 
-  private[laika] def withPosition(pos: TreePosition): DocumentTree = copy(position = pos)
-  private[laika] def withoutTemplates: DocumentTree                = copy(templates = Nil)
+  private[laika] def withPosition(index: Int): DocumentTree =
+    copy(context = context.copy(index = Some(index)))
+
+  private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
 
   /** Adds the specified document as the title document for this tree,
     * replacing the existing title document if present.
@@ -317,12 +348,12 @@ class DocumentTree(
   def withTitleDocument(doc: Document): DocumentTree = copy(titleDocument = Some(doc))
 
   /** Adds the specified document as the title document for this tree
-    * replacing the existing title document if present or, if empty,
+    * replacing the existing title document if present or, if the parameter is empty,
     * removes any existing title document.
     */
   def withTitleDocument(doc: Option[Document]): DocumentTree = copy(titleDocument = doc)
 
-  def withConfig(config: Config): DocumentTree = copy(config = config)
+  def withConfig(config: Config): DocumentTree = copy(context = context.copy(localConfig = config))
 
   /** Adds the specified template document to this tree,
     * retaining any previously added templates.
@@ -521,7 +552,7 @@ class DocumentTree(
       case d: Document     => f(d)
       case t: DocumentTree => t.mapDocuments(f)
     }
-    new DocumentTree(path, newContent, newTitle, templates, config, position)
+    new DocumentTree(context, newContent, newTitle, templates)
   }
 
   /** Returns a new tree, with all the document models contained in it
@@ -554,7 +585,7 @@ object DocumentTree {
   val builder = new DocumentTreeBuilder()
 
   /** An empty `DocumentTree` without any documents, templates or configurations. */
-  val empty: DocumentTree = new DocumentTree(Root, Nil)
+  val empty: DocumentTree = new DocumentTree(TreeNodeContext(), Nil)
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,

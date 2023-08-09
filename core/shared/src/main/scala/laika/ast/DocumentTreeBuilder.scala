@@ -88,46 +88,79 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   private def resolveAndBuildTree(
       result: TreePart,
       baseConfig: Config,
-      includes: IncludeMap
+      includes: IncludeMap,
+      parentContext: Option[TreeNodeContext]
   ): Either[ConfigError, DocumentTree] = {
 
     val resolvedConfig =
-      result.hocon.foldLeft[Either[ConfigError, Config]](Right(result.mergeConfigs(baseConfig))) {
+      result.hocon.foldLeft[Either[ConfigError, Config]](Right(result.mergeConfigs(Config.empty))) {
         case (acc, unresolved) =>
-          acc.flatMap(base =>
-            unresolved.config.resolve(Origin(TreeScope, unresolved.path), base, includes)
+          acc.flatMap(accConfig =>
+            unresolved.config
+              .resolve(
+                Origin(TreeScope, unresolved.path),
+                accConfig.withFallback(baseConfig),
+                includes
+              )
+              .map(_.withoutFallback.withFallback(accConfig))
           )
       }
 
+    def createContext(config: Config): TreeNodeContext = TreeNodeContext(
+      localPath = Some(result.path.name),
+      localConfig = if (parentContext.isEmpty) config.withFallback(baseConfig) else config,
+      parent = parentContext
+    )
+
     for {
-      treeConfig      <- resolvedConfig
+      treeConfig <- resolvedConfig
+      context = createContext(treeConfig)
       titleName       <- TitleDocumentConfig.inputName(treeConfig)
       resolvedContent <- result.content.toVector.traverse {
-        case tree: TreePart     => resolveAndBuildTree(tree, treeConfig, includes)
-        case markup: MarkupPart => resolveAndBuildDocument(markup.doc, treeConfig, includes)
-        case doc: DocumentPart  => Right(applyBaseConfig(doc.doc, treeConfig))
+        case tree: TreePart     =>
+          resolveAndBuildTree(tree, treeConfig.withFallback(baseConfig), includes, Some(context))
+        case markup: MarkupPart =>
+          resolveAndBuildDocument(
+            markup.doc,
+            treeConfig.withFallback(baseConfig),
+            includes
+          ) // TODO - M3 - keep base config separate
+        case doc: DocumentPart  =>
+          Right(
+            applyBaseConfig(doc.doc, treeConfig.withFallback(baseConfig))
+          ) // TODO - M3 - keep base config separate
       }
     } yield {
       val (title, content) = extract(resolvedContent, titleName)
-      new DocumentTree(result.path, content, title, result.templates, treeConfig)
+      new DocumentTree(context, content, title, result.templates)
     }
   }
 
   private def buildTree(
       result: TreePart,
       baseConfig: Config,
-      defaultTitleName: String
+      defaultTitleName: String,
+      parentContext: Option[TreeNodeContext]
   ): DocumentTree = {
 
-    val treeConfig       = result.mergeConfigs(baseConfig)
+    val treeConfig       = result.mergeConfigs(Config.empty)
+    val context          = TreeNodeContext(
+      localPath = Some(result.path.name),
+      localConfig = if (parentContext.isEmpty) treeConfig.withFallback(baseConfig) else treeConfig,
+      parent = parentContext
+    )
     val titleName        = TitleDocumentConfig.inputName(treeConfig).getOrElse(defaultTitleName)
     val allContent       = result.content.flatMap {
-      case tree: TreePart    => Some(buildTree(tree, treeConfig, titleName))
-      case doc: DocumentPart => Some(applyBaseConfig(doc.doc, treeConfig))
+      case tree: TreePart    =>
+        Some(buildTree(tree, treeConfig.withFallback(baseConfig), titleName, Some(context)))
+      case doc: DocumentPart =>
+        Some(
+          applyBaseConfig(doc.doc, treeConfig.withFallback(baseConfig))
+        ) // TODO - M3 - keep base config separate
       case _: MarkupPart     => None
     }
     val (title, content) = extract(allContent, titleName)
-    new DocumentTree(result.path, content, title, result.templates, treeConfig)
+    new DocumentTree(context, content, title, result.templates)
   }
 
   private def collectStyles(parts: Seq[BuilderPart]): Map[String, StyleDeclarationSet] = parts
@@ -153,7 +186,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
     val tree   = TreeBuilder.build(distinctParts, buildNode)
     val styles = collectStyles(distinctParts)
     for {
-      resolvedTree <- resolveAndBuildTree(tree, baseConfig, includes)
+      resolvedTree <- resolveAndBuildTree(tree, baseConfig, includes, None)
     } yield {
       val (cover, content) = extract(resolvedTree.content, "cover")
       val rootTree         = resolvedTree.replaceContent(content)
@@ -229,7 +262,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
     */
   def build(baseConfig: Config): DocumentTree = {
     val tree = TreeBuilder.build(distinctParts, buildNode)
-    buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName)
+    buildTree(tree, baseConfig, TitleDocumentConfig.defaultInputName, None)
   }
 
 }

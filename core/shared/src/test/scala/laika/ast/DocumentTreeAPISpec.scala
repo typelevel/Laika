@@ -64,16 +64,14 @@ class DocumentTreeAPISpec extends FunSuite
       config: Option[String] = None
   ): DocumentTree = {
     val doc = Document(path / name, root, config = createConfig(path / name, config))
-    if (name == "README") new DocumentTree(path, Nil, titleDocument = Some(doc))
-    else new DocumentTree(path, List(doc))
+    DocumentTree.builder
+      .addDocument(doc)
+      .build
   }
 
-  def treeWithTitleDoc(path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
-    new DocumentTree(
-      path,
-      Nil,
-      Some(Document(path / "title", root, config = createConfig(path / "title", config)))
-    )
+  def treeWithTitleDoc(root: RootElement): DocumentTree =
+    DocumentTree.empty
+      .withTitleDocument(Document(Root / "title", root))
 
   def treeWithSubtree(
       path: Path,
@@ -82,7 +80,7 @@ class DocumentTreeAPISpec extends FunSuite
       root: RootElement,
       config: Option[String] = None
   ): DocumentTree =
-    new DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
+    treeWithDoc(path / treeName, docName, root, config)
 
   def treeWithTwoSubtrees(
       contextRef: Option[String] = None,
@@ -176,7 +174,7 @@ class DocumentTreeAPISpec extends FunSuite
 
   test("obtain the tree title from the title document if present") {
     val title = Seq(Text("Title"))
-    val tree  = treeWithTitleDoc(Root, RootElement(laika.ast.Title(title)))
+    val tree  = treeWithTitleDoc(RootElement(laika.ast.Title(title)))
     assertEquals(tree.title, Some(SpanSequence(title)))
   }
 
@@ -227,10 +225,9 @@ class DocumentTreeAPISpec extends FunSuite
   }
 
   test("allow to select a subtree in a child directory using a relative path") {
-    val tree     = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
-    val treeRoot = new DocumentTree(Root, List(tree))
+    val tree = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
     assertEquals(
-      treeRoot.selectSubtree(CurrentTree / "top" / "sub").map(_.path),
+      tree.selectSubtree(CurrentTree / "top" / "sub").map(_.path),
       Some(Root / "top" / "sub")
     )
   }
@@ -407,8 +404,8 @@ class DocumentTreeAPISpec extends FunSuite
     )
   }
 
-  import BuilderKey._
-  val keys = Seq(Doc(1), Doc(2), Tree(1), Doc(3), Doc(4), Tree(2), Doc(5), Doc(6))
+  import BuilderKey.*
+  private val keys = Seq(Doc(1), Doc(2), Tree(1), Doc(3), Doc(4), Tree(2), Doc(5), Doc(6))
 
   test("provide all runtime messages in the tree") {
     val root     = leafDocCursor(includeRuntimeMessage = true).map(_.root.target)

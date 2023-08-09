@@ -36,15 +36,15 @@ private[laika] object NavigationOrder {
 
     def reAssignPosition(
         cursor: Cursor,
-        position: TreePosition
+        index: Int
     ): Cursor = cursor match {
-      case doc: DocumentCursor => doc.applyPosition(position)
-      case tree: TreeCursor    => tree.applyPosition(position)
+      case doc: DocumentCursor => doc.applyPosition(parentPosition.forChild(index))
+      case tree: TreeCursor    => tree.applyPosition(index)
     }
 
     def reAssignPositions(content: Seq[Cursor]): Seq[Cursor] =
       content.zipWithIndex.map { case (cursor, index) =>
-        reAssignPosition(cursor, parentPosition.forChild(index + 1))
+        reAssignPosition(cursor, index + 1)
       }
 
     config

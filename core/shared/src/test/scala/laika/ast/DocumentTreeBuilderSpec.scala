@@ -13,40 +13,42 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
   }
 
   test("tree with documents in root and sub-trees") {
-    val doc1     = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2     = Document(Root / "doc-2.md", RootElement.empty)
-    val doc3     = Document(Root / "tree" / "doc-3.md", RootElement.empty)
-    val doc4     = Document(Root / "tree" / "doc-4.md", RootElement.empty)
-    val tree     = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "doc-2.md", RootElement.empty)
+    val doc3          = Document(Root / "tree" / "doc-3.md", RootElement.empty)
+    val doc4          = Document(Root / "tree" / "doc-4.md", RootElement.empty)
+    val tree          = DocumentTree.builder
       .addDocuments(List(doc1, doc2, doc3, doc4))
       .build
-    val expected = new DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
         doc2,
-        new DocumentTree(Root / "tree", Seq(doc3, doc4))
+        new DocumentTree(parentContext.child("tree"), Seq(doc3, doc4))
       )
     )
     tree.assertEquals(expected)
   }
 
   test("tree with documents and templates") {
-    val doc1      = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2      = Document(Root / "tree" / "doc-2.md", RootElement.empty)
-    val template1 = TemplateDocument(Root / "tpl-1.template.html", TemplateRoot.empty)
-    val template2 = TemplateDocument(Root / "tree" / "tpl-2.template.html", TemplateRoot.empty)
-    val tree      = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "tree" / "doc-2.md", RootElement.empty)
+    val template1     = TemplateDocument(Root / "tpl-1.template.html", TemplateRoot.empty)
+    val template2     = TemplateDocument(Root / "tree" / "tpl-2.template.html", TemplateRoot.empty)
+    val tree          = DocumentTree.builder
       .addDocument(doc1)
       .addDocument(doc2)
       .addTemplate(template1)
       .addTemplate(template2)
       .build
-    val expected  = new DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
-        new DocumentTree(Root / "tree", Seq(doc2), templates = Seq(template2))
+        new DocumentTree(parentContext.child("tree"), Seq(doc2), templates = Seq(template2))
       ),
       templates = Seq(template1)
     )
@@ -54,21 +56,22 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
   }
 
   test("tree with title documents") {
-    val doc1     = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2     = Document(Root / "tree" / "doc-2.md", RootElement.empty)
-    val title1   = Document(Root / "README.md", RootElement.empty)
-    val title2   = Document(Root / "tree" / "README.md", RootElement.empty)
-    val tree     = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "tree" / "doc-2.md", RootElement.empty)
+    val title1        = Document(Root / "README.md", RootElement.empty)
+    val title2        = Document(Root / "tree" / "README.md", RootElement.empty)
+    val tree          = DocumentTree.builder
       .addDocument(doc1)
       .addDocument(doc2)
       .addDocument(title1)
       .addDocument(title2)
       .build
-    val expected = new DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
-        new DocumentTree(Root / "tree", Seq(doc2), titleDocument = Some(title2))
+        new DocumentTree(parentContext.child("tree"), Seq(doc2), titleDocument = Some(title2))
       ),
       titleDocument = Some(title1)
     )
@@ -83,7 +86,7 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
       .addDocument(cover)
       .buildRoot
     val expected = DocumentTreeRoot(
-      tree = new DocumentTree(Root, Seq(doc)),
+      tree = new DocumentTree(TreeNodeContext(), Seq(doc)),
       coverDocument = Some(cover)
     )
     tree.assertEquals(expected)

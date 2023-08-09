@@ -241,7 +241,7 @@ class TreeCursor private (
       case (doc: Document, index)      =>
         DocumentCursor(doc.copy(position = position.forChild(index + 1)), this)
       case (tree: DocumentTree, index) =>
-        new TreeCursor(tree.withPosition(position.forChild(index + 1)), Some(this), root)
+        new TreeCursor(tree.withPosition(index + 1), Some(this), root)
     }
   }
 
@@ -259,8 +259,8 @@ class TreeCursor private (
     collect(this)
   }
 
-  private[laika] def applyPosition(position: TreePosition): TreeCursor =
-    new TreeCursor(target.withPosition(position), parent, root)
+  private[laika] def applyPosition(index: Int): TreeCursor =
+    new TreeCursor(target.withPosition(index), parent, root)
 
   /** Returns a new tree, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
@@ -289,7 +289,7 @@ class TreeCursor private (
       )
 
     (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
-      target.replaceContent(content).withTitleDocument(title).withPosition(position)
+      target.replaceContent(content).withTitleDocument(title)
     }
       .leftMap(TreeConfigErrors.apply)
   }
