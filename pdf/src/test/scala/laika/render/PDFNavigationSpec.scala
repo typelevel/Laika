@@ -51,7 +51,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
         .modifyTree(_.withDefaultTemplate(TemplateRoot.fallback, "fo"))
         .mapDocuments { doc =>
           val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
-          doc.withContent(doc.content.withContent(preamble +: doc.content.content))
+          doc.prependContent(preamble)
         }
     )
 

@@ -271,8 +271,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     val mapperFunction: Document => Document = doc =>
       doc.withContent(doc.content.withContent(Seq(Paragraph("foo-bar"))))
 
-    val mapperFunctionExt: Document => Document = doc =>
-      doc.withContent(doc.content.withContent(doc.content.content :+ Paragraph("baz")))
+    val mapperFunctionExt: Document => Document = doc => doc.appendContent(Paragraph("baz"))
 
     def transformWithProcessor(theme: ThemeProvider): IO[RenderedTreeRoot[IO]] =
       transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].withTheme(theme).build)
