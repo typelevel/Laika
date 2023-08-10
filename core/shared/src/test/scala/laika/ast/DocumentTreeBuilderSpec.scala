@@ -109,6 +109,28 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
     assertEquals(configs, Some((7, 9)))
   }
 
+  test(
+    "document config inherits from tree config when appended to the tree after its construction"
+  ) {
+    val docConfig  = ConfigBuilder.empty.withValue("foo.bar", 7).build
+    val treeOrigin = Origin(TreeScope, Root / "tree" / "directory.conf")
+    val treeConfig =
+      ConfigBuilder.withOrigin(treeOrigin).withValue("foo.baz", 9).build
+    val doc1       = Document(Root / "tree" / "doc-1", RootElement.empty).withConfig(docConfig)
+    val doc2       = Document(Root / "tree" / "doc-2", RootElement.empty).withConfig(docConfig)
+    val configs    = DocumentTree.builder
+      .addDocument(doc1)
+      .addConfig(treeConfig)
+      .build
+      .selectSubtree("tree")
+      .map(_.appendContent(doc2))
+      .flatMap(_.selectDocument("doc-2"))
+      .map { doc =>
+        (doc.config.get[Int]("foo.bar").getOrElse(0), doc.config.get[Int]("foo.baz").getOrElse(0))
+      }
+    assertEquals(configs, Some((7, 9)))
+  }
+
   test("document config inherits from base config") {
     val docPath    = Root / "tree" / "doc"
     val docConfig  = ConfigBuilder.empty.withValue("foo.bar", 7).build

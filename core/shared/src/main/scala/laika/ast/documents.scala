@@ -442,10 +442,16 @@ class DocumentTree private[ast] (
     )
   }
 
-  private def copy(
+  private def setParent(doc: Document): Document = doc.withParent(context)
+
+  private def setParent(content: TreeContent): TreeContent = content match {
+    case d: Document     => d.withParent(context)
+    case t: DocumentTree => t.withParent(context)
+  }
+
+  private def withContent(
       content: Seq[TreeContent] = this.content,
-      titleDocument: Option[Document] = this.titleDocument,
-      templates: Seq[TemplateDocument] = this.templates
+      titleDocument: Option[Document] = this.titleDocument
   ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
 
   private[laika] def withPosition(index: Int): DocumentTree =
@@ -454,18 +460,21 @@ class DocumentTree private[ast] (
   private[ast] def withParent(parent: TreeNodeContext): DocumentTree =
     withContext(context.copy(parent = Some(parent)))
 
-  private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
+  private[laika] def withoutTemplates: DocumentTree =
+    new DocumentTree(context, content, titleDocument, Nil)
 
   /** Adds the specified document as the title document for this tree,
     * replacing the existing title document if present.
     */
-  def withTitleDocument(doc: Document): DocumentTree = copy(titleDocument = Some(doc))
+  def withTitleDocument(doc: Document): DocumentTree =
+    withContent(titleDocument = Some(setParent(doc)))
 
   /** Adds the specified document as the title document for this tree
     * replacing the existing title document if present or, if the parameter is empty,
     * removes any existing title document.
     */
-  def withTitleDocument(doc: Option[Document]): DocumentTree = copy(titleDocument = doc)
+  def withTitleDocument(doc: Option[Document]): DocumentTree =
+    withContent(titleDocument = doc.map(setParent))
 
   /** Associates the specified config instance with this document tree.
     *
@@ -489,7 +498,7 @@ class DocumentTree private[ast] (
     * retaining any previously added templates.
     */
   def addTemplate(template: TemplateDocument): DocumentTree =
-    copy(templates = templates :+ template)
+    new DocumentTree(context, content, titleDocument, templates :+ template)
 
   /** The title of this tree, obtained from configuration.
     */
@@ -547,7 +556,7 @@ class DocumentTree private[ast] (
     * Does not recurse into nested sub-trees and does not apply to templates or title documents.
     */
   def removeContent(filter: Path => Boolean): DocumentTree =
-    copy(content = content.filterNot(c => filter(c.path)))
+    withContent(content = content.filterNot(c => filter(c.path)))
 
   /** Appends the specified content to this tree and return a new instance.
     */
@@ -558,7 +567,7 @@ class DocumentTree private[ast] (
   /** Appends the specified content to this tree and return a new instance.
     */
   def appendContent(newContent: Seq[TreeContent]): DocumentTree =
-    copy(content = content ++ newContent)
+    withContent(content = content ++ newContent.map(setParent))
 
   /** Prepends the specified content to this tree and return a new instance.
     */
@@ -569,7 +578,7 @@ class DocumentTree private[ast] (
   /** Prepends the specified content to this tree and return a new instance.
     */
   def prependContent(newContent: Seq[TreeContent]): DocumentTree =
-    copy(content = newContent ++ content)
+    withContent(content = newContent.map(setParent) ++ content)
 
   /** Applies the specified function to all elements of the `content` property
     * and returns a new document tree.
@@ -578,7 +587,7 @@ class DocumentTree private[ast] (
     * IF you want to modify documents recursively, use `modifyDocumentsRecursively` instead.
     */
   def modifyContent(f: TreeContent => TreeContent): DocumentTree =
-    copy(content = content.map(f))
+    withContent(content = content.map(f).map(setParent))
 
   /** Creates a new tree by applying the specified function to all documents in this tree recursively.
     */
@@ -594,7 +603,8 @@ class DocumentTree private[ast] (
   /** Replaces the contents of this document tree.
     * Consider using `modifyContent` instead when only intending to adjust existing content.
     */
-  def replaceContent(newContent: Seq[TreeContent]): DocumentTree = copy(content = newContent)
+  def replaceContent(newContent: Seq[TreeContent]): DocumentTree =
+    withContent(content = newContent.map(setParent))
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
@@ -624,11 +634,9 @@ class DocumentTree private[ast] (
   /** Create a new document tree that contains the specified template as the default.
     */
   def withDefaultTemplate(template: TemplateRoot, formatSuffix: String): DocumentTree = {
-    val defPath = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
-    copy(templates =
-      templates.filterNot(_.path == defPath) :+
-        TemplateDocument(defPath, template)
-    )
+    val defPath      = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
+    val newTemplates = templates.filterNot(_.path == defPath) :+ TemplateDocument(defPath, template)
+    new DocumentTree(context, content, titleDocument, newTemplates)
   }
 
   /** Selects a subtree of this tree by the specified path.

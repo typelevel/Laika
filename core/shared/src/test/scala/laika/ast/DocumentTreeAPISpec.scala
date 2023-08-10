@@ -452,4 +452,20 @@ class DocumentTreeAPISpec extends FunSuite
     assertEquals(res, Left(expectedError))
   }
 
+  test("adjust the path property of documents when appending to a DocumentTree") {
+    val treePath = Root / "tree-1"
+    val tree     = DocumentTree.builder
+      .addDocument(Document(treePath / "doc-1.md", RootElement.empty))
+      .addDocument(Document(treePath / "doc-2.md", RootElement.empty))
+      .build
+    val subTree  = tree.content.head.asInstanceOf[DocumentTree].appendContent(
+      Document(Root / "doc-3.md", RootElement.empty),
+      Document(Root / "doc-4.md", RootElement.empty)
+    )
+    val paths    = subTree.allDocuments.map(_.path)
+    val expected = (1 to 4).map(num => treePath / s"doc-$num.md")
+
+    assertEquals(paths, expected)
+  }
+
 }
