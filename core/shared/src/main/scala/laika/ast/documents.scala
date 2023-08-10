@@ -573,9 +573,23 @@ class DocumentTree private[ast] (
 
   /** Applies the specified function to all elements of the `content` property
     * and returns a new document tree.
+    *
+    * Applies the function to documents and document trees on this level of the hierarchy.
+    * IF you want to modify documents recursively, use `modifyDocumentsRecursively` instead.
     */
   def modifyContent(f: TreeContent => TreeContent): DocumentTree =
     copy(content = content.map(f))
+
+  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
+    */
+  def modifyDocumentsRecursively(f: Document => Document): DocumentTree = {
+    val newTitle   = titleDocument.map(f)
+    val newContent = content.map {
+      case d: Document     => f(d)
+      case t: DocumentTree => t.modifyDocumentsRecursively(f)
+    }
+    new DocumentTree(context, newContent, newTitle, templates)
+  }
 
   /** Replaces the contents of this document tree.
     * Consider using `modifyContent` instead when only intending to adjust existing content.
@@ -674,17 +688,6 @@ class DocumentTree private[ast] (
       )
   }
 
-  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
-    */
-  def mapDocuments(f: Document => Document): DocumentTree = {
-    val newTitle   = titleDocument.map(f)
-    val newContent = content.map {
-      case d: Document     => f(d)
-      case t: DocumentTree => t.mapDocuments(f)
-    }
-    new DocumentTree(context, newContent, newTitle, templates)
-  }
-
   /** Returns a new tree, with all the document models contained in it
     *  rewritten based on the specified rewrite rules.
     *
@@ -772,9 +775,9 @@ case class DocumentTreeRoot(
 
   /** Creates a new tree by applying the specified function to all documents in this tree recursively.
     */
-  def mapDocuments(f: Document => Document): DocumentTreeRoot = {
+  def modifyDocumentsRecursively(f: Document => Document): DocumentTreeRoot = {
     val newCover = coverDocument.map(f)
-    val newTree  = tree.mapDocuments(f)
+    val newTree  = tree.modifyDocumentsRecursively(f)
     copy(coverDocument = newCover, tree = newTree)
   }
 

@@ -78,7 +78,7 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
     Right(
       root
         .modifyTree(_.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-        .mapDocuments { doc =>
+        .modifyDocumentsRecursively { doc =>
           val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
           doc.prependContent(preamble)
         }
