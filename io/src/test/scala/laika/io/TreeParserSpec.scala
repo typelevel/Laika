@@ -339,7 +339,7 @@ class TreeParserSpec
       Root / "omg.js" -> Contents.name
     )
     val staticDoc  = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
-    val treeResult = DocumentTreeRoot(DocumentTree.empty, staticDocuments = List(staticDoc))
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStaticDocuments(List(staticDoc))
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -356,7 +356,7 @@ class TreeParserSpec
     val expectedResult = DocumentTree.builder
       .addDocument(expectedDoc)
       .buildRoot
-      .copy(staticDocuments = List(StaticDocument(providedPath)))
+      .addStaticDocuments(List(StaticDocument(providedPath)))
     parsedTree(inputs, _.addProvidedPath(providedPath)).assertEquals(expectedResult)
   }
 
@@ -427,9 +427,9 @@ class TreeParserSpec
       Root / "main2.bbb.css" -> Contents.name2,
       Root / "main3.aaa.css" -> Contents.name
     )
-    val treeResult                            = DocumentTreeRoot(
-      DocumentTree.empty,
-      styles = Map(
+
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStyles(
+      Map(
         "aaa" -> StyleDeclarationSet(
           Set(Root / "main1.aaa.css", Root / "main3.aaa.css"),
           Set(styleDecl("foo"), styleDecl("foo", 1))

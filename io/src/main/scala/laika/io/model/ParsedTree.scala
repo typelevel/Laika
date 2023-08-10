@@ -44,7 +44,7 @@ class ParsedTree[F[_]](val root: DocumentTreeRoot, val staticDocuments: Seq[Bina
   /** Removes all static documents of this instance that match the specified filter.
     */
   def removeStaticDocuments(filter: Path => Boolean): ParsedTree[F] = new ParsedTree(
-    root = root.copy(staticDocuments = root.staticDocuments.filterNot(doc => filter(doc.path))),
+    root = root.replaceStaticDocuments(root.staticDocuments.filterNot(doc => filter(doc.path))),
     staticDocuments = staticDocuments.filterNot(doc => filter(doc.path))
   )
 
@@ -52,15 +52,15 @@ class ParsedTree[F[_]](val root: DocumentTreeRoot, val staticDocuments: Seq[Bina
     */
   def replaceStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = new ParsedTree(
     root =
-      root.copy(staticDocuments = newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
+      root.replaceStaticDocuments(newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
     staticDocuments = newStaticDocs
   )
 
   /** Adds the specified static documents to this instance.
     */
   def addStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = new ParsedTree(
-    root = root.copy(staticDocuments =
-      root.staticDocuments ++ newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))
+    root = root.addStaticDocuments(
+      newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))
     ),
     staticDocuments = staticDocuments ++ newStaticDocs
   )

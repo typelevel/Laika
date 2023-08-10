@@ -163,9 +163,8 @@ class TreeRendererSpec extends CatsEffectSuite
       DocumentTree.builder.addDocument(Document(Root / "doc", content)).build
 
     def defaultRoot(input: DocumentTree): DocumentTreeRoot =
-      DocumentTreeRoot(
-        input,
-        styles = Map("fo" -> styles).withDefaultValue(StyleDeclarationSet.empty)
+      DocumentTreeRoot(input).addStyles(
+        Map("fo" -> styles).withDefaultValue(StyleDeclarationSet.empty)
       )
 
     def defaultRenderer: Resource[IO, TreeRenderer[IO]]
@@ -791,7 +790,7 @@ class TreeRendererSpec extends CatsEffectSuite
       s"""${title("_tree_subdoc_sub-title", "Sub Title")}
          |<fo:block $overriddenParagraphStyles>ccc</fo:block>""".stripMargin
     )
-    render(DocumentTreeRoot(input, styles = foStyles))
+    render(DocumentTreeRoot(input).addStyles(foStyles))
       .assertEquals(
         Results.root(
           List(
@@ -814,7 +813,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val treeRoot = DocumentTree.builder
       .addConfig(ASTRenderer.fontConfig)
       .buildRoot
-      .copy(staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
+      .addStaticDocuments(Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     ASTRenderer.defaultRenderer
       .use(
@@ -837,7 +836,7 @@ class TreeRendererSpec extends CatsEffectSuite
   test("tree with a single static document from a theme") {
     val treeRoot = DocumentTree.builder
       .buildRoot
-      .copy(staticDocuments = Seq(StaticDocument(Inputs.staticDoc(1).path)))
+      .addStaticDocuments(Seq(StaticDocument(Inputs.staticDoc(1).path)))
 
     val inputs = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F].addString("...", Root / "static1.txt")
@@ -886,9 +885,8 @@ class TreeRendererSpec extends CatsEffectSuite
       Inputs.staticDoc(7, Root / "dir2", Some("zzz"))
     )
 
-    val treeRoot = DocumentTreeRoot(
-      finalInput,
-      staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats))
+    val treeRoot = DocumentTreeRoot(finalInput).addStaticDocuments(
+      staticDocs.map(doc => StaticDocument(doc.path, doc.formats))
     )
 
     val expectedStatic   = staticDocs.dropRight(1).map(_.path)
@@ -945,9 +943,8 @@ class TreeRendererSpec extends CatsEffectSuite
       Inputs.staticDoc(6, Root / "tree-2")
     )
 
-    val treeRoot = DocumentTreeRoot(
-      finalInput,
-      staticDocuments = staticDocs.map(doc => StaticDocument(doc.path, doc.formats))
+    val treeRoot = DocumentTreeRoot(finalInput).addStaticDocuments(
+      staticDocs.map(doc => StaticDocument(doc.path, doc.formats))
     )
 
     def docHTML(num: Int): String = s"<p>Text $num</p>"

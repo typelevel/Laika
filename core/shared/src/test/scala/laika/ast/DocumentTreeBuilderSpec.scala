@@ -86,9 +86,9 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
       .addDocument(cover)
       .buildRoot
     val expected = DocumentTreeRoot(
-      tree = new DocumentTree(TreeNodeContext(), Seq(doc)),
-      coverDocument = Some(cover)
+      new DocumentTree(TreeNodeContext(), Seq(doc))
     )
+      .withCoverDocument(cover)
     tree.assertEquals(expected)
   }
 

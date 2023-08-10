@@ -60,10 +60,7 @@ private[laika] trait TemplateRewriter {
         .traverse(applyTemplate(_, rules, context))
       newTree  <- applyTemplates(cursor.tree, rules, context)
     } yield {
-      cursor.target.copy(
-        coverDocument = newCover,
-        tree = newTree
-      )
+      cursor.target.withCoverDocument(newCover).modifyTree(_ => newTree)
     }
   }
 

@@ -190,8 +190,8 @@ class TreeParserFileIOSpec
     val path: Path         = Root / "tree-2" / "doc-7.md"
     val extraDoc: Document = Document(path, RootElement(p("Doc7")))
 
-    def customizeTree(sample: DocumentTreeRoot): DocumentTreeRoot = sample.copy(
-      tree = sample.tree.modifyContent {
+    def customizeTree(sample: DocumentTreeRoot): DocumentTreeRoot = sample.modifyTree(
+      _.modifyContent {
         case tree: DocumentTree if tree.path.name == "tree-2" => tree.appendContent(extraDoc)
         case other                                            => other
       }

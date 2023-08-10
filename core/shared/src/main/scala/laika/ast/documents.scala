@@ -169,7 +169,7 @@ case class SectionInfo(
   * @param content the tree model obtained from parsing the markup document
   * @param fragments separate named fragments that had been extracted from the content
   */
-class Document(
+class Document private (
     context: TreeNodeContext,
     val content: RootElement,
     val fragments: Map[String, Element] = Map.empty
@@ -439,14 +439,14 @@ class DocumentTree private[ast] (
     )
   }
 
-  private def setParent(doc: Document): Document = doc.withParent(context)
+  private[ast] def setParent(doc: Document): Document = doc.withParent(context)
 
   private def setParent(content: TreeContent): TreeContent = content match {
     case d: Document     => d.withParent(context)
     case t: DocumentTree => t.withParent(context)
   }
 
-  private def withContent(
+  private[ast] def withContent(
       content: Seq[TreeContent] = this.content,
       titleDocument: Option[Document] = this.titleDocument
   ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
@@ -738,16 +738,24 @@ object DocumentTree {
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
   * @param staticDocuments the descriptors for documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
-  * @param includes the map of configuration includes that may be needed when resolving template configuration
   */
-case class DocumentTreeRoot(
-    tree: DocumentTree,
-    coverDocument: Option[Document] = None,
-    styles: Map[String, StyleDeclarationSet] =
-      Map.empty.withDefaultValue(StyleDeclarationSet.empty),
-    staticDocuments: Seq[StaticDocument] = Nil,
-    includes: IncludeMap = Map.empty
+class DocumentTreeRoot private (
+    val tree: DocumentTree,
+    val coverDocument: Option[Document],
+    val styles: Map[String, StyleDeclarationSet],
+    val staticDocuments: Seq[StaticDocument],
+    private[laika] val includes: IncludeMap
 ) {
+
+  private def copy(
+      tree: DocumentTree = this.tree,
+      coverDocument: Option[Document] = this.coverDocument,
+      styles: Map[String, StyleDeclarationSet] = this.styles,
+      staticDocuments: Seq[StaticDocument] = this.staticDocuments,
+      includes: IncludeMap = includes
+  ): DocumentTreeRoot = {
+    new DocumentTreeRoot(tree, coverDocument, styles, staticDocuments, includes)
+  }
 
   /** The configuration associated with the root of the tree.
     *
@@ -777,6 +785,35 @@ case class DocumentTreeRoot(
     * when there is no markup document.
     */
   lazy val isEmpty: Boolean = coverDocument.isEmpty && tree.isEmpty
+
+  /** Adds the specified document as the cover for this tree,
+    * replacing the existing cover document if present.
+    */
+  def withCoverDocument(doc: Document): DocumentTreeRoot =
+    copy(coverDocument = Some(tree.setParent(doc)))
+
+  /** Adds the specified document as the cover document for this tree
+    * replacing the existing cover document if present or, if the parameter is empty,
+    * removes any existing cover document.
+    */
+  def withCoverDocument(doc: Option[Document]): DocumentTreeRoot =
+    copy(coverDocument = doc.map(tree.setParent))
+
+  /** Adds the specified styles (CSS for PDF) to this document tree.
+    */
+  def addStyles(newStyles: Map[String, StyleDeclarationSet]): DocumentTreeRoot =
+    copy(styles = styles ++ newStyles)
+
+  private[laika] def replaceStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
+    copy(staticDocuments = newDocs)
+
+  /** Adds the specified static document references to this document tree.
+    */
+  def addStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
+    copy(staticDocuments = staticDocuments ++ newDocs)
+
+  private[laika] def addIncludes(newIncludes: IncludeMap): DocumentTreeRoot =
+    copy(includes = includes ++ newIncludes)
 
   /** Creates a new tree by applying the specified function to all documents in this tree recursively.
     */
@@ -831,5 +868,18 @@ case class DocumentTreeRoot(
       context: OutputContext
   ): Either[ConfigError, DocumentTreeRoot] =
     TemplateRewriter.applyTemplates(this, rules, context)
+
+}
+
+object DocumentTreeRoot {
+
+  def apply(tree: DocumentTree): DocumentTreeRoot =
+    new DocumentTreeRoot(
+      tree,
+      None,
+      Map.empty.withDefaultValue(StyleDeclarationSet.empty),
+      Nil,
+      Map.empty
+    )
 
 }

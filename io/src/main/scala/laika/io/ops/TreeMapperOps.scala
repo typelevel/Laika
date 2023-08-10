@@ -57,7 +57,7 @@ private[laika] abstract class TreeMapperOps[F[_]: Monad] {
     for {
       mappedTree  <- mapTree(parsed.root.tree)
       mappedCover <- parsed.root.coverDocument.traverse(f)
-    } yield parsed.modifyRoot(_.copy(tree = mappedTree, coverDocument = mappedCover))
+    } yield parsed.modifyRoot(_.modifyTree(_ => mappedTree).withCoverDocument(mappedCover))
 
   }
 

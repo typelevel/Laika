@@ -139,7 +139,7 @@ class RootCursor private (
     val result = for {
       rewrittenCover <- coverDocument.traverse(_.rewriteTarget(rules).toEitherNec)
       rewrittenTree  <- tree.rewriteTarget(rules).leftMap(_.failures)
-    } yield target.copy(coverDocument = rewrittenCover, tree = rewrittenTree)
+    } yield target.withCoverDocument(rewrittenCover).modifyTree(_ => rewrittenTree)
     result.leftMap(TreeConfigErrors.apply)
   }
 

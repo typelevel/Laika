@@ -232,9 +232,8 @@ class SampleTwoDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
   private[sample] def copyWith(root: SampleRoot): RootApi         = new SampleTwoDocuments(root)
 
   def build: DocumentTreeRoot = DocumentTreeRoot(
-    tree = buildTree(0, 0, Config.empty),
-    staticDocuments = sampleRoot.staticDocuments
-  )
+    buildTree(0, 0, Config.empty)
+  ).addStaticDocuments(sampleRoot.staticDocuments)
 
   def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)
 }
@@ -273,16 +272,16 @@ class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
   def build: DocumentTreeRoot = {
     val tree = buildTree(0, 0, Config.empty)
     DocumentTreeRoot(
-      tree = tree.appendContent(
+      tree.appendContent(
         Seq(
           buildTree(1, 2, tree.config),
           buildTree(2, 4, tree.config),
           buildStaticTree(1, tree.config),
           buildStaticTree(2, tree.config)
         )
-      ),
-      staticDocuments = sampleRoot.staticDocuments
+      )
     )
+      .addStaticDocuments(sampleRoot.staticDocuments)
   }
 
   def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)

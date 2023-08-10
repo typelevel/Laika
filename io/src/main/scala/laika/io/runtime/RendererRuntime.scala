@@ -218,17 +218,16 @@ private[io] object RendererRuntime {
       }
 
     def applyTemplate(root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-
-      val treeWithTpl: DocumentTree =
-        if (root.tree.getDefaultTemplate(context.fileSuffix).isEmpty)
-          root.tree.withDefaultTemplate(
+      val rootWithTpl = root.modifyTree { tree =>
+        if (tree.getDefaultTemplate(context.fileSuffix).isEmpty)
+          tree.withDefaultTemplate(
             getDefaultTemplate(themeInputs, context.fileSuffix),
             context.fileSuffix
           )
         else
-          root.tree
-      val rootWithTpl               = root.copy(tree = treeWithTpl)
-      val rules = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
+          tree
+      }
+      val rules       = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
       mapError(rootWithTpl.applyTemplates(rules, context))
         .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
     }

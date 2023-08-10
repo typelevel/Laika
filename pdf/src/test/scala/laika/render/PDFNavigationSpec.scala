@@ -17,7 +17,7 @@
 package laika.render
 
 import cats.effect.{ Async, IO, Resource }
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
@@ -32,7 +32,7 @@ import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
@@ -167,7 +167,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
         TestTheme.foTemplate,
         "fo"
       )
-      val root = DocumentTreeRoot(tree, styles = Map("fo" -> TestTheme.foStyles))
+      val root = DocumentTreeRoot(tree).addStyles(Map("fo" -> TestTheme.foStyles))
       withByteArrayTextOutput { out =>
         r
           .from(root)

@@ -66,7 +66,7 @@ class HTMLHeadDirectiveSpec extends FunSuite {
       )
       for {
         tree <- treeWithConfig.rewrite(resolveRules).leftMap(_.message)
-        treeRoot = DocumentTreeRoot(tree, staticDocuments = static)
+        treeRoot = DocumentTreeRoot(tree).addStaticDocuments(static)
         result <- treeRoot.applyTemplates(renderRules, ctx).leftMap(_.message)
       } yield result
     }
