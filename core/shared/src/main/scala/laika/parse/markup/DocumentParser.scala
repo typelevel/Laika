@@ -200,7 +200,7 @@ object DocumentParser {
   ): DocumentInput => Either[ParserError, UnresolvedDocument] =
     create(rootParser, configProvider.markupConfigHeader) { (path, config, root) =>
       val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
-      UnresolvedDocument(Document(path, root, fragments), config)
+      UnresolvedDocument(Document(path, root).withFragments(fragments), config)
     }
 
   /** Combines the specified parsers for the root element and for (optional) configuration

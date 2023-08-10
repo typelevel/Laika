@@ -353,10 +353,7 @@ class Document(
 
 object Document {
 
-  def apply(path: Path, content: RootElement): Document = apply(path, content, Map.empty)
-
-  // TODO - M3 - this might be unnecessary
-  def apply(path: Path, content: RootElement, fragments: Map[String, Element]): Document = {
+  def apply(path: Path, content: RootElement): Document = {
 
     def contextFor(path: Path): TreeNodeContext = {
       val parent = path.parent match {
@@ -366,7 +363,7 @@ object Document {
       TreeNodeContext(localPath = Some(path.name), parent = parent)
     }
 
-    new Document(contextFor(path), content, fragments)
+    new Document(contextFor(path), content)
   }
 
 }
