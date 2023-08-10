@@ -664,18 +664,21 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
                   | :prefix: (
                   | :suffix: )""".stripMargin
 
-    val expected = ObjectValue(
-      Seq(
-        Field("depth", StringValue("3")),
-        Field("start", StringValue("1")),
-        Field("prefix", StringValue("(")),
-        Field("suffix", StringValue(")"))
-      )
+    val expected = Set(
+      Field("depth", StringValue("3")),
+      Field("start", StringValue("1")),
+      Field("prefix", StringValue("(")),
+      Field("suffix", StringValue(")"))
     )
 
-    val res: Either[Any, ConfigValue] =
-      parser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
-    assertEquals(res, Right(expected))
+    val res: Option[Set[Field]] = parser
+      .parse(input)
+      .flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+      .toOption
+      .collect { case ObjectValue(fields) =>
+        fields.toSet
+      }
+    assertEquals(res, Some(expected))
   }
 
   test("contents - creates a placeholder in the document") {
