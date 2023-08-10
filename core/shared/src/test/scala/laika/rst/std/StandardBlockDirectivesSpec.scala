@@ -671,14 +671,14 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
       Field("suffix", StringValue(")"))
     )
 
-    val res: Option[Set[Field]] = parser
-      .parse(input)
-      .flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+    val res: Either[Any, ConfigValue] =
+      parser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
+    val fields: Option[Set[Field]]    = res
       .toOption
       .collect { case ObjectValue(fields) =>
         fields.toSet
       }
-    assertEquals(res, Some(expected))
+    assertEquals(fields, Some(expected))
   }
 
   test("contents - creates a placeholder in the document") {
