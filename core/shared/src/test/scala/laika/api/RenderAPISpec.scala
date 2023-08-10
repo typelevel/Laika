@@ -19,7 +19,6 @@ package laika.api
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.config.ConfigBuilder
 import laika.format._
 import laika.parse.{ GeneratedSource, SourceFragment }
 import munit.FunSuite
@@ -61,8 +60,8 @@ class RenderAPISpec extends FunSuite
       def withOptions(options: Options): TestResolver = copy(options = options)
     }
     val renderer = Renderer.of(HTML).build
-    val config   = ConfigBuilder.empty.withValue("testKey", "foo").build
-    val doc      = Document(Root / "doc", RootElement(TestResolver()), config = config)
+    val doc      = Document(Root / "doc", RootElement(TestResolver()))
+      .modifyConfig(_.withValue("testKey", "foo"))
     val expected = "<p>foo</p>"
     assertEquals(renderer.render(doc), Right(expected))
   }

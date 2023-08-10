@@ -163,29 +163,104 @@ case class SectionInfo(
 
 }
 
-/** Represents a single document and provides access
-  *  to the document content and structure as well
-  *  as hooks for triggering rewrite operations.
+/** Represents a single document and provides access to the document content and structure
+  * as well as hooks for triggering rewrite operations.
   *
-  *  @param path the full, absolute path of this document in the (virtual) document tree
-  *  @param content the tree model obtained from parsing the markup document
-  *  @param fragments separate named fragments that had been extracted from the content
-  *  @param config the configuration for this document
-  *  @param position the position of this document inside a document tree hierarchy, expressed as a list of Ints
+  * @param content the tree model obtained from parsing the markup document
+  * @param fragments separate named fragments that had been extracted from the content
   */
-case class Document(
-    path: Path,
-    content: RootElement,
-    fragments: Map[String, Element] = Map.empty,
-    config: Config = Config.empty,
-    position: TreePosition = TreePosition.orphan
+class Document(
+    context: TreeNodeContext,
+    val content: RootElement,
+    val fragments: Map[String, Element] = Map.empty
 ) extends DocumentNavigation with TreeContent {
+
+  /** The full, absolute path of this document in the (virtual) document tree.
+    */
+  def path: Path = context.path
+
+  /** The configuration associated with this document.
+    */
+  def config: Config = context.config
+
+  /** Associates the specified config instance with this document.
+    */
+  def withConfig(config: Config): Document = {
+    val newContext = context.copy(localConfig = config)
+    new Document(newContext, content, fragments)
+  }
+
+  /** Modifies the existing config instance for this document by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): Document = {
+    val builder = ConfigBuilder.withFallback(context.localConfig)
+    withConfig(f(builder).build)
+  }
+
+  /** Replaces the entire content of this document with the specified new `RootElement`.
+    */
+  def withContent(content: RootElement): Document =
+    new Document(context, content, fragments)
+
+  /** Replaces the fragments of this document with the specified new map.
+    */
+  def withFragments(newFragments: Map[String, Element]): Document =
+    new Document(context, content, newFragments)
+
+  /** Adds the specified fragments to the existing map of fragments.
+    */
+  def addFragments(newFragments: Map[String, Element]): Document = withFragments(
+    fragments ++ newFragments
+  )
+
+  /** The position of this document inside a document tree hierarchy, expressed as a list of Ints.
+    */
+  def position: TreePosition = context.position
+
+  private[ast] def withPosition(index: TreeNodeIndex): Document =
+    new Document(context.copy(index = index), content, fragments)
+
+  private[laika] def withPosition(index: Int): Document =
+    withPosition(TreeNodeIndex.Value(index))
+
+  private[laika] def withContent(content: RootElement, fragments: Map[String, Element]): Document =
+    new Document(context, content, fragments)
+
+  private[laika] def withTemplateConfig(config: Config): Document =
+    withConfig(config.withFallback(context.localConfig))
+
+  private[ast] def withParent(parent: TreeNodeContext): Document =
+    new Document(context.copy(parent = Some(parent)), content, fragments)
+
+  private[laika] def withPath(path: Path): Document = {
+
+    def contextFor(path: Path, oldContext: Option[TreeNodeContext]): TreeNodeContext = {
+      val oldParent = oldContext.flatMap(_.parent)
+      val parent    = path.parent match {
+        case Root  => oldParent.map(_.copy(localPath = None))
+        case other => Some(contextFor(other, oldParent))
+      }
+      oldContext match {
+        case Some(existing) => existing.copy(localPath = Some(path.name), parent = parent)
+        case None           => TreeNodeContext(localPath = Some(path.name), parent = parent)
+      }
+    }
+
+    new Document(
+      contextFor(path, Some(context)),
+      content,
+      fragments
+    )
+  }
 
   private def findRoot: Seq[Block] = {
     content.collect {
       case RootElement(TemplateRoot(_, _) :: Nil, _) => Nil
-      case RootElement(content, _) => Seq(content)
-      case EmbeddedRoot(content, _, _) => Seq(content)
+      case RootElement(content, _)                   => Seq(content)
+      case EmbeddedRoot(content, _, _)               => Seq(content)
     }.flatten.headOption.getOrElse(Nil)
   }
 
@@ -208,7 +283,7 @@ case class Document(
     */
   lazy val sections: Seq[SectionInfo] = {
 
-    def extractSections (blocks: Seq[Block]): Seq[SectionInfo] = {
+    def extractSections(blocks: Seq[Block]): Seq[SectionInfo] = {
       blocks collect { case Section(Header(_, header, Id(id)), content, _) =>
         SectionInfo(id, SpanSequence(header), extractSections(content))
       }
@@ -217,22 +292,22 @@ case class Document(
     extractSections(findRoot)
   }
 
-  def runtimeMessages (filter: MessageFilter): Seq[RuntimeMessage] = filter match {
+  def runtimeMessages(filter: MessageFilter): Seq[RuntimeMessage] = filter match {
     case MessageFilter.None => Nil
-    case _ =>
+    case _                  =>
       content.collect {
         case msg: RuntimeMessage if filter(msg) => msg
       }
   }
 
-  def invalidElements (filter: MessageFilter): Seq[Invalid] = filter match {
+  def invalidElements(filter: MessageFilter): Seq[Invalid] = filter match {
     case MessageFilter.None => Nil
-    case _ =>
+    case _                  =>
       content.collect {
         case inv: Invalid if filter(inv.message) => inv
       }
   }
-  
+
   /** Returns a new, rewritten document model based on the specified rewrite rules.
     *
     *  If the rule is not defined for a specific element or the rule returns
@@ -257,7 +332,7 @@ case class Document(
   /** Appends the specified content to this tree and return a new instance.
     */
   def appendContent(newContent: Seq[Block]): Document =
-    copy(content = content.withContent(this.content.content ++ newContent))
+    new Document(context, content.withContent(content.content ++ newContent), fragments)
 
   /** Prepends the specified content to this tree and return a new instance.
     */
@@ -268,14 +343,42 @@ case class Document(
   /** Prepends the specified content to this tree and return a new instance.
     */
   def prependContent(newContent: Seq[Block]): Document =
-    copy(content = content.withContent(newContent ++ this.content.content))
+    new Document(context, content.withContent(newContent ++ content.content), fragments)
 
+}
+
+object Document {
+
+  def apply(path: Path, content: RootElement): Document = apply(path, content, Map.empty)
+
+  // TODO - M3 - this might be unnecessary
+  def apply(path: Path, content: RootElement, fragments: Map[String, Element]): Document = {
+
+    def contextFor(path: Path): TreeNodeContext = {
+      val parent = path.parent match {
+        case Root  => None
+        case other => Some(contextFor(other))
+      }
+      TreeNodeContext(localPath = Some(path.name), parent = parent)
+    }
+
+    new Document(contextFor(path), content, fragments)
+  }
+
+}
+
+private[ast] sealed trait TreeNodeIndex
+
+private[ast] object TreeNodeIndex {
+  case object Unassigned       extends TreeNodeIndex
+  case object Inherit          extends TreeNodeIndex
+  case class Value(index: Int) extends TreeNodeIndex
 }
 
 private[ast] case class TreeNodeContext(
     localPath: Option[String] = None,
     localConfig: Config = Config.empty,
-    index: Option[Int] = None,
+    index: TreeNodeIndex = TreeNodeIndex.Unassigned,
     parent: Option[TreeNodeContext] = None
 ) {
 
@@ -287,8 +390,9 @@ private[ast] case class TreeNodeContext(
   lazy val config: Config = localConfig.withFallback(parent.fold(Config.empty)(_.config))
 
   lazy val position: TreePosition = index match {
-    case Some(idx) => parent.fold(TreePosition.root)(_.position).forChild(idx)
-    case None      => TreePosition.root
+    case TreeNodeIndex.Value(idx) => parent.fold(TreePosition.root)(_.position).forChild(idx)
+    case TreeNodeIndex.Inherit    => parent.fold(TreePosition.root)(_.position)
+    case TreeNodeIndex.Unassigned => TreePosition.root
   }
 
   def child(localName: String, config: Config = Config.empty): TreeNodeContext =
@@ -328,8 +432,23 @@ class DocumentTree private[ast] (
       templates: Seq[TemplateDocument] = this.templates
   ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
 
-  private[laika] def withPosition(index: Int): DocumentTree =
-    copy(context = context.copy(index = Some(index)))
+  private[laika] def withPosition(index: Int): DocumentTree = copy(
+    context = context.copy(index = TreeNodeIndex.Value(index)),
+    content = content.map {
+      case d: Document     => d.withParent(context)
+      case t: DocumentTree => t.withParent(context)
+    }
+  )
+
+  private[ast] def withParent(parent: TreeNodeContext): DocumentTree = {
+    val newContext = context.copy(parent = Some(parent))
+    val newContent = content.map {
+      case d: Document     => d.withParent(newContext)
+      case t: DocumentTree => t.withParent(newContext)
+    }
+    val newTitle   = titleDocument.map(_.withParent(newContext))
+    new DocumentTree(newContext, newContent, newTitle, templates)
+  }
 
   private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
 

@@ -53,7 +53,7 @@ trait TemplateParserSetup {
     def rewriteTemplate(tRoot: TemplateRoot): Either[String, RootElement] = {
       val docPath  = Root / "docs" / "doc1.md"
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
-      val doc      = Document(docPath, RootElement.empty, config = config)
+      val doc      = Document(docPath, RootElement.empty).withConfig(config)
       val root     = DocumentTree.builder.addDocument(doc).buildRoot
       val rules    = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
       val res      = for {

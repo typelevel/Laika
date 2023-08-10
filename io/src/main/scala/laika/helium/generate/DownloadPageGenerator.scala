@@ -112,11 +112,10 @@ private[helium] object DownloadPageGenerator {
         val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(
           Paragraph(_)
         ).toSeq ++: downloads
-        val doc    = Document(
-          Root / "downloads.gen",
-          RootElement(blocks),
-          config = tree.root.config.withValue("helium.markupEditLinks", false).build
-        )
+        val doc    = Document(Root / "downloads.gen", RootElement(blocks))
+          .withConfig(
+            tree.root.config.withValue("helium.markupEditLinks", false).build
+          ) // TODO - M3 - explicit parent wiring will become obsolete
         tree.modifyTree(_.prependContent(doc))
       }
 

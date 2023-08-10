@@ -225,10 +225,9 @@ class TreeCursor private (
     */
   lazy val titleDocument: Option[DocumentCursor] = target.titleDocument.map { title =>
     DocumentCursor(
-      title.copy(
-        config = AutonumberConfig.withoutSectionNumbering(title.config),
-        position = position
-      ),
+      title
+        .modifyConfig(AutonumberConfig.withoutSectionNumbering(title.config))
+        .withPosition(TreeNodeIndex.Inherit),
       this
     )
   }
@@ -239,7 +238,7 @@ class TreeCursor private (
 
     target.content.zipWithIndex map {
       case (doc: Document, index)      =>
-        DocumentCursor(doc.copy(position = position.forChild(index + 1)), this)
+        DocumentCursor(doc.withPosition(index + 1), this)
       case (tree: DocumentTree, index) =>
         new TreeCursor(tree.withPosition(index + 1), Some(this), root)
     }
@@ -268,7 +267,7 @@ class TreeCursor private (
   def rewriteTarget(rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = {
 
     val sortedContent = NavigationOrder
-      .applyTo(children, config, position)
+      .applyTo(children, config)
       .leftMap(err => NonEmptyChain.one(DocumentConfigErrors(path, err)))
 
     val rewrittenTitle = titleDocument
@@ -366,12 +365,11 @@ class DocumentCursor private (
       (name, content)
     }.toMap
 
-    target.copy(
+    target.withContent(
       content = rewrittenRoot.withContent(
         rewrittenRoot.content.filterNot(_.isInstanceOf[DocumentFragment])
       ),
-      fragments = rewrittenFragments ++ newFragments,
-      position = position
+      fragments = rewrittenFragments ++ newFragments
     )
   }
 
@@ -446,9 +444,8 @@ class DocumentCursor private (
       templatePath
     )
 
-  // TODO - M3 - temp??
-  private[laika] def applyPosition(position: TreePosition): DocumentCursor =
-    new DocumentCursor(target.copy(position = position), parent, resolver, templatePath)
+  private[laika] def applyPosition(index: Int): DocumentCursor =
+    new DocumentCursor(target.withPosition(index), parent, resolver, templatePath)
 
   /** Creates a new cursor for this document where the specified template
     * is associated with the new cursor.
@@ -460,8 +457,8 @@ class DocumentCursor private (
       Origin(Origin.TemplateScope, template.path),
       config,
       root.target.includes
-    ).map { mergedConfig =>
-      val mergedTarget = target.copy(config = mergedConfig)
+    ).map { templateConfig =>
+      val mergedTarget = target.withTemplateConfig(templateConfig.withoutFallback)
       new DocumentCursor(
         mergedTarget,
         parent,
@@ -506,9 +503,11 @@ object DocumentCursor {
   def apply(
       document: Document,
       outputContext: Option[OutputContext] = None
-  ): Either[TreeConfigErrors, DocumentCursor] =
-    TreeCursor(DocumentTree.builder.addDocument(document).build, outputContext)
-      .map(apply(document, _))
+  ): Either[TreeConfigErrors, DocumentCursor] = {
+    val orphanDoc = document.modifyConfig(_.withValue(LaikaKeys.orphan, true))
+    TreeCursor(DocumentTree.builder.addDocument(orphanDoc).build, outputContext)
+      .map(apply(orphanDoc, _))
+  }
 
   /** Creates a cursor for a document and full context information:
     * its parent, configuration and position within the document tree.

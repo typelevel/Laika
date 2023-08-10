@@ -23,7 +23,6 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
-import laika.config.ConfigBuilder
 import laika.format.{ HTML, Markdown }
 import laika.parse.markup.DocumentParser.TransformationError
 import laika.parse.markup.RootParserProvider
@@ -205,11 +204,12 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       markupExtensions = directiveSupport.markupExtensions
     ).standaloneSpanParser.evalMap { spans =>
       val seq = SpanSequence(spans)
+
       val doc = Document(
         Root,
-        RootElement(seq),
-        config = ConfigBuilder.empty.withValue("ref", "value").build
-      )
+        RootElement(seq)
+      ).modifyConfig(_.withValue("ref", "value"))
+
       OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(HTML))
         .map(_.rewriteSpan(seq))
         .leftMap(_.message)

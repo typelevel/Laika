@@ -326,9 +326,6 @@ private[sample] case class SampleTree(
     titleDoc: Option[SampleDocument] = None
 ) {
 
-  def versioned: SampleTree   = ???
-  def unversioned: SampleTree = ???
-
   val path = if (key.num == 0) Root else Root / s"${key.prefix}-${key.num}"
 
   def build(content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
@@ -364,9 +361,8 @@ private[sample] case class SampleDocument(
     val path         = treePath / (localName + suffixString)
     Document(
       path,
-      RootElement(content.getOrElse(root.defaultContent)(key)),
-      config = config.build(parentConfig, path)
-    )
+      RootElement(content.getOrElse(root.defaultContent)(key))
+    ).withConfig(config.build(parentConfig, path))
   }
 
 }

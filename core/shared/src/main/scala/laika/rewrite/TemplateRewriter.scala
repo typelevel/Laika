@@ -111,7 +111,11 @@ private[laika] trait TemplateRewriter {
           case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
           case other                                              => RootElement(other)
         }
-        mergedCursor.target.copy(content = newRoot, config = mergedCursor.config)
+        mergedCursor.target
+          .withContent(newRoot, mergedCursor.target.fragments)
+          .withConfig(
+            mergedCursor.config
+          ) // TODO - M3 - try to remove this line, the target should already have the merged config applied
       }
     }
   }

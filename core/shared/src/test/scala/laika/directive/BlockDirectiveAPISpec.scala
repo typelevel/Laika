@@ -22,7 +22,6 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.bundle.{ BlockParserBuilder, ParserBundle }
-import laika.config.ConfigBuilder
 import laika.directive.std.StandardDirectives
 import laika.format.HTML
 import laika.parse.builders._
@@ -193,7 +192,7 @@ class BlockDirectiveAPISpec extends FunSuite
       blockParsers = Seq(paragraphParser),
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement.evalMap { root =>
-      val doc = Document(Root, root, config = ConfigBuilder.empty.withValue("ref", "value").build)
+      val doc = Document(Root, root).modifyConfig(_.withValue("ref", "value"))
       rewrite(HTML)(doc).map(_.content).leftMap(_.message)
     }
 

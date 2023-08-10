@@ -98,7 +98,7 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
     val treeOrigin = Origin(TreeScope, Root / "tree" / "directory.conf")
     val treeConfig =
       ConfigBuilder.withOrigin(treeOrigin).withValue("foo.baz", 9).build
-    val doc        = Document(docPath, RootElement.empty, config = docConfig)
+    val doc        = Document(docPath, RootElement.empty).withConfig(docConfig)
     val tree       = DocumentTree.builder
       .addDocument(doc)
       .addConfig(treeConfig)
@@ -113,7 +113,7 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
     val docPath    = Root / "tree" / "doc"
     val docConfig  = ConfigBuilder.empty.withValue("foo.bar", 7).build
     val baseConfig = ConfigBuilder.empty.withValue("foo.baz", 9).build
-    val doc        = Document(docPath, RootElement.empty, config = docConfig)
+    val doc        = Document(docPath, RootElement.empty).withConfig(docConfig)
     val tree       = DocumentTree.builder
       .addDocument(doc)
       .build(baseConfig)
@@ -134,8 +134,10 @@ class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
       .build
       .content
       .sortBy(_.path.name)
+      .collect { case d: Document => d }
     val expected = Seq(docC, docB)
-    assertEquals(docs, expected)
+    assertEquals(docs.map(_.path), expected.map(_.path))
+    assertEquals(docs.map(_.content), expected.map(_.content))
   }
 
 }

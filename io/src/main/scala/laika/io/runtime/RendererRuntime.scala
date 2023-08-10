@@ -17,16 +17,16 @@
 package laika.io.runtime
 
 import cats.effect.{ Async, Sync }
-import cats.implicits._
+import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.{ ConfigError, ConfigException, LaikaKeys }
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
-import laika.io.model._
+import laika.io.model.*
 import laika.parse.markup.DocumentParser.InvalidDocuments
-import laika.rewrite.nav._
+import laika.rewrite.nav.*
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Versions }
 
 /** Internal runtime for renderer operations, for text and binary output as well
@@ -35,8 +35,6 @@ import laika.rewrite.{ DefaultTemplatePath, OutputContext, Versions }
   *  @author Jens Halm
   */
 private[io] object RendererRuntime {
-
-  private[laika] case class RenderConfig()
 
   /** Process the specified render operation for an entire input tree and a character output format.
     */
@@ -108,7 +106,7 @@ private[io] object RendererRuntime {
           val renderer          = Renderer.of(op.renderer.format).withConfig(op.config).build
           val docPathTranslator = pathTranslator.forReferencePath(document.path)
           val outputPath        = docPathTranslator.translate(document.path)
-          val outputDoc         = document.copy(path = outputPath)
+          val outputDoc         = document.withPath(outputPath)
           for {
             renderResult <- Async[F].fromEither(
               renderer.render(outputDoc, docPathTranslator, styles)

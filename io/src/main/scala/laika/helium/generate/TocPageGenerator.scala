@@ -75,11 +75,9 @@ private[helium] object TocPageGenerator {
           title,
           navList
         ) // TODO - Preamble should be inserted in PDF.prepareTree
-        val doc = Document(
-          Root / "table-of-content",
-          root,
-          config = tree.root.config.withValue("helium.site.pageNavigation.enabled", false).build
-        )
+        val doc = Document(Root / "table-of-content", root)
+          .withConfig(tree.root.config.withValue("helium.site.pageNavigation.enabled", false).build)
+        // TODO - M3 - explicit parent wiring will become obsolete
         tree.modifyTree(_.prependContent(doc))
       }
     Sync[F].pure(result)

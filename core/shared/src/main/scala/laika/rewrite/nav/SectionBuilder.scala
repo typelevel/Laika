@@ -128,7 +128,7 @@ private[laika] object SectionBuilder extends RewriteRulesBuilder {
     )
     firstHeaderAsTitle <- cursor.config.get(
       LaikaKeys.firstHeaderAsTitle,
-      cursor.position != TreePosition.orphan
+      !cursor.config.get[Boolean](LaikaKeys.orphan).getOrElse(false)
     )
   } yield new DefaultRule(autonumbering, firstHeaderAsTitle, cursor.position).rewrite
 

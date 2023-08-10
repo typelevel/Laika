@@ -88,9 +88,7 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
       val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue =>
         (c.key, c.value)
       }
-      unresolved.document.copy(
-        config = merge(docConfig, embeddedConfig)
-      )
+      unresolved.document.withConfig(merge(docConfig, embeddedConfig))
     }
 
     def rewritePhase(doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {

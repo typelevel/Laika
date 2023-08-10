@@ -63,7 +63,7 @@ class DocumentTreeAPISpec extends FunSuite
       root: RootElement,
       config: Option[String] = None
   ): DocumentTree = {
-    val doc = Document(path / name, root, config = createConfig(path / name, config))
+    val doc = Document(path / name, root).withConfig(createConfig(path / name, config))
     DocumentTree.builder
       .addDocument(doc)
       .build
@@ -194,7 +194,9 @@ class DocumentTreeAPISpec extends FunSuite
     val treeConfig = createConfig(Root, Some("laika.title: from-config"), TreeScope)
     val docConfig  = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
     val tree       = DocumentTree.builder
-      .addDocument(Document(Root / "doc", RootElement(laika.ast.Title(title)), config = docConfig))
+      .addDocument(
+        Document(Root / "doc", RootElement(laika.ast.Title(title))).withConfig(docConfig)
+      )
       .addConfig(treeConfig)
       .build
     assertEquals(tree.content.head.title, Some(SpanSequence(title)))

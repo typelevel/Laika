@@ -134,19 +134,24 @@ class DocumentAPISpec extends FunSuite
                    |
                    |Some more text""".stripMargin
 
-    val raw       = defaultParser.parseUnresolved(markup).toOption.get.document
+    val raw       = defaultParser.parseUnresolved(markup).toOption.get.document.modifyConfig(
+      _.withValue(LaikaKeys.orphan, false)
+    )
     val testRule  = RewriteRules.forSpans { case Text("Some text", _) =>
       Replace(Text("Swapped"))
     }
     val rewritten = OperationConfig.default
-      .rewriteRulesFor(raw.copy(position = TreePosition.root), RewritePhase.Resolve)
+      .rewriteRulesFor(raw, RewritePhase.Resolve)
       .flatMap(r => raw.rewrite(testRule ++ r))
 
     assertEquals(
       rewritten.map(_.content),
       Right(
         RootElement(
-          Title(List(Text("Title")), Id("title") + Style.title),
+          Section(
+            Header(1, List(Text("Title")), Id("title") + Style.section),
+            Nil
+          ),
           Section(
             Header(1, List(Text("Section 1")), Id("section-1") + Style.section),
             List(p("Swapped"))

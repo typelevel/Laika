@@ -192,13 +192,11 @@ class TreeRendererSpec extends CatsEffectSuite
           .render
       )
 
-    def addPosition(tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
+    def addPosition(tree: DocumentTree): DocumentTree = {
       val nextNum = Iterator.from(1)
       tree.modifyContent {
-        case d: Document     => d.copy(position = TreePosition(pos :+ nextNum.next()))
-        case t: DocumentTree =>
-          val num = pos :+ nextNum.next()
-          addPosition(t.withPosition(num.last), num)
+        case d: Document     => d.withPosition(nextNum.next())
+        case t: DocumentTree => addPosition(t.withPosition(nextNum.next()))
       }
     }
 
@@ -780,7 +778,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("tree with two documents to XSL-FO using a custom style sheet in the tree root") {
-    import FORenderer._
+    import FORenderer.*
 
     val input                                      = Inputs.twoDocs(defaultContent, subElem)
     val foStyles: Map[String, StyleDeclarationSet] =
@@ -1054,7 +1052,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   object FileSystemTest {
-    import cats.implicits._
+    import cats.syntax.all.*
 
     val input: DocumentTreeRoot = SampleTrees.sixDocuments.build
 
@@ -1133,7 +1131,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("render versioned documents with an existing versionInfo JSON file") {
-    import VersionInfoSetup._
+    import VersionInfoSetup.*
 
     val existingVersionInfo =
       """{
@@ -1177,7 +1175,7 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("directory with existing versioned renderer output") {
-    import VersionInfoSetup._
+    import VersionInfoSetup.*
 
     def mkDirs(dir: FilePath): IO[Unit] =
       List(

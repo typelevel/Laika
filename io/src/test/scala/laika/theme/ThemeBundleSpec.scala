@@ -140,8 +140,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -161,8 +161,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 

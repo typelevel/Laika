@@ -18,6 +18,7 @@ package laika.ast
 
 import laika.config.{ Config, ConfigError, ConfigParser, Origin }
 import cats.implicits.*
+import laika.ast.Path.Root
 import laika.config.Config.IncludeMap
 import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.rewrite.nav.TitleDocumentConfig
@@ -74,16 +75,26 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   private def resolveAndBuildDocument(
       doc: UnresolvedDocument,
       baseConfig: Config,
+      parentContext: TreeNodeContext,
       includes: IncludeMap
   ): Either[ConfigError, Document] =
-    doc.config.resolve(Origin(DocumentScope, doc.document.path), baseConfig, includes).map(config =>
-      doc.document.copy(config = config)
-    )
+    doc.config
+      .resolve(Origin(DocumentScope, doc.document.path), baseConfig, includes)
+      .map(config =>
+        doc.document
+          .withConfig(config.withoutFallback)
+          .withParent(parentContext)
+      )
 
-  private def applyBaseConfig(doc: Document, baseConfig: Config): Document =
-    doc.copy(config =
-      doc.config.withFallback(baseConfig).withOrigin(Origin(DocumentScope, doc.path))
-    )
+  private def localPath(path: Path): Option[String] = path match {
+    case Root  => None
+    case other => Some(other.name)
+  }
+
+  private def applyContext(doc: Document, parentContext: TreeNodeContext): Document =
+    doc
+      .withConfig(doc.config.withOrigin(Origin(DocumentScope, doc.path)))
+      .withParent(parentContext)
 
   private def resolveAndBuildTree(
       result: TreePart,
@@ -107,7 +118,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       }
 
     def createContext(config: Config): TreeNodeContext = TreeNodeContext(
-      localPath = Some(result.path.name),
+      localPath = localPath(result.path),
       localConfig = if (parentContext.isEmpty) config.withFallback(baseConfig) else config,
       parent = parentContext
     )
@@ -123,12 +134,10 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
           resolveAndBuildDocument(
             markup.doc,
             treeConfig.withFallback(baseConfig),
+            context,
             includes
-          ) // TODO - M3 - keep base config separate
-        case doc: DocumentPart  =>
-          Right(
-            applyBaseConfig(doc.doc, treeConfig.withFallback(baseConfig))
-          ) // TODO - M3 - keep base config separate
+          )
+        case doc: DocumentPart  => Right(applyContext(doc.doc, context))
       }
     } yield {
       val (title, content) = extract(resolvedContent, titleName)
@@ -145,7 +154,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
 
     val treeConfig       = result.mergeConfigs(Config.empty)
     val context          = TreeNodeContext(
-      localPath = Some(result.path.name),
+      localPath = localPath(result.path),
       localConfig = if (parentContext.isEmpty) treeConfig.withFallback(baseConfig) else treeConfig,
       parent = parentContext
     )
@@ -154,9 +163,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       case tree: TreePart    =>
         Some(buildTree(tree, treeConfig.withFallback(baseConfig), titleName, Some(context)))
       case doc: DocumentPart =>
-        Some(
-          applyBaseConfig(doc.doc, treeConfig.withFallback(baseConfig))
-        ) // TODO - M3 - keep base config separate
+        Some(applyContext(doc.doc, context))
       case _: MarkupPart     => None
     }
     val (title, content) = extract(allContent, titleName)

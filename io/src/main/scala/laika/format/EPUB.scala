@@ -184,12 +184,13 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
         root.modifyTree(
           _.prependContent(
             Document(
-              path = Root / "cover",
-              content =
-                RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))),
-              config =
-                ConfigBuilder.withFallback(root.config).withValue(LaikaKeys.title, "Cover").build
+              Root / "cover",
+              RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover"))))
             )
+              .withConfig(
+                ConfigBuilder.withFallback(root.config).withValue(LaikaKeys.title, "Cover").build
+              )
+              // TODO - M3 - after final changes manual application of fallback config should be obsolete
           )
         )
       }
