@@ -211,7 +211,7 @@ object DocumentParser {
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, TemplateDocument] =
     create(rootParser, configProvider.templateConfigHeader) { (path, config, root) =>
-      TemplateDocument(path, root, config)
+      TemplateDocument(path, root).withConfig(config)
     }
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.

@@ -96,11 +96,14 @@ sealed trait TreeContent extends Navigatable {
 /** A template document containing the element tree of a parsed template and its extracted
   *  configuration section (if present).
   */
-case class TemplateDocument(
-    path: Path,
-    content: TemplateRoot,
-    config: ConfigParser = ConfigParser.empty
+class TemplateDocument private (
+    val path: Path,
+    val content: TemplateRoot,
+    val config: ConfigParser
 ) extends Navigatable {
+
+  def withConfig(config: ConfigParser): TemplateDocument =
+    new TemplateDocument(path, content, config)
 
   /** Applies this template to the specified document, replacing all
     *  span and block resolvers in the template with the final resolved element.
@@ -112,6 +115,13 @@ case class TemplateDocument(
   ): Either[ConfigError, Document] =
     DocumentCursor(document, Some(outputContext))
       .flatMap(TemplateRewriter.applyTemplate(_, _ => Right(rules), this))
+
+}
+
+object TemplateDocument {
+
+  def apply(path: Path, root: TemplateRoot): TemplateDocument =
+    new TemplateDocument(path, root, ConfigParser.empty)
 
 }
 
