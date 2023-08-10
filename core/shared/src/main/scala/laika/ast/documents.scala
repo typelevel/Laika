@@ -184,6 +184,10 @@ class Document(
   def config: Config = context.config
 
   /** Associates the specified config instance with this document.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
     */
   def withConfig(config: Config): Document = {
     val newContext = context.copy(localConfig = config)
@@ -425,30 +429,30 @@ class DocumentTree private[ast] (
     */
   def position: TreePosition = context.position
 
+  private def withContext(newContext: TreeNodeContext): DocumentTree = {
+    // separate from copy since context changes need to be propagated to all children
+    new DocumentTree(
+      newContext,
+      content.map {
+        case d: Document     => d.withParent(newContext)
+        case t: DocumentTree => t.withParent(newContext)
+      },
+      titleDocument.map(_.withParent(newContext)),
+      templates
+    )
+  }
+
   private def copy(
-      context: TreeNodeContext = context,
       content: Seq[TreeContent] = this.content,
       titleDocument: Option[Document] = this.titleDocument,
       templates: Seq[TemplateDocument] = this.templates
   ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
 
-  private[laika] def withPosition(index: Int): DocumentTree = copy(
-    context = context.copy(index = TreeNodeIndex.Value(index)),
-    content = content.map {
-      case d: Document     => d.withParent(context)
-      case t: DocumentTree => t.withParent(context)
-    }
-  )
+  private[laika] def withPosition(index: Int): DocumentTree =
+    withContext(context.copy(index = TreeNodeIndex.Value(index)))
 
-  private[ast] def withParent(parent: TreeNodeContext): DocumentTree = {
-    val newContext = context.copy(parent = Some(parent))
-    val newContent = content.map {
-      case d: Document     => d.withParent(newContext)
-      case t: DocumentTree => t.withParent(newContext)
-    }
-    val newTitle   = titleDocument.map(_.withParent(newContext))
-    new DocumentTree(newContext, newContent, newTitle, templates)
-  }
+  private[ast] def withParent(parent: TreeNodeContext): DocumentTree =
+    withContext(context.copy(parent = Some(parent)))
 
   private[laika] def withoutTemplates: DocumentTree = copy(templates = Nil)
 
@@ -463,7 +467,23 @@ class DocumentTree private[ast] (
     */
   def withTitleDocument(doc: Option[Document]): DocumentTree = copy(titleDocument = doc)
 
-  def withConfig(config: Config): DocumentTree = copy(context = context.copy(localConfig = config))
+  /** Associates the specified config instance with this document tree.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
+    */
+  def withConfig(config: Config): DocumentTree = withContext(context.copy(localConfig = config))
+
+  /** Modifies the existing config instance for this document tree by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): DocumentTree = {
+    val builder = ConfigBuilder.withFallback(context.localConfig)
+    withConfig(f(builder).build)
+  }
 
   /** Adds the specified template document to this tree,
     * retaining any previously added templates.
@@ -758,11 +778,21 @@ case class DocumentTreeRoot(
     copy(coverDocument = newCover, tree = newTree)
   }
 
-  /** Creates a new tree by replacing its root configuration with the specified config instance.
+  /** Associates the specified config instance with this document tree.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
     */
-  def withConfig(config: Config): DocumentTreeRoot = {
-    copy(tree = tree.withConfig(config))
-  }
+  def withConfig(config: Config): DocumentTreeRoot = copy(tree = tree.withConfig(config))
+
+  /** Modifies the existing config instance for this document tree by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): DocumentTreeRoot =
+    copy(tree = tree.modifyConfig(f))
 
   /** Creates a new instance by applying the specified function to the root tree.
     */
