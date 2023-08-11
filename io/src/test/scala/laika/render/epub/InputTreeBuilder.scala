@@ -19,8 +19,9 @@ package laika.render.epub
 import cats.effect.IO
 import laika.config.{ Config, ConfigBuilder, LaikaKeys }
 import laika.ast.Path.Root
-import laika.ast._
-import laika.io.model._
+import laika.ast.*
+import laika.format.EPUB
+import laika.io.model.*
 import laika.io.helper.InputBuilder
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.NoOpPathTranslator
@@ -69,7 +70,7 @@ trait InputTreeBuilder extends InputBuilder {
       cover: Option[RenderedDocument],
       docs: Seq[RenderContent]
   ): RenderedTreeRoot[IO] = {
-    val outputContext = OutputContext("ignored")
+    val outputContext = OutputContext(EPUB) // ignored
     new RenderedTreeRoot(
       tree(path, titleNum, docs: _*),
       TemplateRoot.empty,

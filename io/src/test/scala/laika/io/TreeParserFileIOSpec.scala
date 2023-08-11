@@ -365,16 +365,11 @@ class TreeParserFileIOSpec
     private val doc8 = Document(Root / "tree-3" / "doc-8.md", RootElement("Doc8"))
     private val doc9 = Document(Root / "doc-9.md", RootElement("Doc9"))
 
+    val (start, end)         = baseTree.allDocuments.splitAt(2)
+    private val expectedDocs = start ++ Seq(doc9) ++ end ++ Seq(doc7, doc8)
+
     val expected: DocumentTreeRoot = DocumentTree.builder
-      .addDocument(baseTree.allDocuments.head)
-      .addDocument(baseTree.allDocuments(1))
-      .addDocument(doc9)
-      .addDocument(baseTree.allDocuments(2))
-      .addDocument(baseTree.allDocuments(3))
-      .addDocument(baseTree.allDocuments(4))
-      .addDocument(baseTree.allDocuments(5))
-      .addDocument(doc7)
-      .addDocument(doc8)
+      .addDocuments(expectedDocs.toList)
       .buildRoot
 
   }
@@ -403,16 +398,11 @@ class TreeParserFileIOSpec
     val doc8 = Document(Root / "tree-1" / "tree-3" / "doc-8.md", RootElement("Doc8"))
     val doc9 = Document(Root / "tree-1" / "doc-9.md", RootElement("Doc9"))
 
+    val (start, end) = baseTree.allDocuments.splitAt(4)
+    val expectedDocs = start ++ Seq(doc9, doc7, doc8) ++ end
+
     val expected: DocumentTreeRoot = DocumentTree.builder
-      .addDocument(baseTree.allDocuments.head)
-      .addDocument(baseTree.allDocuments(1))
-      .addDocument(baseTree.allDocuments(2))
-      .addDocument(baseTree.allDocuments(3))
-      .addDocument(doc9)
-      .addDocument(doc7)
-      .addDocument(doc8)
-      .addDocument(baseTree.allDocuments(4))
-      .addDocument(baseTree.allDocuments(5))
+      .addDocuments(expectedDocs.toList)
       .buildRoot
 
     defaultParser.use(_.fromInput(treeInput).parse).map(_.root).assertEquals(expected)

@@ -36,7 +36,7 @@ import munit.FunSuite
 
 class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
-  private val versions = Versions(Version("0.42", "0.42"), Nil)
+  private val versions = Versions.forCurrentVersion(Version("0.42", "0.42"))
 
   private val defaultRenderer = Renderer.of(HTML).build
 

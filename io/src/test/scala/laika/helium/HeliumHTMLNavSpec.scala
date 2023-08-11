@@ -21,28 +21,17 @@ import laika.api.Transformer
 import laika.ast.{ Image, Path }
 import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
-import laika.helium.config._
+import laika.helium.config.*
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.StringTreeOutput
-import laika.rewrite.{ Version, Versions }
-import laika.theme._
+import laika.theme.*
 import munit.CatsEffectSuite
 
 class HeliumHTMLNavSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with TestVersions
     with StringOps {
-
-  private val versions = Versions(
-    Version("0.42.x", "0.42"),
-    Seq(
-      Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", fallbackLink = "toc.html")
-    ),
-    Seq(
-      Version("0.43.x", "0.43")
-    )
-  )
 
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] =
     Transformer

@@ -24,15 +24,15 @@ import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.{ InputTree, StringTreeOutput }
 import laika.rewrite.link.LinkValidation
-import laika.rewrite.{ Version, Versions }
-import laika.theme._
+import laika.theme.ThemeProvider
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 import munit.CatsEffectSuite
 
 class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with TestVersions
     with StringOps {
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
@@ -99,17 +99,6 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
               |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
               |<script src="helium/laika-helium.js"></script>
               |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-
-  val versions = Versions(
-    Version("0.42.x", "0.42"),
-    Seq(
-      Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", fallbackLink = "toc.html")
-    ),
-    Seq(
-      Version("0.43.x", "0.43")
-    )
-  )
 
   val heliumBase = Helium.defaults.site.landingPage()
 
@@ -365,16 +354,6 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("version menu on a versioned page") {
-    val versions = Versions(
-      Version("0.42.x", "0.42"),
-      Seq(
-        Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43")
-      )
-    )
     val helium   = heliumBase.site.versions(versions).site.baseURL("https://foo.org/")
     val expected =
       meta ++ """
@@ -393,16 +372,6 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("version menu on an unversioned page") {
-    val versions = Versions(
-      Version("0.42.x", "0.42"),
-      Seq(
-        Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43")
-      )
-    )
     val helium   = heliumBase.site.versions(versions)
     val expected =
       meta ++ """

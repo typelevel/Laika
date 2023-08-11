@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.data.NonEmptyChain
 import laika.ast.Path
 import laika.config.{
@@ -29,22 +29,56 @@ import laika.config.{
 }
 
 /** Configuration for a single version of the documentation.
-  *
-  * @param displayValue the description of the version to use in any UI (e.g. version dropdowns)
-  * @param pathSegment the string to use as a path segments in URLs pointing to this version
-  * @param fallbackLink the link target to use when switching to this version from a page that does not exist in this version
-  * @param label an optional label that will be used in the UI (e.g. `Dev` or `Stable`)
-  * @param canonical indicates whether this is the canonical version
   */
-case class Version(
-    displayValue: String,
-    pathSegment: String,
-    fallbackLink: String = "index.html",
-    label: Option[String] = None,
-    canonical: Boolean = false
-)
+sealed abstract class Version {
+
+  /** The description of the version to use in any UI (for example in version dropdowns).
+    */
+  def displayValue: String
+
+  /** The string to use as a path segments in URLs pointing to this version.
+    */
+  def pathSegment: String
+
+  /** The link target to use when switching to this version from a page that does not exist in this version.
+    *
+    * Default: `/index.html`
+    */
+  def fallbackLink: String
+
+  /** An optional label that will be used in the UI (e.g. `Dev` or `Stable`).
+    */
+  def label: Option[String]
+
+  /** Indicates whether this is the canonical version.
+    *
+    * When using the Helium theme setting this flag results in canonical link references
+    * getting inserted into the HTML `head` section of the generated output.
+    */
+  def canonical: Boolean
+
+  def withFallbackLink(value: String): Version
+  def withLabel(value: String): Version
+  def setCanonical: Version
+}
 
 object Version {
+
+  def apply(displayValue: String, pathSegment: String): Version =
+    Impl(displayValue, pathSegment, "index.html", None, canonical = false)
+
+  private final case class Impl(
+      displayValue: String,
+      pathSegment: String,
+      fallbackLink: String,
+      label: Option[String],
+      canonical: Boolean
+  ) extends Version {
+    override def productPrefix                   = "Version"
+    def withFallbackLink(value: String): Version = copy(fallbackLink = value)
+    def withLabel(value: String): Version        = copy(label = Some(value))
+    def setCanonical: Version                    = copy(canonical = true)
+  }
 
   implicit val decoder: ConfigDecoder[Version] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -54,7 +88,7 @@ object Version {
       fallbackLink <- config.get[String]("fallbackLink", "index.html")
       label        <- config.getOpt[String]("label")
     } yield {
-      Version(displayName, pathSegment, fallbackLink, label, canonical)
+      Impl(displayName, pathSegment, fallbackLink, label, canonical)
     }
   }
 
@@ -73,51 +107,127 @@ object Version {
 /** Global configuration for versioned documentation.
   *
   * The order in the `Seq` properties will be used for any list views in the UI (e.g. for the version chooser dropdown).
-  *
-  * @param currentVersion the version that the sources of a transformation produce
-  * @param olderVersions list of older versions that have previously been rendered (may be empty)
-  * @param newerVersions list of newer versions that have previously been rendered (may be empty)
-  * @param renderUnversioned indicates whether unversioned documents should be rendered
-  *                          (setting this to false may be useful when re-rendering older versions)
-  * @param scannerConfig optional configuration for scanning and indexing existing versions,
-  *                       used by the Helium version switcher dropdown and by the preview server.
   */
-case class Versions(
-    currentVersion: Version,
-    olderVersions: Seq[Version],
-    newerVersions: Seq[Version] = Nil,
-    renderUnversioned: Boolean = true,
-    scannerConfig: Option[VersionScannerConfig] = None
-) {
+sealed abstract class Versions {
 
-  lazy val allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
+  /** The version that the sources of a transformation produce. */
+  def currentVersion: Version
 
-  /** Configures the version scanner to use during transformations.
-    * These settings enable scanning and indexing existing versions during a transformation,
-    * used by the Helium version switcher dropdown and by the preview server.
+  /** List of older versions that have previously been rendered (may be empty). */
+  def olderVersions: Seq[Version]
+
+  /** List of newer versions that have previously been rendered (may be empty). */
+  def newerVersions: Seq[Version]
+
+  /** Indicates whether unversioned documents should be rendered
+    * (setting this to false may be useful when re-rendering older versions).
     */
-  def withVersionScanner(rootDirectory: String, exclude: Seq[Path]): Versions =
-    copy(scannerConfig = Some(VersionScannerConfig(rootDirectory, exclude)))
+  def renderUnversioned: Boolean
+
+  /** Optional configuration for scanning and indexing existing versions,
+    * used by the Helium version switcher dropdown and by the preview server..
+    */
+  def scannerConfig: Option[VersionScannerConfig]
+
+  /** Specifies an absolute file path that points to a directory containing previously
+    * rendered Laika output.
+    * This enables scanning and indexing existing versions during a transformation,
+    * used by the Helium version switcher dropdown and by the preview server.
+    *
+    * This is optional, without infos about existing versions, the menu will simply switch
+    * to the landing page of the respective versions.
+    *
+    * See [[VersionScannerConfig]] for details.
+    *
+    * @param rootDirectory the directory to scan
+    * @param exclude virtual paths inside that directory that should be ignored
+    */
+  def withVersionScanner(rootDirectory: String, exclude: Seq[Path] = Nil): Versions
 
   /** Validates this configuration instance and either returns a `Left` with a
     * list of errors encountered or a `Right` containing this instance.
     */
-  def validated: Either[NonEmptyChain[String], Versions] = {
+  def validated: Either[NonEmptyChain[String], Versions]
 
-    val dupSegments    = allVersions.groupBy(_.pathSegment).filter(_._2.size > 1).keys.toList.sorted
-    val dupSegmentsMsg =
-      if (dupSegments.isEmpty) None
-      else Some(s"Path segments used for more than one version: ${dupSegments.mkString(", ")}")
+  def withNewerVersions(versions: Version*): Versions
+  def withOlderVersions(versions: Version*): Versions
 
-    val dupCanonical    = allVersions.filter(_.canonical).map(_.displayValue).toList.sorted
-    val dupCanonicalMsg =
-      if (dupCanonical.size < 2) None
-      else Some(s"More than one version marked as canonical: ${dupCanonical.mkString(", ")}")
+  def withRenderUnversioned(value: Boolean): Versions
 
-    NonEmptyChain.fromSeq(dupSegmentsMsg.toList ++ dupCanonicalMsg.toList) match {
-      case Some(chain) => Left(chain)
-      case None        => Right(this)
+  lazy val allVersions: Seq[Version] = newerVersions ++: currentVersion +: olderVersions
+}
+
+object Versions {
+
+  def forCurrentVersion(version: Version): Versions =
+    Impl(version, Nil, Nil, renderUnversioned = true, None)
+
+  private final case class Impl(
+      currentVersion: Version,
+      olderVersions: Seq[Version],
+      newerVersions: Seq[Version] = Nil,
+      renderUnversioned: Boolean = true,
+      scannerConfig: Option[VersionScannerConfig] = None
+  ) extends Versions {
+
+    override def productPrefix = "Versions"
+
+    def withVersionScanner(rootDirectory: String, exclude: Seq[Path] = Nil): Versions =
+      copy(scannerConfig = Some(VersionScannerConfig(rootDirectory, exclude)))
+
+    def validated: Either[NonEmptyChain[String], Versions] = {
+
+      val dupSegments = allVersions.groupBy(_.pathSegment).filter(_._2.size > 1).keys.toList.sorted
+      val dupSegmentsMsg =
+        if (dupSegments.isEmpty) None
+        else Some(s"Path segments used for more than one version: ${dupSegments.mkString(", ")}")
+
+      val dupCanonical    = allVersions.filter(_.canonical).map(_.displayValue).toList.sorted
+      val dupCanonicalMsg =
+        if (dupCanonical.size < 2) None
+        else Some(s"More than one version marked as canonical: ${dupCanonical.mkString(", ")}")
+
+      NonEmptyChain.fromSeq(dupSegmentsMsg.toList ++ dupCanonicalMsg.toList) match {
+        case Some(chain) => Left(chain)
+        case None        => Right(this)
+      }
     }
+
+    def withNewerVersions(versions: Version*): Versions = copy(newerVersions = versions)
+
+    def withOlderVersions(versions: Version*): Versions = copy(olderVersions = versions)
+
+    def withRenderUnversioned(value: Boolean): Versions = copy(renderUnversioned = value)
+  }
+
+  implicit val key: DefaultKey[Versions] = DefaultKey(LaikaKeys.versions)
+
+  implicit val decoder: ConfigDecoder[Versions] = ConfigDecoder.config.flatMap { config =>
+    for {
+      currentVersion    <- config.get[Version]("currentVersion")
+      olderVersions     <- config.get[Seq[Version]]("olderVersions", Nil)
+      newerVersions     <- config.get[Seq[Version]]("newerVersions", Nil)
+      renderUnversioned <- config.get[Boolean]("renderUnversioned", false)
+      versionScanner    <- config.getOpt[VersionScannerConfig]("scannerConfig")
+      result            <- Impl(
+        currentVersion,
+        olderVersions,
+        newerVersions,
+        renderUnversioned,
+        versionScanner
+      )
+        .validated.leftMap(err => ConfigErrors(err.map(ValidationError(_))))
+    } yield result
+  }
+
+  implicit val encoder: ConfigEncoder[Versions] = ConfigEncoder[Versions] { versions =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("currentVersion", versions.currentVersion)
+      .withValue("olderVersions", versions.olderVersions)
+      .withValue("newerVersions", versions.newerVersions)
+      .withValue("renderUnversioned", versions.renderUnversioned)
+      .withValue("scannerConfig", versions.scannerConfig)
+      .build
   }
 
 }
@@ -138,14 +248,29 @@ case class Versions(
   * The specified root directory is expected to match the structure of versioned documentation as rendered by Laika.
   * This means that the root directory is expected to have immediate sub-directories with names that correspond
   * to the `pathSegment` property of the configuration for that version.
-  *
-  * @param rootDirectory file system path that represents the root of existing versions.
-  * @param exclude paths to be skipped when scanning the output directory for existing versions (e.g. for API docs),
-  *                interpreted from the root directory of each version.
   */
-case class VersionScannerConfig(rootDirectory: String, exclude: Seq[Path] = Nil)
+sealed abstract class VersionScannerConfig {
+
+  /** File system path that represents the root of existing versions.
+    */
+  def rootDirectory: String
+
+  /** Paths to be skipped when scanning the output directory for existing versions (for example for API docs),
+    * interpreted from the root directory of each version.
+    */
+  def exclude: Seq[Path]
+
+}
 
 object VersionScannerConfig {
+
+  def apply(rootDirectory: String, exclude: Seq[Path] = Nil): VersionScannerConfig =
+    Impl(rootDirectory, exclude)
+
+  private final case class Impl(rootDirectory: String, exclude: Seq[Path] = Nil)
+      extends VersionScannerConfig {
+    override def productPrefix = "VersionScannerConfig"
+  }
 
   implicit val decoder: ConfigDecoder[VersionScannerConfig] = ConfigDecoder.config.flatMap {
     config =>
@@ -153,7 +278,7 @@ object VersionScannerConfig {
         rootDirectory <- config.get[String]("rootDirectory")
         exclude       <- config.get[Seq[Path]]("exclude", Nil)
       } yield {
-        VersionScannerConfig(rootDirectory, exclude)
+        Impl(rootDirectory, exclude)
       }
   }
 
@@ -163,40 +288,6 @@ object VersionScannerConfig {
         .withValue("rootDirectory", config.rootDirectory)
         .withValue("exclude", config.exclude)
         .build
-  }
-
-}
-
-object Versions {
-
-  implicit val key: DefaultKey[Versions] = DefaultKey(LaikaKeys.versions)
-
-  implicit val decoder: ConfigDecoder[Versions] = ConfigDecoder.config.flatMap { config =>
-    for {
-      currentVersion    <- config.get[Version]("currentVersion")
-      olderVersions     <- config.get[Seq[Version]]("olderVersions", Nil)
-      newerVersions     <- config.get[Seq[Version]]("newerVersions", Nil)
-      renderUnversioned <- config.get[Boolean]("renderUnversioned", false)
-      versionScanner    <- config.getOpt[VersionScannerConfig]("scannerConfig")
-      result            <- Versions(
-        currentVersion,
-        olderVersions,
-        newerVersions,
-        renderUnversioned,
-        versionScanner
-      )
-        .validated.leftMap(err => ConfigErrors(err.map(ValidationError(_))))
-    } yield result
-  }
-
-  implicit val encoder: ConfigEncoder[Versions] = ConfigEncoder[Versions] { versions =>
-    ConfigEncoder.ObjectBuilder.empty
-      .withValue("currentVersion", versions.currentVersion)
-      .withValue("olderVersions", versions.olderVersions)
-      .withValue("newerVersions", versions.newerVersions)
-      .withValue("renderUnversioned", versions.renderUnversioned)
-      .withValue("scannerConfig", versions.scannerConfig)
-      .build
   }
 
 }
