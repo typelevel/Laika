@@ -20,7 +20,7 @@ import cats.data.NonEmptyChain
 import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.rewrite.{ Version, VersionScannerConfig, Versions }
+import laika.rewrite.{ Version, Versions }
 import laika.rewrite.link.{
   ApiLinks,
   IconRegistry,
@@ -350,18 +350,17 @@ class ConfigCodecSpec extends FunSuite {
 
   object versions {
 
-    val testInstance = Versions(
-      Version("0.42.x", "0.42", canonical = true),
-      Seq(
+    val testInstance = Versions
+      .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)
+      .withOlderVersions(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43", label = Some("dev"))
-      ),
-      renderUnversioned = false,
-      scannerConfig = Some(VersionScannerConfig("/path/to/versions", Seq(Root / "api")))
-    )
+        Version("0.40.x", "0.40").withFallbackLink("toc.html")
+      )
+      .withNewerVersions(
+        Version("0.43.x", "0.43").withLabel("dev")
+      )
+      .withRenderUnversioned(false)
+      .withVersionScanner("/path/to/versions", Seq(Root / "api"))
 
   }
 

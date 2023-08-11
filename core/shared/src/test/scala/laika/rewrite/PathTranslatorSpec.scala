@@ -18,10 +18,10 @@ package laika.rewrite
 
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ SampleConfig, SampleTrees }
 import laika.config.LaikaKeys
-import laika.format.HTML
+import laika.format.{ HTML, XSLFO }
 import laika.rewrite.nav.{
   ConfigurablePathTranslator,
   TargetFormats,
@@ -34,7 +34,7 @@ class PathTranslatorSpec extends FunSuite {
 
   private val rootCursor = {
 
-    val versions = Versions(Version("0.42.x", "0.42"), Nil)
+    val versions = Versions.forCurrentVersion(Version("0.42", "0.42"))
 
     val doc2: Seq[Block] = Seq(
       Header(1, "Title").withOptions(Id("ref")),
@@ -72,7 +72,7 @@ class PathTranslatorSpec extends FunSuite {
 
   val epubRef = ConfigurablePathTranslator(
     translatorConfig,
-    OutputContext("epub.xhtml", "epub"),
+    OutputContext(XSLFO),
     Root / "tree-1" / "doc-3.md",
     lookup
   )
@@ -138,8 +138,8 @@ class PathTranslatorSpec extends FunSuite {
     val input    =
       ResolvedInternalTarget(Root / "tree-2" / "doc-5.md", RelativePath.parse("../tree-2/doc-5.md"))
     val expected = ResolvedInternalTarget(
-      Root / "tree-2" / "doc-5.epub.xhtml",
-      RelativePath.parse("../tree-2/doc-5.epub.xhtml")
+      Root / "tree-2" / "doc-5.fo",
+      RelativePath.parse("../tree-2/doc-5.fo")
     )
     assertEquals(epubRef.translate(input), expected)
   }

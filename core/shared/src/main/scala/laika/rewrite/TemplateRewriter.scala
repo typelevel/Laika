@@ -153,15 +153,32 @@ private[laika] object TemplateRewriter extends TemplateRewriter
   * the output of documents to certain target formats.
   * It is not always identical to the fileSuffix used for the specific format.
   */
-case class OutputContext(fileSuffix: String, formatSelector: String)
+sealed abstract class OutputContext {
+
+  /** The suffix to be used for file names for this output format.
+    */
+  def fileSuffix: String
+
+  /** Identifier that matches configured formats in `TargetFormats`,
+    * used to filter content for specific output formats only.
+    *
+    * @return
+    */
+  def formatSelector: String
+}
 
 object OutputContext {
-  def apply(format: String): OutputContext = apply(format, format)
+
+  private final case class Impl(fileSuffix: String, formatSelector: String)
+      extends OutputContext
+
+  private[laika] def apply(fileSuffix: String, formatSelector: String): OutputContext =
+    Impl(fileSuffix, formatSelector)
 
   def apply(format: RenderFormat[_]): OutputContext =
-    apply(format.fileSuffix, format.description.toLowerCase)
+    Impl(format.fileSuffix, format.description.toLowerCase)
 
   def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext =
-    apply(format.interimFormat.fileSuffix, format.description.toLowerCase)
+    Impl(format.interimFormat.fileSuffix, format.description.toLowerCase)
 
 }

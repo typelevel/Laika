@@ -120,7 +120,7 @@ class ThemeBundleSpec extends FunSuite {
     val testTree           =
       DocumentTree.builder.addDocument(Document(Root / "doc.md", RootElement.empty)).buildRoot
     val compoundTranslator = config(themeBundles, appBundles)
-      .pathTranslatorFor(testTree, OutputContext("html"))
+      .pathTranslatorFor(testTree, OutputContext(HTML))
       .getOrElse(NoOpPathTranslator)
     assertEquals(compoundTranslator.translate(Root / "doc.md"), Root / "doc-theme-app.html")
   }

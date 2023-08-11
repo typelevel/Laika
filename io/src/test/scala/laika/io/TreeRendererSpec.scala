@@ -47,7 +47,7 @@ import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
 import laika.rewrite.nav.{ NoOpPathTranslator, PrettyURLs, TargetFormats }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, VersionScannerConfig, Versions }
+import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import munit.CatsEffectSuite
 
 import scala.io.Codec
@@ -925,8 +925,8 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("render tree while excluding all unversioned documents, based on configuration") {
-    val versions   = Versions(Version("0.4.x", "0.4"), Seq(), Seq(), renderUnversioned = false)
-    val input      = SampleTrees.sixDocuments
+    val versions = Versions.forCurrentVersion(Version("0.4.x", "0.4")).withRenderUnversioned(false)
+    val input    = SampleTrees.sixDocuments
       .root.config(_.withValue(versions))
       .tree1.config(SampleConfig.versioned(true))
       .tree2.config(SampleConfig.versioned(true))
@@ -1088,16 +1088,19 @@ class TreeRendererSpec extends CatsEffectSuite
       .parallel[IO]
       .build
 
-    def versions(scannerRoot: Option[String] = None): Versions = Versions(
-      Version("0.4.x", "0.4", canonical = true),
-      Seq(
-        Version("0.3.x", "0.3"),
-        Version("0.2.x", "0.2"),
-        Version("0.1.x", "0.1", fallbackLink = "toc.html")
-      ),
-      Seq(Version("0.5.x", "0.5")),
-      scannerConfig = scannerRoot.map(VersionScannerConfig.apply(_))
-    )
+    def versions(scannerRoot: Option[String] = None): Versions = {
+      val versions = Versions
+        .forCurrentVersion(Version("0.4.x", "0.4").setCanonical)
+        .withOlderVersions(
+          Version("0.3.x", "0.3"),
+          Version("0.2.x", "0.2"),
+          Version("0.1.x", "0.1").withFallbackLink("toc.html")
+        )
+        .withNewerVersions(
+          Version("0.5.x", "0.5")
+        )
+      scannerRoot.fold(versions)(versions.withVersionScanner(_))
+    }
 
     def versionedInput(scannerRoot: Option[String] = None): DocumentTreeRoot =
       SampleTrees.sixDocuments
