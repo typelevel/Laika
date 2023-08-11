@@ -17,7 +17,7 @@
 package laika.config
 
 import cats.data.NonEmptyChain
-import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget }
+import laika.ast.{ DocumentMetadata, IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.rewrite.{ Version, Versions }
@@ -176,23 +176,25 @@ class ConfigCodecSpec extends FunSuite {
 
   object links {
 
-    def sort(config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
+    def sort(config: LinkConfig): LinkConfig = LinkConfig.empty
+      .addTargets(config.targets.sortBy(_.id) *)
+      .addApiLinks(config.apiLinks *)
+      .addSourceLinks(config.sourceLinks *)
 
-    val fullyPopulatedInstance = LinkConfig(
-      Seq(
-        TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
-        TargetDefinition("ext", ExternalTarget("http://ext.com")),
-        TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))
-      ),
-      Seq(
-        ApiLinks("https://foo.api/", "foo", "package.html"),
-        ApiLinks("https://bar.api/", "foo.bar")
-      ),
-      Seq(
-        SourceLinks("https://foo.source/", "scala", "foo"),
-        SourceLinks("https://bar.source/", "java", "foo.bar")
+    val fullyPopulatedInstance = LinkConfig.empty
+      .addTargets(
+        TargetDefinition.internal("bar", CurrentTree / "bar"),
+        TargetDefinition.external("ext", "http://ext.com"),
+        TargetDefinition.internal("foo", CurrentTree / "foo")
       )
-    )
+      .addApiLinks(
+        ApiLinks("https://foo.api/").withPackagePrefix("foo").withPackageSummary("package.html"),
+        ApiLinks("https://bar.api/").withPackagePrefix("foo.bar")
+      )
+      .addSourceLinks(
+        SourceLinks("https://foo.source/", "scala").withPackagePrefix("foo"),
+        SourceLinks("https://bar.source/", "java").withPackagePrefix("foo.bar")
+      )
 
   }
 
@@ -234,10 +236,9 @@ class ConfigCodecSpec extends FunSuite {
       """.stripMargin
     decode[LinkConfig](
       input,
-      LinkConfig(
-        targets = Seq(TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))),
-        apiLinks = Seq(ApiLinks("https://bar.api/"))
-      ),
+      LinkConfig.empty
+        .addTargets(TargetDefinition.internal("foo", CurrentTree / "foo"))
+        .addApiLinks(ApiLinks("https://bar.api/")),
       links.sort
     )
   }

@@ -170,7 +170,9 @@ sealed abstract class OutputContext {
 object OutputContext {
 
   private final case class Impl(fileSuffix: String, formatSelector: String)
-      extends OutputContext
+      extends OutputContext {
+    override def productPrefix: String = "OutputContext"
+  }
 
   private[laika] def apply(fileSuffix: String, formatSelector: String): OutputContext =
     Impl(fileSuffix, formatSelector)
