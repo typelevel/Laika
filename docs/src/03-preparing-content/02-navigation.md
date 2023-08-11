@@ -602,7 +602,7 @@ Auto-numbering can be switched on per configuration:
 import laika.rewrite.nav.AutonumberConfig
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(AutonumberConfig(maxDepth = 3))
+  .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
 ```
 
 @:choice(library)
@@ -616,7 +616,7 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(AutonumberConfig(maxDepth = 3))
+  .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
   .build
 ```
 @:@

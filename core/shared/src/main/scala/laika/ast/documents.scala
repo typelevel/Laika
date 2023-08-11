@@ -58,7 +58,7 @@ sealed trait TreeContent extends Navigatable {
     config.get[Traced[String]](LaikaKeys.title).toOption.flatMap { tracedTitle =>
       if (tracedTitle.origin.scope == configScope) {
         val title             = Seq(Text(tracedTitle.value))
-        val autonumberConfig  = config.get[AutonumberConfig].getOrElse(AutonumberConfig.defaults)
+        val autonumberConfig  = config.get[AutonumberConfig].getOrElse(AutonumberConfig.disabled)
         val autonumberEnabled =
           autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
         if (autonumberEnabled) Some(SpanSequence(position.toSpan +: title))

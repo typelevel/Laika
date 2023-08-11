@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast._
+import laika.ast.*
 import laika.collection.Stack
 import laika.config.Config.ConfigResult
 import laika.config.LaikaKeys
@@ -124,7 +124,7 @@ private[laika] object SectionBuilder extends RewriteRulesBuilder {
     */
   def apply(cursor: DocumentCursor): ConfigResult[RewriteRules] = for {
     autonumbering      <- cursor.config.getOpt[AutonumberConfig].map(
-      _.getOrElse(AutonumberConfig.defaults)
+      _.getOrElse(AutonumberConfig.disabled)
     )
     firstHeaderAsTitle <- cursor.config.get(
       LaikaKeys.firstHeaderAsTitle,

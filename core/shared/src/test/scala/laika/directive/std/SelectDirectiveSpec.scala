@@ -18,7 +18,7 @@ package laika.directive.std
 
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.format.{ HTML, Markdown }
 import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
@@ -157,7 +157,7 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
       SelectionConfig(
         "config",
         ChoiceConfig("a", "label-a"),
-        ChoiceConfig("b", "label-b", selected = true)
+        ChoiceConfig("b", "label-b").select
       )
     )
     val doc    = Document(Root / "doc", RootElement(group))

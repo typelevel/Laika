@@ -16,8 +16,8 @@
 
 package laika.rewrite
 
-import cats.data.{ NonEmptyChain, NonEmptyVector }
-import cats.syntax.all._
+import cats.data.NonEmptyVector
+import cats.syntax.all.*
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
@@ -31,30 +31,24 @@ class SelectionConfigSpec extends FunSuite {
 
   val selectionFoo = SelectionConfig(
     "foo",
-    NonEmptyChain(
-      ChoiceConfig("foo-a", "foo-label-a"),
-      ChoiceConfig("foo-b", "foo-label-b")
-    )
+    ChoiceConfig("foo-a", "foo-label-a"),
+    ChoiceConfig("foo-b", "foo-label-b")
   )
 
   val selectionBar = SelectionConfig(
     "bar",
-    NonEmptyChain(
-      ChoiceConfig("bar-a", "bar-label-a"),
-      ChoiceConfig("bar-b", "bar-label-b")
-    )
+    ChoiceConfig("bar-a", "bar-label-a"),
+    ChoiceConfig("bar-b", "bar-label-b")
   )
 
   val selectionBaz = SelectionConfig(
     "baz",
-    NonEmptyChain(
-      ChoiceConfig("baz-a", "baz-label-a"),
-      ChoiceConfig("baz-b", "baz-label-b")
-    )
+    ChoiceConfig("baz-a", "baz-label-a"),
+    ChoiceConfig("baz-b", "baz-label-b")
   )
 
-  val selectionFooSeparate = selectionFoo.copy(separateEbooks = true)
-  val selectionBarSeparate = selectionBar.copy(separateEbooks = true)
+  val selectionFooSeparate = selectionFoo.withSeparateEbooks
+  val selectionBarSeparate = selectionBar.withSeparateEbooks
 
   private val epubCoverImgKey = LaikaKeys.root.child("epub").child(LaikaKeys.coverImage.local)
 
@@ -98,7 +92,7 @@ class SelectionConfigSpec extends FunSuite {
     val expectedGroup1 = Selections(
       SelectionConfig(
         "foo",
-        ChoiceConfig("foo-a", "foo-label-a", selected = true),
+        ChoiceConfig("foo-a", "foo-label-a").select,
         ChoiceConfig("foo-b", "foo-label-b")
       ).withSeparateEbooks
     )
@@ -106,7 +100,7 @@ class SelectionConfigSpec extends FunSuite {
       SelectionConfig(
         "foo",
         ChoiceConfig("foo-a", "foo-label-a"),
-        ChoiceConfig("foo-b", "foo-label-b", selected = true)
+        ChoiceConfig("foo-b", "foo-label-b").select
       ).withSeparateEbooks
     )
     val expected       = NonEmptyVector.of(expectedGroup1, expectedGroup2)

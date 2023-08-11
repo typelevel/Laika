@@ -16,44 +16,38 @@
 
 package laika.rewrite.nav
 
-import laika.config.{
-  Config,
-  ConfigBuilder,
-  ConfigDecoder,
-  ConfigEncoder,
-  DefaultKey,
-  Key,
-  LaikaKeys,
-  ValidationError
-}
+import laika.config.*
 
 /** Configuration for autonumbering of documents and sections.
   */
-case class AutonumberConfig(
-    documents: Boolean = true,
-    sections: Boolean = true,
-    maxDepth: Int = Int.MaxValue
-)
+sealed abstract class AutonumberConfig {
 
-private[nav] sealed trait Scope
+  /** Applies autonumbering to directories and documents and their titles. */
+  def documents: Boolean
 
-private[nav] object Scope {
-  case object Documents extends Scope
-  case object Sections  extends Scope
-  case object All       extends Scope
-  case object None      extends Scope
+  /** Applies autonumber to section header within documents. */
+  def sections: Boolean
 
-  implicit val decoder: ConfigDecoder[Scope] = ConfigDecoder.string.flatMap {
-    case "documents" => Right(Documents)
-    case "sections"  => Right(Sections)
-    case "all"       => Right(All)
-    case "none"      => Right(None)
-    case other       => Left(ValidationError(s"Invalid value for autonumbering.scope: $other"))
-  }
+  /** Specifies how many levels deep the autonumbering should be applied.
+    * Any documents or section headers beyond this limit will be ignored.
+    *
+    * The default is unlimited depth.
+    */
+  def maxDepth: Int
 
+  /** Specifies how many levels deep the autonumbering should be applied.
+    * Any documents or section headers beyond this limit will be ignored.
+    */
+  def withMaxDepth(value: Int): AutonumberConfig
 }
 
 object AutonumberConfig {
+
+  private final case class Impl(documents: Boolean, sections: Boolean, maxDepth: Int)
+      extends AutonumberConfig {
+    override def productPrefix: String             = "AutonumberConfig"
+    def withMaxDepth(value: Int): AutonumberConfig = copy(maxDepth = value)
+  }
 
   private val scopeKey = Key("scope")
   private val depthKey = Key("depth")
@@ -71,7 +65,7 @@ object AutonumberConfig {
         case Scope.All       => (true, true)
         case Scope.None      => (false, false)
       }
-      AutonumberConfig(documents, sections, depth)
+      Impl(documents, sections, depth)
     }
   }
 
@@ -92,7 +86,9 @@ object AutonumberConfig {
   /** Disables section numbering for the specified config instance.
     * Retains the existing value for auto-numbering of documents.
     */
-  def withoutSectionNumbering(config: Config)(builder: ConfigBuilder): ConfigBuilder = {
+  private[laika] def withoutSectionNumbering(
+      config: Config
+  )(builder: ConfigBuilder): ConfigBuilder = {
     val key = LaikaKeys.autonumbering.child(scopeKey)
     config.get[Scope](key).toOption.fold(builder) {
       case Scope.Documents => builder
@@ -102,10 +98,43 @@ object AutonumberConfig {
     }
   }
 
-  /** The defaults for autonumbering with section
-    *  and document numbering both switched off.
+  /** Section numbering within documents switched on, but document and directory numbering switched off.
     */
-  def defaults: AutonumberConfig =
-    AutonumberConfig(documents = false, sections = false, maxDepth = 0)
+  def sectionsEnabled: AutonumberConfig =
+    Impl(documents = false, sections = true, maxDepth = Int.MaxValue)
+
+  /** Document and directory numbering switched on, but section numbering within documents switched off.
+    */
+  def documentsEnabled: AutonumberConfig =
+    Impl(documents = true, sections = false, maxDepth = Int.MaxValue)
+
+  /** Section and document numbering both switched on.
+    */
+  def allEnabled: AutonumberConfig =
+    Impl(documents = true, sections = true, maxDepth = Int.MaxValue)
+
+  /** Section and document numbering both switched off.
+    */
+  def disabled: AutonumberConfig =
+    Impl(documents = false, sections = false, maxDepth = 0)
+
+}
+
+private[nav] sealed trait Scope
+
+private[nav] object Scope {
+
+  case object Documents extends Scope
+  case object Sections  extends Scope
+  case object All       extends Scope
+  case object None      extends Scope
+
+  implicit val decoder: ConfigDecoder[Scope] = ConfigDecoder.string.flatMap {
+    case "documents" => Right(Documents)
+    case "sections"  => Right(Sections)
+    case "all"       => Right(All)
+    case "none"      => Right(None)
+    case other       => Left(ValidationError(s"Invalid value for autonumbering.scope: $other"))
+  }
 
 }
