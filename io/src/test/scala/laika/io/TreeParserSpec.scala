@@ -16,20 +16,20 @@
 
 package laika.io
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.data.{ Chain, NonEmptyChain }
 import cats.effect.IO
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType._
+import laika.ast.DocumentType.*
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
-import laika.bundle._
-import laika.config.ConfigException
+import laika.bundle.*
+import laika.config.{ ConfigBuilder, ConfigException, LaikaKeys }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.helper.InputBuilder
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
 import laika.io.runtime.ParserRuntime.{ DuplicatePath, ParserErrors }
 import laika.parse.Parser
@@ -276,14 +276,13 @@ class TreeParserSpec
       Root / "README.md" -> Contents.name,
       Root / "cover.md"  -> Contents.name
     )
-    val treeResult = DocumentTreeRoot(
-      DocumentTree(
-        Root,
-        List(docResult(1), docResult(2)),
-        titleDocument = Some(docResult("README.md"))
-      ),
-      coverDocument = Some(docResult("cover.md"))
-    )
+    val treeResult =
+      DocumentTree.builder
+        .addDocument(docResult(1))
+        .addDocument(docResult(2))
+        .addDocument(docResult("README.md"))
+        .addDocument(docResult("cover.md"))
+        .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -295,14 +294,19 @@ class TreeParserSpec
       Root / "alternative-title.md" -> Contents.name,
       Root / "cover.md"             -> Contents.name
     )
-    val treeResult = DocumentTreeRoot(
-      DocumentTree(
-        Root,
-        List(docResult(1), docResult(2)),
-        titleDocument = Some(docResult("alternative-title.md"))
-      ),
-      coverDocument = Some(docResult("cover.md"))
-    )
+    val treeResult =
+      DocumentTree.builder
+        .addDocument(docResult(1))
+        .addDocument(docResult(2))
+        .addDocument(docResult("alternative-title.md"))
+        .addDocument(docResult("cover.md"))
+        .addConfig(
+          ConfigBuilder.empty.withValue(
+            LaikaKeys.titleDocuments.inputName,
+            "alternative-title"
+          ).build
+        )
+        .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -335,7 +339,7 @@ class TreeParserSpec
       Root / "omg.js" -> Contents.name
     )
     val staticDoc  = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
-    val treeResult = DocumentTreeRoot(DocumentTree.empty, staticDocuments = List(staticDoc))
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStaticDocuments(List(staticDoc))
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -352,7 +356,7 @@ class TreeParserSpec
     val expectedResult = DocumentTree.builder
       .addDocument(expectedDoc)
       .buildRoot
-      .copy(staticDocuments = List(StaticDocument(providedPath)))
+      .addStaticDocuments(List(StaticDocument(providedPath)))
     parsedTree(inputs, _.addProvidedPath(providedPath)).assertEquals(expectedResult)
   }
 
@@ -423,9 +427,9 @@ class TreeParserSpec
       Root / "main2.bbb.css" -> Contents.name2,
       Root / "main3.aaa.css" -> Contents.name
     )
-    val treeResult                            = DocumentTreeRoot(
-      DocumentTree.empty,
-      styles = Map(
+
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStyles(
+      Map(
         "aaa" -> StyleDeclarationSet(
           Set(Root / "main1.aaa.css", Root / "main3.aaa.css"),
           Set(styleDecl("foo"), styleDecl("foo", 1))

@@ -22,8 +22,8 @@ import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
-import laika.ast._
-import laika.io.implicits._
+import laika.ast.*
+import laika.io.implicits.*
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
@@ -118,7 +118,7 @@ class ThemeBundleSpec extends FunSuite {
       p.parent / p.withBasename(p.basename + "-app").relative
     })
     val testTree           =
-      DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
+      DocumentTree.builder.addDocument(Document(Root / "doc.md", RootElement.empty)).buildRoot
     val compoundTranslator = config(themeBundles, appBundles)
       .pathTranslatorFor(testTree, OutputContext("html"))
       .getOrElse(NoOpPathTranslator)
@@ -140,8 +140,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -161,8 +161,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 

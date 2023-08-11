@@ -33,7 +33,7 @@ import laika.ast.{ Document, DocumentTree, Path, RawLink, SpanSequence, TreeCurs
   *
   *  @author Jens Halm
   */
-case class ReferenceResolver(config: Config) {
+private[laika] class ReferenceResolver(val config: Config) {
 
   def resolve(key: Key): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
 
@@ -71,27 +71,26 @@ private[laika] object ReferenceResolver {
     */
   def forDocument(
       document: Document,
-      parent: TreeCursor,
-      config: Config
+      parent: TreeCursor
   ): ReferenceResolver = {
 
     val rootKey = Key("cursor")
 
     val baseBuilder = ConfigBuilder
-      .withFallback(config)
+      .withFallback(document.config)
       .withValue(
         rootKey.child("currentDocument"),
         ObjectValue(
           Seq(
             Field("sourcePath", StringValue(document.path.toString)),
-            Field("content", ASTValue(document.content), config.origin),
-            Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
+            Field("content", ASTValue(document.content), document.config.origin),
+            Field("title", ASTValue(document.title.getOrElse(emptyTitle)), document.config.origin),
             Field(
               "fragments",
               ObjectValue(document.fragments.toSeq.map { case (name, element) =>
-                Field(name, ASTValue(element), config.origin)
+                Field(name, ASTValue(element), document.config.origin)
               }),
-              config.origin
+              document.config.origin
             )
           )
         )
@@ -151,7 +150,7 @@ private[laika] object ReferenceResolver {
           )
         )
 
-    apply(addSiblings(baseBuilder).build)
+    new ReferenceResolver(addSiblings(baseBuilder).build)
   }
 
 }

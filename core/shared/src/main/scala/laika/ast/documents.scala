@@ -21,11 +21,9 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.IncludeMap
-import laika.config._
+import laika.config.*
 import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
-
-import scala.runtime.AbstractFunction6
 
 /** A navigatable object is anything that has an associated path.
   */
@@ -98,11 +96,14 @@ sealed trait TreeContent extends Navigatable {
 /** A template document containing the element tree of a parsed template and its extracted
   *  configuration section (if present).
   */
-case class TemplateDocument(
-    path: Path,
-    content: TemplateRoot,
-    config: ConfigParser = ConfigParser.empty
+class TemplateDocument private (
+    val path: Path,
+    val content: TemplateRoot,
+    val config: ConfigParser
 ) extends Navigatable {
+
+  def withConfig(config: ConfigParser): TemplateDocument =
+    new TemplateDocument(path, content, config)
 
   /** Applies this template to the specified document, replacing all
     *  span and block resolvers in the template with the final resolved element.
@@ -114,6 +115,13 @@ case class TemplateDocument(
   ): Either[ConfigError, Document] =
     DocumentCursor(document, Some(outputContext))
       .flatMap(TemplateRewriter.applyTemplate(_, _ => Right(rules), this))
+
+}
+
+object TemplateDocument {
+
+  def apply(path: Path, root: TemplateRoot): TemplateDocument =
+    new TemplateDocument(path, root, ConfigParser.empty)
 
 }
 
@@ -165,13 +173,102 @@ case class SectionInfo(
 
 }
 
-/** The structure of a markup document.
+/** Represents a single document and provides access to the document content and structure
+  * as well as hooks for triggering rewrite operations.
+  *
+  * @param content the tree model obtained from parsing the markup document
+  * @param fragments separate named fragments that had been extracted from the content
   */
-trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
+class Document private (
+    context: TreeNodeContext,
+    val content: RootElement,
+    val fragments: Map[String, Element] = Map.empty
+) extends DocumentNavigation with TreeContent {
 
-  /** The tree model obtained from parsing the markup document.
+  /** The full, absolute path of this document in the (virtual) document tree.
     */
-  def content: RootElement
+  def path: Path = context.path
+
+  /** The configuration associated with this document.
+    */
+  def config: Config = context.config
+
+  /** Associates the specified config instance with this document.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
+    */
+  def withConfig(config: Config): Document = {
+    val newContext = context.copy(localConfig = config)
+    new Document(newContext, content, fragments)
+  }
+
+  /** Modifies the existing config instance for this document by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): Document = {
+    val builder = ConfigBuilder.withFallback(context.localConfig)
+    withConfig(f(builder).build)
+  }
+
+  /** Replaces the entire content of this document with the specified new `RootElement`.
+    */
+  def withContent(content: RootElement): Document =
+    new Document(context, content, fragments)
+
+  /** Replaces the fragments of this document with the specified new map.
+    */
+  def withFragments(newFragments: Map[String, Element]): Document =
+    new Document(context, content, newFragments)
+
+  /** Adds the specified fragments to the existing map of fragments.
+    */
+  def addFragments(newFragments: Map[String, Element]): Document = withFragments(
+    fragments ++ newFragments
+  )
+
+  /** The position of this document inside a document tree hierarchy, expressed as a list of Ints.
+    */
+  def position: TreePosition = context.position
+
+  private[ast] def withPosition(index: TreeNodeIndex): Document =
+    new Document(context.copy(index = index), content, fragments)
+
+  private[laika] def withPosition(index: Int): Document =
+    withPosition(TreeNodeIndex.Value(index))
+
+  private[laika] def withContent(content: RootElement, fragments: Map[String, Element]): Document =
+    new Document(context, content, fragments)
+
+  private[laika] def withTemplateConfig(config: Config): Document =
+    withConfig(config.withFallback(context.localConfig))
+
+  private[ast] def withParent(parent: TreeNodeContext): Document =
+    new Document(context.copy(parent = Some(parent)), content, fragments)
+
+  private[laika] def withPath(path: Path): Document = {
+
+    def contextFor(path: Path, oldContext: Option[TreeNodeContext]): TreeNodeContext = {
+      val oldParent = oldContext.flatMap(_.parent)
+      val parent    = path.parent match {
+        case Root  => oldParent.map(_.copy(localPath = None))
+        case other => Some(contextFor(other, oldParent))
+      }
+      oldContext match {
+        case Some(existing) => existing.copy(localPath = Some(path.name), parent = parent)
+        case None           => TreeNodeContext(localPath = Some(path.name), parent = parent)
+      }
+    }
+
+    new Document(
+      contextFor(path, Some(context)),
+      content,
+      fragments
+    )
+  }
 
   private def findRoot: Seq[Block] = {
     content.collect {
@@ -196,7 +293,7 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
   }
 
   /** The section structure of this document based on the hierarchy
-    *  of headers found in the original text markup.
+    * of headers found in the original text markup.
     */
   lazy val sections: Seq[SectionInfo] = {
 
@@ -205,6 +302,7 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
         SectionInfo(id, SpanSequence(header), extractSections(content))
       }
     }
+
     extractSections(findRoot)
   }
 
@@ -224,38 +322,194 @@ trait DocumentStructure extends DocumentNavigation { this: TreeContent =>
       }
   }
 
+  /** Returns a new, rewritten document model based on the specified rewrite rules.
+    *
+    *  If the rule is not defined for a specific element or the rule returns
+    *  a `Retain` action as a result the old element remains in the tree unchanged.
+    *
+    *  If it returns `Remove` then the node gets removed from the ast,
+    *  if it returns `Replace` with a new element it will replace the old one.
+    *
+    *  The rewriting is performed bottom-up (depth-first), therefore
+    *  any element container passed to the rule only contains children which have already
+    *  been processed.
+    */
+  def rewrite(rules: RewriteRules): Either[ConfigError, Document] =
+    DocumentCursor(this).map(_.rewriteTarget(rules))
+
+  protected val configScope: Origin.Scope = Origin.DocumentScope
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent(content: Block, contents: Block*): Document = appendContent(content +: contents)
+
+  /** Appends the specified content to this tree and return a new instance.
+    */
+  def appendContent(newContent: Seq[Block]): Document =
+    new Document(context, content.withContent(content.content ++ newContent), fragments)
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent(content: Block, contents: Block*): Document = prependContent(
+    content +: contents
+  )
+
+  /** Prepends the specified content to this tree and return a new instance.
+    */
+  def prependContent(newContent: Seq[Block]): Document =
+    new Document(context, content.withContent(newContent ++ content.content), fragments)
+
 }
 
-/** The structure of a document tree.
+object Document {
+
+  def apply(path: Path, content: RootElement): Document = {
+
+    def contextFor(path: Path): TreeNodeContext = {
+      val parent = path.parent match {
+        case Root  => None
+        case other => Some(contextFor(other))
+      }
+      TreeNodeContext(localPath = Some(path.name), parent = parent)
+    }
+
+    new Document(contextFor(path), content)
+  }
+
+}
+
+private[ast] sealed trait TreeNodeIndex
+
+private[ast] object TreeNodeIndex {
+  case object Unassigned       extends TreeNodeIndex
+  case object Inherit          extends TreeNodeIndex
+  case class Value(index: Int) extends TreeNodeIndex
+}
+
+private[ast] case class TreeNodeContext(
+    localPath: Option[String] = None,
+    localConfig: Config = Config.empty,
+    index: TreeNodeIndex = TreeNodeIndex.Unassigned,
+    parent: Option[TreeNodeContext] = None
+) {
+
+  lazy val path: Path = parent.map(_.path) match {
+    case Some(parentPath) => parentPath / localPath.getOrElse("")
+    case None             => localPath.fold[Path](Root)(Root / _)
+  }
+
+  lazy val config: Config = localConfig.withFallback(parent.fold(Config.empty)(_.config))
+
+  lazy val position: TreePosition = index match {
+    case TreeNodeIndex.Value(idx) => parent.fold(TreePosition.root)(_.position).forChild(idx)
+    case TreeNodeIndex.Inherit    => parent.fold(TreePosition.root)(_.position)
+    case TreeNodeIndex.Unassigned => TreePosition.root
+  }
+
+  def child(localName: String, config: Config = Config.empty): TreeNodeContext =
+    TreeNodeContext(Some(localName), localConfig = config, parent = Some(this))
+
+}
+
+/** Represents a virtual tree with all its documents, templates, configurations and subtrees.
+  *
+  * @param content the markup documents and subtrees except for the (optional) title document
+  * @param titleDocument the optional title document of this tree
+  * @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
   */
-trait TreeStructure { this: TreeContent =>
+class DocumentTree private[ast] (
+    context: TreeNodeContext,
+    val content: Seq[TreeContent],
+    val titleDocument: Option[Document] = None,
+    val templates: Seq[TemplateDocument] = Nil
+) extends TreeContent {
 
-  /** The actual document tree that this ast structure represents.
+  /** The full, absolute path of this (virtual) document tree.
     */
-  def targetTree: DocumentTree
+  def path: Path = context.path
 
-  /** The content of this tree structure, containing
-    * all markup documents and subtrees, except for the (optional) title document.
+  /** The configuration associated with this tree.
     */
-  def content: Seq[TreeContent]
+  def config: Config = context.config
+
+  /** The position of this tree inside a document ast hierarchy, expressed as a list of Ints.
+    */
+  def position: TreePosition = context.position
+
+  private def withContext(newContext: TreeNodeContext): DocumentTree = {
+    // separate from copy since context changes need to be propagated to all children
+    new DocumentTree(
+      newContext,
+      content.map {
+        case d: Document     => d.withParent(newContext)
+        case t: DocumentTree => t.withParent(newContext)
+      },
+      titleDocument.map(_.withParent(newContext)),
+      templates
+    )
+  }
+
+  private[ast] def setParent(doc: Document): Document = doc.withParent(context)
+
+  private def setParent(content: TreeContent): TreeContent = content match {
+    case d: Document     => d.withParent(context)
+    case t: DocumentTree => t.withParent(context)
+  }
+
+  private[ast] def withContent(
+      content: Seq[TreeContent] = this.content,
+      titleDocument: Option[Document] = this.titleDocument
+  ): DocumentTree = new DocumentTree(context, content, titleDocument, templates)
+
+  private[laika] def withPosition(index: Int): DocumentTree =
+    withContext(context.copy(index = TreeNodeIndex.Value(index)))
+
+  private[ast] def withParent(parent: TreeNodeContext): DocumentTree =
+    withContext(context.copy(parent = Some(parent)))
+
+  private[laika] def withoutTemplates: DocumentTree =
+    new DocumentTree(context, content, titleDocument, Nil)
+
+  /** Adds the specified document as the title document for this tree,
+    * replacing the existing title document if present.
+    */
+  def withTitleDocument(doc: Document): DocumentTree =
+    withContent(titleDocument = Some(setParent(doc)))
+
+  /** Adds the specified document as the title document for this tree
+    * replacing the existing title document if present or, if the parameter is empty,
+    * removes any existing title document.
+    */
+  def withTitleDocument(doc: Option[Document]): DocumentTree =
+    withContent(titleDocument = doc.map(setParent))
+
+  /** Associates the specified config instance with this document tree.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
+    */
+  def withConfig(config: Config): DocumentTree = withContext(context.copy(localConfig = config))
+
+  /** Modifies the existing config instance for this document tree by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): DocumentTree = {
+    val builder = ConfigBuilder.withFallback(context.localConfig)
+    withConfig(f(builder).build)
+  }
+
+  /** Adds the specified template document to this tree,
+    * retaining any previously added templates.
+    */
+  def addTemplate(template: TemplateDocument): DocumentTree =
+    new DocumentTree(context, content, titleDocument, templates :+ template)
 
   /** The title of this tree, obtained from configuration.
     */
   lazy val title: Option[SpanSequence] = titleDocument.flatMap(_.title).orElse(titleFromConfig)
-
-  /** The title document for this tree, if present.
-    *
-    * A document with the base name `title` and the corresponding
-    * suffix for the input markup, e.g. `title.md` for Markdown,
-    * can be used as an introductory section for a chapter represented
-    * by a directory tree.
-    */
-  def titleDocument: Option[Document]
-
-  /** All templates on this level of the tree hierarchy that might
-    * get applied to a document when it gets rendered.
-    */
-  def templates: Seq[TemplateDocument]
 
   /** All documents contained in this tree, fetched recursively, depth-first.
     */
@@ -267,7 +521,7 @@ trait TreeStructure { this: TreeContent =>
         case sub: DocumentTree => collect(sub)
       }
 
-    collect(targetTree)
+    collect(this)
   }
 
   /** Indicates whether this tree does not contain any markup document.
@@ -281,7 +535,7 @@ trait TreeStructure { this: TreeContent =>
       case sub: DocumentTree => nonEmpty(sub)
     }
 
-    !nonEmpty(targetTree)
+    !nonEmpty(this)
   }
 
   /** Selects a document from this tree or one of its subtrees by the specified path.
@@ -305,6 +559,12 @@ trait TreeStructure { this: TreeContent =>
       None
   }
 
+  /** Removes all documents from this tree where the specified filter applies to its path.
+    * Does not recurse into nested sub-trees and does not apply to templates or title documents.
+    */
+  def removeContent(filter: Path => Boolean): DocumentTree =
+    withContent(content = content.filterNot(c => filter(c.path)))
+
   /** Appends the specified content to this tree and return a new instance.
     */
   def appendContent(content: TreeContent, contents: TreeContent*): DocumentTree = appendContent(
@@ -313,8 +573,8 @@ trait TreeStructure { this: TreeContent =>
 
   /** Appends the specified content to this tree and return a new instance.
     */
-  def appendContent(content: Seq[TreeContent]): DocumentTree =
-    targetTree.copy(content = targetTree.content ++ content)
+  def appendContent(newContent: Seq[TreeContent]): DocumentTree =
+    withContent(content = content ++ newContent.map(setParent))
 
   /** Prepends the specified content to this tree and return a new instance.
     */
@@ -324,8 +584,34 @@ trait TreeStructure { this: TreeContent =>
 
   /** Prepends the specified content to this tree and return a new instance.
     */
-  def prependContent(content: Seq[TreeContent]): DocumentTree =
-    targetTree.copy(content = content ++ targetTree.content)
+  def prependContent(newContent: Seq[TreeContent]): DocumentTree =
+    withContent(content = newContent.map(setParent) ++ content)
+
+  /** Applies the specified function to all elements of the `content` property
+    * and returns a new document tree.
+    *
+    * Applies the function to documents and document trees on this level of the hierarchy.
+    * IF you want to modify documents recursively, use `modifyDocumentsRecursively` instead.
+    */
+  def modifyContent(f: TreeContent => TreeContent): DocumentTree =
+    withContent(content = content.map(f).map(setParent))
+
+  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
+    */
+  def modifyDocumentsRecursively(f: Document => Document): DocumentTree = {
+    val newTitle   = titleDocument.map(f)
+    val newContent = content.map {
+      case d: Document     => f(d)
+      case t: DocumentTree => t.modifyDocumentsRecursively(f)
+    }
+    new DocumentTree(context, newContent, newTitle, templates)
+  }
+
+  /** Replaces the contents of this document tree.
+    * Consider using `modifyContent` instead when only intending to adjust existing content.
+    */
+  def replaceContent(newContent: Seq[TreeContent]): DocumentTree =
+    withContent(content = newContent.map(setParent))
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
     * The path needs to be relative.
@@ -355,16 +641,14 @@ trait TreeStructure { this: TreeContent =>
   /** Create a new document tree that contains the specified template as the default.
     */
   def withDefaultTemplate(template: TemplateRoot, formatSuffix: String): DocumentTree = {
-    val defPath = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
-    targetTree.copy(templates =
-      targetTree.templates.filterNot(_.path == defPath) :+
-        TemplateDocument(defPath, template)
-    )
+    val defPath      = path / DefaultTemplatePath.forSuffix(formatSuffix).relative
+    val newTemplates = templates.filterNot(_.path == defPath) :+ TemplateDocument(defPath, template)
+    new DocumentTree(context, content, titleDocument, newTemplates)
   }
 
   /** Selects a subtree of this tree by the specified path.
-    *  The path needs to be relative and it may point to a deeply nested
-    *  subtree, not just immediate children.
+    * The path needs to be relative and it may point to a deeply nested
+    * subtree, not just immediate children.
     */
   def selectSubtree(path: String): Option[DocumentTree] = selectSubtree(RelativePath.parse(path))
 
@@ -373,7 +657,7 @@ trait TreeStructure { this: TreeContent =>
     * as this instance is not aware of its parents.
     */
   def selectSubtree(path: RelativePath): Option[DocumentTree] = path match {
-    case CurrentTree                                 => Some(targetTree)
+    case CurrentTree                                 => Some(this)
     case CurrentTree / localName                     =>
       content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
     case other / localName if path.parentLevels == 0 =>
@@ -392,13 +676,14 @@ trait TreeStructure { this: TreeContent =>
   ): NavigationItem = {
     def hasLinks(item: NavigationItem): Boolean =
       item.link.nonEmpty || item.content.exists(hasLinks)
-    val navContent                              = content
+
+    val navContent = content
       .filterNot(_.path == context.refPath && context.excludeSelf)
       .filterNot(_.config.get[Boolean](LaikaKeys.excludeFromNavigation).getOrElse(false))
-    val children                                =
+    val children   =
       if (context.isComplete) Nil
       else navContent.map(_.asNavigationItem(context.nextLevel)).filter(hasLinks)
-    val navTitle                                = title.getOrElse(SpanSequence(path.name))
+    val navTitle   = title.getOrElse(SpanSequence(path.name))
     context.newNavigationItem(navTitle, titleDocument, children, targetFormats)
   }
 
@@ -416,96 +701,6 @@ trait TreeStructure { this: TreeContent =>
       titleDocument.toSeq.flatMap(_.invalidElements(filter)) ++ content.flatMap(
         _.invalidElements(filter)
       )
-  }
-
-}
-
-/** Represents a single document and provides access
-  *  to the document content and structure as well
-  *  as hooks for triggering rewrite operations.
-  *
-  *  @param path the full, absolute path of this document in the (virtual) document tree
-  *  @param content the tree model obtained from parsing the markup document
-  *  @param fragments separate named fragments that had been extracted from the content
-  *  @param config the configuration for this document
-  *  @param position the position of this document inside a document tree hierarchy, expressed as a list of Ints
-  */
-case class Document(
-    path: Path,
-    content: RootElement,
-    fragments: Map[String, Element] = Map.empty,
-    config: Config = Config.empty,
-    position: TreePosition = TreePosition.orphan
-) extends DocumentStructure with TreeContent {
-
-  /** Returns a new, rewritten document model based on the specified rewrite rules.
-    *
-    *  If the rule is not defined for a specific element or the rule returns
-    *  a `Retain` action as a result the old element remains in the tree unchanged.
-    *
-    *  If it returns `Remove` then the node gets removed from the ast,
-    *  if it returns `Replace` with a new element it will replace the old one.
-    *
-    *  The rewriting is performed bottom-up (depth-first), therefore
-    *  any element container passed to the rule only contains children which have already
-    *  been processed.
-    */
-  def rewrite(rules: RewriteRules): Either[ConfigError, Document] =
-    DocumentCursor(this).map(_.rewriteTarget(rules))
-
-  protected val configScope: Origin.Scope = Origin.DocumentScope
-
-  /** Appends the specified content to this tree and return a new instance.
-    */
-  def appendContent(content: Block, contents: Block*): Document = appendContent(content +: contents)
-
-  /** Appends the specified content to this tree and return a new instance.
-    */
-  def appendContent(newContent: Seq[Block]): Document =
-    copy(content = content.withContent(this.content.content ++ newContent))
-
-  /** Prepends the specified content to this tree and return a new instance.
-    */
-  def prependContent(content: Block, contents: Block*): Document = prependContent(
-    content +: contents
-  )
-
-  /** Prepends the specified content to this tree and return a new instance.
-    */
-  def prependContent(newContent: Seq[Block]): Document =
-    copy(content = content.withContent(newContent ++ this.content.content))
-
-}
-
-/** Represents a tree with all its documents, templates, configurations and subtrees.
-  *
-  *  @param path the full, absolute path of this (virtual) document tree
-  *  @param content the markup documents and subtrees
-  *  @param titleDocument the optional title document of this tree
-  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
-  *  @param config the configuration associated with this tree
-  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
-  */
-case class DocumentTree(
-    path: Path,
-    content: Seq[TreeContent],
-    titleDocument: Option[Document] = None,
-    templates: Seq[TemplateDocument] = Nil,
-    config: Config = Config.empty,
-    position: TreePosition = TreePosition.root
-) extends TreeStructure with TreeContent {
-
-  val targetTree: DocumentTree = this
-
-  /** Creates a new tree by applying the specified function to all documents in this tree recursively.
-    */
-  def mapDocuments(f: Document => Document): DocumentTree = {
-    val newTitle   = titleDocument.map(f)
-    val newContent = content.map {
-      case d: Document     => f(d)
-      case t: DocumentTree => t.mapDocuments(f)
-    }
-    copy(titleDocument = newTitle, content = newContent)
   }
 
   /** Returns a new tree, with all the document models contained in it
@@ -531,24 +726,14 @@ case class DocumentTree(
 
 }
 
-object DocumentTree
-    extends AbstractFunction6[
-      Path,
-      Seq[TreeContent],
-      Option[Document],
-      Seq[TemplateDocument],
-      Config,
-      TreePosition,
-      DocumentTree
-    ] {
-  // TODO - simplify for 1.x - signature is required to satisfy mima (companion introduced in 0.19.3)
+object DocumentTree {
 
   /** A new, empty builder for constructing a new `DocumentTree`.
     */
   val builder = new DocumentTreeBuilder()
 
   /** An empty `DocumentTree` without any documents, templates or configurations. */
-  val empty: DocumentTree = DocumentTree(Root, Nil)
+  val empty: DocumentTree = new DocumentTree(TreeNodeContext(), Nil)
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,
@@ -563,16 +748,24 @@ object DocumentTree
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
   * @param staticDocuments the descriptors for documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
-  * @param includes the map of configuration includes that may be needed when resolving template configuration
   */
-case class DocumentTreeRoot(
-    tree: DocumentTree,
-    coverDocument: Option[Document] = None,
-    styles: Map[String, StyleDeclarationSet] =
-      Map.empty.withDefaultValue(StyleDeclarationSet.empty),
-    staticDocuments: Seq[StaticDocument] = Nil,
-    includes: IncludeMap = Map.empty
+class DocumentTreeRoot private (
+    val tree: DocumentTree,
+    val coverDocument: Option[Document],
+    val styles: Map[String, StyleDeclarationSet],
+    val staticDocuments: Seq[StaticDocument],
+    private[laika] val includes: IncludeMap
 ) {
+
+  private def copy(
+      tree: DocumentTree = this.tree,
+      coverDocument: Option[Document] = this.coverDocument,
+      styles: Map[String, StyleDeclarationSet] = this.styles,
+      staticDocuments: Seq[StaticDocument] = this.staticDocuments,
+      includes: IncludeMap = includes
+  ): DocumentTreeRoot = {
+    new DocumentTreeRoot(tree, coverDocument, styles, staticDocuments, includes)
+  }
 
   /** The configuration associated with the root of the tree.
     *
@@ -603,19 +796,58 @@ case class DocumentTreeRoot(
     */
   lazy val isEmpty: Boolean = coverDocument.isEmpty && tree.isEmpty
 
+  /** Adds the specified document as the cover for this tree,
+    * replacing the existing cover document if present.
+    */
+  def withCoverDocument(doc: Document): DocumentTreeRoot =
+    copy(coverDocument = Some(tree.setParent(doc)))
+
+  /** Adds the specified document as the cover document for this tree
+    * replacing the existing cover document if present or, if the parameter is empty,
+    * removes any existing cover document.
+    */
+  def withCoverDocument(doc: Option[Document]): DocumentTreeRoot =
+    copy(coverDocument = doc.map(tree.setParent))
+
+  /** Adds the specified styles (CSS for PDF) to this document tree.
+    */
+  def addStyles(newStyles: Map[String, StyleDeclarationSet]): DocumentTreeRoot =
+    copy(styles = styles ++ newStyles)
+
+  private[laika] def replaceStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
+    copy(staticDocuments = newDocs)
+
+  /** Adds the specified static document references to this document tree.
+    */
+  def addStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
+    copy(staticDocuments = staticDocuments ++ newDocs)
+
+  private[laika] def addIncludes(newIncludes: IncludeMap): DocumentTreeRoot =
+    copy(includes = includes ++ newIncludes)
+
   /** Creates a new tree by applying the specified function to all documents in this tree recursively.
     */
-  def mapDocuments(f: Document => Document): DocumentTreeRoot = {
+  def modifyDocumentsRecursively(f: Document => Document): DocumentTreeRoot = {
     val newCover = coverDocument.map(f)
-    val newTree  = tree.mapDocuments(f)
+    val newTree  = tree.modifyDocumentsRecursively(f)
     copy(coverDocument = newCover, tree = newTree)
   }
 
-  /** Creates a new tree by replacing its root configuration with the specified config instance.
+  /** Associates the specified config instance with this document tree.
+    *
+    * If you want to add values to the existing configuration of this instance,
+    * use `modifyConfig` instead, which is more efficient than re-assigning
+    * a full new instance which is based on the existing one.
     */
-  def withConfig(config: Config): DocumentTreeRoot = {
-    copy(tree = tree.copy(config = config))
-  }
+  def withConfig(config: Config): DocumentTreeRoot = copy(tree = tree.withConfig(config))
+
+  /** Modifies the existing config instance for this document tree by appending
+    * one or more additional values.
+    *
+    * This method is much more efficient than `withConfig` when existing config values should be retained.
+    */
+  def modifyConfig(f: ConfigBuilder => ConfigBuilder): DocumentTreeRoot =
+    copy(tree = tree.modifyConfig(f))
 
   /** Creates a new instance by applying the specified function to the root tree.
     */
@@ -646,5 +878,18 @@ case class DocumentTreeRoot(
       context: OutputContext
   ): Either[ConfigError, DocumentTreeRoot] =
     TemplateRewriter.applyTemplates(this, rules, context)
+
+}
+
+object DocumentTreeRoot {
+
+  def apply(tree: DocumentTree): DocumentTreeRoot =
+    new DocumentTreeRoot(
+      tree,
+      None,
+      Map.empty.withDefaultValue(StyleDeclarationSet.empty),
+      Nil,
+      Map.empty
+    )
 
 }

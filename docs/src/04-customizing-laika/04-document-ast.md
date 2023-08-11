@@ -416,48 +416,35 @@ The `DocumentStructure` mixin provides additional methods as shortcuts for selec
 ### The DocumentTree Type
 
 In a multi-input transformation all `Document` instances get assembled 
-into a recursive structure of `DocumentTree` instances:
+into a recursive structure of `DocumentTree` instances.
   
-```scala:reset
-import laika.ast.{Path, Document, TemplateDocument, Config, TreePosition, TreeStructure, TreeContent}
-
-case class DocumentTree (
-  path: Path,
-  content: Seq[TreeContent],
-  titleDocument: Option[Document] = None,
-  templates: Seq[TemplateDocument] = Nil,
-  config: Config = Config.empty,
-  position: TreePosition = TreePosition.root
-) extends TreeStructure with TreeContent
-```
-
-* Like with documents, the `path` property holds the absolute, virtual path of the document inside the tree.
+* Like with documents, the `path: Path` property holds the absolute, virtual path of the document inside the tree.
   For the root tree it will be `Root`.
   
-* The `content` property holds the child trees and documents of this tree.
+* The `content: Seq[TreeContent]` property holds the child trees and documents of this tree.
   Its type `TreeContent` is a trait implemented by both `Document` and `DocumentTree`.
   
-* The `titleDocument` property holds an optional title document for this tree.
+* The `titleDocument: Option[TitleDocument]` property holds an optional title document for this tree.
   A tree often represents a logical structure like a chapter.
   It is used as a section headline in auto-generated site navigation 
   as well as the first content of this tree in linearized e-book output (EPUB or PDF).
   See [Title Documents] for details.
   
-* The `templates` property holds the AST of all templates parsed inside this tree
+* The `templates: Seq[TemplateDocument]` property holds the AST of all templates parsed inside this tree
   (excluding templates from child trees).
   The AST nodes it can hold are described in [Template Spans] above.
   See [Creating Templates] for more details on the template engine.
   
-* The `config` property holds the configuration parsed from an optional HOCON document named `directory.conf`.
+* The `config: Config` property holds the configuration parsed from an optional HOCON document named `directory.conf`.
   It is an empty instance if there is no file.
   It can also be populated programmatically in cases where the content is generated and not loaded from the file system.
   See [Laika's HOCON API] for details.
 
-* The `position` property represents the position of the document in a tree.
+* The `position: TreePosition` property represents the position of the document in a tree.
   It can be used for functionality like auto-numbering.
   It is not populated if the transformation deals with a single document only.
   
-The `TreeStructure` mixin provides additional methods as shortcuts for selecting content from the tree:
+The API provides additional methods as shortcuts for selecting content from the tree:
 
 * `selectSubtree`, `selectTemplate` and `selectDocument` all accept a `RelativePath` argument to select
   content from the tree structure, including content from sub-trees.

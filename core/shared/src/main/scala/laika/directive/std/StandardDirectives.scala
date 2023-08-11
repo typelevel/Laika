@@ -137,7 +137,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
             }
         }
 
-        val config = cursor.resolver.config
+        val config = cursor.config
         if (config.hasKey(pathKey))
           config.get[Target](pathKey).leftMap(_.message).flatMap(resolveTarget)
         else resolveTarget(literalTarget)
@@ -154,9 +154,9 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
       cursor
     ).mapN { (refKey, pattern, localeAttr, cursor) =>
       val locale = localeAttr
-        .orElse(cursor.resolver.config.get[String](LaikaKeys.metadata.child("language")).toOption)
+        .orElse(cursor.config.get[String](LaikaKeys.metadata.child("language")).toOption)
 
-      cursor.resolver.config.get[PlatformDateTime.Type](refKey).leftMap(_.message).flatMap { date =>
+      cursor.config.get[PlatformDateTime.Type](refKey).leftMap(_.message).flatMap { date =>
         PlatformDateTime
           .formatConstant(date, pattern, locale)
           .getOrElse(PlatformDateTime.format(date, pattern, locale))

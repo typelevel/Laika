@@ -276,24 +276,21 @@ val config = ConfigBuilder.withFallback(parentConfig)
 
 The fallback will be used for resolving any values not present in the current instance.
 
-Finally, if you are building a `Config` instance that you want to assign to a `Document` instance in cases
-where you build an entire tree programmatically, you also have to provide a correct `Origin` instance:
+Finally, if you want to modify an existing `Config` instance of a particular `Document` instance
+you can use the `modifyConfig` method:
 
 ```scala mdoc:compile-only
 import laika.ast.Document
 
 def doc: Document = ???
-val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
-val config = ConfigBuilder.withOrigin(docOrigin)
+val finalDoc = doc.modifyConfig(_
   .withValue("laika.epub.coverImage", "/images/epub-cover.jpg")
   .withValue("laika.pdf.coverImage", "/images/pdf-cover.jpg")
-  .build
-  
-val finalDoc = doc.copy(config = config)
+)
 ```
 
-This is essential for resolving relative paths defined in that configuration correctly.
+This is more efficient than replacing the config and preserves the origin info in the existing config property which is essential for resolving relative paths defined in that configuration correctly.
 
 
 ### Parsing HOCON
@@ -340,7 +337,7 @@ val result: Either[ConfigError, Document] = ConfigParser
   .parse(hoconInput)
   .resolve(origin = docOrigin)
   .map { config =>
-    doc.copy(config = config)
+    doc.withConfig(config)
   }
 ```
 

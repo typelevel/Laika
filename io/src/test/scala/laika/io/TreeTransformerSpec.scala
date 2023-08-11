@@ -21,15 +21,15 @@ import laika.api.builder.OperationConfig
 import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.bundle.{ BundleProvider, ExtensionBundle }
 import laika.config.Config
 import laika.directive.Templates
-import laika.format._
+import laika.format.*
 import laika.io.api.{ BinaryTreeTransformer, TreeTransformer }
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{ InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.{
   FileFilter,
   FilePath,
@@ -246,7 +246,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     )
     transformWithDocumentMapper(
       inputs,
-      doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+      doc => doc.withContent(doc.content.withContent(Seq(Paragraph("foo-bar"))))
     )
       .assertEquals(
         renderedRoot(
@@ -269,10 +269,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     )
 
     val mapperFunction: Document => Document = doc =>
-      doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+      doc.withContent(doc.content.withContent(Seq(Paragraph("foo-bar"))))
 
-    val mapperFunctionExt: Document => Document = doc =>
-      doc.copy(content = doc.content.withContent(doc.content.content :+ Paragraph("baz")))
+    val mapperFunctionExt: Document => Document = doc => doc.appendContent(Paragraph("baz"))
 
     def transformWithProcessor(theme: ThemeProvider): IO[RenderedTreeRoot[IO]] =
       transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].withTheme(theme).build)

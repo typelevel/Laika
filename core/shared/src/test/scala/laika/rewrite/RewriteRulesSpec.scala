@@ -41,7 +41,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
       if (withTitles)
         ConfigBuilder.empty.withValue(LaikaKeys.firstHeaderAsTitle, true).build
       else Config.empty
-    val doc    = Document(Path.Root / "doc", root, config = config)
+    val doc    = Document(Path.Root / "doc", root).withConfig(config)
     OperationConfig.default
       .rewriteRulesFor(doc, RewritePhase.Resolve)
       .flatMap(doc.rewrite(_).map(_.content))

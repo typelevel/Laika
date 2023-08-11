@@ -18,6 +18,7 @@ package laika.rewrite.nav
 
 import laika.config.{
   Config,
+  ConfigBuilder,
   ConfigDecoder,
   ConfigEncoder,
   DefaultKey,
@@ -91,13 +92,13 @@ object AutonumberConfig {
   /** Disables section numbering for the specified config instance.
     * Retains the existing value for auto-numbering of documents.
     */
-  def withoutSectionNumbering(config: Config): Config = {
+  def withoutSectionNumbering(config: Config)(builder: ConfigBuilder): ConfigBuilder = {
     val key = LaikaKeys.autonumbering.child(scopeKey)
-    config.get[Scope](key).toOption.fold(config) {
-      case Scope.Documents => config
-      case Scope.Sections  => config.withValue(key, "none").build
-      case Scope.All       => config.withValue(key, "documents").build
-      case Scope.None      => config
+    config.get[Scope](key).toOption.fold(builder) {
+      case Scope.Documents => builder
+      case Scope.Sections  => builder.withValue(key, "none")
+      case Scope.All       => builder.withValue(key, "documents")
+      case Scope.None      => builder
     }
   }
 

@@ -18,10 +18,10 @@ package laika.io.runtime
 
 import cats.data.{ NonEmptyList, ValidatedNel }
 import cats.effect.{ Async, Sync }
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.MarkupParser
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.Config.IncludeMap
 import laika.config.{ ConfigBuilder, ConfigParser }
 import laika.io.api.TreeParser
@@ -110,8 +110,8 @@ private[io] object ParserRuntime {
       }.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
 
       def rewriteTree(root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = {
-        val rootToRewrite = root.copy(
-          staticDocuments = inputs.binaryInputs.map(doc =>
+        val rootToRewrite = root.replaceStaticDocuments(
+          inputs.binaryInputs.map(doc =>
             StaticDocument(doc.path, doc.formats)
           ) ++ inputs.providedPaths
         )

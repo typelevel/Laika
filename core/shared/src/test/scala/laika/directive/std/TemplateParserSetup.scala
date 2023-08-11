@@ -53,10 +53,10 @@ trait TemplateParserSetup {
     def rewriteTemplate(tRoot: TemplateRoot): Either[String, RootElement] = {
       val docPath  = Root / "docs" / "doc1.md"
       val template = TemplateDocument(Path.Root / "theme" / "test.template.html", tRoot)
-      val doc      = Document(docPath, RootElement.empty, config = config)
-      val root  = DocumentTreeRoot(DocumentTree(Root, Seq(DocumentTree(Root / "docs", Seq(doc)))))
-      val rules = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
-      val res   = for {
+      val doc      = Document(docPath, RootElement.empty).withConfig(config)
+      val root     = DocumentTree.builder.addDocument(doc).buildRoot
+      val rules    = OperationConfig.default.rewriteRulesFor(root, RewritePhase.Render(HTML))
+      val res      = for {
         cursor <- RootCursor(root).flatMap(
           _.allDocuments.find(_.path == docPath).toRight(
             ValidationError("cursor under test missing")

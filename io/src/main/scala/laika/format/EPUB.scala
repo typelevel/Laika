@@ -22,10 +22,10 @@ import java.util.{ Locale, UUID }
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.Config.ConfigResult
-import laika.config._
-import laika.factory._
+import laika.config.*
+import laika.factory.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
 import laika.render.{ HTMLFormatter, XHTMLFormatter }
@@ -182,14 +182,12 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     BookConfig.decodeWithDefaults(root.config).map { treeConfig =>
       treeConfig.coverImage.fold(root) { image =>
         root.modifyTree(
-          _.copy(
-            content = Document(
-              path = Root / "cover",
-              content =
-                RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))),
-              config =
-                ConfigBuilder.withFallback(root.config).withValue(LaikaKeys.title, "Cover").build
-            ) +: root.tree.content
+          _.prependContent(
+            Document(
+              Root / "cover",
+              RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover"))))
+            )
+              .modifyConfig(_.withValue(LaikaKeys.title, "Cover"))
           )
         )
       }

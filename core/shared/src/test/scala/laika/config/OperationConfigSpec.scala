@@ -166,8 +166,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -187,8 +187,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -207,8 +207,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 

@@ -19,16 +19,16 @@ package laika.config
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.bundle._
+import laika.bundle.*
 import laika.factory.MarkupFormat
-import laika.parse._
-import laika.parse.builders._
+import laika.parse.*
+import laika.parse.builders.*
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
-import laika.parse.implicits._
+import laika.parse.implicits.*
 import laika.parse.markup.DocumentParser.DocumentInput
 import laika.parse.text.TextParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
@@ -100,9 +100,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
   def doc(blocks: (Char, String)*): Document =
     Document(
       Root / "doc",
-      RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
-      config = defaultDocConfig
-    )
+      RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) })
+    ).withConfig(defaultDocConfig)
 
   test("merge parsers from a host language with parsers from an app extension") {
     val format = createParser(blocks = Seq(blockFor('>')))
@@ -159,7 +158,7 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
 
 class SpanParserConfigSpec extends FunSuite with ParserSetup {
 
-  import TextParsers._
+  import TextParsers.*
 
   val input = ">aaa +bbb"
 
@@ -187,9 +186,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
         Paragraph(
           spans.map { case (deco, text) => DecoratedSpan(deco, text) }
         )
-      ),
-      config = defaultDocConfig
-    )
+      )
+    ).withConfig(defaultDocConfig)
 
   def parser(spans: SpanParserBuilder*): MarkupFormat = createParser(
     spans = spans,
@@ -272,7 +270,7 @@ class ParserHookSpec extends FunSuite with ParserSetup {
 
   def processDoc(append: String): UnresolvedDocument => UnresolvedDocument = { unresolved =>
     unresolved.copy(document =
-      unresolved.document.copy(content = appendString(unresolved.document.content, append))
+      unresolved.document.withContent(appendString(unresolved.document.content, append))
     )
   }
 
@@ -283,7 +281,7 @@ class ParserHookSpec extends FunSuite with ParserSetup {
   }
 
   def doc(text: String): Document =
-    Document(Root / "doc", RootElement(text), config = defaultDocConfig)
+    Document(Root / "doc", RootElement(text)).withConfig(defaultDocConfig)
 
   test(
     "preProcessInput - apply the hook from a parser extension before the hook in an app extension"

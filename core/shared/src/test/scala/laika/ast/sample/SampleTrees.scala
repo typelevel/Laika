@@ -17,7 +17,7 @@
 package laika.ast.sample
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin, TreeConfigErrors }
 import laika.rewrite.link.LinkValidation
 
@@ -151,14 +151,11 @@ trait SampleRootOps extends SampleOps { self =>
 
     def config(f: ConfigBuilder => ConfigBuilder): RootApi = addDocumentConfig(key, f)
 
-    // TODO - configValue API
-
     def content(f: BuilderKey => Seq[Block]): RootApi  = setDocumentContent(key, f)
     def content(blocks: Seq[Block]): RootApi           = setDocumentContent(key, _ => blocks)
     def content(block: Block, blocks: Block*): RootApi = content(block +: blocks)
     def suffix(value: String): RootApi                 = setDocumentSuffix(key, value)
 
-    def buildCursor: DocumentCursor = ???
   }
 
   abstract class TreeOps(num: Int) extends KeyedSampleOps {
@@ -235,16 +232,15 @@ class SampleTwoDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
   private[sample] def copyWith(root: SampleRoot): RootApi         = new SampleTwoDocuments(root)
 
   def build: DocumentTreeRoot = DocumentTreeRoot(
-    tree = buildTree(0, 0, Config.empty),
-    staticDocuments = sampleRoot.staticDocuments
-  )
+    buildTree(0, 0, Config.empty)
+  ).addStaticDocuments(sampleRoot.staticDocuments)
 
   def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)
 }
 
 class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRootOps { self =>
 
-  import BuilderKey._
+  import BuilderKey.*
 
   type RootApi = SampleSixDocuments
 
@@ -276,16 +272,16 @@ class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRoo
   def build: DocumentTreeRoot = {
     val tree = buildTree(0, 0, Config.empty)
     DocumentTreeRoot(
-      tree = tree.copy(
-        content = tree.content ++ Seq(
+      tree.appendContent(
+        Seq(
           buildTree(1, 2, tree.config),
           buildTree(2, 4, tree.config),
           buildStaticTree(1, tree.config),
           buildStaticTree(2, tree.config)
         )
-      ),
-      staticDocuments = sampleRoot.staticDocuments
+      )
     )
+      .addStaticDocuments(sampleRoot.staticDocuments)
   }
 
   def buildCursor: Either[TreeConfigErrors, RootCursor] = RootCursor(build)
@@ -329,19 +325,19 @@ private[sample] case class SampleTree(
     titleDoc: Option[SampleDocument] = None
 ) {
 
-  def versioned: SampleTree   = ???
-  def unversioned: SampleTree = ???
-
   val path = if (key.num == 0) Root else Root / s"${key.prefix}-${key.num}"
 
   def build(content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
-    val conf = config.build(parentConfig, path)
-    DocumentTree(
-      path,
+    val conf    = config.build(parentConfig, path)
+    val context = TreeNodeContext(
+      localPath = Some(path.name),
+      localConfig = conf
+    )
+    new DocumentTree(
+      context,
       content.map(_.build(path, conf, root)),
       titleDocument = titleDoc.map(_.build(path, conf, root)),
-      templates = templates,
-      config = conf
+      templates = templates
     )
   }
 
@@ -364,9 +360,8 @@ private[sample] case class SampleDocument(
     val path         = treePath / (localName + suffixString)
     Document(
       path,
-      RootElement(content.getOrElse(root.defaultContent)(key)),
-      config = config.build(parentConfig, path)
-    )
+      RootElement(content.getOrElse(root.defaultContent)(key))
+    ).withConfig(config.build(parentConfig, path))
   }
 
 }

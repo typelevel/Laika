@@ -28,7 +28,7 @@ import laika.ast._
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.LaikaKeys
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     with TestSourceBuilders {
@@ -329,11 +329,8 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
     implicit val options: NavOptions = NavOptions(additionalDocuments =
       Seq(
-        Document(
-          Root / "doc-3",
-          RootElement.empty,
-          config = ConfigBuilder.empty.withValue(LaikaKeys.excludeFromNavigation, true).build
-        )
+        Document(Root / "doc-3", RootElement.empty)
+          .modifyConfig(_.withValue(LaikaKeys.excludeFromNavigation, true))
       )
     )
 

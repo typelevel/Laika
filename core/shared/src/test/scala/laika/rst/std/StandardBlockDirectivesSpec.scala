@@ -664,18 +664,21 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
                   | :prefix: (
                   | :suffix: )""".stripMargin
 
-    val expected = ObjectValue(
-      Seq(
-        Field("depth", StringValue("3")),
-        Field("start", StringValue("1")),
-        Field("prefix", StringValue("(")),
-        Field("suffix", StringValue(")"))
-      )
+    val expected = Set(
+      Field("depth", StringValue("3")),
+      Field("start", StringValue("1")),
+      Field("prefix", StringValue("(")),
+      Field("suffix", StringValue(")"))
     )
 
     val res: Either[Any, ConfigValue] =
       parser.parse(input).flatMap(_.config.get[ConfigValue](LaikaKeys.autonumbering))
-    assertEquals(res, Right(expected))
+    val fields: Option[Set[Field]]    = res
+      .toOption
+      .collect { case ObjectValue(fields) =>
+        fields.toSet
+      }
+    assertEquals(fields, Some(expected))
   }
 
   test("contents - creates a placeholder in the document") {
@@ -731,7 +734,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
         TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
       )
     )
-    val tree     = DocumentTree(Root, content = List(document), templates = List(template))
+    val tree     = DocumentTree.builder.addDocument(document).addTemplate(template).build
     val result   = for {
       rewrittenTree <- tree.rewrite(
         OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRulesFor(

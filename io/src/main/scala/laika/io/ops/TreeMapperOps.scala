@@ -52,12 +52,12 @@ private[laika] abstract class TreeMapperOps[F[_]: Monad] {
         case tree: DocumentTree => mapTree(tree).widen[TreeContent]
       }
       newTitle   <- tree.titleDocument.traverse(f)
-    } yield tree.copy(content = newContent, titleDocument = newTitle)
+    } yield tree.replaceContent(newContent).withTitleDocument(newTitle)
 
     for {
       mappedTree  <- mapTree(parsed.root.tree)
       mappedCover <- parsed.root.coverDocument.traverse(f)
-    } yield parsed.modifyRoot(_.copy(tree = mappedTree, coverDocument = mappedCover))
+    } yield parsed.modifyRoot(_.modifyTree(_ => mappedTree).withCoverDocument(mappedCover))
 
   }
 

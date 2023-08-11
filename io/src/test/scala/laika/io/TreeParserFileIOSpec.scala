@@ -67,7 +67,7 @@ class TreeParserFileIOSpec
     def doc(num: Int, path: Path = Root) =
       Document(path / s"doc-$num.md", RootElement(p(s"Doc$num äöü")))
 
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(doc(1))))
+    val treeResult = DocumentTree.builder.addDocument(doc(1)).buildRoot
     defaultParser.use(_.fromDirectory(dirname).parse).map(_.root).assertEquals(treeResult)
   }
 
@@ -79,11 +79,7 @@ class TreeParserFileIOSpec
       .suffix("md")
       .build
 
-    val expected = baseTree.copy(
-      tree = baseTree.tree.copy(
-        content = baseTree.tree.content.filter(_.path.name != "doc-1.md")
-      )
-    )
+    val expected = baseTree.modifyTree(_.removeContent(_.name == "doc-1.md"))
 
     val parser = parserWithBundle(BundleProvider.forDocTypeMatcher { case Root / "doc-1.md" =>
       Ignored
@@ -102,12 +98,8 @@ class TreeParserFileIOSpec
       .suffix("md")
       .build
 
-    val expected = baseTree.copy(
-      tree = baseTree.tree.copy(
-        content =
-          baseTree.tree.content.filter(c => c.path.name != "doc-1.md" && c.path.name != "tree-1")
-      )
-    )
+    val expected =
+      baseTree.modifyTree(_.removeContent(p => p.name == "doc-1.md" || p.name == "tree-1"))
 
     val fileFilter = FileFilter.lift(f => f.name == "doc-1.md" || f.name == "tree-1")
 
@@ -198,13 +190,11 @@ class TreeParserFileIOSpec
     val path: Path         = Root / "tree-2" / "doc-7.md"
     val extraDoc: Document = Document(path, RootElement(p("Doc7")))
 
-    def customizeTree(sample: DocumentTreeRoot): DocumentTreeRoot = sample.copy(
-      tree = sample.tree.copy(
-        content = sample.tree.content.map {
-          case tree: DocumentTree if tree.path.name == "tree-2" => tree.appendContent(extraDoc)
-          case other                                            => other
-        }
-      )
+    def customizeTree(sample: DocumentTreeRoot): DocumentTreeRoot = sample.modifyTree(
+      _.modifyContent {
+        case tree: DocumentTree if tree.path.name == "tree-2" => tree.appendContent(extraDoc)
+        case other                                            => other
+      }
     )
 
     lazy val expected: DocumentTreeRoot = expected(customizeTree = customizeTree)
@@ -375,29 +365,29 @@ class TreeParserFileIOSpec
     private val doc8 = Document(Root / "tree-3" / "doc-8.md", RootElement("Doc8"))
     private val doc9 = Document(Root / "doc-9.md", RootElement("Doc9"))
 
-    private val tree2 = baseTree.tree.content(3).asInstanceOf[DocumentTree]
-
-    val expected: DocumentTreeRoot = baseTree.modifyTree(tree =>
-      tree.copy(content =
-        tree.content.take(2) :+
-          doc9 :+
-          tree.content(2) :+
-          tree2.appendContent(doc7) :+
-          DocumentTree(Root / "tree-3", Seq(doc8))
-      )
-    )
+    val expected: DocumentTreeRoot = DocumentTree.builder
+      .addDocument(baseTree.allDocuments.head)
+      .addDocument(baseTree.allDocuments(1))
+      .addDocument(doc9)
+      .addDocument(baseTree.allDocuments(2))
+      .addDocument(baseTree.allDocuments(3))
+      .addDocument(baseTree.allDocuments(4))
+      .addDocument(baseTree.allDocuments(5))
+      .addDocument(doc7)
+      .addDocument(doc8)
+      .buildRoot
 
   }
 
   object MergedDirectorySetup extends DirectorySetup
 
   test("merge two directories from the file system using the fromDirectories method") {
-    import TopLevelMergeSetup._
+    import TopLevelMergeSetup.*
     defaultParser.use(_.fromDirectories(Seq(dir1, dir2)).parse).map(_.root).assertEquals(expected)
   }
 
   test("merge two directories from the file system using an InputTreeBuilder") {
-    import TopLevelMergeSetup._
+    import TopLevelMergeSetup.*
 
     val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2)
 
@@ -405,7 +395,7 @@ class TreeParserFileIOSpec
   }
 
   test("merge a directory at a specific mount-point using an InputTreeBuilder") {
-    import MergedDirectorySetup._
+    import MergedDirectorySetup.*
 
     val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "tree-1")
 
@@ -413,21 +403,18 @@ class TreeParserFileIOSpec
     val doc8 = Document(Root / "tree-1" / "tree-3" / "doc-8.md", RootElement("Doc8"))
     val doc9 = Document(Root / "tree-1" / "doc-9.md", RootElement("Doc9"))
 
-    val tree1       = baseTree.tree.content(2).asInstanceOf[DocumentTree]
-    val tree1Merged = tree1.copy(
-      content = tree1.content :+
-        doc9 :+
-        DocumentTree(Root / "tree-1" / "tree-2", Seq(doc7)) :+
-        DocumentTree(Root / "tree-1" / "tree-3", Seq(doc8))
-    )
+    val expected: DocumentTreeRoot = DocumentTree.builder
+      .addDocument(baseTree.allDocuments.head)
+      .addDocument(baseTree.allDocuments(1))
+      .addDocument(baseTree.allDocuments(2))
+      .addDocument(baseTree.allDocuments(3))
+      .addDocument(doc9)
+      .addDocument(doc7)
+      .addDocument(doc8)
+      .addDocument(baseTree.allDocuments(4))
+      .addDocument(baseTree.allDocuments(5))
+      .buildRoot
 
-    val expected = baseTree.copy(
-      tree = baseTree.tree.copy(
-        content = baseTree.tree.content.take(2) :+
-          tree1Merged :+
-          baseTree.tree.content.drop(3).head
-      )
-    )
     defaultParser.use(_.fromInput(treeInput).parse).map(_.root).assertEquals(expected)
   }
 

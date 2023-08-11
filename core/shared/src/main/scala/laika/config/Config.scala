@@ -164,6 +164,8 @@ trait Config {
     */
   def withOrigin(origin: Origin): Config
 
+  private[laika] def withoutFallback: Config
+
 }
 
 /** The default implementation of the Config API.
@@ -224,6 +226,8 @@ private[laika] class ObjectConfig(
     case _           => new ObjectConfig(root, origin, fallback.withFallback(other))
   }
 
+  private[laika] def withoutFallback: Config = new ObjectConfig(root, origin)
+
   def withOrigin(newOrigin: Origin): Config = new ObjectConfig(root, newOrigin, fallback)
 
   override def hashCode: Int = (root, origin, fallback).hashCode
@@ -246,6 +250,8 @@ private[config] object EmptyConfig extends Config {
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = Left(NotFound(key))
 
   def withFallback(other: Config): Config = other
+
+  private[laika] def withoutFallback: Config = this
 
   def withOrigin(newOrigin: Origin): Config = this
 }

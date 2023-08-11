@@ -20,7 +20,6 @@ import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.ConfigBuilder
 import laika.format.{ HTML, Markdown }
 import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import munit.FunSuite
@@ -161,11 +160,9 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         ChoiceConfig("b", "label-b", selected = true)
       )
     )
-    val doc    = Document(
-      Root / "doc",
-      RootElement(group),
-      config = ConfigBuilder.empty.withValue(config).build
-    )
+    val doc    = Document(Root / "doc", RootElement(group))
+      .modifyConfig(_.withValue(config))
+
     assertEquals(
       rewrite(HTML)(doc).map(_.content),
       Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))

@@ -60,6 +60,8 @@ object LaikaKeys {
 
   val versions: Key = root.child("versions")
 
+  val orphan: Key = root.child("orphan")
+
   object titleDocuments {
     val inputName: Key  = root.child(Key("titleDocuments", "inputName"))
     val outputName: Key = root.child(Key("titleDocuments", "outputName"))

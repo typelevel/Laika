@@ -1,77 +1,81 @@
 package laika.ast
 
 import laika.ast.Path.Root
+import laika.ast.sample.DocumentTreeAssertions
 import laika.config.Origin.TreeScope
 import laika.config.{ ConfigBuilder, Origin }
 import munit.FunSuite
 
-class DocumentTreeBuilderSpec extends FunSuite {
+class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {
 
   test("empty tree") {
-    assertEquals(DocumentTree.builder.build, DocumentTree.empty)
+    DocumentTree.builder.build.assertEquals(DocumentTree.empty)
   }
 
   test("tree with documents in root and sub-trees") {
-    val doc1     = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2     = Document(Root / "doc-2.md", RootElement.empty)
-    val doc3     = Document(Root / "tree" / "doc-3.md", RootElement.empty)
-    val doc4     = Document(Root / "tree" / "doc-4.md", RootElement.empty)
-    val tree     = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "doc-2.md", RootElement.empty)
+    val doc3          = Document(Root / "tree" / "doc-3.md", RootElement.empty)
+    val doc4          = Document(Root / "tree" / "doc-4.md", RootElement.empty)
+    val tree          = DocumentTree.builder
       .addDocuments(List(doc1, doc2, doc3, doc4))
       .build
-    val expected = DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
         doc2,
-        DocumentTree(Root / "tree", Seq(doc3, doc4))
+        new DocumentTree(parentContext.child("tree"), Seq(doc3, doc4))
       )
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("tree with documents and templates") {
-    val doc1      = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2      = Document(Root / "tree" / "doc-2.md", RootElement.empty)
-    val template1 = TemplateDocument(Root / "tpl-1.template.html", TemplateRoot.empty)
-    val template2 = TemplateDocument(Root / "tree" / "tpl-2.template.html", TemplateRoot.empty)
-    val tree      = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "tree" / "doc-2.md", RootElement.empty)
+    val template1     = TemplateDocument(Root / "tpl-1.template.html", TemplateRoot.empty)
+    val template2     = TemplateDocument(Root / "tree" / "tpl-2.template.html", TemplateRoot.empty)
+    val tree          = DocumentTree.builder
       .addDocument(doc1)
       .addDocument(doc2)
       .addTemplate(template1)
       .addTemplate(template2)
       .build
-    val expected  = DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
-        DocumentTree(Root / "tree", Seq(doc2), templates = Seq(template2))
+        new DocumentTree(parentContext.child("tree"), Seq(doc2), templates = Seq(template2))
       ),
       templates = Seq(template1)
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("tree with title documents") {
-    val doc1     = Document(Root / "doc-1.md", RootElement.empty)
-    val doc2     = Document(Root / "tree" / "doc-2.md", RootElement.empty)
-    val title1   = Document(Root / "README.md", RootElement.empty)
-    val title2   = Document(Root / "tree" / "README.md", RootElement.empty)
-    val tree     = DocumentTree.builder
+    val doc1          = Document(Root / "doc-1.md", RootElement.empty)
+    val doc2          = Document(Root / "tree" / "doc-2.md", RootElement.empty)
+    val title1        = Document(Root / "README.md", RootElement.empty)
+    val title2        = Document(Root / "tree" / "README.md", RootElement.empty)
+    val tree          = DocumentTree.builder
       .addDocument(doc1)
       .addDocument(doc2)
       .addDocument(title1)
       .addDocument(title2)
       .build
-    val expected = DocumentTree(
-      Root,
+    val parentContext = TreeNodeContext()
+    val expected      = new DocumentTree(
+      parentContext,
       Seq(
         doc1,
-        DocumentTree(Root / "tree", Seq(doc2), titleDocument = Some(title2))
+        new DocumentTree(parentContext.child("tree"), Seq(doc2), titleDocument = Some(title2))
       ),
       titleDocument = Some(title1)
     )
-    assertEquals(tree, expected)
+    tree.assertEquals(expected)
   }
 
   test("root tree with cover document") {
@@ -82,10 +86,10 @@ class DocumentTreeBuilderSpec extends FunSuite {
       .addDocument(cover)
       .buildRoot
     val expected = DocumentTreeRoot(
-      tree = DocumentTree(Root, Seq(doc)),
-      coverDocument = Some(cover)
+      new DocumentTree(TreeNodeContext(), Seq(doc))
     )
-    assertEquals(tree, expected)
+      .withCoverDocument(cover)
+    tree.assertEquals(expected)
   }
 
   test("document config inherits from tree config") {
@@ -94,7 +98,7 @@ class DocumentTreeBuilderSpec extends FunSuite {
     val treeOrigin = Origin(TreeScope, Root / "tree" / "directory.conf")
     val treeConfig =
       ConfigBuilder.withOrigin(treeOrigin).withValue("foo.baz", 9).build
-    val doc        = Document(docPath, RootElement.empty, config = docConfig)
+    val doc        = Document(docPath, RootElement.empty).withConfig(docConfig)
     val tree       = DocumentTree.builder
       .addDocument(doc)
       .addConfig(treeConfig)
@@ -105,11 +109,33 @@ class DocumentTreeBuilderSpec extends FunSuite {
     assertEquals(configs, Some((7, 9)))
   }
 
+  test(
+    "document config inherits from tree config when appended to the tree after its construction"
+  ) {
+    val docConfig  = ConfigBuilder.empty.withValue("foo.bar", 7).build
+    val treeOrigin = Origin(TreeScope, Root / "tree" / "directory.conf")
+    val treeConfig =
+      ConfigBuilder.withOrigin(treeOrigin).withValue("foo.baz", 9).build
+    val doc1       = Document(Root / "tree" / "doc-1", RootElement.empty).withConfig(docConfig)
+    val doc2       = Document(Root / "tree" / "doc-2", RootElement.empty).withConfig(docConfig)
+    val configs    = DocumentTree.builder
+      .addDocument(doc1)
+      .addConfig(treeConfig)
+      .build
+      .selectSubtree("tree")
+      .map(_.appendContent(doc2))
+      .flatMap(_.selectDocument("doc-2"))
+      .map { doc =>
+        (doc.config.get[Int]("foo.bar").getOrElse(0), doc.config.get[Int]("foo.baz").getOrElse(0))
+      }
+    assertEquals(configs, Some((7, 9)))
+  }
+
   test("document config inherits from base config") {
     val docPath    = Root / "tree" / "doc"
     val docConfig  = ConfigBuilder.empty.withValue("foo.bar", 7).build
     val baseConfig = ConfigBuilder.empty.withValue("foo.baz", 9).build
-    val doc        = Document(docPath, RootElement.empty, config = docConfig)
+    val doc        = Document(docPath, RootElement.empty).withConfig(docConfig)
     val tree       = DocumentTree.builder
       .addDocument(doc)
       .build(baseConfig)
@@ -130,8 +156,10 @@ class DocumentTreeBuilderSpec extends FunSuite {
       .build
       .content
       .sortBy(_.path.name)
+      .collect { case d: Document => d }
     val expected = Seq(docC, docB)
-    assertEquals(docs, expected)
+    assertEquals(docs.map(_.path), expected.map(_.path))
+    assertEquals(docs.map(_.content), expected.map(_.content))
   }
 
 }

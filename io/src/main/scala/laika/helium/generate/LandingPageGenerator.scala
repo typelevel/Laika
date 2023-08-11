@@ -17,11 +17,11 @@
 package laika.helium.generate
 
 import cats.data.Kleisli
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
-import laika.config.{ ConfigException, LaikaKeys }
+import laika.config.{ ConfigBuilder, ConfigException, LaikaKeys }
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor
@@ -38,42 +38,42 @@ private[helium] object LandingPageGenerator {
       TitleDocumentConfig.inputName(tree.root.config).map { inputName =>
         Document(
           path = Root / inputName,
-          content = landingPageContent,
-          fragments = fragments,
-          config = landingPageConfig.withValue(LaikaKeys.versioned, false).build
+          content = landingPageContent
         )
+          .withFragments(fragments)
+          .withConfig(landingPageConfig.withValue(LaikaKeys.versioned, false).build)
       }
     ) { titleDoc =>
+      val config =
+        landingPageConfig.withFallback(titleDoc.config).withValue(
+          LaikaKeys.versioned,
+          false
+        ).build
       Right(
-        titleDoc.copy(
-          content = RootElement(titleDoc.content.content ++ landingPageContent.content),
-          fragments = titleDoc.fragments ++ fragments,
-          config = landingPageConfig.withFallback(titleDoc.config).withValue(
-            LaikaKeys.versioned,
-            false
-          ).build
-        )
+        titleDoc
+          .appendContent(landingPageContent.content)
+          .addFragments(fragments)
+          .withConfig(config)
       )
     }
 
     val result = titleDocument.map { doc =>
-      val configWithTemplate   =
-        if (doc.config.hasKey(LaikaKeys.template)) doc.config
-        else doc.config.withValue(LaikaKeys.template, "landing.template.html").build
-      val titleDocWithTemplate = doc.copy(config =
-        configWithTemplate
+      def configWithTemplate(builder: ConfigBuilder): ConfigBuilder =
+        if (doc.config.hasKey(LaikaKeys.template)) builder
+        else builder.withValue(LaikaKeys.template, "landing.template.html")
+
+      val titleDocWithTemplate = doc.modifyConfig(builder =>
+        configWithTemplate(builder)
           .withValue(
             LaikaKeys.site.css.child("searchPaths"),
             (Root / "helium" / "landing.page.css") +: landingPage.styles
           )
-          .build
       )
 
       tree.modifyTree { tree =>
-        tree.copy(
-          titleDocument = Some(titleDocWithTemplate),
-          content = tree.content.filterNot(_.path.withoutSuffix.name == "landing-page")
-        )
+        tree
+          .withTitleDocument(titleDocWithTemplate)
+          .removeContent(_.withoutSuffix.name == "landing-page")
       }
     }
 
