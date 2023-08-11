@@ -16,8 +16,8 @@
 
 package laika.ast
 
-import cats.syntax.all._
-import laika.ast.RewriteRules.{ ChainedRewriteRules, RewriteRulesBuilder }
+import cats.syntax.all.*
+import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.config.Config.ConfigResult
 import laika.config.ConfigErrors
 import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
@@ -35,10 +35,10 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-case class RewriteRules(
-    spanRules: Seq[RewriteRule[Span]] = Nil,
-    blockRules: Seq[RewriteRule[Block]] = Nil,
-    templateRules: Seq[RewriteRule[TemplateSpan]] = Nil
+class RewriteRules private (
+    val spanRules: Seq[RewriteRule[Span]] = Nil,
+    val blockRules: Seq[RewriteRule[Block]] = Nil,
+    val templateRules: Seq[RewriteRule[TemplateSpan]] = Nil
 ) {
 
   private lazy val chainedSpanRules: Span => RewriteAction[Span] = new ChainedRewriteRules(
@@ -58,7 +58,7 @@ case class RewriteRules(
     * will be applied first, before its result gets passed to the other function.
     */
   def ++ (other: RewriteRules): RewriteRules =
-    RewriteRules(
+    new RewriteRules(
       spanRules ++ other.spanRules,
       blockRules ++ other.blockRules,
       templateRules ++ other.templateRules
@@ -204,6 +204,16 @@ case class RewriteRules(
 
   def asBuilder: RewriteRulesBuilder = _ => Right(this)
 
+  /** Assigns default phases to the rules, executing block and span rules
+    * in the `Build` phase and template rules in the `Render` phase.
+    */
+  def asDefaultPhaseBuilder: RewritePhaseBuilder = {
+    case RewritePhase.Build     =>
+      Seq(new RewriteRules(spanRules = spanRules, blockRules = blockRules).asBuilder)
+    case RewritePhase.Render(_) =>
+      Seq(new RewriteRules(templateRules = templateRules).asBuilder)
+  }
+
 }
 
 /** Factory methods and utilities for dealing with rewrite rules.
@@ -219,20 +229,20 @@ object RewriteRules {
   /** Creates a new instance without any rules. Applying an empty instance to an AST will always
     * return the AST unchanged.
     */
-  def empty: RewriteRules = RewriteRules()
+  def empty: RewriteRules = new RewriteRules()
 
   /** Creates a new instance containing only this single rule for spans.
     */
-  def forSpans(rule: RewriteRule[Span]): RewriteRules = RewriteRules(spanRules = Seq(rule))
+  def forSpans(rule: RewriteRule[Span]): RewriteRules = new RewriteRules(spanRules = Seq(rule))
 
   /** Creates a new instance containing only this single rule for blocks.
     */
-  def forBlocks(rule: RewriteRule[Block]): RewriteRules = RewriteRules(blockRules = Seq(rule))
+  def forBlocks(rule: RewriteRule[Block]): RewriteRules = new RewriteRules(blockRules = Seq(rule))
 
   /** Creates a new instance containing only this single rule for template spans.
     */
   def forTemplates(rule: RewriteRule[TemplateSpan]): RewriteRules =
-    RewriteRules(templateRules = Seq(rule))
+    new RewriteRules(templateRules = Seq(rule))
 
   /** Chains the specified rewrite rules so that they get applied to matching elements
     * in the order specified in the given sequence.
