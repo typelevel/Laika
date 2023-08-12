@@ -179,9 +179,8 @@ private[helium] object HeliumDefaults {
       defaultLineHeight = 1.5,
       anchorPlacement = AnchorPlacement.Left
     ),
-    metadata = DocumentMetadata(
-      language = Some(Locale.getDefault.toLanguageTag)
-    )
+    metadata = DocumentMetadata.empty
+      .withLanguage(Locale.getDefault.toLanguageTag)
   )
 
   private val defaultEPUBSettings = EPUBSettings(

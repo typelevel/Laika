@@ -92,7 +92,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     * @param coverImage the path to the cover image within the virtual document tree
     */
   case class BookConfig(
-      metadata: DocumentMetadata = DocumentMetadata(),
+      metadata: DocumentMetadata = DocumentMetadata.empty,
       navigationDepth: Option[Int] = None,
       fonts: Seq[FontDefinition] = Nil,
       coverImage: Option[Path] = None

@@ -40,11 +40,10 @@ private[pdf] object PDFNavigation {
       depth: Option[Int]
   ): Map[String, Element] = if (depth.contains(0)) Map()
   else {
-    val context = NavigationBuilderContext(
-      maxLevels = depth.getOrElse(Int.MaxValue),
-      currentLevel = 0,
-      itemStyles = Set("bookmark")
-    )
+    val context = NavigationBuilderContext.defaults
+      .withMaxLevels(depth.getOrElse(Int.MaxValue))
+      .withCurrentLevel(0)
+      .withItemStyles("bookmark")
     val toc     = result.tree.asNavigationItem(context).content
     Map("bookmarks" -> NavigationList(toc, Style.bookmark))
   }

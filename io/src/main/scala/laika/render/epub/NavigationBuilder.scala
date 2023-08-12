@@ -49,7 +49,9 @@ private[epub] object NavigationBuilder {
     )
 
     tree.asNavigationItem(
-      NavigationBuilderContext(maxLevels = depth.getOrElse(Int.MaxValue), currentLevel = 0)
+      NavigationBuilderContext.defaults.withMaxLevels(
+        depth.getOrElse(Int.MaxValue)
+      ).withCurrentLevel(0)
     )
       .content.map(adjustPath)
   }

@@ -298,18 +298,22 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
       dateModified: Option[OffsetDateTime] = None,
       version: Option[String] = None
   ): Helium = {
-    val current = currentMetadata
+    def populate[T](value: Option[T])(
+        f: (DocumentMetadata, T) => DocumentMetadata
+    ): DocumentMetadata => DocumentMetadata = { meta =>
+      value.fold(meta)(f(meta, _))
+    }
+    val functions = Seq(
+      populate(title)(_.withTitle(_)),
+      populate(description)(_.withDescription(_)),
+      populate(identifier)(_.withIdentifier(_)),
+      populate(language)(_.withLanguage(_)),
+      populate(datePublished)(_.withDatePublished(_)),
+      populate(dateModified)(_.withDateModified(_)),
+      populate(version)(_.withVersion(_))
+    ).reduce(_.andThen(_))
     withMetadata(
-      DocumentMetadata(
-        title.orElse(current.title),
-        description.orElse(current.description),
-        identifier.orElse(current.identifier),
-        current.authors ++ authors,
-        language.orElse(current.language),
-        datePublished.orElse(current.datePublished),
-        dateModified.orElse(current.dateModified),
-        version
-      )
+      functions(currentMetadata.addAuthors(authors *))
     )
   }
 
@@ -321,7 +325,7 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
   private val formats: Seq[Helium => CommonConfigOps] = Seq(_.site, _.epub, _.pdf)
 
   def fontResources(defn: FontDefinition*): Helium = formats.foldLeft(helium) {
-    case (helium, format) => format(helium).fontResources(defn: _*)
+    case (helium, format) => format(helium).fontResources(defn *)
   }
 
   def fontFamilies(body: String, headlines: String, code: String): Helium =

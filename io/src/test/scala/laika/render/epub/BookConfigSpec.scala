@@ -72,14 +72,13 @@ class BookConfigSpec extends FunSuite {
       """.stripMargin
     val actual   = ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults)
     val expected = BookConfig(
-      DocumentMetadata(
-        Some("Hell is around the corner"),
-        Some("Undescribable"),
-        Some("XX-33-FF-02"),
-        Seq("Maria South", "Helen North"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-      ),
+      DocumentMetadata.empty
+        .withTitle("Hell is around the corner")
+        .withDescription("Undescribable")
+        .withIdentifier("XX-33-FF-02")
+        .addAuthors("Maria South", "Helen North")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
       Some(4),
       TestTheme.fonts,
       Some(Root / "cover.jpg")
@@ -88,23 +87,15 @@ class BookConfigSpec extends FunSuite {
   }
 
   test("round-trip encode and decode") {
-    val input    = BookConfig(
-      DocumentMetadata(Some("XX-33-FF-01")),
+    val input   = BookConfig(
+      DocumentMetadata.empty.withIdentifier("XX-33-FF-01"),
       Some(3),
       TestTheme.fonts,
       Some(Root / "cover.jpg")
     )
-    val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
-    val actual   = decode[BookConfig](encoded)
-    val expected = BookConfig(
-      DocumentMetadata(
-        Some("XX-33-FF-01")
-      ),
-      Some(3),
-      TestTheme.fonts,
-      Some(Root / "cover.jpg")
-    )
-    assertEquals(actual, Right(expected))
+    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    val actual  = decode[BookConfig](encoded)
+    assertEquals(actual, Right(input))
   }
 
 }

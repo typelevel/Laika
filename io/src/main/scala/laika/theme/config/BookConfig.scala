@@ -27,7 +27,7 @@ import laika.config.{ ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys }
   * @param coverImage      the path to the cover image within the virtual document tree
   */
 case class BookConfig(
-    metadata: DocumentMetadata = DocumentMetadata(),
+    metadata: DocumentMetadata = DocumentMetadata.empty,
     navigationDepth: Option[Int] = None,
     fonts: Seq[FontDefinition] = Nil,
     coverImage: Option[Path] = None
@@ -37,7 +37,7 @@ object BookConfig {
 
   implicit val decoder: ConfigDecoder[BookConfig] = ConfigDecoder.config.flatMap { config =>
     for {
-      metadata   <- config.get[DocumentMetadata](LaikaKeys.metadata.local, DocumentMetadata())
+      metadata   <- config.get[DocumentMetadata](LaikaKeys.metadata.local, DocumentMetadata.empty)
       fonts      <- config.get[Seq[FontDefinition]]("fonts", Nil)
       depth      <- config.getOpt[Int]("navigationDepth")
       coverImage <- config.getOpt[Path]("coverImage")

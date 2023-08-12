@@ -20,7 +20,7 @@ import java.time.OffsetDateTime
 import java.util.Locale
 import cats.effect.IO
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.ConfigBuilder
 import laika.format.EPUB
 import laika.format.EPUB.ScriptedTemplate
@@ -37,14 +37,17 @@ class OPFRendererSpec extends FunSuite {
   val instant: OffsetDateTime = OffsetDateTime.parse(timestamp)
   val identifier              = s"urn:uuid:${new InputTreeBuilder {}.uuid}"
 
-  val config: EPUB.BookConfig = EPUB.BookConfig(metadata =
-    DocumentMetadata(
-      identifier = Some(identifier),
-      datePublished = Some(instant),
-      language = Some(Locale.UK.toLanguageTag),
-      authors = Seq("Mia Miller")
-    )
+  val configWithoutLanguage: EPUB.BookConfig = EPUB.BookConfig(metadata =
+    DocumentMetadata.empty
+      .withIdentifier(identifier)
+      .withDatePublished(instant)
+      .addAuthors("Mia Miller")
   )
+
+  val config: EPUB.BookConfig =
+    configWithoutLanguage.copy(metadata =
+      configWithoutLanguage.metadata.withLanguage(Locale.UK.toLanguageTag)
+    )
 
   case class CoverEntries(metadata: String, spine: String, guide: String)
 
@@ -95,25 +98,23 @@ class OPFRendererSpec extends FunSuite {
   }
 
   test("render a tree with a single document with the default locale rendered correctly") {
-    val manifestItems     =
+    val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
-    val spineRefs         =
+    val spineRefs     =
       """    <itemref idref="foo_epub_xhtml" />"""
-    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
-    runWith(SingleDocument.input, configWithoutLang, expected)
+    runWith(SingleDocument.input, configWithoutLanguage, expected)
   }
 
   test(
     "render a tree with a single document with valid XML id for the name starting with a digit"
   ) {
-    val manifestItems     =
+    val manifestItems =
       """    <item id="_01-foo_epub_xhtml" href="content/01-foo.epub.xhtml" media-type="application/xhtml+xml" />"""
-    val spineRefs         =
+    val spineRefs     =
       """    <itemref idref="_01-foo_epub_xhtml" />"""
-    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
-    runWith(DocumentNameStartingWithDigit.input, configWithoutLang, expected)
+    runWith(DocumentNameStartingWithDigit.input, configWithoutLanguage, expected)
   }
 
   test("render a tree with two documents") {

@@ -58,14 +58,13 @@ class ThemeConfigCodecSpec extends FunSuite {
         |}}
       """.stripMargin
     val expected = BookConfig(
-      DocumentMetadata(
-        Some("Hell is around the corner"),
-        Some("Undescribable"),
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-      ),
+      DocumentMetadata.empty
+        .withTitle("Hell is around the corner")
+        .withDescription("Undescribable")
+        .withIdentifier("XX-33-FF-01")
+        .addAuthors("Helen North", "Maria South")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
       Some(3),
       TestTheme.fonts,
       Some(Root / "cover.jpg")
@@ -84,9 +83,8 @@ class ThemeConfigCodecSpec extends FunSuite {
         |}}
       """.stripMargin
     val expected = BookConfig(
-      DocumentMetadata(
-        identifier = Some("XX-33-FF-01")
-      ),
+      DocumentMetadata.empty
+        .withIdentifier("XX-33-FF-01"),
       Some(3)
     )
     assertEquals(decode[BookConfig](input), Right(expected))
@@ -94,16 +92,16 @@ class ThemeConfigCodecSpec extends FunSuite {
 
   test("round-trip encode and decode") {
     val input    = BookConfig(
-      DocumentMetadata(Some("XX-33-FF-01")),
+      DocumentMetadata.empty
+        .withIdentifier("XX-33-FF-01"),
       Some(3),
       TestTheme.fonts,
       Some(Root / "cover.jpg")
     )
     val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
     val expected = BookConfig(
-      DocumentMetadata(
-        Some("XX-33-FF-01")
-      ),
+      DocumentMetadata.empty
+        .withIdentifier("XX-33-FF-01"),
       Some(3),
       TestTheme.fonts,
       Some(Root / "cover.jpg")

@@ -91,17 +91,16 @@ class ConfigCodecSpec extends FunSuite {
       """.stripMargin
     decode[DocumentMetadata](
       input,
-      DocumentMetadata(
-        Some("Monkey Gone To Heaven"),
-        Some("It's indescribable"),
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-        Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get),
-        Some("125"),
-        Some(new URI("http://foo.bar/baz"))
-      )
+      DocumentMetadata.empty
+        .withTitle("Monkey Gone To Heaven")
+        .withDescription("It's indescribable")
+        .withIdentifier("XX-33-FF-01")
+        .addAuthors("Helen North", "Maria South")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+        .withDateModified(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get)
+        .withVersion("125")
+        .withCanonicalLink(new URI("http://foo.bar/baz"))
     )
   }
 
@@ -117,29 +116,25 @@ class ConfigCodecSpec extends FunSuite {
       """.stripMargin
     decode[DocumentMetadata](
       input,
-      DocumentMetadata(
-        None,
-        None,
-        Some("XX-33-FF-01"),
-        Seq("Dorothea West"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-      )
+      DocumentMetadata.empty
+        .withIdentifier("XX-33-FF-01")
+        .addAuthors("Dorothea West")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
     )
   }
 
   test("DocumentMetadata - round-trip encode and decode") {
-    val input = DocumentMetadata(
-      Some("Monkey Gone To Heaven"),
-      Some("Rhubarb, Rhubarb, Rhubarb"),
-      Some("XX-33-FF-01"),
-      Seq("Helen North", "Maria South"),
-      Some("en"),
-      Some(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-      Some("125"),
-      Some(new URI("http://foo.bar/baz"))
-    )
+    val input = DocumentMetadata.empty
+      .withTitle("Monkey Gone To Heaven")
+      .withDescription("Rhubarb, Rhubarb, Rhubarb")
+      .withIdentifier("XX-33-FF-01")
+      .addAuthors("Helen North", "Maria South")
+      .withLanguage("en")
+      .withDatePublished(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get)
+      .withDateModified(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      .withVersion("125")
+      .withCanonicalLink(new URI("http://foo.bar/baz"))
     roundTrip(input)
   }
 

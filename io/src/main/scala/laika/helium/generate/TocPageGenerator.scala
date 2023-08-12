@@ -53,12 +53,10 @@ private[helium] object TocPageGenerator {
     val result =
       if (tocConfig.depth < 1) tree
       else {
-        val navContext = NavigationBuilderContext(
-          refPath = Root,
-          itemStyles = Set("toc"),
-          maxLevels = tocConfig.depth,
-          currentLevel = 0
-        )
+        val navContext = NavigationBuilderContext.defaults
+          .withItemStyles("toc")
+          .withMaxLevels(tocConfig.depth)
+          .withCurrentLevel(0)
         val navItem    = tree.root.tree.asNavigationItem(navContext)
         val navContent = navItem.content.filter { item =>
           item.link match {

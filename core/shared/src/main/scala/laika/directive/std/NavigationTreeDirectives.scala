@@ -118,14 +118,14 @@ private[laika] object NavigationTreeDirectives {
             s"Unable to resolve document or tree with path: $targetPath".invalidNec
           ) { treeContent =>
             val noRoot  = optExcludeRoot.getOrElse(excludeRoot)
-            val context = NavigationBuilderContext(
-              refPath = cursor.path,
-              itemStyles = itemStyles,
-              maxLevels = depth.getOrElse(defaultDepth),
-              currentLevel = if (noRoot) currentLevel - 1 else currentLevel,
-              excludeSections = optExcludeSections.getOrElse(excludeSections),
-              excludeSelf = excludeSelf
-            )
+            val context = NavigationBuilderContext.defaults
+              .withRefPath(cursor.path)
+              .withItemStyles(itemStyles.toSeq *)
+              .withMaxLevels(depth.getOrElse(defaultDepth))
+              .withExcludeSections(optExcludeSections.getOrElse(excludeSections))
+              .withExcludeSelf(excludeSelf)
+              .withCurrentLevel(if (noRoot) currentLevel - 1 else currentLevel)
+
             val navItem = treeContent.asNavigationItem(context)
             if (noRoot) navItem.content.toList.validNec
             else List(title.fold(navItem)(t => navItem.copy(title = t))).validNec
