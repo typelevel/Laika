@@ -29,18 +29,27 @@ import laika.config.{ Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys }
   *
   * @author Jens Halm
   */
-case class CoverImage(path: Path, classifier: Option[String] = None)
+sealed abstract class CoverImage {
+  def path: Path
+  def classifier: Option[String]
+}
 
 object CoverImage {
 
-  def apply(path: Path, classifier: String): CoverImage = CoverImage(path, Some(classifier))
+  private final case class Impl(path: Path, classifier: Option[String] = None) extends CoverImage {
+    override def productPrefix: String = "CoverImage"
+  }
+
+  def apply(path: Path): CoverImage = Impl(path, None)
+
+  def apply(path: Path, classifier: String): CoverImage = Impl(path, Some(classifier))
 
   implicit val decoder: ConfigDecoder[CoverImage] = ConfigDecoder.config.flatMap { config =>
     for {
       path       <- config.get[Path]("path")
       classifier <- config.getOpt[String]("classifier")
     } yield {
-      CoverImage(path, classifier)
+      Impl(path, classifier)
     }
   }
 
@@ -80,7 +89,7 @@ private[laika] object CoverImages {
         .map(_.orElse(classified.find(_.classifier.isEmpty).map(_.path)))
     } yield {
       val classifiedMap = classified
-        .collect { case CoverImage(path, Some(classifier)) => (classifier, path) }
+        .collect { case c: CoverImage if c.classifier.nonEmpty => (c.classifier.get, c.path) }
         .toMap
       CoverImages(default, classifiedMap)
     }

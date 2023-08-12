@@ -92,7 +92,9 @@ object PathTranslator {
     */
   def ignoreVersions(translator: PathTranslator): PathTranslator = translator match {
     case cpt: ConfigurablePathTranslator =>
-      cpt.copy(targetLookup = cpt.targetLookup.andThen(_.map(_.copy(isVersioned = false))))
+      cpt.copy(targetLookup =
+        cpt.targetLookup.andThen(_.map(attr => PathAttributes(attr.isStatic, isVersioned = false)))
+      )
     case other                           => other
   }
 
@@ -186,7 +188,19 @@ private[laika] case class ConfigurablePathTranslator(
   def forReferencePath(path: Path): PathTranslator = copy(refPath = path)
 }
 
-case class PathAttributes(isStatic: Boolean, isVersioned: Boolean)
+sealed abstract class PathAttributes {
+  def isStatic: Boolean
+  def isVersioned: Boolean
+}
+
+object PathAttributes {
+
+  private final case class Impl(isStatic: Boolean, isVersioned: Boolean) extends PathAttributes {
+    override def productPrefix = "PathAttributes"
+  }
+
+  def apply(isStatic: Boolean, isVersioned: Boolean): PathAttributes = Impl(isStatic, isVersioned)
+}
 
 private[laika] case class TranslatorConfig(
     versions: Option[Versions],
@@ -243,8 +257,9 @@ private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[Pa
     (markupDocs ++ staticDocs).toMap
   }
 
-  val versionedDocuments: Seq[Path] = lookup.collect { case (path, PathAttributes(false, true)) =>
-    path
+  val versionedDocuments: Seq[Path] = lookup.collect {
+    case (path, attr) if attr.isVersioned && !attr.isStatic =>
+      path
   }.toSeq
 
   def apply(path: Path): Option[PathAttributes] =

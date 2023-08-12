@@ -28,7 +28,7 @@ import laika.ast.{
 }
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.ConfigResult
-import laika.config._
+import laika.config.*
 
 /** Groups configuration for multiple @:select directives.
   *
@@ -44,11 +44,15 @@ import laika.config._
   *
   * @author Jens Halm
   */
-case class Selections(selections: Seq[SelectionConfig]) {
+sealed abstract class Selections {
+
+  /** All selection configurations of this instance.
+    */
+  def all: Seq[SelectionConfig]
 
   /** Returns the selection with the specified name, if present.
     */
-  def getSelection(name: String): Option[SelectionConfig] = selections.find(_.name == name)
+  def getSelection(name: String): Option[SelectionConfig] = all.find(_.name == name)
 
   /** Returns all classifiers of the configured selections based on their selection status.
     *
@@ -67,7 +71,7 @@ case class Selections(selections: Seq[SelectionConfig]) {
     * `[basename]-java-maven.epub`, `[basename]-scala-sbt.epub` and `[basename]-java-sbt.epub` and
     * also four PDF files with corresponding names.
     */
-  def getClassifiers: Classifiers = Classifiers(selections.flatMap { group =>
+  def getClassifiers: Classifiers = Classifiers(all.flatMap { group =>
     group.choices.find(_.selected).map(_.name)
   })
 
@@ -82,15 +86,19 @@ case class Classifiers(value: Seq[String])
   */
 object Selections {
 
+  private final case class Impl(all: Seq[SelectionConfig]) extends Selections {
+    override def productPrefix: String = "Selections"
+  }
+
   implicit val key: DefaultKey[Selections] = DefaultKey(LaikaKeys.selections)
 
   implicit val decoder: ConfigDecoder[Selections] =
-    ConfigDecoder.seq[SelectionConfig].map(Selections.apply)
+    ConfigDecoder.seq[SelectionConfig].map(Impl.apply)
 
   implicit val encoder: ConfigEncoder[Selections] =
-    ConfigEncoder.seq[SelectionConfig].contramap(_.selections)
+    ConfigEncoder.seq[SelectionConfig].contramap(_.all)
 
-  val empty: Selections = Selections(Nil)
+  val empty: Selections = Impl(Nil)
 
   /** Groups configuration for one or more @:select directives in an instance that can be passed to Laika configuration.
     *
@@ -109,9 +117,7 @@ object Selections {
     *
     * See the documentation for the `@:select` directive in the manual for the full context of this feature.
     */
-  def apply(selection: SelectionConfig, selections: SelectionConfig*): Selections = Selections(
-    selection +: selections
-  )
+  def apply(selections: SelectionConfig*): Selections = Impl(selections)
 
   /** Creates all valid combinations of choices for the given configuration instance.
     *
@@ -128,7 +134,7 @@ object Selections {
   def createCombinationsConfig(config: Config): ConfigResult[Seq[Seq[ChoiceConfig]]] = {
 
     def createCombinations(value: Option[Selections]): Seq[Seq[ChoiceConfig]] =
-      value.getOrElse(Selections.empty).selections
+      value.getOrElse(Selections.empty).all
         .filter(_.separateEbooks)
         .map(_.choices.toChain.toList.map(List(_)))
         .reduceLeftOption { (as, bs) =>
@@ -155,7 +161,7 @@ object Selections {
     } yield {
 
       def createCombinations(value: Selections): NonEmptyChain[Selections] = {
-        val (separated, nonSeparated) = value.selections.partition(_.separateEbooks)
+        val (separated, nonSeparated) = value.all.partition(_.separateEbooks)
 
         val combinations = separated
           .map { group =>
@@ -166,7 +172,7 @@ object Selections {
           }
 
         combinations.fold(NonEmptyChain.one(value))(_.map { combined =>
-          Selections(combined.toChain.toList ++ nonSeparated)
+          Selections((combined.toChain.toList ++ nonSeparated) *)
         })
       }
 
@@ -228,7 +234,7 @@ object Selections {
     def apply(cursor: DocumentCursor): ConfigResult[RewriteRules] = {
 
       // maps selection name to selected choice name
-      def extractMap(selectionConfig: Selections): Map[String, String] = selectionConfig.selections
+      def extractMap(selectionConfig: Selections): Map[String, String] = selectionConfig.all
         .flatMap(selection => selection.choices.find(_.selected).map(c => (selection.name, c.name)))
         .toMap
 
@@ -259,27 +265,30 @@ object Selections {
 }
 
 /** Configuration for a single kind of selection and its choices available for the user.
-  *
-  * @param name the name of the selection as used in text markup, e.g. `@:select(name)`.
-  * @param choices the configuration for one or more choices that are available in each of the directives
-  * @param separateEbooks whether the selection should render all its choices in the same output or produce
-  *                       separate e-books where in each of them only one of the choice is displayed.
-  *                       This way separate e-books for Scala vs. Java code samples or sbt vs. Maven build
-  *                       examples can be produced.
-  *                       Keep in mind that multiple selections having this property set to true would result
-  *                       in the cartesian product of available e-book versions,
-  *                       it is therefore unusual to have more than one or two.
   */
-case class SelectionConfig(
-    name: String,
-    choices: NonEmptyChain[ChoiceConfig],
-    separateEbooks: Boolean = false
-) {
+sealed abstract class SelectionConfig {
+
+  /** The name of the selection as used in text markup, e.g. `@:select(name)`. */
+  def name: String
+
+  /** The configuration for one or more choices that are available in each of the directives. */
+  def choices: NonEmptyChain[ChoiceConfig]
+
+  /** Indicates whether the selection should render all its choices in the same output
+    * or produce separate e-books where in each of them only one of the choice is displayed.
+    * This way separate e-books for Scala vs. Java code samples or sbt vs Maven build
+    * examples can be produced.
+    *
+    * Keep in mind that multiple selections having this property set to true would result
+    * in the cartesian product of available e-book versions,
+    * it is therefore unusual to have more than one or two.
+    */
+  def separateEbooks: Boolean
 
   /** Specifies that the choices of this selection should be rendered in entirely separate e-books
     * and not below each other in the same output.
     */
-  def withSeparateEbooks: SelectionConfig = copy(separateEbooks = true)
+  def withSeparateEbooks: SelectionConfig
 
   /** Returns the label of the choice with the specified name, if present.
     */
@@ -287,17 +296,31 @@ case class SelectionConfig(
 
   /** Returns a copy of this instance where the specified choice is marked as selected.
     */
-  def select(choice: ChoiceConfig): SelectionConfig =
-    copy(choices = choices.map(c => if (c == choice) c.copy(selected = true) else c))
+  def select(choice: ChoiceConfig): SelectionConfig
 
 }
 
 object SelectionConfig {
 
+  private final case class Impl(
+      name: String,
+      choices: NonEmptyChain[ChoiceConfig],
+      separateEbooks: Boolean = false
+  ) extends SelectionConfig {
+
+    override def productPrefix: String = "SelectionConfig"
+
+    def withSeparateEbooks: SelectionConfig = copy(separateEbooks = true)
+
+    def select(choice: ChoiceConfig): SelectionConfig =
+      copy(choices = choices.map(c => if (c == choice) c.select else c))
+
+  }
+
   /** Creates a new configuration instance for a single kind of selection and its choices available for the user.
     */
   def apply(name: String, choice: ChoiceConfig, choices: ChoiceConfig*): SelectionConfig =
-    SelectionConfig(name, NonEmptyChain.fromChainPrepend(choice, Chain.fromSeq(choices)))
+    Impl(name, NonEmptyChain.fromChainPrepend(choice, Chain.fromSeq(choices)))
 
   implicit val decoder: ConfigDecoder[SelectionConfig] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -305,7 +328,7 @@ object SelectionConfig {
       choices  <- config.get[NonEmptyChain[ChoiceConfig]]("choices")
       separate <- config.get[Boolean]("separateEbooks", false)
     } yield {
-      SelectionConfig(name, choices, separate)
+      Impl(name, choices, separate)
     }
   }
 
@@ -320,14 +343,31 @@ object SelectionConfig {
 }
 
 /** Configuration for a single choice within a selection.
-  *
-  * @param name the name of the selection as used in text markup, e.g. `@:choice(name)`.
-  * @param label the label to be used on tabs or on download pages describing this choice
-  * @param selected indicates whether this choice is one of the selected choices in the current render operation
   */
-case class ChoiceConfig(name: String, label: String, selected: Boolean = false)
+sealed abstract class ChoiceConfig {
+
+  /** The name of the selection as used in text markup, e.g. `@:choice(name)`. */
+  def name: String
+
+  /** The label to be used on tabs or on download pages describing this choice. */
+  def label: String
+
+  /** Indicates whether this choice is one of the selected choices in the current render operation. */
+  def selected: Boolean
+
+  /** Creates a copy with the selected flag set to true. */
+  def select: ChoiceConfig
+}
 
 object ChoiceConfig {
+
+  def apply(name: String, label: String): ChoiceConfig = Impl(name, label, selected = false)
+
+  private final case class Impl(name: String, label: String, selected: Boolean)
+      extends ChoiceConfig {
+    override def productPrefix: String = "ChoiceConfig"
+    def select: ChoiceConfig           = copy(selected = true)
+  }
 
   implicit val decoder: ConfigDecoder[ChoiceConfig] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -335,7 +375,7 @@ object ChoiceConfig {
       label    <- config.get[String]("label")
       selected <- config.get[Boolean]("selected", false)
     } yield {
-      ChoiceConfig(name, label, selected)
+      Impl(name, label, selected)
     }
   }
 

@@ -25,11 +25,11 @@ import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.StringTreeOutput
 import laika.render.HTMLFormatter
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
-import laika.theme._
+import laika.theme.*
 import munit.CatsEffectSuite
 
 class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
@@ -239,12 +239,12 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
       )
       .site.landingPage()
       .pdf.coverImages(
-        CoverImage(Root / "cover-sbt.png", Some("sbt")),
-        CoverImage(Root / "cover-library.png", Some("library"))
+        CoverImage(Root / "cover-sbt.png", "sbt"),
+        CoverImage(Root / "cover-library.png", "library")
       )
       .epub.coverImages(
-        CoverImage(Root / "cover-sbt.png", Some("sbt")),
-        CoverImage(Root / "cover-library.png", Some("library"))
+        CoverImage(Root / "cover-sbt.png", "sbt"),
+        CoverImage(Root / "cover-library.png", "library")
       )
     val expected                        = """<h1 class="title">Downloads</h1>
                      |<p>EPUB &amp; PDF</p>

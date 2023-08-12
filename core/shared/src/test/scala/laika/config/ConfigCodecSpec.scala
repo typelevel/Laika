@@ -282,7 +282,7 @@ class ConfigCodecSpec extends FunSuite {
     val sample = Selections(
       SelectionConfig(
         "foo",
-        ChoiceConfig("foo-a", "foo-label-a", selected = true),
+        ChoiceConfig("foo-a", "foo-label-a").select,
         ChoiceConfig("foo-b", "foo-label-b")
       ).withSeparateEbooks,
       SelectionConfig(
@@ -325,11 +325,7 @@ class ConfigCodecSpec extends FunSuite {
 
   object autonumbering {
 
-    val fullyPopulatedInstance = AutonumberConfig(
-      documents = true,
-      sections = true,
-      maxDepth = 5
-    )
+    val fullyPopulatedInstance = AutonumberConfig.allEnabled.withMaxDepth(5)
 
   }
 
