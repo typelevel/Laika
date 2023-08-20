@@ -16,16 +16,17 @@
 
 package laika.render.pdf
 
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.config.{ Config, ConfigException }
 import laika.format.{ PDF, XSLFO }
 import laika.io.model.RenderedTreeRoot
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.FOFormatter.ContentWrapper
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
+import laika.theme.config.BookConfig
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output
   * and applies the default XSL-FO template to the entire result.
@@ -44,7 +45,7 @@ private[laika] object FOConcatenation {
     */
   def apply[F[_]](
       result: RenderedTreeRoot[F],
-      config: PDF.BookConfig,
+      config: BookConfig,
       opConfig: OperationConfig
   ): Either[Throwable, String] = {
 

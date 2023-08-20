@@ -91,7 +91,21 @@ private[helium] trait CommonConfigOps {
     *
     * When using this method, all default fonts of the Helium theme will be de-registered.
     */
-  def fontResources(defn: FontDefinition*): Helium
+  def addFontResources(defn: FontDefinition*): Helium
+
+  /** Removes all font resources from the theme.
+    *
+    * Useful when you want to remove all default theme fonts and then populate the configuration
+    * with your own definitions.
+    */
+  def clearFontResources: Helium
+
+  /** Removes font resources from the configuration based on the specified filter.
+    *
+    * Can be used to selectively remove one or more fonts from the default theme fonts
+    * and optionally, add your own alternatives afterwards.
+    */
+  def removeFontResources(filter: FontDefinition => Boolean): Helium
 
   /** Specifies which font family to use for the body text, for headlines
     * and for inline code and code blocks.
@@ -272,8 +286,6 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
   protected def withColors(colors: ColorSet): Helium
   protected def withMetadata(metadata: DocumentMetadata): Helium
 
-  def fontResources(defn: FontDefinition*): Helium
-
   def fontFamilies(body: String, headlines: String, code: String): Helium =
     withFontFamilies(ThemeFonts(body, headlines, code))
 
@@ -324,8 +336,16 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
 
   private val formats: Seq[Helium => CommonConfigOps] = Seq(_.site, _.epub, _.pdf)
 
-  def fontResources(defn: FontDefinition*): Helium = formats.foldLeft(helium) {
-    case (helium, format) => format(helium).fontResources(defn *)
+  def addFontResources(defn: FontDefinition*): Helium = formats.foldLeft(helium) {
+    case (helium, format) => format(helium).addFontResources(defn *)
+  }
+
+  def clearFontResources: Helium = formats.foldLeft(helium) { case (helium, format) =>
+    format(helium).clearFontResources
+  }
+
+  def removeFontResources(filter: FontDefinition => Boolean): Helium = formats.foldLeft(helium) {
+    case (helium, format) => format(helium).removeFontResources(filter)
   }
 
   def fontFamilies(body: String, headlines: String, code: String): Helium =
@@ -431,8 +451,16 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   protected def currentMetadata: DocumentMetadata = helium.siteSettings.metadata
   protected def currentColors: ColorSet           = helium.siteSettings.colors
 
-  def fontResources(defn: FontDefinition*): Helium = copyWith(
+  def addFontResources(defn: FontDefinition*): Helium = copyWith(
     helium.siteSettings.copy(fontResources = defn)
+  )
+
+  def clearFontResources: Helium = copyWith(
+    helium.siteSettings.copy(fontResources = Nil)
+  )
+
+  def removeFontResources(filter: FontDefinition => Boolean): Helium = copyWith(
+    helium.siteSettings.copy(fontResources = helium.siteSettings.fontResources.filterNot(filter))
   )
 
   protected def withFontFamilies(fonts: ThemeFonts): Helium = copyWith(
@@ -766,7 +794,6 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param mainNavigation indicates whether the main (left) navigation pane should reset to the auto-generated list
     * @param topNavigation indicates whether the top navigation bar should remove any pre-populated links
     * @param favIcons indicates that the list of favicons should be cleared
-    * @return
     */
   def resetDefaults(
       mainNavigation: Boolean = false,
@@ -793,10 +820,18 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet           = helium.epubSettings.colors
   protected def currentLayout: EPUBLayout         = helium.epubSettings.layout
 
-  def fontResources(defn: FontDefinition*): Helium =
+  def addFontResources(defn: FontDefinition*): Helium =
     copyWith(
-      helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.copy(fonts = defn))
+      helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.addFonts(defn *))
     )
+
+  def clearFontResources: Helium = copyWith(
+    helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.clearFonts)
+  )
+
+  def removeFontResources(filter: FontDefinition => Boolean): Helium = copyWith(
+    helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.removeFonts(filter))
+  )
 
   protected def withFontFamilies(fonts: ThemeFonts): Helium =
     copyWith(helium.epubSettings.copy(themeFonts = fonts))
@@ -809,9 +844,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
 
   protected def withMetadata(metadata: DocumentMetadata): Helium =
     copyWith(
-      helium.epubSettings.copy(bookConfig =
-        helium.epubSettings.bookConfig.copy(metadata = metadata)
-      )
+      helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.withMetadata(metadata))
     )
 
   /** Allows to add a second color set for dark mode.
@@ -837,7 +870,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
   def navigationDepth(depth: Int): Helium =
     copyWith(
       helium.epubSettings.copy(bookConfig =
-        helium.epubSettings.bookConfig.copy(navigationDepth = Some(depth))
+        helium.epubSettings.bookConfig.withNavigationDepth(depth)
       )
     )
 
@@ -926,8 +959,16 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
   protected def currentMetadata: DocumentMetadata = helium.pdfSettings.metadata
   protected def currentColors: ColorSet           = helium.pdfSettings.colors
 
-  def fontResources(defn: FontDefinition*): Helium =
-    copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(fonts = defn)))
+  def addFontResources(defn: FontDefinition*): Helium =
+    copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.addFonts(defn *)))
+
+  def clearFontResources: Helium = copyWith(
+    helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.clearFonts)
+  )
+
+  def removeFontResources(filter: FontDefinition => Boolean): Helium = copyWith(
+    helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.removeFonts(filter))
+  )
 
   protected def withFontFamilies(fonts: ThemeFonts): Helium = copyWith(
     helium.pdfSettings.copy(themeFonts = fonts)
@@ -943,7 +984,7 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
 
   protected def withMetadata(metadata: DocumentMetadata): Helium =
     copyWith(
-      helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.copy(metadata = metadata))
+      helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.withMetadata(metadata))
     )
 
   /** The navigation depth of the main navigation structure provided to the PDF reader.
@@ -957,9 +998,7 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
     */
   def navigationDepth(depth: Int): Helium =
     copyWith(
-      helium.pdfSettings.copy(bookConfig =
-        helium.pdfSettings.bookConfig.copy(navigationDepth = Some(depth))
-      )
+      helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.withNavigationDepth(depth))
     )
 
   /** Allows to override the defaults for Helium's PDF layout.

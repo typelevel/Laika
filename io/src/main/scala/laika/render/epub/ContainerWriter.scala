@@ -17,13 +17,14 @@
 package laika.render.epub
 
 import cats.effect.{ Async, Sync }
-import cats.implicits._
+import cats.implicits.*
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.ConfigException
 import laika.format.EPUB
-import laika.io.model._
+import laika.io.model.*
 import laika.render.TagFormatter
+import laika.theme.config.BookConfig
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -50,7 +51,7 @@ private[laika] class ContainerWriter {
     */
   def collectInputs[F[_]](
       result: RenderedTreeRoot[F],
-      config: EPUB.BookConfig
+      config: BookConfig
   ): Seq[BinaryInput[F]] = {
 
     val contentRoot = Root / "EPUB" / "content"
@@ -118,7 +119,7 @@ private[laika] class ContainerWriter {
 
     for {
       config <- Sync[F].fromEither(
-        EPUB.BookConfig.decodeWithDefaults(result.config).left.map(ConfigException.apply)
+        BookConfig.decodeWithDefaults(result.config, EPUB.configKey).left.map(ConfigException.apply)
       )
       inputs = collectInputs(result, config)
       _ <- ZipWriter.zipEPUB(inputs, output)

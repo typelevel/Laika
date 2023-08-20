@@ -19,7 +19,7 @@ package laika.theme
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
-import laika.config._
+import laika.config.*
 import laika.render.fo.TestTheme
 import laika.theme.config.BookConfig
 import laika.time.PlatformDateTime
@@ -30,6 +30,9 @@ import munit.FunSuite
 class ThemeConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
+
+  def decode[T: ConfigDecoder](input: String, key: Key): ConfigResult[T] =
+    ConfigParser.parse(input).resolve().flatMap(_.get[T](key))
 
   def decode[T: ConfigDecoder: DefaultKey](input: String): ConfigResult[T] =
     ConfigParser.parse(input).resolve().flatMap(_.get[T])
@@ -57,19 +60,20 @@ class ThemeConfigCodecSpec extends FunSuite {
         |  coverImage = cover.jpg
         |}}
       """.stripMargin
-    val expected = BookConfig(
-      DocumentMetadata.empty
-        .withTitle("Hell is around the corner")
-        .withDescription("Undescribable")
-        .withIdentifier("XX-33-FF-01")
-        .addAuthors("Helen North", "Maria South")
-        .withLanguage("en")
-        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-      Some(3),
-      TestTheme.fonts,
-      Some(Root / "cover.jpg")
-    )
-    assertEquals(decode[BookConfig](input), Right(expected))
+    val expected = BookConfig.empty
+      .withMetadata(
+        DocumentMetadata.empty
+          .withTitle("Hell is around the corner")
+          .withDescription("Undescribable")
+          .withIdentifier("XX-33-FF-01")
+          .addAuthors("Helen North", "Maria South")
+          .withLanguage("en")
+          .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      )
+      .withNavigationDepth(3)
+      .addFonts(TestTheme.fonts *)
+      .withCoverImage(Root / "cover.jpg")
+    assertEquals(decode[BookConfig](input, LaikaKeys.root), Right(expected))
   }
 
   test("decode an instance with some fields populated") {
@@ -82,31 +86,26 @@ class ThemeConfigCodecSpec extends FunSuite {
         |  navigationDepth = 3
         |}}
       """.stripMargin
-    val expected = BookConfig(
-      DocumentMetadata.empty
-        .withIdentifier("XX-33-FF-01"),
-      Some(3)
-    )
-    assertEquals(decode[BookConfig](input), Right(expected))
+    val expected = BookConfig.empty
+      .withMetadata(
+        DocumentMetadata.empty
+          .withIdentifier("XX-33-FF-01")
+      )
+      .withNavigationDepth(3)
+    assertEquals(decode[BookConfig](input, LaikaKeys.root), Right(expected))
   }
 
   test("round-trip encode and decode") {
-    val input    = BookConfig(
-      DocumentMetadata.empty
-        .withIdentifier("XX-33-FF-01"),
-      Some(3),
-      TestTheme.fonts,
-      Some(Root / "cover.jpg")
-    )
-    val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
-    val expected = BookConfig(
-      DocumentMetadata.empty
-        .withIdentifier("XX-33-FF-01"),
-      Some(3),
-      TestTheme.fonts,
-      Some(Root / "cover.jpg")
-    )
-    assertEquals(decode[BookConfig](encoded), Right(expected))
+    val input   = BookConfig.empty
+      .withMetadata(
+        DocumentMetadata.empty
+          .withIdentifier("XX-33-FF-01")
+      )
+      .withNavigationDepth(3)
+      .addFonts(TestTheme.fonts *)
+      .withCoverImage(Root / "cover.jpg")
+    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    assertEquals(decode[BookConfig](encoded), Right(input))
   }
 
 }

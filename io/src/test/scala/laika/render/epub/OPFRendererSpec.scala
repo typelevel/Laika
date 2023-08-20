@@ -22,9 +22,9 @@ import cats.effect.IO
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.ConfigBuilder
-import laika.format.EPUB
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.RenderedTreeRoot
+import laika.theme.config.BookConfig
 import munit.FunSuite
 
 class OPFRendererSpec extends FunSuite {
@@ -37,17 +37,15 @@ class OPFRendererSpec extends FunSuite {
   val instant: OffsetDateTime = OffsetDateTime.parse(timestamp)
   val identifier              = s"urn:uuid:${new InputTreeBuilder {}.uuid}"
 
-  val configWithoutLanguage: EPUB.BookConfig = EPUB.BookConfig(metadata =
-    DocumentMetadata.empty
-      .withIdentifier(identifier)
-      .withDatePublished(instant)
-      .addAuthors("Mia Miller")
-  )
+  private val metadataWithoutLanguage: DocumentMetadata = DocumentMetadata.empty
+    .withIdentifier(identifier)
+    .withDatePublished(instant)
+    .addAuthors("Mia Miller")
 
-  val config: EPUB.BookConfig =
-    configWithoutLanguage.copy(metadata =
-      configWithoutLanguage.metadata.withLanguage(Locale.UK.toLanguageTag)
-    )
+  val configWithoutLanguage: BookConfig = BookConfig.empty.withMetadata(metadataWithoutLanguage)
+
+  val config: BookConfig =
+    BookConfig.empty.withMetadata(metadataWithoutLanguage.withLanguage(Locale.UK.toLanguageTag))
 
   case class CoverEntries(metadata: String, spine: String, guide: String)
 
@@ -78,7 +76,7 @@ class OPFRendererSpec extends FunSuite {
   def run(input: RenderedTreeRoot[IO], expected: String)(implicit loc: munit.Location): Unit =
     runWith(input, this.config, expected)
 
-  def runWith(input: RenderedTreeRoot[IO], config: EPUB.BookConfig, expected: String)(implicit
+  def runWith(input: RenderedTreeRoot[IO], config: BookConfig, expected: String)(implicit
       loc: munit.Location
   ): Unit = {
     val actual = renderer.render(input, title, config)
@@ -155,7 +153,7 @@ class OPFRendererSpec extends FunSuite {
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />""".stripMargin
     val expected      = fileContent(manifestItems, spineRefs, coverEntries = Some(coverEntries))
-    val coverConfig   = config.copy(coverImage = Some(Root / "cover.png"))
+    val coverConfig   = config.withCoverImage(Root / "cover.png")
     runWith(DocumentPlusCover.input, coverConfig, expected)
   }
 

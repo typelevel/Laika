@@ -16,16 +16,12 @@
 
 package laika.format
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.{ Locale, UUID }
 import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Resource }
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
-import laika.ast.{ DocumentMetadata, DocumentTreeRoot, Path, TemplateRoot }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
+import laika.ast.{ DocumentTreeRoot, TemplateRoot }
+import laika.config.{ Config, Key }
 import laika.factory.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -37,9 +33,7 @@ import laika.theme.Theme
 import laika.render.FOFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
-import laika.theme.config.{ FontDefinition, BookConfig => CommonBookConfig }
-
-import java.time.OffsetDateTime
+import laika.theme.config.BookConfig
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer.
   *  May be directly passed to the `Render` or `Transform` APIs:
@@ -69,6 +63,9 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
 
   val interimFormat: RenderFormat[FOFormatter] = XSLFO
 
+  /** The key to read `BookConfig` instance from for this PDF renderer. */
+  val configKey: Key = Key("laika", "pdf")
+
   /** Adds a preamble to each document for navigation and replaces the template with a fallback.
     * The modified tree will be used for rendering the interim XSL-FO result.
     * The original template will only be applied to the concatenated result of the XSL-FO renderer
@@ -90,7 +87,7 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Dispatcher.parallel[F].evalMap { dispatcher =>
-        val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
+        val pdfConfig = BookConfig.decodeWithDefaults(config, configKey).getOrElse(BookConfig.empty)
         FopFactoryBuilder.build(pdfConfig, theme.inputs.binaryInputs, dispatcher).map {
           fopFactory =>
             new BinaryPostProcessor[F] {
@@ -107,66 +104,6 @@ object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder]
             }
         }
       }
-
-  }
-
-  /** Configuration options for the generated EPUB output.
-    *
-    * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
-    * implicit key association with the EPUB-specific instance.
-    *
-    * @param metadata the metadata associated with the document
-    * @param navigationDepth the number of levels to generate a table of contents for
-    * @param fonts the fonts that should be embedded in the PDF output
-    * @param coverImage the path to the cover image within the virtual document tree
-    */
-  case class BookConfig(
-      metadata: DocumentMetadata = DocumentMetadata.empty,
-      navigationDepth: Option[Int] = None,
-      fonts: Seq[FontDefinition] = Nil,
-      coverImage: Option[Path] = None
-  ) {
-
-    lazy val identifier: String =
-      metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-
-    lazy val date: OffsetDateTime =
-      metadata.dateModified.orElse(metadata.datePublished).getOrElse(OffsetDateTime.now())
-
-    lazy val formattedDate: String =
-      DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
-
-    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
-  }
-
-  object BookConfig {
-
-    implicit val decoder: ConfigDecoder[BookConfig] = CommonBookConfig.decoder.map(c =>
-      BookConfig(
-        c.metadata,
-        c.navigationDepth,
-        c.fonts,
-        c.coverImage
-      )
-    )
-
-    implicit val encoder: ConfigEncoder[BookConfig] = CommonBookConfig.encoder.contramap(c =>
-      CommonBookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
-    )
-
-    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika", "pdf"))
-
-    def decodeWithDefaults(config: Config): ConfigResult[BookConfig] = for {
-      pdfConfig    <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[CommonBookConfig].map(_.getOrElse(CommonBookConfig()))
-    } yield {
-      BookConfig(
-        pdfConfig.metadata.withDefaults(commonConfig.metadata),
-        pdfConfig.navigationDepth.orElse(commonConfig.navigationDepth),
-        pdfConfig.fonts ++ commonConfig.fonts,
-        pdfConfig.coverImage.orElse(commonConfig.coverImage)
-      )
-    }
 
   }
 

@@ -16,11 +16,11 @@
 
 package laika.render.epub
 
-import laika.ast._
-import laika.format.EPUB
+import laika.ast.*
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.{ RenderedDocument, RenderedTreeRoot }
 import laika.rewrite.link.SlugBuilder
+import laika.theme.config.BookConfig
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -110,7 +110,7 @@ private[epub] class OPFRenderer {
 
   /** Renders the content of an EPUB Package document (OPF) generated from the specified document tree.
     */
-  def render[F[_]](result: RenderedTreeRoot[F], title: String, config: EPUB.BookConfig): String = {
+  def render[F[_]](result: RenderedTreeRoot[F], title: String, config: BookConfig): String = {
 
     lazy val hasScriptDocuments: Boolean =
       result.staticDocuments.exists(_.path.suffix.exists(s => s == "epub.js" || s == "shared.js"))

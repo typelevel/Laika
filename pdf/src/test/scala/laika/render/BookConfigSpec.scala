@@ -20,8 +20,9 @@ import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
 import laika.config.Config.ConfigResult
 import laika.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
-import laika.format.EPUB.BookConfig
+import laika.format.PDF
 import laika.render.fo.TestTheme
+import laika.theme.config.BookConfig
 import laika.time.PlatformDateTime
 import munit.FunSuite
 
@@ -35,7 +36,10 @@ class BookConfigSpec extends FunSuite {
   def decode[T: ConfigDecoder](config: Config): ConfigResult[T] = config.get[T](testKey)
 
   test("decode defaults with an empty config") {
-    assertEquals(BookConfig.decodeWithDefaults(Config.empty), Right(BookConfig()))
+    assertEquals(
+      BookConfig.decodeWithDefaults(Config.empty, PDF.configKey),
+      Right(BookConfig.empty)
+    )
   }
 
   test("decode an instance with fallbacks") {
@@ -54,7 +58,7 @@ class BookConfigSpec extends FunSuite {
         |  ]
         |  navigationDepth = 3
         |  coverImage = cover.jpg
-        |  epub {
+        |  pdf {
         |    metadata {
         |      title = "Hell is around the corner"
         |      identifier = XX-33-FF-02
@@ -68,41 +72,33 @@ class BookConfigSpec extends FunSuite {
         |  }
         |}}
       """.stripMargin
-    val actual   = ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults)
-    val expected = Right(
-      BookConfig(
+    val actual   =
+      ConfigParser.parse(input).resolve().flatMap(BookConfig.decodeWithDefaults(_, PDF.configKey))
+    val expected = BookConfig.empty
+      .withMetadata(
         DocumentMetadata.empty
           .withTitle("Hell is around the corner")
           .withDescription("Undescribable")
           .withIdentifier("XX-33-FF-02")
           .addAuthors("Maria South", "Helen North")
           .withLanguage("en")
-          .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-        Some(4),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
+          .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
       )
-    )
-    assertEquals(actual, expected)
+      .withNavigationDepth(4)
+      .addFonts(TestTheme.fonts *)
+      .withCoverImage(Root / "cover.jpg")
+    assertEquals(actual, Right(expected))
   }
 
   test("round-trip encode and decode") {
-    val input    = BookConfig(
-      DocumentMetadata.empty.withIdentifier("XX-33-FF-01"),
-      Some(3),
-      TestTheme.fonts,
-      Some(Root / "cover.jpg")
-    )
-    val encoded  = ConfigBuilder.empty.withValue(testKey, input).build
-    val expected = Right(
-      BookConfig(
-        DocumentMetadata.empty.withIdentifier("XX-33-FF-01"),
-        Some(3),
-        TestTheme.fonts,
-        Some(Root / "cover.jpg")
-      )
-    )
-    assertEquals(decode[BookConfig](encoded), expected)
+    val input   = BookConfig.empty
+      .withMetadata(DocumentMetadata.empty.withIdentifier("XX-33-FF-01"))
+      .withNavigationDepth(3)
+      .addFonts(TestTheme.fonts *)
+      .withCoverImage(Root / "cover.jpg")
+    val encoded = ConfigBuilder.empty.withValue(testKey, input).build
+    val actual  = decode[BookConfig](encoded)
+    assertEquals(actual, Right(input))
   }
 
 }

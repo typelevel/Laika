@@ -16,23 +16,17 @@
 
 package laika.format
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.{ Locale, UUID }
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.Config.ConfigResult
 import laika.config.*
 import laika.factory.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
 import laika.render.{ HTMLFormatter, XHTMLFormatter }
-import laika.theme.config.{ FontDefinition, BookConfig => CommonBookConfig }
+import laika.theme.config.BookConfig
 import laika.theme.Theme
-
-import java.time.OffsetDateTime
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
   *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -81,65 +75,8 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
 
   val interimFormat: RenderFormat[HTMLFormatter] = XHTML
 
-  /** Configuration options for the generated EPUB output.
-    *
-    * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
-    * implicit key association with the EPUB-specific instance.
-    *
-    * @param metadata the metadata associated with the document
-    * @param navigationDepth the number of levels to generate a table of contents for
-    * @param fonts the fonts that should be embedded in the EPUB container
-    * @param coverImage the path to the cover image within the virtual document tree
-    */
-  case class BookConfig(
-      metadata: DocumentMetadata = DocumentMetadata.empty,
-      navigationDepth: Option[Int] = None,
-      fonts: Seq[FontDefinition] = Nil,
-      coverImage: Option[Path] = None
-  ) {
-
-    lazy val identifier: String =
-      metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-
-    lazy val date: OffsetDateTime =
-      metadata.dateModified.orElse(metadata.datePublished).getOrElse(OffsetDateTime.now())
-
-    lazy val formattedDate: String =
-      DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
-
-    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
-  }
-
-  object BookConfig {
-
-    implicit val decoder: ConfigDecoder[BookConfig] = CommonBookConfig.decoder.map(c =>
-      BookConfig(
-        c.metadata,
-        c.navigationDepth,
-        c.fonts,
-        c.coverImage
-      )
-    )
-
-    implicit val encoder: ConfigEncoder[BookConfig] = CommonBookConfig.encoder.contramap(c =>
-      CommonBookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
-    )
-
-    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika", "epub"))
-
-    def decodeWithDefaults(config: Config): ConfigResult[BookConfig] = for {
-      epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[CommonBookConfig].map(_.getOrElse(CommonBookConfig()))
-    } yield {
-      BookConfig(
-        epubConfig.metadata.withDefaults(commonConfig.metadata),
-        epubConfig.navigationDepth.orElse(commonConfig.navigationDepth),
-        epubConfig.fonts ++ commonConfig.fonts,
-        epubConfig.coverImage.orElse(commonConfig.coverImage)
-      )
-    }
-
-  }
+  /** The key to read `BookConfig` instance from for this EPUB renderer. */
+  val configKey: Key = Key("laika", "epub")
 
   /** Configuration Enumeration that indicates whether an EPUB template contains scripting. */
   sealed trait ScriptedTemplate extends Product
@@ -179,7 +116,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     * before the tree gets passed to the XHTML renderer.
     */
   def prepareTree(root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    BookConfig.decodeWithDefaults(root.config).map { treeConfig =>
+    BookConfig.decodeWithDefaults(root.config, configKey).map { treeConfig =>
       treeConfig.coverImage.fold(root) { image =>
         root.modifyTree(
           _.prependContent(

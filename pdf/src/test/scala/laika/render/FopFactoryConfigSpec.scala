@@ -20,7 +20,7 @@ import laika.format.PDF
 import laika.helium.Helium
 import laika.helium.generate.ConfigGenerator
 import laika.render.pdf.FopFactoryBuilder
-import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
+import laika.theme.config.{ BookConfig, Font, FontDefinition, FontStyle, FontWeight }
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -29,7 +29,7 @@ class FopFactoryConfigSpec extends FunSuite {
 
   def renderXML(helium: Helium): String = {
     val config    = ConfigGenerator.populateConfig(helium)
-    val pdfConfig = PDF.BookConfig.decodeWithDefaults(config).getOrElse(PDF.BookConfig())
+    val pdfConfig = BookConfig.decodeWithDefaults(config, PDF.configKey).getOrElse(BookConfig.empty)
     FopFactoryBuilder.generateXMLConfig(pdfConfig)
   }
 
@@ -80,8 +80,8 @@ class FopFactoryConfigSpec extends FunSuite {
       |  </renderers>
       |</fop>""".stripMargin
 
-  test("custom fonts via 'pdf' selector") {
-    val helium = Helium.defaults.pdf.fontResources(
+  test("custom fonts via 'pdf' selector - removing default theme fonts") {
+    val helium = Helium.defaults.pdf.clearFontResources.pdf.addFontResources(
       FontDefinition(
         Font.embedFile("/projects/fonts/font-1.tff"),
         "Font-1",
@@ -98,8 +98,8 @@ class FopFactoryConfigSpec extends FunSuite {
     assertEquals(renderXML(helium), customXML)
   }
 
-  test("custom fonts via 'all' selector") {
-    val helium = Helium.defaults.all.fontResources(
+  test("custom fonts via 'all' selector - removing default theme fonts") {
+    val helium = Helium.defaults.all.clearFontResources.all.addFontResources(
       FontDefinition(
         Font.embedFile("/projects/fonts/font-1.tff"),
         "Font-1",

@@ -19,16 +19,17 @@ package laika.render
 import cats.effect.IO
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.config.Config
-import laika.format.{ PDF, XSLFO }
+import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.NoOpPathTranslator
+import laika.theme.config.BookConfig
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -51,7 +52,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
   )
 
   test("fail when there are invalid elements in the template result") {
-    val actual   = FOConcatenation(result, PDF.BookConfig(), OperationConfig.default)
+    val actual   = FOConcatenation(result, BookConfig.empty, OperationConfig.default)
     val expected = Left(InvalidDocument(Root / "merged.fo", invalidElement))
     assertEquals(actual, expected)
   }
@@ -64,7 +65,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
       )
     val expected =
       """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
-    assertEquals(FOConcatenation(result, PDF.BookConfig(), config), Right(expected))
+    assertEquals(FOConcatenation(result, BookConfig.empty, config), Right(expected))
   }
 
 }
