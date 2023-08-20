@@ -20,8 +20,8 @@ import cats.effect.IO
 import laika.bundle.ExtensionBundle
 import laika.helium.Helium
 import laika.theme.ThemeProvider
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 
 /** Plugin that adapts the features of the Laika library for use from within sbt.
   *
@@ -154,7 +154,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaXSLFO / target         := (Laika / target).value / "fo",
     laikaAST / target           := (Laika / target).value / "ast",
     laikaExtensions             := Nil,
-    laikaConfig                 := LaikaConfig(),
+    laikaConfig                 := LaikaConfig.defaults,
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,
     laikaDescribe               := Tasks.describe.value,
