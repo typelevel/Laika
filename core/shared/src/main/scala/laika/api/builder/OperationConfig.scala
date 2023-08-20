@@ -308,7 +308,7 @@ trait RenderConfig {
   * @param strict indicates that text markup should be interpreted as defined by its specification, without any extensions
   * @param acceptRawContent indicates that the users accepts the inclusion of raw content in text markup
   */
-case class BundleFilter(strict: Boolean = false, acceptRawContent: Boolean = false) {
+private[laika] case class BundleFilter(strict: Boolean = false, acceptRawContent: Boolean = false) {
 
   def apply(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
     val strictApplied = if (!strict) bundles else bundles.flatMap(_.forStrictMode)
