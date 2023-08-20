@@ -18,7 +18,7 @@ package laika.theme.config
 
 import laika.ast.Path.Root
 import laika.ast.{ Path, VirtualPath }
-import laika.config._
+import laika.config.*
 import laika.io.model.FilePath
 
 /** Represents a font resource, either based on a local classpath or file system resource,
@@ -29,7 +29,15 @@ import laika.io.model.FilePath
   *
   * @author Jens Halm
   */
-case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[String]) {
+sealed abstract class Font private {
+
+  /** Embedded fonts to be used by e-book formats like EPUB or PDF.
+    */
+  def embedResource: Option[EmbeddedFont]
+
+  /** URL for linking font resources for HTML site output.
+    */
+  def webCSS: Option[String]
 
   /** Specifies a font file that can be used for embedding in EPUB or PDF.
     * This is one of the few places in Laika where a real file-system path needs to be provided,
@@ -41,16 +49,16 @@ case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[Str
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile(file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), webCSS)
+  def embedFile(file: FilePath): Font
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
     */
-  def embedResource(name: String): Font = new Font(Some(EmbeddedFontResource(name)), webCSS)
+  def embedResource(name: String): Font
 
   /** Specifies a URL for a web font which can be auto-linked in a theme template.
     */
-  def webCSS(url: String): Font = new Font(embedResource, Some(url))
+  def webCSS(url: String): Font
 
   /** Creates the final `FontDefinition` instance that can be used in Laika's and Helium's configuration
     *  by mapping the font resource to a family name, font weight and style.
@@ -68,6 +76,15 @@ case class Font private (embedResource: Option[EmbeddedFont], webCSS: Option[Str
   */
 object Font {
 
+  private final case class Impl(embedResource: Option[EmbeddedFont], webCSS: Option[String])
+      extends Font {
+    override def productPrefix = "Font"
+
+    def embedFile(file: FilePath): Font   = copy(embedResource = Some(EmbeddedFontFile(file)))
+    def embedResource(name: String): Font = copy(embedResource = Some(EmbeddedFontResource(name)))
+    def webCSS(url: String): Font         = copy(webCSS = Some(url))
+  }
+
   /** Specifies a font file that can be used for embedding in EPUB or PDF.
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
@@ -78,16 +95,16 @@ object Font {
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def embedFile(file: FilePath): Font = new Font(Some(EmbeddedFontFile(file)), None)
+  def embedFile(file: FilePath): Font = Impl(Some(EmbeddedFontFile(file)), None)
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
     */
-  def embedResource(name: String): Font = new Font(Some(EmbeddedFontResource(name)), None)
+  def embedResource(name: String): Font = Impl(Some(EmbeddedFontResource(name)), None)
 
   /** Specifies a URL for a web font which can be auto-linked in a theme template.
     */
-  def webCSS(url: String): Font = new Font(None, Some(url))
+  def webCSS(url: String): Font = Impl(None, Some(url))
 
   private[laika] def create(
       embedResource: Option[String],
@@ -97,9 +114,9 @@ object Font {
     (embedResource, embedFile, webCSS) match {
       case (None, None, None) => None
       case (_, Some(file), _) =>
-        Some(new Font(Some(EmbeddedFontFile(FilePath.parse(file))), webCSS))
-      case (Some(res), _, _)  => Some(new Font(Some(EmbeddedFontResource(res)), webCSS))
-      case _                  => Some(new Font(None, webCSS))
+        Some(Impl(Some(EmbeddedFontFile(FilePath.parse(file))), webCSS))
+      case (Some(res), _, _)  => Some(Impl(Some(EmbeddedFontResource(res)), webCSS))
+      case _                  => Some(Impl(None, webCSS))
     }
 
 }
@@ -178,9 +195,34 @@ object FontStyle {
   * When providing multiple different weights and styles for the same font,
   * a separate `FontDefinition` instance needs to be built for each of them.
   */
-case class FontDefinition(resource: Font, family: String, weight: FontWeight, style: FontStyle)
+sealed abstract class FontDefinition private {
+  def resource: Font
+  def family: String
+  def weight: FontWeight
+  def style: FontStyle
+  def withWeight(weight: FontWeight): FontDefinition
+  def withStyle(style: FontStyle): FontDefinition
+}
 
 object FontDefinition {
+
+  def apply(
+      resource: Font,
+      family: String,
+      weight: FontWeight = FontWeight.Normal,
+      style: FontStyle = FontStyle.Normal
+  ): FontDefinition = Impl(resource, family, weight, style)
+
+  private final case class Impl(
+      resource: Font,
+      family: String,
+      weight: FontWeight,
+      style: FontStyle
+  ) extends FontDefinition {
+    override def productPrefix                         = "FontDefinition"
+    def withWeight(weight: FontWeight): FontDefinition = copy(weight = weight)
+    def withStyle(style: FontStyle): FontDefinition    = copy(style = style)
+  }
 
   implicit val decoder: ConfigDecoder[FontDefinition] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -200,7 +242,7 @@ object FontDefinition {
         DecodingError("At least one of embedFile, embedResource or webCSS must be defined for Font")
       )
     } yield {
-      FontDefinition(font, family, weight, style)
+      Impl(font, family, weight, style)
     }
   }
 
