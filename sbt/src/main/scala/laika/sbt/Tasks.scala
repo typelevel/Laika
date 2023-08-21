@@ -18,7 +18,7 @@ package laika.sbt
 
 import cats.effect.{ IO, Resource }
 import cats.effect.unsafe.implicits.global
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.factory.{
   BinaryPostProcessorBuilder,
@@ -50,7 +50,7 @@ import scala.annotation.tailrec
   */
 object Tasks {
 
-  import Def._
+  import Def.*
 
   /** Generates and copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).

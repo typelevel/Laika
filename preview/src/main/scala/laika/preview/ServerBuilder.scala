@@ -150,86 +150,122 @@ object ServerBuilder {
 }
 
 /** Additional configuration options for a preview server.
-  *
-  * @param port the port the server should run on (default 4242)
-  * @param pollInterval the interval at which input file resources are polled for changes (default 1 second)
-  * @param artifactBasename the base name for PDF and EPUB artifacts linked by the generated site (default "docs")
-  * @param includeEPUB indicates whether EPUB downloads should be included on a download page (default false)
-  * @param includePDF indicates whether PDF downloads should be included on a download page (default false)
-  * @param isVerbose whether each served page and each detected file change should be logged (default false)
-  * @param apiDir an optional API directory from which API documentation should be served (default None)
   */
-class ServerConfig private (
-    val port: Port,
-    val host: Host,
-    val pollInterval: FiniteDuration,
-    val artifactBasename: String,
-    val includeEPUB: Boolean,
-    val includePDF: Boolean,
-    val isVerbose: Boolean,
-    val apiDir: Option[FilePath]
-) {
+sealed abstract class ServerConfig private {
 
-  private def copy(
-      newPort: Port = port,
-      newHost: Host = host,
-      newPollInterval: FiniteDuration = pollInterval,
-      newArtifactBasename: String = artifactBasename,
-      newIncludeEPUB: Boolean = includeEPUB,
-      newIncludePDF: Boolean = includePDF,
-      newVerbose: Boolean = isVerbose,
-      newAPIDir: Option[FilePath] = apiDir
-  ): ServerConfig =
-    new ServerConfig(
-      newPort,
-      newHost,
-      newPollInterval,
-      newArtifactBasename,
-      newIncludeEPUB,
-      newIncludePDF,
-      newVerbose,
-      newAPIDir
-    )
+  /** The port the server should run on (default 4242). */
+  def port: Port
+
+  /** The host the server should run on (default localhost). */
+  def host: Host
+
+  /** The interval at which input file resources are polled for changes (default 1 second). */
+  def pollInterval: FiniteDuration
+
+  /** The base name for PDF and EPUB artifacts linked by the generated site (default "docs"). */
+  def artifactBasename: String
+
+  /** Indicates whether EPUB downloads should be included on a download page (default false). */
+  def includeEPUB: Boolean
+
+  /** Indicates whether PDF downloads should be included on a download page (default false). */
+  def includePDF: Boolean
+
+  /** Indicates whether each served page and each detected file change should be logged (default false). */
+  def isVerbose: Boolean
+
+  /** An optional API directory from which API documentation should be served (default None). */
+  def apiDir: Option[FilePath]
 
   /** Specifies the port the server should run on (default 4242).
     */
-  def withPort(port: Port): ServerConfig = copy(newPort = port)
+  def withPort(port: Port): ServerConfig
 
   /** Specifies the host the server should run on (default localhost).
     */
-  def withHost(host: Host): ServerConfig = copy(newHost = host)
+  def withHost(host: Host): ServerConfig
 
   /** Specifies the interval at which input file resources are polled for changes (default 1 second).
     */
-  def withPollInterval(interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+  def withPollInterval(interval: FiniteDuration): ServerConfig
 
   /** Indicates that EPUB downloads should be included on the download page.
     */
-  def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+  def withEPUBDownloads: ServerConfig
 
   /** Indicates that PDF downloads should be included on the download page.
     */
-  def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+  def withPDFDownloads: ServerConfig
 
   /** Specifies the base name for PDF and EPUB artifacts linked by the generated site (default "docs").
     * Additional classifiers might be added to the base name (apart from the file suffix), depending on configuration.
     */
-  def withArtifactBasename(name: String): ServerConfig = copy(newArtifactBasename = name)
+  def withArtifactBasename(name: String): ServerConfig
 
   /** Specifies a directory from which API documentation of the site can be served.
     * This step is only necessary if you want to test links to API documentation with the preview server.
     */
-  def withAPIDirectory(dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
+  def withAPIDirectory(dir: FilePath): ServerConfig
 
   /** Indicates that each served page and each detected file change should be logged to the console.
     */
-  def verbose: ServerConfig = copy(newVerbose = true)
+  def verbose: ServerConfig
 
 }
 
 /** Companion for preview server configuration instances.
   */
 object ServerConfig {
+
+  private final case class Impl(
+      port: Port,
+      host: Host,
+      pollInterval: FiniteDuration,
+      artifactBasename: String,
+      includeEPUB: Boolean,
+      includePDF: Boolean,
+      isVerbose: Boolean,
+      apiDir: Option[FilePath]
+  ) extends ServerConfig {
+    override def productPrefix = "ServerConfig"
+
+    private def copy(
+        newPort: Port = port,
+        newHost: Host = host,
+        newPollInterval: FiniteDuration = pollInterval,
+        newArtifactBasename: String = artifactBasename,
+        newIncludeEPUB: Boolean = includeEPUB,
+        newIncludePDF: Boolean = includePDF,
+        newVerbose: Boolean = isVerbose,
+        newAPIDir: Option[FilePath] = apiDir
+    ): ServerConfig =
+      Impl(
+        newPort,
+        newHost,
+        newPollInterval,
+        newArtifactBasename,
+        newIncludeEPUB,
+        newIncludePDF,
+        newVerbose,
+        newAPIDir
+      )
+
+    def withPort(port: Port): ServerConfig = copy(newPort = port)
+
+    def withHost(host: Host): ServerConfig = copy(newHost = host)
+
+    def withPollInterval(interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+
+    def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+
+    def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+
+    def withArtifactBasename(name: String): ServerConfig = copy(newArtifactBasename = name)
+
+    def withAPIDirectory(dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
+
+    def verbose: ServerConfig = copy(newVerbose = true)
+  }
 
   val defaultPort: Port = port"4242"
 
@@ -240,15 +276,15 @@ object ServerConfig {
   val defaultArtifactBasename: String = "docs"
 
   /** A ServerConfig instance populated with default values. */
-  val defaults = new ServerConfig(
+  val defaults: ServerConfig = Impl(
     defaultPort,
     defaultHost,
     defaultPollInterval,
     defaultArtifactBasename,
-    false,
-    false,
-    false,
-    None
+    includeEPUB = false,
+    includePDF = false,
+    isVerbose = false,
+    apiDir = None
   )
 
 }
