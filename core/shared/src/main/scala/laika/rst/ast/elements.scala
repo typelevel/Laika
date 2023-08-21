@@ -16,7 +16,7 @@
 
 package laika.rst.ast
 
-import laika.ast._
+import laika.ast.*
 import laika.parse.SourceFragment
 
 /** A two-column table-like structure used for bibliographic fields or directive options.
@@ -213,11 +213,10 @@ private[rst] case class Contents(
 
   def resolve(cursor: DocumentCursor): Block = {
     val nav = cursor.target.asNavigationItem(
-      NavigationBuilderContext(
-        refPath = cursor.target.path,
-        maxLevels = depth,
-        currentLevel = 0
-      )
+      NavigationBuilderContext.defaults
+        .withRefPath(cursor.target.path)
+        .withMaxLevels(depth)
+        .withCurrentLevel(0)
     ).content
     TitledBlock(List(Text(title)), Seq(NavigationList(nav)), options + Style.nav)
   }

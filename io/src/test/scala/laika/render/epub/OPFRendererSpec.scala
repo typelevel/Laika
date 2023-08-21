@@ -20,11 +20,11 @@ import java.time.OffsetDateTime
 import java.util.Locale
 import cats.effect.IO
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.config.ConfigBuilder
-import laika.format.EPUB
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.RenderedTreeRoot
+import laika.theme.config.BookConfig
 import munit.FunSuite
 
 class OPFRendererSpec extends FunSuite {
@@ -37,14 +37,15 @@ class OPFRendererSpec extends FunSuite {
   val instant: OffsetDateTime = OffsetDateTime.parse(timestamp)
   val identifier              = s"urn:uuid:${new InputTreeBuilder {}.uuid}"
 
-  val config: EPUB.BookConfig = EPUB.BookConfig(metadata =
-    DocumentMetadata(
-      identifier = Some(identifier),
-      datePublished = Some(instant),
-      language = Some(Locale.UK.toLanguageTag),
-      authors = Seq("Mia Miller")
-    )
-  )
+  private val metadataWithoutLanguage: DocumentMetadata = DocumentMetadata.empty
+    .withIdentifier(identifier)
+    .withDatePublished(instant)
+    .addAuthors("Mia Miller")
+
+  val configWithoutLanguage: BookConfig = BookConfig.empty.withMetadata(metadataWithoutLanguage)
+
+  val config: BookConfig =
+    BookConfig.empty.withMetadata(metadataWithoutLanguage.withLanguage(Locale.UK.toLanguageTag))
 
   case class CoverEntries(metadata: String, spine: String, guide: String)
 
@@ -75,7 +76,7 @@ class OPFRendererSpec extends FunSuite {
   def run(input: RenderedTreeRoot[IO], expected: String)(implicit loc: munit.Location): Unit =
     runWith(input, this.config, expected)
 
-  def runWith(input: RenderedTreeRoot[IO], config: EPUB.BookConfig, expected: String)(implicit
+  def runWith(input: RenderedTreeRoot[IO], config: BookConfig, expected: String)(implicit
       loc: munit.Location
   ): Unit = {
     val actual = renderer.render(input, title, config)
@@ -95,25 +96,23 @@ class OPFRendererSpec extends FunSuite {
   }
 
   test("render a tree with a single document with the default locale rendered correctly") {
-    val manifestItems     =
+    val manifestItems =
       """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
-    val spineRefs         =
+    val spineRefs     =
       """    <itemref idref="foo_epub_xhtml" />"""
-    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
-    runWith(SingleDocument.input, configWithoutLang, expected)
+    runWith(SingleDocument.input, configWithoutLanguage, expected)
   }
 
   test(
     "render a tree with a single document with valid XML id for the name starting with a digit"
   ) {
-    val manifestItems     =
+    val manifestItems =
       """    <item id="_01-foo_epub_xhtml" href="content/01-foo.epub.xhtml" media-type="application/xhtml+xml" />"""
-    val spineRefs         =
+    val spineRefs     =
       """    <itemref idref="_01-foo_epub_xhtml" />"""
-    val configWithoutLang = config.copy(metadata = config.metadata.copy(language = None))
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
-    runWith(DocumentNameStartingWithDigit.input, configWithoutLang, expected)
+    runWith(DocumentNameStartingWithDigit.input, configWithoutLanguage, expected)
   }
 
   test("render a tree with two documents") {
@@ -154,7 +153,7 @@ class OPFRendererSpec extends FunSuite {
       """    <itemref idref="foo_epub_xhtml" />
         |    <itemref idref="bar_epub_xhtml" />""".stripMargin
     val expected      = fileContent(manifestItems, spineRefs, coverEntries = Some(coverEntries))
-    val coverConfig   = config.copy(coverImage = Some(Root / "cover.png"))
+    val coverConfig   = config.withCoverImage(Root / "cover.png")
     runWith(DocumentPlusCover.input, coverConfig, expected)
   }
 

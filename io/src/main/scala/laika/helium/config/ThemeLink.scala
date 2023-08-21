@@ -321,11 +321,19 @@ object VersionMenu {
 
 }
 
-final case class ThemeNavigationSection(title: String, links: NonEmptyList[TextLink])
+sealed abstract class ThemeNavigationSection {
+  def title: String
+  def links: NonEmptyList[TextLink]
+}
 
 object ThemeNavigationSection {
 
+  private final case class Impl(title: String, links: NonEmptyList[TextLink])
+      extends ThemeNavigationSection {
+    override def productPrefix = "ThemeNavigationSection"
+  }
+
   def apply(title: String, link: TextLink, links: TextLink*): ThemeNavigationSection =
-    ThemeNavigationSection(title, NonEmptyList.of(link, links: _*))
+    Impl(title, NonEmptyList.of(link, links *))
 
 }

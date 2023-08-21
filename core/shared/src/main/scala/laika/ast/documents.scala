@@ -77,7 +77,7 @@ sealed trait TreeContent extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem
 
   /** Extracts all runtime messages with the specified minimum level from this tree content.
@@ -164,7 +164,7 @@ case class SectionInfo(
     */
   def asNavigationItem(
       docPath: Path,
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem = {
     val children =
       if (context.isComplete) Nil else content.map(_.asNavigationItem(docPath, context.nextLevel))
@@ -672,7 +672,7 @@ class DocumentTree private[ast] (
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem = {
     def hasLinks(item: NavigationItem): Boolean =
       item.link.nonEmpty || item.content.exists(hasLinks)

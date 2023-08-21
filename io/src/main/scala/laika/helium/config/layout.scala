@@ -167,15 +167,25 @@ private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Opti
   *
   * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
   */
-case class Favicon private (
-    target: Target,
-    sizes: Option[String],
-    mediaType: Option[String]
-)
+sealed abstract class Favicon private {
+  def target: Target
+
+  def sizes: Option[String]
+
+  def mediaType: Option[String]
+}
 
 /** Companion for creating Favicon configuration instances.
   */
 object Favicon {
+
+  private final case class Impl(
+      target: Target,
+      sizes: Option[String],
+      mediaType: Option[String]
+  ) extends Favicon {
+    override def productPrefix = "Favicon"
+  }
 
   private def mediaType(suffix: Option[String]): Option[String] = suffix.collect {
     case "ico"          => "image/x-icon"
@@ -190,12 +200,12 @@ object Favicon {
     * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
     */
   def external(url: String, sizes: String, mediaType: String): Favicon =
-    Favicon(ExternalTarget(url), Some(sizes), Some(mediaType))
+    Impl(ExternalTarget(url), Some(sizes), Some(mediaType))
 
   /** Creates the configuration for a single favicon with an external URL.
     */
   def external(url: String, mediaType: String): Favicon =
-    Favicon(ExternalTarget(url), None, Some(mediaType))
+    Impl(ExternalTarget(url), None, Some(mediaType))
 
   /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
     * This resource must be part of the inputs known to Laika.
@@ -203,13 +213,13 @@ object Favicon {
     * The sizes string will be used in the corresponding `sizes` attribute of the generated `&lt;link&gt;` tag.
     */
   def internal(path: Path, sizes: String): Favicon =
-    Favicon(InternalTarget(path), Some(sizes), mediaType(path.suffix))
+    Impl(InternalTarget(path), Some(sizes), mediaType(path.suffix))
 
   /** Creates the configuration for a single favicon based on an internal resource and its virtual path.
     * This resource must be part of the inputs known to Laika.
     */
   def internal(path: Path): Favicon =
-    Favicon(InternalTarget(path), None, mediaType(path.suffix))
+    Impl(InternalTarget(path), None, mediaType(path.suffix))
 
 }
 

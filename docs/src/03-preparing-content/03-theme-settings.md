@@ -153,7 +153,7 @@ val fontPath = "<file-path-to-your-fonts>"
 val latoURL = "http://fonts.googleapis.com/css?family=Lato:400,700"
 val firaURL = "https://fonts.googleapis.com/css?family=Fira+Mono:500"
 
-Helium.defaults.all.fontResources(
+Helium.defaults.all.addFontResources(
   FontDefinition(
     Font
       .embedResource(fontPath + "Lato/Lato-Regular.ttf")

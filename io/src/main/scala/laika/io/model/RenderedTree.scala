@@ -36,7 +36,7 @@ sealed trait RenderContent extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem
 
 }
@@ -83,7 +83,7 @@ class RenderedTree(
   }
 
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem = {
     def hasLinks(item: NavigationItem): Boolean =
       item.link.nonEmpty || item.content.exists(hasLinks)

@@ -17,11 +17,10 @@
 package laika.render.pdf
 
 import java.io.{ ByteArrayInputStream, File }
-
 import cats.effect.Async
 import cats.effect.std.Dispatcher
-import laika.format.PDF
 import laika.io.model.BinaryInput
+import laika.theme.config.BookConfig
 import org.apache.fop.apps.{ FopConfParser, FopFactory }
 
 /** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.
@@ -30,7 +29,7 @@ import org.apache.fop.apps.{ FopConfParser, FopFactory }
   */
 private[laika] object FopFactoryBuilder {
 
-  def generateXMLConfig(config: PDF.BookConfig): String = {
+  def generateXMLConfig(config: BookConfig): String = {
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here
     val fontDefs = config.fonts.flatMap { font =>
       font.resource.embedResource.map { res =>
@@ -54,7 +53,7 @@ private[laika] object FopFactoryBuilder {
   }
 
   def build[F[_]: Async](
-      config: PDF.BookConfig,
+      config: BookConfig,
       staticDocs: Seq[BinaryInput[F]],
       dispatcher: Dispatcher[F]
   ): F[FopFactory] = {

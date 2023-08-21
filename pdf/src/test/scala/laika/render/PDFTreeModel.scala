@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees }
 import laika.format.PDF
 
@@ -41,7 +41,7 @@ trait PDFTreeModel {
       _.tree1.titleDoc.content(titleDocContent(2))
         .tree2.titleDoc.content(titleDocContent(3))
 
-  private val navConfigKey = PDF.BookConfig.defaultKey.value.child("navigationDepth")
+  private val navConfigKey = PDF.configKey.child("navigationDepth")
 
   def createTree(navigationDepth: Int = 23, useTitleDocuments: Boolean = false): DocumentTree =
     SampleTrees.sixDocuments

@@ -38,6 +38,7 @@ import laika.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
+import laika.theme.config.BookConfig
 import munit.CatsEffectSuite
 
 class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
@@ -66,7 +67,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
               opConfig: OperationConfig
           ): F[Unit] = {
 
-            val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
+            val pdfConfig = BookConfig.decodeWithDefaults(result.config, PDF.configKey)
             output.resource.use { out =>
               for {
                 config <- Async[F].fromEither(pdfConfig.left.map(ConfigException.apply))

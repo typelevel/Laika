@@ -17,8 +17,8 @@
 package laika.render.epub
 
 import cats.effect.IO
-import laika.format.EPUB
 import laika.io.model.RenderedTreeRoot
+import laika.theme.config.BookConfig
 import munit.FunSuite
 
 class ContainerWriterSpec extends FunSuite {
@@ -36,7 +36,7 @@ class ContainerWriterSpec extends FunSuite {
 
   def collectInputs(renderResult: RenderedTreeRoot[IO]): Seq[String] =
     writer
-      .collectInputs(renderResult, EPUB.BookConfig())
+      .collectInputs(renderResult, BookConfig.empty)
       .map(_.path.toString)
 
   test("collect a single target document") {

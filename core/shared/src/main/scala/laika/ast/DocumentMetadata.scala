@@ -22,24 +22,32 @@ import laika.time.PlatformDateTime
 import java.net.URI
 
 /** Metadata associated with a document.
-  *
-  * @author Jens Halm
   */
-case class DocumentMetadata(
-    title: Option[String] = None,
-    description: Option[String] = None,
-    identifier: Option[String] = None,
-    authors: Seq[String] = Nil,
-    language: Option[String] = None,
-    datePublished: Option[PlatformDateTime.Type] = None,
-    dateModified: Option[PlatformDateTime.Type] = None,
-    version: Option[String] = None,
-    canonicalLink: Option[URI] = None
-) {
+sealed abstract class DocumentMetadata {
+
+  def title: Option[String]
+  def description: Option[String]
+  def identifier: Option[String]
+  def authors: Seq[String]
+  def language: Option[String]
+  def datePublished: Option[PlatformDateTime.Type]
+  def dateModified: Option[PlatformDateTime.Type]
+  def version: Option[String]
+  def canonicalLink: Option[URI]
+
+  def withTitle(value: String): DocumentMetadata
+  def withDescription(value: String): DocumentMetadata
+  def withIdentifier(value: String): DocumentMetadata
+  def addAuthors(values: String*): DocumentMetadata
+  def withLanguage(value: String): DocumentMetadata
+  def withVersion(value: String): DocumentMetadata
+  def withCanonicalLink(value: URI): DocumentMetadata
+  def withDateModified(value: PlatformDateTime.Type): DocumentMetadata
+  def withDatePublished(value: PlatformDateTime.Type): DocumentMetadata
 
   /** Populates all empty Options in this instance with the provided defaults in case they are non-empty
     */
-  def withDefaults(defaults: DocumentMetadata): DocumentMetadata = DocumentMetadata(
+  def withDefaults(defaults: DocumentMetadata): DocumentMetadata = DocumentMetadata.Impl(
     title.orElse(defaults.title),
     description.orElse(defaults.description),
     identifier.orElse(defaults.identifier),
@@ -51,23 +59,61 @@ case class DocumentMetadata(
     canonicalLink.orElse(defaults.canonicalLink)
   )
 
-  override def equals(obj: Any): Boolean = obj match {
-    case other: DocumentMetadata =>
-      other.title == title &&
-      other.description == description &&
-      other.identifier == identifier &&
-      other.authors == authors &&
-      other.language == language &&
-      other.datePublished.toString == datePublished.toString && // equals does not work properly on js.Date
-      other.dateModified.toString == dateModified.toString &&
-      other.version == version &&
-      other.canonicalLink == canonicalLink
-    case _                       => false
-  }
-
 }
 
 object DocumentMetadata {
+
+  val empty: DocumentMetadata = Impl()
+
+  private final case class Impl(
+      title: Option[String] = None,
+      description: Option[String] = None,
+      identifier: Option[String] = None,
+      authors: Seq[String] = Nil,
+      language: Option[String] = None,
+      datePublished: Option[PlatformDateTime.Type] = None,
+      dateModified: Option[PlatformDateTime.Type] = None,
+      version: Option[String] = None,
+      canonicalLink: Option[URI] = None
+  ) extends DocumentMetadata {
+
+    override def productPrefix = "DocumentMetadata"
+
+    def withTitle(value: String): DocumentMetadata = copy(title = Some(value))
+
+    def withDescription(value: String): DocumentMetadata = copy(description = Some(value))
+
+    def withIdentifier(value: String): DocumentMetadata = copy(identifier = Some(value))
+
+    def addAuthors(values: String*): DocumentMetadata = copy(authors = authors ++ values)
+
+    def withLanguage(value: String): DocumentMetadata = copy(language = Some(value))
+
+    def withVersion(value: String): DocumentMetadata = copy(version = Some(value))
+
+    def withCanonicalLink(value: URI): DocumentMetadata = copy(canonicalLink = Some(value))
+
+    def withDateModified(value: PlatformDateTime.Type): DocumentMetadata =
+      copy(dateModified = Some(value))
+
+    def withDatePublished(value: PlatformDateTime.Type): DocumentMetadata =
+      copy(datePublished = Some(value))
+
+    override def equals(obj: Any): Boolean = obj match {
+      case other: DocumentMetadata =>
+        other.title == title &&
+        other.description == description &&
+        other.identifier == identifier &&
+        other.authors == authors &&
+        other.language == language &&
+        other.datePublished.toString == datePublished.toString && // equals does not work properly on js.Date
+        other.dateModified.toString == dateModified.toString &&
+        other.version == version &&
+        other.canonicalLink == canonicalLink
+      case _                       => false
+    }
+
+  }
 
   implicit val decoder: ConfigDecoder[DocumentMetadata] = ConfigDecoder.config.flatMap { config =>
     for {
@@ -82,7 +128,7 @@ object DocumentMetadata {
       version       <- config.getOpt[String]("version")
       canonicalLink <- config.getOpt[URI]("canonicalLink")
     } yield {
-      DocumentMetadata(
+      Impl(
         title,
         description,
         identifier,

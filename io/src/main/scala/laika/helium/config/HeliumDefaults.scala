@@ -21,7 +21,7 @@ import java.util.Locale
 import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{ cm, em, mm, pt, px }
 import laika.helium.Helium
-import laika.theme.config._
+import laika.theme.config.*
 
 private[helium] object HeliumDefaults {
 
@@ -179,18 +179,16 @@ private[helium] object HeliumDefaults {
       defaultLineHeight = 1.5,
       anchorPlacement = AnchorPlacement.Left
     ),
-    metadata = DocumentMetadata(
-      language = Some(Locale.getDefault.toLanguageTag)
-    )
+    metadata = DocumentMetadata.empty
+      .withLanguage(Locale.getDefault.toLanguageTag)
   )
 
   private val defaultEPUBSettings = EPUBSettings(
-    bookConfig = BookConfig(
-      fonts = defaultFonts,
-      navigationDepth = Some(
-        2
-      ) // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
-    ),
+    bookConfig = BookConfig.empty
+      .addFonts(defaultFonts *)
+      .withNavigationDepth(
+        2 // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
+      ),
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = em(1.0),
@@ -213,7 +211,7 @@ private[helium] object HeliumDefaults {
   )
 
   private val defaultPDFSettings = PDFSettings(
-    bookConfig = BookConfig(fonts = defaultFonts),
+    bookConfig = BookConfig.empty.addFonts(defaultFonts *),
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = pt(10),

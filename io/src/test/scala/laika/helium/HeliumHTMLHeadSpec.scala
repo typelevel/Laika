@@ -327,7 +327,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("custom web fonts") {
-    val helium   = heliumBase.site.fontResources(
+    val helium   = heliumBase.site.addFontResources(
       FontDefinition(
         Font.webCSS("http://fonts.com/font-1.css"),
         "Font-1",

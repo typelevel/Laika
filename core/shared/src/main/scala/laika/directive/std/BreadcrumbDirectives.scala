@@ -47,10 +47,9 @@ private[laika] object BreadcrumbDirectives {
 
     def resolve(cursor: DocumentCursor): Block = {
 
-      val context = NavigationBuilderContext(
-        refPath = cursor.path,
-        itemStyles = Set(Style.breadcrumb.styles.head)
-      )
+      val context = NavigationBuilderContext.defaults
+        .withRefPath(cursor.path)
+        .withItemStyles(Style.breadcrumb.styles.head)
 
       @tailrec
       def entriesFor(tree: TreeCursor, items: List[NavigationItem] = Nil): List[NavigationItem] = {
