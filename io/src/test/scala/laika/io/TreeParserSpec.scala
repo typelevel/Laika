@@ -18,7 +18,7 @@ package laika.io
 
 import cats.syntax.all._
 import cats.data.{ Chain, NonEmptyChain }
-import cats.effect.IO
+import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType._
@@ -28,6 +28,7 @@ import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBu
 import laika.bundle._
 import laika.config.ConfigException
 import laika.format.{ HTML, Markdown, ReStructuredText }
+import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
@@ -36,7 +37,7 @@ import laika.parse.Parser
 import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
 import laika.parse.text.TextParsers
 import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
+import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -91,7 +92,7 @@ class TreeParserSpec
 
   }
 
-  val defaultContent = Seq(p("foo"))
+  val defaultContent: Seq[Paragraph] = Seq(p("foo"))
 
   def docResult(num: Int, content: Seq[Block] = defaultContent, path: Path = Root): Document =
     Document(path / s"doc-$num.md", RootElement(content))
@@ -109,7 +110,13 @@ class TreeParserSpec
   def parsedTree(
       inputs: Seq[(Path, String)],
       f: InputTreeBuilder[IO] => InputTreeBuilder[IO] = identity
-  ): IO[DocumentTreeRoot] = defaultParser
+  ): IO[DocumentTreeRoot] = parsedTree(defaultParser, inputs, f)
+
+  def parsedTree(
+      parser: Resource[IO, TreeParser[IO]],
+      inputs: Seq[(Path, String)],
+      f: InputTreeBuilder[IO] => InputTreeBuilder[IO]
+  ): IO[DocumentTreeRoot] = parser
     .use(_.fromInput(f(build(inputs))).parse)
     .map(applyTemplates)
 
@@ -159,6 +166,25 @@ class TreeParserSpec
       .addDocument(Document(Root / "name.md", RootElement(p("foo"))))
       .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
+  }
+
+  test("tree with a document containing an unvalidated link to a versioned directory") {
+    val inputs      = Seq(
+      Root / "doc-1.md" -> "[link](/v0.42/)"
+    )
+    val path        = (Root / "v0.42" / "doc").parent
+    val target      = InternalTarget(path).relativeTo(Root / "doc-1.md")
+    val expectedDoc =
+      docResult(1, Seq(Paragraph(SpanLink.internal(path)("link").withTarget(target))))
+    val treeResult  = DocumentTree.builder
+      .addDocument(expectedDoc)
+      .buildRoot
+
+    val versions = Versions(currentVersion = Version("0.42", "v0.42"), Nil)
+
+    parsedTree(configuredParser(_.withConfigValue(versions)), inputs, identity).assertEquals(
+      treeResult
+    )
   }
 
   test("tree with multiple subtrees") {
