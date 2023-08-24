@@ -68,8 +68,7 @@ case object Markdown extends MarkupFormat {
     BlockParsers.rules,
     ListParsers.enumLists.rootOnly,
     ListParsers.enumLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf(CharGroup.digit)),
-    ListParsers.bulletLists.rootOnly,
-    ListParsers.bulletLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-'))
+    ListParsers.bulletLists.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-'))
   )
 
   val spanParsers: Seq[SpanParserBuilder] = Seq(
