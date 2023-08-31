@@ -32,6 +32,8 @@ import laika.theme._
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 import munit.CatsEffectSuite
 
+import scala.annotation.nowarn
+
 class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with StringOps {
 
@@ -221,6 +223,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "custom-js" / "foo.js"   -> "",
       Root / "custom-css" / "foo.css" -> ""
     )
+    @nowarn
     val helium   = heliumBase
       .site.autoLinkCSS(Root / "custom-css")
       .site.autoLinkJS(Root / "custom-js")

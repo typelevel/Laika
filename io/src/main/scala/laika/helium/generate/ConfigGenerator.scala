@@ -19,6 +19,7 @@ package laika.helium.generate
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.ConfigEncoder.ObjectBuilder
+import laika.config.LaikaKeys.root
 import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
@@ -173,6 +174,12 @@ private[laika] object ConfigGenerator {
   }
 
   def populateConfig(helium: Helium): Config = {
+    // TODO - 1.0 - remove deprecated values
+    val siteCSS: Key = root.child(Key("site", "css"))
+    val siteJS: Key  = root.child(Key("site", "js"))
+    val epubCSS: Key = root.child(Key("epub", "css"))
+    val epubJS: Key = root.child(Key("epub", "js"))
+
     implicit val landingEncoder: ConfigEncoder[LandingPage] = landingPageEncoder(helium)
     ConfigBuilder.empty
       .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
@@ -196,19 +203,19 @@ private[laika] object ConfigGenerator {
         helium.siteSettings.content.downloadPage.fold(false)(_.includePDF)
       )
       .withValue(
-        LaikaKeys.site.css.child("globalSearchPaths"),
+        siteCSS.child("globalSearchPaths"),
         (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeCSS
       )
       .withValue(
-        LaikaKeys.site.js.child("globalSearchPaths"),
+        siteJS.child("globalSearchPaths"),
         (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeJS
       )
       .withValue(
-        LaikaKeys.epub.css.child("globalSearchPaths"),
+        epubCSS.child("globalSearchPaths"),
         (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS
       )
       .withValue(
-        LaikaKeys.epub.js.child("globalSearchPaths"),
+        epubJS.child("globalSearchPaths"),
         (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS
       )
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)

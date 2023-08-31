@@ -21,7 +21,8 @@ import cats.syntax.all._
 import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{ /, Document, Element, RootElement }
-import laika.config.{ ConfigException, LaikaKeys }
+import laika.config.LaikaKeys.root
+import laika.config.{ ConfigException, Key, LaikaKeys }
 import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor
@@ -55,15 +56,14 @@ private[helium] object LandingPageGenerator {
         )
       )
     }
-
-    val result = titleDocument.map { doc =>
+    val result        = titleDocument.map { doc =>
       val configWithTemplate   =
         if (doc.config.hasKey(LaikaKeys.template)) doc.config
         else doc.config.withValue(LaikaKeys.template, "landing.template.html").build
       val titleDocWithTemplate = doc.copy(config =
         configWithTemplate
           .withValue(
-            LaikaKeys.site.css.child("searchPaths"),
+            root.child(Key("site", "css")).child("searchPaths"),
             (Root / "helium" / "landing.page.css") +: landingPage.styles
           )
           .build
