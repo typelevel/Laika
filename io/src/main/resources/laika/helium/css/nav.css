@@ -185,6 +185,10 @@ header .row.links .row.links {
   font-weight: normal;
 }
 
+.nav-list li a code {
+  color: var(--primary-color); /* ensures that code is the same colour as the rest of the text, for consistency */
+}
+
 /* left navigation bar =========================================== */
 
 #sidebar {
@@ -326,8 +330,10 @@ ul.nav-list, #page-nav ul {
 }
 
 .nav-list .active a,
+.nav-list .active code,
 .nav-list .active a:hover,
 #page-nav .header a,
+#page-nav .header code,
 #page-nav .header a:hover {
   color: var(--bg-color);
   background-color: var(--primary-color);
