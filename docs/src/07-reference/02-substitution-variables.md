@@ -66,6 +66,8 @@ This is a complete list of values exposed in the `cursor` namespace:
 
     * `title`: the AST of the title of this document - including formatting.
 
+    * `rawTitle`: the raw string of the title of this document - stripping all formatting.
+
     * `sourcePath`: the absolute (virtual) path of the document in the input tree.
 
     * `path` (deprecated since 0.19.0): use `sourcePath`.
