@@ -16,12 +16,27 @@
 
 package laika.theme.config
 
+/** Configuration API for specifying attributes to set for script tags
+  * in conjunction with the Helium API for script includes.
+  */
 sealed abstract class StyleAttributes private {
 
+  /** The value to be set for the `integrity` attribute.
+    * If empty the attribute will not be included.
+    */
   def integrity: Option[String]
+
+  /** The value to be set for the `crossorigin` attribute.
+    * In case of `CrossOrigin.Unspecified` the attribute will not be included.
+    */
   def crossOrigin: CrossOrigin
 
+  /** Specifies a value to be set for the `integrity` attribute.
+    */
   def withIntegrity(value: String): StyleAttributes
+
+  /** Specifies a value to be set for the `crossorigin` attribute.
+    */
   def withCrossOrigin(value: CrossOrigin): StyleAttributes
 
 }

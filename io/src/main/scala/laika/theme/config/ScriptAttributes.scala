@@ -16,18 +16,45 @@
 
 package laika.theme.config
 
+/** Configuration API for specifying attributes to set for script tags
+  * in conjunction with the Helium API for script includes.
+  */
 sealed abstract class ScriptAttributes private {
 
   def isDefer: Boolean
   def isAsync: Boolean
   def isModule: Boolean
+
+  /** The value to be set for the `integrity` attribute.
+    * If empty the attribute will not be included.
+    */
   def integrity: Option[String]
+
+  /** The value to be set for the `crossorigin` attribute.
+    * In case of `CrossOrigin.Unspecified` the attribute will not be included.
+    */
   def crossOrigin: CrossOrigin
 
+  /** Indicates that the `defer` attribute should be included in the script tag.
+    * Overrides `async` in case that had been set previously.
+    */
   def defer: ScriptAttributes
+
+  /** Indicates that the `async` attribute should be included in the script tag.
+    * Overrides `defer` in case that had been set previously.
+    */
   def async: ScriptAttributes
+
+  /** Indicates that the `type` attribute should be set to `module`.
+    */
   def asModule: ScriptAttributes
+
+  /** Specifies a value to be set for the `integrity` attribute.
+    */
   def withIntegrity(value: String): ScriptAttributes
+
+  /** Specifies a value to be set for the `crossorigin` attribute.
+    */
   def withCrossOrigin(value: CrossOrigin): ScriptAttributes
 
 }
