@@ -87,7 +87,7 @@ object LaikaKeys {
     val css: Key = root.child(Key("epub", "css"))
 
     @deprecated("0.19.4", "use Helium configuration for JS includes")
-    val js: Key  = root.child(Key("epub", "js"))
+    val js: Key = root.child(Key("epub", "js"))
 
   }
 

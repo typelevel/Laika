@@ -132,14 +132,14 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("custom configuration for CSS and JS file locations") {
-    val inputs = Seq(
+    val inputs   = Seq(
       Root / "name.md"                       -> "text",
       Root / "web" / "foo.js"                -> "",
       Root / "web" / "foo.shared.css"        -> "",
       Root / "custom-js" / "foo.epub.js"     -> "",
       Root / "custom-css" / "foo.shared.css" -> ""
     )
-    val helium = Helium.defaults
+    val helium   = Helium.defaults
       .epub.internalCSS(Root / "custom-css")
       .epub.internalJS(Root / "custom-js")
     val expected =
