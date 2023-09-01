@@ -24,9 +24,9 @@ private[helium] case class InlineJS(
 private[helium] case class ScriptIncludes(
     internal: Seq[InternalJS],
     external: Seq[ExternalJS],
-    inline: Seq[InlineJS]
+    inlined: Seq[InlineJS]
 ) {
-  def add(value: InlineJS): ScriptIncludes   = copy(inline = inline :+ value)
+  def add(value: InlineJS): ScriptIncludes   = copy(inlined = inlined :+ value)
   def add(value: InternalJS): ScriptIncludes = copy(internal = internal :+ value)
   def add(value: ExternalJS): ScriptIncludes = copy(external = external :+ value)
 
@@ -34,11 +34,11 @@ private[helium] case class ScriptIncludes(
     copy(
       internal = internal.filter(_.condition(doc)),
       external = external.filter(_.condition(doc)),
-      inline = inline.filter(_.condition(doc))
+      inlined = inlined.filter(_.condition(doc))
     )
   }
 
-  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inline.isEmpty
+  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inlined.isEmpty
 }
 
 object ScriptIncludes {
@@ -65,9 +65,9 @@ private[helium] case class InlineCSS(
 private[helium] case class StyleIncludes(
     internal: Seq[InternalCSS],
     external: Seq[ExternalCSS],
-    inline: Seq[InlineCSS]
+    inlined: Seq[InlineCSS]
 ) {
-  def add(value: InlineCSS): StyleIncludes   = copy(inline = inline :+ value)
+  def add(value: InlineCSS): StyleIncludes   = copy(inlined = inlined :+ value)
   def add(value: InternalCSS): StyleIncludes = copy(internal = internal :+ value)
   def add(value: ExternalCSS): StyleIncludes = copy(external = external :+ value)
 
@@ -75,11 +75,11 @@ private[helium] case class StyleIncludes(
     copy(
       internal = internal.filter(_.condition(doc)),
       external = external.filter(_.condition(doc)),
-      inline = inline.filter(_.condition(doc))
+      inlined = inlined.filter(_.condition(doc))
     )
   }
 
-  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inline.isEmpty
+  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inlined.isEmpty
 
 }
 
