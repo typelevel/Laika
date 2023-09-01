@@ -16,7 +16,7 @@ private[helium] case class ExternalJS(
 )
 
 private[helium] case class InlineJS(
-    src: String,
+    content: String,
     isModule: Boolean,
     condition: Document => Boolean
 )
@@ -38,6 +38,7 @@ private[helium] case class ScriptIncludes(
     )
   }
 
+  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inline.isEmpty
 }
 
 object ScriptIncludes {
@@ -57,7 +58,7 @@ private[helium] case class ExternalCSS(
 )
 
 private[helium] case class InlineCSS(
-    src: String,
+    content: String,
     condition: Document => Boolean
 )
 
@@ -77,6 +78,8 @@ private[helium] case class StyleIncludes(
       inline = inline.filter(_.condition(doc))
     )
   }
+
+  def isEmpty: Boolean = internal.isEmpty && external.isEmpty && inline.isEmpty
 
 }
 

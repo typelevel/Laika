@@ -109,7 +109,7 @@ private[helium] object HeliumHeadDirectives {
 
   private def renderAttribute(attr: (String, String)): String =
     if (attr._2.isEmpty) " " + attr._1
-    else s""" ${attr._1}="${attr._2}"""
+    else s""" ${attr._1}="${attr._2}""""
 
   /* Used for internal or external CSS/JS.
      Inline scripts or styles are handled separately.
@@ -124,7 +124,7 @@ private[helium] object HeliumHeadDirectives {
         Seq(
           TemplateString(templateStart),
           srcSpan,
-          TemplateString(attributes.map(renderAttribute).mkString),
+          TemplateString("\"" + attributes.map(renderAttribute).mkString),
           TemplateString(templateEnd)
         )
       }
@@ -133,7 +133,7 @@ private[helium] object HeliumHeadDirectives {
   private def renderInlineStyles(styles: Seq[InlineCSS]): Seq[Seq[TemplateSpan]] = {
     styles.map { styleDecl =>
       val content = s"""<style>
-                       |$styleDecl
+                       |${styleDecl.content}
                        |</style>""".stripMargin
       Seq(TemplateString(content))
     }
@@ -144,7 +144,7 @@ private[helium] object HeliumHeadDirectives {
       val moduleAttribute = if (script.isModule) """ type="module"""" else ""
       val content         =
         s"""<script$moduleAttribute>
-           |$script
+           |${script.content}
            |</script>""".stripMargin
       Seq(TemplateString(content))
     }
@@ -163,22 +163,23 @@ private[helium] object HeliumHeadDirectives {
       import Templates.dsl._
 
       val templateStart = """<link rel="stylesheet" type="text/css" href=""""
-      val templateEnd   = "\" />"
+      val templateEnd   = " />"
 
       cursor.map { cursor =>
         chooseIncludes(cursor, siteIncludes, epubIncludes) match {
-          case Some(includes) =>
-            val external = {
-              includes.external.map(incl => incl.url -> collectAttributes(incl.attributes))
+          case Some(allIncludes) =>
+            val docIncludes = allIncludes.applyConditions(cursor.target)
+            val external    = docIncludes.external.map { incl =>
+              incl.url -> collectAttributes(incl.attributes)
             }
-            val internal = {
-              includes.internal.map(incl => incl.searchPath -> collectAttributes(incl.attributes))
+            val internal    = docIncludes.internal.map { incl =>
+              incl.searchPath -> collectAttributes(incl.attributes)
             }
-            val targets  = collectTargets(cursor, "css", external, internal)
-            val links    = renderLinks(targets, templateStart, templateEnd)
-            val inline   = renderInlineStyles(includes.inline)
+            val targets     = collectTargets(cursor, "css", external, internal)
+            val links       = renderLinks(targets, templateStart, templateEnd)
+            val inline      = renderInlineStyles(allIncludes.inline)
             concatLinks(links ++ inline)
-          case None           => TemplateSpanSequence.empty
+          case None              => TemplateSpanSequence.empty
         }
       }
     }
@@ -188,22 +189,23 @@ private[helium] object HeliumHeadDirectives {
       import Templates.dsl._
 
       val templateStart = """<script src=""""
-      val templateEnd   = "\"></script>"
+      val templateEnd   = "></script>"
 
       cursor.map { cursor =>
         chooseIncludes(cursor, siteIncludes, epubIncludes) match {
-          case Some(includes) =>
-            val external = {
-              includes.external.map(incl => incl.url -> collectAttributes(incl.attributes))
+          case Some(allIncludes) =>
+            val docIncludes = allIncludes.applyConditions(cursor.target)
+            val external    = docIncludes.external.map { incl =>
+              incl.url -> collectAttributes(incl.attributes)
             }
-            val internal = {
-              includes.internal.map(incl => incl.searchPath -> collectAttributes(incl.attributes))
+            val internal    = docIncludes.internal.map { incl =>
+              incl.searchPath -> collectAttributes(incl.attributes)
             }
-            val targets  = collectTargets(cursor, "js", external, internal)
-            val links    = renderLinks(targets, templateStart, templateEnd)
-            val inline   = renderInlineScripts(includes.inline)
+            val targets     = collectTargets(cursor, "js", external, internal)
+            val links       = renderLinks(targets, templateStart, templateEnd)
+            val inline      = renderInlineScripts(allIncludes.inline)
             concatLinks(links ++ inline)
-          case None           => TemplateSpanSequence.empty
+          case None              => TemplateSpanSequence.empty
         }
       }
     }
