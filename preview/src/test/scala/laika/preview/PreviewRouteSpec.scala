@@ -93,9 +93,10 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
   }
 
   test("serve the AST of a rendered document") {
-    val expected = """<pre><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
-                     |</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
-                     |</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;foo&#39;</span></code></pre>""".stripMargin
+    val expected =
+      """<pre><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
+        |</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+        |</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;foo&#39;</span></code></pre>""".stripMargin
     run(uri"/doc.html/ast", Status.Ok, Some(MediaType.text.html), stringBody(expected))
   }
 
