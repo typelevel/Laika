@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream
 private[preview] class SiteTransformer[F[_]: Async](
     val parser: TreeParser[F],
     htmlRenderer: TreeRenderer[F],
+    astRenderer: TreeRenderer[F],
     binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
     inputs: InputTreeBuilder[F],
     staticFiles: ResultMap[F],
@@ -76,8 +77,8 @@ private[preview] class SiteTransformer[F[_]: Async](
     }
   }
 
-  def transformHTML(tree: ParsedTree[F]): F[ResultMap[F]] = {
-    htmlRenderer
+  def transformHTML(tree: ParsedTree[F], renderer: TreeRenderer[F]): F[ResultMap[F]] = {
+    renderer
       .from(tree)
       .toOutput(StringTreeOutput)
       .render
@@ -95,21 +96,16 @@ private[preview] class SiteTransformer[F[_]: Async](
       }
   }
 
-  def mapASTPaths(map: ResultMap[F]): ResultMap[F] = map
-
-//  def mapASTPaths(map: ResultMap[F]): ResultMap[F] = {
-//    println("ORIG PATHS ===================================")
-//    println(map.keySet.map(_.toString).toSeq.sorted.mkString("\n"))
-//    map
-//  }
-
   val transform: F[SiteResults[F]] = for {
     tree   <- parse
-    html   <- transformHTML(tree)
-    ast    <- transformHTML(tree.modifyRoot(ASTPageTransformer.transform(_, parser.config)))
+    html   <- transformHTML(tree, htmlRenderer)
+    ast    <- transformHTML(
+      tree.modifyRoot(ASTPageTransformer.transform(_, parser.config)),
+      astRenderer
+    )
     ebooks <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
   } yield {
-    new SiteResults(staticFiles ++ mapASTPaths(ast) ++ html ++ ebooks)
+    new SiteResults(staticFiles ++ ast ++ html ++ ebooks)
   }
 
 }
@@ -173,16 +169,17 @@ private[preview] object SiteTransformer {
       }
 
     for {
-      p        <- parser.map(adjustConfig)
-      html     <- htmlRenderer(p.config, p.theme)
-      bin      <- renderFormats.traverse(f =>
+      p    <- parser.map(adjustConfig)
+      html <- htmlRenderer(p.config, p.theme)
+      ast  <- htmlRenderer(p.config.withBundles(Seq(ASTPageTransformer.ASTPathTranslator)), p.theme)
+      bin  <- renderFormats.traverse(f =>
         binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))
       )
       vFiles   <- Resource.eval(StaticFileScanner.collectVersionedFiles(p.config))
       apiFiles <- collectAPIFiles(p.config)
     } yield {
       val allInputs = inputs.merge(asInputTree(apiFiles))
-      new SiteTransformer[F](p, html, bin, allInputs, vFiles, artifactBasename)
+      new SiteTransformer[F](p, html, ast, bin, allInputs, vFiles, artifactBasename)
     }
 
   }

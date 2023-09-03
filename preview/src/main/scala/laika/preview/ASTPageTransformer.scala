@@ -24,22 +24,42 @@ import laika.ast.{
   BlockSequence,
   CodeBlock,
   Document,
-  DocumentTree,
   DocumentTreeRoot,
-  Path,
   RewritePhase,
   RootElement,
   Section,
   Title
 }
+import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.format.{ AST, HTML }
 import laika.parse.{ Failure, Success }
 import laika.parse.code.languages.LaikaASTSyntax
 import laika.rewrite.OutputContext
+import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec
 
-object ASTPageTransformer {
+private[preview] object ASTPageTransformer {
+
+  object ASTPathTranslator extends ExtensionBundle {
+
+    override val origin: BundleOrigin = BundleOrigin.Library
+    val description: String           = "AST URL extension for preview server"
+    private val outputName            = "ast"
+
+    override def extendPathTranslator
+        : PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
+      case context =>
+        PathTranslator.postTranslate(context.baseTranslator) { path =>
+          if (path.suffix.contains("html")) {
+            val base = path.withoutFragment / outputName
+            path.fragment.fold(base)(base.withFragment)
+          }
+          else path
+        }
+    }
+
+  }
 
   private val renderer = Renderer.of(AST).build
 
@@ -103,25 +123,13 @@ object ASTPageTransformer {
     root.withContent(title.toSeq ++ rest)
   }
 
-  private def transformDocument(doc: Document, treePath: Path): Document =
-    doc.copy(
-      path = treePath / "ast",
-      content = transformRoot(doc.content)
-    )
-
-  private def transformTree(tree: DocumentTree): DocumentTree = tree.copy(
-    content = tree.content.map {
-      case t: DocumentTree => transformTree(t)
-      case d: Document     =>
-        val treePath = d.path.withSuffix("html")
-        DocumentTree(treePath, Seq(transformDocument(d, treePath)))
-    }
-  )
+  private def transformDocument(doc: Document): Document =
+    doc.copy(content = transformRoot(doc.content))
 
   def transform(tree: DocumentTreeRoot, config: OperationConfig): DocumentTreeRoot = {
     val rules = config.rewriteRulesFor(tree, RewritePhase.Render(OutputContext(HTML)))
     tree.rewrite(rules) match {
-      case Right(rewritten) => rewritten.modifyTree(transformTree)
+      case Right(rewritten) => rewritten.modifyTree(_.mapDocuments(transformDocument))
       case Left(error) => tree.mapDocuments(_.copy(content = RootElement(callout(error.message))))
     }
   }
