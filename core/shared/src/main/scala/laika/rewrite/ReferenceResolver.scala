@@ -78,6 +78,7 @@ object ReferenceResolver {
   ): ReferenceResolver = {
 
     val rootKey = Key("cursor")
+    val title   = document.title.getOrElse(emptyTitle)
 
     val baseBuilder = ConfigBuilder
       .withFallback(config)
@@ -88,7 +89,8 @@ object ReferenceResolver {
             Field("path", StringValue(document.path.toString)), // deprecated since 0.19.0
             Field("sourcePath", StringValue(document.path.toString)),
             Field("content", ASTValue(document.content), config.origin),
-            Field("title", ASTValue(document.title.getOrElse(emptyTitle)), config.origin),
+            Field("title", ASTValue(title), config.origin),
+            Field("rawTitle", StringValue(title.extractText), config.origin),
             Field(
               "fragments",
               ObjectValue(document.fragments.toSeq.map { case (name, element) =>

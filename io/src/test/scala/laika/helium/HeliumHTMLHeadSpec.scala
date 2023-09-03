@@ -518,11 +518,11 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
-  test("title") {
+  test("title - ignoring markup") {
     val markup =
       """
-        |Title
-        |=====
+        |Title **1**
+        |===========
         |
         |Text
       """.stripMargin
@@ -530,7 +530,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> markup
     )
     transformAndExtractHead(inputs, heliumBase).map(_.extractTag("title")).assertEquals(
-      Some("Title")
+      Some("Title 1")
     )
   }
 
