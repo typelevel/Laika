@@ -19,6 +19,7 @@ package laika.helium.generate
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.ConfigEncoder.ObjectBuilder
+import laika.config.LaikaKeys.root
 import laika.config._
 import laika.helium.Helium
 import laika.helium.config._
@@ -173,6 +174,32 @@ private[laika] object ConfigGenerator {
   }
 
   def populateConfig(helium: Helium): Config = {
+
+    // TODO - 1.0 - remove deprecated keys and legacy includes
+    val siteCSS: Key = root.child(Key("site", "css"))
+    val siteJS: Key  = root.child(Key("site", "js"))
+    val epubCSS: Key = root.child(Key("epub", "css"))
+    val epubJS: Key  = root.child(Key("epub", "js"))
+
+    def isLegacyRoot(cond: Boolean)(path: Path): Boolean = if (cond) path == Root else false
+
+    val legacySiteCSS = {
+      val cond = !helium.siteSettings.content.styleIncludes.isEmpty
+      helium.siteSettings.content.htmlIncludes.includeCSS.filterNot(isLegacyRoot(cond))
+    }
+    val legacySiteJS  = {
+      val cond = !helium.siteSettings.content.scriptIncludes.isEmpty
+      helium.siteSettings.content.htmlIncludes.includeJS.filterNot(isLegacyRoot(cond))
+    }
+    val legacyEpubCSS = {
+      val cond = !helium.epubSettings.styleIncludes.isEmpty
+      helium.epubSettings.htmlIncludes.includeCSS.filterNot(isLegacyRoot(cond))
+    }
+    val legacyEpubJS  = {
+      val cond = !helium.epubSettings.scriptIncludes.isEmpty
+      helium.epubSettings.htmlIncludes.includeJS.filterNot(isLegacyRoot(cond))
+    }
+
     implicit val landingEncoder: ConfigEncoder[LandingPage] = landingPageEncoder(helium)
     ConfigBuilder.empty
       .withValue("helium.site.landingPage", helium.siteSettings.content.landingPage)
@@ -195,22 +222,10 @@ private[laika] object ConfigGenerator {
         "helium.site.includePDF",
         helium.siteSettings.content.downloadPage.fold(false)(_.includePDF)
       )
-      .withValue(
-        LaikaKeys.site.css.child("globalSearchPaths"),
-        (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeCSS
-      )
-      .withValue(
-        LaikaKeys.site.js.child("globalSearchPaths"),
-        (Root / "helium") +: helium.siteSettings.content.htmlIncludes.includeJS
-      )
-      .withValue(
-        LaikaKeys.epub.css.child("globalSearchPaths"),
-        (Root / "helium") +: helium.epubSettings.htmlIncludes.includeCSS
-      )
-      .withValue(
-        LaikaKeys.epub.js.child("globalSearchPaths"),
-        (Root / "helium") +: helium.epubSettings.htmlIncludes.includeJS
-      )
+      .withValue(siteCSS.child("globalSearchPaths"), (Root / "helium") +: legacySiteCSS)
+      .withValue(siteJS.child("globalSearchPaths"), (Root / "helium") +: legacySiteJS)
+      .withValue(epubCSS.child("globalSearchPaths"), (Root / "helium") +: legacyEpubCSS)
+      .withValue(epubJS.child("globalSearchPaths"), (Root / "helium") +: legacyEpubJS)
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)

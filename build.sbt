@@ -1,11 +1,12 @@
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
-import sbt.Keys.{ artifactPath, crossScalaVersions }
+import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
+import com.typesafe.tools.mima.core.{ ProblemFilters, DirectMissingMethodProblem }
 import Dependencies._
 
 lazy val basicSettings = Seq(
-  version              := "0.19.3",
+  version              := "0.19.4-SNAPSHOT",
   homepage             := Some(new URL("https://typelevel.org/Laika/")),
   organization         := "org.planet42",
   organizationHomepage := Some(new URL("http://typelevel.org")),
@@ -143,7 +144,12 @@ lazy val io = project.in(file("io"))
   .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3)
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
+    mimaBinaryIssueFilters ++= Seq(
+      ProblemFilters.exclude[DirectMissingMethodProblem](
+        "laika.helium.builder.HeliumThemeBuilder#directives.this"
+      )
+    )
   )
 
 lazy val pdf = project.in(file("pdf"))

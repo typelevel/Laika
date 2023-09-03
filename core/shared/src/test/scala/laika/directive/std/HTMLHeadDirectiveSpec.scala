@@ -25,7 +25,7 @@ import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.FunSuite
 import RewriteSetup._
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.{ ConfigBuilder, Key, LaikaKeys }
 import laika.format.HTML
 
 class HTMLHeadDirectiveSpec extends FunSuite {
@@ -111,8 +111,11 @@ class HTMLHeadDirectiveSpec extends FunSuite {
   private val separator = TemplateString("\n    ")
   private def rawLink(url: String): TemplateElement = TemplateElement(RawLink.internal(url))
 
-  private val globalSearchPathsKey = LaikaKeys.site.css.child("globalSearchPaths")
-  private val localSearchPathsKey  = LaikaKeys.site.css.child("searchPaths")
+  // TODO - 1.0 - remove deprecated values
+  val siteCSS: Key = LaikaKeys.root.child(Key("site", "css"))
+
+  private val globalSearchPathsKey = siteCSS.child("globalSearchPaths")
+  private val localSearchPathsKey  = siteCSS.child("searchPaths")
 
   private val linkCSSInput =
     """aaa

@@ -72,13 +72,23 @@ object LaikaKeys {
     val apiPath: Key      = root.child(Key("site", "downloadPath"))
     val downloadPath: Key = root.child(Key("site", "apiPath"))
     val metadata: Key     = root.child(Key("site", "metadata"))
-    val css: Key          = root.child(Key("site", "css"))
-    val js: Key           = root.child(Key("site", "js"))
+
+    @deprecated("0.19.4", "use Helium configuration for CSS includes")
+    val css: Key = root.child(Key("site", "css"))
+
+    @deprecated("0.19.4", "use Helium configuration for JS includes")
+    val js: Key = root.child(Key("site", "js"))
+
   }
 
   object epub {
+
+    @deprecated("0.19.4", "use Helium configuration for CSS includes")
     val css: Key = root.child(Key("epub", "css"))
-    val js: Key  = root.child(Key("epub", "js"))
+
+    @deprecated("0.19.4", "use Helium configuration for JS includes")
+    val js: Key = root.child(Key("epub", "js"))
+
   }
 
   object preview {
