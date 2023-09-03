@@ -71,7 +71,8 @@ Content Organization
 * Produce [Versioned Documentation] based on simple configuration steps and an integrated version switcher
   dropdown in the default Helium theme.
   
-* Use the integrated [Preview Server](../02-running-laika/01-sbt-plugin.md#using-the-preview-server) with live updates to preview your site while editing.
+* Use the integrated [Preview Server](../02-running-laika/01-sbt-plugin.md#using-the-preview-server) 
+  with live updates to preview your site while editing.
 
 
 Library API

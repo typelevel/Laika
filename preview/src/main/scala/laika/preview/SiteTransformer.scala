@@ -95,12 +95,21 @@ private[preview] class SiteTransformer[F[_]: Async](
       }
   }
 
+  def mapASTPaths(map: ResultMap[F]): ResultMap[F] = map
+
+//  def mapASTPaths(map: ResultMap[F]): ResultMap[F] = {
+//    println("ORIG PATHS ===================================")
+//    println(map.keySet.map(_.toString).toSeq.sorted.mkString("\n"))
+//    map
+//  }
+
   val transform: F[SiteResults[F]] = for {
-    tree     <- parse
-    rendered <- transformHTML(tree)
-    ebooks   <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
+    tree   <- parse
+    html   <- transformHTML(tree)
+    ast    <- transformHTML(tree.modifyRoot(ASTPageTransformer.transform(_, parser.config)))
+    ebooks <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
   } yield {
-    new SiteResults(staticFiles ++ rendered ++ ebooks)
+    new SiteResults(staticFiles ++ mapASTPaths(ast) ++ html ++ ebooks)
   }
 
 }
