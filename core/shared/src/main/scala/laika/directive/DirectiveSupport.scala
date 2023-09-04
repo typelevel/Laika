@@ -20,7 +20,7 @@ import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.{
   DocumentCursor,
   InvalidSpan,
-  LinkIdReference,
+  LinkPathReference,
   NoOpt,
   Options,
   Replace,
@@ -97,7 +97,7 @@ class DirectiveSupport(
   ))
 
   case class LinkDirectiveResolver(
-      ref: LinkIdReference,
+      ref: LinkPathReference,
       directiveName: String,
       typeName: String,
       source: SourceFragment,
@@ -124,8 +124,8 @@ class DirectiveSupport(
     if (strictMode) Nil
     else
       Seq(RewriteRules.forSpans {
-        case ref: LinkIdReference if ref.ref.startsWith("@:") =>
-          linkParser.parse(ref.ref.drop(2)).toEither.fold(
+        case ref: LinkPathReference if ref.path.toString.startsWith("@:") =>
+          linkParser.parse(ref.path.toString.drop(2)).toEither.fold(
             err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
             res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
           )

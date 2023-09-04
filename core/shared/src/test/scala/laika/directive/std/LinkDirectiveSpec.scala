@@ -47,6 +47,19 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
         Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
       )
 
+    def runCustom(
+        directiveInput: String,
+        expected: Span,
+        withoutConfig: Boolean = false
+    ): Unit = {
+      val input =
+        if (withoutConfig) lineInput(directiveInput) else configInput(lineInput(directiveInput))
+      assertEquals(
+        parse(input).map(_.content),
+        Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
+      )
+    }
+
     def runTypeBlock(block: String, expected: Span*): Unit = {
       val input = s"""aa
                      |
@@ -85,6 +98,14 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
     Api.runType(
       "def.bar.Baz",
       SpanLink.external("https://default.api/def/bar/Baz.html")("Baz").withStyles("api")
+    )
+  }
+
+  test("api directive - with custom link text in native Markdown link syntax") {
+    Api.runCustom(
+      "[Custom link text](@:api(def.bar.Baz))",
+      SpanLink.external("https://default.api/def/bar/Baz.html")("Custom link text")
+        .withStyles("api")
     )
   }
 
@@ -200,12 +221,33 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
         Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
       )
 
+    def runCustom(
+        directiveInput: String,
+        expected: Span,
+        withoutConfig: Boolean = false
+    ): Unit = {
+      val input =
+        if (withoutConfig) lineInput(directiveInput) else configInput(lineInput(directiveInput))
+      assertEquals(
+        parse(input).map(_.content),
+        Right(RootElement(p(Text("aa "), expected, Text(" bb"))))
+      )
+    }
+
   }
 
   test("source directive - span link based on the default base URI") {
     Source.runType(
       "def.bar.Baz",
       SpanLink.external("https://default.source/def/bar/Baz.scala")("Baz").withStyles("source")
+    )
+  }
+
+  test("source directive - with custom link text in native Markdown link syntax") {
+    Source.runCustom(
+      "[Custom link text](@:source(def.bar.Baz))",
+      SpanLink.external("https://default.source/def/bar/Baz.scala")("Custom link text")
+        .withStyles("source")
     )
   }
 

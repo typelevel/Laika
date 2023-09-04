@@ -528,7 +528,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("link directive inside a native link expression") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc(222)] bb"
+      val input = "aa [RFC-222](@:rfc(222)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -544,13 +544,13 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("unknown link directive") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfx(222)] bb"
+      val input = "aa [RFC-222](@:rfx(222)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
-            invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx", defaultPath),
+            invalid("[RFC-222](@:rfx(222))", "Unknown link directive: rfx", defaultPath),
             Text(" bb")
           )
         )
@@ -560,14 +560,14 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("invalid link directive") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc(foo)] bb"
+      val input = "aa [RFC-222](@:rfc(foo)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
             invalid(
-              "[RFC-222][@:rfc(foo)]",
+              "[RFC-222](@:rfc(foo))",
               "Invalid link directive: Not a valid RFC id: foo",
               defaultPath
             ),
@@ -580,15 +580,15 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("invalid link directive syntax") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc foo] bb"
+      val input = "aa [RFC-222](@:rfc!foo) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
             invalid(
-              "[RFC-222][@:rfc foo]",
-              "Invalid link directive: `(' expected but `f` found",
+              "[RFC-222](@:rfc!foo)",
+              "Invalid link directive: `(' expected but `!` found",
               defaultPath
             ),
             Text(" bb")
