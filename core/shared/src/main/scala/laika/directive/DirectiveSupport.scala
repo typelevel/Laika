@@ -20,6 +20,7 @@ import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.{
   DocumentCursor,
   InvalidSpan,
+  LinkIdReference,
   LinkPathReference,
   NoOpt,
   Options,
@@ -97,7 +98,7 @@ class DirectiveSupport(
   ))
 
   case class LinkDirectiveResolver(
-      ref: LinkPathReference,
+      ref: LinkIdReference,
       directiveName: String,
       typeName: String,
       source: SourceFragment,
@@ -120,6 +121,30 @@ class DirectiveSupport(
     def unresolvedMessage: String = s"unresolved api directive for type $typeName"
   }
 
+  private case class LinkDirectiveResolver2(
+      ref: LinkPathReference,
+      directiveName: String,
+      typeName: String,
+      source: SourceFragment,
+      options: Options = NoOpt
+  ) extends SpanResolver {
+    type Self = LinkDirectiveResolver2
+
+    def resolve(cursor: DocumentCursor): Span = linkDirectiveMap.get(directiveName)
+      .fold[Span](InvalidSpan(s"Unknown link directive: $directiveName", source)) { dir =>
+        dir(typeName, cursor).fold(
+          err => InvalidSpan(s"Invalid link directive: $err", source),
+          res => res.copy(content = ref.content, options = res.options + ref.options)
+        )
+      }
+
+    def withOptions(options: Options): LinkDirectiveResolver2 = copy(options = options)
+
+    def runsIn(phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
+    def unresolvedMessage: String = s"unresolved api directive for type $typeName"
+  }
+
   override lazy val rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
     if (strictMode) Nil
     else
@@ -127,7 +152,7 @@ class DirectiveSupport(
         case ref: LinkPathReference if ref.path.toString.startsWith("@:") =>
           linkParser.parse(ref.path.toString.drop(2)).toEither.fold(
             err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
-            res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
+            res => Replace(LinkDirectiveResolver2(ref, res._1, res._2, ref.source, ref.options))
           )
       }.asBuilder)
   }
