@@ -171,6 +171,13 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     runEnclosed("some [link](http://foo) here", SpanLink.external("http://foo")("link"))
   }
 
+  test("links - inline link with nested parenthesis") {
+    runEnclosed(
+      "some [link](http://foo?param=foo(bar)baz) here",
+      SpanLink.external("http://foo?param=foo(bar)baz")("link")
+    )
+  }
+
   test("links - recognize email link as external link") {
     runEnclosed(
       "some [link](mailto:nobody@nowhere.com) here",
