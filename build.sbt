@@ -24,7 +24,7 @@ lazy val basicSettings = Seq(
     (if (priorTo2_13(scalaVersion.value)) Seq("-Ypartial-unification") else Nil)
 )
 
-val mimaPreviousVersions = Set("0.19.0", "0.19.1", "0.19.2")
+val mimaPreviousVersions = Set("0.19.0", "0.19.1", "0.19.2", "0.19.3")
 
 val previousArtifacts = Seq(
   mimaPreviousArtifacts := mimaPreviousVersions

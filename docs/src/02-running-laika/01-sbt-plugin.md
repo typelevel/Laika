@@ -175,7 +175,20 @@ If you are using an IDE with auto-save you might need to tweak its preferences
 for seeing changes while editing the Markdown sources. 
 IntelliJ, for example, only auto-saves when you run or compile an application or when you switch to a
 different application in the OS. 
-You can either use `cmd-S` to manually force saving or change the preferences to auto-save in fixed time intervals. 
+You can either use `cmd-S` to manually force saving or change the preferences to auto-save in fixed time intervals.
+
+
+### Preview of the Document AST
+
+Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
+Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.md/ast`. 
+Note that this does not prevent you from using `/ast` as an actual path segment in your site,
+the server will be able to distinguish those.
+
+The AST shown is equivalent to the AST passed to the actual renderer after the final rewrite phase.
+In case of writing custom render overrides it is the most accurate representation of the nodes you can match on.
+When writing rewrite rules for earlier phases the actual nodes to match on might differ 
+(e.g. directives and links might still be unresolved).
 
 
 Plugin Settings
