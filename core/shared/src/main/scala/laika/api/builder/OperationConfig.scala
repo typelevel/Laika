@@ -59,7 +59,7 @@ class OperationConfig private[laika] (
     val failOnMessages: MessageFilter = MessageFilter.Error,
     val renderMessages: MessageFilter = MessageFilter.None,
     val renderFormatted: Boolean = true
-) extends RenderConfig {
+) {
 
   private def copy(
       bundles: Seq[ExtensionBundle] = this.bundles,
@@ -288,19 +288,6 @@ class OperationConfig private[laika] (
     bundleFilter = this.bundleFilter.merge(other.bundleFilter)
   )
 
-}
-
-/** Represents the subset of OperationConfig relevant for renderers.
-  */
-trait RenderConfig {
-
-  /** The filter to apply to runtime messages that should get rendered to the output.
-    */
-  def renderMessages: MessageFilter
-
-  /** Indicates whether rendering should include any formatting (line breaks or indentation).
-    */
-  def renderFormatted: Boolean
 }
 
 /** A filter that might deactivate or activate some of the bundles based on user configuration.

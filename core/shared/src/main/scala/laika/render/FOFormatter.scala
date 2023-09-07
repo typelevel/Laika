@@ -411,7 +411,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
       context.path,
       context.styles,
       context.indentation,
-      context.config.renderMessages
+      context.messageFilter
     )
 
 }

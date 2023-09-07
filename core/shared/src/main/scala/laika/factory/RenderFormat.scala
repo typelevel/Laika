@@ -16,8 +16,7 @@
 
 package laika.factory
 
-import laika.api.builder.RenderConfig
-import laika.ast.{ Element, Path, StyleDeclarationSet }
+import laika.ast.{ Element, MessageFilter, Path, StyleDeclarationSet }
 import laika.bundle.RenderOverrides
 import laika.render.Indentation
 import laika.rewrite.nav.PathTranslator
@@ -29,7 +28,8 @@ import laika.rewrite.nav.PathTranslator
   * @param styles the styles the new renderer should apply to the rendered elements
   * @param path the (virtual) path the output will be rendered to
   * @param pathTranslator translates paths of input documents to the corresponding output path
-  * @param config additional configuration for the renderer
+  * @param indentation the indentation mechanism to use for rendering
+  * @param messageFilter the filter to apply before rendering runtime messages
   */
 class RenderContext[FMT] private[laika] (
     val renderChild: (FMT, Element) => String,
@@ -37,15 +37,9 @@ class RenderContext[FMT] private[laika] (
     val styles: StyleDeclarationSet,
     val path: Path,
     val pathTranslator: PathTranslator,
-    val config: RenderConfig
-) {
-
-  /** The indentation mechanism to use for rendering.
-    */
-  val indentation: Indentation =
-    if (config.renderFormatted) Indentation.default else Indentation.none
-
-}
+    val indentation: Indentation,
+    val messageFilter: MessageFilter
+) {}
 
 /** Responsible for creating renderer instances for a specific output format.
   *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition

@@ -107,7 +107,7 @@ object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
       context.pathTranslator,
       context.path,
       context.indentation,
-      context.config.renderMessages,
+      context.messageFilter,
       closeEmptyTags = false
     )
 
@@ -128,7 +128,7 @@ object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
       context.pathTranslator,
       context.path,
       context.indentation,
-      context.config.renderMessages,
+      context.messageFilter,
       closeEmptyTags = true
     )
 

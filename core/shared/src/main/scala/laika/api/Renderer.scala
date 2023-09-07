@@ -16,12 +16,13 @@
 
 package laika.api
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.markup.DocumentParser.RendererError
+import laika.render.Indentation
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{ NoOpPathTranslator, PathTranslator }
 
@@ -143,7 +144,8 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
           styles,
           doc.path,
           pathTranslator,
-          config
+          if (config.renderFormatted) Indentation.default else Indentation.none,
+          config.renderMessages
         )
 
       val formatter = format.formatterFactory(renderContext)
