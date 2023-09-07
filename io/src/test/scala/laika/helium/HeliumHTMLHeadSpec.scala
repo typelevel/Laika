@@ -26,6 +26,7 @@ import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
 import laika.io.implicits._
 import laika.io.model.{ InputTree, StringTreeOutput }
+import laika.markdown.github.GitHubFlavor
 import laika.rewrite.link.LinkValidation
 import laika.rewrite.{ Version, Versions }
 import laika.theme._
@@ -39,6 +40,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
+    .using(GitHubFlavor)
     .parallel[IO]
     .build
 
@@ -59,6 +61,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
+    .using(GitHubFlavor)
     .withConfigValue(LinkValidation.Local)
     .parallel[IO]
     .withTheme(theme)
@@ -222,9 +225,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   test("external CSS and JS resources, using attribute properties") {
     val inputs           = Seq(
-      Root / "name.md"         -> "text",
-      Root / "web" / "foo.js"  -> "",
-      Root / "web" / "foo.css" -> ""
+      Root / "name.md" -> "text"
     )
     val scriptAttributes =
       ScriptAttributes.defaults.defer.withIntegrity("xyz").withCrossOrigin(CrossOrigin.Anonymous)
@@ -250,9 +251,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   test("inline styles and script") {
     val inputs   = Seq(
-      Root / "name.md"         -> "text",
-      Root / "web" / "foo.js"  -> "",
-      Root / "web" / "foo.css" -> ""
+      Root / "name.md" -> "text"
     )
     val script   =
       """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -567,6 +566,51 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "helium" / "templates" / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
     )
     val expected = "<title>XX Title</title>"
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
+  }
+
+  test("add mermaid initializer when document contains one or more mermaid diagrams") {
+    val markup   =
+      """
+        |Title
+        |=====
+        |
+        |```mermaid
+        |graph TD 
+        |A[Client] --> B[Load Balancer] 
+        |B --> C[Server01] 
+        |B --> D[Server02]
+        |```
+      """.stripMargin
+    val inputs   = Seq(
+      Root / "name.md" -> markup
+    )
+    val expected =
+      meta ++
+        """
+          |<title>Title</title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<script src="helium/laika-helium.js"></script>
+          |<script type="module">
+          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          |mermaid.initialize({
+          |startOnLoad: true,
+          |theme: "base",
+          |themeVariables: {
+          |'darkMode': dark,
+          |'primaryColor': dark ? '#125d75' : '#ebf6f7',
+          |'primaryTextColor': dark ? '#a7d4de' : '#007c99',
+          |'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
+          |'lineColor': dark ? '#a7d4de' : '#007c99',
+          |'background': dark ? '#064458' : '#ffffff',
+          |}
+          |});
+          |</script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 

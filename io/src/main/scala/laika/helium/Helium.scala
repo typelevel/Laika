@@ -18,6 +18,7 @@ package laika.helium
 
 import laika.helium.builder.HeliumThemeBuilder
 import laika.helium.config._
+import laika.helium.generate.MermaidInitializer
 import laika.theme._
 
 /** Configuration API for the Helium theme settings.
@@ -123,7 +124,8 @@ class Helium private[laika] (
     * or the `withTheme` method of parsers and transformers when using the library API.
     */
   def build: ThemeProvider = {
-    val base: ThemeProvider = new HeliumThemeBuilder(this)
+    val helium              = MermaidInitializer.applyTo(this)
+    val base: ThemeProvider = new HeliumThemeBuilder(helium)
     extensions.foldLeft(base)(_.extendWith(_))
   }
 

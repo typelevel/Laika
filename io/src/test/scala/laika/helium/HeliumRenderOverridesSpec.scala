@@ -27,6 +27,8 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
 import laika.io.model.StringTreeOutput
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
 import laika.render.HTMLFormatter
 import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.theme._
@@ -43,7 +45,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       theme: ThemeProvider,
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
-    val builder = Transformer.from(Markdown).to(HTML)
+    val builder = Transformer.from(Markdown).to(HTML).using(GitHubFlavor, SyntaxHighlighting)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)
@@ -194,6 +196,27 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       AnchorPlacement.None
     )
     transformAndExtract(headlineInput, helium).assertEquals(expected)
+  }
+
+  test("mermaid block without nested <code> elements") {
+    val markup   =
+      """
+        |Title
+        |=====
+        |
+        |```mermaid
+        |graph TD 
+        |A[Client] --> B[Load Balancer] 
+        |B --> C[Server01] 
+        |B --> D[Server02]
+        |```
+      """.stripMargin
+    val expected = """<h1 id="title" class="title">Title</h1>
+                     |<pre class="mermaid">graph TD
+                     |A[Client] --&gt; B[Load Balancer]
+                     |B --&gt; C[Server01]
+                     |B --&gt; D[Server02]</pre>""".stripMargin
+    transformAndExtract(markup, heliumBase).assertEquals(expected)
   }
 
 }

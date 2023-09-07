@@ -177,7 +177,7 @@ private[helium] object HeliumHeadDirectives {
             }
             val targets     = collectTargets(cursor, "css", external, internal)
             val links       = renderLinks(targets, templateStart, templateEnd)
-            val inline      = renderInlineStyles(allIncludes.inlined)
+            val inline      = renderInlineStyles(docIncludes.inlined)
             concatLinks(links ++ inline)
           case None              => TemplateSpanSequence.empty
         }
@@ -203,7 +203,7 @@ private[helium] object HeliumHeadDirectives {
             }
             val targets     = collectTargets(cursor, "js", external, internal)
             val links       = renderLinks(targets, templateStart, templateEnd)
-            val inline      = renderInlineScripts(allIncludes.inlined)
+            val inline      = renderInlineScripts(docIncludes.inlined)
             concatLinks(links ++ inline)
           case None              => TemplateSpanSequence.empty
         }

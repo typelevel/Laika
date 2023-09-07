@@ -184,19 +184,19 @@ private[laika] object ConfigGenerator {
     def isLegacyRoot(cond: Boolean)(path: Path): Boolean = if (cond) path == Root else false
 
     val legacySiteCSS = {
-      val cond = !helium.siteSettings.content.styleIncludes.isEmpty
+      val cond = helium.siteSettings.content.styleIncludes.internal.nonEmpty
       helium.siteSettings.content.htmlIncludes.includeCSS.filterNot(isLegacyRoot(cond))
     }
     val legacySiteJS  = {
-      val cond = !helium.siteSettings.content.scriptIncludes.isEmpty
+      val cond = helium.siteSettings.content.scriptIncludes.internal.nonEmpty
       helium.siteSettings.content.htmlIncludes.includeJS.filterNot(isLegacyRoot(cond))
     }
     val legacyEpubCSS = {
-      val cond = !helium.epubSettings.styleIncludes.isEmpty
+      val cond = helium.epubSettings.styleIncludes.internal.nonEmpty
       helium.epubSettings.htmlIncludes.includeCSS.filterNot(isLegacyRoot(cond))
     }
     val legacyEpubJS  = {
-      val cond = !helium.epubSettings.scriptIncludes.isEmpty
+      val cond = helium.epubSettings.scriptIncludes.internal.nonEmpty
       helium.epubSettings.htmlIncludes.includeJS.filterNot(isLegacyRoot(cond))
     }
 
