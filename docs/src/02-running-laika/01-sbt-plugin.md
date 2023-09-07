@@ -181,7 +181,7 @@ You can either use `cmd-S` to manually force saving or change the preferences to
 ### Preview of the Document AST
 
 Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
-Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.md/ast`. 
+Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.html/ast`. 
 Note that this does not prevent you from using `/ast` as an actual path segment in your site,
 the server will be able to distinguish those.
 

@@ -96,6 +96,9 @@ private[helium] trait CommonConfigOps {
     *
     * When using this method, all default fonts of the Helium theme will be de-registered.
     */
+  def addFontResources(defn: FontDefinition*): Helium = fontResources(defn: _*)
+
+  @deprecated("use addFontResources", "0.19.4")
   def fontResources(defn: FontDefinition*): Helium
 
   /** Specifies which font family to use for the body text, for headlines

@@ -40,6 +40,9 @@ case class LaikaConfig(
 
   /** The file encoding to use for input and output files.
     */
+  def withEncoding(codec: Codec): LaikaConfig = copy(encoding = codec)
+
+  @deprecated("use withEncoding", "0.19.4")
   def encoding(codec: Codec): LaikaConfig = copy(encoding = codec)
 
   /**  Turns strict mode on for the target parser, switching off any features not part of the original markup syntax.
