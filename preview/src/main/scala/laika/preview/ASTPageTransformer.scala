@@ -124,13 +124,15 @@ private[preview] object ASTPageTransformer {
   }
 
   private def transformDocument(doc: Document): Document =
-    doc.copy(content = transformRoot(doc.content))
+    doc.withContent(transformRoot(doc.content))
 
   def transform(tree: DocumentTreeRoot, config: OperationConfig): DocumentTreeRoot = {
     val rules = config.rewriteRulesFor(tree, RewritePhase.Render(OutputContext(HTML)))
     tree.rewrite(rules) match {
-      case Right(rewritten) => rewritten.modifyTree(_.mapDocuments(transformDocument))
-      case Left(error) => tree.mapDocuments(_.copy(content = RootElement(callout(error.message))))
+      case Right(rewritten) =>
+        rewritten.modifyTree(_.modifyDocumentsRecursively(transformDocument))
+      case Left(error)      =>
+        tree.modifyDocumentsRecursively(_.withContent(RootElement(callout(error.message))))
     }
   }
 

@@ -75,7 +75,6 @@ private[helium] case class EPUBSettings(
     fontSizes: FontSizes,
     colors: ColorSet,
     darkMode: Option[ColorSet],
-    htmlIncludes: HTMLIncludes, // TODO - 1.0 - remove
     styleIncludes: StyleIncludes = StyleIncludes.empty,
     scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
     layout: EPUBLayout,
@@ -598,20 +597,6 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     withScriptIncludes(scriptIncludes)
   }
 
-  @deprecated("Use internalCSS", "0.19.4")
-  def autoLinkCSS(paths: Path*): Helium = {
-    val newContent =
-      currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeCSS = paths))
-    copyWith(helium.siteSettings.copy(content = newContent))
-  }
-
-  @deprecated("Use internalJS", "0.19.4")
-  def autoLinkJS(paths: Path*): Helium = {
-    val newContent =
-      currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeJS = paths))
-    copyWith(helium.siteSettings.copy(content = newContent))
-  }
-
   /** Allows to override the defaults for Helium's layout.
     * You can use the constructors found in the `LengthUnit` companion to create length values,
     * e.g. `LengthUnit.px(12)`.
@@ -818,7 +803,6 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * @param documentationLinks  a set of documentation links to render in a dedicated panel on the right side of the header
     * @param projectLinks        a set of project links to render at the bottom of the right side of the header
     * @param teasers             a set of teasers containing of headline and description to render below the header
-    * @param styles              internal paths to additional CSS files that should be linked to the landing page
     */
   def landingPage(
       logo: Option[Image] = None,
@@ -829,8 +813,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       titleLinks: Seq[ThemeLink] = Nil,
       documentationLinks: Seq[TextLink] = Nil,
       projectLinks: Seq[ThemeLinkSpan] = Nil,
-      teasers: Seq[Teaser] = Nil,
-      styles: Seq[Path] = Nil
+      teasers: Seq[Teaser] = Nil
   ): Helium = {
     val page       = LandingPage(
       logo,
@@ -841,8 +824,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       titleLinks,
       documentationLinks,
       projectLinks,
-      teasers,
-      styles
+      teasers
     )
     val newContent = currentContent.copy(landingPage = Some(page))
     copyWith(helium.siteSettings.copy(content = newContent))
@@ -1006,22 +988,6 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       helium.epubSettings.layout.copy(tableOfContent = Some(TableOfContent(title, depth)))
     copyWith(helium.epubSettings.copy(layout = newLayout))
   }
-
-  @deprecated("Use internalCSS", "0.19.4")
-  def autoLinkCSS(paths: Path*): Helium =
-    copyWith(
-      helium.epubSettings.copy(htmlIncludes =
-        helium.epubSettings.htmlIncludes.copy(includeCSS = paths)
-      )
-    )
-
-  @deprecated("Use internalJS", "0.19.4")
-  def autoLinkJS(paths: Path*): Helium =
-    copyWith(
-      helium.epubSettings.copy(htmlIncludes =
-        helium.epubSettings.htmlIncludes.copy(includeJS = paths)
-      )
-    )
 
   private def withStyleIncludes(newValue: StyleIncludes): Helium =
     copyWith(helium.epubSettings.copy(styleIncludes = newValue))

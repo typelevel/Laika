@@ -52,18 +52,20 @@ private[helium] object HeliumHeadDirectives {
 
     def asLink(path: Path): TemplateSpan = TemplateElement(RawLink.internal(path))
 
-    val targets = candidates.flatMap { staticDoc =>
-      specs.collect {
-        case (searchPath, attributes) if staticDoc.path.isSubPath(searchPath) =>
-          staticDoc.path -> attributes
+    val targets = candidates
+      .flatMap { staticDoc =>
+        specs.zipWithIndex.collect {
+          case ((searchPath, attributes), index) if staticDoc.path.isSubPath(searchPath) =>
+            (staticDoc.path, attributes, index)
+        }
       }
-    }
+      .sortBy(_._3)
 
     val (themeTargets, userTargets) = targets.partition(
       _._1.isSubPath(Root / "helium")
     ) // TODO - generalize, e.g. via introducing Theme.managedPaths
 
-    (themeTargets ++ userTargets).map { case (path, attrs) =>
+    (themeTargets ++ userTargets).map { case (path, attrs, _) =>
       asLink(path) -> attrs
     }
 

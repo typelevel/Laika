@@ -495,7 +495,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       s"""RootElement - Blocks: 1
          |. Paragraph - Spans: 2
          |. . Text - 'This is a '
-         |. . SpanLink(ResolvedInternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug,All),None) - Spans: 1
+         |. . SpanLink(InternalTarget(../baz.md#$sectionSlug,All),None) - Spans: 1
          |. . . Text - 'cross ref'""".stripMargin
 
     def inputs(sectionSlug: String): Seq[(Path, String)] = Seq(

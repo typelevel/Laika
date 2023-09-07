@@ -37,7 +37,7 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
 
   private def addLandingPage: TreeProcessor[F] =
     siteSettings.content.landingPage
-      .fold(noOp)(LandingPageGenerator.generate)
+      .fold(noOp)(_ => LandingPageGenerator.generate)
 
   private def addDownloadPage: TreeProcessor[F] =
     siteSettings.content.downloadPage

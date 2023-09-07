@@ -305,8 +305,6 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     ControlFlowDirectives.templateIf,
     IncludeDirectives.templateInclude,
     IncludeDirectives.templateEmbed,
-    HTMLHeadDirectives.linkCSS,
-    HTMLHeadDirectives.linkJS,
     iconTemplate,
     target,
     date,

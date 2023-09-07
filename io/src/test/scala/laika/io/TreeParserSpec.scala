@@ -180,7 +180,7 @@ class TreeParserSpec
       .addDocument(expectedDoc)
       .buildRoot
 
-    val versions = Versions(currentVersion = Version("0.42", "v0.42"), Nil)
+    val versions = Versions.forCurrentVersion(Version("0.42", "v0.42"))
 
     parsedTree(configuredParser(_.withConfigValue(versions)), inputs, identity).assertEquals(
       treeResult

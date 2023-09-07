@@ -201,7 +201,6 @@ private[helium] object HeliumDefaults {
     ),
     colors = colors(syntaxLightScheme),
     darkMode = Some(darkModeColors),
-    htmlIncludes = HTMLIncludes(),
     layout = EPUBLayout(
       defaultBlockSpacing = px(10),
       defaultLineHeight = 1.5,

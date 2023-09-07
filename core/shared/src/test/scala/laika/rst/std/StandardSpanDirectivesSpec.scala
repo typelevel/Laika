@@ -19,7 +19,7 @@ package laika.rst.std
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ AST, ReStructuredText }
 import laika.parse.markup.DocumentParser.TransformationError
@@ -35,7 +35,6 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
   private val parser = MarkupParser
     .of(ReStructuredText)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .build
 
   def parse(input: String): Either[TransformationError, RootElement] =

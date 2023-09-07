@@ -28,8 +28,6 @@ import laika.io.model.StringTreeOutput
 import laika.theme._
 import munit.CatsEffectSuite
 
-import scala.annotation.nowarn
-
 class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with StringOps {
 
@@ -82,53 +80,6 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   test("Helium defaults via transformer") {
     transformAndExtractHead(singleDoc).assertEquals(defaultResult)
-  }
-
-  test("exclude CSS and JS from API directory - using deprecated directive") {
-    val inputs = Seq(
-      Root / "name.md"         -> "text",
-      Root / "api" / "foo.js"  -> "",
-      Root / "api" / "foo.css" -> ""
-    )
-    transformAndExtractHead(inputs).assertEquals(defaultResult)
-  }
-
-  test("custom CSS and JS files - using deprecated directive") {
-    val inputs   = Seq(
-      Root / "name.md"                -> "text",
-      Root / "web" / "foo.js"         -> "", // filtered, as JS is not supported yet for EPUB
-      Root / "web" / "foo.shared.css" -> ""
-    )
-    val expected =
-      s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-         |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-         |<meta name="generator" content="Typelevel Laika + Helium Theme" />
-         |<title></title>
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-         |<link rel="stylesheet" type="text/css" href="web/foo.shared.css" />""".stripMargin
-    transformAndExtractHead(inputs).assertEquals(expected)
-  }
-
-  test("custom configuration for CSS and JS file locations - deprecated API") {
-    val inputs   = Seq(
-      Root / "name.md"                       -> "text",
-      Root / "web" / "foo.js"                -> "",
-      Root / "web" / "foo.shared.css"        -> "",
-      Root / "custom-js" / "foo.js"          -> "", // filtered, as JS is not supported yet for EPUB
-      Root / "custom-css" / "foo.shared.css" -> ""
-    )
-    @nowarn
-    val helium   = Helium.defaults
-      .epub.autoLinkCSS(Root / "custom-css")
-      .epub.autoLinkJS(Root / "custom-js")
-    val expected =
-      s"""<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-         |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-         |<meta name="generator" content="Typelevel Laika + Helium Theme" />
-         |<title></title>
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
-         |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />""".stripMargin
-    transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
 
   test("custom configuration for CSS and JS file locations") {

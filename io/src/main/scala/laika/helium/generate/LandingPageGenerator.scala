@@ -22,13 +22,12 @@ import cats.effect.Sync
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
 import laika.config.{ ConfigBuilder, ConfigException, LaikaKeys }
-import laika.helium.config.LandingPage
 import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor
 
 private[helium] object LandingPageGenerator {
 
-  def generate[F[_]: Sync](landingPage: LandingPage): TreeProcessor[F] = Kleisli { tree =>
+  def generate[F[_]: Sync]: TreeProcessor[F] = Kleisli { tree =>
     val (landingPageContent, fragments, landingPageConfig) = tree.root.tree.content.collectFirst {
       case d: Document if d.path.withoutSuffix.name == "landing-page" =>
         (d.content, d.fragments, d.config)
@@ -62,13 +61,7 @@ private[helium] object LandingPageGenerator {
         if (doc.config.hasKey(LaikaKeys.template)) builder
         else builder.withValue(LaikaKeys.template, "landing.template.html")
 
-      val titleDocWithTemplate = doc.modifyConfig(builder =>
-        configWithTemplate(builder)
-          .withValue(
-            LaikaKeys.site.css.child("searchPaths"),
-            (Root / "helium" / "landing.page.css") +: landingPage.styles
-          )
-      )
+      val titleDocWithTemplate = doc.modifyConfig(configWithTemplate)
 
       tree.modifyTree { tree =>
         tree

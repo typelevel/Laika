@@ -36,7 +36,6 @@ private[helium] case class WebLayout(
 
 private[helium] case class WebContent(
     favIcons: Seq[Favicon] = Nil,
-    htmlIncludes: HTMLIncludes = HTMLIncludes(), // TODO - 1.0 - remove
     styleIncludes: StyleIncludes = StyleIncludes.empty,
     scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
@@ -127,8 +126,7 @@ private[helium] case class LandingPage(
     titleLinks: Seq[ThemeLink] = Nil,
     documentationLinks: Seq[TextLink] = Nil,
     projectLinks: Seq[ThemeLinkSpan] = Nil,
-    teasers: Seq[Teaser] = Nil,
-    styles: Seq[Path] = Nil
+    teasers: Seq[Teaser] = Nil
 ) {
 
   import LengthUnit._

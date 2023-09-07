@@ -155,6 +155,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
     val imagePath = Root / "home.png"
     val helium    = Helium.defaults
       .site.versions(versions)
+      .site.internalCSS(Root / "styles" / "landing-extra.page.css")
       .site.landingPage(
         logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
         title = Some("My Project"),
@@ -188,8 +189,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           Teaser("Teaser 1", "Description 1"),
           Teaser("Teaser 2", "Description 2"),
           Teaser("Teaser 3", "Description 3")
-        ),
-        styles = Seq(Root / "styles" / "landing-extra.page.css")
+        )
       )
     transformAndExtract(
       inputs,
