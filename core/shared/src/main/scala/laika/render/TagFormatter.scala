@@ -32,12 +32,12 @@ import scala.collection.mutable
   *
   *  @author Jens Halm
   */
-abstract class TagFormatter[Rep <: BaseFormatter[Rep]](
+abstract class TagFormatter[Rep <: Formatter[Rep]] (
     renderChild: (Rep, Element) => String,
     currentElement: Element,
     indentation: Indentation,
     messageFilter: MessageFilter
-) extends BaseFormatter[Rep](renderChild, currentElement, indentation, messageFilter) {
+) extends Formatter[Rep](renderChild, currentElement, indentation, messageFilter) {
   this: Rep =>
 
   type StyleHint

@@ -27,7 +27,7 @@ import laika.ast._
   *
   *  @author Jens Halm
   */
-abstract class BaseFormatter[Rep <: BaseFormatter[Rep]](
+abstract class Formatter[Rep <: Formatter[Rep]] (
     renderChild: (Rep, Element) => String,
     currentElement: Element,
     indentation: Indentation,
@@ -38,7 +38,7 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]](
     */
   val newLine: String = indentation.newLine
 
-  private[BaseFormatter] def renderCurrentElement: String = renderChild(this, currentElement)
+  private[Formatter] def renderCurrentElement: String = renderChild(this, currentElement)
 
   private lazy val nextLevel: Rep =
     if (indentation == Indentation.none) this else withIndentation(indentation.nextLevel)

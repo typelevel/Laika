@@ -34,7 +34,7 @@ class TextFormatter private[render] (
     currentElement: Element,
     parents: List[Element],
     indentation: Indentation
-) extends BaseFormatter[TextFormatter](
+) extends Formatter[TextFormatter](
       renderChild,
       currentElement,
       indentation,
