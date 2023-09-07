@@ -472,21 +472,6 @@ you do not need to use these directives directly, as the Helium template already
 In that case you can control which CSS and JS files to link via the theme's configuration
 as described in [Auto-Linking CSS & JS Files].
 
-
-### `@:linkCSS`
-
-Deprecated since 0.19.4. 
-Use the Helium configuration API for specifying CSS documents to be linked in the HTML head section.
-
-See [Auto-Linking CSS & JS Files] for details.
-
-### `@:linkJS`
-
-Deprecated since 0.19.4.
-Use the Helium configuration API for specifying JavaScript documents to be linked in the HTML head section.
-
-See [Auto-Linking CSS & JS Files] for details.
-
 ### `@:attribute`
 
 This directive can also be used in XSL-FO templates for PDF as it renders attribute syntax that is valid in both,

@@ -65,8 +65,6 @@ import scala.collection.immutable.TreeSet
   *
   * '''HTML Templates'''
   *
-  * - `linkCSS`: Adds link elements to HTML/EPUB output for all or selected CSS files found in the document tree
-  * - `linkJS`: Adds link elements to HTML/EPUB output for all or selected JavaScript files found in the document tree
   * - `target`: Translates a link target.
   *   External targets will be rendered verbatim, internal targets (absolute or relative paths) will be resolved
   *   from the perspective of a template to a path relative to the document the template had been applied to.
