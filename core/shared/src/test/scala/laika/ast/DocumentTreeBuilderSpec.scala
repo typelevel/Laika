@@ -5,6 +5,9 @@ import laika.config.Origin.TreeScope
 import laika.config.{ ConfigBuilder, Origin }
 import munit.FunSuite
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class DocumentTreeBuilderSpec extends FunSuite {
 
   test("empty tree") {

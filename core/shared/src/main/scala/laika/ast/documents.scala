@@ -543,12 +543,22 @@ object DocumentTree
     ] {
   // TODO - simplify for 1.x - signature is required to satisfy mima (companion introduced in 0.19.3)
 
+  @deprecated("use DocumentTree.builder to construct instances", "0.19.4")
+  def apply(
+      path: Path,
+      content: Seq[TreeContent],
+      titleDocument: Option[Document] = None,
+      templates: Seq[TemplateDocument] = Nil,
+      config: Config = Config.empty,
+      position: TreePosition = TreePosition.root
+  ) = new DocumentTree(path, content, titleDocument, templates, config, position)
+
   /** A new, empty builder for constructing a new `DocumentTree`.
     */
   val builder = new DocumentTreeBuilder()
 
   /** An empty `DocumentTree` without any documents, templates or configurations. */
-  val empty: DocumentTree = DocumentTree(Root, Nil)
+  val empty: DocumentTree = new DocumentTree(Root, Nil)
 }
 
 /** Represents the root of a tree of documents. In addition to the recursive structure of documents,

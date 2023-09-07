@@ -42,7 +42,9 @@ import laika.io.model.{ FileFilter, FilePath, InputTree, InputTreeBuilder }
 import munit.CatsEffectSuite
 
 import java.io.ByteArrayInputStream
+import scala.annotation.nowarn
 
+@nowarn("cat=deprecation")
 class TreeParserFileIOSpec
     extends CatsEffectSuite
     with ParserSetup
