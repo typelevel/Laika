@@ -16,16 +16,16 @@
 
 package laika.helium
 
-import cats.effect.{ IO, Resource }
+import cats.effect.{ Async, IO, Resource }
 import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
-import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
+import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
 import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
+import laika.io.model.{ InputTree, StringTreeOutput }
 import laika.markdown.github.GitHubFlavor
 import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
@@ -198,6 +198,37 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
 
+  test("internal CSS and JS resources, including a file from a theme extension") {
+    val inputs                               = Seq(
+      Root / "name.md"         -> "text",
+      Root / "web" / "foo.js"  -> "",
+      Root / "web" / "foo.css" -> ""
+    )
+    val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
+      def build[G[_]: Async] = InputTree[G].addString("", Root / "theme" / "bar.css")
+    }
+
+    val themeExt = TestThemeBuilder.forInputs(themeInputs)
+    val helium   = heliumBase
+      .site.internalCSS(Root / "theme")
+      .site.internalJS(Root / "web")
+      .site.internalCSS(Root / "web")
+    val expected =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
+          |<link rel="stylesheet" type="text/css" href="web/foo.css" />
+          |<script src="helium/laika-helium.js"></script>
+          |<script src="web/foo.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium.extendWith(themeExt)).assertEquals(expected)
+  }
+
   test("external CSS and JS resources, using attribute properties") {
     val inputs           = Seq(
       Root / "name.md" -> "text"
@@ -258,33 +289,6 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
            |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
-
-//  test(
-//    "custom CSS and JS files, including a file from a theme extension - using deprecated directive"
-//  ) {
-//    val inputs                               = Seq(
-//      Root / "name.md"         -> "text",
-//      Root / "web" / "foo.js"  -> "",
-//      Root / "web" / "foo.css" -> ""
-//    )
-//    val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
-//      def build[G[_]: Async] = InputTree[G].addString("", Root / "theme" / "bar.css")
-//    }
-//    val themeExt                             = TestThemeBuilder.forInputs(themeInputs)
-//    val expected                             =
-//      meta ++ """
-//                |<title></title>
-//                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-//                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-//                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-//                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-//                |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
-//                |<link rel="stylesheet" type="text/css" href="web/foo.css" />
-//                |<script src="helium/laika-helium.js"></script>
-//                |<script src="web/foo.js"></script>
-//                |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-//    transformAndExtractHead(inputs, heliumBase.extendWith(themeExt)).assertEquals(expected)
-//  }
 
   test("metadata (authors, description)") {
     val helium   = heliumBase.all.metadata(
