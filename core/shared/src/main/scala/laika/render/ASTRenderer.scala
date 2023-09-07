@@ -51,7 +51,11 @@ private[laika] object ASTRenderer extends ((TextFormatter, Element) => String) {
     }
 
     def attributes(attr: Iterator[Any], exclude: AnyRef = NoRef): String = {
-      def prep(value: Any) = value match { case opt: Options => options(opt); case other => other }
+      def prep(value: Any) = value match {
+        case opt: Options              => options(opt)
+        case t: ResolvedInternalTarget => s"InternalTarget(${t.relativePath},${t.internalFormats})"
+        case other                     => other
+      }
       val it               = attr.asInstanceOf[Iterator[AnyRef]]
       val res              = it
         .filter(_ ne exclude)

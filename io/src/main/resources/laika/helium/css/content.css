@@ -307,3 +307,13 @@ p.title {
 .keep-together {
   page-break-inside: avoid;
 }
+
+/* mermaid diagrams ==================== */
+
+pre.mermaid {
+  color: var(--bg-color); /* avoiding page load flicker */
+  background-color: var(--bg-color);
+  border: 1px solid var(--primary-medium);
+  text-align: center;
+}
+

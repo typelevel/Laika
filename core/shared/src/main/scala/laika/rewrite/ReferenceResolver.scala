@@ -75,6 +75,7 @@ private[laika] object ReferenceResolver {
   ): ReferenceResolver = {
 
     val rootKey = Key("cursor")
+    val title   = document.title.getOrElse(emptyTitle)
 
     val baseBuilder = ConfigBuilder
       .withFallback(document.config)
@@ -84,7 +85,8 @@ private[laika] object ReferenceResolver {
           Seq(
             Field("sourcePath", StringValue(document.path.toString)),
             Field("content", ASTValue(document.content), document.config.origin),
-            Field("title", ASTValue(document.title.getOrElse(emptyTitle)), document.config.origin),
+            Field("title", ASTValue(title), document.config.origin),
+            Field("rawTitle", StringValue(title.extractText), document.config.origin),
             Field(
               "fragments",
               ObjectValue(document.fragments.toSeq.map { case (name, element) =>

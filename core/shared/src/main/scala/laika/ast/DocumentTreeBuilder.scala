@@ -104,7 +104,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   ): Either[ConfigError, DocumentTree] = {
 
     val resolvedConfig =
-      result.hocon.foldLeft[Either[ConfigError, Config]](Right(result.mergeConfigs(Config.empty))) {
+      result.hocon.foldLeft[Either[ConfigError, Config]](Right(result.mergeConfigs)) {
         case (acc, unresolved) =>
           acc.flatMap(accConfig =>
             unresolved.config
@@ -152,7 +152,7 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
       parentContext: Option[TreeNodeContext]
   ): DocumentTree = {
 
-    val treeConfig       = result.mergeConfigs(Config.empty)
+    val treeConfig       = result.mergeConfigs
     val context          = TreeNodeContext(
       localPath = localPath(result.path),
       localConfig = if (parentContext.isEmpty) treeConfig.withFallback(baseConfig) else treeConfig,
@@ -311,8 +311,8 @@ private[laika] object DocumentTreeBuilder {
       config: Seq[ConfigPart]
   ) extends TreeContentPart {
 
-    def mergeConfigs(baseConfig: Config): Config =
-      config.foldLeft(baseConfig) { case (acc, conf) =>
+    def mergeConfigs: Config =
+      config.foldLeft(Config.empty) { case (acc, conf) =>
         conf.config.withFallback(acc).withOrigin(Origin(TreeScope, conf.path))
       }
 

@@ -176,7 +176,7 @@ When you need to work with different encodings you can override the default:
 ```scala mdoc:compile-only
 import scala.io.Codec
 
-laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
+laikaConfig := LaikaConfig.defaults.withEncoding(Codec.ISO8859)
 ```
 
 @:choice(library)

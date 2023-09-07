@@ -507,23 +507,29 @@ it is mostly trivial: delegating to the underlying `Parser` and `Renderer` and j
 
 The following code example demonstrates the third scenario listed above: Rendering the same input to multiple output formats.
 
-First we create a parser that reads from a directory:
+First we set up a parser and its configuration.
+We create a parallel parser that is capable of reading from a directory:
 
 ```scala mdoc:silent
-val parser = MarkupParser
-  .of(Markdown)
-  .using(GitHubFlavor)
-  .parallel[IO]
-  .build
+val parserBuilder = MarkupParser.of(Markdown).using(GitHubFlavor)
+
+val parser = parserBuilder.parallel[IO].build
+
+val config = parserBuilder.config
 ```
 
 Next we create the renderers for the three output formats:
 
 ```scala mdoc:silent
-val htmlRenderer = Renderer.of(HTML).parallel[IO].build
-val epubRenderer = Renderer.of(EPUB).parallel[IO].build
-val pdfRenderer  = Renderer.of(PDF).parallel[IO].build
+val htmlRenderer = Renderer.of(HTML).withConfig(config).parallel[IO].build
+val epubRenderer = Renderer.of(EPUB).withConfig(config).parallel[IO].build
+val pdfRenderer  = Renderer.of(PDF).withConfig(config).parallel[IO].build
 ```
+
+Notice that we pass the `config` value obtained from the parser to all renderers.
+First, this simplifies the code as any custom configuration you define for the parser
+will be automatically shared, and secondly, it ensures that any extensions added
+by the parser itself are known to the renderers.
 
 Since all four processors are a cats-effect `Resource`, we combine them into one:
 
@@ -557,6 +563,32 @@ We are using cats' `parMapN` here to run the three renderers in parallel.
 The `tree` instance passed to all renderers is of type `DocumentTreeRoot`. 
 If necessary you can use its API to inspect or transform the tree before rendering.
 See [The Document AST] for details.
+
+Our little sample setup will run with the Helium theme and all its defaults applied.
+In the (very common) case that you customize the theme (colors, fonts, landing page content, etc.),
+you need to pass it to all parsers and renderers.
+
+```scala mdoc:silent
+import laika.helium.Helium
+
+val helium = Helium.defaults
+  .site.baseURL("https://foo.com")
+  .build
+
+val customParser = parserBuilder
+  .parallel[IO]
+  .withTheme(helium)
+  .build
+  
+val customHTML = Renderer
+  .of(HTML)
+  .withConfig(config)
+  .parallel[IO]
+  .withTheme(helium)
+  .build
+  
+// ... repeat for all other renderers
+```
 
 The sample code in this scenario showed the effectful variant of the `Parser` and `Renderer` types,
 but just as the `Transformer` they exist in the other flavor as well: a pure variant as part of the `laika-core` module.
@@ -687,7 +719,7 @@ import laika.preview.ServerConfig
 import com.comcast.ip4s._
 import scala.concurrent.duration.DurationInt
 
-val config =
+val serverConfig =
   ServerConfig.defaults
     .withPort(port"8080")
     .withPollInterval(5.seconds)
@@ -696,11 +728,24 @@ val config =
     .verbose
 
 ServerBuilder[IO](parser, inputs)
-  .withConfig(config)
+  .withConfig(serverConfig)
   .build
   .use(_ => IO.never)
 ```
 
 By default, the port is 4242, the poll interval is 3 seconds, and EPUB or PDF downloads will not be included
 in the generated site.
+
+
+### Preview of the Document AST
+
+Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
+Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.md/ast`.
+Note that this does not prevent you from using `/ast` as an actual path segment in your site,
+the server will be able to distinguish those.
+
+The AST shown is equivalent to the AST passed to the actual renderer after the final rewrite phase.
+In case of writing custom render overrides it is the most accurate representation of the nodes you can match on.
+When writing rewrite rules for earlier phases the actual nodes to match on might differ
+(e.g. directives and links might still be unresolved).
 

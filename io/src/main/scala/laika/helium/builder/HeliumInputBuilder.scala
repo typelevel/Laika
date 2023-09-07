@@ -17,7 +17,8 @@
 package laika.helium.builder
 
 import cats.effect.Async
-import cats.implicits._
+import cats.implicits.*
+import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.{ ConfigBuilder, LaikaKeys }
 import laika.helium.Helium
@@ -29,6 +30,17 @@ import laika.theme.config.{ EmbeddedFontFile, EmbeddedFontResource }
 /** @author Jens Halm
   */
 private[helium] object HeliumInputBuilder {
+
+  object paths {
+    private val heliumPath = Root / "helium"
+    val siteCSS: Path      = heliumPath / "laika-helium.css"
+    val epubCSS: Path      = heliumPath / "laika-helium.epub.css"
+    val landingCSS: Path   = heliumPath / "landing.page.css"
+    val icoFontCSS: Path   = heliumPath / "icofont.min.css"
+    val siteJS: Path       = heliumPath / "laika-helium.js"
+    val previewJS: Path    = heliumPath / "laika-preview.js"
+    val versionJS: Path    = heliumPath / "laika-versions.js"
+  }
 
   def build[F[_]: Async](helium: Helium): F[InputTreeBuilder[F]] = {
 
@@ -86,12 +98,12 @@ private[helium] object HeliumInputBuilder {
         "laika/helium/templates/includes/footer.template.html",
         templatesPath / "footer.template.html"
       )
-      .addClassLoaderResource("laika/helium/js/theme.js", heliumPath / "laika-helium.js")
-      .addClassLoaderResource("laika/helium/js/preview.js", heliumPath / "laika-preview.js")
-      .addClassLoaderResource("laika/helium/css/landing.css", heliumPath / "landing.page.css")
+      .addClassLoaderResource("laika/helium/js/theme.js", paths.siteJS)
+      .addClassLoaderResource("laika/helium/js/preview.js", paths.previewJS)
+      .addClassLoaderResource("laika/helium/css/landing.css", paths.landingCSS)
       .addClassLoaderResource(
         "laika/helium/fonts/icofont/icofont.min.css",
-        heliumPath / "icofont.min.css"
+        paths.icoFontCSS
       )
       .addClassLoaderResource(
         "laika/helium/fonts/icofont/fonts/icofont.woff",
@@ -117,7 +129,7 @@ private[helium] object HeliumInputBuilder {
       else
         themeInputs.addClassLoaderResource(
           "laika/helium/js/versions.js",
-          heliumPath / "laika-versions.js"
+          paths.versionJS
         )
 
     val siteVars = MergedCSSGenerator.mergeSiteCSS(CSSVarGenerator.generate(helium.siteSettings))
@@ -125,8 +137,8 @@ private[helium] object HeliumInputBuilder {
 
     (siteVars, epubVars).mapN { (siteCSS, epubCSS) =>
       versionedInputs
-        .addString(siteCSS, heliumPath / "laika-helium.css")
-        .addString(epubCSS, heliumPath / "laika-helium.epub.css")
+        .addString(siteCSS, paths.siteCSS)
+        .addString(epubCSS, paths.epubCSS)
     }
   }
 
