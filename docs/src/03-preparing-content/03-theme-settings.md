@@ -978,8 +978,6 @@ This can be useful when integrating larger libraries like renderers for diagrams
 where you might want to inspect the content of the page to verify it contains any nodes that need that functionality.
 
 ```scala mdoc:silent
-import laika.ast.Path.Root
-
 Helium.defaults
   .site.externalJS(
     url = "https://foo.com/lib.js", 
@@ -994,8 +992,6 @@ The API for inclusions also allows to set some of the most common attributes for
 tags. The following example sets the `defer` attribute as well as an `integrity` value.
 
 ```scala mdoc:silent
-import laika.ast.Path.Root
-
 Helium.defaults
   .site.externalJS(
     url = "https://foo.com/lib.js", 

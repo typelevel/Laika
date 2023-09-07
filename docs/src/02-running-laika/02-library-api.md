@@ -719,7 +719,7 @@ import laika.preview.ServerConfig
 import com.comcast.ip4s._
 import scala.concurrent.duration.DurationInt
 
-val config =
+val serverConfig =
   ServerConfig.defaults
     .withPort(port"8080")
     .withPollInterval(5.seconds)
@@ -728,7 +728,7 @@ val config =
     .verbose
 
 ServerBuilder[IO](parser, inputs)
-  .withConfig(config)
+  .withConfig(serverConfig)
   .build
   .use(_ => IO.never)
 ```
