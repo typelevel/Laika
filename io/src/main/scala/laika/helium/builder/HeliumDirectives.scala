@@ -20,6 +20,7 @@ import cats.syntax.all._
 import laika.ast.{ TemplateSpanSequence, TemplateString }
 import laika.config.LaikaKeys
 import laika.directive.Templates
+import laika.helium.Helium
 import laika.rewrite.Versions
 import laika.rewrite.nav.PathTranslator
 
@@ -65,6 +66,18 @@ private[helium] object HeliumDirectives {
     }
   }
 
-  val all: Seq[Templates.Directive] = Seq(initVersions, initPreview)
+  def all(helium: Helium): Seq[Templates.Directive] =
+    Seq(
+      initVersions,
+      initPreview,
+      HeliumHeadDirectives.includeCSS(
+        helium.siteSettings.content.styleIncludes,
+        helium.epubSettings.styleIncludes
+      ),
+      HeliumHeadDirectives.includeJS(
+        helium.siteSettings.content.scriptIncludes,
+        helium.epubSettings.scriptIncludes
+      )
+    )
 
 }

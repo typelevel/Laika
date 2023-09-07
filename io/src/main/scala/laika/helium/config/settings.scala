@@ -19,6 +19,7 @@ package laika.helium.config
 import java.time.OffsetDateTime
 import laika.ast.Path.Root
 import laika.ast.{
+  Document,
   DocumentMetadata,
   Image,
   Length,
@@ -30,7 +31,7 @@ import laika.ast.{
 import laika.helium.Helium
 import laika.rewrite.Versions
 import laika.rewrite.nav.CoverImage
-import laika.theme.config.{ BookConfig, Color, FontDefinition }
+import laika.theme.config.{ BookConfig, Color, FontDefinition, ScriptAttributes, StyleAttributes }
 
 private[helium] trait CommonSettings {
   def themeFonts: ThemeFonts
@@ -74,7 +75,9 @@ private[helium] case class EPUBSettings(
     fontSizes: FontSizes,
     colors: ColorSet,
     darkMode: Option[ColorSet],
-    htmlIncludes: HTMLIncludes,
+    htmlIncludes: HTMLIncludes, // TODO - 1.0 - remove
+    styleIncludes: StyleIncludes = StyleIncludes.empty,
+    scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
     layout: EPUBLayout,
     coverImages: Seq[CoverImage]
 ) extends DarkModeSupport {
@@ -496,22 +499,113 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
 
   }
 
-  /** Auto-links CSS documents from the specified paths.
-    * By default all CSS documents found anywhere in the input tree will be linked in HTML files.
-    * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-    * which might be useful when your input contains CSS files unrelated to the pages rendered by Laika.
+  private def withStyleIncludes(newValue: StyleIncludes): Helium = {
+    val newContent = currentContent.copy(styleIncludes = newValue)
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
+
+  private def withScriptIncludes(newValue: ScriptIncludes): Helium = {
+    val newContent = currentContent.copy(scriptIncludes = newValue)
+    copyWith(helium.siteSettings.copy(content = newContent))
+  }
+
+  /** Links an external CSS resource from the specified URL.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
     */
+  def externalCSS(
+      url: String,
+      attributes: StyleAttributes = StyleAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude    = ExternalCSS(url, attributes, condition)
+    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    withStyleIncludes(styleIncludes)
+  }
+
+  /** Auto-links CSS documents from the specified path, which may point to a single CSS document
+    * or a directory.
+    * In case of a directory it will be searched recursively and all CSS files found within it
+    * will be linked in the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def internalCSS(
+      searchPath: Path,
+      attributes: StyleAttributes = StyleAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude    = InternalCSS(searchPath, attributes, condition)
+    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    withStyleIncludes(styleIncludes)
+  }
+
+  /** Inserts inline style declarations into the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def inlineCSS(
+      content: String,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude    = InlineCSS(content, condition)
+    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    withStyleIncludes(styleIncludes)
+  }
+
+  /** Links an external JavaScript resource from the specified URL.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def externalJS(
+      url: String,
+      attributes: ScriptAttributes = ScriptAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude     = ExternalJS(url, attributes, condition)
+    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    withScriptIncludes(scriptIncludes)
+  }
+
+  /** Auto-links JavaScript documents from the specified path, which may point to a single JS document
+    * or a directory.
+    * In case of a directory it will be searched recursively and all `*.js` files found within it
+    * will be linked in the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def internalJS(
+      searchPath: Path,
+      attributes: ScriptAttributes = ScriptAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude     = InternalJS(searchPath, attributes, condition)
+    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    withScriptIncludes(scriptIncludes)
+  }
+
+  /** Inserts inline scripts into the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def inlineJS(
+      content: String,
+      isModule: Boolean = false,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude     = InlineJS(content, isModule, condition)
+    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    withScriptIncludes(scriptIncludes)
+  }
+
+  @deprecated("Use internalCSS", "0.19.4")
   def autoLinkCSS(paths: Path*): Helium = {
     val newContent =
       currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeCSS = paths))
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
-  /** Auto-links JavaScript documents from the specified paths.
-    * By default all JavaScript documents found anywhere in the input tree will be linked in HTML files.
-    * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-    * which might be useful when your input contains JavaScript files unrelated to the pages rendered by Laika.
-    */
+  @deprecated("Use internalJS", "0.19.4")
   def autoLinkJS(paths: Path*): Helium = {
     val newContent =
       currentContent.copy(htmlIncludes = currentContent.htmlIncludes.copy(includeJS = paths))
@@ -913,16 +1007,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
     copyWith(helium.epubSettings.copy(layout = newLayout))
   }
 
-  /** Auto-links CSS documents from the specified paths.
-    * By default all CSS documents found anywhere in the input tree will be linked in HTML files.
-    * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-    * which might be useful when your input contains CSS files unrelated to the pages rendered by Laika.
-    *
-    * For inclusion in EPUB document a special suffix is expected:
-    *
-    * - `.shared.css` for CSS documents to be auto-linked for EPUB and the website
-    * - `.epub.css` for CSS document to be auto-linked only for EPUB, but not the website
-    */
+  @deprecated("Use internalCSS", "0.19.4")
   def autoLinkCSS(paths: Path*): Helium =
     copyWith(
       helium.epubSettings.copy(htmlIncludes =
@@ -930,17 +1015,80 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       )
     )
 
-  /** Auto-links JavaScript documents from the specified paths.
-    * By default all JavaScript documents found anywhere in the input tree will be linked in HTML files.
-    * This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-    * which might be useful when your input contains JavaScript files unrelated to the pages rendered by Laika.
-    */
+  @deprecated("Use internalJS", "0.19.4")
   def autoLinkJS(paths: Path*): Helium =
     copyWith(
       helium.epubSettings.copy(htmlIncludes =
         helium.epubSettings.htmlIncludes.copy(includeJS = paths)
       )
     )
+
+  private def withStyleIncludes(newValue: StyleIncludes): Helium =
+    copyWith(helium.epubSettings.copy(styleIncludes = newValue))
+
+  private def withScriptIncludes(newValue: ScriptIncludes): Helium =
+    copyWith(helium.epubSettings.copy(scriptIncludes = newValue))
+
+  /** Auto-links CSS documents from the specified path, which may point to a single CSS document
+    * or a directory.
+    * In case of a directory it will be searched recursively and all CSS files found within it
+    * will be linked in the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def internalCSS(
+      searchPath: Path,
+      attributes: StyleAttributes = StyleAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude    = InternalCSS(searchPath, attributes, condition)
+    val styleIncludes = helium.epubSettings.styleIncludes.add(newInclude)
+    withStyleIncludes(styleIncludes)
+  }
+
+  /** Inserts inline style declarations into the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def inlineCSS(
+      content: String,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude    = InlineCSS(content, condition)
+    val styleIncludes = helium.epubSettings.styleIncludes.add(newInclude)
+    withStyleIncludes(styleIncludes)
+  }
+
+  /** Auto-links JavaScript documents from the specified path, which may point to a single JS document
+    * or a directory.
+    * In case of a directory it will be searched recursively and all `*.js` files found within it
+    * will be linked in the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def internalJS(
+      searchPath: Path,
+      attributes: ScriptAttributes = ScriptAttributes.defaults,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude     = InternalJS(searchPath, attributes, condition)
+    val scriptIncludes = helium.epubSettings.scriptIncludes.add(newInclude)
+    withScriptIncludes(scriptIncludes)
+  }
+
+  /** Inserts inline scripts into the HTML head.
+    *
+    * The `condition` attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+    */
+  def inlineJS(
+      content: String,
+      isModule: Boolean = false,
+      condition: Document => Boolean = _ => true
+  ): Helium = {
+    val newInclude     = InlineJS(content, isModule, condition)
+    val scriptIncludes = helium.epubSettings.scriptIncludes.add(newInclude)
+    withScriptIncludes(scriptIncludes)
+  }
 
   /** Specifies one or more cover images for the EPUB document.
     *

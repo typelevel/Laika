@@ -253,7 +253,7 @@ object Tasks {
     val (_, cancel) = buildPreviewServer.value.allocated.unsafeRunSync()
 
     streams.value.log.info(
-      s"Preview server started on port ${laikaPreviewConfig.value.port}. Press return/enter to exit."
+      s"Preview server started at http://${laikaPreviewConfig.value.host}:${laikaPreviewConfig.value.port}. Press return/enter to exit."
     )
 
     try {

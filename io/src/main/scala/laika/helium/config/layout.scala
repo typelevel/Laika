@@ -36,7 +36,9 @@ private[helium] case class WebLayout(
 
 private[helium] case class WebContent(
     favIcons: Seq[Favicon] = Nil,
-    htmlIncludes: HTMLIncludes = HTMLIncludes(),
+    htmlIncludes: HTMLIncludes = HTMLIncludes(), // TODO - 1.0 - remove
+    styleIncludes: StyleIncludes = StyleIncludes.empty,
+    scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
     mainNavigation: MainNavigation = MainNavigation(),
     pageNavigation: PageNavigation = PageNavigation(),

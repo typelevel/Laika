@@ -193,9 +193,12 @@ private[laika] object InlineParsers {
     def enclosedIn(delim: String): Parser[String] =
       delim ~> delimitedBy(delim <~ lookAhead(titleEnd))
     val title                                     = ws.void ~> (enclosedIn("\"") | enclosedIn("'"))
+    val nestedParens                              = ("(" ~ delimitedBy(')')).source
 
     val url = ("<" ~> text(delimitedBy('>')).embed(recParsers.escapeSequence)) |
-      text(delimitedBy(')', ' ', '\t').keepDelimiter).embed(recParsers.escapeSequence)
+      text(delimitedBy(')', ' ', '\t').keepDelimiter).embedAll(
+        Seq(recParsers.escapeSequence, nestedParens)
+      )
 
     val urlWithTitle =
       ("(" ~> url ~ opt(title) <~ ws ~ ")").mapN(TargetUrl.apply).withCursor.map(t =>

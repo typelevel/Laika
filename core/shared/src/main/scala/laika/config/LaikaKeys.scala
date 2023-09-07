@@ -71,11 +71,13 @@ object LaikaKeys {
     val apiPath: Key      = root.child(Key("site", "downloadPath"))
     val downloadPath: Key = root.child(Key("site", "apiPath"))
     val metadata: Key     = root.child(Key("site", "metadata"))
+    // TODO - 1.0 - remove the next two
     val css: Key          = root.child(Key("site", "css"))
     val js: Key           = root.child(Key("site", "js"))
   }
 
   object epub {
+    // TODO - 1.0 - remove the next two
     val css: Key = root.child(Key("epub", "css"))
     val js: Key  = root.child(Key("epub", "js"))
   }

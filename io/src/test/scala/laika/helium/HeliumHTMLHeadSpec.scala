@@ -26,10 +26,14 @@ import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
 import laika.io.implicits.*
 import laika.io.model.{ InputTree, StringTreeOutput }
+import laika.markdown.github.GitHubFlavor
 import laika.rewrite.link.LinkValidation
+import laika.rewrite.{ Version, Versions }
 import laika.theme.ThemeProvider
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 import munit.CatsEffectSuite
+
+import scala.annotation.nowarn
 
 class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with TestVersions
@@ -37,6 +41,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
+    .using(GitHubFlavor)
     .parallel[IO]
     .build
 
@@ -57,6 +62,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
+    .using(GitHubFlavor)
     .withConfigValue(LinkValidation.Local)
     .parallel[IO]
     .withTheme(theme)
@@ -157,7 +163,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, heliumBase).assertEquals(defaultResult)
   }
 
-  test("custom CSS and JS files") {
+  test("custom CSS and JS files - deprecated API") {
     val inputs   = Seq(
       Root / "name.md"         -> "text",
       Root / "web" / "foo.js"  -> "",
@@ -177,7 +183,100 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 
-  test("custom CSS and JS files, including a file from a theme extension") {
+  test("internal CSS and JS resources, some using conditions") {
+    val inputs   = Seq(
+      Root / "name.md"            -> "text",
+      Root / "web-1" / "foo-1.js" -> "",
+      Root / "web-1" / "foo-2.js" -> "",
+      Root / "web-1" / "foo.css"  -> "",
+      Root / "web-2" / "bar.js"   -> "",
+      Root / "web-2" / "bar.css"  -> ""
+    )
+    val helium   = heliumBase
+      .site.internalJS(Root / "web-1", condition = _.path.name == "name.md")
+      .site.internalJS(Root / "web-2", condition = _.path.name == "none.md")
+      .site.internalCSS(Root / "web-1", condition = _.path.name == "name.md")
+      .site.internalCSS(Root / "web-2", condition = _.path.name == "none.md")
+    val expected =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="web-1/foo.css" />
+          |<script src="helium/laika-helium.js"></script>
+          |<script src="web-1/foo-1.js"></script>
+          |<script src="web-1/foo-2.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("external CSS and JS resources, using attribute properties") {
+    val inputs           = Seq(
+      Root / "name.md" -> "text"
+    )
+    val scriptAttributes =
+      ScriptAttributes.defaults.defer.withIntegrity("xyz").withCrossOrigin(CrossOrigin.Anonymous)
+    val styleAttributes  =
+      StyleAttributes.defaults.withIntegrity("xyz").withCrossOrigin(CrossOrigin.Anonymous)
+    val helium           = heliumBase
+      .site.externalJS("https://foo.com/script.js", scriptAttributes)
+      .site.externalCSS("https://foo.com/styles.css", styleAttributes)
+    val expected         =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="https://foo.com/styles.css" integrity="xyz" crossorigin="anonymous" />
+          |<script src="helium/laika-helium.js"></script>
+          |<script src="https://foo.com/script.js" defer integrity="xyz" crossorigin="anonymous"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("inline styles and script") {
+    val inputs   = Seq(
+      Root / "name.md" -> "text"
+    )
+    val script   =
+      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        |mermaid.initialize({ startOnLoad: true });""".stripMargin
+    val styles   =
+      """h1 {
+        |  color: #111111;
+        |}""".stripMargin
+    val helium   = heliumBase
+      .site.inlineJS(script, isModule = true)
+      .site.inlineCSS(styles)
+    val expected =
+      meta ++
+        s"""
+           |<title></title>
+           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+           |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+           |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+           |<style>
+           |h1 {
+           |color: #111111;
+           |}
+           |</style>
+           |<script src="helium/laika-helium.js"></script>
+           |<script type="module">
+           |$script
+           |</script>
+           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test(
+    "custom CSS and JS files, including a file from a theme extension - using deprecated directive"
+  ) {
     val inputs                               = Seq(
       Root / "name.md"         -> "text",
       Root / "web" / "foo.js"  -> "",
@@ -202,7 +301,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, heliumBase.extendWith(themeExt)).assertEquals(expected)
   }
 
-  test("custom configuration for CSS and JS file locations") {
+  test("custom configuration for CSS and JS file locations - deprecated API") {
     val inputs   = Seq(
       Root / "name.md"                -> "text",
       Root / "web" / "foo.js"         -> "",
@@ -210,6 +309,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "custom-js" / "foo.js"   -> "",
       Root / "custom-css" / "foo.css" -> ""
     )
+    @nowarn
     val helium   = heliumBase
       .site.autoLinkCSS(Root / "custom-css")
       .site.autoLinkJS(Root / "custom-js")
@@ -387,11 +487,11 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
-  test("title") {
+  test("title - ignoring markup") {
     val markup =
       """
-        |Title
-        |=====
+        |Title **1**
+        |===========
         |
         |Text
       """.stripMargin
@@ -399,7 +499,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> markup
     )
     transformAndExtractHead(inputs, heliumBase).map(_.extractTag("title")).assertEquals(
-      Some("Title")
+      Some("Title 1")
     )
   }
 
@@ -436,6 +536,51 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "helium" / "templates" / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
     )
     val expected = "<title>XX Title</title>"
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
+  }
+
+  test("add mermaid initializer when document contains one or more mermaid diagrams") {
+    val markup   =
+      """
+        |Title
+        |=====
+        |
+        |```mermaid
+        |graph TD 
+        |A[Client] --> B[Load Balancer] 
+        |B --> C[Server01] 
+        |B --> D[Server02]
+        |```
+      """.stripMargin
+    val inputs   = Seq(
+      Root / "name.md" -> markup
+    )
+    val expected =
+      meta ++
+        """
+          |<title>Title</title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<script src="helium/laika-helium.js"></script>
+          |<script type="module">
+          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          |mermaid.initialize({
+          |startOnLoad: true,
+          |theme: "base",
+          |themeVariables: {
+          |'darkMode': dark,
+          |'primaryColor': dark ? '#125d75' : '#ebf6f7',
+          |'primaryTextColor': dark ? '#a7d4de' : '#007c99',
+          |'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
+          |'lineColor': dark ? '#a7d4de' : '#007c99',
+          |'background': dark ? '#064458' : '#ffffff',
+          |}
+          |});
+          |</script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 

@@ -21,6 +21,7 @@ import laika.ast.{
   DocumentCursor,
   InvalidSpan,
   LinkIdReference,
+  LinkPathReference,
   NoOpt,
   Options,
   Replace,
@@ -120,14 +121,38 @@ private[laika] class DirectiveSupport(
     def unresolvedMessage: String = s"unresolved api directive for type $typeName"
   }
 
+  private case class LinkDirectiveResolver2(
+      ref: LinkPathReference,
+      directiveName: String,
+      typeName: String,
+      source: SourceFragment,
+      options: Options = NoOpt
+  ) extends SpanResolver {
+    type Self = LinkDirectiveResolver2
+
+    def resolve(cursor: DocumentCursor): Span = linkDirectiveMap.get(directiveName)
+      .fold[Span](InvalidSpan(s"Unknown link directive: $directiveName", source)) { dir =>
+        dir(typeName, cursor).fold(
+          err => InvalidSpan(s"Invalid link directive: $err", source),
+          res => res.copy(content = ref.content, options = res.options + ref.options)
+        )
+      }
+
+    def withOptions(options: Options): LinkDirectiveResolver2 = copy(options = options)
+
+    def runsIn(phase: RewritePhase): Boolean = phase.isInstanceOf[RewritePhase.Render]
+
+    def unresolvedMessage: String = s"unresolved api directive for type $typeName"
+  }
+
   override lazy val rewriteRules: RewritePhaseBuilder = { case RewritePhase.Resolve =>
     if (strictMode) Nil
     else
       Seq(RewriteRules.forSpans {
-        case ref: LinkIdReference if ref.ref.startsWith("@:") =>
-          linkParser.parse(ref.ref.drop(2)).toEither.fold(
+        case ref: LinkPathReference if ref.path.toString.startsWith("@:") =>
+          linkParser.parse(ref.path.toString.drop(2)).toEither.fold(
             err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
-            res => Replace(LinkDirectiveResolver(ref, res._1, res._2, ref.source, ref.options))
+            res => Replace(LinkDirectiveResolver2(ref, res._1, res._2, ref.source, ref.options))
           )
       }.asBuilder)
   }

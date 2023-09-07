@@ -126,16 +126,28 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, tab: Tab)        =>
       val link = SpanLink.internal(CurrentDocument())(tab.label)
       fmt.element("li", Styles("tab") + tab.options, Seq(link), "data-choice-name" -> tab.name)
+    case (fmt, CodeBlock("mermaid", content, _, _)) =>
+      fmt.withoutIndentation(
+        _.element("pre", Styles("mermaid"), content)
+      )
   }
 
   def forPDF: PartialFunction[(FOFormatter, Element), String] = {
     case (fmt, b @ BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.blockContainer(b, SpanSequence(icon(opt).toSeq, Styles("icon")) +: content)
+    case (fmt, CodeBlock("mermaid", _, _, _))                                     =>
+      fmt.child(
+        RuntimeMessage(MessageLevel.Warning, "Mermaid diagrams are not supported for PDF output")
+      )
   }
 
   def forEPUB: PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
+    case (fmt, CodeBlock("mermaid", _, _, _))                                 =>
+      fmt.child(
+        RuntimeMessage(MessageLevel.Warning, "Mermaid diagrams are not supported for EPUB output")
+      )
   }
 
 }
