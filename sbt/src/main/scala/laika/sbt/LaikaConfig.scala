@@ -72,7 +72,7 @@ sealed abstract class LaikaConfig private {
 
   /** The file encoding to use for input and output files.
     */
-  def encoding(codec: Codec): LaikaConfig
+  def withEncoding(codec: Codec): LaikaConfig
 
   /**  Turns strict mode on for the target parser, switching off any features not part of the original markup syntax.
     *  This includes the registration of markup directives (custom tags)
@@ -163,7 +163,7 @@ object LaikaConfig {
     val acceptsRawContent: Boolean = bundleFilter.acceptRawContent
     val isStrict: Boolean          = bundleFilter.strict
 
-    def encoding(codec: Codec): LaikaConfig = copy(newEncoding = codec)
+    def withEncoding(codec: Codec): LaikaConfig = copy(newEncoding = codec)
     def strict: LaikaConfig = copy(newBundleFilter = bundleFilter.copy(strict = true))
 
     def withRawContent: LaikaConfig =
