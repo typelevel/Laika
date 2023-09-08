@@ -124,6 +124,28 @@ abstract class Formatter protected {
 
 }
 
+object Formatter {
+
+  /** The most basic formatter implementation & API.
+    *
+    * Use `TagFormatter` for all outputs with angle brackets (e.g. HTML).
+    */
+  def defaultFactory: RenderContext[Formatter] => Formatter = ctx =>
+    new Formatter {
+      type Rep = Formatter
+      protected def self: Rep                         = this
+      protected def context: RenderContext[Formatter] = ctx
+
+      protected def withChild(element: Element): Rep =
+        defaultFactory(ctx.forChildElement(element))
+
+      protected def withIndentation(newIndentation: Indentation): Rep =
+        defaultFactory(ctx.withIndentation(newIndentation))
+
+    }
+
+}
+
 /** Represents the current indentation level of a formatter instance.
   *
   * @param currentLevel the level of indentation (number of characters)

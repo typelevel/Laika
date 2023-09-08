@@ -24,8 +24,8 @@ PartialFunction[(Formatter, Element), String]
 ```
 
 `Formatter` is a generic type representing the formatting API which is different for each output format. 
-For HTML it is `HTMLFormatterr`, for XSL-FO it is `FOFormatter`. 
-It provides a helper APIs for rendering tags, adds the current indentation level after line breaks 
+For HTML, XHTML for EPUB and XSL-FO for PDF it is sub-type `TagFormatter`.
+It provides additional convenience APIs for rendering tags, adds the current indentation level after line breaks 
 and knows how to render child elements. 
 
 `Element` is the base type of the document AST and represents the AST node to render, 
@@ -134,10 +134,9 @@ On top of that all formatters manage the indentation level after line breaks and
 know how to delegate to the relevant renderers for child elements.
 
 
-### TextFormatter
+### Formatter
 
-This is the base API supported by both the `XSL-FO` and `HTML` renderer,
-both of them adding several methods with rendering logic specific to that format.
+This is the base API supported by all internal renderers.
 
 * `newLine` renders a newline character followed by whitespace for the current level of indentation.
 
@@ -149,9 +148,13 @@ both of them adding several methods with rendering logic specific to that format
   indented one level to the right from the current indentation level.
 
 
-### HTMLFormatter
+### TagFormatter
 
-This formatter supports all methods of the `TextFormatter` API shown above, and adds the following methods:
+This formatter supports all methods of the `Formatter` API shown above, 
+but adds additional convenience methods for all tag-based formats: HTML, XHTML for EPUB, XSL-FO for PDF.
+This is the API you would use in almost all cases when writing renderer overrides.
+
+It adds the following methods (amongst others):
 
 * `element` renders a tag where the specified list of child elements will be used to render the content of the tag
 

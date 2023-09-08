@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,7 @@ package laika.render
 import laika.ast.*
 import laika.factory.RenderContext
 
-/** API for renderers that produce HTML output.
-  *
-  * @author Jens Halm
-  */
-class HTMLFormatter private[render] (
+private[laika] class HTMLFormatter(
     closeEmptyTags: Boolean,
     protected val context: RenderContext[TagFormatter]
 ) extends TagFormatter {
@@ -54,26 +50,5 @@ class HTMLFormatter private[render] (
     s"<$tagName${attributes(tagName, styleHint, attrs)}$emptyTagClosingChar>"
 
   override def emptyElement(tagName: String): String = s"<$tagName$emptyTagClosingChar>"
-
-}
-
-/** Default factory for HTMLFormatters, based on a provided RenderContext.
-  */
-object HTMLFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
-
-  def apply(context: RenderContext[TagFormatter]): TagFormatter =
-    new HTMLFormatter(closeEmptyTags = false, context)
-
-}
-
-/** Default factory for XHTMLFormatters, based on a provided RenderContext.
-  * It differs from an standard HTMLFormatter solely in that it close empty
-  * tags. Therefore it offers the same API and shares the type `HTMLFormatter`
-  * so that shared custom renderers can be built for HTML and XHTML.
-  */
-object XHTMLFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
-
-  def apply(context: RenderContext[TagFormatter]): TagFormatter =
-    new HTMLFormatter(closeEmptyTags = true, context)
 
 }

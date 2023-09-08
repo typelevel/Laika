@@ -160,7 +160,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
       .build
   }
 
-  type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor[IO]]
+  type Builder = TwoPhaseRendererBuilder[TagFormatter, BinaryPostProcessor[IO]]
 
   def result(navigationDepth: Int = 23, useTitleDocuments: Boolean = false): IO[String] =
     renderer.use { r =>

@@ -18,7 +18,7 @@ package laika.format
 
 import laika.ast.Element
 import laika.factory.{ RenderContext, RenderFormat }
-import laika.render.{ ASTFormatter, ASTRenderer, Formatter }
+import laika.render.{ ASTRenderer, Formatter, Indentation }
 
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
   *  May be directly passed to the `Render` or `Transform` APIs:
@@ -37,6 +37,8 @@ case object AST extends RenderFormat[Formatter] {
 
   val defaultRenderer: (Formatter, Element) => String = ASTRenderer
 
-  val formatterFactory: RenderContext[Formatter] => Formatter = ASTFormatter.forAST
+  val formatterFactory: RenderContext[Formatter] => Formatter = context => {
+    Formatter.defaultFactory(context.withIndentation(Indentation.dotted))
+  }
 
 }

@@ -36,6 +36,7 @@ case object HTML extends RenderFormat[TagFormatter] {
 
   val defaultRenderer: (TagFormatter, Element) => String = HTMLRenderer
 
-  val formatterFactory: RenderContext[TagFormatter] => TagFormatter = HTMLFormatter
+  val formatterFactory: RenderContext[TagFormatter] => TagFormatter =
+    context => new HTMLFormatter(closeEmptyTags = false, context)
 
 }

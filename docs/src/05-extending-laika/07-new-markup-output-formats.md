@@ -197,8 +197,8 @@ trait RenderFormat[FMT] {
   have installed which your default render implementation cannot be aware of.
   
 * `FMT` is a type parameter representing the Formatter API specific to the output format.
-  For the built-in renderers, this is `FOFormatter` for `PDF`,
-  `HTMLFormatter` for `HTML` and `EPUB` and finally `TextFormatter` for the `AST` renderer.
+  For the built-in renderers, this is `TagFormatter` for `PDF`, `HTML` and `EPUB` 
+  and `Formatter` for the `AST` renderer.
 
 
 ### The Render Function
@@ -254,14 +254,14 @@ in the example above those are `<p>` and `<em>` tags respectively.
 
 ### Choosing a Formatter API
 
-Depending on the target format your renderer may use the `TextFormatter` or `HTMLFormatter` APIs, 
+Depending on the target format your renderer may use the `Formatter` or `TagFormatter` APIs, 
 which are explained in [The Formatter APIs]. 
 
 Alternatively it may create its own API, but you should keep in mind then, 
 that this API will also get used by users overriding renderers for specific nodes.
-Therefore it should be convenient and straightforward to use and well documented (e.g. full scaladoc).
+Therefore, it should be convenient and straightforward to use and well documented (e.g. full scaladoc).
 
-Even when creating your own formatter it's probably most convenient to at least extend `TextFormatter`,
+Even when creating your own formatter it's probably most convenient to at least extend `Formatter`,
 which contains base logic for indentation and delegating to child renderers.
 
 

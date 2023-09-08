@@ -24,7 +24,7 @@ import laika.config.*
 import laika.factory.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
-import laika.render.{ TagFormatter, XHTMLFormatter }
+import laika.render.{ HTMLFormatter, TagFormatter }
 import laika.theme.config.BookConfig
 import laika.theme.Theme
 
@@ -69,7 +69,8 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorB
 
     val defaultRenderer: (TagFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext[TagFormatter] => TagFormatter = XHTMLFormatter
+    val formatterFactory: RenderContext[TagFormatter] => TagFormatter =
+      context => new HTMLFormatter(closeEmptyTags = true, context)
 
   }
 
