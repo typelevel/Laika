@@ -24,7 +24,9 @@ import laika.rewrite.nav.PathTranslator
 /** Provides the context for a single render operation.
   *
   * @param renderChild a render function to use for rendering the children of an element
-  * @param root the root element the new renderer will be used for
+  * @param currentElement the element currently being rendered
+  * @param parents the stack of parent elements of this formatter in recursive rendering,
+  *                with the root element being the last in the list
   * @param styles the styles the new renderer should apply to the rendered elements
   * @param path the (virtual) path the output will be rendered to
   * @param pathTranslator translates paths of input documents to the corresponding output path
@@ -33,13 +35,40 @@ import laika.rewrite.nav.PathTranslator
   */
 class RenderContext[FMT] private[laika] (
     val renderChild: (FMT, Element) => String,
-    val root: Element,
+    val currentElement: Element,
+    val parents: List[Element],
     val styles: StyleDeclarationSet,
     val path: Path,
     val pathTranslator: PathTranslator,
     val indentation: Indentation,
     val messageFilter: MessageFilter
-) {}
+) {
+
+  def forChildElement(child: Element): RenderContext[FMT] =
+    new RenderContext[FMT](
+      renderChild,
+      child,
+      currentElement :: parents,
+      styles,
+      path,
+      pathTranslator,
+      indentation,
+      messageFilter
+    )
+
+  def withIndentation(newValue: Indentation): RenderContext[FMT] =
+    new RenderContext[FMT](
+      renderChild,
+      currentElement,
+      parents,
+      styles,
+      path,
+      pathTranslator,
+      newValue,
+      messageFilter
+    )
+
+}
 
 /** Responsible for creating renderer instances for a specific output format.
   *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition

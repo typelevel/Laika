@@ -24,7 +24,7 @@ import laika.config.*
 import laika.factory.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
-import laika.render.{ HTMLFormatter, XHTMLFormatter }
+import laika.render.{ TagFormatter, XHTMLFormatter }
 import laika.theme.config.BookConfig
 import laika.theme.Theme
 
@@ -50,7 +50,7 @@ import laika.theme.Theme
   *
   *  @author Jens Halm
   */
-case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessorBuilder] {
+case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
 
   override val description: String = "EPUB"
 
@@ -61,19 +61,19 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     *
     *  @author Jens Halm
     */
-  object XHTML extends RenderFormat[HTMLFormatter] {
+  object XHTML extends RenderFormat[TagFormatter] {
 
     override val description: String = "EPUB.XHTML"
 
     val fileSuffix: String = "epub.xhtml"
 
-    val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
+    val defaultRenderer: (TagFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = XHTMLFormatter
+    val formatterFactory: RenderContext[TagFormatter] => TagFormatter = XHTMLFormatter
 
   }
 
-  val interimFormat: RenderFormat[HTMLFormatter] = XHTML
+  val interimFormat: RenderFormat[TagFormatter] = XHTML
 
   /** The key to read `BookConfig` instance from for this EPUB renderer. */
   val configKey: Key = Key("laika", "epub")

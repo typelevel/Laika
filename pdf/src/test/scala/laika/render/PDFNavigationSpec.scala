@@ -43,9 +43,9 @@ import munit.CatsEffectSuite
 
 class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
-  object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
+  object FOTest extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
 
-    val interimFormat: RenderFormat[FOFormatter] = XSLFO
+    val interimFormat: RenderFormat[TagFormatter] = XSLFO
 
     def prepareTree(root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(
       root

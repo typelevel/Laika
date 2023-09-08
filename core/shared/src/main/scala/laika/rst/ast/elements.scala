@@ -100,7 +100,7 @@ private[rst] case class ProgramOption(
 /** A single option argument.
   */
 private[rst] case class OptionArgument(value: String, delimiter: String, options: Options = NoOpt)
-    extends Element {
+    extends Span {
   type Self = OptionArgument
   def withOptions(options: Options): OptionArgument = copy(options = options)
 }
@@ -249,7 +249,7 @@ private[laika] object Line extends SpanContainerCompanion {
   */
 private[laika] case class LineBlock(content: Seq[LineBlockItem], options: Options = NoOpt)
     extends LineBlockItem
-    with ElementTraversal with RewritableContainer {
+    with RewritableContainer with ElementContainer[LineBlockItem] {
   type Self = LineBlock
 
   def rewriteChildren(rules: RewriteRules): LineBlock =

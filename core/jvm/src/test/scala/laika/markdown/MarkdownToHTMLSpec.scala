@@ -50,6 +50,7 @@ class MarkdownToHTMLSpec extends FunSuite {
   }
 
   def transformAndCompare(name: String): Unit = {
+
     def renderPath(relPath: VirtualPath): Target =
       if (relPath == RelativePath.CurrentDocument()) ExternalTarget("")
       else ExternalTarget(relPath.toString)
@@ -66,12 +67,9 @@ class MarkdownToHTMLSpec extends FunSuite {
       .rendering {
         case (fmt, i @ InvalidSpan(_, _, Literal(fb, _), _)) =>
           fmt.child(i.copy(fallback = Text(fb)))
-        case (fmt, QuotedBlock(content, _, opt))             =>
-          fmt.indentedElement(
-            "blockquote",
-            opt,
-            content
-          ) // Markdown always writes p tags inside blockquotes
+        case (fmt, qb: QuotedBlock)                          =>
+          // Markdown always writes p tags inside blockquotes
+          fmt.indentedElement("blockquote", qb)
         case (fmt, h @ Header(_, _, Id(_)))                  =>
           fmt.child(h.withOptions(NoOpt)) // Markdown classic does not generate header ids
         case (fmt, t @ Title(_, Id("unordered")))            => fmt.child(Header(2, t.content))

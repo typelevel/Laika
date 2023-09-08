@@ -228,14 +228,14 @@ Let's look at a minimal excerpt of a hypothetical HTML render function:
 
 ```scala mdoc
 import laika.ast._
-import laika.render.HTMLFormatter
+import laika.render.TagFormatter
 
-def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+def renderElement (fmt: TagFormatter, elem: Element): String = {
 
   elem match {
-    case Paragraph(content,opt) => fmt.element("p", opt, content)
+    case p: Paragraph => fmt.element("p", p)
     
-    case Emphasized(content,opt) => fmt.element("em", opt, content)
+    case e: Emphasized => fmt.element("em", e)
     
     /* [other cases ...] */
     

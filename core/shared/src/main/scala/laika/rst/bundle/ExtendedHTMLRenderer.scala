@@ -16,9 +16,9 @@
 
 package laika.rst.bundle
 
-import laika.ast._
-import laika.render.HTMLFormatter
-import laika.rst.ast._
+import laika.ast.*
+import laika.render.TagFormatter
+import laika.rst.ast.*
 
 /** HTML renderer for special reStructuredText tree elements not part of the default document tree model.
   *
@@ -35,7 +35,8 @@ import laika.rst.ast._
   */
 private[laika] class ExtendedHTMLRenderer {
 
-  private case class ProgramOptions(opts: Seq[Element], options: Options = NoOpt) extends Block {
+  private case class ProgramOptions(content: Seq[Element], options: Options = NoOpt) extends Block
+      with ElementContainer[Element] {
     type Self = ProgramOptions
     def withOptions(options: Options): ProgramOptions = copy(options = options)
   }
@@ -76,20 +77,21 @@ private[laika] class ExtendedHTMLRenderer {
     )
   }
 
-  val custom: PartialFunction[(HTMLFormatter, Element), String] = {
+  val custom: PartialFunction[(TagFormatter, Element), String] = {
     case (fmt, DoctestBlock(content, opt))    =>
       fmt.withoutIndentation(
-        _.textElement("pre", opt, ">>> " + content, "class" -> "doctest-block")
+        _.textElement("pre", Text(">>> " + content).withOptions(opt), "class" -> "doctest-block")
       )
     case (fmt, fl: FieldList)                 => fmt.child(toTable(fl))
     case (fmt, ol: OptionList)                => fmt.child(toTable(ol))
-    case (fmt, ProgramOptions(options, opt))  => fmt.element("kbd", opt, options)
+    case (fmt, po: ProgramOptions)            => fmt.element("kbd", po)
     case (fmt, ProgramOption(name, arg, opt)) =>
-      fmt.element("span", opt, Seq(Text(name), arg.getOrElse(Text(""))), "class" -> "option")
+      val spans = SpanSequence(Text(name), arg.getOrElse(Text(""))).withOptions(opt)
+      fmt.element("span", spans, "class" -> "option")
     case (_, OptionArgument(value, delim, _)) => s"$delim<var>$value</var>"
-    case (fmt, Line(content, opt))            => fmt.element("div", opt + RstStyle.line, content)
-    case (fmt, LineBlock(content, opt))       =>
-      fmt.indentedElement("div", opt + RstStyle.lineBlock, content)
+    case (fmt, l: Line)                       => fmt.element("div", l.mergeOptions(RstStyle.line))
+    case (fmt, lb: LineBlock)                 =>
+      fmt.indentedElement("div", lb.mergeOptions(RstStyle.lineBlock))
   }
 
 }

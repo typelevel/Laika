@@ -17,8 +17,8 @@
 package laika.markdown.bundle
 
 import laika.ast.{ Element, TextContainer }
-import laika.markdown.ast._
-import laika.render.HTMLFormatter
+import laika.markdown.ast.*
+import laika.render.TagFormatter
 
 /** Renderer for verbatim HTML elements.
   * Since verbatim HTML is treated as an optional feature by this library
@@ -54,7 +54,7 @@ private[bundle] object HTMLRenderer {
     s"<$tagName$renderedAttrs"
   }
 
-  val custom: PartialFunction[(HTMLFormatter, Element), String] = {
+  val custom: PartialFunction[(TagFormatter, Element), String] = {
 
     case (fmt, HTMLElement(st @ HTMLStartTag("pre", _, _), content, _)) =>
       fmt.child(st) + fmt.withoutIndentation(_.children(content)) + s"</${st.name}>"

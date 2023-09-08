@@ -141,6 +141,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
         new RenderContext[Formatter](
           renderFunction,
           elementToRender,
+          Nil,
           styles,
           doc.path,
           pathTranslator,

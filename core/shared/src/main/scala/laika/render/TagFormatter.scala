@@ -16,31 +16,22 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 
 import scala.collection.mutable
 
 /** Base type for formatters that produce tag-based output formats like XML or HTML.
-  *  Extends the `BaseFormatter` and adds methods for writing text
-  *  with special characters as entities and for conveniently writing
-  *  tags with attributes.
   *
-  *  @param renderChild   the function to use for rendering child elements
-  *  @param currentElement the active element currently being rendered
-  *  @param indentation   the indentation mechanism for this formatter
-  *  @param messageFilter the filter to apply before rendering runtime messages
+  * Extends the base `Formatter` type and adds methods for writing text
+  * with special characters as entities and for conveniently writing tags with attributes.
   *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-abstract class TagFormatter[Rep <: Formatter[Rep]] (
-    renderChild: (Rep, Element) => String,
-    currentElement: Element,
-    indentation: Indentation,
-    messageFilter: MessageFilter
-) extends Formatter[Rep](renderChild, currentElement, indentation, messageFilter) {
-  this: Rep =>
+abstract class TagFormatter extends Formatter {
 
-  type StyleHint
+  type Rep = TagFormatter
+
+  protected def self: Rep = this
 
   /** Renders the specified string on the same line,
     * with all special XML/HTML characters converted to entities.
@@ -51,27 +42,25 @@ abstract class TagFormatter[Rep <: Formatter[Rep]] (
     */
   def comment(content: String): String = s"<!-- $content -->"
 
-  /** Renders an element with the specified tag name, attributes derived from the style hint
-    * and content consisting of the provided child elements, all rendered on the same line.
+  /** Renders an element with the specified tag name, attributes derived from the container options
+    * and nested content consisting of the children of the container, all rendered on the same line.
     */
   def element(
       tagName: String,
-      styleHint: StyleHint,
-      content: Seq[Element],
+      container: ElementContainer[_ <: Element],
       attrs: (String, String)*
   ): String =
-    s"<$tagName${attributes(tagName, styleHint, attrs)}>${children(content)}</$tagName>"
+    s"<$tagName${attributes(tagName, container, attrs)}>${children(container.content)}</$tagName>"
 
-  /** Renders an element with the specified tag name, attributes derived from the style hint
-    * and indented content consisting of the provided child elements.
+  /** Renders an element with the specified tag name, attributes derived from the container options
+    * and indented content consisting of the children of the container.
     */
   def indentedElement(
       tagName: String,
-      styleHint: StyleHint,
-      content: Seq[Element],
+      container: ElementContainer[_ <: Element],
       attrs: (String, String)*
   ): String =
-    s"<$tagName${attributes(tagName, styleHint, attrs)}>${indentedChildren(content)}$newLine</$tagName>"
+    s"<$tagName${attributes(tagName, container, attrs)}>${indentedChildren(container.content)}$newLine</$tagName>"
 
   /** Renders an element with the specified tag name, attributes derived from the style hint
     * and content based on the provided string that is interpreted as already rendered in the target format.
@@ -79,27 +68,26 @@ abstract class TagFormatter[Rep <: Formatter[Rep]] (
     */
   def rawElement(
       tagName: String,
-      styleHint: StyleHint,
+      styleHint: Element,
       content: String,
       attrs: (String, String)*
   ): String =
     s"<$tagName${attributes(tagName, styleHint, attrs)}>$content</$tagName>"
 
-  /** Renders a text element with the specified tag name, attributes derived from the style hint
-    * and content based on the provided text content that gets rendered with all special XML/HTML
+  /** Renders a text element with the specified tag name, attributes derived from the container options
+    * and content based on the container's content that gets rendered with all special XML/HTML
     * characters converted to entities.
     */
   def textElement(
       tagName: String,
-      styleHint: StyleHint,
-      txt: String,
+      container: TextContainer,
       attrs: (String, String)*
   ): String =
-    s"<$tagName${attributes(tagName, styleHint, attrs)}>${text(txt)}</$tagName>"
+    s"<$tagName${attributes(tagName, container, attrs)}>${text(container.content)}</$tagName>"
 
   /** Renders an empty element with the specified tag name and attributes derived from the style hint.
     */
-  def emptyElement(tagName: String, styleHint: StyleHint, attrs: (String, String)*): String =
+  def emptyElement(tagName: String, styleHint: Element, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName, styleHint, attrs)}/>"
 
   /** Renders an empty element with the specified tag name.
@@ -108,7 +96,7 @@ abstract class TagFormatter[Rep <: Formatter[Rep]] (
 
   /** Renders all attributes derived from the style hint and the explicitly provided attributes.
     */
-  def attributes(tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String
+  def attributes(tag: String, styleHint: Element, attrs: Seq[(String, String)]): String
 
   /** Renders the specified attributes (passed as name-value tuples),
     * including a preceding space character.

@@ -16,32 +16,53 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
+import laika.factory.RenderContext
+import laika.rewrite.nav.PathTranslator
 
 /** API basis for renderers that produce character output.
   *
-  *  @param renderChild the function to use for rendering child elements
-  *  @param currentElement the active element currently being rendered
-  *  @param indentation the indentation mechanism for this formatter
-  *  @param messageFilter the filter to apply before rendering runtime messages
-  *
-  *  @author Jens Halm
+  * @author Jens Halm
   */
-abstract class Formatter[Rep <: Formatter[Rep]] (
-    renderChild: (Rep, Element) => String,
-    currentElement: Element,
-    indentation: Indentation,
-    messageFilter: MessageFilter
-) { this: Rep =>
+abstract class Formatter protected {
+
+  type Rep <: Formatter
+
+  protected def self: Rep
+
+  protected def context: RenderContext[Rep]
+
+  /** The active element currently being rendered */
+  def currentElement: Element = context.currentElement
+
+  /** The stack of parent elements of this formatter in recursive rendering,
+    * with the root element being the last in the list.
+    */
+  def parents: List[Element] = context.parents
+
+  /** The target path of the currently rendered document. */
+  def path: Path = context.path
+
+  /** Translates paths of input documents to the corresponding output path. */
+  def pathTranslator: PathTranslator = context.pathTranslator
+
+  /** The styles the new renderer should apply to the rendered elements.
+    *
+    * Only used for some render formats.
+    * In case of HTML, for example, styles are only copied over to the output directory
+    * and not processed by the formatter at all.
+    */
+  def styles: StyleDeclarationSet = context.styles
 
   /** A newline character followed by whitespace matching the indentation level of this instance.
     */
-  val newLine: String = indentation.newLine
+  val newLine: String = context.indentation.newLine
 
-  private[Formatter] def renderCurrentElement: String = renderChild(this, currentElement)
+  private def renderCurrentElement: String = context.renderChild(self, currentElement)
 
   private lazy val nextLevel: Rep =
-    if (indentation == Indentation.none) this else withIndentation(indentation.nextLevel)
+    if (context.indentation == Indentation.none) self
+    else withIndentation(context.indentation.nextLevel)
 
   protected def withChild(element: Element): Rep
 
@@ -65,8 +86,9 @@ abstract class Formatter[Rep <: Formatter[Rep]] (
     */
   def withMinIndentation(minIndent: Int)(f: Rep => String): String = {
     val newIndentation =
-      if (indentation == Indentation.none || indentation.currentLevel >= minIndent) this
-      else withIndentation(indentation.copy(currentLevel = minIndent))
+      if (context.indentation == Indentation.none || context.indentation.currentLevel >= minIndent)
+        self
+      else withIndentation(context.indentation.copy(currentLevel = minIndent))
     f(newIndentation)
   }
 
@@ -74,7 +96,7 @@ abstract class Formatter[Rep <: Formatter[Rep]] (
     * message level defined for this formatter instance.
     */
   def forMessage(message: RuntimeMessage)(whenEnabled: String): String =
-    if (messageFilter(message)) whenEnabled else ""
+    if (context.messageFilter(message)) whenEnabled else ""
 
   /** Renders the specified elements, all on the same line, without any separators.
     */

@@ -16,44 +16,27 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 import laika.factory.RenderContext
-
-/** API for renderers that produce text output.
-  *
-  * @param renderChild  the function to use for rendering child elements
-  * @param currentElement the active element currently being rendered
-  * @param parents the stack of parent elements of this formatter in recursive rendering,
-  *                with the root element being the last in the list
-  * @param indentation the indentation mechanism for this formatter
-  *
-  * @author Jens Halm
-  */
-class TextFormatter private[render] (
-    renderChild: (TextFormatter, Element) => String,
-    currentElement: Element,
-    parents: List[Element],
-    indentation: Indentation
-) extends Formatter[TextFormatter](
-      renderChild,
-      currentElement,
-      indentation,
-      MessageFilter.Debug
-    ) {
-
-  protected def withChild(element: Element): TextFormatter =
-    new TextFormatter(renderChild, element, currentElement :: parents, indentation)
-
-  protected def withIndentation(newIndentation: Indentation): TextFormatter =
-    new TextFormatter(renderChild, currentElement, parents, newIndentation)
-
-}
 
 /** Default factory for ASTFormatters, based on a provided RenderContext.
   */
-private[laika] object ASTFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
+private[laika] object ASTFormatter extends (RenderContext[Formatter] => Formatter) {
 
-  def apply(context: RenderContext[TextFormatter]): TextFormatter =
-    new TextFormatter(context.renderChild, context.root, Nil, Indentation.dotted)
+  def apply(ctx: RenderContext[Formatter]): Formatter =
+    new Formatter {
+      type Rep = Formatter
+      protected def self: Rep                         = this
+      protected def context: RenderContext[Formatter] = ctx
+      protected def withChild(element: Element): Rep  = apply(ctx.forChildElement(element))
+
+      protected def withIndentation(newIndentation: Indentation): Rep = apply(
+        ctx.withIndentation(newIndentation)
+      )
+
+    }
+
+  private[laika] def forAST(ctx: RenderContext[Formatter]): Formatter =
+    apply(ctx.withIndentation(Indentation.dotted))
 
 }

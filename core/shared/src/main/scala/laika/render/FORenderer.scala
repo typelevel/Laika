@@ -17,19 +17,20 @@
 package laika.render
 
 import cats.data.NonEmptySet
-import laika.ast.{ InternalTarget, Styles, _ }
-import laika.render.FOFormatter._
+import laika.ast.*
 import laika.rst.ast.{ Line, LineBlock }
 
 /** Default renderer implementation for the XSL-FO output format.
   *
   * @author Jens Halm
   */
-private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
+private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
+
+  import FOFormatter.*
 
   private val formats: NonEmptySet[String] = NonEmptySet.of("pdf", "fo", "xslfo", "xsl-fo")
 
-  def apply(fmt: FOFormatter, element: Element): String = {
+  def apply(fmt: TagFormatter, element: Element): String = {
 
     def noneIfDefault[T](actual: T, default: T): Option[String] =
       if (actual == default) None else Some(actual.toString)
@@ -67,7 +68,7 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
         )
 
       def enumLabel(format: EnumFormat, num: Int): String = {
-        import EnumType._
+        import EnumType.*
         val pos = format.enumType match {
           case Arabic     => num.toString
           case LowerAlpha => ('a' + num - 1).toChar.toString
@@ -217,15 +218,14 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderSimpleBlock(block: Block): String = block match {
-      case e: ContentWrapper                                      => renderContentWrapper(e)
-      case e: Preamble                                            => renderPreamble(e)
-      case e @ ListItemLabel(content, _)                          => fmt.listItemLabel(e, content)
-      case e: Rule                                                =>
-        fmt.rawElement(
-          "fo:block",
-          BlockSequence.empty.withOptions(e.options + Styles("rule-block")),
-          fmt.textElement("fo:leader", e, "", "leader-pattern" -> "rule")
-        )
+      case e: ContentWrapper             => renderContentWrapper(e)
+      case e: Preamble                   => renderPreamble(e)
+      case e @ ListItemLabel(content, _) => fmt.listItemLabel(e, content)
+      case e: Rule                       =>
+        val attributes = fmt.attributes("fo:leader", e, Seq("leader-pattern" -> "rule"))
+        val styleHints = BlockSequence.empty.withOptions(e.options + Styles("rule-block"))
+        fmt.rawElement("fo:block", styleHints, s"<fo:leader$attributes></fo:leader>")
+
       case Selection(_, choices, opt)                             => renderChoices(choices, opt)
       case e: InternalLinkTarget                                  => fmt.internalLinkTarget(e)
       case e: PageBreak                                           => fmt.block(e)
@@ -238,7 +238,8 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
 
     def renderTarget(target: Target): String = fmt.pathTranslator.translate(target) match {
       case ext: ExternalTarget => ext.url
-      case int: InternalTarget => fmt.buildId(int.relativeTo(fmt.path).absolutePath)
+      case int: InternalTarget =>
+        FOFormatter.buildId(int.relativeTo(fmt.path).absolutePath, fmt.pathTranslator)
     }
 
     def renderIcon(icon: Icon): String = icon match {
@@ -282,15 +283,14 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       case e: Leader                        =>
         fmt.textElement(
           "fo:leader",
-          e,
-          "",
+          Text("").withOptions(e.options),
           "leader-pattern" -> "dots",
           "padding-left"   -> "2mm",
           "padding-right"  -> "2mm"
         )
       case PageNumberCitation(target, _)    =>
         s"""<fo:page-number-citation ref-id="${
-            fmt.buildId(target.relativeTo(fmt.path).absolutePath)
+            FOFormatter.buildId(target.relativeTo(fmt.path).absolutePath, fmt.pathTranslator)
           }" />"""
       case LineBreak(_)                     => "&#x2028;"
       case TemplateElement(elem, indent, _) => fmt.withMinIndentation(indent)(_.child(elem))
@@ -380,7 +380,9 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
     def renderPreamble(p: Preamble): String = {
       s"""
          |
-         |<fo:block id="${fmt.buildId(fmt.path)}" page-break-before="always">
+         |<fo:block id="${
+          FOFormatter.buildId(fmt.path, fmt.pathTranslator)
+        }" page-break-before="always">
          |  <fo:marker marker-class-name="chapter"><fo:block>${
           fmt.text(p.title)
         }</fo:block></fo:marker>

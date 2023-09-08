@@ -30,7 +30,7 @@ import laika.factory.{
 }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
-import laika.render.FOFormatter
+import laika.render.TagFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
 import laika.theme.config.BookConfig
@@ -57,11 +57,11 @@ import laika.theme.config.BookConfig
   *
   *  @author Jens Halm
   */
-object PDF extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
+object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
 
   override val description: String = "PDF"
 
-  val interimFormat: RenderFormat[FOFormatter] = XSLFO
+  val interimFormat: RenderFormat[TagFormatter] = XSLFO
 
   /** The key to read `BookConfig` instance from for this PDF renderer. */
   val configKey: Key = Key("laika", "pdf")

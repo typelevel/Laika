@@ -201,7 +201,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
   }
 
-  object ASTRenderer extends TreeRendererSetup[TextFormatter] {
+  object ASTRenderer extends TreeRendererSetup[Formatter] {
     val outputContext: OutputContext = OutputContext(AST)
 
     val staticPaths = Seq( // TODO - why do they differ from TreeTransformerSpec?
@@ -218,7 +218,7 @@ class TreeRendererSpec extends CatsEffectSuite
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(AST).parallel[IO].build
   }
 
-  object HTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
+  object HTMLRenderer extends TreeRendererSetup[TagFormatter] {
     import Results.titleWithId
 
     val outputContext: OutputContext = OutputContext(HTML)
@@ -227,7 +227,7 @@ class TreeRendererSpec extends CatsEffectSuite
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).parallel[IO].build
   }
 
-  object EPUB_XHTMLRenderer extends TreeRendererSetup[HTMLFormatter] {
+  object EPUB_XHTMLRenderer extends TreeRendererSetup[TagFormatter] {
     import Results.titleWithId
 
     val outputContext: OutputContext = OutputContext(EPUB.XHTML)

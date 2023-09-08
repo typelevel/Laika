@@ -69,6 +69,10 @@ abstract class Element extends Product with Serializable {
     */
   def modifyOptions(f: Options => Options): Self = withOptions(f(options))
 
+  /** Returns a new instance of this element with all options removed from it.
+    */
+  def clearOptions: Self = withOptions(NoOpt)
+
   /** Returns a new instance of this element with the specified options replacing the current value.
     */
   def withOptions(options: Options): Self

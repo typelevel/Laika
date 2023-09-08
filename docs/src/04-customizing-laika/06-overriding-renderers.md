@@ -45,11 +45,11 @@ adding a specific style class:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.render.HTMLFormatter
+import laika.render.TagFormatter
 
-val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
-  case (fmt, Emphasized(content, opt)) => 
-    fmt.element("em", opt, content, "class" -> "big") 
+val renderer: PartialFunction[(TagFormatter, Element), String] = {
+  case (fmt, e: Emphasized) => 
+    fmt.element("em", e, "class" -> "big") 
 }
 ```
 
@@ -87,8 +87,8 @@ import laika.sbt.LaikaPlugin.autoImport._
 import laika.ast._
 
 laikaExtensions += laikaHtmlRenderer {
-  case (fmt, Emphasized(content, opt)) => 
-    fmt.element("em", opt, content, "class" -> "big")
+  case (fmt, e: Emphasized) => 
+    fmt.element("em", e, "class" -> "big")
 }
 ```
 
@@ -105,8 +105,8 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .rendering {
-    case (fmt, Emphasized(content, opt)) => 
-      fmt.element("em", opt, content, "class" -> "big")
+    case (fmt, e: Emphasized) => 
+      fmt.element("em", e, "class" -> "big")
   }.build
 ```
 
@@ -118,8 +118,8 @@ def doc: Document = ???
 val renderer = Renderer
   .of(HTML)
   .rendering { 
-    case (fmt, Emphasized(content, opt)) => 
-      fmt.element("em", opt, content, "class" -> "big")
+    case (fmt, e: Emphasized) => 
+      fmt.element("em", e, "class" -> "big")
   }.build
 ```
 

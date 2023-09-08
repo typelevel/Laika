@@ -16,36 +16,42 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 
 /** Default renderer implementation for the HTML output format.
   *
   * @author Jens Halm
   */
 private[laika] class HTMLRenderer(format: String)
-    extends ((HTMLFormatter, Element) => String) {
+    extends ((TagFormatter, Element) => String) {
 
-  def apply(fmt: HTMLFormatter, element: Element): String = {
+  case class ElementSequence(content: Seq[Element], options: Options = NoOpt)
+      extends ElementContainer[Element] {
+    type Self = ElementSequence
+    def withOptions(options: Options): ElementSequence = copy(options = options)
+  }
+
+  def apply(fmt: TagFormatter, element: Element): String = {
 
     def noneIfDefault[T](actual: T, default: T): Option[String] =
       if (actual == default) None else Some(actual.toString)
 
     def renderBlocks(
         tagName: String,
-        options: Options,
-        content: Seq[Block],
+        container: BlockContainer,
         attrs: (String, String)*
-    ): String = content match {
-      case Seq(ss: SpanSequence)      => fmt.element(tagName, options, Seq(ss), attrs: _*)
+    ): String = container.content match {
+      case Seq(ss: SpanSequence)      =>
+        fmt.element(tagName, ss.withOptions(container.options), attrs: _*)
       case Seq(Paragraph(spans, opt)) =>
-        fmt.element(tagName, options, Seq(SpanSequence(spans, opt)), attrs: _*)
-      case other                      => fmt.indentedElement(tagName, options, other, attrs: _*)
+        fmt.element(tagName, SpanSequence(spans, opt), attrs: _*)
+      case _                          => fmt.indentedElement(tagName, container, attrs: _*)
     }
 
     def renderTable(table: Table): String = {
       val children =
         List(table.caption, table.columns, table.head, table.body) filterNot (_.content.isEmpty)
-      fmt.indentedElement("table", table.options, children)
+      fmt.indentedElement("table", ElementSequence(children).withOptions(table.options))
     }
 
     def navigationToBulletList(navList: NavigationList): BulletList = {
@@ -95,9 +101,11 @@ private[laika] class HTMLRenderer(format: String)
         )
       }
 
-      def quotedBlockContent(content: Seq[Block], attr: Seq[Span]): Seq[Block] =
-        if (attr.isEmpty) content
-        else content :+ Paragraph(attr, Style.attribution)
+      def quotedBlockContent(qb: QuotedBlock): BlockContainer =
+        if (qb.attribution.isEmpty) qb
+        else
+          BlockSequence(qb.content :+ Paragraph(qb.attribution, Style.attribution))
+            .withOptions(qb.options)
 
       def figureContent(img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
         List(
@@ -112,15 +120,22 @@ private[laika] class HTMLRenderer(format: String)
           fmt.withMinIndentation(indent)(_.childPerLine(content))
         case Section(header, content, _)       => fmt.childPerLine(header +: content)
         case TitledBlock(title, content, opt)  =>
-          fmt.indentedElement("div", opt, Paragraph(title, Style.title) +: content)
-        case QuotedBlock(content, attr, opt)   =>
-          renderBlocks("blockquote", opt, quotedBlockContent(content, attr))
-        case BulletListItem(content, _, opt)   => renderBlocks("li", opt, content)
-        case EnumListItem(content, _, _, opt)  => renderBlocks("li", opt, content)
-        case DefinitionListItem(term, defn, _) =>
-          fmt.element("dt", NoOpt, term) + fmt.newLine + renderBlocks("dd", NoOpt, defn)
+          fmt.indentedElement(
+            "div",
+            BlockSequence(Paragraph(title, Style.title) +: content).withOptions(opt)
+          )
+        case qb: QuotedBlock                   =>
+          renderBlocks("blockquote", quotedBlockContent(qb))
+        case bli: BulletListItem               => renderBlocks("li", bli)
+        case eli: EnumListItem                 => renderBlocks("li", eli)
+        case dli: DefinitionListItem           =>
+          fmt.element("dt", SpanSequence(dli.term)) +
+            fmt.newLine +
+            renderBlocks("dd", dli.clearOptions)
         case Figure(img, caption, legend, opt) =>
-          fmt.indentedElement("div", opt + Style.figure, figureContent(img, caption, legend))
+          val content = BlockSequence(figureContent(img, caption, legend))
+            .withOptions(opt + Style.figure)
+          fmt.indentedElement("div", content)
 
         case Footnote(label, content, opt) =>
           renderTable(toTable(label, content, opt + Style.footnote))
@@ -130,7 +145,7 @@ private[laika] class HTMLRenderer(format: String)
         case WithFallback(fallback)        => fmt.child(fallback)
         case BlockSequence(content, NoOpt) => fmt.childPerLine(content)
 
-        case unknown => fmt.indentedElement("div", unknown.options, unknown.content)
+        case unknown => fmt.indentedElement("div", unknown)
       }
     }
 
@@ -155,39 +170,37 @@ private[laika] class HTMLRenderer(format: String)
           "title" -> title.map(fmt.text)
         )
 
+      def renderCode(spans: SpanContainer): String =
+        fmt.withoutIndentation(_.element("code", spans))
+
       con match {
 
-        case Paragraph(content, opt)               => fmt.element("p", opt, content)
-        case Emphasized(content, opt)              => fmt.element("em", opt, content)
-        case Strong(content, opt)                  => fmt.element("strong", opt, content)
-        case Deleted(content, opt)                 => fmt.element("del", opt, content)
-        case Inserted(content, opt)                => fmt.element("ins", opt, content)
-        case ParsedLiteralBlock(content, opt)      =>
-          fmt.rawElement("pre", opt, fmt.withoutIndentation(_.element("code", NoOpt, content)))
-        case cb @ CodeBlock(lang, content, _, opt) =>
-          fmt.rawElement(
-            "pre",
-            opt,
-            fmt.withoutIndentation(
-              _.element("code", codeStyles(lang, cb.hasSyntaxHighlighting), content)
-            )
-          )
-        case InlineCode(lang, content, opt)        =>
-          fmt.withoutIndentation(
-            _.element("code", opt + codeStyles(lang, hasHighlighting = false), content)
-          )
-        case Title(content, opt)                   => fmt.element("h1", opt, content)
-        case Header(level, content, opt)           =>
-          fmt.newLine + fmt.element("h" + level.toString, opt, content)
+        case p: Paragraph  => fmt.element("p", p)
+        case t: Title      => fmt.element("h1", t)
+        case e: Emphasized => fmt.element("em", e)
+        case s: Strong     => fmt.element("strong", s)
+        case d: Deleted    => fmt.element("del", d)
+        case i: Inserted   => fmt.element("ins", i)
 
-        case SpanLink(content, target, title, opt) =>
-          fmt.element("a", opt, content, linkAttributes(target, title): _*)
+        case sl: SpanLink =>
+          fmt.element("a", sl, linkAttributes(sl.target, sl.title) *)
+        case h: Header    =>
+          fmt.newLine + fmt.element("h" + h.level.toString, h)
+
+        case lb: ParsedLiteralBlock =>
+          fmt.rawElement("pre", lb, renderCode(lb.clearOptions))
+        case cb: CodeBlock          =>
+          val opt = codeStyles(cb.language, cb.hasSyntaxHighlighting)
+          fmt.rawElement("pre", cb, renderCode(cb.withOptions(opt)))
+        case ic: InlineCode         =>
+          val opt = codeStyles(ic.language, hasHighlighting = false)
+          renderCode(ic.mergeOptions(opt))
 
         case WithFallback(fallback)           => fmt.child(fallback)
         case SpanSequence(content, NoOpt)     => fmt.children(content)
         case CodeSpanSequence(content, NoOpt) => fmt.children(content)
 
-        case unknown => fmt.element("span", unknown.options, unknown.content)
+        case unknown => fmt.element("span", unknown)
       }
     }
 
@@ -195,57 +208,57 @@ private[laika] class HTMLRenderer(format: String)
       con match {
         case TemplateRoot(content, NoOpt)         => fmt.children(content)
         case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
-        case unknown => fmt.element("span", unknown.options, unknown.content)
+        case unknown                              => fmt.element("span", unknown)
       }
     }
 
     def renderListContainer(con: ListContainer): String = con match {
-      case EnumList(content, enumFormat, start, opt) =>
+      case el @ EnumList(_, enumFormat, start, _) =>
         fmt.indentedElement(
           "ol",
-          opt,
-          content,
+          el,
           fmt.optAttributes(
             "class" -> Some(enumFormat.enumType.toString.toLowerCase),
             "start" -> noneIfDefault(start, 1)
-          ): _*
+          ) *
         )
-      case BulletList(content, _, opt)               => fmt.indentedElement("ul", opt, content)
-      case DefinitionList(content, opt)              => fmt.indentedElement("dl", opt, content)
-      case nl: NavigationList                        => fmt.child(navigationToBulletList(nl))
+      case bl: BulletList                         => fmt.indentedElement("ul", bl)
+      case dl: DefinitionList                     => fmt.indentedElement("dl", dl)
+      case nl: NavigationList                     => fmt.child(navigationToBulletList(nl))
 
       case WithFallback(fallback) => fmt.child(fallback)
-      case unknown                => fmt.indentedElement("div", unknown.options, unknown.content)
+      case unknown                => fmt.indentedElement("div", unknown)
     }
 
     def renderTextContainer(con: TextContainer): String = con match {
-      case Text(content, opt)                 =>
-        opt match {
-          case NoOpt => fmt.text(content)
-          case _     => fmt.textElement("span", opt, content)
+      case t: Text                          =>
+        t.options match {
+          case NoOpt => fmt.text(t.content)
+          case _     => fmt.textElement("span", t)
         }
-      case TemplateString(content, opt)       =>
-        opt match {
-          case NoOpt => content
-          case _     => fmt.rawElement("span", opt, content)
+      case ts: TemplateString               =>
+        ts.options match {
+          case NoOpt => ts.content
+          case _     => fmt.rawElement("span", ts, ts.content)
         }
-      case RawContent(f, content, opt)        =>
+      case rc @ RawContent(f, content, opt) =>
         if (f.contains(format)) {
           opt match {
             case NoOpt => content
-            case _     => fmt.rawElement("span", opt, content)
+            case _     => fmt.rawElement("span", rc, content)
           }
         }
         else ""
-      case CodeSpan(content, categories, opt) =>
-        fmt.textElement("span", opt + Styles(categories.map(_.name).toSeq: _*), content)
-      case Literal(content, opt)      => fmt.withoutIndentation(_.textElement("code", opt, content))
-      case LiteralBlock(content, opt) => fmt.element("pre", opt, Seq(Literal(content)))
-      case Comment(content, _)        => fmt.comment(content)
+      case cs: CodeSpan                     =>
+        fmt.textElement("span", cs.mergeOptions(Styles(cs.categories.map(_.name).toSeq *)))
+      case l: Literal                       => fmt.withoutIndentation(_.textElement("code", l))
+      case LiteralBlock(content, opt)       =>
+        fmt.element("pre", SpanSequence(Literal(content)).withOptions(opt))
+      case Comment(content, _)              => fmt.comment(content)
       case sn @ SectionNumber(_, opt) => fmt.child(Text(sn.content, opt + Style.sectionNumber))
 
       case WithFallback(fallback) => fmt.child(fallback)
-      case unknown                => fmt.textElement("span", unknown.options, unknown.content)
+      case unknown                => fmt.textElement("span", unknown)
     }
 
     def renderChoices(choices: Seq[Choice], options: Options): String = {
@@ -256,9 +269,9 @@ private[laika] class HTMLRenderer(format: String)
     }
 
     def renderSimpleBlock(block: Block): String = block match {
-      case Rule(opt)                                   => fmt.emptyElement("hr", opt)
-      case InternalLinkTarget(opt)                     => fmt.textElement("a", opt, "")
-      case Selection(_, choices, opt)                  => renderChoices(choices, opt)
+      case r: Rule                    => fmt.emptyElement("hr", r)
+      case InternalLinkTarget(opt)    => fmt.textElement("a", Text("").withOptions(opt))
+      case Selection(_, choices, opt) => renderChoices(choices, opt)
       case TargetFormat(f, e, _) if f.contains(format) => fmt.child(e)
 
       case WithFallback(fallback) => fmt.child(fallback)
@@ -279,17 +292,24 @@ private[laika] class HTMLRenderer(format: String)
               }"/></svg>"""
           )
       }
-      fmt.rawElement(tagName, options, content, fmt.optAttributes("title" -> icon.title): _*)
+      fmt.rawElement(
+        tagName,
+        icon.withOptions(options),
+        content,
+        fmt.optAttributes("title" -> icon.title): _*
+      )
     }
 
     def renderSimpleSpan(span: Span): String = span match {
       case CitationLink(ref, label, opt) =>
-        fmt.textElement("a", opt + Style.citation, s"[$label]", "href" -> ("#" + ref))
+        val text = Text(s"[$label]").withOptions(opt + Style.citation)
+        fmt.textElement("a", text, "href" -> ("#" + ref))
       case FootnoteLink(ref, label, opt) =>
-        fmt.textElement("a", opt + Style.footnote, s"[$label]", "href" -> ("#" + ref))
+        val text = Text(s"[$label]").withOptions(opt + Style.footnote)
+        fmt.textElement("a", text, "href" -> ("#" + ref))
       case RawLink(target, _)            => renderTarget(target)
 
-      case Image(target, width, height, alt, title, opt) =>
+      case img @ Image(target, width, height, alt, title, _) =>
         def sizeAttr(size: Option[Length], styleName: String): (Option[String], Option[String]) =
           size
             .map {
@@ -308,7 +328,7 @@ private[laika] class HTMLRenderer(format: String)
           "height" -> heightAttr,
           "style"  -> styleAttr
         )
-        fmt.emptyElement("img", opt, allAttr: _*)
+        fmt.emptyElement("img", img, allAttr: _*)
 
       case icon: Icon                       => renderIcon(icon)
       case LineBreak(_)                     => fmt.emptyElement("br")
@@ -319,32 +339,22 @@ private[laika] class HTMLRenderer(format: String)
     }
 
     def renderTableElement(elem: TableElement): String = elem match {
-      case TableHead(rows, opt)  => fmt.indentedElement("thead", opt, rows)
-      case TableBody(rows, opt)  => fmt.indentedElement("tbody", opt, rows)
-      case Columns(columns, opt) => fmt.indentedElement("colgroup", opt, columns)
-      case Row(cells, opt)       => fmt.indentedElement("tr", opt, cells)
-      case Caption(content, opt) => fmt.element("caption", opt, content)
-      case Column(opt)           => fmt.textElement("col", opt, "")
-      case Cell(HeadCell, content, colspan, rowspan, opt) =>
-        renderBlocks(
-          "th",
-          opt,
-          content,
-          fmt.optAttributes(
-            "colspan" -> noneIfDefault(colspan, 1),
-            "rowspan" -> noneIfDefault(rowspan, 1)
-          ): _*
+      case th: TableHead => fmt.indentedElement("thead", th)
+      case tb: TableBody => fmt.indentedElement("tbody", tb)
+      case c: Columns    => fmt.indentedElement("colgroup", c)
+      case r: Row        => fmt.indentedElement("tr", r)
+      case c: Caption    => fmt.element("caption", c)
+      case Column(opt)   => fmt.textElement("col", Text("").withOptions(opt))
+      case c: Cell       =>
+        val tagName    = c.cellType match {
+          case HeadCell => "th"
+          case BodyCell => "td"
+        }
+        val attributes = fmt.optAttributes(
+          "colspan" -> noneIfDefault(c.colspan, 1),
+          "rowspan" -> noneIfDefault(c.rowspan, 1)
         )
-      case Cell(BodyCell, content, colspan, rowspan, opt) =>
-        renderBlocks(
-          "td",
-          opt,
-          content,
-          fmt.optAttributes(
-            "colspan" -> noneIfDefault(colspan, 1),
-            "rowspan" -> noneIfDefault(rowspan, 1)
-          ): _*
-        )
+        renderBlocks(tagName, c, attributes *)
     }
 
     def renderUnresolvedReference(ref: Reference): String =
@@ -358,12 +368,9 @@ private[laika] class HTMLRenderer(format: String)
     }
 
     def renderRuntimeMessage(message: RuntimeMessage): String = {
+      val styles = Style.runtimeMessage + Styles(message.level.toString.toLowerCase)
       fmt.forMessage(message) {
-        fmt.textElement(
-          "span",
-          message.options + Style.runtimeMessage + Styles(message.level.toString.toLowerCase),
-          message.content
-        )
+        fmt.textElement("span", message.mergeOptions(styles))
       }
     }
 

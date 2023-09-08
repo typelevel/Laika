@@ -16,8 +16,8 @@
 
 package laika.render.epub
 
-import laika.ast._
-import laika.render.{ HTMLFormatter, HTMLRenderer }
+import laika.ast.*
+import laika.render.{ HTMLRenderer, TagFormatter }
 
 /** Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.
   *
@@ -26,7 +26,7 @@ import laika.render.{ HTMLFormatter, HTMLRenderer }
 private[laika] object XHTMLRenderer extends HTMLRenderer(format = "epub") {
 
   def renderChoices(
-      fmt: HTMLFormatter,
+      fmt: TagFormatter,
       choices: Seq[Choice],
       options: Options
   ): String = {
@@ -36,31 +36,20 @@ private[laika] object XHTMLRenderer extends HTMLRenderer(format = "epub") {
     fmt.child(BlockSequence(content, options))
   }
 
-  override def apply(fmt: HTMLFormatter, element: Element): String = element match {
+  override def apply(fmt: TagFormatter, element: Element): String = element match {
 
     case CitationLink(ref, label, opt) =>
-      fmt.textElement(
-        "a",
-        opt + Style.citation,
-        "[" + label + "]",
-        "href"      -> ("#" + ref),
-        "epub:type" -> "noteref"
-      )
-
+      val text = Text(s"[$label]").withOptions(opt + Style.citation)
+      fmt.textElement("a", text, "href" -> ("#" + ref), "epub:type" -> "noteref")
     case FootnoteLink(ref, label, opt) =>
-      fmt.textElement(
-        "a",
-        opt + Style.footnote,
-        "[" + label + "]",
-        "href"      -> ("#" + ref),
-        "epub:type" -> "noteref"
-      )
+      val text = Text(s"[$label]").withOptions(opt + Style.footnote)
+      fmt.textElement("a", text, "href" -> ("#" + ref), "epub:type" -> "noteref")
 
-    case Citation(_, content, opt) =>
-      fmt.indentedElement("aside", opt + Style.citation, content, "epub:type" -> "footnote")
+    case c: Citation =>
+      fmt.indentedElement("aside", c.mergeOptions(Style.citation), "epub:type" -> "footnote")
 
-    case Footnote(_, content, opt) =>
-      fmt.indentedElement("aside", opt + Style.footnote, content, "epub:type" -> "footnote")
+    case f: Footnote =>
+      fmt.indentedElement("aside", f.mergeOptions(Style.footnote), "epub:type" -> "footnote")
 
     case Selection(_, choices, opt) =>
       renderChoices(fmt, choices, opt)
