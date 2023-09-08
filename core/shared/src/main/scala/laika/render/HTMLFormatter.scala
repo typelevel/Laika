@@ -27,7 +27,7 @@ private[laika] class HTMLFormatter(
   protected def withChild(element: Element): Rep =
     new HTMLFormatter(closeEmptyTags, context.forChildElement(element))
 
-  protected def withIndentation(newIndentation: Indentation): Rep = new HTMLFormatter(
+  protected def withIndentation(newIndentation: Formatter.Indentation): Rep = new HTMLFormatter(
     closeEmptyTags,
     context.withIndentation(newIndentation)
   )

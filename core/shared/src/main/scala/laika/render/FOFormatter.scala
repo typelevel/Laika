@@ -28,7 +28,7 @@ private[laika] class FOFormatter private (
   protected def withChild(element: Element): Rep =
     new FOFormatter(context.forChildElement(element))
 
-  protected def withIndentation(newIndentation: Indentation): Rep =
+  protected def withIndentation(newIndentation: Formatter.Indentation): Rep =
     new FOFormatter(context.withIndentation(newIndentation))
 
   def attributes(tag: String, element: Element, attrs: Seq[(String, String)]): String = {

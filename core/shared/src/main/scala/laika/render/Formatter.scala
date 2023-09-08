@@ -61,12 +61,12 @@ abstract class Formatter protected {
   private def renderCurrentElement: String = context.renderChild(self, currentElement)
 
   private lazy val nextLevel: Rep =
-    if (context.indentation == Indentation.none) self
+    if (context.indentation == Formatter.Indentation.none) self
     else withIndentation(context.indentation.nextLevel)
 
   protected def withChild(element: Element): Rep
 
-  protected def withIndentation(newIndentation: Indentation): Rep
+  protected def withIndentation(newIndentation: Formatter.Indentation): Rep
 
   /** Invokes the specified render function with a new formatter that is indented
     * one level to the right of this formatter.
@@ -78,7 +78,7 @@ abstract class Formatter protected {
     * This is usually only required when rendering literal elements or source code
     * where rendered whitespace would be significant.
     */
-  def withoutIndentation(f: Rep => String): String = f(withIndentation(Indentation.none))
+  def withoutIndentation(f: Rep => String): String = f(withIndentation(Formatter.Indentation.none))
 
   /** Invokes the specified render function with a formatter that has at least the specified minimum
     * level of indentation. If this instance already has an indentation equal or greater
@@ -86,7 +86,9 @@ abstract class Formatter protected {
     */
   def withMinIndentation(minIndent: Int)(f: Rep => String): String = {
     val newIndentation =
-      if (context.indentation == Indentation.none || context.indentation.currentLevel >= minIndent)
+      if (
+        context.indentation == Formatter.Indentation.none || context.indentation.currentLevel >= minIndent
+      )
         self
       else withIndentation(context.indentation.copy(currentLevel = minIndent))
     f(newIndentation)
@@ -144,46 +146,46 @@ object Formatter {
 
     }
 
-}
-
-/** Represents the current indentation level of a formatter instance.
-  *
-  * @param currentLevel the level of indentation (number of characters)
-  * @param numSpaces the number of space characters to add when creating the next level of indentation from this instance
-  * @param dotted indicates whether the indentation happens with a dot pattern or with just whitespace
-  */
-case class Indentation(currentLevel: Int, numSpaces: Int, dotted: Boolean = false) {
-
-  /** A string container the newline character and all characters needed for rendering
-    * the current level of indentation.
-    */
-  val newLine: String =
-    if (dotted) "\n" + (". " * (currentLevel / 2)) + (if (currentLevel % 2 == 1) "." else "")
-    else "\n" + (" " * currentLevel)
-
-  /** Creates a new instance with the indentation level increased by `numCharacters`.
-    */
-  lazy val nextLevel: Indentation =
-    if (numSpaces == 0) this else copy(currentLevel = currentLevel + numSpaces)
-
-}
-
-/** Default Indentation instances.
-  */
-object Indentation {
-
-  /** An instance with indentation disabled.
-    */
-  val none: Indentation = Indentation(0, 0)
-
-  /** The default indentation mechanism, adding two spaces per indentation level.
-    */
-  val default: Indentation = Indentation(0, 2)
-
-  /** Renders indentation with a dot pattern.
+  /** Represents the current indentation level of a formatter instance.
     *
-    * Used internally for formatted output of ASTs.
+    * @param currentLevel the level of indentation (number of characters)
+    * @param numSpaces    the number of space characters to add when creating the next level of indentation from this instance
+    * @param dotted       indicates whether the indentation happens with a dot pattern or with just whitespace
     */
-  val dotted: Indentation = Indentation(0, 2, dotted = true)
+  case class Indentation(currentLevel: Int, numSpaces: Int, dotted: Boolean = false) {
+
+    /** A string container the newline character and all characters needed for rendering
+      * the current level of indentation.
+      */
+    val newLine: String =
+      if (dotted) "\n" + (". " * (currentLevel / 2)) + (if (currentLevel % 2 == 1) "." else "")
+      else "\n" + (" " * currentLevel)
+
+    /** Creates a new instance with the indentation level increased by `numCharacters`.
+      */
+    lazy val nextLevel: Indentation =
+      if (numSpaces == 0) this else copy(currentLevel = currentLevel + numSpaces)
+
+  }
+
+  /** Default Indentation instances.
+    */
+  object Indentation {
+
+    /** An instance with indentation disabled.
+      */
+    val none: Indentation = Indentation(0, 0)
+
+    /** The default indentation mechanism, adding two spaces per indentation level.
+      */
+    val default: Indentation = Indentation(0, 2)
+
+    /** Renders indentation with a dot pattern.
+      *
+      * Used internally for formatted output of ASTs.
+      */
+    val dotted: Indentation = Indentation(0, 2, dotted = true)
+
+  }
 
 }

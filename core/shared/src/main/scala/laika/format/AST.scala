@@ -18,7 +18,8 @@ package laika.format
 
 import laika.ast.Element
 import laika.factory.{ RenderContext, RenderFormat }
-import laika.render.{ ASTRenderer, Formatter, Indentation }
+import laika.render.Formatter.Indentation
+import laika.render.{ ASTRenderer, Formatter }
 
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
   *  May be directly passed to the `Render` or `Transform` APIs:

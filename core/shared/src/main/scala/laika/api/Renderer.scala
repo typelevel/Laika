@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.markup.DocumentParser.RendererError
-import laika.render.Indentation
+import laika.render.Formatter.Indentation
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{ NoOpPathTranslator, PathTranslator }
 

@@ -18,7 +18,7 @@ package laika.factory
 
 import laika.ast.{ Element, MessageFilter, Path, StyleDeclarationSet }
 import laika.bundle.RenderOverrides
-import laika.render.Indentation
+import laika.render.Formatter
 import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.
@@ -40,7 +40,7 @@ class RenderContext[FMT] private[laika] (
     val styles: StyleDeclarationSet,
     val path: Path,
     val pathTranslator: PathTranslator,
-    val indentation: Indentation,
+    val indentation: Formatter.Indentation,
     val messageFilter: MessageFilter
 ) {
 
@@ -56,7 +56,7 @@ class RenderContext[FMT] private[laika] (
       messageFilter
     )
 
-  def withIndentation(newValue: Indentation): RenderContext[FMT] =
+  def withIndentation(newValue: Formatter.Indentation): RenderContext[FMT] =
     new RenderContext[FMT](
       renderChild,
       currentElement,
