@@ -331,7 +331,7 @@ private[laika] class HTMLRenderer(format: String)
         fmt.emptyElement("img", img, allAttr: _*)
 
       case icon: Icon                       => renderIcon(icon)
-      case LineBreak(_)                     => fmt.emptyElement("br")
+      case lb: LineBreak                    => fmt.emptyElement("br", lb)
       case TemplateElement(elem, indent, _) => fmt.withMinIndentation(indent)(_.child(elem))
 
       case WithFallback(fallback) => fmt.child(fallback)

@@ -37,7 +37,7 @@ private[laika] class FOFormatter private (
 
     val idAttr = element.options.id.map(id => "id" -> buildLocalId(id)).toSeq
 
-    attributes(filterAttributes(tag, idAttr ++ combinedAttrs))
+    attributes(filterAttributes(tag, idAttr ++ combinedAttrs) *)
   }
 
   /** Generates an id that is unique within the entire document tree for the

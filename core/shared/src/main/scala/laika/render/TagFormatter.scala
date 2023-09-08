@@ -25,6 +25,10 @@ import scala.collection.mutable
   * Extends the base `Formatter` type and adds methods for writing text
   * with special characters as entities and for conveniently writing tags with attributes.
   *
+  * Laika's internal formatters for the supported output formats HTML, XHTML for EPUB
+  * and XSL-FO for PDF all share this common API,
+  * even though they differ in implementation.
+  *
   * @author Jens Halm
   */
 abstract class TagFormatter extends Formatter {
@@ -90,10 +94,6 @@ abstract class TagFormatter extends Formatter {
   def emptyElement(tagName: String, styleHint: Element, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName, styleHint, attrs)}/>"
 
-  /** Renders an empty element with the specified tag name.
-    */
-  def emptyElement(tagName: String): String = s"<$tagName/>"
-
   /** Renders all attributes derived from the style hint and the explicitly provided attributes.
     */
   def attributes(tag: String, styleHint: Element, attrs: Seq[(String, String)]): String
@@ -101,18 +101,17 @@ abstract class TagFormatter extends Formatter {
   /** Renders the specified attributes (passed as name-value tuples),
     * including a preceding space character.
     */
-  def attributes(attrs: Seq[(String, String)]): String =
+  def attributes(attrs: (String, String)*): String =
     attrs.map(t => attribute(t._1, t._2)).mkString
 
-  /** Filters empty values from the provided list of name-value pairs.
+  /** Renders the specified attributes (passed as name-value tuples),
+    * filtering empty values from the provided list of name-value pairs.
     */
   def optAttributes(attrs: (String, Option[String])*): Seq[(String, String)] = attrs.collect {
     case (name, Some(value)) => (name, value)
   }
 
-  /** Renders the specified attribute including a preceding space character.
-    */
-  def attribute(name: String, value: String): String = s""" $name="$value""""
+  private def attribute(name: String, value: String): String = s""" $name="$value""""
 
 }
 

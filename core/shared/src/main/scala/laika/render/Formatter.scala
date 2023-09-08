@@ -32,31 +32,9 @@ abstract class Formatter protected {
 
   protected def context: RenderContext[Rep]
 
-  /** The active element currently being rendered */
-  def currentElement: Element = context.currentElement
+  protected def withChild(element: Element): Rep
 
-  /** The stack of parent elements of this formatter in recursive rendering,
-    * with the root element being the last in the list.
-    */
-  def parents: List[Element] = context.parents
-
-  /** The target path of the currently rendered document. */
-  def path: Path = context.path
-
-  /** Translates paths of input documents to the corresponding output path. */
-  def pathTranslator: PathTranslator = context.pathTranslator
-
-  /** The styles the new renderer should apply to the rendered elements.
-    *
-    * Only used for some render formats.
-    * In case of HTML, for example, styles are only copied over to the output directory
-    * and not processed by the formatter at all.
-    */
-  def styles: StyleDeclarationSet = context.styles
-
-  /** A newline character followed by whitespace matching the indentation level of this instance.
-    */
-  val newLine: String = context.indentation.newLine
+  protected def withIndentation(newIndentation: Formatter.Indentation): Rep
 
   private def renderCurrentElement: String = context.renderChild(self, currentElement)
 
@@ -64,9 +42,36 @@ abstract class Formatter protected {
     if (context.indentation == Formatter.Indentation.none) self
     else withIndentation(context.indentation.nextLevel)
 
-  protected def withChild(element: Element): Rep
+  /** The active element currently being rendered. */
+  def currentElement: Element = context.currentElement
 
-  protected def withIndentation(newIndentation: Formatter.Indentation): Rep
+  /** The stack of parent elements of this formatter in recursive rendering,
+    * with the root element being the last in the list.
+    * Does not include the current element.
+    */
+  def parents: List[Element] = context.parents
+
+  /** The target path of the currently rendered document. */
+  def path: Path = context.path
+
+  /** Translates paths of input documents to the corresponding output path.
+    *
+    * This API needs to be used for rendering all internal links.
+    */
+  def pathTranslator: PathTranslator = context.pathTranslator
+
+  /** The styles the new renderer should apply to the rendered elements.
+    *
+    * Only used for some special render formats like XSL-FO.
+    * In case of HTML, for example, styles are only copied over to the output directory
+    * and not processed by the formatter at all.
+    * For all those formats this set is always empty.
+    */
+  def styles: StyleDeclarationSet = context.styles
+
+  /** A newline character followed by whitespace matching the indentation level of this instance.
+    */
+  val newLine: String = context.indentation.newLine
 
   /** Invokes the specified render function with a new formatter that is indented
     * one level to the right of this formatter.

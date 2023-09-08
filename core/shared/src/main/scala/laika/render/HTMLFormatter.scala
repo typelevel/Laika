@@ -39,7 +39,7 @@ private[laika] class HTMLFormatter(
     val styles =
       if (styleHint.options.styles.isEmpty) Nil
       else Seq("class" -> styleHint.options.styles.mkString(" "))
-    attributes(id ++ styles ++ attrs)
+    attributes((id ++ styles ++ attrs) *)
   }
 
   override def emptyElement(
@@ -48,7 +48,5 @@ private[laika] class HTMLFormatter(
       attrs: (String, String)*
   ): String =
     s"<$tagName${attributes(tagName, styleHint, attrs)}$emptyTagClosingChar>"
-
-  override def emptyElement(tagName: String): String = s"<$tagName$emptyTagClosingChar>"
 
 }
