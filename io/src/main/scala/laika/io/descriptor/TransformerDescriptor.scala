@@ -90,7 +90,7 @@ object TransformerDescriptor {
       TreeRenderer.Op(
         op.renderer,
         op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        DocumentTreeRoot(DocumentTree.empty),
         op.output,
         Nil
       )
@@ -103,7 +103,7 @@ object TransformerDescriptor {
       BinaryTreeRenderer.Op(
         op.renderer,
         op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        DocumentTreeRoot(DocumentTree.empty),
         op.output,
         Nil
       )

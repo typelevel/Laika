@@ -158,7 +158,7 @@ object TreeResultBuilder {
       }
       title = resolvedContent.collectFirst { case d: Document if isTitleDoc(titleName)(d) => d }
     } yield {
-      DocumentTree(
+      new DocumentTree(
         result.path,
         resolvedContent.filterNot(isTitleDoc(titleName)),
         title,

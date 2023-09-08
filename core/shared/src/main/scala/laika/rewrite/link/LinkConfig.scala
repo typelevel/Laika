@@ -26,11 +26,29 @@ case class LinkConfig(
     excludeFromValidation: Seq[Path] = Nil,
     apiLinks: Seq[ApiLinks] = Nil,
     sourceLinks: Seq[SourceLinks] = Nil
-)
+) {
+
+  def addTargets(newTargets: TargetDefinition*): LinkConfig =
+    copy(targets = targets ++ newTargets)
+
+  def addApiLinks(newLinks: ApiLinks*): LinkConfig = copy(apiLinks = apiLinks ++ newLinks)
+
+  def addSourceLinks(newLinks: SourceLinks*): LinkConfig =
+    copy(sourceLinks = sourceLinks ++ newLinks)
+
+}
 
 object LinkConfig {
 
-  val empty: LinkConfig = LinkConfig(Nil, Nil, Nil)
+  @deprecated("use LinkConfig.empty.addXXX(...).addYYY(...)", "0.19.4")
+  def apply(
+      targets: Seq[TargetDefinition] = Nil,
+      excludeFromValidation: Seq[Path] = Nil,
+      apiLinks: Seq[ApiLinks] = Nil,
+      sourceLinks: Seq[SourceLinks] = Nil
+  ) = new LinkConfig(targets, excludeFromValidation, apiLinks, sourceLinks)
+
+  val empty: LinkConfig = new LinkConfig()
 
   implicit val key: DefaultKey[LinkConfig] = DefaultKey(LaikaKeys.links)
 
@@ -44,7 +62,7 @@ object LinkConfig {
       val mappedTargets = targets.map { case (id, targetURL) =>
         TargetDefinition(id, Target.parse(targetURL))
       }
-      LinkConfig(mappedTargets.toSeq, exclude, apiLinks, sourceLinks)
+      new LinkConfig(mappedTargets.toSeq, exclude, apiLinks, sourceLinks)
     }
   }
 

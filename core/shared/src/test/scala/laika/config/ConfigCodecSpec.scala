@@ -34,6 +34,7 @@ import laika.time.PlatformDateTime
 import munit.FunSuite
 
 import java.net.URI
+import scala.annotation.nowarn
 
 /** @author Jens Halm
   */
@@ -178,7 +179,7 @@ class ConfigCodecSpec extends FunSuite {
 
     def sort(config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
 
-    val fullyPopulatedInstance = LinkConfig(
+    val fullyPopulatedInstance = new LinkConfig(
       Seq(
         TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
         TargetDefinition("ext", ExternalTarget("http://ext.com")),
@@ -239,10 +240,9 @@ class ConfigCodecSpec extends FunSuite {
       """.stripMargin
     decode[LinkConfig](
       input,
-      LinkConfig(
-        targets = Seq(TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))),
-        apiLinks = Seq(ApiLinks("https://bar.api/"))
-      ),
+      LinkConfig.empty
+        .addTargets(TargetDefinition("foo", InternalTarget(CurrentTree / "foo")))
+        .addApiLinks(ApiLinks("https://bar.api/")),
       links.sort
     )
   }

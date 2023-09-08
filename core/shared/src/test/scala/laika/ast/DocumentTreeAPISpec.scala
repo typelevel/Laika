@@ -46,6 +46,9 @@ import laika.parse.GeneratedSource
 import laika.rewrite.{ OutputContext, TemplateRewriter }
 import munit.FunSuite
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class DocumentTreeAPISpec extends FunSuite
     with ParagraphCompanionShortcuts
     with MunitDocumentTreeAssertions

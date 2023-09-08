@@ -110,7 +110,7 @@ class DocumentTreeBuilder private[laika] (parts: List[BuilderPart] = Nil) {
       }
     } yield {
       val (title, content) = extract(resolvedContent, titleName)
-      DocumentTree(result.path, content, title, result.templates, treeConfig)
+      new DocumentTree(result.path, content, title, result.templates, treeConfig)
     }
   }
 
@@ -128,7 +128,7 @@ class DocumentTreeBuilder private[laika] (parts: List[BuilderPart] = Nil) {
       case _: MarkupPart     => None
     }
     val (title, content) = extract(allContent, titleName)
-    DocumentTree(result.path, content, title, result.templates, treeConfig)
+    new DocumentTree(result.path, content, title, result.templates, treeConfig)
   }
 
   private def collectStyles(parts: Seq[BuilderPart]): Map[String, StyleDeclarationSet] = parts

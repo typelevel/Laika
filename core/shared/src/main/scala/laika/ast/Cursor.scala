@@ -459,7 +459,7 @@ object DocumentCursor {
       document: Document,
       outputContext: Option[OutputContext] = None
   ): Either[TreeConfigErrors, DocumentCursor] =
-    TreeCursor(DocumentTree(Root, Seq(document)), outputContext)
+    TreeCursor(new DocumentTree(Root, Seq(document)), outputContext)
       .map(apply(document, _, document.config, document.position))
 
   /** Creates a cursor for a document and full context information:

@@ -45,7 +45,7 @@ object LinkDirectives {
   private def linkConfig[T](cursor: DocumentCursor): Either[String, LinkConfig] =
     cursor.config
       .getOpt[LinkConfig]
-      .map(_.getOrElse(LinkConfig()))
+      .map(_.getOrElse(LinkConfig.empty))
       .leftMap(_.message)
 
   /** Implementation of the `api` directive that creates links to API documentation based

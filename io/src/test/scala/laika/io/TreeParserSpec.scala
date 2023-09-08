@@ -41,6 +41,9 @@ import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
 class TreeParserSpec
     extends CatsEffectSuite
     with ParagraphCompanionShortcuts

@@ -51,8 +51,10 @@ import laika.rewrite.nav.{ NoOpPathTranslator, PrettyURLs, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, VersionScannerConfig, Versions }
 import munit.CatsEffectSuite
 
+import scala.annotation.nowarn
 import scala.io.Codec
 
+@nowarn("cat=deprecation")
 class TreeRendererSpec extends CatsEffectSuite
     with ParagraphCompanionShortcuts
     with FileIO

@@ -333,12 +333,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
     private val linkTarget = RootElement(InternalLinkTarget(Id("ref")))
 
-    private val linkConfig = LinkConfig(targets =
-      Seq(
-        TargetDefinition("int", InternalTarget(RelativePath.parse("../doc-1.md#ref"))),
-        TargetDefinition("ext", ExternalTarget("https://www.foo.com/")),
-        TargetDefinition("inv", InternalTarget(RelativePath.parse("../doc-99.md#ref")))
-      )
+    private val linkConfig = LinkConfig.empty.addTargets(
+      TargetDefinition("int", InternalTarget(RelativePath.parse("../doc-1.md#ref"))),
+      TargetDefinition("ext", ExternalTarget("https://www.foo.com/")),
+      TargetDefinition("inv", InternalTarget(RelativePath.parse("../doc-99.md#ref")))
     )
 
     def run(ref: LinkIdReference, expected: Block): Unit = {
