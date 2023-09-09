@@ -44,4 +44,9 @@ object XSLFO extends RenderFormat[TagFormatter] {
 
   val formatterFactory: RenderContext[TagFormatter] => TagFormatter = FOFormatter
 
+  /** Expands the `TagFormatter` API with convenient shortcuts
+    * specifically tailored for rendering XSL-FO elements.
+    */
+  object formatterSyntax extends FOFormatter.FormatterSyntax
+
 }

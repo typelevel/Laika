@@ -19,13 +19,12 @@ package laika.helium.builder
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast.*
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
-import laika.render.{ FOFormatter, TagFormatter }
+import laika.format.XSLFO.formatterSyntax.*
+import laika.render.TagFormatter
 
 /** @author Jens Halm
   */
 private[helium] object HeliumRenderOverrides {
-
-  import FOFormatter.*
 
   case class Tabs(tabs: Seq[Tab], options: Options = NoOpt) extends Block {
     type Self = Tabs

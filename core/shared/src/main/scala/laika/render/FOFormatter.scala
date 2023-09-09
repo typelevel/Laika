@@ -35,18 +35,10 @@ private[laika] class FOFormatter private (
     val fromCSS       = styles.collectStyles(element, parents)
     val combinedAttrs = (fromCSS ++ attrs).toSeq.sortBy(_._1)
 
-    val idAttr = element.options.id.map(id => "id" -> buildLocalId(id)).toSeq
+    def localId(ref: String): String = FOFormatter.localId(path, ref, pathTranslator)
+    val idAttr                       = element.options.id.map(id => "id" -> localId(id)).toSeq
 
     attributes(filterAttributes(tag, idAttr ++ combinedAttrs) *)
-  }
-
-  /** Generates an id that is unique within the entire document tree for the
-    * specified local reference.
-    */
-  private def buildLocalId(ref: String): String = {
-    if (ref.isEmpty) FOFormatter.buildId(path, pathTranslator)
-    else if (path == Root) FOFormatter.buildId(Path.parse(s"#$ref"), pathTranslator)
-    else FOFormatter.buildId(path.withFragment(ref), pathTranslator)
   }
 
 }
@@ -55,12 +47,18 @@ private[laika] class FOFormatter private (
   * These are usually not part of the document AST produced by a parser,
   * but only inserted dynamically during the render process to drive features specific to FO output.
   */
-object FOFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
+private[laika] object FOFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
 
-  /** Generates an id that is unique within the entire document tree for the
-    * specified path of the target document and its local reference.
-    */
-  def buildId(path: Path, translator: PathTranslator): String = {
+  def localId(path: Path, ref: String, translator: PathTranslator): String = {
+    val basePath = {
+      if (ref.isEmpty) path
+      else if (path == Root) Path.parse(s"#$ref")
+      else path.withFragment(ref)
+    }
+    FOFormatter.globalId(basePath, translator)
+  }
+
+  def globalId(path: Path, translator: PathTranslator): String = {
     if (path == Path.Root) ""
     else
       translator
@@ -71,251 +69,94 @@ object FOFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
         .replace("#", "_")
   }
 
-  implicit class FOFormatterSyntax(val fmt: TagFormatter) {
+  trait FormatterSyntax {
 
-    private lazy val (footnotes, citations) =
-      fmt.parents.lastOption.getOrElse(fmt.currentElement) match {
-        case et: ElementTraversal =>
-          (
-            et.collect { case f @ Footnote(_, _, Id(id)) => (id, f) }.toMap,
-            et.collect { case c @ Citation(_, _, Id(id)) => (id, c) }.toMap
-          )
-        case _                    => (Map.empty[String, Footnote], Map.empty[String, Citation])
+    implicit class FOFormatterSyntax(val fmt: TagFormatter) {
+
+      /** Generates an id that is unique within the entire document tree for the
+        * specified local reference.
+        */
+      def localId(ref: String): String = FOFormatter.localId(fmt.path, ref, fmt.pathTranslator)
+
+      /** Generates an id that is unique within the entire document tree for the
+        * specified path of the target document and its local reference.
+        */
+      def globalId(path: Path): String = FOFormatter.globalId(path, fmt.pathTranslator)
+
+      /** Renders an element with the specified tag name, attributes derived from the style hint
+        * and indented content consisting of the provided child elements.
+        *
+        * In contrast to the overload on the `TagFormatter` type, this method allows to keep
+        * the element serving as a render hint separate from its rendered content.
+        */
+      def indentedElement(
+          tagName: String,
+          styleHint: Element,
+          content: Seq[Element],
+          attrs: (String, String)*
+      ): String =
+        s"<$tagName${fmt.attributes(tagName, styleHint, attrs)}>${fmt.indentedChildren(content)}${fmt.newLine}</$tagName>"
+
+      /** Renders an element with the specified tag name, attributes derived from the style hint
+        * and content based on the provided string that is interpreted as already rendered in the target format.
+        * That means that no character escaping will be performed on the provided content.
+        *
+        * In contrast to the `rawElement` method, this method will omit the surrounding
+        * element altogether if it would not contain any attributes.
+        */
+      def optRawElement(
+          tagName: String,
+          styleHint: Element,
+          content: String,
+          attrs: (String, String)*
+      ): String = {
+        val renderedAttrs = fmt.attributes(tagName, styleHint, attrs)
+        if (renderedAttrs.nonEmpty) s"<$tagName$renderedAttrs>$content</$tagName>"
+        else content
       }
 
-    /** Renders an element with the specified tag name, attributes derived from the style hint
-      * and content consisting of the provided child elements, all rendered on the same line.
-      */
-    def element(
-        tagName: String,
-        styleHint: Element,
-        content: Seq[Element],
-        attrs: (String, String)*
-    ): String =
-      s"<$tagName${fmt.attributes(tagName, styleHint, attrs)}>${fmt.children(content)}</$tagName>"
+      /** Renders an FO `block` element and its children on the same line.
+        */
+      def block(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
+        fmt.element("fo:block", container, attr *)
 
-    /** Renders an element with the specified tag name, attributes derived from the style hint
-      * and indented content consisting of the provided child elements.
-      */
-    def indentedElement(
-        tagName: String,
-        styleHint: Element,
-        content: Seq[Element],
-        attrs: (String, String)*
-    ): String =
-      s"<$tagName${fmt.attributes(tagName, styleHint, attrs)}>${fmt.indentedChildren(content)}${fmt.newLine}</$tagName>"
+      /** Renders an FO `block` element and the specified nested spans,
+        * preserving all whitespace within the text elements of those spans.
+        */
+      def blockWithWS(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
+        fmt.withoutIndentation(_.element("fo:block", container, attr *))
 
-    /** Renders an FO `block` element and the specified nested spans on the same line.
-      */
-    def block(styleHint: Element, content: Seq[Span], attr: (String, String)*): String =
-      fmt.element("fo:block", styleHint, content, attr *)
+      /** Renders an FO `inline` element and its children on the same line.
+        */
+      def inline(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
+        fmt.element("fo:inline", container, attr *)
 
-    /** Renders an empty FO `block` element.
-      */
-    def block(styleHint: Element, attr: (String, String)*): String =
-      fmt.emptyElement("fo:block", styleHint, attr *)
+      /** Renders an FO `block` element, containing nested blocks.
+        * The content will be rendered indented one level to the right.
+        */
+      def blockContainer(styleHint: Element, content: Seq[Block], attr: (String, String)*): String =
+        fmt.indentedElement("fo:block", styleHint, content, attr *)
 
-    /** Renders an FO `block` element and the specified nested spans,
-      * preserving all whitespace within the text elements of those spans.
-      */
-    def blockWithWS(styleHint: Element, content: Seq[Span], attr: (String, String)*): String =
-      fmt.withoutIndentation(_.element("fo:block", styleHint, content, attr *))
+      /** Renders an FO `list-block` element, and the specified list items.
+        * The content will be rendered indented one level to the right.
+        */
+      def listBlock(container: ListContainer, attr: (String, String)*): String =
+        fmt.indentedElement("fo:list-block", container, attr *)
 
-    /** Renders an FO `inline` element and the specified nested spans on the same line.
-      */
-    def inline(styleHint: Element, content: Seq[Span], attr: (String, String)*): String =
-      fmt.element("fo:inline", styleHint, content, attr *)
-
-    /** Renders an FO `block` element, containing nested blocks.
-      * The content will be rendered indented one level to the right.
-      */
-    def blockContainer(styleHint: Element, content: Seq[Block], attr: (String, String)*): String =
-      fmt.indentedElement("fo:block", styleHint, content, attr: _*)
-
-    /** Renders an FO `list-block` element, and the specified list items.
-      * The content will be rendered indented one level to the right.
-      */
-    def listBlock(styleHint: Element, content: Seq[ListItem], attr: (String, String)*): String =
-      fmt.indentedElement("fo:list-block", styleHint, content, attr: _*)
-
-    /** Renders an FO `basic-link` element for an internal target.
-      */
-    def internalLink(
-        styleHint: Element,
-        target: Path,
-        content: Seq[Span],
-        attr: (String, String)*
-    ): String =
-      fmt.element(
-        "fo:basic-link",
-        styleHint,
-        content,
-        attr :+ ("internal-destination" -> FOFormatter.buildId(target, fmt.pathTranslator)): _*
-      )
-
-    /** Renders an FO `block` or `inline` element for this internal link
-      * target, depending on whether it is inside a `BlockContainer`
-      * or `SpanContainer`.
-      */
-    def internalLinkTarget(element: Element): String = {
-      fmt.parents.head match {
-        case _: BlockContainer => block(element)
-        case _                 => this.inline(element, Nil)
-      }
-    }
-
-    /** Renders an FO `basic-link` element for an external target.
-      */
-    def externalLink(
-        styleHint: Element,
-        url: String,
-        content: Seq[Span],
-        attr: (String, String)*
-    ): String =
-      fmt.element("fo:basic-link", styleHint, content, attr :+ ("external-destination" -> url): _*)
-
-    /** Renders an FO `external-graphic` element.
-      */
-    def externalGraphic(
-        styleHint: Element,
-        src: String,
-        width: Option[Length],
-        height: Option[Length]
-    ): String =
-      fmt.emptyElement(
-        "fo:external-graphic",
-        styleHint,
-        fmt.optAttributes(
-          "src"    -> Some(src),
-          "width"  -> width.map(_.displayValue),
-          "height" -> height.map(_.displayValue)
-        ): _*
-      )
-
-    /** Renders an FO `list-item` element with the specified label and body.
-      * The content will be rendered indented one level to the right.
-      */
-    def listItem(
-        styleHint: Element,
-        label: Seq[Span],
-        body: Seq[Block],
-        attr: (String, String)*
-    ): String = {
-      val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
-      fmt.indentedElement("fo:list-item", styleHint, content, attr: _*)
-    }
-
-    /** Renders an FO `list-item-label` element, with the content indented one level to the right.
-      */
-    def listItemLabel(styleHint: Element, content: Block, attr: (String, String)*): String =
-      fmt.indentedElement(
-        "fo:list-item-label",
-        styleHint,
-        Seq(content),
-        attr :+ ("end-indent" -> "label-end()"): _*
-      )
-
-    /** Renders an FO `list-item-body` element, with the content indented one level to the right.
-      */
-    def listItemBody(styleHint: Element, content: Seq[Block], attr: (String, String)*): String =
-      fmt.indentedElement(
-        "fo:list-item-body",
-        styleHint,
-        content,
-        attr :+ ("start-indent" -> "body-start()"): _*
-      )
-
-    /** Renders an FO `footnote` element, with the body indented one level to the right.
-      */
-    def footnote(styleHint: Element, label: String, body: Seq[Block], options: Options): String = {
-      val labelElement = Text(s"[$label]", Style.footnoteLabel)
-      val bodyElements = body match {
-        case Paragraph(spans, opts) +: rest =>
-          Paragraph(labelElement +: Text(" ") +: spans, opts) +: rest
-        case _                              => Paragraph(labelElement) +: body
-      }
-      val content      = List(labelElement, FootnoteBody(bodyElements, options))
-      fmt.indentedElement("fo:footnote", styleHint, content)
-    }
-
-    /** Obtains a Footnote with the specified reference name and, if it exists,
-      * passes it to the provided render function.
-      */
-    def withFootnote(ref: String)(f: Footnote => String): String = footnotes.get(ref).fold("")(f)
-
-    /** Obtains a Citation with the specified reference name and, if it exists,
-      * passes it to the provided render function.
-      */
-    def withCitation(ref: String)(f: Citation => String): String = citations.get(ref).fold("")(f)
-
-    /** Renders an FO `inline` element and the specified text.
-      * Renders only the text itself in case there are no
-      * attributes associated with the text.
-      */
-    def text(styleHint: Element, content: String, attr: (String, String)*): String =
-      optRawElement("fo:inline", styleHint, fmt.text(content), attr: _*)
-
-    /** Renders an FO `inline` element and the specified text, preserving
-      * all whitespace. Renders only the text itself in case there are no
-      * attributes associated with the text.
-      */
-    def textWithWS(styleHint: Element, content: String, attr: (String, String)*): String =
-      optRawElement("fo:inline", styleHint, fmt.withoutIndentation(_.text(content)), attr: _*)
-
-    /** Renders an FO `block` element and the specified text, preserving
-      * all whitespace. Renders only the text itself in case there are no
-      * attributes associated with the text.
-      */
-    def textBlockWithWS(styleHint: Element, content: String, attr: (String, String)*): String =
-      optRawElement("fo:block", styleHint, fmt.withoutIndentation(_.text(content)), attr: _*)
-
-    /** Renders an FO `inline` element and the specified text, treating it as
-      * "raw", pre-rendered XSL-FO output, so that no escaping of special character will be performed.
-      * Renders only the text itself in case there are no attributes associated with the text.
-      */
-    def rawText(styleHint: Element, content: String, attr: (String, String)*): String =
-      optRawElement("fo:inline", styleHint, content, attr: _*)
-
-    private def optRawElement(
-        tagName: String,
-        styleHint: Element,
-        content: String,
-        attrs: (String, String)*
-    ): String = {
-      val renderedAttrs = fmt.attributes(tagName, styleHint, attrs)
-      if (renderedAttrs.nonEmpty) s"<$tagName$renderedAttrs>$content</$tagName>"
-      else content
-    }
-
-    /** Renders an FO `bookmark-tree` element and all of its nested bookmarks.
-      */
-    def bookmarkTree(tree: NavigationList): String =
-      fmt.indentedElement("fo:bookmark-tree", tree, tree.content)
-
-    /** Renders an FO `bookmark` element and all of its nested bookmarks.
-      */
-    def bookmark(bookmark: NavigationItem): String = {
-      def internalTarget(link: NavigationLink): Option[Path] = link.target match {
-        case it: InternalTarget => Some(it.relativeTo(fmt.path).absolutePath)
-        case _                  => None
+      /** Renders an FO `list-item` element with the specified label and body.
+        * The content will be rendered indented one level to the right.
+        */
+      def listItem(
+          styleHint: Element,
+          label: Seq[Span],
+          body: Seq[Block],
+          attr: (String, String)*
+      ): String = {
+        val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
+        fmt.indentedElement("fo:list-item", styleHint, content, attr: _*)
       }
 
-      val target = bookmark.link.orElse(bookmark.firstChildLink).flatMap(internalTarget)
-      target.fold("") { targetPath =>
-        val content = BookmarkTitle(bookmark.title.extractText) +: bookmark.content
-        fmt.indentedElement(
-          "fo:bookmark",
-          bookmark,
-          content,
-          "internal-destination" -> buildId(targetPath, fmt.pathTranslator)
-        )
-      }
     }
-
-    /** Renders an FO `bookmark-title` element.
-      */
-    def bookmarkTitle(title: BookmarkTitle): String =
-      fmt.textElement("fo:bookmark-title", title)
 
   }
 
