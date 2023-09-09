@@ -11,7 +11,7 @@ Latest Release
 --------------
 
 * The latest stable release is version **0.19.3**.
-* The latest milestone release is version **1.0.0-M3**.
+* The latest milestone release is version **1.0.0-M4**.
 
 The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.  
 The sbt plugin is published for sbt 1.x.
@@ -30,7 +30,7 @@ while the 1.0 milestones are now published under `org.typelevel`:
 addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.3")
 
 // for version 1.0.0-M2:
-addSbtPlugin("org.typelevel" % "laika-sbt" % "1.0.0-M2")
+addSbtPlugin("org.typelevel" % "laika-sbt" % "1.0.0-M4")
 ```
 
 In case you still need support for older versions of Scala, sbt or cats-effect, please use:
