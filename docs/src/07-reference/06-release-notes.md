@@ -2,6 +2,61 @@
 Release Notes
 =============
 
+0.19.4 (Sep 10, 2023)
+---------------------
+
+* **New support for mermaid diagrams in the Helium theme.**
+
+  Mermaid diagrams can now be included in standard fenced code blocks when using the default Helium theme.
+  The diagram colors will automatically adjust to the theme color configured for Helium.
+  This functionality is only available for HTML output, not EPUB or PDF.
+
+* **AST rendering in the preview server**
+
+  The preview server now support the rendering of the document AST for any page by adding the `/ast` path postfix.
+  This enables users to inspect the model in cases they want to write render overrides or rewrite rules and
+  are not sure what node types to match on.
+
+* **Better defaults & new API for configuring link validation**
+
+  The defaults for link validation remain the same for plugin users, but are improved for API users
+  where validation was on by default even when parsing a single input string that has no access to the
+  surrounding directory, meaning that all validation was futile.
+  It also comes with new configuration types to overwrite the defaults.
+
+* **New options for including CSS & JavaScript resources**
+
+  Previous support was limited in only supported local resources.
+  The new APIs support linking external or inline resources, setting common attributes like `defer`
+  and add support for conditional inclusion where the document AST or configuration can be inspected before
+  deciding on whether a resource should be included.
+
+* **Better & safer AST builders**
+
+  Introduces `DocumentTree.builder` as a safer and more convenient way to construct an AST model.
+  The old `apply` entry point of the case class is deprecated. It was too low-level and error-prone
+  due to the way several aspects of the model inherit properties from parent which might be missed
+  with manual construction.
+
+* **Spec compliance**
+  
+  * Bullet lists in Markdown do no longer require a preceding blank line to be detected.
+    (enumerated lists remain unchanged to match the spec).
+  * Support nested parenthesis in URLs
+
+* Bug fixes
+    * Fix CSS for code spans in navigation items which were invisible in some cases.
+    * Properly support custom link text for link directives.
+    * Introduce substitution variable `cursor.currentDocument.rawTitle` that prevents
+      the rendering of markup where not supported (e.g. in the `<title>` element).
+
+* Deprecations
+    * introduces a small set of deprecations that will help with migrating to 1.0
+
+* Dependencies
+    * cats-core 2.10.0, cats-effect 3.5.1, fs2 3.9.1, http4s 0.23.23
+
+
 0.19.3 (July 5, 2023)
 ---------------------
 

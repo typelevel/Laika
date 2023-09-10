@@ -133,10 +133,10 @@ import laika.ast.ExternalTarget
 import laika.rewrite.link.{ LinkConfig, TargetDefinition }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(targets = Seq(
+  .withConfigValue(LinkConfig.empty.addTargets(
     TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
     TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
-  )))
+  ))
 ```
 
 @:choice(library)
@@ -151,10 +151,10 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(targets = Seq(
+  .withConfigValue(LinkConfig.empty.addTargets(
     TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
     TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
-  )))
+  ))
   .build
 ```
 @:@
@@ -253,9 +253,9 @@ This directive requires the base URI to be defined in the project's configuratio
 import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addApiLinks(
     ApiLinks(baseUri = "https://example.com/api")
-  )))
+  ))
 ```
 
 @:choice(library)
@@ -269,9 +269,9 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(apiLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addApiLinks(
     ApiLinks(baseUri = "https://example.com/api")
-  )))
+  ))
   .build
 ```
 @:@
@@ -286,10 +286,10 @@ while keeping one base URI as a default for all packages that do not match any p
 import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addApiLinks(
     ApiLinks(baseUri = "https://example.com/api"),
     ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
-  )))
+  ))
 ```
 
 @:choice(library)
@@ -303,10 +303,10 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(apiLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addApiLinks(
     ApiLinks(baseUri = "https://example.com/api"),
     ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
-  )))
+  ))
   .build
 ```
 
@@ -334,9 +334,9 @@ This directive requires the base URI and suffix to be defined in the project's c
 import laika.rewrite.link.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addSourceLinks(
     SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
-  )))
+  ))
 ```
 
 @:choice(library)
@@ -350,9 +350,9 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addSourceLinks(
      SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
-  )))
+  ))
   .build
 ```
 @:@
@@ -367,7 +367,7 @@ while keeping one base URI as a default for all packages that do not match any p
 import laika.rewrite.link.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addSourceLinks(
     SourceLinks(
       baseUri = "https://github.com/team/project", 
       suffix = "scala"
@@ -377,7 +377,7 @@ laikaConfig := LaikaConfig.defaults
       suffix = "scala", 
       packagePrefix = "com.lib42"
     )
-  )))
+  ))
 ```
 
 @:choice(library)
@@ -391,7 +391,7 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
+  .withConfigValue(LinkConfig.empty.addSourceLinks(
     SourceLinks(
       baseUri = "https://github.com/team/project", 
       suffix = "scala"
@@ -401,7 +401,7 @@ val transformer = Transformer
       suffix = "scala", 
       packagePrefix = "com.lib42"
     )
-  )))
+  ))
   .build
 ```
 

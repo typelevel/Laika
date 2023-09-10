@@ -67,10 +67,11 @@ private[laika] class LinkValidator(
   private val excludedPaths = {
     val excludedExplicitly = {
       // backwards-compatibility mode for 0.19.x
-      val newKey    = "laika.links.validation.excluded"
-      val oldKey    = "laika.links.excludeFromValidation"
-      val actualKey = if (cursor.config.hasKey(newKey)) newKey else oldKey
-      cursor.config.get[Seq[Path]](actualKey).getOrElse(Nil)
+      val newKey   = "laika.links.validation.excluded"
+      val oldKey   = "laika.links.excludeFromValidation"
+      val newValue = cursor.config.get[Seq[Path]](newKey).getOrElse(Nil)
+      val oldValue = cursor.config.get[Seq[Path]](oldKey).getOrElse(Nil)
+      newValue ++ oldValue
     }
     excludedExplicitly ++ versionRoots
   }

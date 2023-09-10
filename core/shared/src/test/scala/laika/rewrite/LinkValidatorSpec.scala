@@ -19,7 +19,13 @@ package laika.rewrite
 import laika.ast.Path.Root
 import laika.ast.sample.{ BuilderKey, SampleTrees }
 import laika.ast._
-import laika.rewrite.link.{ InvalidTarget, LinkValidation, RecoveredTarget, ValidTarget }
+import laika.rewrite.link.{
+  InvalidTarget,
+  LinkConfig,
+  LinkValidation,
+  RecoveredTarget,
+  ValidTarget
+}
 import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 
@@ -28,6 +34,29 @@ import munit.FunSuite
 class LinkValidatorSpec extends FunSuite {
 
   private val defaultLinkValidation = LinkValidation.Local
+
+  private def legacyTestCursor(linkConfig: LinkConfig): DocumentCursor = {
+    import laika.ast.sample.SampleConfig._
+
+    def doc2(key: BuilderKey): Seq[Block] = Seq(
+      Header(1, "Title").withOptions(Id("ref")),
+      Paragraph("text")
+    )
+
+    SampleTrees.sixDocuments
+      .root.config(siteBaseURL("https://external/"))
+      .doc4.config(targetFormats("html"))
+      .static2.config(targetFormats("html"))
+      .doc6.config(_.withValue(linkConfig).withValue(LinkValidation.Global()))
+      .staticDoc(Root / "static-1" / "doc-7.txt")
+      .staticDoc(Root / "static-2" / "doc-8.txt", "html")
+      .docContent(doc2 _)
+      .suffix("md")
+      .buildCursor // TODO - buildCursor should be available on doc6
+      .toOption
+      .flatMap(_.allDocuments.find(_.path == Root / "tree-2" / "doc-6.md"))
+      .get
+  }
 
   private def testCursor(docConfig: LinkValidation = defaultLinkValidation): DocumentCursor = {
     import laika.ast.sample.SampleConfig._
@@ -81,6 +110,14 @@ class LinkValidatorSpec extends FunSuite {
     val config = LinkValidation.Global(Seq(Root / "tree-1"))
     assertEquals(
       testCursor(config).validate(testTarget("../tree-1/doc-9.md")),
+      ValidTarget
+    )
+  }
+
+  test("ignore invalid link target when target directory is excluded via deprecated property") {
+    val config = LinkConfig(excludeFromValidation = Seq(Root / "tree-1"))
+    assertEquals(
+      legacyTestCursor(config).validate(testTarget("../tree-1/doc-9.md")),
       ValidTarget
     )
   }

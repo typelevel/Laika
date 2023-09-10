@@ -1006,6 +1006,37 @@ Helium.defaults
 ```
 
 
+Mermaid Diagrams
+----------------
+
+Helium supports Mermaid diagrams enclosed in fenced code blocks.
+In contrast to most other functionality in the theme, it is only available for HTML output,
+not for EPUB or PDF.
+
+A small sample diagram like this:
+
+````markdown
+```mermaid
+graph TD 
+A[Client] --> B[Load Balancer] 
+B --> C[Server-1] 
+B --> D[Server-2]
+```
+````
+
+will render in this theme like below:
+
+```mermaid
+graph TD 
+A[Client] --> B[Load Balancer] 
+B --> C[Server-1] 
+B --> D[Server-2]
+```
+
+It will pick up the theme colors you have defined for Helium, and cannot be configured separately.
+See [Theme Colors] above for how to configure the Helium color sets.
+
+
 Custom Templates
 ----------------
 
