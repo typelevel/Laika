@@ -298,9 +298,13 @@
                         <a class="trait" href="DocumentStructure.html" title="The structure of a markup document."></a>
                         <a href="DocumentStructure.html" title="The structure of a markup document.">DocumentStructure</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="DocumentTree$.html" title=""></a>
                         <a class="class" href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees."></a>
                         <a href="DocumentTree.html" title="Represents a tree with all its documents, templates, configurations and subtrees.">DocumentTree</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="DocumentTreeBuilder.html" title="API for a safe and concise way of constructing a DocumentTree."></a>
+                        <a href="DocumentTreeBuilder.html" title="API for a safe and concise way of constructing a DocumentTree.">DocumentTreeBuilder</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="DocumentTreeRoot.html" title="Represents the root of a tree of documents."></a>
@@ -1967,6 +1971,25 @@ during a rewrite operation for this purpose.
       
       <p class="shortcomment cmt">Represents a tree with all its documents, templates, configurations and subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a tree with all its documents, templates, configurations and subtrees.
 </p></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>the full, absolute path of this (virtual) document tree</p></dd><dt class="param">content</dt><dd class="cmt"><p>the markup documents and subtrees</p></dd><dt class="param">titleDocument</dt><dd class="cmt"><p>the optional title document of this tree</p></dd><dt class="param">templates</dt><dd class="cmt"><p>all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration associated with this tree</p></dd><dt class="param">position</dt><dd class="cmt"><p>the position of this tree inside a document ast hierarchy, expressed as a list of Ints</p></dd></dl></div>
+    </li><li name="laika.ast.DocumentTreeBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DocumentTreeBuilderextendsAnyRef"></a><a id="DocumentTreeBuilder:DocumentTreeBuilder"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/DocumentTreeBuilder.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="API for a safe and concise way of constructing a DocumentTree." href="DocumentTreeBuilder.html"><span class="name">DocumentTreeBuilder</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">API for a safe and concise way of constructing a <code>DocumentTree</code>.</p><div class="fullcomment"><div class="comment cmt"><p>API for a safe and concise way of constructing a <code>DocumentTree</code>.</p><p>The hierarchy of the tree will be constructed based on the provided <code>Path</code> instances
+while also ensuring that document configuration is wired up correctly (inheriting
+the configuration from directories).
+</p></div></div>
     </li><li name="laika.ast.DocumentTreeRoot" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="DocumentTreeRootextendsProductwithSerializable"></a><a id="DocumentTreeRoot:DocumentTreeRoot"></a>
       <span class="permalink">
@@ -4812,6 +4835,22 @@ with some additional documents added programmatically without any file system re
       </span>
       <span class="symbol">
         <a title="" href="DocumentMetadata$.html"><span class="name">DocumentMetadata</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.DocumentTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentTree"></a><a id="DocumentTree:DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/DocumentTree$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DocumentTree$.html"><span class="name">DocumentTree</span></a><span class="result"> extends <span class="extype" name="scala.runtime.AbstractFunction6">AbstractFunction6</span>[<a href="Path.html" class="extype" name="laika.ast.Path">Path</a>, <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeContent.html" class="extype" name="laika.ast.TreeContent">TreeContent</a>], <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>], <span class="extype" name="scala.Seq">Seq</span>[<a href="TemplateDocument.html" class="extype" name="laika.ast.TemplateDocument">TemplateDocument</a>], <a href="../config/Config.html" class="extype" name="laika.config.Config">Config</a>, <a href="TreePosition.html" class="extype" name="laika.ast.TreePosition">TreePosition</a>, <a href="DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>] with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       

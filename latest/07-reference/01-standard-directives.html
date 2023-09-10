@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  
   <script src="../helium/laika-helium.js"></script>
     <script src="../helium/laika-versions.js"></script>
+  
   <script>initVersions("../../", "/07-reference/01-standard-directives.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -521,26 +523,14 @@ not in PDF, EPUB or any other format.
         as described in <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
         
         <h3 id="linkcss" class="section"><a class="anchor-link left" href="#linkcss"><i class="icofont-laika link">&#xef71;</i></a><code>@:linkCSS</code></h3>
-        <p>Causes the automatic inclusion of <code>&lt;link&gt;</code> tags for CSS files found in the input tree.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">linkCSS</span></code></pre>
-        <p>It will simply link any CSS file found in the input tree, unless the suffix is <code>.page.css</code>.
-        Those files are excluded from global scanning so that they can be explicitly included for individual pages.</p>
-        <p>The search paths can be constrained via the Helium config API - see <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
-        <p>When not using Helium the paths can be controlled via the configuration key <code>laika.site.css.searchPaths</code>
-        and <code>laika.epub.css.searchPaths</code> which are both arrays of path strings.
-        Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
-        See <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> for details.</p>
+        <p>Deprecated since 0.19.4. 
+        Use the Helium configuration API for specifying CSS documents to be linked in the HTML head section.</p>
+        <p>See <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a> for details.</p>
         
         <h3 id="linkjs" class="section"><a class="anchor-link left" href="#linkjs"><i class="icofont-laika link">&#xef71;</i></a><code>@:linkJS</code></h3>
-        <p>Causes the automatic inclusion of <code>&lt;script&gt;</code> tags for JavaScript files found in the input tree.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">linkJS</span></code></pre>
-        <p>It will simply link any JavaScript file found in the input tree, unless the suffix is <code>.page.js</code>.
-        Those files are excluded from global scanning so that they can be explicitly included for individual pages.</p>
-        <p>The search paths can be constrained via the Helium config API - see <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
-        <p>When not using Helium the paths can be controlled via the configuration key <code>laika.site.js.searchPaths</code>
-        and <code>laika.epub.js.searchPaths</code> which are both arrays of path strings.
-        Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
-        See <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> for details.</p>
+        <p>Deprecated since 0.19.4.
+        Use the Helium configuration API for specifying JavaScript documents to be linked in the HTML head section.</p>
+        <p>See <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a> for details.</p>
         
         <h3 id="attribute" class="section"><a class="anchor-link left" href="#attribute"><i class="icofont-laika link">&#xef71;</i></a><code>@:attribute</code></h3>
         <p>This directive can also be used in XSL-FO templates for PDF as it renders attribute syntax that is valid in both,

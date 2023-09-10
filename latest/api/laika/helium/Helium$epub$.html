@@ -286,6 +286,26 @@ or the <code>laikaTheme</code> sbt setting:</p><p>Example for sbt plugin:</p><pr
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.helium.config.CommonConfigOps#addFontResources" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addFontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium"></a><a id="addFontResources(FontDefinition*):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#addFontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addFontResources</span><span class="params">(<span name="defn">defn: <a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><div class="fullcomment"><div class="comment cmt"><p>Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><p>E-book formats like EPUB or PDF require a local font file to be available for embedding.
+A web font URL can only be used for website generation.</p><p>When using this method, all default fonts of the Helium theme will be de-registered.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>CommonConfigOps</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -302,47 +322,6 @@ or the <code>laikaTheme</code> sbt setting:</p><p>Example for sbt plugin:</p><pr
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.helium.config.EPUBOps#autoLinkCSS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="autoLinkCSS(paths:laika.ast.Path*):laika.helium.Helium"></a><a id="autoLinkCSS(Path*):Helium"></a>
-      <span class="permalink">
-      <a href="../../laika/helium/Helium$epub$.html#autoLinkCSS(paths:laika.ast.Path*):laika.helium.Helium" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">autoLinkCSS</span><span class="params">(<span name="paths">paths: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Auto-links CSS documents from the specified paths.</p><div class="fullcomment"><div class="comment cmt"><p>Auto-links CSS documents from the specified paths.
-By default all CSS documents found anywhere in the input tree will be linked in HTML files.
-This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-which might be useful when your input contains CSS files unrelated to the pages rendered by Laika.</p><p>For inclusion in EPUB document a special suffix is expected:</p><p>- <code>.shared.css</code> for CSS documents to be auto-linked for EPUB and the website
-- <code>.epub.css</code> for CSS document to be auto-linked only for EPUB, but not the website
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
-    </li><li name="laika.helium.config.EPUBOps#autoLinkJS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="autoLinkJS(paths:laika.ast.Path*):laika.helium.Helium"></a><a id="autoLinkJS(Path*):Helium"></a>
-      <span class="permalink">
-      <a href="../../laika/helium/Helium$epub$.html#autoLinkJS(paths:laika.ast.Path*):laika.helium.Helium" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">autoLinkJS</span><span class="params">(<span name="paths">paths: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Auto-links JavaScript documents from the specified paths.</p><div class="fullcomment"><div class="comment cmt"><p>Auto-links JavaScript documents from the specified paths.
-By default all JavaScript documents found anywhere in the input tree will be linked in HTML files.
-This setting allows to narrow it down to one or more dedicated paths within the virtual tree,
-which might be useful when your input contains JavaScript files unrelated to the pages rendered by Laika.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -573,11 +552,7 @@ For the code font a regular font weight is sufficient.
         <span class="name">fontResources</span><span class="params">(<span name="defn">defn: <a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
       </span>
       
-      <p class="shortcomment cmt">Adds one or more font resources to the theme, either based on a local classpath or file system resource,
-or a web font URL, or both.</p><div class="fullcomment"><div class="comment cmt"><p>Adds one or more font resources to the theme, either based on a local classpath or file system resource,
-or a web font URL, or both.</p><p>E-book formats like EPUB or PDF require a local font file to be available for embedding.
-A web font URL can only be used for website generation.</p><p>When using this method, all default fonts of the Helium theme will be de-registered.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps → SingleConfigOps → CommonConfigOps</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps → SingleConfigOps → CommonConfigOps</dd></dl></div>
     </li><li name="laika.helium.config.SingleConfigOps#fontSizes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fontSizes(body:laika.ast.Length,code:laika.ast.Length,title:laika.ast.Length,header2:laika.ast.Length,header3:laika.ast.Length,header4:laika.ast.Length,small:laika.ast.Length):laika.helium.Helium"></a><a id="fontSizes(Length,Length,Length,Length,Length,Length,Length):Helium"></a>
       <span class="permalink">
@@ -655,6 +630,82 @@ in PDF output.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.helium.Helium.epub">epub</a> → CopyOps</dd></dl></div>
+    </li><li name="laika.helium.config.EPUBOps#inlineCSS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inlineCSS(content:String,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium"></a><a id="inlineCSS(String,(Document)⇒Boolean):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#inlineCSS(content:String,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inlineCSS</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="condition">condition: (<a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">_ =&gt; true</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Inserts inline style declarations into the HTML head.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts inline style declarations into the HTML head.</p><p>The <code>condition</code> attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
+    </li><li name="laika.helium.config.EPUBOps#inlineJS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inlineJS(content:String,isModule:Boolean,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium"></a><a id="inlineJS(String,Boolean,(Document)⇒Boolean):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#inlineJS(content:String,isModule:Boolean,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inlineJS</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="isModule">isModule: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="condition">condition: (<a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">_ =&gt; true</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Inserts inline scripts into the HTML head.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts inline scripts into the HTML head.</p><p>The <code>condition</code> attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
+    </li><li name="laika.helium.config.EPUBOps#internalCSS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="internalCSS(searchPath:laika.ast.Path,attributes:laika.theme.config.StyleAttributes,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium"></a><a id="internalCSS(Path,StyleAttributes,(Document)⇒Boolean):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#internalCSS(searchPath:laika.ast.Path,attributes:laika.theme.config.StyleAttributes,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalCSS</span><span class="params">(<span name="searchPath">searchPath: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="attributes">attributes: <a href="../theme/config/StyleAttributes.html" class="extype" name="laika.theme.config.StyleAttributes">StyleAttributes</a> = <span class="symbol"><span class="name"><a href="../index.html">StyleAttributes.defaults</a></span></span></span>, <span name="condition">condition: (<a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">_ =&gt; true</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Auto-links CSS documents from the specified path, which may point to a single CSS document
+or a directory.</p><div class="fullcomment"><div class="comment cmt"><p>Auto-links CSS documents from the specified path, which may point to a single CSS document
+or a directory.
+In case of a directory it will be searched recursively and all CSS files found within it
+will be linked in the HTML head.</p><p>The <code>condition</code> attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
+    </li><li name="laika.helium.config.EPUBOps#internalJS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="internalJS(searchPath:laika.ast.Path,attributes:laika.theme.config.ScriptAttributes,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium"></a><a id="internalJS(Path,ScriptAttributes,(Document)⇒Boolean):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#internalJS(searchPath:laika.ast.Path,attributes:laika.theme.config.ScriptAttributes,condition:laika.ast.Document=&gt;Boolean):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internalJS</span><span class="params">(<span name="searchPath">searchPath: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="attributes">attributes: <a href="../theme/config/ScriptAttributes.html" class="extype" name="laika.theme.config.ScriptAttributes">ScriptAttributes</a> = <span class="symbol"><span class="name"><a href="../index.html">ScriptAttributes.defaults</a></span></span></span>, <span name="condition">condition: (<a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">_ =&gt; true</span></span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Auto-links JavaScript documents from the specified path, which may point to a single JS document
+or a directory.</p><div class="fullcomment"><div class="comment cmt"><p>Auto-links JavaScript documents from the specified path, which may point to a single JS document
+or a directory.
+In case of a directory it will be searched recursively and all <code>*.js</code> files found within it
+will be linked in the HTML head.</p><p>The <code>condition</code> attribute can be used to only include the CSS when some user-defined predicates are satisfied.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -1031,7 +1082,45 @@ documents.
 
         <div class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="laika.helium.config.EPUBOps#autoLinkCSS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="autoLinkCSS(paths:laika.ast.Path*):laika.helium.Helium"></a><a id="autoLinkCSS(Path*):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#autoLinkCSS(paths:laika.ast.Path*):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.19.4) Use internalCSS">autoLinkCSS</span><span class="params">(<span name="paths">paths: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.19.4)</i> Use internalCSS</p></dd></dl></div>
+    </li><li name="laika.helium.config.EPUBOps#autoLinkJS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="autoLinkJS(paths:laika.ast.Path*):laika.helium.Helium"></a><a id="autoLinkJS(Path*):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$epub$.html#autoLinkJS(paths:laika.ast.Path*):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.19.4) Use internalJS">autoLinkJS</span><span class="params">(<span name="paths">paths: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>EPUBOps</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.19.4)</i> Use internalJS</p></dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
       <a href="../../laika/helium/Helium$epub$.html#finalize():Unit" title="Permalink">

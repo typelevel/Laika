@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  
   <script src="../helium/laika-helium.js"></script>
     <script src="../helium/laika-versions.js"></script>
+  
   <script>initVersions("../../", "/02-running-laika/01-sbt-plugin.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -150,7 +152,8 @@
     <li class="level2 nav-leaf"><a href="#including-epub-and-pdf">Including EPUB and PDF</a></li>
     <li class="level2 nav-leaf"><a href="#including-scaladoc">Including Scaladoc</a></li>
     <li class="level1 nav-leaf"><a href="#generating-individual-formats">Generating Individual Formats</a></li>
-    <li class="level1 nav-leaf"><a href="#using-the-preview-server">Using the Preview Server</a></li>
+    <li class="level1 nav-node"><a href="#using-the-preview-server">Using the Preview Server</a></li>
+    <li class="level2 nav-leaf"><a href="#preview-of-the-document-ast">Preview of the Document AST</a></li>
     <li class="level1 nav-node"><a href="#plugin-settings">Plugin Settings</a></li>
     <li class="level2 nav-leaf"><a href="#laikatheme-setting">laikaTheme Setting</a></li>
     <li class="level2 nav-leaf"><a href="#laikaconfig-setting">laikaConfig Setting</a></li>
@@ -180,7 +183,7 @@
         <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
         supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.19.3&quot;</span><span>)</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.planet42&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;0.19.4&quot;</span><span>)</span></code></pre>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
         
@@ -269,7 +272,17 @@
         for seeing changes while editing the Markdown sources. 
         IntelliJ, for example, only auto-saves when you run or compile an application or when you switch to a
         different application in the OS. 
-        You can either use <code>cmd-S</code> to manually force saving or change the preferences to auto-save in fixed time intervals. </p>
+        You can either use <code>cmd-S</code> to manually force saving or change the preferences to auto-save in fixed time intervals.</p>
+        
+        <h3 id="preview-of-the-document-ast" class="section"><a class="anchor-link left" href="#preview-of-the-document-ast"><i class="icofont-laika link">&#xef71;</i></a>Preview of the Document AST</h3>
+        <p>Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
+        Simply append the <code>/ast</code> path element to your URL, e.g. <code>localhost:4242/my-docs/intro.html/ast</code>. 
+        Note that this does not prevent you from using <code>/ast</code> as an actual path segment in your site,
+        the server will be able to distinguish those.</p>
+        <p>The AST shown is equivalent to the AST passed to the actual renderer after the final rewrite phase.
+        In case of writing custom render overrides it is the most accurate representation of the nodes you can match on.
+        When writing rewrite rules for earlier phases the actual nodes to match on might differ 
+        (e.g. directives and links might still be unresolved).</p>
         
         <h2 id="plugin-settings" class="section"><a class="anchor-link left" href="#plugin-settings"><i class="icofont-laika link">&#xef71;</i></a>Plugin Settings</h2>
         <p>The remaining configuration options are not specific to the plugin use case and merely mirror the features of the library API,

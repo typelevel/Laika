@@ -169,7 +169,10 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@nowarn</span><span class="args">()</span>
+              
+        </dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -453,38 +456,6 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.io.runtime.TreeResultBuilder#buildNode" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="buildNode(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.ParserResult]):laika.io.runtime.TreeResultBuilder.TreeResult"></a><a id="buildNode(Path,Seq[ParserResult]):TreeResult"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#buildNode(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.ParserResult]):laika.io.runtime.TreeResultBuilder.TreeResult" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">buildNode</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>]</span>)</span><span class="result">: <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a></span>
-      </span>
-      
-      
-    </li><li name="laika.io.runtime.TreeResultBuilder#buildTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="buildTree(results:Seq[laika.io.runtime.TreeResultBuilder.ParserResult],baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]"></a><a id="buildTree(Seq[ParserResult],Config,IncludeMap):Either[ConfigError,DocumentTreeRoot]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#buildTree(results:Seq[laika.io.runtime.TreeResultBuilder.ParserResult],baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">buildTree</span><span class="params">(<span name="results">results: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>]</span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -659,54 +630,6 @@
                 <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveConfig(result:laika.io.runtime.TreeResultBuilder.TreeResult,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap,titleDocName:Option[String]):Either[laika.config.ConfigError,laika.ast.DocumentTree]"></a><a id="resolveConfig(TreeResult,Config,IncludeMap,Option[String]):Either[ConfigError,DocumentTree]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(result:laika.io.runtime.TreeResultBuilder.TreeResult,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap,titleDocName:Option[String]):Either[laika.config.ConfigError,laika.ast.DocumentTree]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resolveConfig</span><span class="params">(<span name="result">result: <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>, <span name="titleDocName">titleDocName: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>]</span>
-      </span>
-      
-      
-    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="resolveConfig(Document,Config):Either[ConfigError,Document]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resolveConfig</span><span class="params">(<span name="doc">doc: <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
-      </span>
-      
-      
-    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveConfig(doc:laika.ast.UnresolvedDocument,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="resolveConfig(UnresolvedDocument,Config,IncludeMap):Either[ConfigError,Document]"></a>
-      <span class="permalink">
-      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(doc:laika.ast.UnresolvedDocument,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">resolveConfig</span><span class="params">(<span name="doc">doc: <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -815,7 +738,45 @@
 
         <div class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="laika.io.runtime.TreeResultBuilder#buildNode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="buildNode(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.ParserResult]):laika.io.runtime.TreeResultBuilder.TreeResult"></a><a id="buildNode(Path,Seq[ParserResult]):TreeResult"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#buildNode(path:laika.ast.Path,content:Seq[laika.io.runtime.TreeResultBuilder.ParserResult]):laika.io.runtime.TreeResultBuilder.TreeResult" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version internal API in version 1.x) 0.19.3">buildNode</span><span class="params">(<span name="path">path: <a href="../../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>]</span>)</span><span class="result">: <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version internal API in version 1.x)</i> 0.19.3</p></dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder#buildTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="buildTree(results:Seq[laika.io.runtime.TreeResultBuilder.ParserResult],baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]"></a><a id="buildTree(Seq[ParserResult],Config,IncludeMap):Either[ConfigError,DocumentTreeRoot]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#buildTree(results:Seq[laika.io.runtime.TreeResultBuilder.ParserResult],baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.DocumentTreeRoot]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version internal API in version 1.x) 0.19.3">buildTree</span><span class="params">(<span name="results">results: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeResultBuilder$$ParserResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.ParserResult">ParserResult</a>]</span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/DocumentTreeRoot.html" class="extype" name="laika.ast.DocumentTreeRoot">DocumentTreeRoot</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version internal API in version 1.x)</i> 0.19.3</p></dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
       <a href="../../../laika/io/runtime/TreeResultBuilder$.html#finalize():Unit" title="Permalink">
@@ -839,6 +800,63 @@
                 <span class="name">@Deprecated</span>
               
         </dd><dt>Deprecated</dt><dd class="cmt"></dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="resolveConfig(result:laika.io.runtime.TreeResultBuilder.TreeResult,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap,titleDocName:Option[String]):Either[laika.config.ConfigError,laika.ast.DocumentTree]"></a><a id="resolveConfig(TreeResult,Config,IncludeMap,Option[String]):Either[ConfigError,DocumentTree]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(result:laika.io.runtime.TreeResultBuilder.TreeResult,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap,titleDocName:Option[String]):Either[laika.config.ConfigError,laika.ast.DocumentTree]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version internal API in version 1.x) 0.19.3">resolveConfig</span><span class="params">(<span name="result">result: <a href="TreeResultBuilder$$TreeResult.html" class="extype" name="laika.io.runtime.TreeResultBuilder.TreeResult">TreeResult</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>, <span name="titleDocName">titleDocName: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version internal API in version 1.x)</i> 0.19.3</p></dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="resolveConfig(Document,Config):Either[ConfigError,Document]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(doc:laika.ast.Document,baseConfig:laika.config.Config):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version internal API in version 1.x) 0.19.3">resolveConfig</span><span class="params">(<span name="doc">doc: <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version internal API in version 1.x)</i> 0.19.3</p></dd></dl></div>
+    </li><li name="laika.io.runtime.TreeResultBuilder#resolveConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="resolveConfig(doc:laika.ast.UnresolvedDocument,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]"></a><a id="resolveConfig(UnresolvedDocument,Config,IncludeMap):Either[ConfigError,Document]"></a>
+      <span class="permalink">
+      <a href="../../../laika/io/runtime/TreeResultBuilder$.html#resolveConfig(doc:laika.ast.UnresolvedDocument,baseConfig:laika.config.Config,includes:laika.config.Config.IncludeMap):Either[laika.config.ConfigError,laika.ast.Document]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version internal API in version 1.x) 0.19.3">resolveConfig</span><span class="params">(<span name="doc">doc: <a href="../../ast/UnresolvedDocument.html" class="extype" name="laika.ast.UnresolvedDocument">UnresolvedDocument</a></span>, <span name="baseConfig">baseConfig: <a href="../../config/Config.html" class="extype" name="laika.config.Config">Config</a></span>, <span name="includes">includes: <a href="../../config/Config$.html#IncludeMap=Map[laika.parse.hocon.IncludeResource,Either[laika.config.ConfigError,laika.parse.hocon.ObjectBuilderValue]]" class="extmbr" name="laika.config.Config.IncludeMap">IncludeMap</a></span>)</span><span class="result">: <span class="extype" name="scala.Either">Either</span>[<a href="../../config/ConfigError.html" class="extype" name="laika.config.ConfigError">ConfigError</a>, <a href="../../ast/Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version internal API in version 1.x)</i> 0.19.3</p></dd></dl></div>
     </li></ol>
             </div>
         </div>

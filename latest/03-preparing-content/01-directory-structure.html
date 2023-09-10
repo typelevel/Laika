@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  
   <script src="../helium/laika-helium.js"></script>
     <script src="../helium/laika-versions.js"></script>
+  
   <script>initVersions("../../", "/03-preparing-content/01-directory-structure.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -388,8 +390,8 @@
         or does not support the same set of output formats as the referring document.</p>
         <p>In some cases this kind of strict validation may not be desired. 
         You may, for example, have an external process that populates a directory before or after Laika is run.
-        In this case you can disable validation for all link targets within that directory or its sub-directories:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika.validateLinks</span><span> = </span><span class="boolean-literal">false</span></code></pre>
+        In this case you can disable validation for all link targets within that directory or its subdirectories:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika.links.validation.excluded</span><span> = [</span><span class="string-literal">/generated</span><span>, </span><span class="string-literal">/styles</span><span>]</span></code></pre>
         
         <h2 id="versioned-documentation" class="section"><a class="anchor-link left" href="#versioned-documentation"><i class="icofont-laika link">&#xef71;</i></a>Versioned Documentation</h2>
         <p>Laika supports versioned documentation, where the current inputs are interpreted as belonging to one version only.

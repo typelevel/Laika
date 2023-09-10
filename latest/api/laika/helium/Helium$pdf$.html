@@ -286,6 +286,26 @@ or the <code>laikaTheme</code> sbt setting:</p><p>Example for sbt plugin:</p><pr
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.helium.config.CommonConfigOps#addFontResources" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addFontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium"></a><a id="addFontResources(FontDefinition*):Helium"></a>
+      <span class="permalink">
+      <a href="../../laika/helium/Helium$pdf$.html#addFontResources(defn:laika.theme.config.FontDefinition*):laika.helium.Helium" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addFontResources</span><span class="params">(<span name="defn">defn: <a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><div class="fullcomment"><div class="comment cmt"><p>Adds one or more font resources to the theme, either based on a local classpath or file system resource,
+or a web font URL, or both.</p><p>E-book formats like EPUB or PDF require a local font file to be available for embedding.
+A web font URL can only be used for website generation.</p><p>When using this method, all default fonts of the Helium theme will be de-registered.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>CommonConfigOps</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -497,11 +517,7 @@ For the code font a regular font weight is sufficient.
         <span class="name">fontResources</span><span class="params">(<span name="defn">defn: <a href="../theme/config/FontDefinition.html" class="extype" name="laika.theme.config.FontDefinition">FontDefinition</a>*</span>)</span><span class="result">: <a href="Helium.html" class="extype" name="laika.helium.Helium">Helium</a></span>
       </span>
       
-      <p class="shortcomment cmt">Adds one or more font resources to the theme, either based on a local classpath or file system resource,
-or a web font URL, or both.</p><div class="fullcomment"><div class="comment cmt"><p>Adds one or more font resources to the theme, either based on a local classpath or file system resource,
-or a web font URL, or both.</p><p>E-book formats like EPUB or PDF require a local font file to be available for embedding.
-A web font URL can only be used for website generation.</p><p>When using this method, all default fonts of the Helium theme will be de-registered.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>PDFOps → SingleConfigOps → CommonConfigOps</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PDFOps → SingleConfigOps → CommonConfigOps</dd></dl></div>
     </li><li name="laika.helium.config.SingleConfigOps#fontSizes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fontSizes(body:laika.ast.Length,code:laika.ast.Length,title:laika.ast.Length,header2:laika.ast.Length,header3:laika.ast.Length,header4:laika.ast.Length,small:laika.ast.Length):laika.helium.Helium"></a><a id="fontSizes(Length,Length,Length,Length,Length,Length,Length):Helium"></a>
       <span class="permalink">

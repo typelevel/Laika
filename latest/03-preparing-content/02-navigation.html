@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  
   <script src="../helium/laika-helium.js"></script>
     <script src="../helium/laika-versions.js"></script>
+  
   <script>initVersions("../../", "/03-preparing-content/02-navigation.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -217,30 +219,30 @@
           </ul>
           <div class="tab-content active" data-choice-name="sbt">
             <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.</span><span class="type-name">LinkConfig</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.</span><span class="type-name">LinkValidation</span><span>
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">excludeFromValidation</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))</span></code></pre>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkValidation</span><span>.</span><span class="type-name">Global</span><span>(</span><span class="identifier">excluded</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">markdown</span><span>.</span><span class="identifier">github</span><span>.</span><span class="type-name">GitHubFlavor</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.</span><span class="type-name">LinkConfig</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.</span><span class="type-name">LinkValidation</span><span>
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">excludeFromValidation</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkValidation</span><span>.</span><span class="type-name">Global</span><span>(</span><span class="identifier">excluded</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
-        <p>Alternatively, if preferred, you can also disable validation via the <code>directory.conf</code> file right within that 
-        directory:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika.validateLinks</span><span> = </span><span class="boolean-literal">false</span></code></pre>
-        <p>This disables validation for that directory and all its sub-directories.</p>
+        <p>This disables validation for the specified directories and all their subdirectories.</p>
+        <p>In the unusual case you want to disable all validation you can alternatively use
+        <code>LinkValidation.Off</code> or <code>LinkValidation.Local</code>, where the latter will still validate all links
+        pointing to sections within the same document, but not those pointing elsewhere.</p>
         
         <h2 id="global-link-definitions" class="section"><a class="anchor-link left" href="#global-link-definitions"><i class="icofont-laika link">&#xef71;</i></a>Global Link Definitions</h2>
         <p>Both supported markup formats support the use of link definitions in input files that can be referred to by
@@ -271,10 +273,10 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">TargetDefinition</span><span> }
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">targets</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addTargets</span><span>(
     </span><span class="type-name">TargetDefinition</span><span>(</span><span class="string-literal">&quot;Example 1&quot;</span><span>, </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">&quot;https://example1.com/&quot;</span><span>)),
     </span><span class="type-name">TargetDefinition</span><span>(</span><span class="string-literal">&quot;Example 2&quot;</span><span>, </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">&quot;https://example2.com/&quot;</span><span>))
-  )))</span></code></pre>
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
@@ -287,10 +289,10 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">targets</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addTargets</span><span>(
     </span><span class="type-name">TargetDefinition</span><span>(</span><span class="string-literal">&quot;Example 1&quot;</span><span>, </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">&quot;https://example1.com/&quot;</span><span>)),
     </span><span class="type-name">TargetDefinition</span><span>(</span><span class="string-literal">&quot;Example 2&quot;</span><span>, </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">&quot;https://example2.com/&quot;</span><span>))
-  )))
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
@@ -348,9 +350,9 @@
             <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">apiLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addApiLinks</span><span>(
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>)
-  )))</span></code></pre>
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
@@ -362,9 +364,9 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">apiLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addApiLinks</span><span>(
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>)
-  )))
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
@@ -379,10 +381,10 @@
             <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">apiLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addApiLinks</span><span>(
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>),
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://somewhere-else/&quot;</span><span>, </span><span class="identifier">packagePrefix</span><span> = </span><span class="string-literal">&quot;com.lib42&quot;</span><span>)
-  )))</span></code></pre>
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
@@ -394,10 +396,10 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">apiLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addApiLinks</span><span>(
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>),
     </span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://somewhere-else/&quot;</span><span>, </span><span class="identifier">packagePrefix</span><span> = </span><span class="string-literal">&quot;com.lib42&quot;</span><span>)
-  )))
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
@@ -417,9 +419,9 @@
             <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">sourceLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addSourceLinks</span><span>(
     </span><span class="type-name">SourceLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>)
-  )))</span></code></pre>
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
@@ -431,9 +433,9 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">sourceLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addSourceLinks</span><span>(
      </span><span class="type-name">SourceLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>)
-  )))
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
@@ -448,7 +450,7 @@
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">rewrite</span><span>.</span><span class="identifier">link</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">sourceLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addSourceLinks</span><span>(
     </span><span class="type-name">SourceLinks</span><span>(
       </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, 
       </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
@@ -458,7 +460,7 @@
       </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>, 
       </span><span class="identifier">packagePrefix</span><span> = </span><span class="string-literal">&quot;com.lib42&quot;</span><span>
     )
-  )))</span></code></pre>
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
             <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
@@ -470,7 +472,7 @@
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>(</span><span class="identifier">sourceLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>.</span><span class="identifier">addSourceLinks</span><span>(
     </span><span class="type-name">SourceLinks</span><span>(
       </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, 
       </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
@@ -480,7 +482,7 @@
       </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>, 
       </span><span class="identifier">packagePrefix</span><span> = </span><span class="string-literal">&quot;com.lib42&quot;</span><span>
     )
-  )))
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>

@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  
   <script src="../helium/laika-helium.js"></script>
     <script src="../helium/laika-versions.js"></script>
+  
   <script>initVersions("../../", "/07-reference/06-release-notes.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -144,6 +146,7 @@
   <p class="header"><a href="#">Release Notes</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#_0-19-4-sep-10-2023">0.19.4 (Sep 10, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-3-july-5-2023">0.19.3 (July 5, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-2-june-14-2023">0.19.2 (June 14, 2023)</a></li>
     <li class="level1 nav-leaf"><a href="#_0-19-1-april-29-2023">0.19.1 (April 29, 2023)</a></li>
@@ -181,6 +184,76 @@
       <main class="content">
 
         <h1 id="release-notes" class="title">Release Notes</h1>
+        
+        <h2 id="_0-19-4-sep-10-2023" class="section"><a class="anchor-link left" href="#_0-19-4-sep-10-2023"><i class="icofont-laika link">&#xef71;</i></a>0.19.4 (Sep 10, 2023)</h2>
+        <ul>
+          <li>
+            <p><strong>New support for mermaid diagrams in the Helium theme.</strong></p>
+            <p>Mermaid diagrams can now be included in standard fenced code blocks when using the default Helium theme.
+            The diagram colors will automatically adjust to the theme color configured for Helium.
+            This functionality is only available for HTML output, not EPUB or PDF.</p>
+          </li>
+          <li>
+            <p><strong>AST rendering in the preview server</strong></p>
+            <p>The preview server now support the rendering of the document AST for any page by adding the <code>/ast</code> path postfix.
+            This enables users to inspect the model in cases they want to write render overrides or rewrite rules and
+            are not sure what node types to match on.</p>
+          </li>
+          <li>
+            <p><strong>Better defaults &amp; new API for configuring link validation</strong></p>
+            <p>The defaults for link validation remain the same for plugin users, but are improved for API users
+            where validation was on by default even when parsing a single input string that has no access to the
+            surrounding directory, meaning that all validation was futile.
+            It also comes with new configuration types to overwrite the defaults.</p>
+          </li>
+          <li>
+            <p><strong>New options for including CSS &amp; JavaScript resources</strong></p>
+            <p>Previous support was limited in only supported local resources.
+            The new APIs support linking external or inline resources, setting common attributes like <code>defer</code>
+            and add support for conditional inclusion where the document AST or configuration can be inspected before
+            deciding on whether a resource should be included.</p>
+          </li>
+          <li>
+            <p><strong>Better &amp; safer AST builders</strong></p>
+            <p>Introduces <code>DocumentTree.builder</code> as a safer and more convenient way to construct an AST model.
+            The old <code>apply</code> entry point of the case class is deprecated. It was too low-level and error-prone
+            due to the way several aspects of the model inherit properties from parent which might be missed
+            with manual construction.</p>
+          </li>
+          <li>
+            <p><strong>Spec compliance</strong></p>
+          </li>
+        </ul>
+        <ul>
+          <li>Bullet lists in Markdown do no longer require a preceding blank line to be detected.
+          (enumerated lists remain unchanged to match the spec).</li>
+        </ul>
+        <ul>
+          <li>
+            <p>Support nested parenthesis in URLs</p>
+          </li>
+          <li>
+            <p>Bug fixes</p>
+            <ul>
+              <li>Fix CSS for code spans in navigation items which were invisible in some cases.</li>
+              <li>Properly support custom link text for link directives.</li>
+              <li>Introduce substitution variable <code>cursor.currentDocument.rawTitle</code> that prevents
+              the rendering of markup where not supported (e.g. in the <code>&lt;title&gt;</code> element).</li>
+            </ul>
+          </li>
+          <li>
+            <p>Deprecations</p>
+            <ul>
+              <li>introduces a small set of deprecations that will help with migrating to 1.0</li>
+            </ul>
+          </li>
+          <li>
+            <p>Dependencies</p>
+            <ul>
+              <li>cats-core 2.10.0, cats-effect 3.5.1, fs2 3.9.1, http4s 0.23.23</li>
+            </ul>
+          </li>
+        </ul>
         
         <h2 id="_0-19-3-july-5-2023" class="section"><a class="anchor-link left" href="#_0-19-3-july-5-2023"><i class="icofont-laika link">&#xef71;</i></a>0.19.3 (July 5, 2023)</h2>
         <ul>

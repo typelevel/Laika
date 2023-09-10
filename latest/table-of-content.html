@@ -23,8 +23,10 @@
   <link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
     <link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
     <link rel="stylesheet" type="text/css" href="css/manual.css" />
+  
   <script src="helium/laika-helium.js"></script>
     <script src="helium/laika-versions.js"></script>
+  
   <script>initVersions("../", "/table-of-content.html", "latest", "https://typelevel.org/Laika/");</script>
   
   <script> /* for avoiding page load transitions */ </script>
@@ -67,7 +69,7 @@
     
     <a class="icon-link glyph-link" href="downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>  
 
@@ -91,7 +93,7 @@
     
     <a class="icon-link glyph-link" href="downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
     
-    <a class="icon-link glyph-link" href="http://planet42.org"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a>
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
     
   </div>
 
@@ -171,7 +173,8 @@
           <li class="level4 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#including-epub-and-pdf">Including EPUB and PDF</a></li>
           <li class="level4 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#including-scaladoc">Including Scaladoc</a></li>
           <li class="level3 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#generating-individual-formats">Generating Individual Formats</a></li>
-          <li class="level3 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#using-the-preview-server">Using the Preview Server</a></li>
+          <li class="level3 toc nav-node"><a href="02-running-laika/01-sbt-plugin.html#using-the-preview-server">Using the Preview Server</a></li>
+          <li class="level4 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#preview-of-the-document-ast">Preview of the Document AST</a></li>
           <li class="level3 toc nav-node"><a href="02-running-laika/01-sbt-plugin.html#plugin-settings">Plugin Settings</a></li>
           <li class="level4 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#laikatheme-setting">laikaTheme Setting</a></li>
           <li class="level4 toc nav-leaf"><a href="02-running-laika/01-sbt-plugin.html#laikaconfig-setting">laikaConfig Setting</a></li>
@@ -196,7 +199,8 @@
           <li class="level3 toc nav-node"><a href="02-running-laika/02-library-api.html#configuration">Configuration</a></li>
           <li class="level4 toc nav-leaf"><a href="02-running-laika/02-library-api.html#theme-configuration">Theme Configuration</a></li>
           <li class="level4 toc nav-leaf"><a href="02-running-laika/02-library-api.html#other-settings">Other Settings</a></li>
-          <li class="level3 toc nav-leaf"><a href="02-running-laika/02-library-api.html#using-the-preview-server">Using the Preview Server</a></li>
+          <li class="level3 toc nav-node"><a href="02-running-laika/02-library-api.html#using-the-preview-server">Using the Preview Server</a></li>
+          <li class="level4 toc nav-leaf"><a href="02-running-laika/02-library-api.html#preview-of-the-document-ast">Preview of the Document AST</a></li>
           <li class="level2 toc nav-node"><a href="02-running-laika/03-configuration.html">Configuration</a></li>
           <li class="level3 toc nav-leaf"><a href="02-running-laika/03-configuration.html#theme-settings">Theme Settings</a></li>
           <li class="level3 toc nav-leaf"><a href="02-running-laika/03-configuration.html#navigation">Navigation</a></li>
@@ -267,7 +271,10 @@
           <li class="level3 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#download-page">Download Page</a></li>
           <li class="level3 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#website-landing-page">Website Landing Page</a></li>
           <li class="level3 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#cover-images-for-e-books">Cover Images for E-books</a></li>
-          <li class="level3 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a></li>
+          <li class="level3 toc nav-node"><a href="03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a></li>
+          <li class="level4 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#conditional-inclusions">Conditional Inclusions</a></li>
+          <li class="level4 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#setting-common-tag-attributes">Setting Common Tag Attributes</a></li>
+          <li class="level3 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#mermaid-diagrams">Mermaid Diagrams</a></li>
           <li class="level3 toc nav-node"><a href="03-preparing-content/03-theme-settings.html#custom-templates">Custom Templates</a></li>
           <li class="level4 toc nav-leaf"><a href="03-preparing-content/03-theme-settings.html#customizing-template-fragments">Customizing Template Fragments</a></li>
           <li class="level2 toc nav-node"><a href="03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
@@ -506,6 +513,7 @@
           <li class="level4 toc nav-leaf"><a href="07-reference/03-spec-compliance.html#implementing-a-custom-directive">Implementing a Custom Directive</a></li>
           <li class="level3 toc nav-leaf"><a href="07-reference/03-spec-compliance.html#hocon">HOCON</a></li>
           <li class="level2 toc nav-node"><a href="07-reference/06-release-notes.html">Release Notes</a></li>
+          <li class="level3 toc nav-leaf"><a href="07-reference/06-release-notes.html#_0-19-4-sep-10-2023">0.19.4 (Sep 10, 2023)</a></li>
           <li class="level3 toc nav-leaf"><a href="07-reference/06-release-notes.html#_0-19-3-july-5-2023">0.19.3 (July 5, 2023)</a></li>
           <li class="level3 toc nav-leaf"><a href="07-reference/06-release-notes.html#_0-19-2-june-14-2023">0.19.2 (June 14, 2023)</a></li>
           <li class="level3 toc nav-leaf"><a href="07-reference/06-release-notes.html#_0-19-1-april-29-2023">0.19.1 (April 29, 2023)</a></li>
