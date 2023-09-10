@@ -10,7 +10,7 @@ Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scal
 Latest Release
 --------------
 
-* The latest stable release is version **0.19.3**.
+* The latest stable release is version **0.19.4**.
 * The latest milestone release is version **1.0.0-M4**.
 
 The library is published to Maven Central for Scala 3, 2.13, 2.12 and supports cats-effect 3.x and Scala.js 1.x.  
@@ -26,18 +26,12 @@ Stable releases for 0.19 are still published under the `org.planet42` organizati
 while the 1.0 milestones are now published under `org.typelevel`:
 
 ```scala
-// for version 0.19.3:
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.3")
+// for version 0.19:
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.19.4")
 
-// for version 1.0.0-M2:
+// for version 1.0.0:
 addSbtPlugin("org.typelevel" % "laika-sbt" % "1.0.0-M4")
 ```
-
-In case you still need support for older versions of Scala, sbt or cats-effect, please use:
-* 0.17.1 for cats-effect 2.x
-* 0.10.0 for Scala 2.11
-* 0.7.0 for Scala 2.10 and sbt 0.13.x
-
 
 
 Features
@@ -76,17 +70,16 @@ Further Information
 
 * Read the [Manual].
 
-* Try out Laika with the [Demo App].
-
 * Browse the [API].
 
 * Create [Issues] for bug reports or enhancement requests.
 
-* Ask questions or share ideas in [Discussions].
- 
+* Ask questions or share ideas in [Discussions]  
+  or in the `#laika` channel of the [Typelevel Discord].
+
 
 [Manual]: https://typelevel.org/Laika/
-[Demo App]: http://planet42.org/
 [API]: https://typelevel.org/Laika/latest/api/laika/api/
 [Issues]: https://github.com/typelevel/Laika/issues
 [Discussions]: https://github.com/typelevel/Laika/discussions
+[Typelevel Discord]: https://discord.gg/XF3CXcMzqD
