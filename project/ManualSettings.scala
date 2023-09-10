@@ -80,7 +80,7 @@ object ManualSettings {
     val docsURL       = "https://typelevel.org/Laika/"
     val srcURL        = "https://github.com/typelevel/Laika"
     val docsSrcURL    = "https://github.com/typelevel/Laika/tree/main/docs/src"
-    val demoURL       = "http://planet42.org"
+    val chatURL       = "https://discord.gg/XF3CXcMzqD"
   }
 
   private object text {
@@ -155,7 +155,7 @@ object ManualSettings {
         IconLink.external(paths.srcURL, HeliumIcon.github),
         IconLink.internal(paths.api, HeliumIcon.api),
         IconLink.internal(paths.downloads, HeliumIcon.download),
-        IconLink.external(paths.demoURL, HeliumIcon.demo)
+        IconLink.external(paths.chatURL, HeliumIcon.chat)
       ),
       versionMenu = VersionMenu.create(
         "Version",
@@ -191,7 +191,7 @@ object ManualSettings {
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
-        TextLink.external(paths.demoURL, "Demo Application")
+        TextLink.external(paths.chatURL, "Typelevel Chat")
       ),
       teasers = text.teasers
     )
