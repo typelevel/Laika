@@ -27,13 +27,13 @@ import laika.factory.{
   TwoPhaseRenderFormat
 }
 import laika.io.model.{ BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot }
-import laika.render.TextFormatter
+import laika.render.Formatter
 import laika.theme.Theme
 
 object TestRenderResultProcessor
-    extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessorBuilder] {
+    extends TwoPhaseRenderFormat[Formatter, BinaryPostProcessorBuilder] {
 
-  val interimFormat: RenderFormat[TextFormatter] = AST
+  val interimFormat: RenderFormat[Formatter] = AST
 
   def prepareTree(tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 

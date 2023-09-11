@@ -17,19 +17,39 @@
 package laika.render
 
 import cats.data.NonEmptySet
-import laika.ast.{ InternalTarget, Styles, _ }
-import laika.render.FOFormatter._
+import laika.ast.*
 import laika.rst.ast.{ Line, LineBlock }
 
 /** Default renderer implementation for the XSL-FO output format.
   *
   * @author Jens Halm
   */
-private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
+private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
+
+  import laika.format.XSLFO.formatterSyntax.*
+  import FOFormatter.*
 
   private val formats: NonEmptySet[String] = NonEmptySet.of("pdf", "fo", "xslfo", "xsl-fo")
 
-  def apply(fmt: FOFormatter, element: Element): String = {
+  def apply(fmt: TagFormatter, element: Element): String = {
+
+    def rootElement: Element = fmt.parents.lastOption.getOrElse(fmt.currentElement)
+
+    def findFootnoteById(ref: String): Option[Footnote] = rootElement match {
+      case et: ElementTraversal =>
+        et.collect {
+          case f @ Footnote(_, _, Id(id)) if id == ref => f
+        }.headOption
+      case _                    => None
+    }
+
+    def findCitationById(ref: String): Option[Citation] = rootElement match {
+      case et: ElementTraversal =>
+        et.collect {
+          case c @ Citation(_, _, Id(id)) if id == ref => c
+        }.headOption
+      case _                    => None
+    }
 
     def noneIfDefault[T](actual: T, default: T): Option[String] =
       if (actual == default) None else Some(actual.toString)
@@ -67,7 +87,7 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
         )
 
       def enumLabel(format: EnumFormat, num: Int): String = {
-        import EnumType._
+        import EnumType.*
         val pos = format.enumType match {
           case Arabic     => num.toString
           case LowerAlpha => ('a' + num - 1).toChar.toString
@@ -83,9 +103,17 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
         case other           => Text(other.toString)
       }
 
-      def replaceSpanSequences(content: Seq[Block]): Seq[Block] = content map {
-        case sc: SpanSequence => Paragraph(sc.content, sc.options)
-        case other            => other
+      def listItemBody(body: ListItemBody): String = {
+        val content = body.content.map {
+          case sc: SpanSequence => Paragraph(sc.content, sc.options)
+          case other            => other
+        }
+        fmt.indentedElement(
+          "fo:list-item-body",
+          body,
+          content,
+          "start-indent" -> "body-start()"
+        )
       }
 
       con match {
@@ -103,14 +131,14 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ EnumListItem(content, format, num, _) =>
           fmt.listItem(e, List(Text(enumLabel(format, num))), content)
         case e @ DefinitionListItem(term, defn, _)     => fmt.listItem(e, term, defn)
-        case e @ ListItemBody(content, _) => fmt.listItemBody(e, replaceSpanSequences(content))
+        case e: ListItemBody                           => listItemBody(e)
 
         case e @ Figure(img, caption, legend, _) =>
           fmt.blockContainer(e, figureContent(img, caption, legend))
 
-        case e @ FootnoteBody(content, _) => fmt.indentedElement("fo:footnote-body", e, content)
-        case _: Footnote                  => "" // rendered in link position
-        case _: Citation                  => "" // rendered in link position
+        case e: FootnoteBody => fmt.indentedElement("fo:footnote-body", e)
+        case _: Footnote     => "" // rendered in link position
+        case _: Citation     => "" // rendered in link position
 
         case WithFallback(fallback) => fmt.child(fallback)
 
@@ -127,11 +155,23 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       }
     }
 
+    def internalLinkTarget(elem: Element): String = {
+      fmt.parents.head match {
+        case _: BlockContainer => fmt.emptyElement("fo:block", elem)
+        case _                 =>
+          val attributes = fmt.attributes("fo:inline", elem, Nil)
+          s"<fo:inline$attributes></fo:inline>"
+      }
+    }
+
     def renderLink(link: SpanLink): String = {
       fmt.pathTranslator.translate(link.target) match {
         case int: InternalTarget =>
-          fmt.internalLink(link, int.relativeTo(fmt.path).absolutePath, link.content)
-        case ext: ExternalTarget => fmt.externalLink(link, ext.url, link.content)
+          val target = int.relativeTo(fmt.path).absolutePath
+          val id     = FOFormatter.globalId(target, fmt.pathTranslator)
+          fmt.element("fo:basic-link", link, "internal-destination" -> id)
+        case ext: ExternalTarget =>
+          fmt.element("fo:basic-link", link, "external-destination" -> ext.url)
       }
     }
 
@@ -141,23 +181,22 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
 
       con match {
 
-        case Paragraph(Seq(img: Image), _)      =>
+        case Paragraph(Seq(img: Image), _) =>
           fmt.child(SpanSequence(Seq(img), Styles("align-center", "default-space")))
-        case e @ Paragraph(content, _)          => fmt.block(e, content)
-        case e @ ParsedLiteralBlock(content, _) => fmt.blockWithWS(e, content)
-        case e @ CodeBlock(lang, content, _, _) =>
-          fmt.blockWithWS(e.withStyles(codeStyles(lang).toSeq), content)
-        case e @ Header(level, content, _)      =>
-          fmt.block(e.mergeOptions(Style.level(level)), content, "keep-with-next" -> "always")
-        case e @ Title(content, _) => fmt.block(e, content, "keep-with-next" -> "always")
+        case e: Paragraph                  => fmt.block(e)
+        case e: ParsedLiteralBlock         => fmt.blockWithWS(e)
+        case e: CodeBlock                  =>
+          fmt.blockWithWS(e.withStyles(codeStyles(e.language).toSeq))
+        case e: Header                     =>
+          fmt.block(e.mergeOptions(Style.level(e.level)), "keep-with-next" -> "always")
+        case e: Title                      => fmt.block(e, "keep-with-next" -> "always")
 
-        case e @ Emphasized(content, _)       => fmt.inline(e, content)
-        case e @ Strong(content, _)           => fmt.inline(e, content)
-        case e @ Deleted(content, _)          => fmt.inline(e, content)
-        case e @ Inserted(content, _)         => fmt.inline(e, content)
-        case e @ InlineCode(lang, content, _) =>
-          fmt.inline(e.withStyles(codeStyles(lang).toSeq), content)
-        case e @ Line(content, _)             => fmt.block(e, content)
+        case e: Emphasized => fmt.inline(e)
+        case e: Strong     => fmt.inline(e)
+        case e: Deleted    => fmt.inline(e)
+        case e: Inserted   => fmt.inline(e)
+        case e: InlineCode => fmt.inline(e.withStyles(codeStyles(e.language).toSeq))
+        case e: Line       => fmt.block(e)
 
         case link: SpanLink => renderLink(link)
 
@@ -165,12 +204,10 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
         case SpanSequence(content, NoOpt)     => fmt.children(content)
         case CodeSpanSequence(content, NoOpt) => fmt.children(content)
 
-        case unknown: Block =>
-          fmt.block(
-            unknown,
-            unknown.content
-          ) // TODO - needs to be inline if parent is not a block container
-        case unknown        => fmt.inline(unknown, unknown.content)
+        // TODO - needs to be inline if parent is not a block container
+        case unknown: Block => fmt.block(unknown)
+
+        case unknown => fmt.inline(unknown)
       }
     }
 
@@ -178,35 +215,43 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       con match {
         case TemplateRoot(content, NoOpt)         => fmt.children(content)
         case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
-        case unknown                              => fmt.inline(unknown, unknown.content)
+        case unknown                              => fmt.inline(unknown)
       }
     }
 
     def renderListContainer(con: ListContainer): String = con match {
-      case e @ EnumList(content, _, _, _) => fmt.listBlock(e, content)
-      case e @ BulletList(content, _, _)  => fmt.listBlock(e, content)
-      case e @ DefinitionList(content, _) => fmt.listBlock(e, content)
-      case e: NavigationList              =>
-        if (e.hasStyle("bookmark")) fmt.bookmarkTree(e) else fmt.childPerLine(e.content)
+      case e: EnumList       => fmt.listBlock(e)
+      case e: BulletList     => fmt.listBlock(e)
+      case e: DefinitionList => fmt.listBlock(e)
+      case e: NavigationList =>
+        if (e.hasStyle("bookmark")) renderBookmarkTree(e) else fmt.childPerLine(e.content)
 
       case WithFallback(fallback) => fmt.child(fallback)
-      case unknown                => fmt.listBlock(unknown, unknown.content)
+      case unknown                => fmt.listBlock(unknown)
     }
 
+    def preserveWhitespace(content: String): String = fmt.withoutIndentation(_.text(content))
+
     def renderTextContainer(con: TextContainer): String = con match {
-      case e @ Text(content, _)                 => fmt.text(e, content)
-      case e @ TemplateString(content, _)       => fmt.rawText(e, content)
-      case e @ RawContent(f, content, _)        =>
-        if (f.intersect(formats).nonEmpty) fmt.rawText(e, content) else ""
+      case e: Text                        => fmt.optRawElement("fo:inline", e, fmt.text(e.content))
+      case e @ TemplateString(content, _) => fmt.optRawElement("fo:inline", e, content)
+      case e @ RawContent(f, content, _)  =>
+        if (f.intersect(formats).nonEmpty) fmt.optRawElement("fo:inline", e, content) else ""
       case e @ CodeSpan(content, categories, _) =>
-        fmt.textWithWS(e.withStyles(categories.map(_.name)), content)
-      case e @ Literal(content, _)              => fmt.textWithWS(e, content)
-      case e @ LiteralBlock(content, _)         => fmt.textBlockWithWS(e, content)
-      case e: BookmarkTitle                     => fmt.bookmarkTitle(e)
+        fmt.optRawElement(
+          "fo:inline",
+          e.withStyles(categories.map(_.name)),
+          preserveWhitespace(content)
+        )
+      case e @ Literal(content, _)              =>
+        fmt.optRawElement("fo:inline", e, preserveWhitespace(content))
+      case e @ LiteralBlock(content, _)         =>
+        fmt.optRawElement("fo:block", e, preserveWhitespace(content))
+      case e: BookmarkTitle                     => renderBookmarkTitle(e)
       case Comment(content, _)                  => fmt.comment(content)
 
       case WithFallback(fallback) => fmt.child(fallback)
-      case unknown                => fmt.text(unknown, unknown.content)
+      case unknown                => fmt.optRawElement("fo:inline", unknown, unknown.content)
     }
 
     def renderChoices(choices: Seq[Choice], options: Options): String = {
@@ -216,19 +261,26 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       fmt.child(BlockSequence(content, options))
     }
 
+    def renderListItemLabel(label: ListItemLabel): String =
+      fmt.indentedElement(
+        "fo:list-item-label",
+        label,
+        Seq(label.content),
+        "end-indent" -> "label-end()"
+      )
+
     def renderSimpleBlock(block: Block): String = block match {
-      case e: ContentWrapper                                      => renderContentWrapper(e)
-      case e: Preamble                                            => renderPreamble(e)
-      case e @ ListItemLabel(content, _)                          => fmt.listItemLabel(e, content)
-      case e: Rule                                                =>
-        fmt.rawElement(
-          "fo:block",
-          BlockSequence.empty.withOptions(e.options + Styles("rule-block")),
-          fmt.textElement("fo:leader", e, "", "leader-pattern" -> "rule")
-        )
+      case e: ContentWrapper => renderContentWrapper(e)
+      case e: Preamble       => renderPreamble(e)
+      case e: ListItemLabel  => renderListItemLabel(e)
+      case e: Rule           =>
+        val attributes = fmt.attributes("fo:leader", e, Seq("leader-pattern" -> "rule"))
+        val styleHints = BlockSequence.empty.withOptions(e.options + Styles("rule-block"))
+        fmt.rawElement("fo:block", styleHints, s"<fo:leader$attributes></fo:leader>")
+
       case Selection(_, choices, opt)                             => renderChoices(choices, opt)
-      case e: InternalLinkTarget                                  => fmt.internalLinkTarget(e)
-      case e: PageBreak                                           => fmt.block(e)
+      case e: InternalLinkTarget                                  => internalLinkTarget(e)
+      case e: PageBreak                                           => fmt.emptyElement("fo:block", e)
       case e @ LineBlock(content, _)                              => fmt.blockContainer(e, content)
       case TargetFormat(f, e, _) if f.intersect(formats).nonEmpty => fmt.child(e)
 
@@ -238,7 +290,8 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
 
     def renderTarget(target: Target): String = fmt.pathTranslator.translate(target) match {
       case ext: ExternalTarget => ext.url
-      case int: InternalTarget => fmt.buildId(int.relativeTo(fmt.path).absolutePath)
+      case int: InternalTarget =>
+        FOFormatter.globalId(int.relativeTo(fmt.path).absolutePath, fmt.pathTranslator)
     }
 
     def renderIcon(icon: Icon): String = icon match {
@@ -259,11 +312,33 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       case _                   => ""
     }
 
+    def renderFootnote(
+        styleHint: Element,
+        label: String,
+        body: Seq[Block],
+        options: Options
+    ): String = {
+      val labelElement = Text(s"[$label]", Style.footnoteLabel)
+      val bodyElements = body match {
+        case Paragraph(spans, opts) +: rest =>
+          Paragraph(labelElement +: Text(" ") +: spans, opts) +: rest
+        case _                              => Paragraph(labelElement) +: body
+      }
+      val content      = List(labelElement, FootnoteBody(bodyElements, options))
+      fmt.indentedElement("fo:footnote", styleHint, content)
+    }
+
+    def withFootnote(ref: String)(f: Footnote => String): String =
+      findFootnoteById(ref).fold("")(f)
+
+    def withCitation(ref: String)(f: Citation => String): String =
+      findCitationById(ref).fold("")(f)
+
     def renderSimpleSpan(span: Span): String = span match {
       case e @ CitationLink(ref, label, _)  =>
-        fmt.withCitation(ref)(c => fmt.footnote(e, label, c.content, c.options))
+        withCitation(ref)(c => renderFootnote(e, label, c.content, c.options))
       case e @ FootnoteLink(ref, label, _)  =>
-        fmt.withFootnote(ref)(f => fmt.footnote(e, label, f.content, f.options))
+        withFootnote(ref)(f => renderFootnote(e, label, f.content, f.options))
       case RawLink(target, _)               => renderTarget(target)
       case SectionNumber(pos, opt)          =>
         fmt.child(Text(pos.mkString(".") + " ", opt + Style.sectionNumber))
@@ -272,25 +347,20 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
           case it: InternalTarget => it.relativeTo(fmt.path).absolutePath.toString
           case et: ExternalTarget => et.url
         }
-        fmt.externalGraphic(
-          e,
-          uri,
-          None,
-          None
-        ) // ignore intrinsic size and rely on styles for sizing
+        // ignore intrinsic size and rely on styles for sizing
+        fmt.emptyElement("fo:external-graphic", e, "src" -> uri)
       case icon: Icon                       => renderIcon(icon)
       case e: Leader                        =>
         fmt.textElement(
           "fo:leader",
-          e,
-          "",
+          Text("").withOptions(e.options),
           "leader-pattern" -> "dots",
           "padding-left"   -> "2mm",
           "padding-right"  -> "2mm"
         )
       case PageNumberCitation(target, _)    =>
         s"""<fo:page-number-citation ref-id="${
-            fmt.buildId(target.relativeTo(fmt.path).absolutePath)
+            FOFormatter.globalId(target.relativeTo(fmt.path).absolutePath, fmt.pathTranslator)
           }" />"""
       case LineBreak(_)                     => "&#x2028;"
       case TemplateElement(elem, indent, _) => fmt.withMinIndentation(indent)(_.child(elem))
@@ -304,17 +374,16 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     def renderTableElement(elem: TableElement): String = elem match {
-      case e @ TableHead(rows, _) => fmt.indentedElement("fo:table-header", e, rows)
+      case e: TableHead           => fmt.indentedElement("fo:table-header", e)
       case e @ TableBody(rows, _) => fmt.indentedElement("fo:table-body", e, addRowStyles(rows))
       case Caption(_, _)          => "" // replaced by Table renderer
       case Columns(_, _)          => "" // replaced by Table renderer
       case e: Column              => fmt.emptyElement("fo:table-column", e)
-      case e @ Row(cells, _)      => fmt.indentedElement("fo:table-row", e, cells)
-      case e @ Cell(_, content, colspan, rowspan, _) =>
+      case e: Row                 => fmt.indentedElement("fo:table-row", e)
+      case e @ Cell(_, _, colspan, rowspan, _) =>
         fmt.indentedElement(
           "fo:table-cell",
           e,
-          content,
           fmt.optAttributes(
             "number-columns-spanned" -> noneIfDefault(colspan, 1),
             "number-rows-spanned"    -> noneIfDefault(rowspan, 1)
@@ -333,7 +402,7 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
       }
 
       elem match {
-        case l: NavigationItem if l.hasStyle("bookmark")  => fmt.bookmark(l)
+        case l: NavigationItem if l.hasStyle("bookmark")  => renderBookmark(l)
         case NavigationItem(
               title,
               content,
@@ -368,7 +437,11 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
 
     def renderRuntimeMessage(message: RuntimeMessage): String = {
       fmt.forMessage(message) {
-        fmt.text(message.withStyle(message.level.toString.toLowerCase), message.content)
+        fmt.optRawElement(
+          "fo:inline",
+          message.withStyle(message.level.toString.toLowerCase),
+          message.content
+        )
       }
     }
 
@@ -380,11 +453,37 @@ private[laika] object FORenderer extends ((FOFormatter, Element) => String) {
     def renderPreamble(p: Preamble): String = {
       s"""
          |
-         |<fo:block id="${fmt.buildId(fmt.path)}" page-break-before="always">
+         |<fo:block id="${
+          FOFormatter.globalId(fmt.path, fmt.pathTranslator)
+        }" page-break-before="always">
          |  <fo:marker marker-class-name="chapter"><fo:block>${
           fmt.text(p.title)
         }</fo:block></fo:marker>
          |</fo:block>""".stripMargin
+    }
+
+    def renderBookmarkTitle(title: BookmarkTitle): String =
+      fmt.textElement("fo:bookmark-title", title)
+
+    def renderBookmarkTree(tree: NavigationList): String =
+      fmt.indentedElement("fo:bookmark-tree", tree)
+
+    def renderBookmark(bookmark: NavigationItem): String = {
+      def internalTarget(link: NavigationLink): Option[Path] = link.target match {
+        case it: InternalTarget => Some(it.relativeTo(fmt.path).absolutePath)
+        case _                  => None
+      }
+
+      val target = bookmark.link.orElse(bookmark.firstChildLink).flatMap(internalTarget)
+      target.fold("") { targetPath =>
+        val content = BookmarkTitle(bookmark.title.extractText) +: bookmark.content
+        fmt.indentedElement(
+          "fo:bookmark",
+          bookmark,
+          content,
+          "internal-destination" -> globalId(targetPath, fmt.pathTranslator)
+        )
+      }
     }
 
     element match {

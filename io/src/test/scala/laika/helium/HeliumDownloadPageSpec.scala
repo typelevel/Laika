@@ -27,7 +27,7 @@ import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
 import laika.io.model.StringTreeOutput
-import laika.render.HTMLFormatter
+import laika.render.TagFormatter
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.theme.*
 import munit.CatsEffectSuite
@@ -35,7 +35,7 @@ import munit.CatsEffectSuite
 class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with StringOps {
 
-  type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
+  type ConfigureTransformer = TransformerBuilder[TagFormatter] => TransformerBuilder[TagFormatter]
 
   def transformer(
       theme: ThemeProvider,

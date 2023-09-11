@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,118 +18,35 @@ package laika.render
 
 import laika.ast.*
 import laika.factory.RenderContext
-import laika.rewrite.nav.PathTranslator
 
-/** API for renderers that produce HTML output.
-  *
-  * @param renderChild the function to use for rendering child elements
-  * @param currentElement the active element currently being rendered
-  * @param parents the stack of parent elements of this formatter in recursive rendering,
-  *                with the root element being the last in the list
-  * @param pathTranslator translates paths of input documents to the corresponding output path
-  * @param path the virtual (translated) path of the document getting rendered
-  * @param indentation the indentation mechanism for this formatter
-  * @param messageFilter the filter to apply before rendering runtime messages
-  *
-  * @author Jens Halm
-  */
-class HTMLFormatter private[render] (
-    renderChild: (HTMLFormatter, Element) => String,
-    currentElement: Element,
-    parents: List[Element],
-    val pathTranslator: PathTranslator,
-    val path: Path,
-    indentation: Indentation,
-    messageFilter: MessageFilter,
-    closeEmptyTags: Boolean
-) extends TagFormatter[HTMLFormatter](
-      renderChild,
-      currentElement,
-      indentation,
-      messageFilter
-    ) {
+private[laika] class HTMLFormatter(
+    closeEmptyTags: Boolean,
+    protected val context: RenderContext[TagFormatter]
+) extends TagFormatter {
+
+  protected def withChild(element: Element): Rep =
+    new HTMLFormatter(closeEmptyTags, context.forChildElement(element))
+
+  protected def withIndentation(newIndentation: Formatter.Indentation): Rep = new HTMLFormatter(
+    closeEmptyTags,
+    context.withIndentation(newIndentation)
+  )
 
   private val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
 
-  type StyleHint = Options
-
-  protected def withChild(element: Element): HTMLFormatter =
-    new HTMLFormatter(
-      renderChild,
-      element,
-      currentElement :: parents,
-      pathTranslator,
-      path,
-      indentation,
-      messageFilter,
-      closeEmptyTags
-    )
-
-  protected def withIndentation(newIndentation: Indentation): HTMLFormatter =
-    new HTMLFormatter(
-      renderChild,
-      currentElement,
-      parents,
-      pathTranslator,
-      path,
-      newIndentation,
-      messageFilter,
-      closeEmptyTags
-    )
-
-  def attributes(tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String = {
-    val id     = styleHint.id.map("id" -> _).toSeq
+  def attributes(tag: String, styleHint: Element, attrs: Seq[(String, String)]): String = {
+    val id     = styleHint.options.id.map("id" -> _).toSeq
     val styles =
-      if (styleHint.styles.isEmpty) Nil else Seq("class" -> styleHint.styles.mkString(" "))
-    attributes(id ++ styles ++ attrs)
+      if (styleHint.options.styles.isEmpty) Nil
+      else Seq("class" -> styleHint.options.styles.mkString(" "))
+    attributes((id ++ styles ++ attrs) *)
   }
 
   override def emptyElement(
       tagName: String,
-      styleHint: StyleHint,
+      styleHint: Element,
       attrs: (String, String)*
   ): String =
     s"<$tagName${attributes(tagName, styleHint, attrs)}$emptyTagClosingChar>"
-
-  override def emptyElement(tagName: String): String = s"<$tagName$emptyTagClosingChar>"
-
-}
-
-/** Default factory for HTMLFormatters, based on a provided RenderContext.
-  */
-object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
-
-  def apply(context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    new HTMLFormatter(
-      context.renderChild,
-      context.root,
-      Nil,
-      context.pathTranslator,
-      context.path,
-      context.indentation,
-      context.config.renderMessages,
-      closeEmptyTags = false
-    )
-
-}
-
-/** Default factory for XHTMLFormatters, based on a provided RenderContext.
-  * It differs from an standard HTMLFormatter solely in that it close empty
-  * tags. Therefore it offers the same API and shares the type `HTMLFormatter`
-  * so that shared custom renderers can be built for HTML and XHTML.
-  */
-object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
-
-  def apply(context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    new HTMLFormatter(
-      context.renderChild,
-      context.root,
-      Nil,
-      context.pathTranslator,
-      context.path,
-      context.indentation,
-      context.config.renderMessages,
-      closeEmptyTags = true
-    )
 
 }

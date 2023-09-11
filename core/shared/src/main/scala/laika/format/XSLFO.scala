@@ -34,14 +34,19 @@ import laika.render._
   *
   *  @author Jens Halm
   */
-object XSLFO extends RenderFormat[FOFormatter] {
+object XSLFO extends RenderFormat[TagFormatter] {
 
   override val description: String = "XSL-FO"
 
   val fileSuffix = "fo"
 
-  val defaultRenderer: (FOFormatter, Element) => String = FORenderer
+  val defaultRenderer: (TagFormatter, Element) => String = FORenderer
 
-  val formatterFactory: RenderContext[FOFormatter] => FOFormatter = FOFormatter
+  val formatterFactory: RenderContext[TagFormatter] => TagFormatter = FOFormatter
+
+  /** Expands the `TagFormatter` API with convenient shortcuts
+    * specifically tailored for rendering XSL-FO elements.
+    */
+  object formatterSyntax extends FOFormatter.FormatterSyntax
 
 }

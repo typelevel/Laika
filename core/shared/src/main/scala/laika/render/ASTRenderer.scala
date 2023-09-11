@@ -16,13 +16,13 @@
 
 package laika.render
 
-import laika.ast._
+import laika.ast.*
 
 /** Default renderer implementation for the Formatted AST output format.
   *
   * @author Jens Halm
   */
-private[laika] object ASTRenderer extends ((TextFormatter, Element) => String) {
+private[laika] object ASTRenderer extends ((Formatter, Element) => String) {
 
   /**  The maximum width of a single text element.
     *  For any text that exceeds this limit only the beginning
@@ -39,7 +39,7 @@ private[laika] object ASTRenderer extends ((TextFormatter, Element) => String) {
     def withOptions(options: Options): Content = copy(options = options)
   }
 
-  def apply(fmt: TextFormatter, element: Element): String = {
+  def apply(fmt: Formatter, element: Element): String = {
 
     object NoRef
 

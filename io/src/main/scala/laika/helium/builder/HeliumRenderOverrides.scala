@@ -17,9 +17,10 @@
 package laika.helium.builder
 
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast._
+import laika.ast.*
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
-import laika.render.{ FOFormatter, HTMLFormatter }
+import laika.format.XSLFO.formatterSyntax.*
+import laika.render.TagFormatter
 
 /** @author Jens Halm
   */
@@ -35,13 +36,15 @@ private[helium] object HeliumRenderOverrides {
     def withOptions(options: Options): Tab = copy(options = options)
   }
 
-  case class TabContent(name: String, content: Seq[Block], options: Options = NoOpt) extends Block {
+  case class TabContent(name: String, content: Seq[Block], options: Options = NoOpt) extends Block
+      with BlockContainer {
     type Self = TabContent
-    def withOptions(options: Options): TabContent = copy(options = options)
+    def withOptions(options: Options): TabContent       = copy(options = options)
+    def withContent(newContent: Seq[Block]): TabContent = copy(content = newContent)
   }
 
   def renderChoices(
-      fmt: HTMLFormatter,
+      fmt: TagFormatter,
       name: String,
       choices: List[Choice],
       options: Options
@@ -49,18 +52,15 @@ private[helium] object HeliumRenderOverrides {
     choices match {
       case Nil           => ""
       case first :: rest =>
-        val tabs    = Tabs(
+        val tabs       = Tabs(
           Tab(first.name, first.label, Style.active) +: rest.map(c => Tab(c.name, c.label))
         )
-        val content = TabContent(first.name, first.content, Style.active) +: rest.map(c =>
+        val content    = TabContent(first.name, first.content, Style.active) +: rest.map(c =>
           TabContent(c.name, c.content)
         )
-        fmt.indentedElement(
-          "div",
-          options + Styles("tab-container"),
-          tabs +: content,
-          "data-tab-group" -> name
-        )
+        val allContent = BlockSequence(tabs +: content)
+          .withOptions(options + Styles("tab-container"))
+        fmt.indentedElement("div", allContent, "data-tab-group" -> name)
     }
   }
 
@@ -73,32 +73,34 @@ private[helium] object HeliumRenderOverrides {
     case _               => None
   }
 
-  def renderCallout(fmt: HTMLFormatter, opt: Options, content: Seq[Block]): String =
-    fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
+  def renderCallout(fmt: TagFormatter, opt: Options, content: Seq[Block]): String = {
+    val callout = icon(opt).map(SpanSequence(_)).toSeq ++ content
+    fmt.indentedElement("div", BlockSequence(callout).withOptions(opt))
+  }
 
   def htmlCalloutOptions(b: BlockSequence): Options =
     Options(b.options.id, b.options.styles - "pdf" - "epub" - "keep-together")
 
   def forHTML(
       anchorPlacement: AnchorPlacement
-  ): PartialFunction[(HTMLFormatter, Element), String] = {
-    case (fmt, Header(level, content, opt)) =>
-      def link(style: String) = opt.id.map(id =>
+  ): PartialFunction[(TagFormatter, Element), String] = {
+    case (fmt, h: Header) =>
+      def link(style: String) = h.options.id.map(id =>
         SpanLink.internal(CurrentDocument(id))(HeliumIcon.link).withOptions(
           Styles("anchor-link", style)
         )
       )
       val linkedContent       = anchorPlacement match {
-        case AnchorPlacement.None  => content
-        case AnchorPlacement.Left  => link("left").toSeq ++ content
-        case AnchorPlacement.Right => content ++ link("right").toSeq
+        case AnchorPlacement.None  => h.content
+        case AnchorPlacement.Left  => link("left").toSeq ++ h.content
+        case AnchorPlacement.Right => h.content ++ link("right").toSeq
       }
-      fmt.newLine + fmt.element("h" + level.toString, opt, linkedContent)
+      fmt.newLine + fmt.element("h" + h.level.toString, h.withContent(linkedContent))
 
     case (fmt, InvalidSpan(msg, _, fallback, opt)) =>
-      fmt.forMessage(msg)(
-        fmt.element("span", opt + Styles("inline", msg.level.toString), Seq(msg, fallback))
-      )
+      val content = SpanSequence(msg, fallback)
+        .withOptions(opt + Styles("inline", msg.level.toString))
+      fmt.forMessage(msg)(fmt.element("span", content))
 
     case (fmt, InvalidBlock(msg, _, fallback, opt)) =>
       fmt.forMessage(msg)(
@@ -112,27 +114,29 @@ private[helium] object HeliumRenderOverrides {
     case (fmt, b: BlockSequence) if b.hasStyle("callout")      =>
       renderCallout(fmt, htmlCalloutOptions(b), b.content)
     case (fmt, b: BlockSequence) if b.hasStyle("menu-content") =>
-      fmt.indentedElement("nav", b.options, b.content)
+      fmt.indentedElement("nav", b)
     case (fmt, Selection(name, choices, opt)) => renderChoices(fmt, name, choices.toList, opt)
 
-    case (fmt, tabs: Tabs)      => fmt.indentedElement("ul", Styles("tab-group"), tabs.tabs)
+    case (fmt, tabs: Tabs)      =>
+      fmt.indentedElement("ul", SpanSequence(tabs.tabs).withStyle("tab-group"))
     case (fmt, tab: TabContent) =>
       fmt.indentedElement(
         "div",
-        Styles("tab-content") + tab.options,
-        tab.content,
+        tab.withOptions(Styles("tab-content") + tab.options),
         "data-choice-name" -> tab.name
       )
     case (fmt, tab: Tab)        =>
-      val link = SpanLink.internal(CurrentDocument())(tab.label)
-      fmt.element("li", Styles("tab") + tab.options, Seq(link), "data-choice-name" -> tab.name)
+      val link    = SpanLink.internal(CurrentDocument())(tab.label)
+      val content = SpanSequence(link).withOptions(Styles("tab") + tab.options)
+      fmt.element("li", content, "data-choice-name" -> tab.name)
+
     case (fmt, CodeBlock("mermaid", content, _, _)) =>
       fmt.withoutIndentation(
-        _.element("pre", Styles("mermaid"), content)
+        _.element("pre", SpanSequence(content).withStyle("mermaid"))
       )
   }
 
-  def forPDF: PartialFunction[(FOFormatter, Element), String] = {
+  def forPDF: PartialFunction[(TagFormatter, Element), String] = {
     case (fmt, b @ BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.blockContainer(b, SpanSequence(icon(opt).toSeq, Styles("icon")) +: content)
     case (fmt, CodeBlock("mermaid", _, _, _))                                     =>
@@ -141,9 +145,10 @@ private[helium] object HeliumRenderOverrides {
       )
   }
 
-  def forEPUB: PartialFunction[(HTMLFormatter, Element), String] = {
+  def forEPUB: PartialFunction[(TagFormatter, Element), String] = {
     case (fmt, BlockSequence(content, opt)) if opt.styles.contains("callout") =>
-      fmt.indentedElement("div", opt, icon(opt).toSeq ++ content)
+      val callout = icon(opt).map(SpanSequence(_)).toSeq ++ content
+      fmt.indentedElement("div", BlockSequence(callout).withOptions(opt))
     case (fmt, CodeBlock("mermaid", _, _, _))                                 =>
       fmt.child(
         RuntimeMessage(MessageLevel.Warning, "Mermaid diagrams are not supported for EPUB output")

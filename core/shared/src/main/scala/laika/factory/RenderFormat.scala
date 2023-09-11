@@ -16,34 +16,57 @@
 
 package laika.factory
 
-import laika.api.builder.RenderConfig
-import laika.ast.{ Element, Path, StyleDeclarationSet }
+import laika.ast.{ Element, MessageFilter, Path, StyleDeclarationSet }
 import laika.bundle.RenderOverrides
-import laika.render.Indentation
+import laika.render.Formatter
 import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.
   *
   * @param renderChild a render function to use for rendering the children of an element
-  * @param root the root element the new renderer will be used for
+  * @param currentElement the element currently being rendered
+  * @param parents the stack of parent elements of this formatter in recursive rendering,
+  *                with the root element being the last in the list
   * @param styles the styles the new renderer should apply to the rendered elements
   * @param path the (virtual) path the output will be rendered to
   * @param pathTranslator translates paths of input documents to the corresponding output path
-  * @param config additional configuration for the renderer
+  * @param indentation the indentation mechanism to use for rendering
+  * @param messageFilter the filter to apply before rendering runtime messages
   */
 class RenderContext[FMT] private[laika] (
     val renderChild: (FMT, Element) => String,
-    val root: Element,
+    val currentElement: Element,
+    val parents: List[Element],
     val styles: StyleDeclarationSet,
     val path: Path,
     val pathTranslator: PathTranslator,
-    val config: RenderConfig
+    val indentation: Formatter.Indentation,
+    val messageFilter: MessageFilter
 ) {
 
-  /** The indentation mechanism to use for rendering.
-    */
-  val indentation: Indentation =
-    if (config.renderFormatted) Indentation.default else Indentation.none
+  def forChildElement(child: Element): RenderContext[FMT] =
+    new RenderContext[FMT](
+      renderChild,
+      child,
+      currentElement :: parents,
+      styles,
+      path,
+      pathTranslator,
+      indentation,
+      messageFilter
+    )
+
+  def withIndentation(newValue: Formatter.Indentation): RenderContext[FMT] =
+    new RenderContext[FMT](
+      renderChild,
+      currentElement,
+      parents,
+      styles,
+      path,
+      pathTranslator,
+      newValue,
+      messageFilter
+    )
 
 }
 
