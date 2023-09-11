@@ -97,27 +97,32 @@ private[preview] class SiteTransformer[F[_]: Async](
       }
   }
 
-  private def buildLazyMap(
-      htmlMap: ResultMap[F],
-      delegate: F[ResultMap[F]]
-  ): ResultMap[F] = {
-    htmlMap.keySet
-      .map(ASTPageTransformer.ASTPathTranslator.translateASTPath)
-      .map { astPath =>
-        val result = LazyResult(delegate.map(_.get(astPath)))
-        (astPath, result: SiteResult[F])
-      }
-      .toMap
+  private def transformASTLazily(tree: ParsedTree[F], html: ResultMap[F]): F[ResultMap[F]] = {
+
+    val transformer = for {
+      modifiedRoot <- Async[F].delay(
+        tree.modifyRoot(ASTPageTransformer.transform(_, parser.config))
+      )
+      resultMap    <- transformHTML(modifiedRoot, astRenderer)
+    } yield resultMap
+
+    def buildLazyMap(delegate: F[ResultMap[F]]): ResultMap[F] = {
+      html.keySet
+        .map(ASTPageTransformer.ASTPathTranslator.translateASTPath)
+        .map { astPath =>
+          val result = LazyResult(delegate.map(_.get(astPath)))
+          (astPath, result: SiteResult[F])
+        }
+        .toMap
+    }
+
+    transformer.memoize.map(buildLazyMap)
   }
 
   val transform: F[SiteResults[F]] = for {
-    tree    <- parse
-    html    <- transformHTML(tree, htmlRenderer)
-    lazyAST <- transformHTML(
-      tree.modifyRoot(ASTPageTransformer.transform(_, parser.config)),
-      astRenderer
-    ).memoize
-    ast = buildLazyMap(html, lazyAST)
+    tree   <- parse
+    html   <- transformHTML(tree, htmlRenderer)
+    ast    <- transformASTLazily(tree, html)
     ebooks <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
   } yield {
     new SiteResults(staticFiles ++ ast ++ html ++ ebooks)
