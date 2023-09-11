@@ -18,6 +18,7 @@ package laika.preview
 
 import cats.effect.{ Async, Resource }
 import cats.syntax.all._
+import cats.effect.syntax.all._
 import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
@@ -96,13 +97,27 @@ private[preview] class SiteTransformer[F[_]: Async](
       }
   }
 
+  private def buildLazyMap(
+      htmlMap: ResultMap[F],
+      delegate: F[ResultMap[F]]
+  ): ResultMap[F] = {
+    htmlMap.keySet
+      .map(ASTPageTransformer.ASTPathTranslator.translateASTPath)
+      .map { astPath =>
+        val result = LazyResult(delegate.map(_.get(astPath)))
+        (astPath, result: SiteResult[F])
+      }
+      .toMap
+  }
+
   val transform: F[SiteResults[F]] = for {
-    tree   <- parse
-    html   <- transformHTML(tree, htmlRenderer)
-    ast    <- transformHTML(
+    tree    <- parse
+    html    <- transformHTML(tree, htmlRenderer)
+    lazyAST <- transformHTML(
       tree.modifyRoot(ASTPageTransformer.transform(_, parser.config)),
       astRenderer
-    )
+    ).memoize
+    ast = buildLazyMap(html, lazyAST)
     ebooks <- Async[F].fromEither(transformBinaries(tree).leftMap(ConfigException.apply))
   } yield {
     new SiteResults(staticFiles ++ ast ++ html ++ ebooks)
@@ -197,3 +212,6 @@ class SiteResults[F[_]: Async](map: Map[Path, SiteResult[F]]) {
 sealed abstract class SiteResult[F[_]: Async]                      extends Product with Serializable
 case class RenderedResult[F[_]: Async](content: String)            extends SiteResult[F]
 case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte]) extends SiteResult[F]
+
+private[preview] case class LazyResult[F[_]: Async](result: F[Option[SiteResult[F]]])
+    extends SiteResult[F]
