@@ -53,18 +53,10 @@ private[laika] object BlockParsers {
   // other whitespace has been replaced with spaces by preprocessor
   val ws: Characters[String] = anyOf(' ')
 
-  /** Parses a transition (rule).
-    *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
-    */
   val transition: BlockParserBuilder = BlockParserBuilder.standalone {
     (punctuationChar.min(4) ~ wsEol ~ lookAhead(blankLine)).as(Rule())
   }
 
-  /** Parses a single paragraph.
-    * Everything between two blank lines that is not recognized
-    * as a special reStructuredText block type will be parsed as a regular paragraph.
-    */
   lazy val paragraph: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val interruptions = recParsers.paragraphInterruptions()
     val lines         = textLine.line.repUntil(interruptions)
@@ -83,10 +75,6 @@ private[laika] object BlockParsers {
     if (source.input.lastOption.contains('\n')) LineSource(source.input.dropRight(1), source.root)
     else source
 
-  /** Parses a section header with both overline and underline.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
-    */
   lazy val headerWithOverline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = punctuationChar.take(1) >> { start =>
       val char = start.charAt(0)
@@ -105,10 +93,6 @@ private[laika] object BlockParsers {
     }
   }
 
-  /** Parses a section header with an underline, but no overline.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
-    */
   lazy val headerWithUnderline: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     val spanParser = nextNot(' ') ~ not(eof) ~> restOfLine.trim.line >> { title =>
       punctuationChar.take(1) >> { start =>
@@ -127,21 +111,11 @@ private[laika] object BlockParsers {
     }
   }
 
-  /** Parses a doctest block.
-    * This is a feature which is very specific to the world of Python where reStructuredText originates.
-    * Therefore the resulting `DoctestBlock` tree element is not part of the standard Laika AST model.
-    *
-    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
-    */
   val doctest: BlockParserBuilder = BlockParserBuilder.standalone {
     val lineParser = restOfLine.rep(not(blankLine)).min(1)
     ">>> " ~> lineParser.mkLines.map(DoctestBlock(_))
   }
 
-  /** Parses a block quote with an optional attribution.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
-    */
   lazy val blockQuote: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val attributionStart = "---" | "--" | "\u2014" // em dash
 
@@ -158,11 +132,6 @@ private[laika] object BlockParsers {
     }
   }
 
-  /** Parses a literal block, either quoted or indented.
-    * Only used when the preceding block ends with a double colon (`::`).
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
-    */
   val literalBlock: Parser[Block] = {
     val indented = indentedBlock(firstLineIndented = true).map(src => LiteralBlock(src.input))
 

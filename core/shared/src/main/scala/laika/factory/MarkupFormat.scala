@@ -99,7 +99,11 @@ object MarkupFormat {
     */
   trait MarkupParsers[E] {
 
-    /** List of parsers to register with the runtime for a specific markup format. */
+    /** List of parsers to register with the runtime for a specific markup format.
+      *
+      * The order of parsers in this sequence is significant and determines
+      * the precedence in which parsers are tried on blocks or spans.
+      */
     def all: Seq[E]
   }
 

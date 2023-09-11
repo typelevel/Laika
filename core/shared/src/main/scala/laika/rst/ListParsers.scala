@@ -92,10 +92,6 @@ private[laika] object ListParsers {
 
   private lazy val bulletListStart = oneOf('*', '-', '+', '\u2022', '\u2023', '\u2043')
 
-  /** Parses a bullet list with any of the supported bullet characters.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
-    */
   lazy val bulletList: BlockParserBuilder = BlockParserBuilder.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
       val bullet = StringBullet(symbol)
@@ -139,10 +135,6 @@ private[laika] object ListParsers {
     }
   }
 
-  /** Parses an enumerated list in any of the supported combinations of enumeration style and formatting.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
-    */
   lazy val enumList: BlockParserBuilder = BlockParserBuilder.recursive { implicit recParsers =>
     import EnumType._
 
@@ -182,10 +174,6 @@ private[laika] object ListParsers {
     }
   }
 
-  /** Parses a definition list.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#definition-lists]].
-    */
   lazy val definitionList: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val tableStart    = anyOf(' ', '=') ~ eol
     val explicitStart = ".. " | "__ "
@@ -210,10 +198,6 @@ private[laika] object ListParsers {
     (item <~ opt(blankLines)).rep.min(1).map(DefinitionList(_))
   }
 
-  /** Parses a field list.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#field-lists]].
-    */
   lazy val fieldList: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val nameParser = ":" ~> recParsers.escapedUntil(':').line <~ (lookAhead(eol).as("") | " ")
 
@@ -225,10 +209,6 @@ private[laika] object ListParsers {
     item.rep.min(1).map(FieldList(_))
   }
 
-  /** Parses an option list.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#option-lists]].
-    */
   lazy val optionList: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val optionString = someOf(CharGroup.alphaNum.add('_').add('-'))
     val optionArg    = optionString | ("<" ~> delimitedBy('>')).map { "<" + _ + ">" }
@@ -257,10 +237,6 @@ private[laika] object ListParsers {
     (item <~ opt(blankLines)).rep.min(1).map(OptionList(_))
   }
 
-  /** Parses a block of lines with line breaks preserved.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks]].
-    */
   lazy val lineBlock: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val itemStart = oneOf('|')
 
