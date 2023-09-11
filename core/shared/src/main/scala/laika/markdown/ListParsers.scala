@@ -94,8 +94,6 @@ private[laika] object ListParsers {
     }
   }
 
-  /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
-    */
   val bulletLists: BlockParserBuilder =
     BlockParserBuilder.recursive { implicit recParsers =>
       PrefixedParser('+', '*', '-') {
@@ -111,8 +109,6 @@ private[laika] object ListParsers {
       }
     }.withLowPrecedence
 
-  /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
-    */
   val enumLists: BlockParserBuilder =
     BlockParserBuilder.recursive { implicit recParsers =>
       PrefixedParser(CharGroup.digit) {

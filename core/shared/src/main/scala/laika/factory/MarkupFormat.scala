@@ -98,6 +98,8 @@ object MarkupFormat {
     * private and only offer high level entry points for extension authors.
     */
   trait MarkupParsers[E] {
+
+    /** List of parsers to register with the runtime for a specific markup format. */
     def all: Seq[E]
   }
 

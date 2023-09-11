@@ -47,8 +47,6 @@ private[laika] object InlineParsers {
   val escapedChar: Parser[String] =
     oneOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>', '|')
 
-  /** Parses an explicit hard line break.
-    */
   val lineBreak: SpanParserBuilder = SpanParserBuilder.standalone(literal("\\\r").as(LineBreak()))
 
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character.
@@ -71,8 +69,6 @@ private[laika] object InlineParsers {
       recParsers: RecursiveSpanParsers
   ): PrefixedParser[List[Span]] = start ~> recParsers.recursiveSpans(delimitedBy(end))
 
-  /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
-    */
   val enclosedByAsterisk: SpanParserBuilder = SpanParserBuilder.recursive { implicit recParsers =>
     strong('*') | em('*')
   }
@@ -84,7 +80,7 @@ private[laika] object InlineParsers {
   }
 
   /** Parses a span enclosed by a single occurrence of the specified character.
-    *  Recursively parses nested spans, too.
+    * Recursively parses nested spans, too.
     */
   private def enclosedBySingleChar(
       c: Char
@@ -95,7 +91,7 @@ private[laika] object InlineParsers {
   }
 
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
-    *  Recursively parses nested spans, too.
+    * Recursively parses nested spans, too.
     */
   def enclosedByDoubleChar(
       c: Char
@@ -105,9 +101,6 @@ private[laika] object InlineParsers {
     span(start, end)
   }
 
-  /** Parses a literal span enclosed by one or more backticks.
-    *  Does neither parse nested spans nor Markdown escapes.
-    */
   val literalSpan: SpanParserBuilder = SpanParserBuilder.standalone {
     someOf('`').count >> { cnt =>
       delimitedBy("`" * cnt).trim.map(Literal(_))
@@ -116,9 +109,6 @@ private[laika] object InlineParsers {
 
   private def normalizeId(id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
 
-  /** Parses a link, including nested spans in the link text.
-    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
-    */
   lazy val link: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     def unwrap(ref: LinkIdReference, suffix: String) = {
       if (ref.select(_.isInstanceOf[LinkIdReference]).tail.nonEmpty)
@@ -150,9 +140,6 @@ private[laika] object InlineParsers {
     }
   }
 
-  /** Parses an inline image.
-    *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
-    */
   val image: SpanParserBuilder = SpanParserBuilder.recursive { recParsers =>
     def escape(text: LineSource, input: SourceFragment, f: String => Span): Span =
       recParsers.escapedText(DelimitedText.Undelimited).parse(text).toEither.fold(
