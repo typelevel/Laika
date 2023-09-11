@@ -17,13 +17,20 @@
 package laika.config
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.bundle.BundleProvider.TestExtensionBundle
 import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
+import laika.bundle.{
+  BlockParserBuilder,
+  BundleOrigin,
+  BundleProvider,
+  ExtensionBundle,
+  SpanParserBuilder
+}
 import laika.factory.MarkupFormat
+import laika.factory.MarkupFormat.MarkupParsers
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
 import munit.FunSuite
@@ -39,8 +46,12 @@ class OperationConfigSpec extends FunSuite {
 
     object Parser extends MarkupFormat {
       val fileSuffixes    = Set("foo")
-      val blockParsers    = Nil
-      val spanParsers     = Nil
+      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+        val all: Seq[BlockParserBuilder] = Nil
+      }
+      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+        val all: Seq[SpanParserBuilder] = Nil
+      }
       lazy val extensions = parserBundles
     }
 

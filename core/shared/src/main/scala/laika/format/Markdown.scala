@@ -19,6 +19,7 @@ package laika.format
 import laika.ast.Block
 import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.factory.MarkupFormat
+import laika.factory.MarkupFormat.MarkupParsers
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
 import laika.parse.Parser
@@ -57,29 +58,37 @@ case object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
 
-  val blockParsers: Seq[BlockParserBuilder] = Seq(
-    BlockParsers.atxHeader.interruptsParagraphWith(TextParsers.oneOf('#')),
-    BlockParsers.linkTarget,
-    BlockParsers.quotedBlock,
-    BlockParsers.rootHeaderOrParagraph,
-    BlockParsers.nestedHeaderOrParagraph,
-    BlockParsers.fallbackParagraph,
-    BlockParsers.literalBlocks,
-    BlockParsers.rules,
-    ListParsers.enumLists.rootOnly,
-    ListParsers.enumLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf(CharGroup.digit)),
-    ListParsers.bulletLists.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-'))
-  )
+  val blockParsers: MarkupParsers[BlockParserBuilder] = new MarkupParsers[BlockParserBuilder] {
 
-  val spanParsers: Seq[SpanParserBuilder] = Seq(
-    InlineParsers.enclosedByAsterisk,
-    InlineParsers.enclosedByUnderscore,
-    InlineParsers.literalSpan,
-    InlineParsers.image,
-    InlineParsers.link,
-    InlineParsers.simpleLink,
-    InlineParsers.lineBreak
-  )
+    val all = Seq(
+      BlockParsers.atxHeader.interruptsParagraphWith(TextParsers.oneOf('#')),
+      BlockParsers.linkTarget,
+      BlockParsers.quotedBlock,
+      BlockParsers.rootHeaderOrParagraph,
+      BlockParsers.nestedHeaderOrParagraph,
+      BlockParsers.fallbackParagraph,
+      BlockParsers.literalBlocks,
+      BlockParsers.rules,
+      ListParsers.enumLists.rootOnly,
+      ListParsers.enumLists.nestedOnly.interruptsParagraphWith(TextParsers.oneOf(CharGroup.digit)),
+      ListParsers.bulletLists.interruptsParagraphWith(TextParsers.oneOf('+', '*', '-'))
+    )
+
+  }
+
+  val spanParsers: MarkupParsers[SpanParserBuilder] = new MarkupParsers[SpanParserBuilder] {
+
+    val all = Seq(
+      InlineParsers.enclosedByAsterisk,
+      InlineParsers.enclosedByUnderscore,
+      InlineParsers.literalSpan,
+      InlineParsers.image,
+      InlineParsers.link,
+      InlineParsers.simpleLink,
+      InlineParsers.lineBreak
+    )
+
+  }
 
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 

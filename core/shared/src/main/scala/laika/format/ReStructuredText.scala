@@ -17,12 +17,20 @@
 package laika.format
 
 import laika.ast.Block
-import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, ParserHooks }
+import laika.bundle.{
+  BlockParserBuilder,
+  BundleOrigin,
+  ExtensionBundle,
+  ParserBundle,
+  ParserHooks,
+  SpanParserBuilder
+}
 import laika.factory.MarkupFormat
+import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
-import laika.rst._
-import laika.rst.bundle._
+import laika.rst.*
+import laika.rst.bundle.*
 
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
   * to the `Parseer` or `Transformer` APIs:
@@ -48,39 +56,47 @@ case object ReStructuredText extends MarkupFormat { self =>
 
   val fileSuffixes: Set[String] = Set("rest", "rst")
 
-  val blockParsers = Seq(
-    ListParsers.bulletList,
-    ListParsers.enumList,
-    ListParsers.fieldList,
-    ListParsers.lineBlock,
-    ListParsers.optionList,
-    ExplicitBlockParsers.allBlocks,
-    ExplicitBlockParsers.shortAnonymousLinkTarget,
-    TableParsers.gridTable,
-    TableParsers.simpleTable,
-    BlockParsers.doctest,
-    BlockParsers.blockQuote,
-    BlockParsers.headerWithOverline,
-    BlockParsers.transition,
-    BlockParsers.headerWithUnderline,
-    ListParsers.definitionList,
-    BlockParsers.paragraph
-  )
+  val blockParsers: MarkupParsers[BlockParserBuilder] = new MarkupParsers[BlockParserBuilder] {
 
-  val spanParsers = Seq(
-    InlineParsers.strong,
-    InlineParsers.em,
-    InlineParsers.inlineLiteral,
-    InlineParsers.phraseLinkRef,
-    InlineParsers.simpleLinkRef,
-    InlineParsers.footnoteRef,
-    InlineParsers.citationRef,
-    InlineParsers.substitutionRef,
-    InlineParsers.internalTarget,
-    InlineParsers.interpretedTextWithRolePrefix,
-    InlineParsers.uri,
-    InlineParsers.email
-  )
+    val all = Seq(
+      ListParsers.bulletList,
+      ListParsers.enumList,
+      ListParsers.fieldList,
+      ListParsers.lineBlock,
+      ListParsers.optionList,
+      ExplicitBlockParsers.allBlocks,
+      ExplicitBlockParsers.shortAnonymousLinkTarget,
+      TableParsers.gridTable,
+      TableParsers.simpleTable,
+      BlockParsers.doctest,
+      BlockParsers.blockQuote,
+      BlockParsers.headerWithOverline,
+      BlockParsers.transition,
+      BlockParsers.headerWithUnderline,
+      ListParsers.definitionList,
+      BlockParsers.paragraph
+    )
+
+  }
+
+  val spanParsers: MarkupParsers[SpanParserBuilder] = new MarkupParsers[SpanParserBuilder] {
+
+    val all = Seq(
+      InlineParsers.strong,
+      InlineParsers.em,
+      InlineParsers.inlineLiteral,
+      InlineParsers.phraseLinkRef,
+      InlineParsers.simpleLinkRef,
+      InlineParsers.footnoteRef,
+      InlineParsers.citationRef,
+      InlineParsers.substitutionRef,
+      InlineParsers.internalTarget,
+      InlineParsers.interpretedTextWithRolePrefix,
+      InlineParsers.uri,
+      InlineParsers.email
+    )
+
+  }
 
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
@@ -103,7 +119,7 @@ case object ReStructuredText extends MarkupFormat { self =>
     override val renderOverrides = Seq(HTML.Overrides(value = ExtendedHTMLRenderer.custom))
   }
 
-  val extensions = Seq(
+  val extensions: Seq[ExtensionBundle] = Seq(
     BundledDefaults,
     RstExtensionSupport,
     StandardExtensions,
