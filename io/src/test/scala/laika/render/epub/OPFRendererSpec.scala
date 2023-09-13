@@ -63,13 +63,12 @@ class OPFRendererSpec extends FunSuite {
       config = ConfigBuilder.empty.withValue[ScriptedTemplate](ScriptedTemplate.Auto).build
     )
 
-    private val static1 = ByteInput("", Path.parse("/sub/code.shared.js"))
-    private val static2 = ByteInput("", Path.parse("/sub/code.epub.js"))
-    private val static3 = ByteInput("", Path.parse("/sub/styles.epub.css"))
-    private val subtree = tree(Path.Root / "sub", 4, doc2)
+    private val staticJS  = ByteInput("", Path.parse("/sub/code.epub.js"))
+    private val staticCSS = ByteInput("", Path.parse("/sub/styles.epub.css"))
+    private val subtree   = tree(Path.Root / "sub", 4, doc2)
 
     def input(hasJS: Boolean): RenderedTreeRoot[IO] = rootTree(Path.Root, 1, doc1, subtree)
-      .withStaticDocuments(if (hasJS) Seq(static1, static2, static3) else Seq(static3))
+      .withStaticDocuments(if (hasJS) Seq(staticJS, staticCSS) else Seq(staticCSS))
 
   }
 
@@ -89,17 +88,17 @@ class OPFRendererSpec extends FunSuite {
 
   test("render a tree with a single document") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />"""
     run(SingleDocument.input, fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with a single document with the default locale rendered correctly") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />"""
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
     runWith(SingleDocument.input, configWithoutLanguage, expected)
   }
@@ -108,30 +107,30 @@ class OPFRendererSpec extends FunSuite {
     "render a tree with a single document with valid XML id for the name starting with a digit"
   ) {
     val manifestItems =
-      """    <item id="_01-foo_epub_xhtml" href="content/01-foo.epub.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="_01-foo_xhtml" href="content/01-foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs     =
-      """    <itemref idref="_01-foo_epub_xhtml" />"""
+      """    <itemref idref="_01-foo_xhtml" />"""
     val expected = fileContent(manifestItems, spineRefs, language = Locale.getDefault.toLanguageTag)
     runWith(DocumentNameStartingWithDigit.input, configWithoutLanguage, expected)
   }
 
   test("render a tree with two documents") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="bar_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="bar_xhtml" />"""
     run(TwoDocuments.input, fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with a title document") {
     val manifestItems =
-      """    <item id="title_epub_xhtml" href="content/title.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
-    val titleRef      = """    <itemref idref="title_epub_xhtml" />"""
+      """    <item id="title_xhtml" href="content/title.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+    val titleRef      = """    <itemref idref="title_xhtml" />"""
     val spineRefs     =
-      """    <itemref idref="bar_epub_xhtml" />"""
+      """    <itemref idref="bar_xhtml" />"""
     val expected      =
       fileContent(manifestItems, spineRefs, titleRef = titleRef, title = "From TitleDoc")
     val actual        = renderer.render(DocumentPlusTitle.input, "From TitleDoc", config)
@@ -140,18 +139,18 @@ class OPFRendererSpec extends FunSuite {
 
   test("render a tree with a cover") {
     val manifestItems =
-      """    <item id="cover_epub_xhtml" href="content/cover.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />
+      """    <item id="cover_xhtml" href="content/cover.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />
         |    <item id="cover_png" href="content/cover.png" media-type="image/png" />""".stripMargin
     val coverEntries  = CoverEntries(
       metadata = """    <meta name="cover" content="cover_png" />""",
-      spine = """    <itemref idref="cover_epub_xhtml" />""",
-      guide = """    <reference type="cover" title="Cover" href="content/cover.epub.xhtml" />"""
+      spine = """    <itemref idref="cover_xhtml" />""",
+      guide = """    <reference type="cover" title="Cover" href="content/cover.xhtml" />"""
     )
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="bar_epub_xhtml" />""".stripMargin
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="bar_xhtml" />""".stripMargin
     val expected      = fileContent(manifestItems, spineRefs, coverEntries = Some(coverEntries))
     val coverConfig   = config.withCoverImage(Root / "cover.png")
     runWith(DocumentPlusCover.input, coverConfig, expected)
@@ -159,63 +158,62 @@ class OPFRendererSpec extends FunSuite {
 
   test("render a tree with a nested tree") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="sub_bar_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub_bar_xhtml" />"""
     run(NestedTree.input, fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with two nested trees") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_bar_epub_xhtml" href="content/sub1/bar.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_baz_epub_xhtml" href="content/sub1/baz.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_bar_epub_xhtml" href="content/sub2/bar.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_baz_epub_xhtml" href="content/sub2/baz.epub.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_bar_xhtml" href="content/sub1/bar.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_baz_xhtml" href="content/sub1/baz.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_bar_xhtml" href="content/sub2/bar.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_baz_xhtml" href="content/sub2/baz.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="sub1_bar_epub_xhtml" />
-        |    <itemref idref="sub1_baz_epub_xhtml" />
-        |    <itemref idref="sub2_bar_epub_xhtml" />
-        |    <itemref idref="sub2_baz_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub1_bar_xhtml" />
+        |    <itemref idref="sub1_baz_xhtml" />
+        |    <itemref idref="sub2_bar_xhtml" />
+        |    <itemref idref="sub2_baz_xhtml" />"""
     run(TwoNestedTrees.input, fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with a nested tree and static documents") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_image-1_5x_jpg" href="content/sub/image-1.5x.jpg" media-type="image/jpeg" />
         |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="sub_bar_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub_bar_xhtml" />"""
     run(TreeWithStaticDocuments.input, fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with a nested tree and script documents") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
-        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
-        |    <item id="sub_code_shared_js" href="content/sub/code.shared.js" media-type="application/javascript" />
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
         |    <item id="sub_code_epub_js" href="content/sub/code.epub.js" media-type="application/javascript" />
         |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="sub_bar_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub_bar_xhtml" />"""
     run(TreeWithScriptedDocuments.input(hasJS = true), fileContent(manifestItems, spineRefs))
   }
 
   test("render a tree with a nested tree and no script documents") {
     val manifestItems =
-      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
-        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_styles_epub_css" href="content/sub/styles.epub.css" media-type="text/css" />""".stripMargin
     val spineRefs     =
-      """    <itemref idref="foo_epub_xhtml" />
-        |    <itemref idref="sub_bar_epub_xhtml" />"""
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub_bar_xhtml" />"""
     run(TreeWithScriptedDocuments.input(hasJS = false), fileContent(manifestItems, spineRefs))
   }
 

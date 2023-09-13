@@ -27,7 +27,7 @@ private[epub] object NavigationBuilder {
     */
   def fullPath(path: Path, forceXhtml: Boolean = false): String = {
     val finalPath =
-      if (forceXhtml || path.suffix.contains("html")) path.withSuffix("epub.xhtml") else path
+      if (forceXhtml || path.suffix.contains("html")) path.withSuffix("xhtml") else path
     val parent    = finalPath.parent match {
       case Root => ""
       case _    => finalPath.parent.toString
@@ -42,7 +42,7 @@ private[epub] object NavigationBuilder {
       link = item.link.map {
         case nl @ NavigationLink(it: InternalTarget, _, _) =>
           val adjustedPath =
-            (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("epub.xhtml")
+            (Root / "content" / it.relativeTo(Root / "doc").relativePath).withSuffix("xhtml")
           nl.copy(target = InternalTarget(adjustedPath.relative))
         case other                                         => other
       }

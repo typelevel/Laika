@@ -43,7 +43,7 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -54,11 +54,11 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |        <li id="toc-li-1">
-        |          <a href="content/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/bar.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -69,7 +69,7 @@ class HTMLNavRendererSpec extends FunSuite {
     val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -82,7 +82,7 @@ class HTMLNavRendererSpec extends FunSuite {
     val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/bar.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -97,10 +97,10 @@ class HTMLNavRendererSpec extends FunSuite {
     val html     =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |        </li>
         |        <li id="toc-li-1">
-        |          <a href="content/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/bar.xhtml">Title 3</a>
         |        </li>
         |      </ol>""".stripMargin
     val expected =
@@ -112,14 +112,14 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |        <li id="toc-li-1">
-        |          <a href="content/sub/bar.epub.xhtml">Tree 4</a>
+        |          <a href="content/sub/bar.xhtml">Tree 4</a>
         |      <ol class="toc">
         |        <li id="toc-li-2">
-        |          <a href="content/sub/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/sub/bar.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>
@@ -132,14 +132,14 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |        <li id="toc-li-1">
-        |          <a href="content/sub/title.epub.xhtml">From TitleDoc</a>
+        |          <a href="content/sub/title.xhtml">From TitleDoc</a>
         |      <ol class="toc">
         |        <li id="toc-li-2">
-        |          <a href="content/sub/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/sub/bar.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>
@@ -152,7 +152,7 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -163,27 +163,27 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |          <a href="content/foo.xhtml">Title 2</a>
         |      <ol class="toc">
         |        <li id="toc-li-1">
-        |          <a href="content/foo.epub.xhtml#A">Section A</a>
+        |          <a href="content/foo.xhtml#A">Section A</a>
         |
         |        </li>
         |        <li id="toc-li-2">
-        |          <a href="content/foo.epub.xhtml#B">Section B</a>
+        |          <a href="content/foo.xhtml#B">Section B</a>
         |
         |        </li>
         |      </ol>
         |        </li>
         |        <li id="toc-li-3">
-        |          <a href="content/bar.epub.xhtml">Title 3</a>
+        |          <a href="content/bar.xhtml">Title 3</a>
         |      <ol class="toc">
         |        <li id="toc-li-4">
-        |          <a href="content/bar.epub.xhtml#A">Section A</a>
+        |          <a href="content/bar.xhtml#A">Section A</a>
         |
         |        </li>
         |        <li id="toc-li-5">
-        |          <a href="content/bar.epub.xhtml#B">Section B</a>
+        |          <a href="content/bar.xhtml#B">Section B</a>
         |
         |        </li>
         |      </ol>
@@ -195,11 +195,11 @@ class HTMLNavRendererSpec extends FunSuite {
   test("not render a document with sections when the depth is 1") {
     val expected = """      <ol class="toc">
                      |        <li id="toc-li-0">
-                     |          <a href="content/foo.epub.xhtml">Title 2</a>
+                     |          <a href="content/foo.xhtml">Title 2</a>
                      |
                      |        </li>
                      |        <li id="toc-li-1">
-                     |          <a href="content/bar.epub.xhtml">Title 3</a>
+                     |          <a href="content/bar.xhtml">Title 3</a>
                      |
                      |        </li>
                      |      </ol>""".stripMargin
@@ -210,7 +210,7 @@ class HTMLNavRendererSpec extends FunSuite {
     val expected =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.epub.xhtml">This &amp; That</a>
+        |          <a href="content/foo.xhtml">This &amp; That</a>
         |
         |        </li>
         |      </ol>""".stripMargin

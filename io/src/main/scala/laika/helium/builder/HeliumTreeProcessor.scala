@@ -49,7 +49,7 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
       enabled <- tree.root.config.get(LaikaKeys.preview.enabled, false)
     } yield {
       if (enabled) tree
-      else tree.removeStaticDocuments(_ == Root / "helium" / "laika-preview.js")
+      else tree.removeStaticDocuments(_ == Root / "helium" / "site" / "laika-preview.js")
     }
 
     Sync[F].fromEither(newTree.leftMap(ConfigException.apply))

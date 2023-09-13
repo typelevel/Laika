@@ -53,13 +53,13 @@ object TestTheme {
     Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
     Root / "laika" / "fonts" / "FiraMono-Medium.otf",
     Root / "laika" / "fonts" / "icofont.ttf",
-    Root / "helium" / "laika-helium.js",
-    Root / "helium" / "landing.page.css",
-    Root / "helium" / "icofont.min.css",
+    Root / "helium" / "site" / "laika-helium.js",
+    Root / "helium" / "site" / "landing-page.css",
+    Root / "helium" / "site" / "icofont.min.css",
     Root / "helium" / "fonts" / "icofont.woff",
     Root / "helium" / "fonts" / "icofont.woff2",
-    Root / "helium" / "laika-helium.css",
-    Root / "helium" / "laika-helium.epub.css"
+    Root / "helium" / "site" / "laika-helium.css",
+    Root / "helium" / "epub" / "laika-helium.css"
   )
 
   val fonts = Seq(

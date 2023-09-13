@@ -313,7 +313,7 @@ class PathAPISpec extends FunSuite {
 
   suffix("defined for an absolute path with suffix", abs_c / "foo.jpg", Some("jpg"))
 
-  suffix("use longest suffix in case of multiple dots", abs_c / "foo.tar.gz", Some("tar.gz"))
+  suffix("use shortest suffix in case of multiple dots", abs_c / "foo.tar.gz", Some("gz"))
 
   suffix(
     "defined for an absolute path with suffix and fragment",

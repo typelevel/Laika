@@ -47,7 +47,7 @@ class NCXRendererSpec extends FunSuite {
         |      <navLabel>
         |        <text>Title 2</text>
         |      </navLabel>
-        |      <content src="content/foo.epub.xhtml" />
+        |      <content src="content/foo.xhtml" />
         |
         |    </navPoint>""".stripMargin
     run(SingleDocument.input, expected)
@@ -59,14 +59,14 @@ class NCXRendererSpec extends FunSuite {
         |      <navLabel>
         |        <text>Title 2</text>
         |      </navLabel>
-        |      <content src="content/foo.epub.xhtml" />
+        |      <content src="content/foo.xhtml" />
         |
         |    </navPoint>
         |    <navPoint id="navPoint-1">
         |      <navLabel>
         |        <text>Title 3</text>
         |      </navLabel>
-        |      <content src="content/bar.epub.xhtml" />
+        |      <content src="content/bar.xhtml" />
         |
         |    </navPoint>""".stripMargin
     run(TwoDocuments.input, expected)
@@ -79,19 +79,19 @@ class NCXRendererSpec extends FunSuite {
         |      <navLabel>
         |        <text>Title 2</text>
         |      </navLabel>
-        |      <content src="content/foo.epub.xhtml" />
+        |      <content src="content/foo.xhtml" />
         |
         |    </navPoint>
         |    <navPoint id="navPoint-1">
         |      <navLabel>
         |        <text>Tree 4</text>
         |      </navLabel>
-        |      <content src="content/sub/bar.epub.xhtml" />
+        |      <content src="content/sub/bar.xhtml" />
         |    <navPoint id="navPoint-2">
         |      <navLabel>
         |        <text>Title 3</text>
         |      </navLabel>
-        |      <content src="content/sub/bar.epub.xhtml" />
+        |      <content src="content/sub/bar.xhtml" />
         |
         |    </navPoint>
         |    </navPoint>""".stripMargin
@@ -104,7 +104,7 @@ class NCXRendererSpec extends FunSuite {
         |      <navLabel>
         |        <text>Title 2</text>
         |      </navLabel>
-        |      <content src="content/foo.epub.xhtml" />
+        |      <content src="content/foo.xhtml" />
         |
         |    </navPoint>""".stripMargin
     run(NestedTree.input, expected)
@@ -115,19 +115,19 @@ class NCXRendererSpec extends FunSuite {
                      |      <navLabel>
                      |        <text>Title 2</text>
                      |      </navLabel>
-                     |      <content src="content/foo.epub.xhtml" />
+                     |      <content src="content/foo.xhtml" />
                      |    <navPoint id="navPoint-1">
                      |      <navLabel>
                      |        <text>Section A</text>
                      |      </navLabel>
-                     |      <content src="content/foo.epub.xhtml#A" />
+                     |      <content src="content/foo.xhtml#A" />
                      |
                      |    </navPoint>
                      |    <navPoint id="navPoint-2">
                      |      <navLabel>
                      |        <text>Section B</text>
                      |      </navLabel>
-                     |      <content src="content/foo.epub.xhtml#B" />
+                     |      <content src="content/foo.xhtml#B" />
                      |
                      |    </navPoint>
                      |    </navPoint>
@@ -135,19 +135,19 @@ class NCXRendererSpec extends FunSuite {
                      |      <navLabel>
                      |        <text>Title 3</text>
                      |      </navLabel>
-                     |      <content src="content/bar.epub.xhtml" />
+                     |      <content src="content/bar.xhtml" />
                      |    <navPoint id="navPoint-4">
                      |      <navLabel>
                      |        <text>Section A</text>
                      |      </navLabel>
-                     |      <content src="content/bar.epub.xhtml#A" />
+                     |      <content src="content/bar.xhtml#A" />
                      |
                      |    </navPoint>
                      |    <navPoint id="navPoint-5">
                      |      <navLabel>
                      |        <text>Section B</text>
                      |      </navLabel>
-                     |      <content src="content/bar.epub.xhtml#B" />
+                     |      <content src="content/bar.xhtml#B" />
                      |
                      |    </navPoint>
                      |    </navPoint>""".stripMargin
@@ -159,14 +159,14 @@ class NCXRendererSpec extends FunSuite {
                      |      <navLabel>
                      |        <text>Title 2</text>
                      |      </navLabel>
-                     |      <content src="content/foo.epub.xhtml" />
+                     |      <content src="content/foo.xhtml" />
                      |
                      |    </navPoint>
                      |    <navPoint id="navPoint-1">
                      |      <navLabel>
                      |        <text>Title 3</text>
                      |      </navLabel>
-                     |      <content src="content/bar.epub.xhtml" />
+                     |      <content src="content/bar.xhtml" />
                      |
                      |    </navPoint>""".stripMargin
     run(DocumentsWithSections.input, expected)
@@ -178,7 +178,7 @@ class NCXRendererSpec extends FunSuite {
         |      <navLabel>
         |        <text>This &amp; That</text>
         |      </navLabel>
-        |      <content src="content/foo.epub.xhtml" />
+        |      <content src="content/foo.xhtml" />
         |
         |    </navPoint>""".stripMargin
     run(DocumentWithSpecialChars.input, expected)

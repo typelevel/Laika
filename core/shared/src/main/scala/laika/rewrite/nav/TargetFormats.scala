@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import cats.data.NonEmptySet
-import laika.config.{ ConfigDecoder, DefaultKey, LaikaKeys }
+import laika.config.{ ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys }
 
 import scala.collection.immutable.TreeSet
 
@@ -54,15 +54,21 @@ object TargetFormats {
   object Selected {
 
     def apply(format: String, formats: String*): Selected = apply(
-      NonEmptySet.of(format, formats: _*)
+      NonEmptySet.of(format, formats *)
     )
 
   }
 
   implicit val decoder: ConfigDecoder[TargetFormats] = ConfigDecoder.seq[String].map { formats =>
-    NonEmptySet.fromSet(TreeSet(formats: _*)).fold[TargetFormats](TargetFormats.None)(
-      TargetFormats.Selected(_)
+    NonEmptySet.fromSet(TreeSet(formats *)).fold[TargetFormats](TargetFormats.None)(fs =>
+      if (fs == NonEmptySet.one("*")) TargetFormats.All else TargetFormats.Selected(fs)
     )
+  }
+
+  implicit val encoder: ConfigEncoder[TargetFormats] = ConfigEncoder.seq[String].contramap {
+    case TargetFormats.All          => Seq("*")
+    case TargetFormats.Selected(fs) => fs.toNonEmptyList.toList
+    case TargetFormats.None         => Nil
   }
 
   implicit val defaultKey: DefaultKey[TargetFormats] = DefaultKey(LaikaKeys.targetFormats)

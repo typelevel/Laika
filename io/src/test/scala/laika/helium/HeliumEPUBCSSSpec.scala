@@ -25,7 +25,7 @@ import laika.format.{ EPUB, Markdown }
 import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.StringTreeOutput
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
@@ -52,7 +52,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   ): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css", start, end)
+      res        <- resultTree.extractStaticContent(
+        Root / "helium" / "epub" / "laika-helium.css",
+        start,
+        end
+      )
     } yield res
   }
 
@@ -60,7 +64,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
     transformer(helium.build).use { t =>
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-        res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css")
+        res        <- resultTree.extractStaticContent(Root / "helium" / "epub" / "laika-helium.css")
       } yield res
     }
 
@@ -118,37 +122,37 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |font-family: "Lato";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/Lato-Regular.ttf");
+        |src: url("../../laika/fonts/Lato-Regular.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: normal;
         |font-style: italic;
-        |src: url("../laika/fonts/Lato-Italic.ttf");
+        |src: url("../../laika/fonts/Lato-Italic.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: bold;
         |font-style: normal;
-        |src: url("../laika/fonts/Lato-Bold.ttf");
+        |src: url("../../laika/fonts/Lato-Bold.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: bold;
         |font-style: italic;
-        |src: url("../laika/fonts/Lato-BoldItalic.ttf");
+        |src: url("../../laika/fonts/Lato-BoldItalic.ttf");
         |}
         |@font-face {
         |font-family: "Fira Mono";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/FiraMono-Medium.otf");
+        |src: url("../../laika/fonts/FiraMono-Medium.otf");
         |}
         |@font-face {
         |font-family: "IcoFont";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/icofont.ttf");
+        |src: url("../../laika/fonts/icofont.ttf");
         |}
         |""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults)

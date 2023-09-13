@@ -92,6 +92,8 @@ class TreeParserSpec
 
   }
 
+  private val cssTargetFormats = TargetFormats.Selected("html", "epub", "xhtml")
+
   val defaultContent: Seq[Paragraph] = Seq(p("foo"))
 
   def docResult(num: Int, content: Seq[Block] = defaultContent, path: Path = Root): Document =
@@ -364,9 +366,33 @@ class TreeParserSpec
     val inputs     = Seq(
       Root / "omg.js" -> Contents.name
     )
-    val staticDoc  = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
+    val staticDoc  = StaticDocument(Root / "omg.js", cssTargetFormats)
     val treeResult = DocumentTreeRoot(DocumentTree.empty).addStaticDocuments(List(staticDoc))
     parsedTree(inputs).assertEquals(treeResult)
+  }
+
+  test("tree with static documents for different target formats") {
+    val inputs     = Seq(
+      Root / "forHTML" / "foo-1.jpg"            -> Contents.name,
+      Root / "forHTML" / "nested" / "foo-2.jpg" -> Contents.name, // inherits config from parent dir
+      Root / "forHTML" / "directory.conf"       -> "laika.targetFormats = [html]",
+      Root / "forEPUB" / "foo-1.jpg"            -> Contents.name,
+      Root / "forEPUB" / "nested" / "foo-2.jpg" -> Contents.name,
+      Root / "forEPUB" / "directory.conf"       -> "laika.targetFormats = [epub]",
+      Root / "forAll" / "foo-1.jpg"             -> Contents.name,
+      Root / "forAll" / "nested" / "foo-2.jpg"  -> Contents.name
+    )
+    val htmlOnly   = TargetFormats.Selected("html")
+    val epubOnly   = TargetFormats.Selected("epub")
+    val staticDocs = Seq(
+      StaticDocument(Root / "forHTML" / "foo-1.jpg", htmlOnly),
+      StaticDocument(Root / "forHTML" / "nested" / "foo-2.jpg", htmlOnly),
+      StaticDocument(Root / "forEPUB" / "foo-1.jpg", epubOnly),
+      StaticDocument(Root / "forEPUB" / "nested" / "foo-2.jpg", epubOnly),
+      StaticDocument(Root / "forAll" / "foo-1.jpg", TargetFormats.All),
+      StaticDocument(Root / "forAll" / "nested" / "foo-2.jpg", TargetFormats.All)
+    )
+    parsedTree(inputs).map(_.staticDocuments).assertEquals(staticDocs)
   }
 
   test("tree with a provided path") {
@@ -404,7 +430,7 @@ class TreeParserSpec
       Seq(p(Text("[link]("), SpanLink.external("http://foo.com")("http://foo.com"), Text(")")))
 
     val expected = SampleTrees.sixDocuments
-      .staticDoc(Root / "static-1" / "omg.js", "html")
+      .staticDoc(Root / "static-1" / "omg.js", "html", "epub", "xhtml")
       .docContent(defaultContent)
       .suffix("md")
       .doc1.content(linkResult)

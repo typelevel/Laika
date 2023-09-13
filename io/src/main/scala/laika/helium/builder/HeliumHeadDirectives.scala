@@ -33,9 +33,9 @@ private[helium] object HeliumHeadDirectives {
       epubIncludes: A
   ): Option[A] =
     cursor.root.outputContext.map(_.formatSelector) match {
-      case Some("epub") | Some("epub.xhtml") => epubIncludes.some
-      case Some("html")                      => siteIncludes.some
-      case _                                 => None
+      case Some("epub") | Some("xhtml") => epubIncludes.some
+      case Some("html")                 => siteIncludes.some
+      case _                            => None
     }
 
   private def findDocuments(

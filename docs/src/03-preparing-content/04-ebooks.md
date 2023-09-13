@@ -179,15 +179,9 @@ CSS for EPUB
 Since content files for EPUB are standard XHTML files (apart from optional EPUB-specific attributes), 
 you can style your e-books with standard CSS. 
 
-It is sufficient to simply place all CSS into the input directory, alongside the text markup and other file types. 
-References to these CSS files will be automatically added to the header section of all generated HTML files. 
-
-To enable a distinction between EPUB and website generation in case you want to produce both with the same inputs,
-Laika expects the following suffixes for CSS files:
-
-* Files ending with `.epub.css` will only be linked in HTML files for EPUB, not for the site
-* File ending with `.shared.css` will be linked for both
-* All other files ending with `.css` will only be used for website content
+The Helium API offers ways to register which CSS files you want to be linked from the EPUB documents
+or alternatively which directories to scan for CSS files.
+See [Auto-Linking CSS & JS Files] for details.
 
 When referencing images or fonts from your CSS files, you can use relative paths, 
 as the directory layout will be retained inside the EPUB container.
@@ -199,15 +193,9 @@ JavaScript for EPUB
 The scope of support for JavaScript may depend on the target reader, so early testing is recommended when
 scripting EPUB documents.
 
-It is sufficient to simply place all JavaScript into the input directory, alongside the text markup and other file types. 
-References to these JavaScript files will be automatically added to the header section of all generated HTML files. 
-
-To enable a distinction between EPUB and website generation in case you want to produce both with the same inputs,
-Laika expects the following suffixes for JavaScript files:
-
-* Files ending with `.epub.js` will only be linked in HTML files for EPUB, not for the site
-* File ending with `.shared.js` will be linked for both
-* All other files ending with `.js` will only be used for website content
+The Helium API offers ways to register which JavaScript files you want to be linked from the EPUB documents
+or alternatively which directories to scan for JavaScript files.
+See [Auto-Linking CSS & JS Files] for details.
 
 In case you want to create a custom EPUB template you need to provide some indicator in the config header whether
 the template needs scripting support, as each scripted document needs a flag in the OPF metadata for the EPUB container.

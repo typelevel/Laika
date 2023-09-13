@@ -25,6 +25,7 @@ import laika.helium.Helium
 import laika.helium.generate.{ CSSVarGenerator, FOStyles, MergedCSSGenerator }
 import laika.io.model.{ InputTree, InputTreeBuilder }
 import laika.rewrite.DefaultTemplatePath
+import laika.rewrite.nav.TargetFormats
 import laika.theme.config.{ EmbeddedFontFile, EmbeddedFontResource }
 
 /** @author Jens Halm
@@ -33,13 +34,14 @@ private[helium] object HeliumInputBuilder {
 
   object paths {
     private val heliumPath = Root / "helium"
-    val siteCSS: Path      = heliumPath / "laika-helium.css"
-    val epubCSS: Path      = heliumPath / "laika-helium.epub.css"
-    val landingCSS: Path   = heliumPath / "landing.page.css"
-    val icoFontCSS: Path   = heliumPath / "icofont.min.css"
-    val siteJS: Path       = heliumPath / "laika-helium.js"
-    val previewJS: Path    = heliumPath / "laika-preview.js"
-    val versionJS: Path    = heliumPath / "laika-versions.js"
+    val heliumSite: Path   = heliumPath / "site"
+    val siteCSS: Path      = heliumSite / "laika-helium.css"
+    val landingCSS: Path   = heliumSite / "landing-page.css"
+    val icoFontCSS: Path   = heliumSite / "icofont.min.css"
+    val siteJS: Path       = heliumSite / "laika-helium.js"
+    val previewJS: Path    = heliumSite / "laika-preview.js"
+    val versionJS: Path    = heliumSite / "laika-versions.js"
+    val epubCSS: Path      = heliumPath / "epub" / "laika-helium.css"
   }
 
   def build[F[_]: Async](helium: Helium): F[InputTreeBuilder[F]] = {
@@ -60,6 +62,12 @@ private[helium] object HeliumInputBuilder {
     val heliumPath    = Root / "helium"
     val templatesPath = heliumPath / "templates"
     val unversioned   = ConfigBuilder.empty.withValue(LaikaKeys.versioned, false).build
+    val htmlOnly      =
+      ConfigBuilder.empty.withValue(TargetFormats.Selected("html"): TargetFormats).build
+    val epubOnly      =
+      ConfigBuilder.empty.withValue(TargetFormats.Selected("epub", "xhtml"): TargetFormats).build
+    val fontConfig    =
+      ConfigBuilder.empty.withValue(TargetFormats.All: TargetFormats).build
 
     val themeInputs = fontInputs
       .addClassLoaderResource(
@@ -117,12 +125,15 @@ private[helium] object HeliumInputBuilder {
       .addConfig(
         ConfigBuilder.empty.withValue(
           LaikaKeys.targetFormats,
-          Seq("epub", "epub.xhtml", "pdf")
+          Seq("epub", "xhtml", "pdf")
         ).build,
-        Root / "laika" / "fonts" / "generated.conf"
+        Root / "laika" / "fonts"
       )
-      .addConfig(unversioned, Root / "laika" / "generated.conf")
-      .addConfig(unversioned, Root / "downloads" / "generated.conf")
+      .addConfig(unversioned, Root / "laika")
+      .addConfig(unversioned, Root / "downloads")
+      .addConfig(htmlOnly, paths.heliumSite)
+      .addConfig(epubOnly, heliumPath / "epub")
+      .addConfig(fontConfig, heliumPath / "fonts")
 
     val versionedInputs =
       if (helium.siteSettings.versions.isEmpty) themeInputs

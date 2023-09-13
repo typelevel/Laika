@@ -60,10 +60,33 @@ class TreeRendererSpec extends CatsEffectSuite
 
   object Inputs extends InputBuilder {
 
+    val configHtmlOnly: Config =
+      ConfigBuilder.withOrigin(
+        Origin(Origin.TreeScope, Root / "helium" / "site" / "directory.conf")
+      ).withValue(
+        TargetFormats.Selected("html"): TargetFormats
+      ).build
+
+    val configEpubOnly =
+      ConfigBuilder.withOrigin(
+        Origin(Origin.TreeScope, Root / "helium" / "epub" / "directory.conf")
+      ).withValue(
+        TargetFormats.Selected("epub", "xhtml"): TargetFormats
+      ).build
+
     def twoDocs(rootDoc: RootElement, subDoc: RootElement): DocumentTree =
       DocumentTree.builder
         .addDocument(Document(Root / "doc", rootDoc))
         .addDocument(Document(Root / "tree" / "subdoc", subDoc))
+        .addConfig(configHtmlOnly)
+        .addConfig(configEpubOnly)
+        .build
+
+    def oneDoc(rootDoc: RootElement): DocumentTree =
+      DocumentTree.builder
+        .addDocument(Document(Root / "doc", rootDoc))
+        .addConfig(configHtmlOnly)
+        .addConfig(configEpubOnly)
         .build
 
     def staticDoc(num: Int, path: Path = Root, formats: Option[String] = None): BinaryInput[IO] =
@@ -149,7 +172,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val fontConfig: Config =
       ConfigBuilder
         .withOrigin(Origin(Origin.TreeScope, Root / "laika" / "fonts" / "directory.conf"))
-        .withValue(LaikaKeys.targetFormats, Seq("epub", "epub.xhtml", "pdf"))
+        .withValue(LaikaKeys.targetFormats, Seq("epub", "xhtml", "pdf"))
         .build
 
     val fontConfigTree: TreeContent = DocumentTree.builder.addConfig(fontConfig).build.content.head
@@ -159,8 +182,7 @@ class TreeRendererSpec extends CatsEffectSuite
     def defaultContent: RootElement = RootElement(p("aaö"), p("bbb"))
     def defaultTree: DocumentTree   = defaultTree(defaultContent)
 
-    def defaultTree(content: RootElement): DocumentTree =
-      DocumentTree.builder.addDocument(Document(Root / "doc", content)).build
+    def defaultTree(content: RootElement): DocumentTree = Inputs.oneDoc(content)
 
     def defaultRoot(input: DocumentTree): DocumentTreeRoot =
       DocumentTreeRoot(input).addStyles(
@@ -222,7 +244,7 @@ class TreeRendererSpec extends CatsEffectSuite
     import Results.titleWithId
 
     val outputContext: OutputContext = OutputContext(HTML)
-    val staticPaths: Seq[Path]       = staticHTMLPaths.filterNot(_.suffix.contains("epub.css"))
+    val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(_.parent == Root / "helium" / "epub")
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
     lazy val defaultRenderer: Resource[IO, TreeRenderer[IO]] = Renderer.of(HTML).parallel[IO].build
   }
@@ -232,11 +254,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
     val outputContext: OutputContext = OutputContext(EPUB.XHTML)
 
-    val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(path =>
-      path.name == "laika-helium.css" || path.name == "icofont.min.css" || path.name == "landing.page.css" || path.suffix.contains(
-        "js"
-      )
-    )
+    val staticPaths: Seq[Path] = staticHTMLPaths.filterNot(_.parent == Root / "helium" / "site")
 
     override val defaultContent: RootElement = RootElement(titleWithId("Title"), p("bbb"))
 
@@ -527,6 +545,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .addDocument(Document(Root / "README", HTMLRenderer.defaultContent))
       .addDocument(Document(Root / "cover", HTMLRenderer.defaultContent))
       .addConfig(HTMLRenderer.fontConfig)
+      .addConfig(Inputs.configEpubOnly)
       .buildRoot
 
     val expected = RenderResult.html.withDefaultTemplate(
@@ -543,12 +562,12 @@ class TreeRendererSpec extends CatsEffectSuite
           Some(Results.doc(Root / "index.html", expected)),
           Some(Results.doc(Root / "cover.html", expected)),
           staticDocuments = Seq(
-            Root / "helium" / "laika-helium.js",
-            Root / "helium" / "landing.page.css",
-            Root / "helium" / "icofont.min.css",
+            Root / "helium" / "site" / "laika-helium.js",
+            Root / "helium" / "site" / "landing-page.css",
+            Root / "helium" / "site" / "icofont.min.css",
             Root / "helium" / "fonts" / "icofont.woff",
             Root / "helium" / "fonts" / "icofont.woff2",
-            Root / "helium" / "laika-helium.css"
+            Root / "helium" / "site" / "laika-helium.css"
           )
         )
       )
@@ -571,6 +590,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .addDocument(Document(Root / "doc-2.md", HTMLRenderer.defaultContent))
       .addDocument(Document(Root / "README.md", HTMLRenderer.defaultContent))
       .addConfig(HTMLRenderer.fontConfig)
+      .addConfig(Inputs.configEpubOnly)
       .buildRoot
 
     val expectedDefault         = RenderResult.html.withDefaultTemplate(
@@ -594,12 +614,12 @@ class TreeRendererSpec extends CatsEffectSuite
           Some(Results.doc(Root / "index.html", expectedDefault)),
           None,
           staticDocuments = Seq(
-            Root / "helium" / "laika-helium.js",
-            Root / "helium" / "landing.page.css",
-            Root / "helium" / "icofont.min.css",
+            Root / "helium" / "site" / "laika-helium.js",
+            Root / "helium" / "site" / "landing-page.css",
+            Root / "helium" / "site" / "icofont.min.css",
             Root / "helium" / "fonts" / "icofont.woff",
             Root / "helium" / "fonts" / "icofont.woff2",
-            Root / "helium" / "laika-helium.css"
+            Root / "helium" / "site" / "laika-helium.css"
           )
         )
       )
@@ -610,7 +630,7 @@ class TreeRendererSpec extends CatsEffectSuite
       """<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>""".stripMargin
     )
-    val path = (Root / "doc").withSuffix("epub.xhtml")
+    val path = (Root / "doc").withSuffix("xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree)
       .assertEquals(
@@ -633,7 +653,7 @@ class TreeRendererSpec extends CatsEffectSuite
     val input    = EPUB_XHTMLRenderer.defaultTree.addTemplate(template)
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
-    val path     = (Root / "doc").withSuffix("epub.xhtml")
+    val path     = (Root / "doc").withSuffix("xhtml")
     EPUB_XHTMLRenderer
       .render(input)
       .assertEquals(
@@ -662,7 +682,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .build
     val expected = """[<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>]""".stripMargin
-    val path     = (Root / "doc").withSuffix("epub.xhtml")
+    val path     = (Root / "doc").withSuffix("xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
       .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext))
@@ -696,7 +716,7 @@ class TreeRendererSpec extends CatsEffectSuite
         .build
     val expected             = """?<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>?""".stripMargin
-    val path                 = (Root / "doc").withSuffix("epub.xhtml")
+    val path                 = (Root / "doc").withSuffix("xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
       .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext))

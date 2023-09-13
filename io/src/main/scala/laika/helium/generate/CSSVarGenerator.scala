@@ -51,7 +51,7 @@ private[helium] object CSSVarGenerator {
   def generate(settings: EPUBSettings): String = {
     val embeddedFonts = settings.bookConfig.fonts.flatMap { font =>
       font.resource.embedResource.map { res =>
-        generateFontFace(font, res.path.relativeTo(Root / "helium" / "laika-helium.epub.css"))
+        generateFontFace(font, res.path.relativeTo(Root / "helium" / "epub" / "laika-helium.css"))
       }
     }.mkString("", "\n\n", "\n\n")
     embeddedFonts + generate(

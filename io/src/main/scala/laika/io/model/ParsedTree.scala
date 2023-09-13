@@ -16,7 +16,8 @@
 
 package laika.io.model
 
-import laika.ast.{ DocumentTree, DocumentTreeRoot, Path, StaticDocument }
+import laika.ast.{ DocumentTree, DocumentTreeRoot, Path }
+import laika.rewrite.nav.TargetFormats
 
 /** The result of a parsing operation for an entire document tree.
   *
@@ -29,7 +30,10 @@ import laika.ast.{ DocumentTree, DocumentTreeRoot, Path, StaticDocument }
   * might copy them into a target directory, or embed them into an output format
   * like EPUB.
   */
-class ParsedTree[F[_]](val root: DocumentTreeRoot, val staticDocuments: Seq[BinaryInput[F]]) {
+class ParsedTree[F[_]] private (
+    val root: DocumentTreeRoot,
+    val staticDocuments: Seq[BinaryInput[F]]
+) {
 
   /** Creates a new instance by applying the specified function to the root tree.
     */
@@ -50,19 +54,33 @@ class ParsedTree[F[_]](val root: DocumentTreeRoot, val staticDocuments: Seq[Bina
 
   /** Removes all static documents of this instance and replaces them with the specified alternatives.
     */
-  def replaceStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = new ParsedTree(
-    root =
-      root.replaceStaticDocuments(newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))),
-    staticDocuments = newStaticDocs
-  )
+  def replaceStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] =
+    ParsedTree[F](root.replaceStaticDocuments(Nil)).addStaticDocuments(newStaticDocs)
 
   /** Adds the specified static documents to this instance.
     */
-  def addStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = new ParsedTree(
-    root = root.addStaticDocuments(
-      newStaticDocs.map(doc => StaticDocument(doc.path, doc.formats))
-    ),
-    staticDocuments = staticDocuments ++ newStaticDocs
-  )
+  def addStaticDocuments(newStaticDocs: Seq[BinaryInput[F]]): ParsedTree[F] = {
+    val docsWithFormats = assignFormats(newStaticDocs)
+    val newRoot         = root
+      .removeStaticDocuments(newStaticDocs.map(_.path).toSet)
+      .addStaticDocuments(docsWithFormats.map(_.descriptor))
+    new ParsedTree(newRoot, staticDocuments ++ docsWithFormats)
+  }
+
+  private def assignFormats(staticDocs: Seq[BinaryInput[F]]): Seq[BinaryInput[F]] = {
+    val treePaths   = staticDocs.map(_.path.parent).toSet
+    val treeConfigs = treePaths.map(p => (p, root.selectTreeConfig(p))).toMap
+    staticDocs.map { doc =>
+      val config  = treeConfigs.get(doc.path.parent)
+      val formats = config.flatMap(_.get[TargetFormats].toOption)
+      formats.fold(doc)(doc.forTargetFormats)
+    }
+  }
+
+}
+
+object ParsedTree {
+
+  def apply[F[_]](root: DocumentTreeRoot): ParsedTree[F] = new ParsedTree[F](root, Nil)
 
 }

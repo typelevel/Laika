@@ -210,7 +210,8 @@ class TreeParserFileIOSpec
   }
 
   object ExtraConfig extends CustomInputSetup {
-    val path: Path = Root / "tree-2" / "directory.conf"
+    val treePath: Path = Root / "tree-2"
+    val path: Path     = Root / "tree-2" / "directory.conf"
 
     def checkConfig(root: DocumentTreeRoot): Unit = {
       val actual = root
@@ -339,11 +340,11 @@ class TreeParserFileIOSpec
     "read a directory from the file system plus one extra config document built programmatically"
   ) {
     val config = ConfigBuilder
-      .withOrigin(Origin(TreeScope, ExtraConfig.path))
+      .withOrigin(Origin(TreeScope, ExtraConfig.treePath))
       .withValue("foo", 7).build
 
     CustomInput.run(
-      _.addConfig(config, ExtraConfig.path),
+      _.addConfig(config, ExtraConfig.treePath),
       ExtraConfig.expected(),
       ExtraConfig.checkConfig
     )

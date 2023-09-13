@@ -106,9 +106,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
               |<title></title>
               |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
               |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-              |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-              |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-              |<script src="helium/laika-helium.js"></script>
+              |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+              |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+              |<script src="helium/site/laika-helium.js"></script>
               |<script> /* for avoiding page load transitions */ </script>""".stripMargin
 
   val heliumBase = Helium.defaults.site.landingPage()
@@ -188,10 +188,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<title></title>
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
           |<link rel="stylesheet" type="text/css" href="web-1/foo.css" />
-          |<script src="helium/laika-helium.js"></script>
+          |<script src="helium/site/laika-helium.js"></script>
           |<script src="web-1/foo-1.js"></script>
           |<script src="web-1/foo-2.js"></script>
           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
@@ -219,11 +219,11 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<title></title>
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
           |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
           |<link rel="stylesheet" type="text/css" href="web/foo.css" />
-          |<script src="helium/laika-helium.js"></script>
+          |<script src="helium/site/laika-helium.js"></script>
           |<script src="web/foo.js"></script>
           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium.extendWith(themeExt)).assertEquals(expected)
@@ -247,10 +247,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
           |<link rel="stylesheet" type="text/css" href="https://foo.com/styles.css" integrity="xyz" crossorigin="anonymous" />
-          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
           |<script src="https://foo.com/script.js" defer integrity="xyz" crossorigin="anonymous"></script>
-          |<script src="helium/laika-helium.js"></script>
+          |<script src="helium/site/laika-helium.js"></script>
           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
@@ -275,14 +275,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
            |<title></title>
            |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
            |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-           |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-           |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+           |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+           |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
            |<style>
            |h1 {
            |color: #111111;
            |}
            |</style>
-           |<script src="helium/laika-helium.js"></script>
+           |<script src="helium/site/laika-helium.js"></script>
            |<script type="module">
            |$script
            |</script>
@@ -303,9 +303,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<meta name="description" content="Some description"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
@@ -324,9 +324,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="canonical" href="http://very.canonical/"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(docWithCanonicalLink, heliumBase).assertEquals(expected)
   }
@@ -350,9 +350,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="icon"  type="image/svg+xml" href="icon.svg"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
@@ -380,10 +380,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
-                |<script src="../helium/laika-helium.js"></script>
-                |<script src="../helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+                |<script src="../helium/site/laika-helium.js"></script>
+                |<script src="../helium/site/laika-versions.js"></script>
                 |<script>initVersions("../../", "/dir/name.html", "0.42", null);</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
@@ -409,9 +409,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<title></title>
                 |<link rel="stylesheet" href="http://fonts.com/font-1.css">
                 |<link rel="stylesheet" href="http://fonts.com/font-2.css">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
@@ -423,10 +423,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<title></title>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
+                |<script src="helium/site/laika-versions.js"></script>
                 |<script>initVersions("../", "/name.html", "0.42", "https://foo.org/");</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleVersionedDoc, helium, Root / "0.42" / "name.html").assertEquals(
@@ -441,10 +441,10 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<title></title>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
+                |<script src="helium/site/laika-versions.js"></script>
                 |<script>initVersions("", "", "", null);</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
@@ -524,9 +524,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<title>Title</title>
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-          |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-          |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-          |<script src="helium/laika-helium.js"></script>
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<script src="helium/site/laika-helium.js"></script>
           |<script type="module">
           |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
           |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;

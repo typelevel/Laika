@@ -26,26 +26,13 @@ import laika.rewrite.nav.TargetFormats
   */
 object DocumentTypeMatcher {
 
-  import DocumentType._
+  import DocumentType.*
 
-  private def suffix(name: String) = name.lastIndexOf(".") match {
-    case -1    => ""
-    case index => name.drop(index + 1)
-  }
-
-  private val TemplateName = """.+\.template\..+$""".r
-
-  private val StylesheetName =
-    """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
-  private val ConfigName = "directory.conf"
-
+  /* These are "fallback formats" that can be overridden by users or theme authors
+   * with 'laika.targetFormats = [...]' in `directory.conf`. */
   private def staticTargetFormats(path: Path): TargetFormats = path.suffix match {
-    case Some("shared.css") | Some("shared.js") =>
-      TargetFormats.Selected("html", "epub", "epub.xhtml")
-    case Some("epub.css") | Some("epub.js")     => TargetFormats.Selected("epub", "epub.xhtml")
-    case Some("css") | Some("js")               => TargetFormats.Selected("html")
-    case Some(fmt) if fmt.endsWith(".css") || fmt.endsWith(".js") => TargetFormats.Selected("html")
-    case _                                                        => TargetFormats.All
+    case Some("css") | Some("js") => TargetFormats.Selected("html", "epub", "xhtml")
+    case _                        => TargetFormats.All
   }
 
   /** The base matcher that recognizes all file types known to Laika
@@ -53,11 +40,11 @@ object DocumentTypeMatcher {
     * and need to be created separately.
     */
   val base: PartialFunction[Path, DocumentType] = { case path: Path =>
-    path.name match {
-      case ConfigName       => Config
-      case TemplateName()   => Template
-      case StylesheetName() => StyleSheet("fo")
-      case _                => Static(staticTargetFormats(path))
+    (path.basename, path.suffix) match {
+      case ("directory", Some("conf"))                   => Config
+      case (base, Some(_)) if base.endsWith(".template") => Template
+      case (base, Some("css")) if base.endsWith(".fo")   => StyleSheet("fo")
+      case _                                             => Static(staticTargetFormats(path))
     }
   }
 
@@ -65,7 +52,7 @@ object DocumentTypeMatcher {
     * with one of the specified file suffixes as a markup document.
     */
   def forMarkup(fileSuffixes: Set[String]): PartialFunction[Path, DocumentType] = {
-    case path if fileSuffixes(suffix(path.name)) => Markup
+    case path if path.suffix.exists(fileSuffixes.contains) => Markup
   }
 
 }
