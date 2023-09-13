@@ -25,6 +25,7 @@ import laika.ast.{
   CodeBlock,
   Document,
   DocumentTreeRoot,
+  Path,
   RewritePhase,
   RootElement,
   Section,
@@ -47,14 +48,16 @@ private[preview] object ASTPageTransformer {
     val description: String           = "AST URL extension for preview server"
     private val outputName            = "ast"
 
+    def translateASTPath(path: Path): Path = {
+      val base = path.withoutFragment / outputName
+      path.fragment.fold(base)(base.withFragment)
+    }
+
     override def extendPathTranslator
         : PartialFunction[ExtensionBundle.PathTranslatorExtensionContext, PathTranslator] = {
       case context =>
         PathTranslator.postTranslate(context.baseTranslator) { path =>
-          if (path.suffix.contains("html")) {
-            val base = path.withoutFragment / outputName
-            path.fragment.fold(base)(base.withFragment)
-          }
+          if (path.suffix.contains("html")) translateASTPath(path)
           else path
         }
     }
