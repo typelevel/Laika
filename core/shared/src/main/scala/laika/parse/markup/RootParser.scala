@@ -17,12 +17,12 @@
 package laika.parse.markup
 
 import cats.data.NonEmptySet
-import laika.ast._
-import laika.bundle._
+import laika.ast.*
+import laika.bundle.*
 import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
+import laika.parse.builders.*
 
 import scala.collection.immutable.TreeSet
 
@@ -51,7 +51,7 @@ private[laika] class RootParser(markupParser: MarkupFormat, markupExtensions: Ma
     opt(blankLines) ~> blockList(rootBlock).map(RootElement(_))
 
   private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
-    createAndSortParsers(markupParser.blockParsers, markupExtensions.blockParsers)
+    createAndSortParsers(markupParser.blockParsers.all, markupExtensions.blockParsers)
 
   protected lazy val rootBlock: Parser[Block] = merge(
     sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly)
@@ -77,7 +77,7 @@ private[laika] class RootParser(markupParser: MarkupFormat, markupExtensions: Ma
 
   protected lazy val spanParsers: Seq[PrefixedParser[Span]] = {
     val escapedText = SpanParserBuilder.standalone(escapeSequence.map(Text(_))).withLowPrecedence
-    val mainParsers = markupParser.spanParsers :+ escapedText
+    val mainParsers = markupParser.spanParsers.all :+ escapedText
 
     createAndSortParsers(mainParsers, markupExtensions.spanParsers).map { parserDef =>
       PrefixedParser(parserDef.startChars)(parserDef.parser)

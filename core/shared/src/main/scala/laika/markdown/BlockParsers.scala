@@ -83,17 +83,9 @@ private[laika] object BlockParsers {
     mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
 
-  /** Parses either a setext header, or a plain paragraph if the second line of the block
-    * is not a setext header decoration.
-    * Only used for root level blocks where lists starting in the middle of a paragraph are not allowed.
-    */
   lazy val rootHeaderOrParagraph: BlockParserBuilder =
     BlockParserBuilder.recursive(headerOrParagraph(_, BlockPosition.RootOnly)).rootOnly
 
-  /** Parses either a setext header, or a plain paragraph if the second line of the block
-    * is not a setext header decoration.
-    * Only used for nested blocks where lists starting in the middle of a paragraph are allowed.
-    */
   lazy val nestedHeaderOrParagraph: BlockParserBuilder =
     BlockParserBuilder.recursive(headerOrParagraph(_, BlockPosition.NestedOnly)).nestedOnly
 
@@ -134,9 +126,6 @@ private[laika] object BlockParsers {
     }
   }
 
-  /** Parses a link definition in the form `[id]: <url> "title"`.
-    * The title is optional as well as the quotes around it and the angle brackets around the url.
-    */
   val linkTarget: BlockParserBuilder = BlockParserBuilder.withEscapedText { escapedParsers =>
     import escapedParsers._
 
@@ -156,11 +145,6 @@ private[laika] object BlockParsers {
     (id ~ url ~ opt(title) <~ wsEol).mapN(LinkDefinition.create)
   }.rootOnly
 
-  /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,
-    * with the number of hash characters corresponding to the level of the header.
-    * Markdown also allows to decorate the line with trailing `'#'` characters which
-    * this parser will remove.
-    */
   val atxHeader: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     def stripDecoration(text: String) = text.trim.reverse.dropWhile(_ == '#').reverse.trim
 
@@ -170,17 +154,12 @@ private[laika] object BlockParsers {
     (level ~ (not(blankLine) ~ ws ~> text)).mapN(Header(_, _))
   }
 
-  /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
-    * characters with optional spaces between them
-    */
   val rules: BlockParserBuilder = BlockParserBuilder.standalone {
     val decoChar = oneOf('*', '-', '_')
     val pattern  = (decoChar ~ (anyOf(' ').void ~ decoChar).rep.min(2)).as(Rule())
     pattern <~ wsEol
   }
 
-  /** Parses a literal block, text indented by a tab or 4 spaces.
-    */
   val literalBlocks: BlockParserBuilder = BlockParserBuilder.standalone {
     val wsPreProcessor = WhitespacePreprocessor.forString
     PrefixedParser(' ', '\t') {
@@ -190,9 +169,6 @@ private[laika] object BlockParsers {
     }
   }
 
-  /** Parses a quoted block, a paragraph starting with a `'>'` character,
-    * with subsequent lines optionally starting with a `'>'`, too.
-    */
   val quotedBlock: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     PrefixedParser('>') {
       val decoratedLine = ">" ~ ws.max(1).void

@@ -18,6 +18,7 @@ package laika.factory
 
 import laika.ast.Block
 import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.text.TextParsers
@@ -42,11 +43,11 @@ trait MarkupFormat extends Format {
 
   /** All block parsers for the markup language this parser processes.
     */
-  def blockParsers: Seq[BlockParserBuilder]
+  def blockParsers: MarkupParsers[BlockParserBuilder]
 
   /** All span parsers for the markup language this parser processes.
     */
-  def spanParsers: Seq[SpanParserBuilder]
+  def spanParsers: MarkupParsers[SpanParserBuilder]
 
   /** Parses the character after the one that started the escape sequence (usually a backslash).
     *
@@ -78,5 +79,32 @@ trait MarkupFormat extends Format {
     */
   def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     (parser <~ Parsers.opt(TextParsers.blankLines)).rep
+
+}
+
+object MarkupFormat {
+
+  /** API for registering parsers for a specific markup format.
+    *
+    * The only abstract method is `all` that specifies the list of parsers
+    * to register with Laika's parser runtime.
+    *
+    * But parser authors are encouraged to use this type for also creating
+    * public properties for each of their individual parsers so that users
+    * can compose them for custom formats or parser extensions.
+    *
+    * The type of these properties should be either `BlockParserBuilder` or
+    * `SpanParserBuilder` which allows to keep all parser implementation details
+    * private and only offer high level entry points for extension authors.
+    */
+  trait MarkupParsers[E] {
+
+    /** List of parsers to register with the runtime for a specific markup format.
+      *
+      * The order of parsers in this sequence is significant and determines
+      * the precedence in which parsers are tried on blocks or spans.
+      */
+    def all: Seq[E]
+  }
 
 }

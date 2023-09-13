@@ -212,10 +212,6 @@ private[laika] object TableParsers {
     case _               => Nil
   }
 
-  /** Parses a grid table.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
-    */
   lazy val gridTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersectChar = '+'
     val intersect     = oneOf(intersectChar).as(Intersection)
@@ -307,10 +303,6 @@ private[laika] object TableParsers {
 
   }
 
-  /** Parses a simple table.
-    *
-    * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
-    */
   lazy val simpleTable: BlockParserBuilder = BlockParserBuilder.recursive { recParsers =>
     val intersect   = someOf(' ').count
     val tableBorder = someOf('=').count

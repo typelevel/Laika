@@ -54,14 +54,15 @@ The contract a markup implementation has to adhere to is captured in the followi
 
 ```scala mdoc
 import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.factory.MarkupFormat.MarkupParsers
 
 trait MarkupFormat {
 
   def fileSuffixes: Set[String]
 
-  def blockParsers: Seq[BlockParserBuilder]
+  def blockParsers: MarkupParsers[BlockParserBuilder]
   
-  def spanParsers: Seq[SpanParserBuilder]
+  def spanParsers: MarkupParsers[SpanParserBuilder]
 
   def extensions: Seq[ExtensionBundle]
   
@@ -77,8 +78,12 @@ These are the four abstract method each parser has to implement.
   Laika supports a setup where input directories may contain source files written in different markup languages.
   In this case the format detection is solely based on the file suffix.
 
-* The `blockParsers` and `spanParsers` collections provide the definitions for the actual markup parsers. 
+* The `blockParsers` and `spanParsers` properties provide the definitions for the actual markup parsers. 
   These are the same types you've already seen when registering parsers as extensions.
+
+  Builtin parsers implement these two properties in a way that they also expose the individual
+  top-level parsers via its API so that users can alternatively cherry-pick them and compose
+  them with other parsers for their own extensions or custom formats.
 
   It may sound too good to be true, but the task of assembling the building blocks of a markup language
   in Laika is indeed merely declarative. 

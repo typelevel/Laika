@@ -23,6 +23,7 @@ import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.*
 import laika.factory.MarkupFormat
+import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.*
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
@@ -51,8 +52,12 @@ trait ParserSetup {
 
     new MarkupFormat {
       val fileSuffixes    = Set("foo")
-      val blockParsers    = blocks
-      val spanParsers     = spans
+      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+        val all: Seq[BlockParserBuilder] = blocks
+      }
+      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+        val all: Seq[SpanParserBuilder] = spans
+      }
       lazy val extensions = bundles
     }
 
