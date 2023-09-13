@@ -17,14 +17,21 @@
 package laika.preview
 
 import java.io.InputStream
-
 import cats.syntax.all._
 import cats.effect.{ Async, Resource, Sync }
 import fs2.concurrent.Topic
 import fs2.io.readInputStream
 import laika.preview.ServerBuilder.Logger
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{ CacheDirective, EntityEncoder, Headers, HttpRoutes, MediaType, ServerSentEvent }
+import org.http4s.{
+  CacheDirective,
+  EntityEncoder,
+  Headers,
+  HttpRoutes,
+  MediaType,
+  Response,
+  ServerSentEvent
+}
 import org.http4s.headers.{ `Cache-Control`, `Content-Type` }
 
 import scala.concurrent.duration.DurationInt
@@ -48,6 +55,25 @@ private[preview] class RouteBuilder[F[_]: Async](
 
   private val noCache = `Cache-Control`(CacheDirective.`no-store`)
 
+  def serve(laikaPath: laika.ast.Path, result: Option[SiteResult[F]]): F[Response[F]] =
+    result match {
+      case Some(RenderedResult(content)) =>
+        logger(s"serving path $laikaPath - transformed markup") *>
+          Ok(content).map(
+            _
+              .withHeaders(noCache)
+              .withContentType(`Content-Type`(MediaType.text.html))
+          )
+      case Some(StaticResult(input))     =>
+        logger(s"serving path $laikaPath - static input") *> {
+          val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
+          Ok(input).map(_.withHeaders(Headers(mediaType, noCache)))
+        }
+      case Some(LazyResult(res))         => res.flatMap(serve(laikaPath, _))
+      case None                          =>
+        logger(s"serving path $laikaPath - not found") *> NotFound()
+    }
+
   def build: HttpRoutes[F] = HttpRoutes.of[F] {
 
     case GET -> Root / "laika" / "events" =>
@@ -56,22 +82,7 @@ private[preview] class RouteBuilder[F[_]: Async](
 
     case GET -> path =>
       val laikaPath = laika.ast.Path.parse(path.toString)
-      cache.get.map(_.get(laikaPath.withoutFragment)).flatMap {
-        case Some(RenderedResult(content)) =>
-          logger(s"serving path $laikaPath - transformed markup") *>
-            Ok(content).map(
-              _
-                .withHeaders(noCache)
-                .withContentType(`Content-Type`(MediaType.text.html))
-            )
-        case Some(StaticResult(input))     =>
-          logger(s"serving path $laikaPath - static input") *> {
-            val mediaType = laikaPath.suffix.flatMap(mediaTypeFor).map(`Content-Type`(_))
-            Ok(input).map(_.withHeaders(Headers(mediaType, noCache)))
-          }
-        case None                          =>
-          logger(s"serving path $laikaPath - not found") *> NotFound()
-      }
+      cache.get.map(_.get(laikaPath.withoutFragment)).flatMap(serve(laikaPath, _))
   }
 
 }
