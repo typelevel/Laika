@@ -2,6 +2,19 @@
 Release Notes
 =============
 
+0.19.5 (Sep 14, 2023)
+---------------------
+
+* **Performance**
+
+  Fixes a performance regression in 0.19.4 where boot times for the preview server were
+  significantly slower than in 0.19.3
+
+* **Dependencies**
+    
+  Update fs2 to 3.9.2
+
+
 0.19.4 (Sep 10, 2023)
 ---------------------
 
