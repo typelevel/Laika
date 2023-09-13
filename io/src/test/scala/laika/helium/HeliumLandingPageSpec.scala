@@ -101,12 +101,12 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<title></title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/landing-page.css" />
          |<link rel="stylesheet" type="text/css" href="styles/landing-extra.page.css" />
-         |<script src="helium/laika-helium.js"></script>
-         |<script src="helium/laika-versions.js"></script>
+         |<script src="helium/site/laika-helium.js"></script>
+         |<script src="helium/site/laika-versions.js"></script>
          |<script>initVersions("", "", "", null);</script>
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
@@ -212,10 +212,10 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<title></title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
-         |<script src="helium/laika-helium.js"></script>
+         |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/landing-page.css" />
+         |<script src="helium/site/laika-helium.js"></script>
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>

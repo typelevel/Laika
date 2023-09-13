@@ -23,9 +23,9 @@ import laika.ast.Path.Root
 import laika.format.{ EPUB, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.implicits.*
 import laika.io.model.StringTreeOutput
-import laika.theme._
+import laika.theme.*
 import munit.CatsEffectSuite
 
 class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
@@ -47,7 +47,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
        |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
        |<meta name="generator" content="Typelevel Laika + Helium Theme" />
        |<title></title>
-       |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
+       |<link rel="stylesheet" type="text/css" href="helium/epub/laika-helium.css" />""".stripMargin
 
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] =
     transformAndExtractHead(inputs, Helium.defaults)
@@ -57,7 +57,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       for {
         resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
         res        <- IO.fromEither(
-          resultTree.extractTidiedTagContent(Root / "name.epub.xhtml", "head")
+          resultTree.extractTidiedTagContent((Root / "name").withSuffix("xhtml"), "head")
             .toRight(new RuntimeException("Missing document under test"))
         )
       } yield res
@@ -72,7 +72,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
       res        <- IO.fromEither(
-        resultTree.extractTidiedSubstring(Root / "name.epub.xhtml", start, end)
+        resultTree.extractTidiedSubstring(Root / "name.xhtml", start, end)
           .toRight(new RuntimeException("Missing document under test"))
       )
     } yield res
@@ -98,7 +98,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
          |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
          |<meta name="generator" content="Typelevel Laika + Helium Theme" />
          |<title></title>
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/epub/laika-helium.css" />
          |<link rel="stylesheet" type="text/css" href="custom-css/foo.shared.css" />
          |<script src="custom-js/foo.epub.js"></script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
@@ -117,7 +117,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
          |<meta name="author" content="Maria Green"/>
          |<meta name="author" content="Elena Blue"/>
          |<meta name="description" content="Some description"/>
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />""".stripMargin
+         |<link rel="stylesheet" type="text/css" href="helium/epub/laika-helium.css" />""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 

@@ -72,8 +72,8 @@ private[preview] class SiteTransformer[F[_]: Async](
         val classifier =
           if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
         val docName    = artifactBaseName + classifier + "." + suffix
-        val path       = downloadPath / docName
-        (path, StaticResult(renderBinary(renderer, new ParsedTree(root, tree.staticDocuments))))
+        val finalTree  = ParsedTree(root).addStaticDocuments(tree.staticDocuments)
+        (downloadPath / docName, StaticResult(renderBinary(renderer, finalTree)))
       }.toMap
     }
   }

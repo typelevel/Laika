@@ -65,29 +65,18 @@ private[io] object RendererRuntime {
 
     def filterStaticDocuments(
         staticDocs: Seq[BinaryInput[F]],
-        root: DocumentTreeRoot,
         pathTranslator: PathTranslator,
         versions: Option[Versions]
-    ): F[Seq[BinaryInput[F]]] = {
+    ): Seq[BinaryInput[F]] = {
 
-      /* This method needs to use the original root before the templates were applied as that step removes subtrees
-         where the target format does not match, which also removes the tree config which is needed in this impl. */
+      val renderUnversioned = versions.fold(true)(_.renderUnversioned)
 
-      Sync[F].fromEither(RootCursor(root).map { cursor =>
-        val renderUnversioned = versions.fold(true)(_.renderUnversioned)
-
-        staticDocs.filter { doc =>
-          val treeConfig = cursor.treeConfig(doc.path.parent)
-          doc.formats.contains(context.formatSelector) &&
-          treeConfig
-            .get[TargetFormats]
-            .getOrElse(TargetFormats.All)
-            .contains(context.formatSelector) &&
-          (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(
-            _.isVersioned
-          )) // TODO - extract
-        }
-      }.leftMap(e => RendererErrors(Seq(ConfigException(e)))))
+      staticDocs.filter { doc =>
+        doc.formats.contains(context.formatSelector) &&
+        (renderUnversioned || pathTranslator.getAttributes(doc.path).exists(
+          _.isVersioned
+        ))
+      }
     }
 
     def renderDocuments(
@@ -284,21 +273,18 @@ private[io] object RendererRuntime {
     val staticPaths = op.staticDocuments.map(_.path).toSet
     val staticDocs  =
       op.staticDocuments ++ themeInputs.binaryInputs.filterNot(i => staticPaths.contains(i.path))
-    val tree        = new ParsedTree(op.input, staticDocs)
+    val tree        = ParsedTree(op.input).addStaticDocuments(staticDocs)
 
     for {
       mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
       versions    <- Sync[F].fromEither(mapError(finalRoot.config.getOpt[Versions]))
       pTranslator <- Sync[F].fromEither(mapError(op.config.pathTranslatorFor(finalRoot, context)))
-      vInfo  <- generateVersionInfo(finalRoot, pTranslator, versions, mappedTree.staticDocuments)
-      static <- filterStaticDocuments(
-        mappedTree.staticDocuments,
-        mappedTree.root,
-        pTranslator,
-        versions
-      ).map(replaceVersionInfo(vInfo))
-      _      <- validatePaths(static)
+      vInfo <- generateVersionInfo(finalRoot, pTranslator, versions, mappedTree.staticDocuments)
+      static = replaceVersionInfo(vInfo)(
+        filterStaticDocuments(mappedTree.staticDocuments, pTranslator, versions)
+      )
+      _ <- validatePaths(static)
       ops = renderOps(finalRoot, pTranslator, versions, static)
       _   <- ops.mkDirOps.toVector.sequence
       res <- processBatch(finalRoot, ops.renderOps, pTranslator)

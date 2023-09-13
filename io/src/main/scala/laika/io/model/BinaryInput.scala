@@ -18,7 +18,7 @@ package laika.io.model
 
 import cats.effect.{ Async, Sync }
 import fs2.io.file.Files
-import laika.ast.{ Navigatable, Path }
+import laika.ast.{ Navigatable, Path, StaticDocument }
 import laika.ast.Path.Root
 import laika.rewrite.nav.TargetFormats
 
@@ -44,6 +44,11 @@ class BinaryInput[F[_]] private (
 ) extends Navigatable {
 
   def withPath(newPath: Path): BinaryInput[F] = new BinaryInput(input, newPath, formats, sourceFile)
+
+  def forTargetFormats(newFormats: TargetFormats): BinaryInput[F] =
+    new BinaryInput(input, path, newFormats, sourceFile)
+
+  def descriptor: StaticDocument = StaticDocument(path, formats)
 
 }
 

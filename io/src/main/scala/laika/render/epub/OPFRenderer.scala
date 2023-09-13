@@ -113,7 +113,7 @@ private[epub] class OPFRenderer {
   def render[F[_]](result: RenderedTreeRoot[F], title: String, config: BookConfig): String = {
 
     lazy val hasScriptDocuments: Boolean =
-      result.staticDocuments.exists(_.path.suffix.exists(s => s == "epub.js" || s == "shared.js"))
+      result.staticDocuments.exists(_.path.suffix.contains("js"))
 
     def isScripted(doc: RenderedDocument): Boolean =
       doc.config.get[ScriptedTemplate].getOrElse(ScriptedTemplate.Never) match {

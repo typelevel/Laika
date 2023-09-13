@@ -308,7 +308,7 @@ class InputTreeBuilder[F[_]] private[model] (
     * that is equivalent to having a HOCON file called `directory.conf` in that directory.
     */
   def addConfig(config: Config, treePath: Path): InputTreeBuilder[F] = addBuilderPart(
-    ConfigPart(treePath, config)
+    ConfigPart(treePath / "directory.conf", config)
   )
 
   /** Adds the specified styles for PDF to the input tree.

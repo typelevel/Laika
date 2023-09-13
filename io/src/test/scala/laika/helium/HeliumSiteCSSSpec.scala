@@ -52,7 +52,11 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   ): IO[String] = transformer(helium.build).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.css", start, end)
+      res        <- resultTree.extractStaticContent(
+        Root / "helium" / "site" / "laika-helium.css",
+        start,
+        end
+      )
     } yield res
   }
 

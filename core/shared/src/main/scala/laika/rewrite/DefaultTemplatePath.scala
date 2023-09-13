@@ -25,12 +25,12 @@ import laika.ast.Path.Root
   */
 object DefaultTemplatePath {
 
-  private val base: Path = Root / "default"
+  private val base: Path = ((Root / "default.template" / "doc")).parent
 
-  private[laika] def forSuffix(suffix: String): Path = base.withSuffix(s"template.$suffix")
+  private[laika] def forSuffix(suffix: String): Path = base.withSuffix(suffix)
 
   def forHTML: Path = forSuffix("html")
-  def forEPUB: Path = forSuffix("epub.xhtml")
+  def forEPUB: Path = forSuffix("xhtml")
   def forFO: Path   = forSuffix("fo")
 
 }

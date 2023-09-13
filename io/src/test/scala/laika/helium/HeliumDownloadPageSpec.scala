@@ -92,9 +92,9 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
          |<title>Downloads</title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-         |<script src="helium/laika-helium.js"></script>
+         |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+         |<script src="helium/site/laika-helium.js"></script>
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>

@@ -25,6 +25,8 @@ import laika.config.*
 import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
 
+import scala.annotation.tailrec
+
 /** A navigatable object is anything that has an associated path.
   */
 trait Navigatable {
@@ -417,7 +419,7 @@ private[ast] case class TreeNodeContext(
   * @param titleDocument the optional title document of this tree
   * @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
   */
-class DocumentTree private[ast] (
+final class DocumentTree private[ast] (
     context: TreeNodeContext,
     val content: Seq[TreeContent],
     val titleDocument: Option[Document] = None,
@@ -749,7 +751,7 @@ object DocumentTree {
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
   * @param staticDocuments the descriptors for documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
   */
-class DocumentTreeRoot private (
+final class DocumentTreeRoot private (
     val tree: DocumentTree,
     val coverDocument: Option[Document],
     val styles: Map[String, StyleDeclarationSet],
@@ -817,6 +819,9 @@ class DocumentTreeRoot private (
   private[laika] def replaceStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
     copy(staticDocuments = newDocs)
 
+  private[laika] def removeStaticDocuments(paths: Set[Path]): DocumentTreeRoot =
+    copy(staticDocuments = staticDocuments.filterNot(doc => paths.contains(doc.path)))
+
   /** Adds the specified static document references to this document tree.
     */
   def addStaticDocuments(newDocs: Seq[StaticDocument]): DocumentTreeRoot =
@@ -878,6 +883,18 @@ class DocumentTreeRoot private (
       context: OutputContext
   ): Either[ConfigError, DocumentTreeRoot] =
     TemplateRewriter.applyTemplates(this, rules, context)
+
+  /** Selects the configuration associated with a subtree.
+    * In case the subtree does not exist it will recursively try parent trees
+    * to reflect the inheritance nature of tree configuration.
+    * Will always succeed and return the root config if no matching children are found.
+    */
+  @tailrec
+  def selectTreeConfig(path: Path): Config = tree.selectSubtree(path.relative) match {
+    case Some(tree)           => tree.config
+    case None if path == Root => config
+    case None                 => selectTreeConfig(path.parent)
+  }
 
 }
 
