@@ -30,11 +30,11 @@ import laika.parse.implicits.*
   *
   * @author Jens Halm
   */
-object DocumentParser {
+private[laika] object DocumentParser {
 
-  case class DocumentInput(path: Path, source: SourceCursor)
+  private[laika] case class DocumentInput(path: Path, source: SourceCursor)
 
-  object DocumentInput {
+  private[laika] object DocumentInput {
 
     def apply(path: Path, input: String): DocumentInput =
       new DocumentInput(path, SourceCursor(input, path))
@@ -55,7 +55,7 @@ object DocumentParser {
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  private[laika] def forMarkup(
+  def forMarkup(
       markupParser: MarkupFormat,
       markupExtensions: MarkupExtensions,
       configProvider: ConfigProvider
@@ -63,7 +63,13 @@ object DocumentParser {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
-    markupExtensions.parserHooks.preProcessInput andThen
+    val preProcess: DocumentInput => DocumentInput = input => {
+      val raw          = input.source.input
+      val preprocessed = markupExtensions.parserHooks.preProcessInput(raw)
+      input.copy(source = SourceCursor(preprocessed, input.path))
+    }
+
+    preProcess andThen
       forMarkup(rootParser, configProvider) andThen {
         _.map(markupExtensions.parserHooks.postProcessDocument)
       }
@@ -72,7 +78,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  private[laika] def forMarkup(
+  def forMarkup(
       rootParser: Parser[RootElement],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, UnresolvedDocument] =
@@ -84,7 +90,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  private[laika] def forTemplate(
+  def forTemplate(
       rootParser: Parser[TemplateRoot],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, TemplateDocument] =
@@ -94,7 +100,7 @@ object DocumentParser {
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
-  private[laika] def forStyleSheets(
+  def forStyleSheets(
       parser: Parser[Set[StyleDeclaration]]
   ): DocumentInput => Either[ParserError, StyleDeclarationSet] =
     forParser { path => parser.map(res => StyleDeclarationSet.forPath(path, res)) }
@@ -105,13 +111,12 @@ object DocumentParser {
     * The specified function is invoked for each parsed document, so that a parser
     * dependent on the input path can be created.
     */
-  private[laika] def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = {
-    in =>
-      Parsers
-        .consumeAll(p(in.path))
-        .parse(in.source)
-        .toEither
-        .left.map(ParserError(_))
+  def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = { in =>
+    Parsers
+      .consumeAll(p(in.path))
+      .parse(in.source)
+      .toEither
+      .left.map(ParserError(_))
   }
 
 }

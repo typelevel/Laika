@@ -31,7 +31,6 @@ import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.implicits.*
-import laika.parse.markup.DocumentParser.DocumentInput
 import laika.parse.text.TextParsers
 import laika.rewrite.ReferenceResolver.CursorKeys
 import munit.FunSuite
@@ -264,9 +263,8 @@ class ParserHookSpec extends FunSuite with ParserSetup {
     )
   )
 
-  def preProcess(append: String): DocumentInput => DocumentInput = { input =>
-    val raw = input.source.input
-    input.copy(source = SourceCursor(raw + append, input.path))
+  def preProcess(append: String): String => String = { raw =>
+    raw + append
   }
 
   def appendString(root: RootElement, append: String): RootElement =

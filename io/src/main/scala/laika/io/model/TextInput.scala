@@ -45,7 +45,7 @@ class TextInput[F[_]: Functor] private (
     val sourceFile: Option[FilePath] = None
 ) extends Navigatable {
 
-  lazy val asDocumentInput: F[DocumentInput] = input.map(DocumentInput(path, _))
+  private[laika] lazy val asDocumentInput: F[DocumentInput] = input.map(DocumentInput(path, _))
 }
 
 object TextInput {
