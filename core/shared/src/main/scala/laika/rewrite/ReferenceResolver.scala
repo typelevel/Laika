@@ -17,17 +17,16 @@
 package laika.rewrite
 
 import laika.config.Config.ConfigResult
+import laika.config.ConfigValue.ASTValue
 import laika.config.{
-  ASTValue,
   Config,
   ConfigBuilder,
   ConfigValue,
   Field,
-  Key,
-  ObjectValue,
-  StringValue
+  Key
 }
 import laika.ast.{ Document, DocumentTree, Path, RawLink, SpanSequence, TreeCursor }
+import laika.config.ConfigValue.{ObjectValue, StringValue}
 
 /** A resolver for context references in templates or markup documents.
   *

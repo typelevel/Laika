@@ -16,14 +16,15 @@
 
 package laika.parse.hocon
 
-import cats.implicits._
+import cats.syntax.all.*
 import cats.data.NonEmptySet
 import laika.ast.~
-import laika.config._
+import laika.config.*
+import laika.config.ConfigValue.*
 import laika.parse.code.common.NumberLiteral.digits
 import laika.parse.text.{ CharGroup, Characters }
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.builders.*
+import laika.parse.implicits.*
 import laika.parse.{ Failure, Message, Parser, SourceCursor }
 
 import scala.annotation.nowarn

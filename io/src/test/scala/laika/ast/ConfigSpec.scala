@@ -25,6 +25,7 @@ import laika.ast.sample.TestSourceBuilders
 import laika.bundle.BundleProvider
 import laika.config.Origin.{ DocumentScope, TreeScope }
 import laika.config._
+import laika.config.ConfigValue.{ ObjectValue, LongValue }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.FileIO
 import laika.io.helper.{ InputBuilder, TestThemeBuilder }

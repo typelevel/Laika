@@ -16,17 +16,10 @@
 
 package laika.directive.std
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.ast.{ InvalidSpan, TemplateElement, TemplateScope, TemplateSpan, TemplateSpanSequence }
-import laika.config.{
-  ArrayValue,
-  BooleanValue,
-  ConfigValue,
-  Key,
-  NullValue,
-  ObjectValue,
-  StringValue
-}
+import laika.config.{ ConfigValue, Key }
+import laika.config.ConfigValue.*
 import laika.directive.Templates
 
 import scala.annotation.tailrec

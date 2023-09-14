@@ -20,6 +20,7 @@ import laika.collection.TransitionalCollectionOps.*
 import laika.config.Config.IncludeMap
 import laika.config.*
 import laika.config.ConfigError.{ ConfigParserErrors, ConfigResolverError }
+import laika.config.ConfigValue.*
 import laika.parse.Failure
 
 import scala.collection.mutable
@@ -150,7 +151,7 @@ private[laika] object ConfigResolver {
         case SelfReference => None
         case other         =>
           resolveValue(key)(other) match {
-            case Some(simpleValue: SimpleConfigValue) =>
+            case Some(simpleValue: SimpleValue) =>
               Some(StringValue(part.whitespace + simpleValue.render))
             case Some(_: ASTValue)                    => None
             case other                                => other

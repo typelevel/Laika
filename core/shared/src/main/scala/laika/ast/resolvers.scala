@@ -1,8 +1,8 @@
 package laika.ast
 
-import laika.config.{ ASTValue, ConfigError, ConfigValue, Key, SimpleConfigValue }
+import laika.config.{ ConfigError, ConfigValue, Key }
 import ConfigError.InvalidType
-import laika.parse.SourceFragment
+import laika.config.ConfigValue.{ ASTValue, SimpleValue }
 
 /** Represents a placeholder inline element that needs
   *  to be resolved in a rewrite step.
@@ -14,6 +14,8 @@ trait SpanResolver extends Span with Unresolved {
   def resolve(cursor: DocumentCursor): Span
   def runsIn(phase: RewritePhase): Boolean
 }
+
+import laika.parse.SourceFragment
 
 /** Represents a placeholder block element that needs to be resolved in a rewrite step.
   *  Useful for elements that need access to the document, structure, title
@@ -125,7 +127,7 @@ case class TemplateContextReference(
     case Right(Some(ASTValue(s: TemplateSpan)))         => s
     case Right(Some(ASTValue(RootElement(content, _)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))              => TemplateElement(e)
-    case Right(Some(simple: SimpleConfigValue))         => TemplateString(simple.render)
+    case Right(Some(simple: SimpleValue))         => TemplateString(simple.render)
     case Right(None) if !required                       => TemplateString("")
     case Right(None)                                    => TemplateElement(missing)
     case Right(Some(unsupported))                       => TemplateElement(invalidType(unsupported))
@@ -153,7 +155,7 @@ case class MarkupContextReference(
   def resolve(cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
     case Right(Some(ASTValue(s: Span)))         => s
     case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
-    case Right(Some(simple: SimpleConfigValue)) => Text(simple.render)
+    case Right(Some(simple: SimpleValue)) => Text(simple.render)
     case Right(None) if !required               => Text("")
     case Right(None)                            => missing
     case Right(Some(unsupported))               => invalidType(unsupported)

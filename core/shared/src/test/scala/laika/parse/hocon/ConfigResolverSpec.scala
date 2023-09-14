@@ -19,7 +19,8 @@ package laika.parse.hocon
 import laika.config.Config.IncludeMap
 import laika.config.*
 import munit.FunSuite
-import ConfigError.{ ValidationError, ConfigResolverError }
+import ConfigError.{ConfigResolverError, ValidationError}
+import ConfigValue.*
 
 /** @author Jens Halm
   */

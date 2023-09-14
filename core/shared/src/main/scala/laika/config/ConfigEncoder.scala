@@ -17,6 +17,7 @@
 package laika.config
 
 import cats.data.NonEmptyChain
+import ConfigValue.*
 import laika.ast.{ Element, Path }
 import laika.time.PlatformDateTime
 

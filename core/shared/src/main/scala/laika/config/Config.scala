@@ -18,8 +18,10 @@ package laika.config
 
 import laika.config.Config.ConfigResult
 import laika.config.ConfigError.{ DecodingError, NotFound }
+import laika.config.ConfigValue.{ ArrayValue, ObjectValue }
 import laika.parse.hocon.{ IncludeResource, ObjectBuilderValue }
 
+import scala.annotation.tailrec
 import scala.util.Try
 
 /** API for retrieving configuration values based on a string key and a decoder.
@@ -191,6 +193,7 @@ private[laika] class ObjectConfig(
     }
   }
 
+  @tailrec
   private def lookup(keySegments: Seq[String], target: ObjectValue): Option[Field] = {
     (target.values.find(_.key == keySegments.head), keySegments.tail) match {
       case (res, Nil)                                          => res
