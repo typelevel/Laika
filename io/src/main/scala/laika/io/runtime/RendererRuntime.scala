@@ -147,7 +147,7 @@ private[io] object RendererRuntime {
         Files.forAsync[F].createDirectories(file.toFS2Path)
 
       op.output match {
-        case StringTreeOutput            =>
+        case InMemoryOutput              =>
           val renderOps =
             renderDocuments(finalRoot, pathTranslator, versions, styles)(p => TextOutput.noOp(p))
           val copyOps   = copyDocuments(staticDocs, None, pathTranslatorF)
@@ -320,7 +320,7 @@ private[io] object RendererRuntime {
           op.renderer.interimRenderer,
           op.theme,
           preparedTree,
-          StringTreeOutput,
+          InMemoryOutput,
           op.staticDocuments
         ),
         op.theme.inputs,

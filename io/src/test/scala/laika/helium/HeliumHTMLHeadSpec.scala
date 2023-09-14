@@ -25,7 +25,7 @@ import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
 import laika.io.implicits.*
-import laika.io.model.{ InputTree, StringTreeOutput }
+import laika.io.model.InputTree
 import laika.markdown.github.GitHubFlavor
 import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
@@ -122,7 +122,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       underTest: Path = Root / "name.html"
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedTagContent(underTest, "head")
           .toRight(new RuntimeException("Missing document under test"))
@@ -137,7 +137,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "name.html", start, end)
           .toRight(new RuntimeException("Missing document under test"))
@@ -148,7 +148,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   test("Helium defaults via separate parser and renderer") {
     parserAndRenderer.use { case (p, r) =>
       p.fromInput(build(singleDocPlusHome)).parse.flatMap { tree =>
-        r.from(tree.root).toOutput(StringTreeOutput).render
+        r.from(tree.root).toMemory.render
       }
     }
       .map(_.extractTidiedSubstring(Root / "name.html", "<head>", "</head>"))

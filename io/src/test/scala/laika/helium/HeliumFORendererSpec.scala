@@ -26,7 +26,6 @@ import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
-import laika.io.model.StringTreeOutput
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import laika.rewrite.nav.CoverImage
@@ -57,7 +56,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "doc.fo", start, end)
           .toRight(new RuntimeException("Missing document under test"))

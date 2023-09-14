@@ -38,8 +38,7 @@ import laika.io.model.{
   RenderContent,
   RenderedDocument,
   RenderedTree,
-  RenderedTreeRoot,
-  StringTreeOutput
+  RenderedTreeRoot
 }
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
@@ -115,7 +114,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     .use(
       _
         .fromInput(inputs)
-        .toOutput(StringTreeOutput)
+        .toMemory
         .describe
     )
 
@@ -128,7 +127,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     transformer.use(
       _
         .fromInput(build(inputs))
-        .toOutput(StringTreeOutput)
+        .toMemory
         .transform
     )
 
@@ -408,7 +407,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       .use(
         _
           .fromInput(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .transform
       )
     renderResult.assertEquals(

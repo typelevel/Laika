@@ -82,7 +82,7 @@ private[preview] class SiteTransformer[F[_]: Async](
   def transformHTML(tree: ParsedTree[F], renderer: TreeRenderer[F]): F[ResultMap[F]] = {
     renderer
       .from(tree)
-      .toOutput(StringTreeOutput)
+      .toMemory
       .render
       .map { root =>
         val map   = root.allDocuments.map { doc =>

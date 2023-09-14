@@ -26,7 +26,6 @@ import laika.helium.config.*
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
 import laika.theme.*
 import laika.theme.config.Color
 import munit.CatsEffectSuite
@@ -56,7 +55,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "index.html", start, end)
           .toRight(new RuntimeException("Missing document under test"))

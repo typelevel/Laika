@@ -84,7 +84,7 @@ object TreeRenderer {
     def copying(toCopy: Seq[BinaryInput[F]]): OutputOps[F] =
       new OutputOps(renderer, theme, input, staticDocuments ++ toCopy)
 
-    def toOutput(output: TreeOutput): Op[F] =
+    private[io] def toOutput(output: TreeOutput): Op[F] =
       new Op[F](renderer, theme, input, output, staticDocuments)
 
   }

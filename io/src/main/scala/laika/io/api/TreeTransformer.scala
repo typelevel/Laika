@@ -118,7 +118,7 @@ object TreeTransformer {
 
     type Result = Op[F]
 
-    def toOutput(output: TreeOutput): Op[F] =
+    private[io] def toOutput(output: TreeOutput): Op[F] =
       new Op[F](parsers, renderer, theme, input, mapper, output)
 
   }

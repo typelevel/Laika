@@ -209,7 +209,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
 
@@ -364,7 +364,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -398,7 +398,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -840,7 +840,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(Seq(Inputs.ByteInput("...", Root / "static1.txt")))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -870,7 +870,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(treeRoot)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -938,7 +938,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1002,7 +1002,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1179,7 +1179,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(versionedInput())
           .copying(Seq(versionInfoInput))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .flatMap(tree =>
