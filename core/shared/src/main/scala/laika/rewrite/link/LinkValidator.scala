@@ -36,7 +36,8 @@ import laika.config.{ Config, LaikaKeys }
 import laika.parse.SourceFragment
 import laika.rewrite.Versions
 import laika.rewrite.nav.TargetFormats
-import cats.syntax.all._
+import cats.syntax.all.*
+import TargetValidation.*
 
 /** Validates internal links based on the presence and configuration of the targets it points to.
   * A link target may be valid for all formats or just some, and it may point to a sub-directory
@@ -183,11 +184,15 @@ private[laika] class LinkValidator(
 }
 
 sealed trait TargetValidation
-case object ValidTarget                   extends TargetValidation
-case class InvalidTarget(message: String) extends TargetValidation
 
-case class RecoveredTarget(message: String, recoveredTarget: ResolvedInternalTarget)
-    extends TargetValidation
+object TargetValidation {
+  case object ValidTarget                   extends TargetValidation
+  case class InvalidTarget(message: String) extends TargetValidation
+
+  case class RecoveredTarget(message: String, recoveredTarget: ResolvedInternalTarget)
+      extends TargetValidation
+
+}
 
 private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[TargetFormats]) {
 

@@ -23,7 +23,8 @@ import laika.bundle.BundleOrigin
 import laika.config.{ Key, LaikaKeys }
 import laika.config.ConfigValue.SimpleValue
 import laika.directive.*
-import laika.rewrite.link.{ InvalidTarget, RecoveredTarget, ValidTarget }
+import laika.rewrite.link.TargetValidation.*
+import laika.rewrite.link.TargetValidation.ValidTarget
 import laika.time.PlatformDateTime
 
 import scala.collection.immutable.TreeSet
@@ -169,9 +170,9 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
     (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (name, ref, cursor) =>
       cursor.resolveReference(Key.parse(ref)).leftMap(_.message).flatMap {
-        case None                           => Right(TemplateString(""))
+        case None                     => Right(TemplateString(""))
         case Some(value: SimpleValue) => Right(TemplateString(s"""$name="${value.render}""""))
-        case Some(_)                        =>
+        case Some(_)                  =>
           Left(
             s"value with key '$ref' is a structured value (Array, Object, AST) which is not supported by this directive"
           )
