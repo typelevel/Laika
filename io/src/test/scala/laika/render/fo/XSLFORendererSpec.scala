@@ -18,15 +18,15 @@ package laika.render.fo
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.config.{ ConfigBuilder, LaikaKeys }
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.parse.markup.DocumentParser.RendererError
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{
   ConfigurablePathTranslator,

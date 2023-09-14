@@ -35,9 +35,10 @@ import laika.ast.{
   Title,
   TitledBlock
 }
-import laika.config.{ ConfigException, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.helium.config.DownloadPage
 import laika.io.config.SiteConfig
+import laika.io.errors.ConfigException
 import laika.io.model.ParsedTree
 import laika.rewrite.nav.{ CoverImages, Selections }
 import laika.theme.Theme.TreeProcessor

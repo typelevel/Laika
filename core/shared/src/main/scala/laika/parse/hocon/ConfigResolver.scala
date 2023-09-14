@@ -153,8 +153,8 @@ private[laika] object ConfigResolver {
           resolveValue(key)(other) match {
             case Some(simpleValue: SimpleValue) =>
               Some(StringValue(part.whitespace + simpleValue.render))
-            case Some(_: ASTValue)                    => None
-            case other                                => other
+            case Some(_: ASTValue)              => None
+            case other                          => other
           }
       }
 

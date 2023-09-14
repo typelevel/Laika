@@ -22,8 +22,7 @@ import laika.ast.Path
 import laika.parse.Failure
 
 /** Base trait for all configuration errors that occurred
-  * during parsing, resolving, retrieving or convering
-  * configuration values.
+  * during parsing, resolving, retrieving or decoding configuration values.
   *
   * @author Jens Halm
   */
@@ -115,6 +114,3 @@ object ConfigError {
   }
 
 }
-
-/** A ConfigError as a RuntimeException for use cases where a Throwable is required. */
-case class ConfigException(error: ConfigError) extends RuntimeException(error.message)

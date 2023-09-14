@@ -18,12 +18,13 @@ package laika.helium.builder
 
 import cats.data.Kleisli
 import cats.effect.Sync
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.ast.Path.Root
-import laika.config.{ ConfigException, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.factory.Format
 import laika.helium.Helium
 import laika.helium.generate.{ DownloadPageGenerator, LandingPageGenerator, TocPageGenerator }
+import laika.io.errors.ConfigException
 import laika.io.model.ParsedTree
 import laika.theme.Theme.TreeProcessor
 

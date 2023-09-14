@@ -19,11 +19,12 @@ package laika.render.pdf
 import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
+import laika.api.errors.InvalidDocument
 import laika.ast.*
-import laika.config.{ Config, ConfigException }
+import laika.config.Config
 import laika.format.{ PDF, XSLFO }
+import laika.io.errors.{ ConfigException, DocumentRendererError }
 import laika.io.model.RenderedTreeRoot
-import laika.parse.markup.DocumentParser.InvalidDocument
 import laika.render.FOFormatter.ContentWrapper
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.config.BookConfig
@@ -75,7 +76,11 @@ private[laika] object FOConcatenation {
         .flatMap(templatedDoc =>
           InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc)
         )
-        .flatMap(renderer.render(_, result.pathTranslator, result.styles))
+        .flatMap(
+          renderer
+            .render(_, result.pathTranslator, result.styles)
+            .leftMap(e => DocumentRendererError(e.message, virtualPath))
+        )
     }
 
     val defaultTemplate = TemplateDocument(DefaultTemplatePath.forFO, result.defaultTemplate)

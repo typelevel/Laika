@@ -68,7 +68,7 @@ object ConfigDecoder {
 
     def apply(value: Traced[ConfigValue]) = value.value match {
       case s: SimpleValue => Right(s.render)
-      case invalid              => Left(InvalidType("String", invalid))
+      case invalid        => Left(InvalidType("String", invalid))
     }
 
   }

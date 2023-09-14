@@ -25,7 +25,8 @@ import laika.ast.DocumentType.{ Ignored, Static }
 import laika.ast.Path.Root
 import laika.ast.{ DocumentType, Path, SegmentedPath }
 import laika.config.Config.ConfigResult
-import laika.config.{ ConfigDecoder, ConfigException, ConfigParser }
+import laika.config.{ ConfigDecoder, ConfigParser }
+import laika.io.errors.ConfigException
 import laika.io.model.{ BinaryInput, DirectoryInput, FilePath }
 import laika.rewrite.{ VersionScannerConfig, Versions }
 

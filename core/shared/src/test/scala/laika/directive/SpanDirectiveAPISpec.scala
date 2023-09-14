@@ -16,15 +16,15 @@
 
 package laika.directive
 
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
+import laika.api.errors.TransformationError
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.ParserBundle
 import laika.format.{ HTML, Markdown }
-import laika.parse.markup.DocumentParser.TransformationError
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ Parser, SourceFragment }
 import munit.FunSuite

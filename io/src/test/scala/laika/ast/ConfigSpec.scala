@@ -28,6 +28,7 @@ import laika.config._
 import laika.config.ConfigValue.{ ObjectValue, LongValue }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.FileIO
+import laika.io.errors.ConfigException
 import laika.io.helper.{ InputBuilder, TestThemeBuilder }
 import laika.io.implicits._
 import laika.io.model.{ FilePath, InputTreeBuilder, ParsedTree }

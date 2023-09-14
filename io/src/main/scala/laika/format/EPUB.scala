@@ -23,6 +23,7 @@ import laika.ast.*
 import laika.config.*
 import laika.config.ConfigError.ValidationError
 import laika.factory.*
+import laika.io.errors.ConfigException
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
 import laika.render.{ HTMLFormatter, TagFormatter }

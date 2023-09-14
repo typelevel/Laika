@@ -20,6 +20,7 @@ import cats.data.{ NonEmptyList, ValidatedNel }
 import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
 import laika.api.MarkupParser
+import laika.api.errors.{ InvalidDocuments, ParserError }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.Config.IncludeMap
@@ -27,9 +28,10 @@ import laika.config.{ ConfigBuilder, ConfigParser }
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
+import laika.io.errors.*
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
 import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
-import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocuments, ParserError }
+import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.link.LinkValidation
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
@@ -87,7 +89,12 @@ private[io] object ParserRuntime {
           result: D => BuilderPart
       ): F[ParserResult] =
         doc.asDocumentInput.flatMap(in =>
-          Sync[F].fromEither(parse(in).map(result).map(ParserResult(_, doc.sourceFile)))
+          Sync[F].fromEither(
+            parse(in)
+              .map(result)
+              .leftMap(e => DocumentParserError(e.message, doc.path))
+              .map(ParserResult(_, doc.sourceFile))
+          )
         )
 
       def parseConfig(input: DocumentInput): Either[ParserError, ConfigParser] =
@@ -144,11 +151,11 @@ private[io] object ParserRuntime {
       def buildTree(
           parsedResults: Seq[ParserResult],
           includes: IncludeMap
-      ): Either[ParserError, DocumentTreeRoot] = {
+      ): Either[DocumentParserError, DocumentTreeRoot] = {
         val allResults = parsedResults.map(_.treePart) ++ inputs.treeBuilder.distinctParts
         new DocumentTreeBuilder(allResults.toList)
           .resolveAndBuildRoot(baseConfig, includes)
-          .leftMap(ParserError(_, Root))
+          .leftMap(DocumentParserError(_, Root))
       }
 
       for {
@@ -168,7 +175,7 @@ private[io] object ParserRuntime {
 
   }
 
-  case class ParserResult(treePart: BuilderPart, sourceFile: Option[FilePath]) {
+  private case class ParserResult(treePart: BuilderPart, sourceFile: Option[FilePath]) {
 
     def includes: Seq[IncludeResource] = treePart match {
       case HoconPart(_, config) => config.includes
@@ -178,25 +185,5 @@ private[io] object ParserRuntime {
     }
 
   }
-
-  case class NoMatchingParser(path: Path, suffixes: Set[String]) extends RuntimeException(
-        s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}"
-      )
-
-  case class DuplicatePath(path: Path, filePaths: Set[String] = Set.empty) extends RuntimeException(
-        s"Duplicate path: $path ${filePathMessage(filePaths)}"
-      )
-
-  case class MissingDirectory(path: FilePath) extends RuntimeException(
-        s"Path does not exist or is not a directory: ${path.toString}"
-      )
-
-  case class ParserErrors(errors: Set[Throwable]) extends RuntimeException(
-        s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}"
-      )
-
-  private def filePathMessage(filePaths: Set[String]): String =
-    if (filePaths.isEmpty) "(no matching file paths)"
-    else s"with matching file paths: ${filePaths.mkString(", ")}"
 
 }

@@ -127,7 +127,7 @@ case class TemplateContextReference(
     case Right(Some(ASTValue(s: TemplateSpan)))         => s
     case Right(Some(ASTValue(RootElement(content, _)))) => EmbeddedRoot(content)
     case Right(Some(ASTValue(e: Element)))              => TemplateElement(e)
-    case Right(Some(simple: SimpleValue))         => TemplateString(simple.render)
+    case Right(Some(simple: SimpleValue))               => TemplateString(simple.render)
     case Right(None) if !required                       => TemplateString("")
     case Right(None)                                    => TemplateElement(missing)
     case Right(Some(unsupported))                       => TemplateElement(invalidType(unsupported))
@@ -153,13 +153,13 @@ case class MarkupContextReference(
   type Self = MarkupContextReference
 
   def resolve(cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
-    case Right(Some(ASTValue(s: Span)))         => s
-    case Right(Some(ASTValue(e: Element)))      => TemplateElement(e)
-    case Right(Some(simple: SimpleValue)) => Text(simple.render)
-    case Right(None) if !required               => Text("")
-    case Right(None)                            => missing
-    case Right(Some(unsupported))               => invalidType(unsupported)
-    case Left(configError)                      => invalid(configError)
+    case Right(Some(ASTValue(s: Span)))    => s
+    case Right(Some(ASTValue(e: Element))) => TemplateElement(e)
+    case Right(Some(simple: SimpleValue))  => Text(simple.render)
+    case Right(None) if !required          => Text("")
+    case Right(None)                       => missing
+    case Right(Some(unsupported))          => invalidType(unsupported)
+    case Left(configError)                 => invalid(configError)
   }
 
   def withOptions(options: Options): MarkupContextReference = copy(options = options)

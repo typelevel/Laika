@@ -20,12 +20,13 @@ import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.errors.InvalidDocuments
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.{ ConfigError, ConfigException, LaikaKeys }
+import laika.config.{ ConfigError, LaikaKeys }
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
+import laika.io.errors.*
 import laika.io.model.*
-import laika.parse.markup.DocumentParser.InvalidDocuments
 import laika.rewrite.nav.*
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Versions }
 
@@ -98,7 +99,9 @@ private[io] object RendererRuntime {
           val outputDoc         = document.withPath(outputPath)
           for {
             renderResult <- Async[F].fromEither(
-              renderer.render(outputDoc, docPathTranslator, styles)
+              renderer
+                .render(outputDoc, docPathTranslator, styles)
+                .leftMap(e => DocumentRendererError(e.message, document.path))
             )
             _            <- output(outputPath).writer(renderResult)
           } yield {
@@ -327,18 +330,5 @@ private[io] object RendererRuntime {
       _ <- op.renderer.postProcessor.process(finalTree, op.output, op.config)
     } yield ()
   }
-
-  // TODO - unify with ParserErrors (as TransformationErrors)
-  case class DuplicatePath(path: Path, filePaths: Set[String] = Set.empty) extends RuntimeException(
-        s"Duplicate path: $path ${filePathMessage(filePaths)}"
-      )
-
-  case class RendererErrors(errors: Seq[Throwable]) extends RuntimeException(
-        s"Multiple errors during rendering: ${errors.map(_.getMessage).mkString(", ")}"
-      )
-
-  private def filePathMessage(filePaths: Set[String]): String =
-    if (filePaths.isEmpty) "(no matching file paths)"
-    else s"with matching file paths: ${filePaths.mkString(", ")}"
 
 }
