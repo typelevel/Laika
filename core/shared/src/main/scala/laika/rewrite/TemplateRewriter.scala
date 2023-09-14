@@ -19,7 +19,8 @@ package laika.rewrite
 import cats.implicits.*
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
-import laika.config.{ ConfigError, LaikaKeys, ValidationError }
+import laika.config.{ ConfigError, LaikaKeys }
+import laika.config.ConfigError.ValidationError
 import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.parse.{ LineSource, SourceCursor }
 import laika.rewrite.ReferenceResolver.CursorKeys

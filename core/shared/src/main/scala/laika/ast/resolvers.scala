@@ -1,6 +1,7 @@
 package laika.ast
 
-import laika.config.{ ASTValue, ConfigError, ConfigValue, InvalidType, Key, SimpleConfigValue }
+import laika.config.{ ASTValue, ConfigError, ConfigValue, Key, SimpleConfigValue }
+import ConfigError.InvalidType
 import laika.parse.SourceFragment
 
 /** Represents a placeholder inline element that needs

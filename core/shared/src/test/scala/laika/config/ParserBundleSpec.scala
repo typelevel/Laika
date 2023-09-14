@@ -22,6 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.*
+import ConfigError.ConfigParserError
 import laika.factory.MarkupFormat
 import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.*

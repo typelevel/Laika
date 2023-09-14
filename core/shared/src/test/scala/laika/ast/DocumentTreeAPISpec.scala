@@ -18,15 +18,10 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
-import laika.config.{
-  ArrayValue,
-  Config,
-  ConfigParser,
+import laika.config.{ ArrayValue, Config, ConfigParser, Key, LongValue, Origin }
+import laika.config.ConfigError.{
   DocumentConfigErrors,
   InvalidType,
-  Key,
-  LongValue,
-  Origin,
   TreeConfigErrors,
   ValidationError
 }

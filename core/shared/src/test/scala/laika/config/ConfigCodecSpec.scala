@@ -20,6 +20,7 @@ import cats.data.NonEmptyChain
 import laika.ast.{ DocumentMetadata, IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
+import laika.config.ConfigError.{ DecodingError, ConfigErrors, ValidationError }
 import laika.rewrite.{ Version, Versions }
 import laika.rewrite.link.{
   ApiLinks,

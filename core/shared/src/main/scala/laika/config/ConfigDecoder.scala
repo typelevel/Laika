@@ -21,6 +21,7 @@ import cats.implicits._
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast.{ ExternalTarget, InternalTarget, Path, VirtualPath, RelativePath, Target }
 import laika.time.PlatformDateTime
+import ConfigError.{ DecodingError, InvalidType }
 
 import java.net.URI
 import scala.util.Try

@@ -17,6 +17,7 @@
 package laika.config
 
 import laika.config.Config.IncludeMap
+import laika.config.ConfigError.{ ConfigResourceError, ConfigParserError }
 import laika.parse.{ Failure, Success }
 import laika.parse.hocon.{
   BuilderField,

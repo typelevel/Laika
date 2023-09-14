@@ -20,6 +20,7 @@ import cats.{ Functor, Semigroupal }
 import laika.ast.{ TemplateSpan, * }
 import laika.collection.TransitionalCollectionOps.*
 import laika.config.Origin.DirectiveScope
+import laika.config.ConfigError.DecodingError
 import laika.config.*
 import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective

@@ -22,17 +22,8 @@ import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps.*
 import laika.config.Config.ConfigResult
-import laika.config.{
-  Config,
-  ConfigEncoder,
-  ConfigError,
-  ConfigValue,
-  DocumentConfigErrors,
-  Key,
-  LaikaKeys,
-  Origin,
-  TreeConfigErrors
-}
+import laika.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
+import laika.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, LaikaKeys, Origin }
 import laika.parse.SourceFragment
 import laika.rewrite.{ OutputContext, ReferenceResolver }
 import laika.rewrite.link.{ LinkConfig, LinkValidation, LinkValidator, TargetValidation }

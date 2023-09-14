@@ -17,6 +17,7 @@
 package laika.config
 
 import laika.config.Config.ConfigResult
+import laika.config.ConfigError.{ DecodingError, NotFound }
 import laika.parse.hocon.{ IncludeResource, ObjectBuilderValue }
 
 import scala.util.Try

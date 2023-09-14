@@ -16,15 +16,16 @@
 
 package laika.parse.markup
 
-import cats.implicits._
+import cats.implicits.*
 import cats.data.{ Chain, NonEmptyChain }
-import laika.ast._
+import laika.ast.*
 import laika.bundle.{ ConfigProvider, MarkupExtensions }
-import laika.config.{ ConfigError, ConfigParser, TreeConfigErrors }
+import laika.config.ConfigError.TreeConfigErrors
+import laika.config.{ ConfigError, ConfigParser }
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{ Parser, SourceCursor }
-import laika.parse.implicits._
+import laika.parse.implicits.*
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration

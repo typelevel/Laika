@@ -19,9 +19,10 @@ package laika.io.config
 import java.io.File
 import java.net.URL
 import cats.effect.{ Async, Sync }
-import cats.implicits._
+import cats.implicits.*
 import laika.config.Config.IncludeMap
-import laika.config.{ ConfigParser, ConfigResourceError }
+import laika.config.ConfigError.ConfigResourceError
+import laika.config.ConfigParser
 import laika.io.runtime.Batch
 import laika.parse.hocon.{
   IncludeAny,
