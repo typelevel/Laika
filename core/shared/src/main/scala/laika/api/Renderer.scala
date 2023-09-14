@@ -24,7 +24,7 @@ import laika.ast.*
 import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
 import laika.render.Formatter.Indentation
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ NoOpPathTranslator, PathTranslator }
+import laika.rewrite.nav.PathTranslator
 
 /** Performs a render operation from a document AST to a target format
   * as a string. The document AST may be obtained by a preceding parse
@@ -70,7 +70,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
       }
     )
 
-  private val defaultPathTranslator: PathTranslator = NoOpPathTranslator
+  private val defaultPathTranslator: PathTranslator = PathTranslator.noOp
 
   /** Renders the specified document as a String.
     */

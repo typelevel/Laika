@@ -110,6 +110,21 @@ object PathTranslator {
   def postTranslate(baseTranslator: PathTranslator)(f: Path => Path): PathTranslator =
     new PathTranslatorExtension(baseTranslator, postTranslate = f)
 
+  /** Path translator implementation that returns all paths unmodified.
+    *
+    * Used in scenarios where only a single document gets rendered and there is no use case for
+    * cross references or static or versioned documents.
+    */
+  val noOp: PathTranslator = new PathTranslator {
+    def getAttributes(path: Path): Option[PathAttributes] = None
+
+    def translate(input: Path): Path = input
+
+    def translate(input: RelativePath): RelativePath = input
+
+    def forReferencePath(path: Path): PathTranslator = this
+  }
+
 }
 
 private[laika] class PathTranslatorExtension(
@@ -272,16 +287,4 @@ private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[Pa
   // paths which have validation disabled might not appear in the lookup, we treat them as static and
   // pick the versioned flag from its directory config.
 
-}
-
-/** Path translator implementation that returns all paths unmodified.
-  *
-  * Used in scenarios where only a single document gets rendered and there is no use case for
-  * cross references or static or versioned documents.
-  */
-object NoOpPathTranslator extends PathTranslator {
-  def getAttributes(path: Path): Option[PathAttributes] = None
-  def translate(input: Path): Path                      = input
-  def translate(input: RelativePath): RelativePath      = input
-  def forReferencePath(path: Path): PathTranslator      = this
 }

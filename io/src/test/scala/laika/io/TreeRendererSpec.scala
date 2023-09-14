@@ -46,7 +46,7 @@ import laika.render.*
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{ NoOpPathTranslator, PrettyURLs, TargetFormats }
+import laika.rewrite.nav.{ PathTranslator, PrettyURLs, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import munit.CatsEffectSuite
 
@@ -141,7 +141,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateRoot.fallback,
       Config.empty,
       outputContext,
-      NoOpPathTranslator,
+      PathTranslator.noOp,
       coverDocument = coverDocument,
       staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )

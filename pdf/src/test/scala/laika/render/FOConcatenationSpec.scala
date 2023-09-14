@@ -28,7 +28,7 @@ import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.NoOpPathTranslator
+import laika.rewrite.nav.PathTranslator
 import laika.theme.config.BookConfig
 import munit.FunSuite
 
@@ -47,7 +47,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
     config = Config.empty,
     outputContext = OutputContext(XSLFO),
-    pathTranslator = NoOpPathTranslator,
+    pathTranslator = PathTranslator.noOp,
     styles = TestTheme.foStyles
   )
 
