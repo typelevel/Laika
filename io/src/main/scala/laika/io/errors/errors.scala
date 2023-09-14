@@ -40,15 +40,8 @@ private[laika] case class RendererErrors(errors: Seq[Throwable]) extends Runtime
       s"Multiple errors during rendering: ${errors.map(_.getMessage).mkString(", ")}"
     )
 
-private[laika] sealed trait DocumentTransformationError extends RuntimeException {
-  def path: Path
-
-  def message: String
-}
-
 private[laika] case class DocumentRendererError(message: String, path: Path)
     extends RuntimeException(s"Error rendering document '$path': $message")
-    with DocumentTransformationError
 
 private[laika] object DocumentRendererError {
 
@@ -58,9 +51,7 @@ private[laika] object DocumentRendererError {
 }
 
 private[laika] case class DocumentParserError(message: String, path: Path)
-    extends DocumentTransformationError {
-  override def toString: String = s"Error parsing document '$path': $message"
-}
+    extends RuntimeException(s"Error parsing document '$path': $message")
 
 private[laika] object DocumentParserError {
 
