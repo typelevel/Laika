@@ -12,7 +12,7 @@ import laika.helium.config.{
   TextLink,
   VersionMenu
 }
-import laika.rewrite.link.{ ApiLinks, LinkConfig }
+import laika.rewrite.link.{ ApiLinks, LinkConfig, LinkValidation }
 import laika.rewrite.{ Version, Versions }
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.sbt.LaikaConfig
@@ -125,15 +125,10 @@ object ManualSettings {
 
   }
 
+  // TODO - api links will not work on top level pages, but fine for now - change to absolute path
   val config: LaikaConfig = LaikaConfig.defaults
-    .withConfigValue(
-      LinkConfig(
-        apiLinks = Seq(
-          ApiLinks("../api/")
-        ), // TODO - will not work on top level pages, but fine for now - change to absolute path
-        excludeFromValidation = Seq(Root / "api") // TODO - adjust once 0.19.4 is out
-      )
-    )
+    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks("../api/")))
+    .withConfigValue(LinkValidation.Global(Seq(Root / "api")))
     .withConfigValue(
       Selections(
         SelectionConfig(
