@@ -17,7 +17,14 @@
 package laika.helium.builder
 
 import cats.effect.{ Async, Resource }
-import laika.api.bundle.{ Blocks, BundleOrigin, DirectiveRegistry, Links, Spans, Templates }
+import laika.api.bundle.{
+  BlockDirectives,
+  BundleOrigin,
+  DirectiveRegistry,
+  LinkDirectives,
+  SpanDirectives,
+  TemplateDirectives
+}
 import laika.ast.Document
 import laika.ast.Path.Root
 import laika.format.{ EPUB, HTML, XSLFO }
@@ -42,12 +49,15 @@ private[helium] class HeliumThemeBuilder(helium: Helium) extends ThemeProvider {
   }
 
   object directives extends DirectiveRegistry {
-    override def origin: BundleOrigin                = BundleOrigin.Theme
-    override val description: String                 = "Directives for theme 'Helium'"
-    val spanDirectives: Seq[Spans.Directive]         = Nil
-    val blockDirectives: Seq[Blocks.Directive]       = Nil
-    val templateDirectives: Seq[Templates.Directive] = HeliumDirectives.all(heliumWithIncludes)
-    val linkDirectives: Seq[Links.Directive]         = Nil
+    override def origin: BundleOrigin                         = BundleOrigin.Theme
+    override val description: String                          = "Directives for theme 'Helium'"
+    val spanDirectives: Seq[SpanDirectives.Directive]         = Nil
+    val blockDirectives: Seq[BlockDirectives.Directive]       = Nil
+
+    val templateDirectives: Seq[TemplateDirectives.Directive] =
+      HeliumDirectives.all(heliumWithIncludes)
+
+    val linkDirectives: Seq[LinkDirectives.Directive]         = Nil
   }
 
   def build[F[_]: Async]: Resource[F, Theme[F]] = {

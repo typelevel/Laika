@@ -18,7 +18,7 @@ package laika.directive
 
 import cats.implicits.*
 import laika.api.builder.OperationConfig
-import laika.api.bundle.Templates
+import laika.api.bundle.TemplateDirectives
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
@@ -36,19 +36,26 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   )
 
   object DirectiveSetup {
-    import laika.api.bundle.Templates.dsl._
+    import laika.api.bundle.TemplateDirectives.dsl._
 
     trait Empty {
-      val directive = Templates.create("dir")(Templates.dsl.empty(TemplateString("foo")))
+
+      val directive =
+        TemplateDirectives.create("dir")(TemplateDirectives.dsl.empty(TemplateString("foo")))
+
     }
 
     trait RequiredPositionalAttribute {
-      val directive = Templates.create("dir") { attribute(0).as[String] map (TemplateString(_)) }
+
+      val directive = TemplateDirectives.create("dir") {
+        attribute(0).as[String] map (TemplateString(_))
+      }
+
     }
 
     trait OptionalPositionalAttribute {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         attribute(0).as[Int].optional map (num =>
           TemplateString(num.map(_.toString).getOrElse("<>"))
         )
@@ -58,7 +65,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait RequiredNamedAttribute {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         attribute("name").as[String] map (TemplateString(_))
       }
 
@@ -66,7 +73,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait OptionalNamedAttribute {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         attribute("name").as[Int].optional map (num =>
           TemplateString(num.map(_.toString).getOrElse("<>"))
         )
@@ -76,7 +83,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait AllAttributes {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         allAttributes.map { attrs =>
           val foo = attrs.get[String]("foo").toOption.get
           val bar = attrs.get[Int]("bar").toOption.get
@@ -87,7 +94,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
     }
 
     trait RequiredBody {
-      val directive = Templates.create("dir") { parsedBody map (TemplateSpanSequence(_)) }
+      val directive = TemplateDirectives.create("dir") { parsedBody map (TemplateSpanSequence(_)) }
     }
 
     trait SeparatedBody {
@@ -96,15 +103,15 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
       case class Foo(content: Seq[TemplateSpan])               extends Child
       case class Bar(content: Seq[TemplateSpan], attr: String) extends Child
 
-      val sep1 = Templates.separator("foo", min = 1) {
+      val sep1 = TemplateDirectives.separator("foo", min = 1) {
         parsedBody.map(Foo.apply)
       }
 
-      val sep2 = Templates.separator("bar", max = 1) {
+      val sep2 = TemplateDirectives.separator("bar", max = 1) {
         (parsedBody, attribute(0).as[String]).mapN(Bar.apply)
       }
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         separatedBody(Seq(sep1, sep2)).map { multipart =>
           val seps = multipart.children.flatMap {
             case Foo(content)       => TemplateString("foo") +: content
@@ -118,7 +125,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait FullDirectiveSpec {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         (
           attribute(0).as[String],
           attribute(1).as[Int],
@@ -139,7 +146,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
       import laika.parse.builders._
       import laika.parse.implicits._
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
           .map {
             _.collect {
@@ -154,7 +161,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait DirectiveWithContextAccess {
 
-      val directive = Templates.create("dir") {
+      val directive = TemplateDirectives.create("dir") {
         (rawBody, cursor).mapN { (body, cursor) =>
           TemplateString(body + cursor.target.path)
         }
@@ -166,7 +173,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
   trait TemplateParser {
 
-    def directive: Templates.Directive
+    def directive: TemplateDirectives.Directive
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
 

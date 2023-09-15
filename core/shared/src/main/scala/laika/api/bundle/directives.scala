@@ -70,7 +70,7 @@ private[laika] object AttributeKey {
   * This trait is not used directly, but instead its three sub-traits `Blocks`, `Spans` and `Templates`,
   * which represent the concrete implementations for the three directive types.
   */
-trait BuilderContext[E <: Element] {
+trait DirectiveBuilderContext[E <: Element] {
 
   /** The parser API in case a directive function needs to manually parse one of the directive parts.
     */
@@ -745,7 +745,7 @@ trait BuilderContext[E <: Element] {
 /** The API for declaring directives that can be used
   *  as inline elements in markup documents.
   */
-object Spans extends BuilderContext[Span] {
+object SpanDirectives extends DirectiveBuilderContext[Span] {
 
   type Parser = RecursiveSpanParsers
 
@@ -797,7 +797,7 @@ object Spans extends BuilderContext[Span] {
 
 /** The API for declaring directives that can be used as block elements in markup documents.
   */
-object Blocks extends BuilderContext[Block] {
+object BlockDirectives extends DirectiveBuilderContext[Block] {
 
   type Parser = RecursiveParsers
 
@@ -849,7 +849,7 @@ object Blocks extends BuilderContext[Block] {
 
 /** The API for declaring directives that can be used in templates.
   */
-object Templates extends BuilderContext[TemplateSpan] {
+object TemplateDirectives extends DirectiveBuilderContext[TemplateSpan] {
 
   type Parser = RecursiveSpanParsers // TODO - specialize to TemplateSpan?
 
@@ -903,7 +903,7 @@ object Templates extends BuilderContext[TemplateSpan] {
 
 /** The API for declaring directives that can be used in links.
   */
-object Links {
+object LinkDirectives {
 
   /** A directive that knows how to take a string identifier and turn it into
     * a span link.
@@ -920,8 +920,8 @@ object Links {
     def apply(linkId: String, cursor: DocumentCursor): Either[String, SpanLink]
 
     /** Turns the link directive into a regular span directive. */
-    def asSpanDirective: Spans.Directive = Spans.eval(name) {
-      import Spans.dsl.*
+    def asSpanDirective: SpanDirectives.Directive = SpanDirectives.eval(name) {
+      import SpanDirectives.dsl.*
       import cats.implicits.*
       (attribute(0).as[String], cursor).mapN(apply)
     }

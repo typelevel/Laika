@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.api.bundle.Blocks
+import laika.api.bundle.BlockDirectives
 import laika.ast.{ Choice, Selection }
 import laika.config.Selections
 
@@ -39,14 +39,15 @@ private[laika] object SelectDirective {
 
   /** Implementation of the `select` directive for block elements in markup documents.
     */
-  val forBlocks: Blocks.Directive = Blocks.eval("select") {
-    import Blocks.dsl._
+  val forBlocks: BlockDirectives.Directive = BlockDirectives.eval("select") {
+    import BlockDirectives.dsl._
 
-    val separator: Blocks.SeparatorDirective[Choice] = Blocks.separator("choice", min = 2) {
-      (attribute(0).as[String], parsedBody).mapN { (name, body) =>
-        Choice(name, name, body)
+    val separator: BlockDirectives.SeparatorDirective[Choice] =
+      BlockDirectives.separator("choice", min = 2) {
+        (attribute(0).as[String], parsedBody).mapN { (name, body) =>
+          Choice(name, name, body)
+        }
       }
-    }
 
     (attribute(0).as[String], separatedBody(Seq(separator)), cursor).mapN {
       (name, multiPart, cursor) =>

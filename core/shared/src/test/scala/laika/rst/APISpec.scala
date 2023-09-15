@@ -18,7 +18,7 @@ package laika.rst
 
 import cats.implicits._
 import laika.api._
-import laika.api.bundle.{ Blocks, DirectiveRegistry, Spans }
+import laika.api.bundle.{ BlockDirectives, DirectiveRegistry, SpanDirectives }
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ AST, ReStructuredText }
@@ -104,14 +104,14 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
     assertEquals(res, Right(RootElement(p(Text("foo valone foo val1val2two")))))
   }
 
-  object BlockDirectives {
-    import Blocks.dsl._
+  object BlockTestDirectives {
+    import BlockDirectives.dsl._
 
     object Registry extends DirectiveRegistry {
 
-      val blockDirectives: List[Blocks.Directive] = List(
-        Blocks.create("oneArg")(attribute(0).as[String] map p),
-        Blocks.create("twoArgs") {
+      val blockDirectives: List[BlockDirectives.Directive] = List(
+        BlockDirectives.create("oneArg")(attribute(0).as[String] map p),
+        BlockDirectives.create("twoArgs") {
           (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
             p(arg1 + arg2)
           }
@@ -125,14 +125,14 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
 
   }
 
-  object SpanDirectives {
-    import Spans.dsl._
+  object SpanTestDirectives {
+    import SpanDirectives.dsl._
 
     object Registry extends DirectiveRegistry {
 
-      val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
-        Spans.create("twoArgs") {
+      val spanDirectives: List[SpanDirectives.Directive] = List(
+        SpanDirectives.create("oneArg")(attribute(0).as[String].map(Text(_))),
+        SpanDirectives.create("twoArgs") {
           (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
             Text(arg1 + arg2)
           }
@@ -152,7 +152,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
                   |@:twoArgs(arg1) { name=arg2 }""".stripMargin
     val res   = MarkupParser
       .of(ReStructuredText)
-      .using(BlockDirectives.Registry)
+      .using(BlockTestDirectives.Registry)
       .build
       .parse(input)
       .map(_.content)
@@ -165,7 +165,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
                   |@:twoArgs(arg1) { name=arg2 }""".stripMargin
     val res   = MarkupParser
       .of(ReStructuredText)
-      .using(BlockDirectives.Registry)
+      .using(BlockTestDirectives.Registry)
       .strict
       .build
       .parse(input)
@@ -177,7 +177,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
     val input  = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
     val parser = MarkupParser
       .of(ReStructuredText)
-      .using(SpanDirectives.Registry)
+      .using(SpanTestDirectives.Registry)
       .build
     val res    = parser
       .parse(input)
@@ -190,7 +190,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
     val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
     val res   = MarkupParser
       .of(ReStructuredText)
-      .using(SpanDirectives.Registry)
+      .using(SpanTestDirectives.Registry)
       .strict
       .build
       .parse(input)

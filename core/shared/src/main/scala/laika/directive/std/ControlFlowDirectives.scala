@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all.*
-import laika.api.bundle.Templates
+import laika.api.bundle.TemplateDirectives
 import laika.api.config.{ ConfigValue, Key }
 import laika.ast.{ InvalidSpan, TemplateElement, TemplateScope, TemplateSpan, TemplateSpanSequence }
 import laika.api.config.ConfigValue.*
@@ -44,19 +44,19 @@ private[laika] object ControlFlowDirectives {
 
   /** Implementation of the `for` directive for templates.
     */
-  lazy val templateFor: Templates.Directive = Templates.create("for") {
+  lazy val templateFor: TemplateDirectives.Directive = TemplateDirectives.create("for") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
     val emptyValues    = Set[ConfigValue](StringValue(""), BooleanValue(false), NullValue)
     case class Empty(spans: Seq[TemplateSpan])
-    val emptySeparator = Templates.separator("empty", max = 1)(parsedBody.map(Empty.apply))
+    val emptySeparator = TemplateDirectives.separator("empty", max = 1)(parsedBody.map(Empty.apply))
 
     (
       attribute(0).as[String],
       separatedBody(Seq(emptySeparator)),
       cursor,
-      Templates.dsl.source
+      TemplateDirectives.dsl.source
     ).mapN { (ref, multipart, cursor, source) =>
       def contentScope(value: ConfigValue): TemplateSpan =
         TemplateScope(TemplateSpanSequence(multipart.mainBody), value, source)
@@ -83,9 +83,9 @@ private[laika] object ControlFlowDirectives {
 
   /** Implementation of the `if` directive for templates.
     */
-  lazy val templateIf: Templates.Directive = Templates.create("if") {
+  lazy val templateIf: TemplateDirectives.Directive = TemplateDirectives.create("if") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
     val trueStrings = Set("true", "yes", "on", "enabled")
 
@@ -93,10 +93,10 @@ private[laika] object ControlFlowDirectives {
     case class ElseIf(ref: String, body: Seq[TemplateSpan]) extends IfSeparator
     case class Else(body: Seq[TemplateSpan])                extends IfSeparator
 
-    val elseIfSep     = Templates.separator("elseIf") {
+    val elseIfSep     = TemplateDirectives.separator("elseIf") {
       (attribute(0).as[String], parsedBody).mapN(ElseIf.apply)
     }
-    val elseSep       = Templates.separator("else", max = 1) {
+    val elseSep       = TemplateDirectives.separator("else", max = 1) {
       parsedBody.map(Else.apply)
     }
     val multipartBody = separatedBody(Seq(elseIfSep, elseSep))

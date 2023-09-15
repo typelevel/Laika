@@ -17,7 +17,7 @@
 package laika.helium.builder
 
 import cats.syntax.all._
-import laika.api.bundle.{ PathTranslator, Templates }
+import laika.api.bundle.{ PathTranslator, TemplateDirectives }
 import laika.ast.{ TemplateSpanSequence, TemplateString }
 import laika.config.{ LaikaKeys, Versions }
 import laika.helium.Helium
@@ -26,8 +26,8 @@ import laika.helium.Helium
   */
 private[helium] object HeliumDirectives {
 
-  val initVersions: Templates.Directive = Templates.create("heliumInitVersions") {
-    Templates.dsl.cursor.map { cursor =>
+  val initVersions: TemplateDirectives.Directive = TemplateDirectives.create("heliumInitVersions") {
+    TemplateDirectives.dsl.cursor.map { cursor =>
       val versions       = cursor.config.get[Versions].toOption
       val pathTranslator = cursor.root.pathTranslator.map(PathTranslator.ignoreVersions)
 
@@ -50,8 +50,8 @@ private[helium] object HeliumDirectives {
     }
   }
 
-  val initPreview: Templates.Directive = Templates.eval("heliumInitPreview") {
-    import Templates.dsl._
+  val initPreview: TemplateDirectives.Directive = TemplateDirectives.eval("heliumInitPreview") {
+    import TemplateDirectives.dsl._
     (positionalAttributes.as[String].widen, cursor).mapN { (targetIds, cursor) =>
       val res = for {
         enabled <- cursor.config.get(LaikaKeys.preview.enabled, false)
@@ -64,7 +64,7 @@ private[helium] object HeliumDirectives {
     }
   }
 
-  def all(helium: Helium): Seq[Templates.Directive] =
+  def all(helium: Helium): Seq[TemplateDirectives.Directive] =
     Seq(
       initVersions,
       initPreview,

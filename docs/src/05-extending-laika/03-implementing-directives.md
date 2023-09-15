@@ -161,10 +161,10 @@ Let's walk through the implementation of our little ticket directive:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.api.bundle.Spans
-import Spans.dsl._
+import laika.api.bundle.SpanDirectives
+import SpanDirectives.dsl._
 
-val ticketDirective = Spans.create("ticket") {
+val ticketDirective = SpanDirectives.create("ticket") {
   attribute(0).as[Int].map { ticketNo => 
     val url = s"http://our-tracker.com/$ticketNo"
     SpanLink(Seq(Text("#" + ticketNo)), ExternalTarget(url))
@@ -256,10 +256,10 @@ provided alongside the expected attribute value:
 ```scala mdoc:silent
 import cats.syntax.all._
 import laika.ast._
-import laika.api.bundle.Spans
-import Spans.dsl._
+import laika.api.bundle.SpanDirectives
+import SpanDirectives.dsl._
 
-val spanDirective = Spans.create("ticket") {
+val spanDirective = SpanDirectives.create("ticket") {
   (attribute(0).as[Int], cursor, source).mapN { (num, cursor, source) => 
     cursor.config.get[String]("ticket.baseURL").fold(
       error   => InvalidSpan(s"Invalid base URL: $error", source),
@@ -345,7 +345,7 @@ Combinators:
 Combinator Example:
 
 ```scala mdoc:compile-only
-val ticketDirective = Spans.create("directive-name") {
+val ticketDirective = SpanDirectives.create("directive-name") {
   attribute(0).as[Int].map { ticketNo => 
     ??? // produce AST span node
   }
@@ -386,7 +386,7 @@ Combinator Example:
 We'll use the `allAttributes` combinator together with the one for accessing body elements:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("custom") {
+val directive = SpanDirectives.create("custom") {
   (allAttributes, parsedBody).mapN { (attributes, bodyContent) => 
     val path = attributes.getOpt[Path]("filePath")
     val index = attributes.getOpt[Int]("index")
@@ -476,7 +476,7 @@ Combinators:
 Combinator Example:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("custom") {
+val directive = SpanDirectives.create("custom") {
   (attribute("name"), parsedBody).mapN { (nameAttribute, bodyContent) => 
     ??? // produce AST span node, bodyContent will be Seq[Span] here
   }
@@ -547,9 +547,9 @@ The directive implementation you need to provide is then merely a simple functio
 Example:
 
 ```scala mdoc:compile-only
-import laika.api.bundle.Links
+import laika.api.bundle.LinkDirectives
 
-val directive = Links.create("github") { (path, _) =>
+val directive = LinkDirectives.create("github") { (path, _) =>
   val url = s"https://github.com/our-project/$path"
   SpanLink(Seq(Text(s"GitHub ($path)")), ExternalTarget(url))
 }
@@ -608,7 +608,7 @@ only that you call `separator` instead of `create`:
 ```scala mdoc:silent
 case class Child (content: Seq[Span])
 
-val sepDir = Spans.separator("child", min = 1) { parsedBody.map(Child) }   
+val sepDir = SpanDirectives.separator("child", min = 1) { parsedBody.map(Child) }   
 ```
 
 Here you specify the name of the directive `child`, as well as that it has to be present in 
@@ -619,7 +619,7 @@ in this case only the `parsedBody` that you map to the `Child` type.
 Now you can use this directive in the parent:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("parent") { 
+val directive = SpanDirectives.create("parent") { 
   separatedBody(Seq(sepDir)) map { multipart =>
     val seps = multipart.children.flatMap { sep => 
       Text("Child: ") +: sep.content 

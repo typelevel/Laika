@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.api.bundle.{ Blocks, Templates }
+import laika.api.bundle.{ BlockDirectives, TemplateDirectives }
 import laika.ast._
 import laika.parse.SourceFragment
 import scala.annotation.tailrec
@@ -88,22 +88,22 @@ private[laika] object BreadcrumbDirectives {
 
   /** Implementation of the `breadcrumb` directive for templates.
     */
-  lazy val forTemplates: Templates.Directive = Templates.create("breadcrumb") {
+  lazy val forTemplates: TemplateDirectives.Directive = TemplateDirectives.create("breadcrumb") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
-    (cursor, Templates.dsl.source).mapN { case (cursor, src) =>
+    (cursor, TemplateDirectives.dsl.source).mapN { case (cursor, src) =>
       TemplateElement(BreadcrumbBuilder(src).resolve(cursor))
     }
   }
 
   /** Implementation of the `breadcrumb` directive for block elements in markup documents.
     */
-  lazy val forBlocks: Blocks.Directive = Blocks.create("breadcrumb") {
+  lazy val forBlocks: BlockDirectives.Directive = BlockDirectives.create("breadcrumb") {
 
-    import Blocks.dsl._
+    import BlockDirectives.dsl._
 
-    (cursor, Blocks.dsl.source).mapN { case (cursor, src) =>
+    (cursor, BlockDirectives.dsl.source).mapN { case (cursor, src) =>
       BreadcrumbBuilder(src).resolve(cursor)
     }
   }

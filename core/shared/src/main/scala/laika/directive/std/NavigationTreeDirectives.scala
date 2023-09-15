@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
-import laika.api.bundle.{ Blocks, Templates }
+import laika.api.bundle.{ BlockDirectives, TemplateDirectives }
 import laika.api.config.{ ConfigDecoder, ConfigError, Key }
 import laika.ast.{
   Block,
@@ -260,9 +260,9 @@ private[laika] object NavigationTreeDirectives {
 
   /** Implementation of the `navigationTree` directive for templates.
     */
-  lazy val forTemplates: Templates.Directive = Templates.eval("navigationTree") {
+  lazy val forTemplates: TemplateDirectives.Directive = TemplateDirectives.eval("navigationTree") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
     (allAttributes, cursor).mapN { (config, cursor) =>
       config.get[NavigationBuilderConfig](Key.root)
@@ -273,9 +273,9 @@ private[laika] object NavigationTreeDirectives {
 
   /** Implementation of the `navigationTree` directive for block elements in markup documents.
     */
-  lazy val forBlocks: Blocks.Directive = Blocks.eval("navigationTree") {
+  lazy val forBlocks: BlockDirectives.Directive = BlockDirectives.eval("navigationTree") {
 
-    import Blocks.dsl._
+    import BlockDirectives.dsl._
 
     (allAttributes, cursor).mapN { (config, cursor) =>
       config.get[NavigationBuilderConfig](Key.root)

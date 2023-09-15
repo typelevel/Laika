@@ -16,7 +16,7 @@
 
 package laika.parse.directive
 
-import laika.api.bundle.Templates
+import laika.api.bundle.TemplateDirectives
 import laika.ast._
 import laika.parse.{ LineSource, Parser }
 import laika.parse.markup.{ DefaultRecursiveSpanParsers, RecursiveSpanParser }
@@ -28,7 +28,7 @@ import laika.parse.implicits._
   *
   * @author Jens Halm
   */
-private[laika] class TemplateParsers(directives: Map[String, Templates.Directive])
+private[laika] class TemplateParsers(directives: Map[String, TemplateDirectives.Directive])
     extends DefaultRecursiveSpanParsers {
 
   import DirectiveParsers._
@@ -52,8 +52,8 @@ private[laika] class TemplateParsers(directives: Map[String, Templates.Directive
 
     PrefixedParser('@') {
       directiveParser(body).withCursor.map { case (res, source) =>
-        if (separators.contains(res.name)) Templates.SeparatorInstance(res, source)
-        else Templates.DirectiveInstance(directives.get(res.name), res, this, source)
+        if (separators.contains(res.name)) TemplateDirectives.SeparatorInstance(res, source)
+        else TemplateDirectives.DirectiveInstance(directives.get(res.name), res, this, source)
       }
     }
   }

@@ -27,7 +27,7 @@ import laika.api.bundle.{
   PathTranslator,
   RenderOverrides,
   SpanParserBuilder,
-  Templates
+  TemplateDirectives
 }
 import laika.api.config.{ Config, ConfigParser }
 import laika.ast.RewriteRules.RewritePhaseBuilder
@@ -160,7 +160,7 @@ object BundleProvider {
   }
 
   def forTemplateDirective(
-      directive: Templates.Directive,
+      directive: TemplateDirectives.Directive,
       bundleOrigin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new DirectiveRegistry {
 

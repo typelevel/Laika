@@ -16,7 +16,7 @@
 
 package laika.markdown
 
-import cats.implicits._
+import cats.implicits.*
 import laika.api.bundle.DirectiveRegistry
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.sample.ParagraphCompanionShortcuts
@@ -26,21 +26,21 @@ import munit.FunSuite
 
 class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
 
-  object BlockDirectives {
+  object BlockTestDirectives {
 
-    import laika.api.bundle.Blocks
-    import Blocks.dsl._
+    import laika.api.bundle.BlockDirectives
+    import BlockDirectives.dsl._
 
     object Registry extends DirectiveRegistry {
 
-      val blockDirectives: List[Blocks.Directive] = List(
-        Blocks.create("oneArg")(attribute(0).as[String] map p),
-        Blocks.create("twoArgs") {
+      val blockDirectives: List[BlockDirectives.Directive] = List(
+        BlockDirectives.create("oneArg")(attribute(0).as[String] map p),
+        BlockDirectives.create("twoArgs") {
           (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
             p(arg1 + arg2)
           }
         },
-        Blocks.create("inheritedArg") {
+        BlockDirectives.create("inheritedArg") {
           attribute("name").as[String].inherited.widen.map(p)
         }
       )
@@ -68,16 +68,16 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
 
   }
 
-  object SpanDirectives {
+  object SpanTestDirectives {
 
-    import laika.api.bundle.Spans
-    import Spans.dsl._
+    import laika.api.bundle.SpanDirectives
+    import SpanDirectives.dsl._
 
     object Registry extends DirectiveRegistry {
 
-      val spanDirectives: List[Spans.Directive] = List(
-        Spans.create("oneArg")(attribute(0).as[String].map(Text(_))),
-        Spans.create("twoArgs") {
+      val spanDirectives: List[SpanDirectives.Directive] = List(
+        SpanDirectives.create("oneArg")(attribute(0).as[String].map(Text(_))),
+        SpanDirectives.create("twoArgs") {
           (attribute(0).as[String], attribute("name").as[String].widen).mapN { (arg1, arg2) =>
             Text(arg1 + arg2)
           }
@@ -111,14 +111,14 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
     val input = """@:oneArg(arg)
                   |
                   |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-    BlockDirectives.run(input, p("arg"), p("arg1arg2"))
+    BlockTestDirectives.run(input, p("arg"), p("arg1arg2"))
   }
 
   test("ignore the registration of block directives when run in strict mode") {
     val input = """@:oneArg(arg)
                   |
                   |@:twoArgs(arg1) { name=arg2 }""".stripMargin
-    BlockDirectives.runStrict(input, p("@:oneArg(arg)"), p("@:twoArgs(arg1) { name=arg2 }"))
+    BlockTestDirectives.runStrict(input, p("@:oneArg(arg)"), p("@:twoArgs(arg1) { name=arg2 }"))
   }
 
   test("registration of block directives with inherited attributes") {
@@ -127,17 +127,20 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
                   |@:oneArg(arg)
                   |
                   |@:inheritedArg""".stripMargin
-    BlockDirectives.run(input, p("arg"), p("fromHeader"))
+    BlockTestDirectives.run(input, p("arg"), p("fromHeader"))
   }
 
   test("registration of span directives") {
     val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three""".stripMargin
-    SpanDirectives.run(input, p("one arg two arg1arg2 three"))
+    SpanTestDirectives.run(input, p("one arg two arg1arg2 three"))
   }
 
   test("ignore the registration of span directives when run in strict mode") {
     val input = """one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"""
-    SpanDirectives.runStrict(input, p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three"))
+    SpanTestDirectives.runStrict(
+      input,
+      p("one @:oneArg(arg) two @:twoArgs(arg1) { name=arg2 } three")
+    )
   }
 
 }

@@ -498,10 +498,10 @@ class TreeParserSpec
   }
 
   test("template directive") {
-    import laika.api.bundle.Templates
-    import Templates.dsl._
+    import laika.api.bundle.TemplateDirectives
+    import TemplateDirectives.dsl._
 
-    val directive = Templates.create("foo") {
+    val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
         TemplateString(_)
       }

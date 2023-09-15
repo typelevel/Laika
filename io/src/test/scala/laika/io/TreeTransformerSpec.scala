@@ -18,7 +18,7 @@ package laika.io
 
 import cats.effect.{ IO, Resource }
 import laika.api.builder.OperationConfig
-import laika.api.bundle.{ ExtensionBundle, PathTranslator, SlugBuilder, Templates }
+import laika.api.bundle.{ ExtensionBundle, PathTranslator, SlugBuilder, TemplateDirectives }
 import laika.api.config.Config
 import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
@@ -92,7 +92,7 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   def transformWithDirective(
       inputs: Seq[(Path, String)],
-      directive: Templates.Directive
+      directive: TemplateDirectives.Directive
   ): IO[RenderedTreeRoot[IO]] =
     transformWithBundle(inputs, BundleProvider.forTemplateDirective(directive))
 
@@ -421,9 +421,9 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a template directive") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
-    val directive = Templates.create("foo") {
+    val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
         TemplateString(_)
       }

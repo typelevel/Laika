@@ -18,7 +18,14 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import cats.syntax.all.*
-import laika.api.bundle.{ Blocks, BundleOrigin, DirectiveRegistry, Links, Spans, Templates }
+import laika.api.bundle.{
+  BlockDirectives,
+  BundleOrigin,
+  DirectiveRegistry,
+  LinkDirectives,
+  SpanDirectives,
+  TemplateDirectives
+}
 import laika.ast.*
 import laika.config.{ LaikaKeys, PlatformDateTime }
 import laika.api.config.ConfigValue.SimpleValue
@@ -112,16 +119,16 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     * The body of such a directive will get two styles assigned: `callout` and the argument
     * passed to the directive (e.g. `@:callout(info)`).
     */
-  lazy val callout: Blocks.Directive = Blocks.create("callout") {
-    import laika.api.bundle.Blocks.dsl._
+  lazy val callout: BlockDirectives.Directive = BlockDirectives.create("callout") {
+    import laika.api.bundle.BlockDirectives.dsl._
 
     (attribute(0).as[String].widen, parsedBody).mapN { (style, body) =>
       BlockSequence(body, Styles("callout", style))
     }
   }
 
-  lazy val target: Templates.Directive = Templates.eval("target") {
-    import laika.api.bundle.Templates.dsl._
+  lazy val target: TemplateDirectives.Directive = TemplateDirectives.eval("target") {
+    import laika.api.bundle.TemplateDirectives.dsl._
 
     (attribute(0).as[Target], attribute(0).as[String], cursor).mapN {
       (literalTarget, pathKey, cursor) =>
@@ -142,8 +149,8 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  lazy val date: Templates.Directive = Templates.eval("date") {
-    import laika.api.bundle.Templates.dsl._
+  lazy val date: TemplateDirectives.Directive = TemplateDirectives.eval("date") {
+    import laika.api.bundle.TemplateDirectives.dsl._
 
     (
       attribute(0).as[String],
@@ -163,8 +170,8 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     }
   }
 
-  lazy val attr: Templates.Directive = Templates.eval("attribute") {
-    import laika.api.bundle.Templates.dsl._
+  lazy val attr: TemplateDirectives.Directive = TemplateDirectives.eval("attribute") {
+    import laika.api.bundle.TemplateDirectives.dsl._
 
     (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (name, ref, cursor) =>
       cursor.resolveReference(Key.parse(ref)).leftMap(_.message).flatMap {
@@ -182,8 +189,8 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     *  The content of such a block will only be rendered for the corresponding
     *  output format (e.g. `pdf` or `html`).
     */
-  lazy val format: Blocks.Directive = Blocks.eval("format") {
-    import laika.api.bundle.Blocks.dsl._
+  lazy val format: BlockDirectives.Directive = BlockDirectives.eval("format") {
+    import laika.api.bundle.BlockDirectives.dsl._
 
     (positionalAttributes.as[String].widen, parsedBody.map(asBlock(_))).mapN { (formats, body) =>
       NonEmptySet
@@ -196,40 +203,41 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** Implementation of the `style` directive for block elements in markup documents.
     */
-  lazy val blockStyle: Blocks.Directive = Blocks.create("style") {
-    import laika.api.bundle.Blocks.dsl._
+  lazy val blockStyle: BlockDirectives.Directive = BlockDirectives.create("style") {
+    import laika.api.bundle.BlockDirectives.dsl._
 
     (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asBlock)
   }
 
   /** Implementation of the `style` directive for span elements in markup documents.
     */
-  lazy val spanStyle: Spans.Directive = Spans.create("style") {
-    import laika.api.bundle.Spans.dsl._
+  lazy val spanStyle: SpanDirectives.Directive = SpanDirectives.create("style") {
+    import laika.api.bundle.SpanDirectives.dsl._
 
     (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asSpan)
   }
 
   /** Implementation of the `icon` directive for span elements in markup documents.
     */
-  lazy val iconSpan: Spans.Directive = Spans.create("icon") {
-    (Spans.dsl.attribute(0).as[String], Spans.dsl.source).mapN { (ref, src) =>
+  lazy val iconSpan: SpanDirectives.Directive = SpanDirectives.create("icon") {
+    (SpanDirectives.dsl.attribute(0).as[String], SpanDirectives.dsl.source).mapN { (ref, src) =>
       IconReference(ref, src, Styles(ref))
     }
   }
 
   /** Implementation of the `icon` directive for span elements in templates.
     */
-  lazy val iconTemplate: Templates.Directive = Templates.create("icon") {
-    (Templates.dsl.attribute(0).as[String], Templates.dsl.source).mapN { (ref, src) =>
-      TemplateElement(IconReference(ref, src, Styles(ref)))
+  lazy val iconTemplate: TemplateDirectives.Directive = TemplateDirectives.create("icon") {
+    (TemplateDirectives.dsl.attribute(0).as[String], TemplateDirectives.dsl.source).mapN {
+      (ref, src) =>
+        TemplateElement(IconReference(ref, src, Styles(ref)))
     }
   }
 
   /** Implementation of the `fragment` directive for block elements in markup documents.
     */
-  lazy val blockFragment: Blocks.Directive = Blocks.create("fragment") {
-    import laika.api.bundle.Blocks.dsl._
+  lazy val blockFragment: BlockDirectives.Directive = BlockDirectives.create("fragment") {
+    import laika.api.bundle.BlockDirectives.dsl._
 
     (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       DocumentFragment(name, asBlock(content, Styles(name)))
@@ -238,8 +246,8 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** Implementation of the `fragment` directive for templates.
     */
-  lazy val templateFragment: Templates.Directive = Templates.create("fragment") {
-    import laika.api.bundle.Templates.dsl._
+  lazy val templateFragment: TemplateDirectives.Directive = TemplateDirectives.create("fragment") {
+    import laika.api.bundle.TemplateDirectives.dsl._
 
     (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
@@ -248,29 +256,29 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** Implementation of the `pageBreak` directive.
     */
-  lazy val pageBreak: Blocks.Directive = Blocks.create("pageBreak") {
-    import laika.api.bundle.Blocks.dsl._
+  lazy val pageBreak: BlockDirectives.Directive = BlockDirectives.create("pageBreak") {
+    import laika.api.bundle.BlockDirectives.dsl._
 
     empty(PageBreak())
   }
 
   /** Implementation of the `todo` directive for inline elements.
     */
-  val todoSpan: Spans.Directive = Spans.create("todo") {
-    import laika.api.bundle.Spans.dsl._
+  val todoSpan: SpanDirectives.Directive = SpanDirectives.create("todo") {
+    import laika.api.bundle.SpanDirectives.dsl._
     attribute(0).map { _ => SpanSequence(Nil) }
   }
 
   /** Implementation of the `todo` directive for block elements.
     */
-  val todoBlock: Blocks.Directive = Blocks.create("todo") {
-    import laika.api.bundle.Blocks.dsl._
+  val todoBlock: BlockDirectives.Directive = BlockDirectives.create("todo") {
+    import laika.api.bundle.BlockDirectives.dsl._
     attribute(0).map { _ => BlockSequence(Nil) }
   }
 
   /** The complete list of standard directives for block elements in markup documents.
     */
-  lazy val blockDirectives: Seq[Blocks.Directive] = List(
+  lazy val blockDirectives: Seq[BlockDirectives.Directive] = List(
     BreadcrumbDirectives.forBlocks,
     NavigationTreeDirectives.forBlocks,
     blockFragment,
@@ -287,7 +295,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for span elements in markup documents.
     */
-  lazy val spanDirectives: Seq[Spans.Directive] = List(
+  lazy val spanDirectives: Seq[SpanDirectives.Directive] = List(
     ImageDirectives.forSpans,
     spanStyle,
     iconSpan,
@@ -296,7 +304,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for templates.
     */
-  lazy val templateDirectives: Seq[Templates.Directive] = List(
+  lazy val templateDirectives: Seq[TemplateDirectives.Directive] = List(
     BreadcrumbDirectives.forTemplates,
     NavigationTreeDirectives.forTemplates,
     ControlFlowDirectives.templateFor,
@@ -311,9 +319,9 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for links.
     */
-  lazy val linkDirectives: Seq[Links.Directive] = Seq(
-    LinkDirectives.api,
-    LinkDirectives.source
+  lazy val linkDirectives: Seq[LinkDirectives.Directive] = Seq(
+    StandardLinkDirectives.api,
+    StandardLinkDirectives.source
   )
 
 }

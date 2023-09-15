@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all.*
-import laika.api.bundle.{ Blocks, Templates }
+import laika.api.bundle.{ BlockDirectives, TemplateDirectives }
 import laika.api.config.{ Config, Field, ObjectConfig, Origin }
 import laika.ast.{
   Block,
@@ -102,9 +102,9 @@ private[laika] object IncludeDirectives {
 
   /** Implementation of the `include` directive for templates.
     */
-  lazy val templateInclude: Templates.Directive = Templates.eval("include") {
+  lazy val templateInclude: TemplateDirectives.Directive = TemplateDirectives.eval("include") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
     (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
@@ -115,9 +115,9 @@ private[laika] object IncludeDirectives {
 
   /** Implementation of the `embed` directive for templates.
     */
-  lazy val templateEmbed: Templates.Directive = Templates.eval("embed") {
+  lazy val templateEmbed: TemplateDirectives.Directive = TemplateDirectives.eval("embed") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
     (
       attribute(0).as[Path],
@@ -134,9 +134,9 @@ private[laika] object IncludeDirectives {
 
   /** Implementation of the `include` directive for text markup documents.
     */
-  lazy val blockInclude: Blocks.Directive = Blocks.eval("include") {
+  lazy val blockInclude: BlockDirectives.Directive = BlockDirectives.eval("include") {
 
-    import Blocks.dsl._
+    import BlockDirectives.dsl._
 
     (attribute(0).as[Path], attribute(0).as[String], allAttributes, cursor, source).mapN {
       case (literalPath, pathKey, attributes, cursor, source) =>
@@ -147,9 +147,9 @@ private[laika] object IncludeDirectives {
 
   /** Implementation of the `embed` directive for text markup documents.
     */
-  lazy val blockEmbed: Blocks.Directive = Blocks.eval("embed") {
+  lazy val blockEmbed: BlockDirectives.Directive = BlockDirectives.eval("embed") {
 
-    import Blocks.dsl._
+    import BlockDirectives.dsl._
 
     (
       attribute(0).as[Path],

@@ -18,7 +18,7 @@ package laika.directive
 
 import cats.implicits.*
 import laika.api.RenderPhaseRewrite
-import laika.api.bundle.{ BlockParserBuilder, Blocks, ParserBundle }
+import laika.api.bundle.{ BlockParserBuilder, BlockDirectives, ParserBundle }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
@@ -36,31 +36,31 @@ class BlockDirectiveAPISpec extends FunSuite
     with TestSourceBuilders {
 
   object DirectiveSetup {
-    import laika.api.bundle.Blocks.dsl._
+    import laika.api.bundle.BlockDirectives.dsl._
 
     trait Empty {
-      val directive = Blocks.create("dir")(Blocks.dsl.empty(p("foo")))
+      val directive = BlockDirectives.create("dir")(BlockDirectives.dsl.empty(p("foo")))
     }
 
     trait RequiredPositionalAttribute {
-      val directive = Blocks.create("dir") { attribute(0).as[String] map p }
+      val directive = BlockDirectives.create("dir") { attribute(0).as[String] map p }
     }
 
     trait OptionalPositionalAttribute {
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         attribute(0).as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>")))
       }
 
     }
 
     trait RequiredNamedAttribute {
-      val directive = Blocks.create("dir") { attribute("name").as[String] map p }
+      val directive = BlockDirectives.create("dir") { attribute("name").as[String] map p }
     }
 
     trait OptionalNamedAttribute {
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         attribute("name").as[Int].optional map (num => p(num.map(_.toString).getOrElse("<>")))
       }
 
@@ -68,7 +68,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
     trait AllAttributes {
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         allAttributes.map { attrs =>
           val foo = attrs.get[String]("foo").toOption.get
           val bar = attrs.get[Int]("bar").toOption.get
@@ -79,7 +79,7 @@ class BlockDirectiveAPISpec extends FunSuite
     }
 
     trait Body {
-      val directive = Blocks.create("dir") { parsedBody map (BlockSequence(_)) }
+      val directive = BlockDirectives.create("dir") { parsedBody map (BlockSequence(_)) }
     }
 
     trait SeparatedBody {
@@ -88,15 +88,15 @@ class BlockDirectiveAPISpec extends FunSuite
       case class Foo(content: Seq[Block])               extends Child
       case class Bar(content: Seq[Block], attr: String) extends Child
 
-      val sep1 = Blocks.separator("foo", min = 1) {
+      val sep1 = BlockDirectives.separator("foo", min = 1) {
         parsedBody.map(Foo.apply)
       }
 
-      val sep2 = Blocks.separator("bar", max = 1) {
+      val sep2 = BlockDirectives.separator("bar", max = 1) {
         (parsedBody, attribute(0).as[String]).mapN(Bar.apply)
       }
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
           val seps = multipart.children.flatMap {
             case Foo(content)       => p("foo") +: content
@@ -110,7 +110,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
     trait FullDirectiveSpec {
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         (
           attribute(0).as[String],
           attribute(1).as[Int],
@@ -131,7 +131,7 @@ class BlockDirectiveAPISpec extends FunSuite
       import laika.parse.builders._
       import laika.parse.implicits._
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         parsedBody(recParsers =>
           anyChars.take(3) ~> recParsers.recursiveBlocks(anyChars.line.map(BlockSource(_)))
         )
@@ -142,7 +142,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
     trait DirectiveWithContextAccess {
 
-      val directive = Blocks.create("dir") {
+      val directive = BlockDirectives.create("dir") {
         (rawBody, cursor).mapN { (body, cursor) =>
           p(body + cursor.target.path)
         }
@@ -161,8 +161,8 @@ class BlockDirectiveAPISpec extends FunSuite
         def runsIn(phase: RewritePhase): Boolean   = phase.isInstanceOf[RewritePhase.Render]
       }
 
-      val directive = Blocks.create("dir") {
-        Blocks.dsl.empty(DummyResolver())
+      val directive = BlockDirectives.create("dir") {
+        BlockDirectives.dsl.empty(DummyResolver())
       }
 
     }
@@ -171,7 +171,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
   trait BlockParser extends RenderPhaseRewrite {
 
-    def directive: Blocks.Directive
+    def directive: BlockDirectives.Directive
 
     def input: String
 

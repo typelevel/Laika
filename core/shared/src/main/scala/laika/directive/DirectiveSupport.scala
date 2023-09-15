@@ -17,15 +17,15 @@
 package laika.directive
 
 import laika.api.bundle.{
-  Blocks,
+  BlockDirectives,
   BundleOrigin,
   ConfigHeaderParser,
   ConfigProvider,
   ExtensionBundle,
-  Links,
+  LinkDirectives,
   ParserBundle,
-  Spans,
-  Templates
+  SpanDirectives,
+  TemplateDirectives
 }
 import laika.api.config.ConfigParser
 import laika.ast.RewriteRules.RewritePhaseBuilder
@@ -62,10 +62,10 @@ import laika.parse.text.TextParsers
   * @author Jens Halm
   */
 private[laika] class DirectiveSupport(
-    blockDirectives: Seq[Blocks.Directive],
-    spanDirectives: Seq[Spans.Directive],
-    templateDirectives: Seq[Templates.Directive],
-    linkDirectives: Seq[Links.Directive],
+    blockDirectives: Seq[BlockDirectives.Directive],
+    spanDirectives: Seq[SpanDirectives.Directive],
+    templateDirectives: Seq[TemplateDirectives.Directive],
+    linkDirectives: Seq[LinkDirectives.Directive],
     strictMode: Boolean
 ) extends ExtensionBundle { self =>
 
@@ -86,18 +86,20 @@ private[laika] class DirectiveSupport(
   override lazy val parsers: ParserBundle = new ParserBundle(
     blockParsers =
       if (strictMode) Nil
-      else Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
+      else Seq(BlockDirectiveParsers.blockDirective(BlockDirectives.toMap(blockDirectives))),
     spanParsers =
       if (strictMode) Nil
       else
         Seq(
           SpanDirectiveParsers.spanDirective(
-            Spans.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))
+            SpanDirectives.toMap(spanDirectives ++ linkDirectives.map(_.asSpanDirective))
           ),
           SpanDirectiveParsers.contextRef
         ),
     configProvider = Some(configProvider),
-    templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
+    templateParser = Some(
+      new TemplateParsers(TemplateDirectives.toMap(templateDirectives)).templateRoot
+    )
   )
 
   private val linkDirectiveMap = linkDirectives.map(d => (d.name, d)).toMap
@@ -169,10 +171,10 @@ private[laika] class DirectiveSupport(
   /** Hook for extension registries for adding block, span and template directives.
     */
   def withDirectives(
-      newBlockDirectives: Seq[Blocks.Directive],
-      newSpanDirectives: Seq[Spans.Directive],
-      newTemplateDirectives: Seq[Templates.Directive],
-      newLinkDirectives: Seq[Links.Directive]
+      newBlockDirectives: Seq[BlockDirectives.Directive],
+      newSpanDirectives: Seq[SpanDirectives.Directive],
+      newTemplateDirectives: Seq[TemplateDirectives.Directive],
+      newLinkDirectives: Seq[LinkDirectives.Directive]
   ): DirectiveSupport =
     new DirectiveSupport(
       blockDirectives ++ newBlockDirectives,

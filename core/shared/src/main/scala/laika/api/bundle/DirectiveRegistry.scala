@@ -73,9 +73,9 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika span directives see [[Spans.dsl]].
+    *  For more details on implementing Laika span directives see [[SpanDirectives.dsl]].
     */
-  def spanDirectives: Seq[Spans.Directive]
+  def spanDirectives: Seq[SpanDirectives.Directive]
 
   /**  Registers the specified block directives.
     *
@@ -98,9 +98,9 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  val transformer = Transformer.from(Markdown).to(HTML).using(MyDirectives).build
     *  }}}
     *
-    *  For more details on implementing Laika block directives see [[Blocks.dsl]].
+    *  For more details on implementing Laika block directives see [[BlockDirectives.dsl]].
     */
-  def blockDirectives: Seq[Blocks.Directive]
+  def blockDirectives: Seq[BlockDirectives.Directive]
 
   /**  Registers the specified template directives.
     *
@@ -130,9 +130,9 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:ticket(2356)` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika template directives see [[Templates.dsl]].
+    *  For more details on implementing Laika template directives see [[TemplateDirectives.dsl]].
     */
-  def templateDirectives: Seq[Templates.Directive]
+  def templateDirectives: Seq[TemplateDirectives.Directive]
 
   /**  Registers the specified link directives.
     *
@@ -161,9 +161,9 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  `@:rfc(2356)` and turns it into an external link node for the
     *  URL `http://tools.ietf.org/html/rfc2356`.
     *
-    *  For more details on implementing Laika directives see [[Links]].
+    *  For more details on implementing Laika directives see [[LinkDirectives]].
     */
-  def linkDirectives: Seq[Links.Directive]
+  def linkDirectives: Seq[LinkDirectives.Directive]
 
   override def forStrictMode: Option[ExtensionBundle] = Some(new DirectiveRegistry {
     val spanDirectives     = Nil

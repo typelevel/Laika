@@ -16,7 +16,7 @@
 
 package laika.rewrite.link
 
-import laika.api.bundle.Blocks
+import laika.api.bundle.BlockDirectives
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
@@ -154,7 +154,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
 
-      case d: Blocks.DirectiveInstance if d.directive.exists(_.name == "fragment") =>
+      case d: BlockDirectives.DirectiveInstance if d.directive.exists(_.name == "fragment") =>
         Replace(d.resolve(cursor))
 
       case _: Hidden => Remove

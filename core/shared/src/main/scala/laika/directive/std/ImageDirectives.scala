@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
-import laika.api.bundle.{ Blocks, Spans }
+import laika.api.bundle.{ BlockDirectives, SpanDirectives }
 import laika.ast.{
   BlockSequence,
   Image,
@@ -53,8 +53,8 @@ private[laika] object ImageDirectives {
     * in one of your site's CSS documents.
     * If omitted the theme in use will usually have a sensible default size.
     */
-  val forBlocks: Blocks.Directive = Blocks.create("image") {
-    import Blocks.dsl._
+  val forBlocks: BlockDirectives.Directive = BlockDirectives.create("image") {
+    import BlockDirectives.dsl._
     (
       attribute(0).as[String].widen,
       attribute("intrinsicWidth").as[Double].optional,
@@ -89,8 +89,8 @@ private[laika] object ImageDirectives {
     * in one of your site's CSS documents.
     * If omitted the theme in use will usually have a sensible default size.
     */
-  val forSpans: Spans.Directive = Spans.create("image") {
-    import Spans.dsl._
+  val forSpans: SpanDirectives.Directive = SpanDirectives.create("image") {
+    import SpanDirectives.dsl._
     (
       attribute(0).as[String].widen,
       attribute("intrinsicWidth").as[Double].optional,

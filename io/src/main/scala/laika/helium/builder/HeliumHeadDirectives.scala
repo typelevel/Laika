@@ -17,7 +17,7 @@
 package laika.helium.builder
 
 import cats.syntax.all._
-import laika.api.bundle.Templates
+import laika.api.bundle.TemplateDirectives
 import laika.ast.Path.Root
 import laika.ast._
 import laika.helium.config.{ InlineCSS, InlineJS, ScriptIncludes, StyleIncludes }
@@ -160,9 +160,12 @@ private[helium] object HeliumHeadDirectives {
     TemplateSpanSequence(allLinks)
   }
 
-  def includeCSS(siteIncludes: StyleIncludes, epubIncludes: StyleIncludes): Templates.Directive =
-    Templates.create("includeCSS") {
-      import Templates.dsl._
+  def includeCSS(
+      siteIncludes: StyleIncludes,
+      epubIncludes: StyleIncludes
+  ): TemplateDirectives.Directive =
+    TemplateDirectives.create("includeCSS") {
+      import TemplateDirectives.dsl._
 
       val templateStart = """<link rel="stylesheet" type="text/css" href=""""
       val templateEnd   = " />"
@@ -186,9 +189,12 @@ private[helium] object HeliumHeadDirectives {
       }
     }
 
-  def includeJS(siteIncludes: ScriptIncludes, epubIncludes: ScriptIncludes): Templates.Directive =
-    Templates.create("includeJS") {
-      import Templates.dsl._
+  def includeJS(
+      siteIncludes: ScriptIncludes,
+      epubIncludes: ScriptIncludes
+  ): TemplateDirectives.Directive =
+    TemplateDirectives.create("includeJS") {
+      import TemplateDirectives.dsl._
 
       val templateStart = """<script src=""""
       val templateEnd   = "></script>"

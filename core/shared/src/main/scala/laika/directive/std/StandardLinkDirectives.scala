@@ -16,8 +16,8 @@
 
 package laika.directive.std
 
-import cats.syntax.all._
-import laika.api.bundle.Links
+import cats.syntax.all.*
+import laika.api.bundle.LinkDirectives
 import laika.ast.{ DocumentCursor, SpanLink, Target }
 import laika.config.LinkConfig
 
@@ -34,7 +34,7 @@ import laika.config.LinkConfig
   *
   * @author Jens Halm
   */
-private[laika] object LinkDirectives {
+private[laika] object StandardLinkDirectives {
 
   private def linkConfig[T](
       cursor: DocumentCursor,
@@ -55,7 +55,7 @@ private[laika] object LinkDirectives {
     * The directive relies on base URIs defined in the transformation's configuration and will
     * otherwise fail. See [[LinkConfig]] for details.
     */
-  lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
+  lazy val api: LinkDirectives.Directive = LinkDirectives.eval("api") { (linkId, cursor) =>
     linkConfig(cursor)
       .flatMap { linkConfig =>
         val matching = linkConfig.apiLinks.toList.filter(l =>
@@ -102,7 +102,7 @@ private[laika] object LinkDirectives {
     * The directive relies on base URIs defined in the transformation's configuration and will
     * otherwise fail. See [[LinkConfig]] for details.
     */
-  lazy val source: Links.Directive = Links.eval("source") { (linkId, cursor) =>
+  lazy val source: LinkDirectives.Directive = LinkDirectives.eval("source") { (linkId, cursor) =>
     linkConfig(cursor, _.sourceLinks)
       .flatMap { sourceLinks =>
         sourceLinks.toList

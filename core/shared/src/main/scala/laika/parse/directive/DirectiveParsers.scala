@@ -162,16 +162,16 @@ private[laika] object DirectiveParsers {
 private[laika] object SpanDirectiveParsers {
 
   import DirectiveParsers._
-  import laika.api.bundle.Spans
+  import laika.api.bundle.SpanDirectives
 
   val contextRef: SpanParserBuilder =
     SpanParserBuilder.standalone(hoconReference(MarkupContextReference(_, _, _), identity))
 
-  def spanDirective(directives: Map[String, Spans.Directive]): SpanParserBuilder =
+  def spanDirective(directives: Map[String, SpanDirectives.Directive]): SpanParserBuilder =
     SpanParserBuilder.recursive(rec => spanDirectiveParser(directives)(rec))
 
   def spanDirectiveParser(
-      directives: Map[String, Spans.Directive]
+      directives: Map[String, SpanDirectives.Directive]
   )(recParsers: RecursiveSpanParsers): PrefixedParser[Span] = {
 
     import recParsers._
@@ -186,8 +186,8 @@ private[laika] object SpanDirectiveParsers {
 
     PrefixedParser('@') {
       directiveParser(body).withCursor.map { case (res, source) =>
-        if (separators.contains(res.name)) Spans.SeparatorInstance(res, source)
-        else Spans.DirectiveInstance(directives.get(res.name), res, recParsers, source)
+        if (separators.contains(res.name)) SpanDirectives.SeparatorInstance(res, source)
+        else SpanDirectives.DirectiveInstance(directives.get(res.name), res, recParsers, source)
       }
     }
   }
@@ -199,13 +199,13 @@ private[laika] object SpanDirectiveParsers {
 private[laika] object BlockDirectiveParsers {
 
   import DirectiveParsers._
-  import laika.api.bundle.Blocks
+  import laika.api.bundle.BlockDirectives
 
-  def blockDirective(directives: Map[String, Blocks.Directive]): BlockParserBuilder =
+  def blockDirective(directives: Map[String, BlockDirectives.Directive]): BlockParserBuilder =
     BlockParserBuilder.recursive(blockDirectiveParser(directives))
 
   def blockDirectiveParser(
-      directives: Map[String, Blocks.Directive]
+      directives: Map[String, BlockDirectives.Directive]
   )(recParsers: RecursiveParsers): PrefixedParser[Block] = {
 
     val separators              = directives.values.flatMap(_.separators).toSet
@@ -230,8 +230,14 @@ private[laika] object BlockDirectiveParsers {
           if (source.input.lastOption.contains('\n'))
             LineSource(source.input.dropRight(1), source)
           else source
-        if (separators.contains(res.name)) Blocks.SeparatorInstance(res, trimmedSource)
-        else Blocks.DirectiveInstance(directives.get(res.name), res, recParsers, trimmedSource)
+        if (separators.contains(res.name)) BlockDirectives.SeparatorInstance(res, trimmedSource)
+        else
+          BlockDirectives.DirectiveInstance(
+            directives.get(res.name),
+            res,
+            recParsers,
+            trimmedSource
+          )
       }
     }
   }
