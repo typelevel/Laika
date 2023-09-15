@@ -18,20 +18,17 @@ package laika.helium.config
 
 import java.time.OffsetDateTime
 import laika.ast.Path.Root
-import laika.ast.{
-  Document,
-  DocumentMetadata,
-  Image,
-  Length,
-  Path,
-  Span,
-  TemplateSpanSequence,
-  TemplateString
-}
+import laika.ast.{ Document, Image, Length, Path, Span, TemplateSpanSequence, TemplateString }
+import laika.config.{ CoverImage, Versions }
 import laika.helium.Helium
-import laika.rewrite.Versions
-import laika.rewrite.nav.CoverImage
-import laika.theme.config.{ BookConfig, Color, FontDefinition, ScriptAttributes, StyleAttributes }
+import laika.theme.config.{
+  BookConfig,
+  Color,
+  DocumentMetadata,
+  FontDefinition,
+  ScriptAttributes,
+  StyleAttributes
+}
 
 private[helium] trait CommonSettings {
   def themeFonts: ThemeFonts

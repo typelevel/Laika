@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.config
 
 import laika.api.config
-import laika.api.config.{
-  Config,
-  ConfigBuilder,
-  ConfigDecoder,
-  ConfigEncoder,
-  ConfigError,
-  DefaultKey,
-  Key
-}
-import laika.config.*
+import laika.api.config.*
 
 /** Configuration for autonumbering of documents and sections.
   */
@@ -130,9 +121,9 @@ object AutonumberConfig {
 
 }
 
-private[nav] sealed trait Scope
+private[config] sealed trait Scope
 
-private[nav] object Scope {
+private[config] object Scope {
 
   case object Documents extends Scope
   case object Sections  extends Scope

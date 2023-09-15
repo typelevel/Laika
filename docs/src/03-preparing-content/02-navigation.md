@@ -63,7 +63,7 @@ you can explicitly disable validation for certain paths within the virtual tree:
 @:choice(sbt)
 ```scala mdoc:compile-only
 import laika.ast.Path.Root
-import laika.rewrite.link.LinkValidation
+import laika.config.LinkValidation
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
@@ -73,9 +73,9 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.ast.Path.Root
+import laika.config.LinkValidation
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.LinkValidation
 
 val transformer = Transformer
   .from(Markdown)
@@ -127,7 +127,7 @@ Simply add them to the project's configuration:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
+import laika.config.{ LinkConfig, TargetDefinition }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig.empty
@@ -141,9 +141,9 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 ```scala mdoc:silent
 import laika.api._
+import laika.config.{ LinkConfig, TargetDefinition }
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
 
 val transformer = Transformer
   .from(Markdown)
@@ -250,7 +250,7 @@ This directive requires the base URI to be defined in the project's configuratio
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
+import laika.config.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig.empty
@@ -261,9 +261,9 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
+import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 val transformer = Transformer
   .from(Markdown)
@@ -283,7 +283,7 @@ while keeping one base URI as a default for all packages that do not match any p
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
+import laika.config.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig.empty
@@ -295,9 +295,9 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
+import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 val transformer = Transformer
   .from(Markdown)
@@ -331,7 +331,7 @@ This directive requires the base URI and suffix to be defined in the project's c
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig.empty
@@ -346,7 +346,7 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
@@ -368,7 +368,7 @@ while keeping one base URI as a default for all packages that do not match any p
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(LinkConfig.empty
@@ -388,7 +388,7 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
@@ -599,7 +599,7 @@ Auto-numbering can be switched on per configuration:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.nav.AutonumberConfig
+import laika.config.AutonumberConfig
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
@@ -608,9 +608,9 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
+import laika.config.AutonumberConfig
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.nav.AutonumberConfig
 
 val transformer = Transformer
   .from(Markdown)

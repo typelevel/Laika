@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package laika.rewrite
+package laika.config
 
-import cats.syntax.all.*
 import cats.data.NonEmptyChain
+import cats.syntax.all.*
+import laika.api.config.ConfigError.{ ConfigErrors, ValidationError }
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.Path
-import laika.api.config.ConfigError.{ ConfigErrors, ValidationError }
-import laika.config.LaikaKeys
 
 /** Configuration for a single version of the documentation.
   */

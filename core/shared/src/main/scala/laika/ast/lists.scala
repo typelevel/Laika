@@ -18,7 +18,7 @@ package laika.ast
 
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.ConfigResult
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** A bullet list that may contain nested lists.
   */

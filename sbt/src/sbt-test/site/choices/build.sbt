@@ -11,11 +11,11 @@ enablePlugins(LaikaPlugin)
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(
-    Selections(
-      SelectionConfig(
+    config.Selections(
+      config.SelectionConfig(
         "config",
-        ChoiceConfig("sbt", "sbt Plugin"),
-        ChoiceConfig("library", "Library API")
+        config.ChoiceConfig("sbt", "sbt Plugin"),
+        config.ChoiceConfig("library", "Library API")
       ).withSeparateEbooks
     )
   )

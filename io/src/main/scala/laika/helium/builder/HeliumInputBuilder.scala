@@ -21,12 +21,11 @@ import cats.implicits.*
 import laika.api.config.ConfigBuilder
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats }
 import laika.helium.Helium
 import laika.helium.generate.{ CSSVarGenerator, FOStyles, MergedCSSGenerator }
 import laika.io.model.{ InputTree, InputTreeBuilder }
 import laika.rewrite.DefaultTemplatePath
-import laika.rewrite.nav.TargetFormats
 import laika.theme.config.{ EmbeddedFontFile, EmbeddedFontResource }
 
 /** @author Jens Halm

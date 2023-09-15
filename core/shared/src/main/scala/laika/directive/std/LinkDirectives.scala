@@ -18,8 +18,8 @@ package laika.directive.std
 
 import cats.syntax.all._
 import laika.ast.{ DocumentCursor, SpanLink, Target }
+import laika.config.LinkConfig
 import laika.directive.Links
-import laika.rewrite.link.LinkConfig
 
 /** Provides the implementation for the link directives included in Laika.
   *
@@ -53,7 +53,7 @@ private[laika] object LinkDirectives {
     * of the directive.
     *
     * The directive relies on base URIs defined in the transformation's configuration and will
-    * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
+    * otherwise fail. See [[LinkConfig]] for details.
     */
   lazy val api: Links.Directive = Links.eval("api") { (linkId, cursor) =>
     linkConfig(cursor)
@@ -100,7 +100,7 @@ private[laika] object LinkDirectives {
     * The type name or path is the only (required) attribute of the directive.
     *
     * The directive relies on base URIs defined in the transformation's configuration and will
-    * otherwise fail. See [[laika.rewrite.link.LinkConfig]] for details.
+    * otherwise fail. See [[LinkConfig]] for details.
     */
   lazy val source: Links.Directive = Links.eval("source") { (linkId, cursor) =>
     linkConfig(cursor, _.sourceLinks)

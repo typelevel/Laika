@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.time
+package laika.config
 
-import cats.syntax.all._
+import cats.syntax.all.*
+
 import java.time.format.{ DateTimeFormatter, DateTimeFormatterBuilder, FormatStyle }
 import java.time.{ LocalDateTime, OffsetDateTime, ZoneId }
 import java.util.Locale

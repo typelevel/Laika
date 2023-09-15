@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.ast.Path.Root
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
   *

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.config
 
 import cats.data.NonEmptySet
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
-import laika.config.LaikaKeys
 
 import scala.collection.immutable.TreeSet
 

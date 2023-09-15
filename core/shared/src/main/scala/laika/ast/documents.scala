@@ -24,7 +24,6 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.IncludeMap
 import laika.api.config.ConfigError.TreeConfigErrors
 import laika.config.*
-import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
 
 import scala.annotation.tailrec

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.config
 
+import laika.api.config.Config.ConfigResult
 import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, Key }
 import laika.ast.Path
-import laika.api.config.Config.ConfigResult
-import laika.config.LaikaKeys
 
 /** Configuration for a cover image for e-books (EPUB or PDF).
   *

@@ -21,15 +21,10 @@ import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats }
 import laika.format.EPUB
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.{
-  ConfigurablePathTranslator,
-  PathAttributes,
-  TargetFormats,
-  TranslatorConfig
-}
+import laika.rewrite.nav.{ ConfigurablePathTranslator, PathAttributes, TranslatorConfig }
 import munit.CatsEffectSuite
 
 /** @author Jens Halm

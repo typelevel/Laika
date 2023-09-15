@@ -20,7 +20,7 @@ import cats.effect.{ Async, Sync }
 import fs2.io.file.Files
 import laika.ast.{ Navigatable, Path, StaticDocument }
 import laika.ast.Path.Root
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 import java.io.InputStream
 import scala.reflect.ClassTag

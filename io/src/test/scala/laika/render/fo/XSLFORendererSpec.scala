@@ -24,7 +24,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats }
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
@@ -33,7 +33,6 @@ import laika.rewrite.nav.{
   ConfigurablePathTranslator,
   PathAttributes,
   PathTranslator,
-  TargetFormats,
   TranslatorConfig
 }
 import munit.FunSuite

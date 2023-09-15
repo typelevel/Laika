@@ -22,8 +22,8 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
+import laika.config.PlatformDateTime
 import laika.format.{ AST, ReStructuredText }
-import laika.time.PlatformDateTime
 import munit.FunSuite
 
 /** @author Jens Halm

@@ -317,7 +317,7 @@ Therefore, configuration for versioned documentation involves two steps:
 This is a global configuration artifact that you can define with the Helium configuration API:
 
 ```scala mdoc:silent
-import laika.rewrite.{ Version, Versions }
+import laika.config.{ Version, Versions }
 
 val versions = Versions
   .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)

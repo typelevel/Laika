@@ -21,9 +21,10 @@ import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.ConfigErrors
+import laika.config.Selections
 import laika.rewrite.{ OutputContext, TemplateFormatter, UnresolvedNodeDetector }
 import laika.rewrite.link.LinkResolver
-import laika.rewrite.nav.{ SectionBuilder, Selections }
+import laika.rewrite.nav.{ SectionBuilder }
 
 import scala.annotation.tailrec
 

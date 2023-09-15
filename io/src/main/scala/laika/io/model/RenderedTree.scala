@@ -18,8 +18,9 @@ package laika.io.model
 
 import laika.api.config.Config
 import laika.ast._
+import laika.config.TargetFormats
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ PathTranslator, TargetFormats }
+import laika.rewrite.nav.PathTranslator
 
 /** A titled, positional element in the tree of rendered documents.
   */

@@ -18,7 +18,7 @@ package laika.theme.config
 
 import laika.api.config
 import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, Key }
-import laika.ast.{ DocumentMetadata, Path }
+import laika.ast.Path
 import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 

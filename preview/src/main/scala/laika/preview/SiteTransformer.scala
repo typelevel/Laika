@@ -25,7 +25,7 @@ import laika.api.builder.OperationConfig
 import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.ast.{ MessageFilter, Path }
 import laika.api.config.Config.ConfigResult
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, Selections, TargetFormats }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.config.SiteConfig
@@ -33,7 +33,6 @@ import laika.io.errors.ConfigException
 import laika.io.implicits.*
 import laika.io.model.*
 import laika.preview.SiteTransformer.ResultMap
-import laika.rewrite.nav.{ Selections, TargetFormats }
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream

@@ -16,18 +16,25 @@
 
 package laika.theme
 
-import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, DefaultKey, Key }
-import laika.ast.DocumentMetadata
+import laika.api.config.{
+  Config,
+  ConfigBuilder,
+  ConfigDecoder,
+  ConfigEncoder,
+  ConfigParser,
+  DefaultKey,
+  Key
+}
 import laika.ast.Path.Root
 import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigError.DecodingError
 import laika.config.*
 import laika.render.fo.TestTheme
-import laika.theme.config.BookConfig
-import laika.time.PlatformDateTime
+import laika.theme.config.{ BookConfig, DocumentMetadata }
 import munit.FunSuite
 
-/** @author Jens Halm
-  */
+import java.net.URI
+
 class ThemeConfigCodecSpec extends FunSuite {
 
   private val testKey = Key("test")
@@ -40,7 +47,40 @@ class ThemeConfigCodecSpec extends FunSuite {
 
   def decode[T: ConfigDecoder](config: Config): ConfigResult[T] = config.get[T](testKey)
 
-  test("decode an instance with all fields populated") {
+  def decode[T: ConfigDecoder: DefaultKey](
+      input: String,
+      expected: T,
+      modifyResult: T => T = identity[T](_)
+  ): Unit =
+    assertEquals(
+      ConfigParser.parse(input).resolve().flatMap(_.get[T]),
+      Right(modifyResult(expected))
+    )
+
+  def roundTrip[T: ConfigDecoder: ConfigEncoder](
+      value: T,
+      modifyResult: T => T = identity[T](_)
+  ): Unit = {
+    val result = ConfigBuilder.empty
+      .withValue(testKey, value)
+      .build
+      .get[T](testKey)
+      .map(modifyResult)
+    assertEquals(result, Right(value))
+  }
+
+  def failDecode[T: ConfigDecoder: DefaultKey](input: String, messageStart: String): Unit = {
+    val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
+    res match {
+      case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
+      case Left(err: DecodingError)                                         =>
+        fail(s"message '${err.message}' did not start with '$messageStart''")
+      case Left(err) => fail(s"Expected DecodingError, but got $err")
+      case _         => fail("decoding did not fail as expected")
+    }
+  }
+
+  test("BookConfig - decode an instance with all fields populated") {
     val input    =
       """{
         |laika {
@@ -77,7 +117,7 @@ class ThemeConfigCodecSpec extends FunSuite {
     assertEquals(decode[BookConfig](input, LaikaKeys.root), Right(expected))
   }
 
-  test("decode an instance with some fields populated") {
+  test("BooKConfig - decode an instance with some fields populated") {
     val input    =
       """{
         |laika {
@@ -96,7 +136,7 @@ class ThemeConfigCodecSpec extends FunSuite {
     assertEquals(decode[BookConfig](input, LaikaKeys.root), Right(expected))
   }
 
-  test("round-trip encode and decode") {
+  test("BookConfig - round-trip encode and decode") {
     val input   = BookConfig.empty
       .withMetadata(
         DocumentMetadata.empty
@@ -107,6 +147,101 @@ class ThemeConfigCodecSpec extends FunSuite {
       .withCoverImage(Root / "cover.jpg")
     val encoded = ConfigBuilder.empty.withValue(testKey, input).build
     assertEquals(decode[BookConfig](encoded), Right(input))
+  }
+
+  test("DocumentMetadata - decode an instance with all fields populated") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  title = "Monkey Gone To Heaven"
+        |  description = "It's indescribable"
+        |  identifier = XX-33-FF-01
+        |  authors = [ "Helen North", "Maria South" ]
+        |  language = en
+        |  datePublished = "2002-10-10T12:00:00"
+        |  dateModified = "2002-12-12T12:00:00"
+        |  version = 125
+        |  canonicalLink = "http://foo.bar/baz"
+        |}}
+      """.stripMargin
+    decode[DocumentMetadata](
+      input,
+      DocumentMetadata.empty
+        .withTitle("Monkey Gone To Heaven")
+        .withDescription("It's indescribable")
+        .withIdentifier("XX-33-FF-01")
+        .addAuthors("Helen North", "Maria South")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+        .withDateModified(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get)
+        .withVersion("125")
+        .withCanonicalLink(new URI("http://foo.bar/baz"))
+    )
+  }
+
+  test("DocumentMetadata - decode an instance with a single author") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  datePublished = "2002-10-10T12:00:00"
+        |}}
+      """.stripMargin
+    decode[DocumentMetadata](
+      input,
+      DocumentMetadata.empty
+        .withIdentifier("XX-33-FF-01")
+        .addAuthors("Dorothea West")
+        .withLanguage("en")
+        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+    )
+  }
+
+  test("DocumentMetadata - round-trip encode and decode") {
+    val input = DocumentMetadata.empty
+      .withTitle("Monkey Gone To Heaven")
+      .withDescription("Rhubarb, Rhubarb, Rhubarb")
+      .withIdentifier("XX-33-FF-01")
+      .addAuthors("Helen North", "Maria South")
+      .withLanguage("en")
+      .withDatePublished(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get)
+      .withDateModified(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
+      .withVersion("125")
+      .withCanonicalLink(new URI("http://foo.bar/baz"))
+    roundTrip(input)
+  }
+
+  test("DocumentMetadata - fail with an invalid date") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  dateModified = "2000-XX-01T00:00:00Z"
+        |}}
+      """.stripMargin
+    failDecode[DocumentMetadata](
+      input,
+      "Error decoding 'laika.metadata.dateModified': Invalid date format"
+    )
+  }
+
+  test("DocumentMetadata - fail with an invalid URI") {
+    val input =
+      """{ 
+        |laika.metadata {
+        |  identifier = XX-33-FF-01
+        |  author = "Dorothea West"
+        |  language = en
+        |  canonicalLink = "?#?@!#"
+        |}}
+      """.stripMargin
+    val msg   =
+      "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
+    failDecode[DocumentMetadata](input, msg)
   }
 
 }

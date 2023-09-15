@@ -20,6 +20,7 @@ import cats.effect.{ Async, IO, Resource }
 import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.LinkValidation
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
@@ -27,7 +28,6 @@ import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuil
 import laika.io.implicits.*
 import laika.io.model.InputTree
 import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
 import laika.theme.config.{
   CrossOrigin,

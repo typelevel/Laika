@@ -19,7 +19,7 @@ package laika.api.config
 import cats.data.NonEmptyChain
 import laika.api.config.ConfigValue.*
 import laika.ast.{ Element, Path }
-import laika.time.PlatformDateTime
+import laika.config.PlatformDateTime
 
 import java.net.URI
 

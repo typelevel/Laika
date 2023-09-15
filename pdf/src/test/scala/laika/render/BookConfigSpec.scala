@@ -17,13 +17,12 @@
 package laika.render
 
 import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
-import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
 import laika.api.config.Config.ConfigResult
+import laika.config.PlatformDateTime
 import laika.format.PDF
 import laika.render.fo.TestTheme
-import laika.theme.config.BookConfig
-import laika.time.PlatformDateTime
+import laika.theme.config.{ BookConfig, DocumentMetadata }
 import munit.FunSuite
 
 class BookConfigSpec extends FunSuite {

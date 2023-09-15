@@ -17,7 +17,7 @@
 package laika.io.model
 
 import laika.ast.{ DocumentTree, DocumentTreeRoot, Path }
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** The result of a parsing operation for an entire document tree.
   *

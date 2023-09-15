@@ -22,7 +22,7 @@ import laika.api.config.ConfigError.{ DecodingError, InvalidType }
 import laika.api.config.ConfigValue.*
 import laika.ast.*
 import laika.ast.RelativePath.CurrentDocument
-import laika.time.PlatformDateTime
+import laika.config.PlatformDateTime
 
 import java.net.URI
 import scala.util.Try

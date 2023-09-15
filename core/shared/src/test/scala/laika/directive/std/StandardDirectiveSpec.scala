@@ -21,7 +21,7 @@ import cats.implicits._
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
 import munit.FunSuite
 
 class StandardDirectiveSpec extends FunSuite

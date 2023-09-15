@@ -32,10 +32,8 @@ import laika.ast.{
   Span,
   Target
 }
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, LinkValidation, TargetFormats, Versions }
 import laika.parse.SourceFragment
-import laika.rewrite.Versions
-import laika.rewrite.nav.TargetFormats
 import cats.syntax.all.*
 import TargetValidation.*
 import laika.api.config.Config

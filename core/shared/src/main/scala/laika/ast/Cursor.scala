@@ -24,16 +24,14 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps.*
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
-import laika.config.LaikaKeys
+import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, TargetFormats }
 import laika.parse.SourceFragment
 import laika.rewrite.{ OutputContext, ReferenceResolver }
-import laika.rewrite.link.{ LinkConfig, LinkValidation, LinkValidator, TargetValidation }
+import laika.rewrite.link.{ LinkValidator, TargetValidation }
 import laika.rewrite.nav.{
-  AutonumberConfig,
   ConfigurablePathTranslator,
   NavigationOrder,
   PathTranslator,
-  TargetFormats,
   TranslatorConfig
 }
 

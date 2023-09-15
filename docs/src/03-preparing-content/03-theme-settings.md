@@ -922,7 +922,7 @@ They will also be used to display little thumbnails on the download page.
 
 ```scala mdoc:silent
 import laika.ast.Path.Root
-import laika.rewrite.nav.CoverImage
+import laika.config.CoverImage
 
 Helium.defaults
   .epub.coverImages(CoverImage(Root / "cover.png"))

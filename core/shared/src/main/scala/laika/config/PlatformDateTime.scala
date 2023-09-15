@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.time
+package laika.config
 
 /** A little abstraction that isolates aspects of parsing and formatting
   * dates from the underlying Date API which may differ between JVM

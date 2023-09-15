@@ -24,8 +24,6 @@ import laika.format.*
 import laika.io.config.SiteConfig
 import laika.io.implicits.*
 import laika.io.model.*
-import laika.rewrite.Versions
-import laika.rewrite.nav.Selections
 import laika.sbt.LaikaPlugin.autoImport.*
 import sbt.Keys.*
 import sbt.*
@@ -39,6 +37,7 @@ import laika.api.format.{
   RenderFormat,
   TwoPhaseRenderFormat
 }
+import laika.config.{ Selections, Versions }
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 

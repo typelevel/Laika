@@ -34,7 +34,7 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
 import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
@@ -48,8 +48,8 @@ import laika.render.*
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{ PathTranslator, PrettyURLs, TargetFormats }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
+import laika.rewrite.nav.{ PathTranslator, PrettyURLs }
+import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.CatsEffectSuite
 
 import scala.io.Codec

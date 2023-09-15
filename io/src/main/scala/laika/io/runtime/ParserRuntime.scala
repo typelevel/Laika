@@ -25,6 +25,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.config.Config.IncludeMap
 import laika.api.config.{ ConfigBuilder, ConfigParser }
+import laika.config.LinkValidation
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude
@@ -32,7 +33,6 @@ import laika.io.errors.*
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
 import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
 import laika.parse.markup.DocumentParser.DocumentInput
-import laika.rewrite.link.LinkValidation
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
   *

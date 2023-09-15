@@ -17,7 +17,7 @@
 package laika.bundle
 
 import laika.ast.{ DocumentType, Path }
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** The default implementations for determining the document type
   * of the input based on its path.

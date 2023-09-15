@@ -22,11 +22,11 @@ import fs2.io.file.Files
 import laika.api.builder.OperationConfig
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.Versions
 import laika.io.config.SiteConfig
 import laika.io.errors.ConfigException
 import laika.io.model.{ BinaryInput, FilePath }
 import laika.io.runtime.DirectoryScanner
-import laika.rewrite.Versions
 
 private[preview] object StaticFileScanner {
 

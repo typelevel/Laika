@@ -20,7 +20,7 @@ import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
 import laika.collection.Stack
 import laika.api.config.Config.ConfigResult
-import laika.config.LaikaKeys
+import laika.config.{ AutonumberConfig, LaikaKeys }
 
 import scala.collection.mutable.ListBuffer
 

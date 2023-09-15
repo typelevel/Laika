@@ -18,8 +18,8 @@ package laika.io.runtime
 
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.Versions
 import laika.io.runtime.VersionedLinkTargets.VersionedDocument
-import laika.rewrite.Versions
 
 private[io] object VersionInfoGenerator {
 

@@ -29,10 +29,8 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.api.config.Config.ConfigResult
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
 import laika.parse.GeneratedSource
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
-import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {

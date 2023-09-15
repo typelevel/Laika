@@ -17,7 +17,7 @@
 package laika.rewrite.link
 
 /** Default implementation for the logic that transforms section titles, document names
-  *  and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.
+  * and user-provided ids to a slug that is compatible with HTML/XML ids, URLs and file names.
   *
   * @author Jens Halm
   */

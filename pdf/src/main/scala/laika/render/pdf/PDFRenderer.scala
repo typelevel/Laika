@@ -24,8 +24,8 @@ import cats.implicits._
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.{ Transformer, TransformerFactory }
-import laika.ast.DocumentMetadata
 import laika.io.model.{ BinaryInput, BinaryOutput }
+import laika.theme.config.DocumentMetadata
 import org.apache.fop.apps.{ FOUserAgent, FOUserAgentFactory, FopFactory }
 import org.apache.xmlgraphics.util.MimeConstants
 

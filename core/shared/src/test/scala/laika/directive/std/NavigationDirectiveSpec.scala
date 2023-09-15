@@ -25,10 +25,9 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.ast._
-import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats }
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     with TestSourceBuilders {

@@ -17,8 +17,8 @@
 package laika.rewrite.link
 
 import laika.ast._
+import laika.config.TargetFormats
 import laika.parse.GeneratedSource
-import laika.rewrite.nav.TargetFormats
 
 /** Represents the source of a link, its document path
   * and the actual inline span that is representing the link.

@@ -17,8 +17,6 @@
 package laika.helium.config
 
 import java.util.Locale
-
-import laika.ast.DocumentMetadata
 import laika.ast.LengthUnit.{ cm, em, mm, pt, px }
 import laika.helium.Helium
 import laika.theme.config.*

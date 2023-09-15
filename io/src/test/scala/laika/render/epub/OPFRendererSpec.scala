@@ -24,7 +24,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.RenderedTreeRoot
-import laika.theme.config.BookConfig
+import laika.theme.config.{ BookConfig, DocumentMetadata }
 import munit.FunSuite
 
 class OPFRendererSpec extends FunSuite {

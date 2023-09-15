@@ -17,9 +17,9 @@
 package laika.rst.std
 
 import laika.ast._
+import laika.config.PlatformDateTime
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
-import laika.time.PlatformDateTime
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
   *  A span directive can be used in substitution definitions.

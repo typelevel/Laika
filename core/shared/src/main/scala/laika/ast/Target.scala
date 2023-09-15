@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.ast.RelativePath.CurrentDocument
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** Represents a target that can be referred to by links, either within the virtual tree or external.
   */

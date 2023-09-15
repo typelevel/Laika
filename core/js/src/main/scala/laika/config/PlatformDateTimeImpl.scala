@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.time
+package laika.config
 
-import cats.syntax.all._
+import cats.syntax.all.*
+
 import scala.scalajs.js
 import scala.util.Try
 

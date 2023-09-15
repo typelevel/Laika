@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package laika.ast
+package laika.theme.config
 
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
-import laika.config.LaikaKeys
-import laika.time.PlatformDateTime
+import laika.config.{ LaikaKeys, PlatformDateTime }
 
 import java.net.URI
 

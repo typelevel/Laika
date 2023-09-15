@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.config
 
 import cats.data.{ Chain, NonEmptyChain }
-import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, DefaultKey }
-import laika.ast.{
-  Block,
-  BlockSequence,
-  DocumentCursor,
-  DocumentTreeRoot,
-  Replace,
-  RewriteRules,
-  Selection
-}
-import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.ConfigResult
-import laika.config.*
+import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, DefaultKey }
+import laika.ast.*
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.config.Selections.Classifiers
 
 /** Groups configuration for multiple @:select directives.
   *
@@ -78,14 +70,14 @@ sealed abstract class Selections {
 
 }
 
-case class Classifiers(value: Seq[String])
-
 /** Companion for creating selection config instances that can be passed to Laika configuration
   * and builders that produce configuration of all possible combinations of @:select directives.
   *
   * See the documentation for the `@:select` directive in the manual for the full context of this feature.
   */
 object Selections {
+
+  case class Classifiers(value: Seq[String])
 
   private final case class Impl(all: Seq[SelectionConfig]) extends Selections {
     override def productPrefix: String = "Selections"

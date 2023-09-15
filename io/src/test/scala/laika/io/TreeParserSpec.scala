@@ -28,7 +28,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
 import laika.bundle.*
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.errors.{ ConfigException, DuplicatePath, ParserErrors }
@@ -37,8 +37,7 @@ import laika.io.implicits.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
 import laika.parse.Parser
 import laika.parse.text.TextParsers
-import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
+import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.Theme
 import munit.CatsEffectSuite
 

@@ -22,15 +22,15 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.MessageFilter
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.config.{ TargetFormats, Version, Versions }
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.{ OutputContext, Version, Versions }
+import laika.rewrite.OutputContext
 import laika.rewrite.nav.{
   ConfigurablePathTranslator,
   PathAttributes,
   PathTranslator,
-  TargetFormats,
   TranslatorConfig
 }
 import munit.FunSuite

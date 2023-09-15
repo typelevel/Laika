@@ -18,7 +18,6 @@ package laika.rewrite
 
 import cats.implicits.*
 import laika.api.config.ConfigError
-import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
 import laika.config.LaikaKeys
@@ -148,41 +147,3 @@ private[laika] trait TemplateRewriter {
 }
 
 private[laika] object TemplateRewriter extends TemplateRewriter
-
-/** Describes the output for a render operation.
-  *
-  * The format selector is used by any configuration elements that allows to restrict
-  * the output of documents to certain target formats.
-  * It is not always identical to the fileSuffix used for the specific format.
-  */
-sealed abstract class OutputContext {
-
-  /** The suffix to be used for file names for this output format.
-    */
-  def fileSuffix: String
-
-  /** Identifier that matches configured formats in `TargetFormats`,
-    * used to filter content for specific output formats only.
-    *
-    * @return
-    */
-  def formatSelector: String
-}
-
-object OutputContext {
-
-  private final case class Impl(fileSuffix: String, formatSelector: String)
-      extends OutputContext {
-    override def productPrefix: String = "OutputContext"
-  }
-
-  private[laika] def apply(fileSuffix: String, formatSelector: String): OutputContext =
-    Impl(fileSuffix, formatSelector)
-
-  def apply(format: RenderFormat[_]): OutputContext =
-    Impl(format.fileSuffix, format.description.toLowerCase)
-
-  def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext =
-    Impl(format.interimFormat.fileSuffix, format.description.toLowerCase)
-
-}

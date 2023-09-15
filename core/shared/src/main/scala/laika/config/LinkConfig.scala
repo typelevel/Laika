@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package laika.rewrite.link
+package laika.config
 
+import laika.api.config.ConfigError.ValidationError
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.{ ExternalTarget, InternalTarget, Path, Target, VirtualPath }
-import laika.config.*
-import laika.api.config.ConfigError.ValidationError
 
 sealed abstract class LinkConfig {
 
@@ -177,7 +176,7 @@ object TargetDefinition {
     override def productPrefix: String = "TargetDefinition"
   }
 
-  private[link] def apply(id: String, target: Target): TargetDefinition = Impl(id, target)
+  private[config] def apply(id: String, target: Target): TargetDefinition = Impl(id, target)
 
   def external(id: String, uri: String): TargetDefinition = Impl(id, ExternalTarget(uri))
 
