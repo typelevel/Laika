@@ -203,8 +203,8 @@ The `DocumentCursor`, `DocumentTree`, `Document` and `TemplateDocument` types
 all have a `config` property that exposes those values:
 
 ```scala mdoc:compile-only
+import laika.api.config.ConfigError
 import laika.ast.Document
-import laika.config.ConfigError
 
 def doc: Document = ???
 val version: Either[ConfigError, String] = 

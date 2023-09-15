@@ -16,8 +16,8 @@
 
 package laika.api.builder
 
+import laika.api.config.{ ConfigEncoder, DefaultKey, Key }
 import laika.ast.MessageFilter
-import laika.config.{ ConfigEncoder, DefaultKey, Key }
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a parsing step (Parser and Transformer).

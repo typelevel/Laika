@@ -26,7 +26,7 @@ import laika.ast.{
   Unresolved
 }
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 
 private[laika] object UnresolvedNodeDetector extends RewriteRulesBuilder {
 

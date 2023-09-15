@@ -16,9 +16,9 @@
 
 package laika.parse.directive
 
+import laika.api.config.Key
 import laika.ast._
 import laika.ast.sample.TestSourceBuilders
-import laika.config.Key
 import laika.parse.Parser
 import munit.FunSuite
 

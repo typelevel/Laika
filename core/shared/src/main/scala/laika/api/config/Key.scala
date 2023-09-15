@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
 /** @author Jens Halm
   */

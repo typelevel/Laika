@@ -21,7 +21,7 @@ import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.ast.DocumentType
 import laika.ast.Path.Root
-import laika.config.ConfigError.ConfigResourceError
+import laika.api.config.ConfigError.ConfigResourceError
 import laika.io.model.{ FilePath, TextInput }
 
 import java.io.{ FileNotFoundException, InputStream }

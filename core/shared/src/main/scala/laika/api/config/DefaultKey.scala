@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
 /** A defaultKey can be used for commonly used configuration objects like `AutonumberConfig`
   * that are expected to be mapped to a specific key, like `autonumbering` without requiring

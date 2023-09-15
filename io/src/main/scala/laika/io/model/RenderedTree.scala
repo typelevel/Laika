@@ -16,8 +16,8 @@
 
 package laika.io.model
 
+import laika.api.config.Config
 import laika.ast._
-import laika.config.Config
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{ PathTranslator, TargetFormats }
 

@@ -18,6 +18,7 @@ package laika.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.config.Config
 import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -26,7 +27,6 @@ import laika.api.format.{
   TwoPhaseRenderFormat
 }
 import laika.ast.DocumentTreeRoot
-import laika.config.Config
 import laika.io.model.{ BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.theme.Theme
 

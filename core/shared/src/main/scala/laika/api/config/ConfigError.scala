@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
-import cats.syntax.all.*
 import cats.data.NonEmptyChain
+import cats.syntax.all.*
 import laika.ast.Path
 import laika.parse.Failure
 

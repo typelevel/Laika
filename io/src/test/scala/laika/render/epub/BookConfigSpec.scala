@@ -16,10 +16,10 @@
 
 package laika.render.epub
 
+import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
+import laika.api.config.Config.ConfigResult
 import laika.format.EPUB
 import laika.render.fo.TestTheme
 import laika.theme.config.BookConfig

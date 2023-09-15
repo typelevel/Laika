@@ -19,9 +19,9 @@ package laika.render.pdf
 import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
+import laika.api.config.Config
 import laika.api.errors.InvalidDocument
 import laika.ast.*
-import laika.config.Config
 import laika.format.{ PDF, XSLFO }
 import laika.io.errors.{ ConfigException, DocumentRendererError }
 import laika.io.model.RenderedTreeRoot

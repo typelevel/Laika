@@ -19,9 +19,9 @@ package laika.render.epub
 import java.time.OffsetDateTime
 import java.util.Locale
 import cats.effect.IO
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.ConfigBuilder
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.RenderedTreeRoot
 import laika.theme.config.BookConfig

@@ -17,11 +17,20 @@
 package laika.config
 
 import cats.data.NonEmptyChain
+import laika.api.config.{
+  ConfigBuilder,
+  ConfigDecoder,
+  ConfigEncoder,
+  ConfigParser,
+  ConfigValue,
+  DefaultKey,
+  Key
+}
 import laika.ast.{ DocumentMetadata, IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.config.ConfigError.{ DecodingError, ConfigErrors, ValidationError }
-import laika.config.ConfigValue.ASTValue
+import laika.api.config.ConfigError.{ ConfigErrors, DecodingError, ValidationError }
+import laika.api.config.ConfigValue.ASTValue
 import laika.rewrite.{ Version, Versions }
 import laika.rewrite.link.{
   ApiLinks,

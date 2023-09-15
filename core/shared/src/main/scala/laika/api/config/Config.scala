@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
-import laika.config.Config.ConfigResult
-import laika.config.ConfigError.{ DecodingError, NotFound }
-import laika.config.ConfigValue.{ ArrayValue, ObjectValue }
+import laika.api.config.Config.ConfigResult
+import ConfigError.{ DecodingError, NotFound }
+import ConfigValue.{ ArrayValue, ObjectValue }
 import laika.parse.hocon.{ IncludeResource, ObjectBuilderValue }
 
 import scala.annotation.tailrec

@@ -17,9 +17,9 @@
 package laika.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
+import laika.api.config.Key
 import laika.ast.*
 import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
-import laika.config.Key
 import laika.directive.*
 import laika.parse.builders.*
 import laika.parse.hocon.*

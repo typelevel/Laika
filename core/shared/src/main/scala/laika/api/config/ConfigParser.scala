@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
-import laika.config.Config.IncludeMap
-import laika.config.ConfigError.{ ConfigResourceError, ConfigParserError }
+import laika.api.config.Config.IncludeMap
+import ConfigError.{ ConfigParserError, ConfigResourceError }
+import laika.parse.hocon.*
 import laika.parse.{ Failure, Success }
-import laika.parse.hocon.{
-  BuilderField,
-  ConfigResolver,
-  HoconParsers,
-  IncludeBuilderValue,
-  IncludeResource,
-  ObjectBuilderValue
-}
 
 /** A parser for obtaining a Config instance from a HOCON string.
   *

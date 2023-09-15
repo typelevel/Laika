@@ -18,12 +18,13 @@ package laika.render.fo
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.config.ConfigBuilder
 import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory

@@ -1,8 +1,8 @@
 package laika.io.errors
 
+import laika.api.config.ConfigError
 import laika.api.errors.InvalidDocument
 import laika.ast.Path
-import laika.config.ConfigError
 import laika.io.model.FilePath
 
 /** A ConfigError as a RuntimeException for use cases where a Throwable is required. */

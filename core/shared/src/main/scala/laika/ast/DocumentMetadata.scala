@@ -16,7 +16,8 @@
 
 package laika.ast
 
-import laika.config.{ ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys }
+import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
+import laika.config.LaikaKeys
 import laika.time.PlatformDateTime
 
 import java.net.URI

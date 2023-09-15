@@ -18,8 +18,8 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
-import laika.config.{ Config, ConfigParser, Key, Origin }
-import laika.config.ConfigError.{
+import laika.api.config.{ Config, ConfigParser, Key, Origin }
+import laika.api.config.ConfigError.{
   DocumentConfigErrors,
   InvalidType,
   TreeConfigErrors,
@@ -34,9 +34,9 @@ import laika.ast.sample.{
   SampleTrees,
   TestSourceBuilders
 }
-import laika.config.Config.ConfigResult
-import laika.config.ConfigValue.{ ArrayValue, LongValue }
-import laika.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
+import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.rewrite.{ OutputContext, TemplateRewriter }

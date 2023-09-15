@@ -16,8 +16,8 @@
 
 package laika.parse.hocon
 
-import laika.config.ConfigValue.SimpleValue
-import laika.config.Key
+import laika.api.config.ConfigValue.SimpleValue
+import laika.api.config.Key
 import laika.parse.Failure
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).

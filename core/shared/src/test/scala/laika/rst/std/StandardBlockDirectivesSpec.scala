@@ -19,12 +19,13 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
+import laika.api.config.{ ConfigValue, Field }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees }
-import laika.config.{ ConfigValue, Field, LaikaKeys }
-import laika.config.ConfigValue.{ ObjectValue, StringValue }
+import laika.config.LaikaKeys
+import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
 import laika.format.{ AST, HTML, ReStructuredText }
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys

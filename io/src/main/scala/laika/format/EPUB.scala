@@ -18,6 +18,7 @@ package laika.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -29,7 +30,7 @@ import laika.api.format.{
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.*
-import laika.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationError
 import laika.io.errors.ConfigException
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }

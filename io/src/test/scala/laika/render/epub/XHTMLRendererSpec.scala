@@ -17,10 +17,11 @@
 package laika.render.epub
 
 import laika.api.Renderer
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.format.EPUB
 import laika.rewrite.OutputContext
 import laika.rewrite.nav.{

@@ -18,7 +18,7 @@ package laika.rst.bundle
 
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.rst.ast.{
   CustomizedTextRole,
   InterpretedText,

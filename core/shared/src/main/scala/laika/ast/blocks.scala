@@ -17,7 +17,7 @@
 package laika.ast
 
 import cats.data.NonEmptySet
-import laika.config.{ ConfigEncoder, ConfigValue }
+import laika.api.config.{ ConfigEncoder, ConfigValue }
 import laika.parse.SourceFragment
 
 /** The root element of a document tree.

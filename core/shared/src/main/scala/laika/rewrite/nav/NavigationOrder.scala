@@ -16,9 +16,10 @@
 
 package laika.rewrite.nav
 
-import laika.config.{ Config, LaikaKeys }
+import laika.api.config.Config
+import laika.config.LaikaKeys
 import laika.ast._
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 
 /** Responsible for applying the navigation order to the contents of a document tree,
   * either based on user-specified configuration

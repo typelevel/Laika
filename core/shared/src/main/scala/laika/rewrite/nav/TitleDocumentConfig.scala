@@ -16,8 +16,9 @@
 
 package laika.rewrite.nav
 
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, LaikaKeys }
+import laika.api.config.Config
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 
 /** Configuration for the names of title documents in the input and output trees.
   *

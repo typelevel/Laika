@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.ast.{ MessageFilter, Path }
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }

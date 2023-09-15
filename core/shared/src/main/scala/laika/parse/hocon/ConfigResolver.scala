@@ -16,11 +16,11 @@
 
 package laika.parse.hocon
 
+import laika.api.config.{ Config, ConfigError, ConfigValue, Field, Key, Origin }
 import laika.collection.TransitionalCollectionOps.*
-import laika.config.Config.IncludeMap
-import laika.config.*
-import laika.config.ConfigError.{ ConfigParserErrors, ConfigResolverError }
-import laika.config.ConfigValue.*
+import laika.api.config.Config.IncludeMap
+import laika.api.config.ConfigError.{ ConfigParserErrors, ConfigResolverError }
+import laika.api.config.ConfigValue.*
 import laika.parse.Failure
 
 import scala.collection.mutable

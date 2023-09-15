@@ -239,9 +239,9 @@ The below example shows how the `ThemeBuilder` API can be used to pre-populate t
 
 ```scala mdoc:silent
 import cats.effect.IO
+import laika.api.config.ConfigBuilder
 import laika.ast.Image
 import laika.ast.Path.Root
-import laika.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 
 val logo = Image.internal(
@@ -310,7 +310,7 @@ user configuration):
 
 ```scala mdoc:compile-only
 import cats.effect.IO
-import laika.config.ConfigBuilder
+import laika.api.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 import laika.theme.config.FontDefinition
 

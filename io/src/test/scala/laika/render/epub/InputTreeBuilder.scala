@@ -17,7 +17,8 @@
 package laika.render.epub
 
 import cats.effect.IO
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.api.config.{ Config, ConfigBuilder }
+import laika.config.LaikaKeys
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.format.EPUB

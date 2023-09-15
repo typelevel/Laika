@@ -18,9 +18,10 @@ package laika.helium.builder
 
 import cats.effect.Async
 import cats.implicits.*
+import laika.api.config.ConfigBuilder
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.helium.Helium
 import laika.helium.generate.{ CSSVarGenerator, FOStyles, MergedCSSGenerator }
 import laika.io.model.{ InputTree, InputTreeBuilder }

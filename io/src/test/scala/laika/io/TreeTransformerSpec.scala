@@ -18,12 +18,12 @@ package laika.io
 
 import cats.effect.{ IO, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.config.Config
 import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.bundle.{ BundleProvider, ExtensionBundle }
-import laika.config.Config
 import laika.directive.Templates
 import laika.format.*
 import laika.io.api.{ BinaryTreeTransformer, TreeTransformer }

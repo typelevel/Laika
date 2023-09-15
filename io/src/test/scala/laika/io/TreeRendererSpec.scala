@@ -21,6 +21,7 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.config.{ Config, ConfigBuilder, Origin }
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast.Path.Root
@@ -33,7 +34,7 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
+import laika.config.LaikaKeys
 import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }

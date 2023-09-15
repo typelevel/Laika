@@ -16,6 +16,7 @@
 
 package laika.rewrite.nav
 
+import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.ast.{
   AbsoluteInternalTarget,
@@ -27,8 +28,8 @@ import laika.ast.{
   RootCursor,
   Target
 }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, LaikaKeys }
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 import laika.rewrite.{ OutputContext, Versions }
 
 /** Translates paths of input documents to the corresponding output path.

@@ -20,6 +20,7 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
+import laika.api.config.Config
 import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -28,7 +29,6 @@ import laika.api.format.{
   TwoPhaseRenderFormat
 }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.Config
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer

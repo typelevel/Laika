@@ -19,7 +19,7 @@ package laika.rst.bundle
 import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.format.ReStructuredText
 import laika.parse.GeneratedSource
 import laika.rst.ast.{

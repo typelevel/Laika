@@ -20,10 +20,10 @@ import cats.Monad
 import cats.data.Kleisli
 import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
+import laika.api.config.Config
 import laika.ast.{ RewritePhase, RewriteRules }
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.bundle.{ BundleOrigin, ExtensionBundle, RenderOverrides }
-import laika.config.Config
 import laika.api.format.Format
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }

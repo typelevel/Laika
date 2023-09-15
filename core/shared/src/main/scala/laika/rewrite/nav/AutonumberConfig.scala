@@ -16,6 +16,16 @@
 
 package laika.rewrite.nav
 
+import laika.api.config
+import laika.api.config.{
+  Config,
+  ConfigBuilder,
+  ConfigDecoder,
+  ConfigEncoder,
+  ConfigError,
+  DefaultKey,
+  Key
+}
 import laika.config.*
 
 /** Configuration for autonumbering of documents and sections.
@@ -69,7 +79,7 @@ object AutonumberConfig {
     }
   }
 
-  implicit val encoder: ConfigEncoder[AutonumberConfig] = ConfigEncoder[AutonumberConfig] {
+  implicit val encoder: ConfigEncoder[AutonumberConfig] = config.ConfigEncoder[AutonumberConfig] {
     config =>
       val scopeString = (config.documents, config.sections) match {
         case (true, false)  => "documents"

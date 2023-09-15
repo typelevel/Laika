@@ -16,9 +16,10 @@
 
 package laika.theme
 
+import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, DefaultKey, Key }
 import laika.ast.DocumentMetadata
 import laika.ast.Path.Root
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.config.*
 import laika.render.fo.TestTheme
 import laika.theme.config.BookConfig

@@ -32,13 +32,13 @@ import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
 import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.config.Config
 import laika.api.format.{
   BinaryPostProcessorBuilder,
   MarkupFormat,
   RenderFormat,
   TwoPhaseRenderFormat
 }
-import laika.config.Config
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 

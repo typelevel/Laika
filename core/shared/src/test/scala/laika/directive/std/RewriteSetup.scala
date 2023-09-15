@@ -23,7 +23,7 @@ import laika.ast._
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.Assertions
 import Path.Root
-import laika.config.ConfigBuilder
+import laika.api.config.ConfigBuilder
 import laika.format.HTML
 
 object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {

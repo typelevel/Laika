@@ -18,9 +18,9 @@ package laika.rewrite
 
 import cats.syntax.all.*
 import cats.data.NonEmptyChain
+import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.Path
-import laika.config.ConfigError.{ ConfigErrors, ValidationError }
-import laika.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
+import laika.api.config.ConfigError.{ ConfigErrors, ValidationError }
 import laika.config.LaikaKeys
 
 /** Configuration for a single version of the documentation.

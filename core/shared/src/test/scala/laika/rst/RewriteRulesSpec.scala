@@ -17,10 +17,11 @@
 package laika.rst
 
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 import laika.parse.GeneratedSource
 import laika.rst.ast.Underline
 import munit.FunSuite

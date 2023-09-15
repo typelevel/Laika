@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
+import laika.api.config.Origin.Scope
 import laika.ast.{ Element, Path }
-import laika.config.Origin.Scope
 
 /** The base trait for all configuration values.
   *

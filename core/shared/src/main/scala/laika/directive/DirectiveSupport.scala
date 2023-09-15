@@ -16,6 +16,7 @@
 
 package laika.directive
 
+import laika.api.config.ConfigParser
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.{
   DocumentCursor,
@@ -31,7 +32,6 @@ import laika.ast.{
   SpanResolver
 }
 import laika.bundle.{ BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle }
-import laika.config.ConfigParser
 import laika.parse.{ Parser, SourceFragment }
 import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers

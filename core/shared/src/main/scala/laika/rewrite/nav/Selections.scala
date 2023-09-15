@@ -17,6 +17,7 @@
 package laika.rewrite.nav
 
 import cats.data.{ Chain, NonEmptyChain }
+import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.{
   Block,
   BlockSequence,
@@ -27,7 +28,7 @@ import laika.ast.{
   Selection
 }
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.config.*
 
 /** Groups configuration for multiple @:select directives.

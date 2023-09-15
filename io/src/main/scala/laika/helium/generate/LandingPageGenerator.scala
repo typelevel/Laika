@@ -19,9 +19,10 @@ package laika.helium.generate
 import cats.data.Kleisli
 import cats.syntax.all.*
 import cats.effect.Sync
+import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.io.errors.ConfigException
 import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor

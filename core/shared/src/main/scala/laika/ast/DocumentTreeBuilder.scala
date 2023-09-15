@@ -16,11 +16,11 @@
 
 package laika.ast
 
-import laika.config.{ Config, ConfigError, ConfigParser, Origin }
 import cats.implicits.*
+import laika.api.config.{ Config, ConfigError, ConfigParser, Origin }
 import laika.ast.Path.Root
-import laika.config.Config.IncludeMap
-import laika.config.Origin.{ DocumentScope, TreeScope }
+import laika.api.config.Config.IncludeMap
+import laika.api.config.Origin.{ DocumentScope, TreeScope }
 import laika.rewrite.nav.TitleDocumentConfig
 
 import scala.collection.mutable

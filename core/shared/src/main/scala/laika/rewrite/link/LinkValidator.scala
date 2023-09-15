@@ -32,12 +32,13 @@ import laika.ast.{
   Span,
   Target
 }
-import laika.config.{ Config, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.parse.SourceFragment
 import laika.rewrite.Versions
 import laika.rewrite.nav.TargetFormats
 import cats.syntax.all.*
 import TargetValidation.*
+import laika.api.config.Config
 
 /** Validates internal links based on the presence and configuration of the targets it points to.
   * A link target may be valid for all formats or just some, and it may point to a sub-directory

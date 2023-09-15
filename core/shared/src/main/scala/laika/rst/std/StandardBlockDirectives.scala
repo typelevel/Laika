@@ -18,8 +18,9 @@ package laika.rst.std
 
 import cats.data.NonEmptySet
 import laika.ast.*
-import laika.config.ConfigValue.{ StringValue, ObjectValue }
-import laika.config.{ Field, LaikaKeys, Origin }
+import laika.api.config.ConfigValue.{ StringValue, ObjectValue }
+import laika.api.config.{ Field, Origin }
+import laika.config.LaikaKeys
 import laika.parse.{ GeneratedSource, SourceFragment }
 import laika.parse.markup.RecursiveParsers
 import laika.rst.ast.{ Contents, FieldList, Include, RstStyle }

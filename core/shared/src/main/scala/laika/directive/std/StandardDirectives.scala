@@ -20,8 +20,9 @@ import cats.data.NonEmptySet
 import cats.syntax.all.*
 import laika.ast.*
 import laika.bundle.BundleOrigin
-import laika.config.{ Key, LaikaKeys }
-import laika.config.ConfigValue.SimpleValue
+import laika.config.LaikaKeys
+import laika.api.config.ConfigValue.SimpleValue
+import laika.api.config.Key
 import laika.directive.*
 import laika.rewrite.link.TargetValidation.*
 import laika.rewrite.link.TargetValidation.ValidTarget

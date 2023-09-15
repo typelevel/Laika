@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
+import laika.api.config.ConfigError.{ DecodingError, InvalidType }
+import laika.api.config.ConfigValue.*
+import laika.ast.*
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{ ExternalTarget, InternalTarget, Path, RelativePath, Target, VirtualPath }
 import laika.time.PlatformDateTime
-import ConfigError.{ DecodingError, InvalidType }
-import ConfigValue.*
 
 import java.net.URI
 import scala.util.Try

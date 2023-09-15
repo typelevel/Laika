@@ -18,7 +18,7 @@ package laika.api.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
-import laika.config.Config
+import laika.api.config.Config
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
 

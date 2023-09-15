@@ -23,8 +23,8 @@ import laika.api.MarkupParser
 import laika.api.errors.{ InvalidDocuments, ParserError }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.Config.IncludeMap
-import laika.config.{ ConfigBuilder, ConfigParser }
+import laika.api.config.Config.IncludeMap
+import laika.api.config.{ ConfigBuilder, ConfigParser }
 import laika.io.api.TreeParser
 import laika.io.config.IncludeHandler
 import laika.io.config.IncludeHandler.RequestedInclude

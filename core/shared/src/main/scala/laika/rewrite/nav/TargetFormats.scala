@@ -17,7 +17,8 @@
 package laika.rewrite.nav
 
 import cats.data.NonEmptySet
-import laika.config.{ ConfigDecoder, ConfigEncoder, DefaultKey, LaikaKeys }
+import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
+import laika.config.LaikaKeys
 
 import scala.collection.immutable.TreeSet
 

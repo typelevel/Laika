@@ -17,11 +17,19 @@
 package laika.directive
 
 import cats.{ Functor, Semigroupal }
-import laika.ast.{ TemplateSpan, * }
+import laika.api.config.{
+  Config,
+  ConfigDecoder,
+  ConfigError,
+  ConfigValue,
+  ObjectConfig,
+  Origin,
+  Traced
+}
+import laika.ast.*
 import laika.collection.TransitionalCollectionOps.*
-import laika.config.Origin.DirectiveScope
-import laika.config.ConfigError.DecodingError
-import laika.config.*
+import laika.api.config.Origin.DirectiveScope
+import laika.api.config.ConfigError.DecodingError
 import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver

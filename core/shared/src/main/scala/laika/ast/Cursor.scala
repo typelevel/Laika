@@ -18,12 +18,13 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
+import laika.api.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, Origin }
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.collection.TransitionalCollectionOps.*
-import laika.config.Config.ConfigResult
-import laika.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
-import laika.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, LaikaKeys, Origin }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
+import laika.config.LaikaKeys
 import laika.parse.SourceFragment
 import laika.rewrite.{ OutputContext, ReferenceResolver }
 import laika.rewrite.link.{ LinkConfig, LinkValidation, LinkValidator, TargetValidation }

@@ -16,9 +16,10 @@
 
 package laika.rewrite.link
 
+import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.{ ExternalTarget, InternalTarget, Path, Target, VirtualPath }
 import laika.config.*
-import ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationError
 
 sealed abstract class LinkConfig {
 

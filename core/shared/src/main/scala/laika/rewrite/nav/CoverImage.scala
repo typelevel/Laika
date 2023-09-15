@@ -16,9 +16,10 @@
 
 package laika.rewrite.nav
 
+import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, Key }
 import laika.ast.Path
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys }
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 
 /** Configuration for a cover image for e-books (EPUB or PDF).
   *

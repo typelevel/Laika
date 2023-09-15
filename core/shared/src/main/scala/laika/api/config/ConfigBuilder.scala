@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.config
 
+import laika.collection.TransitionalCollectionOps.*
 import ConfigValue.ObjectValue
-
-import laika.collection.TransitionalCollectionOps._
 
 /** A builder for creating a Config instance programmatically.
   *

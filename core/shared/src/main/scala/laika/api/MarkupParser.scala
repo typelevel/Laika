@@ -18,12 +18,12 @@ package laika.api
 
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.config.{ Config, ConfigBuilder, ConfigValue, Origin }
 import laika.api.errors.{ InvalidDocument, ParserError }
 import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
-import laika.config.Origin.DocumentScope
-import laika.config.{ Config, ConfigBuilder, ConfigValue, Origin }
+import laika.api.config.Origin.DocumentScope
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.DocumentInput
 

@@ -16,10 +16,10 @@
 
 package laika.api.builder
 
+import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{ MarkupFormat, RenderFormat }
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
-import laika.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationError
 import laika.ast.*
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.bundle.{
@@ -29,7 +29,7 @@ import laika.bundle.{
   ExtensionBundle,
   MarkupExtensions
 }
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.directive.DirectiveSupport
 import laika.directive.std.StandardDirectives
 import laika.parse.Parser

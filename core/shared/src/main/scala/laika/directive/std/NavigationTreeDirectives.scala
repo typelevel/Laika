@@ -18,6 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
+import laika.api.config.{ ConfigDecoder, ConfigError, Key }
 import laika.ast.{
   Block,
   BlockResolver,
@@ -37,7 +38,6 @@ import laika.ast.{
   TemplateElement,
   VirtualPath
 }
-import laika.config.{ ConfigDecoder, ConfigError, Key }
 import laika.directive.{ Blocks, Templates }
 import laika.parse.{ GeneratedSource, SourceFragment }
 

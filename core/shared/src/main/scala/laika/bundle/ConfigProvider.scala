@@ -16,7 +16,7 @@
 
 package laika.bundle
 
-import laika.config.ConfigParser
+import laika.api.config.ConfigParser
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 

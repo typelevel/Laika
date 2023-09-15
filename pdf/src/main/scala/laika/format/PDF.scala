@@ -20,6 +20,7 @@ import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, Key }
 import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -28,7 +29,6 @@ import laika.api.format.{
   TwoPhaseRenderFormat
 }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.{ Config, Key }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
 import laika.render.FOFormatter.Preamble

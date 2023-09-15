@@ -16,11 +16,12 @@
 
 package laika.helium.generate
 
+import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, ConfigValue }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.ConfigEncoder.ObjectBuilder
+import laika.api.config.ConfigEncoder.ObjectBuilder
 import laika.config.*
-import laika.config.ConfigValue.ObjectValue
+import laika.api.config.ConfigValue.ObjectValue
 import laika.helium.Helium
 import laika.helium.config.*
 

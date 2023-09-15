@@ -19,7 +19,7 @@ package laika.rewrite.nav
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
 import laika.collection.Stack
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 
 import scala.collection.mutable.ListBuffer

@@ -18,10 +18,11 @@ package laika.rewrite
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 import laika.rewrite.nav.{ ChoiceConfig, Classifiers, CoverImage, SelectionConfig, Selections }
 import munit.FunSuite
 
