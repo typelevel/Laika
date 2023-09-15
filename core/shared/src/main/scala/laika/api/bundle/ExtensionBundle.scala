@@ -20,7 +20,7 @@ import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.*
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.parse.css.CSSParsers
+import laika.internal.parse.css.CSSParsers
 
 /** An extension bundle is a collection of parser extensions, rewrite rules, render overrides
   * and other features to be applied to parse, render and transform operations. It serves

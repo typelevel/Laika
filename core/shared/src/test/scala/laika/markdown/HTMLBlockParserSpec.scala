@@ -21,8 +21,8 @@ import laika.ast.html.{ HTMLAttribute, HTMLBlock, HTMLScriptElement }
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{ Block, RootElement, Text, html }
 import laika.format.Markdown
+import laika.internal.parse.markup.RootParser
 import laika.parse.Parser
-import laika.parse.markup.RootParser
 import munit.FunSuite
 
 class HTMLBlockParserSpec extends FunSuite

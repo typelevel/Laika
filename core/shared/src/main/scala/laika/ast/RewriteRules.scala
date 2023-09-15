@@ -22,9 +22,9 @@ import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, Rewrit
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.ConfigErrors
 import laika.config.Selections
-import laika.rewrite.{ TemplateFormatter, UnresolvedNodeDetector }
-import laika.rewrite.link.LinkResolver
-import laika.rewrite.nav.SectionBuilder
+import laika.internal.link.LinkResolver
+import laika.internal.nav.SectionBuilder
+import laika.internal.rewrite.{ TemplateFormatter, UnresolvedNodeDetector }
 
 import scala.annotation.tailrec
 

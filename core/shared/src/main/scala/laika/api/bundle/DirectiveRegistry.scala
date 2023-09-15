@@ -16,7 +16,7 @@
 
 package laika.api.bundle
 
-import laika.directive.DirectiveSupport
+import laika.internal.directive.DirectiveSupport
 
 /** Registry for custom directives. Application code can define
   * any number of instances mixing in this trait and then pass

@@ -25,7 +25,7 @@ import laika.api.config.Config.IncludeMap
 import laika.api.config.ConfigError.TreeConfigErrors
 import laika.ast.styles.StyleDeclarationSet
 import laika.config.*
-import laika.rewrite.TemplateRewriter
+import laika.internal.rewrite.TemplateRewriter
 
 import scala.annotation.tailrec
 

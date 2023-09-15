@@ -32,7 +32,7 @@ import laika.io.config.IncludeHandler.RequestedInclude
 import laika.io.errors.*
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
 import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
-import laika.parse.markup.DocumentParser.DocumentInput
+import laika.internal.parse.markup.DocumentParser.DocumentInput
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
   *

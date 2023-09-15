@@ -24,8 +24,8 @@ import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
 import laika.api.config.Origin.DocumentScope
-import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.DocumentInput
+import laika.internal.parse.markup.DocumentParser
+import DocumentParser.DocumentInput
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation.

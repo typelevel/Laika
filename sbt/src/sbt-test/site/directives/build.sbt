@@ -1,5 +1,4 @@
 import laika.ast._
-import laika.directive.{ Blocks, DirectiveRegistry, Spans, Templates }
 
 name := "site-directives"
 

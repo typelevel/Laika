@@ -40,6 +40,7 @@ import laika.bundle.BundleProvider
 import laika.config.{ LaikaKeys, PrettyURLs, TargetFormats, Version, Versions }
 import laika.format.*
 import laika.helium.generate.FOStyles
+import laika.internal.render.FOFormatter
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.errors.{ DuplicatePath, RendererErrors }
 import laika.io.helper.{ InputBuilder, RenderResult, TestThemeBuilder }
@@ -47,10 +48,9 @@ import laika.io.implicits.*
 import laika.io.model.*
 import laika.io.runtime.VersionInfoGenerator
 import laika.parse.GeneratedSource
-import laika.render.*
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
-import laika.rewrite.ReferenceResolver.CursorKeys
 import munit.CatsEffectSuite
 
 import scala.io.Codec

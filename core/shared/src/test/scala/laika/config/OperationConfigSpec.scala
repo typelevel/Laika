@@ -26,8 +26,8 @@ import laika.api.bundle.ExtensionBundle.LaikaDefaults
 import laika.bundle.BundleProvider
 import MarkupFormat.MarkupParsers
 import laika.api.bundle.{ BlockParserBuilder, BundleOrigin, ExtensionBundle, SpanParserBuilder }
-import laika.markdown.bundle.VerbatimHTML
 import laika.format.Markdown.GitHubFlavor
+import laika.internal.markdown.bundle.VerbatimHTML
 import munit.FunSuite
 
 /** @author Jens Halm

@@ -33,11 +33,10 @@ import laika.ast.*
 import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.api.config.Config.ConfigResult
 import laika.ast.styles.StyleDeclaration
-import laika.directive.DirectiveSupport
-import laika.directive.std.StandardDirectives
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
+import laika.internal.rewrite.RecursiveResolverRules
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.RecursiveResolverRules
 
 import scala.annotation.tailrec
 

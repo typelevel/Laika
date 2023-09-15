@@ -20,7 +20,7 @@ import cats.data.NonEmptyChain
 import cats.effect.kernel.Concurrent
 import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
-import laika.collection.TransitionalCollectionOps.*
+import laika.internal.collection.TransitionalCollectionOps.*
 import laika.ast.DocumentType.{ Ignored, Static }
 import laika.ast.Path.Root
 import laika.ast.{ DocumentType, Path, SegmentedPath }

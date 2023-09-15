@@ -18,7 +18,7 @@ package laika.format
 
 import laika.api.format.{ RenderContext, RenderFormat, TagFormatter }
 import laika.ast.Element
-import laika.render.{ HTMLFormatter, HTMLRenderer }
+import laika.internal.render.{ HTMLFormatter, HTMLRenderer }
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
   *

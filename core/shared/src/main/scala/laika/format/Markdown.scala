@@ -25,9 +25,9 @@ import laika.api.bundle.{
 }
 import laika.api.format.MarkupFormat
 import laika.ast.Block
-import laika.markdown.bundle.VerbatimHTML
-import laika.markdown.github.*
-import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
+import laika.internal.markdown.{ BlockParsers, InlineParsers, ListParsers }
+import laika.internal.markdown.bundle.VerbatimHTML
+import laika.internal.markdown.github.{ AutoLinks, FencedCodeBlocks, Strikethrough, Tables }
 import laika.parse.Parser
 import laika.parse.text.{ CharGroup, TextParsers }
 

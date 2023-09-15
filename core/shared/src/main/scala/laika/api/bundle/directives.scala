@@ -21,7 +21,7 @@ import laika.api.config.*
 import laika.api.config.ConfigError.DecodingError
 import laika.api.config.Origin.DirectiveScope
 import laika.ast.*
-import laika.collection.TransitionalCollectionOps.*
+import laika.internal.collection.TransitionalCollectionOps.*
 import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver

@@ -1,0 +1,151 @@
+/*
+ * Copyright 2012-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package laika.internal.rewrite
+
+import laika.api.config.{ Config, ConfigBuilder, ConfigValue, Field, Key }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigValue.ASTValue
+import laika.ast.{ Document, DocumentTree, Path, RawLink, SpanSequence, TreeCursor }
+import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
+
+/** A resolver for context references in templates or markup documents.
+  *
+  *  @author Jens Halm
+  */
+private[laika] class ReferenceResolver(val config: Config) {
+
+  def resolve(key: Key): ConfigResult[Option[ConfigValue]] = config.getOpt[ConfigValue](key)
+
+}
+
+/** Companion for constructing ReferenceResolvers for a particular target Document.
+  */
+private[laika] object ReferenceResolver {
+
+  object CursorKeys {
+
+    val documentContent = Key("cursor", "currentDocument", "content")
+    val documentTitle   = Key("cursor", "currentDocument", "title")
+
+    def fragment(name: String): Key = Key("cursor", "currentDocument", "fragments", name)
+
+  }
+
+  private val emptyTitle: SpanSequence = SpanSequence.empty
+
+  // cannot use existing cursor-base sibling navigation here as the cursor hierarchy is under construction when this is called
+  private class Siblings(documents: Vector[Document], refPath: Path) {
+    val currentIndex: Int = documents.indexWhere(_.path == refPath)
+
+    def previousDocument: Option[Document] =
+      if (currentIndex <= 0) None else Some(documents(currentIndex - 1))
+
+    def nextDocument: Option[Document] =
+      if (documents.isEmpty || currentIndex + 1 == documents.size) None
+      else Some(documents(currentIndex + 1))
+
+  }
+
+  /** Creates a new ReferenceResolver for the specified document and its parent and configuration.
+    */
+  def forDocument(
+      document: Document,
+      parent: TreeCursor
+  ): ReferenceResolver = {
+
+    val rootKey = Key("cursor")
+    val title   = document.title.getOrElse(emptyTitle)
+
+    val baseBuilder = ConfigBuilder
+      .withFallback(document.config)
+      .withValue(
+        rootKey.child("currentDocument"),
+        ObjectValue(
+          Seq(
+            Field("sourcePath", StringValue(document.path.toString)),
+            Field("content", ASTValue(document.content), document.config.origin),
+            Field("title", ASTValue(title), document.config.origin),
+            Field("rawTitle", StringValue(title.extractText), document.config.origin),
+            Field(
+              "fragments",
+              ObjectValue(document.fragments.toSeq.map { case (name, element) =>
+                Field(name, ASTValue(element), document.config.origin)
+              }),
+              document.config.origin
+            )
+          )
+        )
+      )
+      .withValue(
+        rootKey.child("root"),
+        ObjectValue(
+          Seq(
+            Field("title", ASTValue(parent.root.target.title.getOrElse(emptyTitle)))
+          )
+        )
+      )
+
+    def collectSiblings(tree: DocumentTree): Vector[Document] = tree.content.toVector.flatMap {
+      case d: Document     => Some(d)
+      case t: DocumentTree => t.titleDocument
+    }
+
+    val flattenedSiblings    = new Siblings(parent.root.target.allDocuments.toVector, document.path)
+    val hierarchicalSiblings =
+      if (parent.target.titleDocument.map(_.path).contains(document.path))
+        new Siblings(parent.parent.map(_.target).toVector.flatMap(collectSiblings), document.path)
+      else
+        new Siblings(collectSiblings(parent.target), document.path)
+
+    def addDocConfig(key: Key, doc: Option[Document])(builder: ConfigBuilder): ConfigBuilder =
+      doc.fold(builder) { doc =>
+        val sourcePath = StringValue(doc.path.toString)
+        builder.withValue(
+          key,
+          ObjectValue(
+            Seq(
+              Field("path", ASTValue(RawLink.internal(doc.path))),
+              Field("sourcePath", sourcePath),
+              Field("title", ASTValue(doc.title.getOrElse(emptyTitle)))
+            )
+          )
+        )
+      }
+
+    val addSiblings =
+      (addDocConfig(rootKey.child("parentDocument"), parent.target.titleDocument)(_))
+        .andThen(
+          addDocConfig(rootKey.child("previousDocument"), hierarchicalSiblings.previousDocument)
+        )
+        .andThen(addDocConfig(rootKey.child("nextDocument"), hierarchicalSiblings.nextDocument))
+        .andThen(
+          addDocConfig(
+            rootKey.child(Key("flattenedSiblings", "previousDocument")),
+            flattenedSiblings.previousDocument
+          )
+        )
+        .andThen(
+          addDocConfig(
+            rootKey.child(Key("flattenedSiblings", "nextDocument")),
+            flattenedSiblings.nextDocument
+          )
+        )
+
+    new ReferenceResolver(addSiblings(baseBuilder).build)
+  }
+
+}

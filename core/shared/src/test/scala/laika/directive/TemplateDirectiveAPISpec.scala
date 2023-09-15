@@ -23,8 +23,8 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.format.HTML
+import laika.internal.parse.directive.TemplateParsers
 import laika.parse.Parser
-import laika.parse.directive.TemplateParsers
 import munit.FunSuite
 
 class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {

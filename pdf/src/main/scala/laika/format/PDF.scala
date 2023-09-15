@@ -31,7 +31,7 @@ import laika.api.format.{
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
-import laika.render.FOFormatter.Preamble
+import laika.internal.render.FOFormatter.Preamble
 import laika.render.pdf.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
 import laika.theme.config.BookConfig
 

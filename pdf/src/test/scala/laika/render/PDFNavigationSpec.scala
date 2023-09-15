@@ -36,7 +36,7 @@ import laika.io.errors.ConfigException
 import laika.io.helper.RenderResult
 import laika.io.implicits.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
-import laika.render.FOFormatter.Preamble
+import laika.internal.render.FOFormatter.Preamble
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.theme.Theme

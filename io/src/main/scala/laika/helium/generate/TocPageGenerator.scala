@@ -34,7 +34,7 @@ import laika.ast.{
 import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.config.TableOfContent
-import laika.render.FOFormatter.Preamble
+import laika.internal.render.FOFormatter.Preamble
 import laika.theme.Theme.TreeProcessor
 
 private[helium] object TocPageGenerator {

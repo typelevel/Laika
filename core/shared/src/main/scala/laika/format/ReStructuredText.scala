@@ -26,10 +26,23 @@ import laika.api.bundle.{
 }
 import laika.api.format.MarkupFormat
 import laika.ast.Block
+import laika.internal.rst.{
+  BlockParsers,
+  ExplicitBlockParsers,
+  InlineParsers,
+  ListParsers,
+  TableParsers
+}
+import laika.internal.rst.bundle.{
+  DocInfoExtractor,
+  ExtendedHTMLRenderer,
+  LinkTargetProcessor,
+  RawContentExtensions,
+  RstExtensionSupport,
+  StandardExtensions
+}
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
-import laika.rst.*
-import laika.rst.bundle.*
 
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
   * to the `Parseer` or `Transformer` APIs:

@@ -18,7 +18,7 @@ package laika.render.epub
 
 import laika.api.format.TagFormatter
 import laika.ast.*
-import laika.render.HTMLRenderer
+import laika.internal.render.HTMLRenderer
 
 /** Customizations of the default HTML renderer for AST elements where attributes specific to EPUB need to be rendered.
   *

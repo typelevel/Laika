@@ -23,8 +23,8 @@ import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
 import laika.config.LaikaKeys
+import laika.internal.nav.TitleDocumentConfig
 import laika.io.errors.ConfigException
-import laika.rewrite.nav.TitleDocumentConfig
 import laika.theme.Theme.TreeProcessor
 
 private[helium] object LandingPageGenerator {

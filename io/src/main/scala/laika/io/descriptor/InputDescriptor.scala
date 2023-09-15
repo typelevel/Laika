@@ -17,7 +17,7 @@
 package laika.io.descriptor
 
 import laika.ast.DocumentType
-import laika.collection.TransitionalCollectionOps._
+import laika.internal.collection.TransitionalCollectionOps._
 import laika.io.model.{ BinaryInput, FilePath, InputTree, TextInput }
 
 /** Describes a single, textual or binary input for a parsing or rendering operation.

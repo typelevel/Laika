@@ -38,8 +38,8 @@ import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
 import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
 import laika.format.HTML
+import laika.internal.rewrite.TemplateRewriter
 import laika.parse.GeneratedSource
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
 class DocumentTreeAPISpec extends FunSuite

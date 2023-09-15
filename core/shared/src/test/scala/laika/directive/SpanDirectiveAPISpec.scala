@@ -32,6 +32,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.format.{ HTML, Markdown }
+import laika.internal.directive.DirectiveSupport
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ Parser, SourceFragment }
 import munit.FunSuite

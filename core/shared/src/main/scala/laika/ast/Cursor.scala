@@ -27,14 +27,15 @@ import laika.api.bundle.{
 import laika.api.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, Origin }
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.collection.TransitionalCollectionOps.*
+import laika.internal.collection.TransitionalCollectionOps.*
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
 import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, TargetFormats }
+import laika.internal.link
+import laika.internal.link.LinkValidator
+import laika.internal.nav.NavigationOrder
+import laika.internal.rewrite.ReferenceResolver
 import laika.parse.SourceFragment
-import laika.rewrite.*
-import laika.rewrite.link.LinkValidator
-import laika.rewrite.nav.NavigationOrder
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -347,7 +348,7 @@ class DocumentCursor private (
       case b              => target.content.withContent(Seq(b))
     }
 
-    val rewrittenFragments = target.fragments mapValuesStrict {
+    val rewrittenFragments = target.fragments.mapValuesStrict {
       case r: RewritableContainer with Block => r.rewriteChildren(rules).asInstanceOf[Block]
       case block                             => block
     }

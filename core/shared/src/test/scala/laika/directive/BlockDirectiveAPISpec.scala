@@ -18,12 +18,12 @@ package laika.directive
 
 import cats.implicits.*
 import laika.api.RenderPhaseRewrite
-import laika.api.bundle.{ BlockParserBuilder, BlockDirectives, ParserBundle }
+import laika.api.bundle.{ BlockDirectives, BlockParserBuilder, ParserBundle }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.directive.std.StandardDirectives
 import laika.format.HTML
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
 import laika.parse.implicits.*

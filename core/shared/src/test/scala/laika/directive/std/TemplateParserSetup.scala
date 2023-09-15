@@ -22,11 +22,11 @@ import laika.api.config.{ Config, ConfigParser }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.config.ConfigError.ValidationError
-import laika.directive.DirectiveSupport
 import laika.format.HTML
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
+import laika.internal.rewrite.TemplateRewriter
 import laika.parse.SourceCursor
 import laika.parse.combinator.Parsers
-import laika.rewrite.TemplateRewriter
 
 /** @author Jens Halm
   */

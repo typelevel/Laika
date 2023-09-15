@@ -25,7 +25,7 @@ import scala.concurrent.duration._
 import cats.effect.{ Async, Ref, Resource, Temporal }
 import fs2.io.file.Files
 import laika.ast.DocumentType.Static
-import laika.collection.TransitionalCollectionOps.{ JIteratorWrapper, TransitionalMapOps }
+import laika.internal.collection.TransitionalCollectionOps.{ JIteratorWrapper, TransitionalMapOps }
 import laika.io.model.{ FileFilter, FilePath }
 import laika.io.runtime.DirectoryScanner
 import laika.preview.SourceChangeWatcher.{ ObservedDirectory, ObservedFiles, ObservedTarget }

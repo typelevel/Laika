@@ -34,13 +34,13 @@ import laika.api.bundle.{
 }
 import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Origin }
 import laika.ast.styles.{ StyleDeclaration, StylePredicate }
+import laika.internal.parse.css.CSSParsers
 import laika.parse.*
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
-import laika.parse.css.CSSParsers
 import laika.parse.implicits.*
 import laika.parse.text.TextParsers
-import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import munit.FunSuite
 
 trait ParserSetup {

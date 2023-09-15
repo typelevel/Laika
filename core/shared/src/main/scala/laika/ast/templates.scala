@@ -16,8 +16,8 @@
 
 package laika.ast
 
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.parse.GeneratedSource
-import laika.rewrite.ReferenceResolver.CursorKeys
 
 /** The base type for all inline elements that
   *  can be found in a template.

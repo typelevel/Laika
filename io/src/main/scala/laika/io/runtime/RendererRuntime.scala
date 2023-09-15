@@ -27,10 +27,10 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.styles.StyleDeclarationSet
 import laika.config.{ LaikaKeys, TargetFormats, Versions }
+import laika.internal.nav.TitleDocumentConfig
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.errors.*
 import laika.io.model.*
-import laika.rewrite.nav.*
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution.
