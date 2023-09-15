@@ -17,7 +17,7 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{ CodeSpan, ~ }
+import laika.ast.CodeSpan
 import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.common._

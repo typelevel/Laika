@@ -16,12 +16,12 @@
 
 package laika.markdown
 
-import laika.ast._
+import laika.ast.*
 import laika.bundle.{ BlockParserBuilder, BlockPosition }
 import laika.parse.{ BlockSource, LineSource, Parser }
 import laika.parse.markup.RecursiveParsers
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.builders.*
+import laika.parse.implicits.*
 import laika.parse.text.{ PrefixedParser, WhitespacePreprocessor }
 
 /** Provides all block parsers for Markdown text except for lists

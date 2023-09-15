@@ -19,6 +19,7 @@ package laika.rst.std
 import cats.data.NonEmptySet
 import laika.ast._
 import laika.parse.GeneratedSource
+import laika.parse.builders.~
 import laika.rst.ast.RstStyle
 import laika.rst.ext.TextRoles.Parts._
 import laika.rst.ext.TextRoles.TextRole

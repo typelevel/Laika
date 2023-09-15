@@ -67,7 +67,6 @@ way to define text parsers, in particular with larger, more complex expressions.
 For defining parsers you usually need at least the following imports:
 
 ```scala mdoc:silent
-import laika.ast.~
 import laika.parse.builders._
 import laika.parse.implicits._
 ```

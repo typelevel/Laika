@@ -16,7 +16,7 @@
 
 package laika.parse.uri
 
-import laika.ast.{ Reverse, Span, SpanLink, Text, ~ }
+import laika.ast.{ Reverse, Span, SpanLink, Text }
 import laika.bundle.SpanParserBuilder
 import laika.parse.text.PrefixedParser
 import laika.parse.{ Failure, Parser, Success }

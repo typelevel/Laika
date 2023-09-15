@@ -16,7 +16,7 @@
 
 package laika.parse
 
-import laika.ast.~
+import laika.parse.builders.~
 import laika.parse.text.{ PrefixedParser, TextParsers }
 
 /** Collection of extension methods that helps keeping parser definitions concise.

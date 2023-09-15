@@ -16,11 +16,12 @@
 
 package laika.rst.ext
 
-import laika.ast._
+import laika.ast.*
 import laika.parse.{ Parser, SourceFragment }
+import laika.parse.builders.~
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
-import laika.rst.ext.Directives._
+import laika.rst.ext.Directives.*
 import laika.rst.ext.ExtensionParsers.Result
 
 /** API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.

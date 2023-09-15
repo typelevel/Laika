@@ -22,6 +22,7 @@ import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.directive.{ Blocks, DirectiveRegistry, Spans }
 import laika.format.{ AST, ReStructuredText }
+import laika.parse.builders.~
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
 import laika.rst.ext.ExtensionProvider

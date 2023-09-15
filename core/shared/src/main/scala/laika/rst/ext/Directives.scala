@@ -16,8 +16,9 @@
 
 package laika.rst.ext
 
-import laika.ast._
+import laika.ast.*
 import laika.parse.{ Parser, SourceFragment }
+import laika.parse.builders.~
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.ExtensionParsers.Result

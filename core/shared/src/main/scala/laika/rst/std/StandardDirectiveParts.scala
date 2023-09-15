@@ -17,6 +17,7 @@
 package laika.rst.std
 
 import laika.ast.*
+import laika.parse.builders.~
 import laika.parse.implicits.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, TextParsers }

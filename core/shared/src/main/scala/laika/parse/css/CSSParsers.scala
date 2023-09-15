@@ -16,7 +16,6 @@
 
 package laika.parse.css
 
-import laika.ast.{ styles, * }
 import laika.ast.styles.{ ParentSelector, StyleDeclaration, StylePredicate, StyleSelector }
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers
@@ -101,7 +100,7 @@ private[laika] object CSSParsers {
         case (parent, Child ~ sel)      =>
           sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
         case (parent, Descendant ~ sel) =>
-          sel.copy(parent = Some(styles.ParentSelector(parent, immediate = false)))
+          sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
       }
     }
 

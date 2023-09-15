@@ -18,6 +18,7 @@ package laika.rst.ext
 
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.parse.builders.~
 import laika.parse.combinator.Parsers
 import laika.parse.{ Parser, SourceFragment }
 import laika.rst.ast.{ CustomizedTextRole, SubstitutionDefinition }

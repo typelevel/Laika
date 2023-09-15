@@ -18,7 +18,6 @@ package laika.parse.hocon
 
 import cats.syntax.all.*
 import cats.data.NonEmptySet
-import laika.ast.~
 import laika.api.config.ConfigValue.*
 import laika.api.config.Key
 import laika.parse.code.common.NumberLiteral.digits
