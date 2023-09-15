@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.markdown.ast
+package laika.ast.html
 
 import laika.ast.*
 

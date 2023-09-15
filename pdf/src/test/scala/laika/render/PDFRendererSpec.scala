@@ -19,12 +19,11 @@ package laika.render
 import cats.effect.IO
 import fs2.io.file.Files
 import laika.api.{ MarkupParser, Renderer }
-import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import laika.ast.{ DefaultTemplatePath, DocumentTree, DocumentTreeRoot }
 import laika.format.{ Markdown, PDF }
 import laika.io.FileIO
 import laika.io.implicits.*
 import laika.io.model.{ InputTree, ParsedTree }
-import laika.rewrite.DefaultTemplatePath
 import munit.CatsEffectSuite
 
 /** Since there is no straightforward way to validate a rendered PDF document

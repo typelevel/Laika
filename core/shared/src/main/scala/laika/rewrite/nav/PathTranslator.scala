@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.{
   AbsoluteInternalTarget,
   ExternalTarget,
+  OutputContext,
   Path,
   RelativeInternalTarget,
   RelativePath,
@@ -30,7 +31,6 @@ import laika.ast.{
 }
 import laika.api.config.Config.ConfigResult
 import laika.config.{ LaikaKeys, Versions }
-import laika.rewrite.OutputContext
 
 /** Translates paths of input documents to the corresponding output path.
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path

@@ -26,16 +26,16 @@ import laika.ast.{
   Link,
   LocalLink,
   Path,
-  ResolvedInternalTarget,
   RootCursor,
   RootElement,
   Span,
-  Target
+  Target,
+  TargetValidation
 }
+import TargetValidation.*
 import laika.config.{ LaikaKeys, LinkValidation, TargetFormats, Versions }
 import laika.parse.SourceFragment
 import cats.syntax.all.*
-import TargetValidation.*
 import laika.api.config.Config
 
 /** Validates internal links based on the presence and configuration of the targets it points to.
@@ -179,17 +179,6 @@ private[laika] class LinkValidator(
     */
   def validateAndRecover(link: Link, source: SourceFragment): Span =
     validate(link).valueOr(InvalidSpan(_, source))
-
-}
-
-sealed trait TargetValidation
-
-object TargetValidation {
-  case object ValidTarget                   extends TargetValidation
-  case class InvalidTarget(message: String) extends TargetValidation
-
-  case class RecoveredTarget(message: String, recoveredTarget: ResolvedInternalTarget)
-      extends TargetValidation
 
 }
 

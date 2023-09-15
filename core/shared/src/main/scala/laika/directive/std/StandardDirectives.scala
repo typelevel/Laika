@@ -23,9 +23,8 @@ import laika.bundle.BundleOrigin
 import laika.config.{ LaikaKeys, PlatformDateTime }
 import laika.api.config.ConfigValue.SimpleValue
 import laika.api.config.Key
+import laika.ast.TargetValidation.*
 import laika.directive.*
-import laika.rewrite.link.TargetValidation.*
-import laika.rewrite.link.TargetValidation.ValidTarget
 
 import scala.collection.immutable.TreeSet
 

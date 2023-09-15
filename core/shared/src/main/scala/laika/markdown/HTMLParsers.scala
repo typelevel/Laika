@@ -18,8 +18,8 @@ package laika.markdown
 
 import cats.data.NonEmptySet
 import laika.ast.*
+import laika.ast.html.*
 import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
-import laika.markdown.ast.*
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers
@@ -125,25 +125,26 @@ private[laika] object HTMLParsers {
     */
   private val htmlScriptElement: Parser[HTMLScriptElement] =
     (("script" ~> (htmlWS ~> htmlAttribute.rep <~ htmlWS) <~ ">") ~ delimitedBy("</script>"))
-      .mapN(HTMLScriptElement(_, _))
+      .mapN(html.HTMLScriptElement(_, _))
 
   /** Parses an empty HTML element without the leading `'<'`.
     *  Only recognizes empty tags explicitly closed.
     */
   private val htmlEmptyElement: Parser[HTMLEmptyElement] =
-    (htmlTagContent <~ "/>").mapN(HTMLEmptyElement(_, _))
+    (htmlTagContent <~ "/>").mapN(html.HTMLEmptyElement(_, _))
 
   /** Parses an HTML start tag without the leading `'<'`.
     *  Only recognizes empty tags explicitly closed.
     */
-  private val htmlStartTag: Parser[HTMLStartTag] = (htmlTagContent <~ ">").mapN(HTMLStartTag(_, _))
+  private val htmlStartTag: Parser[HTMLStartTag] =
+    (htmlTagContent <~ ">").mapN(html.HTMLStartTag(_, _))
 
   /** Parses an HTML element without the leading `'<'`, but including
     *  all the nested HTML and Text elements.
     */
   private lazy val htmlElement: Parser[HTMLElement] = htmlStartTag >> { tag =>
     spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers).map { spans =>
-      HTMLElement(tag, spans)
+      html.HTMLElement(tag, spans)
     }
   }
 
@@ -153,7 +154,7 @@ private[laika] object HTMLParsers {
   private def htmlElementWithNestedMarkdown(recParsers: RecursiveSpanParsers): Parser[HTMLElement] =
     htmlStartTag >> { tag =>
       recParsers.recursiveSpans(htmlEndTag(tag.name)).map { spans =>
-        HTMLElement(tag, spans)
+        html.HTMLElement(tag, spans)
       }
     }
 
@@ -244,7 +245,7 @@ private[laika] object HTMLParsers {
     */
   private lazy val htmlBlock: Parser[HTMLBlock] = htmlBlockStart >> { tag =>
     spans(htmlEndTag(tag.name)).embedAll(htmlBlockParsers) <~ wsEol ^^ { spans =>
-      HTMLBlock(HTMLElement(tag, spans))
+      HTMLBlock(html.HTMLElement(tag, spans))
     }
   }
 

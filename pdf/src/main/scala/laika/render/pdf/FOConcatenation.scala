@@ -26,7 +26,6 @@ import laika.format.{ PDF, XSLFO }
 import laika.io.errors.{ ConfigException, DocumentRendererError }
 import laika.io.model.RenderedTreeRoot
 import laika.render.FOFormatter.ContentWrapper
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.config.BookConfig
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output

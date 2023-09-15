@@ -16,7 +16,8 @@
 
 package laika.api.format
 
-import laika.ast.{ Element, MessageFilter, Path, StyleDeclarationSet }
+import laika.ast.styles.StyleDeclarationSet
+import laika.ast.{ Element, MessageFilter, Path }
 import laika.bundle.RenderOverrides
 import laika.rewrite.nav.PathTranslator
 

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package laika.rewrite
+package laika.ast
 
-import laika.ast.Path
 import laika.ast.Path.Root
 
 /** Provides the paths for default templates for all formats.

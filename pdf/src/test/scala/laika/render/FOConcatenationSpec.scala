@@ -27,7 +27,6 @@ import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.PathTranslator
 import laika.theme.config.BookConfig
 import munit.FunSuite

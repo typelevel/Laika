@@ -27,7 +27,6 @@ import laika.io.implicits.*
 import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.PathTranslator
 import munit.FunSuite
 

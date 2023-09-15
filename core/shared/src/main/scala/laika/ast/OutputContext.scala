@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.rewrite
+package laika.ast
 
 import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 

@@ -17,9 +17,9 @@
 package laika.io.model
 
 import laika.api.config.Config
-import laika.ast._
+import laika.ast.*
+import laika.ast.styles.StyleDeclarationSet
 import laika.config.TargetFormats
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.PathTranslator
 
 /** A titled, positional element in the tree of rendered documents.

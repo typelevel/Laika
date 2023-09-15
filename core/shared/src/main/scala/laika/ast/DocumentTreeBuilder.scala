@@ -21,6 +21,7 @@ import laika.api.config.{ Config, ConfigError, ConfigParser, Origin }
 import laika.ast.Path.Root
 import laika.api.config.Config.IncludeMap
 import laika.api.config.Origin.{ DocumentScope, TreeScope }
+import laika.ast.styles.StyleDeclarationSet
 import laika.rewrite.nav.TitleDocumentConfig
 
 import scala.collection.mutable

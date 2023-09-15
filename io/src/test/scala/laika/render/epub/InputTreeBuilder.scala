@@ -24,7 +24,6 @@ import laika.ast.*
 import laika.format.EPUB
 import laika.io.model.*
 import laika.io.helper.InputBuilder
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.PathTranslator
 
 trait InputTreeBuilder extends InputBuilder {

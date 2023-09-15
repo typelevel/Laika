@@ -18,10 +18,9 @@ package laika.bundle
 
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.ast._
+import laika.ast.*
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.parse.css.CSSParsers
-import laika.rewrite.OutputContext
 import laika.rewrite.link.SlugBuilder
 import laika.rewrite.nav.PathTranslator
 

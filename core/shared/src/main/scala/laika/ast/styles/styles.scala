@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package laika.ast
+package laika.ast.styles
 
+import laika.ast.{ Element, Path }
 import laika.bundle.Precedence
 
 /** Represents a single predicate which is

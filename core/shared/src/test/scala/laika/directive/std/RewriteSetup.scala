@@ -19,8 +19,7 @@ package laika.directive.std
 import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.sample.{ BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees }
-import laika.ast._
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
+import laika.ast.*
 import munit.Assertions
 import Path.Root
 import laika.api.config.ConfigBuilder

@@ -24,12 +24,12 @@ import laika.api.config.ConfigError
 import laika.api.errors.InvalidDocuments
 import laika.ast.Path.Root
 import laika.ast.*
+import laika.ast.styles.StyleDeclarationSet
 import laika.config.{ LaikaKeys, TargetFormats, Versions }
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.errors.*
 import laika.io.model.*
 import laika.rewrite.nav.*
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution.

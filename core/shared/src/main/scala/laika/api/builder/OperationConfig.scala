@@ -30,11 +30,11 @@ import laika.bundle.{
   MarkupExtensions
 }
 import laika.api.config.Config.ConfigResult
+import laika.ast.styles.StyleDeclaration
 import laika.directive.DirectiveSupport
 import laika.directive.std.StandardDirectives
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.OutputContext
 import laika.rewrite.RecursiveResolverRules
 import laika.rewrite.link.SlugBuilder
 import laika.rewrite.nav.PathTranslator

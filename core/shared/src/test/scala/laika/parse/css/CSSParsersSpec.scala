@@ -16,11 +16,11 @@
 
 package laika.parse.css
 
-import laika.ast.StylePredicate._
-import laika.ast._
+import laika.ast.styles.StylePredicate.*
 import laika.ast.sample.StyleBuilders
+import laika.ast.styles.{ StyleDeclaration, StylePredicate }
 import laika.parse.Parser
-import laika.parse.css.CSSParsers._
+import laika.parse.css.CSSParsers.*
 import munit.FunSuite
 
 class CSSParsersSpec extends FunSuite with StyleBuilders {

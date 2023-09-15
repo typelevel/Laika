@@ -23,8 +23,9 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.IncludeMap
 import laika.api.config.ConfigError.TreeConfigErrors
+import laika.ast.styles.StyleDeclarationSet
 import laika.config.*
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
+import laika.rewrite.TemplateRewriter
 
 import scala.annotation.tailrec
 

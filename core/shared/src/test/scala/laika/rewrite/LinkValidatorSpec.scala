@@ -18,9 +18,9 @@ package laika.rewrite
 
 import laika.ast.Path.Root
 import laika.ast.sample.SampleTrees
+import laika.ast.TargetValidation.*
 import laika.ast.*
 import laika.config.{ LinkValidation, TargetFormats }
-import laika.rewrite.link.TargetValidation.*
 import munit.FunSuite
 
 /** @author Jens Halm

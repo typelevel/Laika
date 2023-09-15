@@ -17,6 +17,7 @@
 package laika.bundle
 
 import laika.ast.*
+import laika.ast.styles.StyleDeclaration
 import laika.parse.Parser
 
 /** Bundles a collection of all types of parsers used in a transformation.

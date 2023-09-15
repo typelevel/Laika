@@ -17,7 +17,8 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
-import laika.ast.{ StyleDeclarationSet, TemplateContextReference, TemplateRoot }
+import laika.ast.styles.StyleDeclarationSet
+import laika.ast.{ TemplateContextReference, TemplateRoot, styles }
 import laika.helium.Helium
 import laika.helium.generate.FOStyles
 import laika.parse.GeneratedSource
@@ -31,7 +32,7 @@ object TestTheme {
 
   lazy val foStyles: StyleDeclarationSet = CSSParsers.styleDeclarationSet
     .parse(new FOStyles(heliumTestProps).input)
-    .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))
+    .map(styles.StyleDeclarationSet(Set(FOStyles.defaultPath), _))
     .getOrElse(StyleDeclarationSet.empty)
 
   lazy val foTemplate = TemplateRoot(

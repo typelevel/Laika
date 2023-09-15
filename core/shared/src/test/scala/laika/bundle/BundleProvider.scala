@@ -19,6 +19,7 @@ package laika.bundle
 import laika.api.config.{ Config, ConfigParser }
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.*
+import laika.ast.styles.StyleDeclaration
 import laika.directive.{ DirectiveRegistry, Templates }
 import laika.parse.Parser
 import laika.rewrite.nav.PathTranslator

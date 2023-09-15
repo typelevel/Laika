@@ -19,11 +19,11 @@ package laika.render.epub
 import laika.api.Renderer
 import laika.api.config.ConfigBuilder
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
+import laika.ast.styles.StyleDeclarationSet
 import laika.config.{ LaikaKeys, TargetFormats }
 import laika.format.EPUB
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.{ ConfigurablePathTranslator, PathAttributes, TranslatorConfig }
 import munit.CatsEffectSuite
 

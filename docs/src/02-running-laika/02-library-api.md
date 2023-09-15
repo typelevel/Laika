@@ -408,8 +408,8 @@ you can use the `InputTree` builder.
 
 ```scala mdoc:silent
 import laika.io.model._
+import laika.ast.DefaultTemplatePath
 import laika.ast.Path.Root
-import laika.rewrite.DefaultTemplatePath
 
 def generateStyles: String = "???"
 

@@ -21,7 +21,8 @@ import cats.effect.{ Async, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.errors.ParserError
-import laika.ast.{ StyleDeclarationSet, TemplateDocument }
+import laika.ast.TemplateDocument
+import laika.ast.styles.StyleDeclarationSet
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{ InputTreeBuilder, ParsedTree }
 import laika.io.ops.InputOps

@@ -32,7 +32,6 @@ import laika.io.errors.ConfigException
 import laika.io.helper.{ InputBuilder, TestThemeBuilder }
 import laika.io.implicits.*
 import laika.io.model.{ FilePath, InputTreeBuilder, ParsedTree }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.CatsEffectSuite
 
 class ConfigSpec extends CatsEffectSuite

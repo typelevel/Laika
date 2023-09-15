@@ -26,8 +26,8 @@ import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
 import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, TargetFormats }
 import laika.parse.SourceFragment
-import laika.rewrite.{ OutputContext, ReferenceResolver }
-import laika.rewrite.link.{ LinkValidator, TargetValidation }
+import laika.rewrite.*
+import laika.rewrite.link.LinkValidator
 import laika.rewrite.nav.{
   ConfigurablePathTranslator,
   NavigationOrder,
@@ -82,7 +82,7 @@ class RootCursor private (
 
   type Target = DocumentTreeRoot
 
-  private[ast] lazy val targetLookup = new laika.rewrite.link.TargetLookup(this)
+  private[ast] lazy val targetLookup = new link.TargetLookup(this)
 
   /** The context for the output format when the cursor has been created for the final rewrite
     *  phase for a specific output format or empty in earlier rewrite phases that apply to all formats.
@@ -97,7 +97,7 @@ class RootCursor private (
     */
   lazy val pathTranslator: Option[PathTranslator] = renderContext.map {
     case (outputContext, translatorConfig) =>
-      val lookup = new laika.rewrite.nav.TargetLookup(this)
+      val lookup = new nav.TargetLookup(this)
       ConfigurablePathTranslator(
         translatorConfig,
         outputContext,

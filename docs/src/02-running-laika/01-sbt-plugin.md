@@ -343,8 +343,8 @@ This setting completely overrides any value set with `Laika / sourceDirectories`
 ```scala mdoc:compile-only
 import cats.effect.IO
 import laika.io.model._ 
+import laika.ast.DefaultTemplatePath
 import laika.ast.Path.Root
-import laika.rewrite.DefaultTemplatePath
 
 def generateStyles: String = "<... custom CSS ...>"
 

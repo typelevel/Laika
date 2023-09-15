@@ -23,6 +23,7 @@ import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast.*
+import laika.ast.styles.{ StyleDeclaration, StylePredicate }
 import laika.bundle.{ BundleProvider, ExtensionBundle }
 import laika.directive.Templates
 import laika.format.*
@@ -44,7 +45,6 @@ import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.rewrite.link.SlugBuilder
 import laika.rewrite.nav.PathTranslator
 import laika.theme.ThemeProvider

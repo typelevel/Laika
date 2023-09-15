@@ -27,6 +27,7 @@ import laika.ast.DocumentType.*
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
 import laika.bundle.*
 import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
@@ -37,7 +38,6 @@ import laika.io.implicits.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
 import laika.parse.Parser
 import laika.parse.text.TextParsers
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -486,7 +486,7 @@ class TreeParserSpec
           Set(Root / "main1.aaa.css", Root / "main3.aaa.css"),
           Set(styleDecl("foo"), styleDecl("foo", 1))
         ),
-        "bbb" -> StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
+        "bbb" -> styles.StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
       )
     )
     parsedWith(

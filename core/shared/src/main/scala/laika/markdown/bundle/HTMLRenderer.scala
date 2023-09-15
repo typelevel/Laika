@@ -17,8 +17,8 @@
 package laika.markdown.bundle
 
 import laika.api.format.TagFormatter
+import laika.ast.html.*
 import laika.ast.{ Element, TextContainer }
-import laika.markdown.ast.*
 
 /** Renderer for verbatim HTML elements.
   * Since verbatim HTML is treated as an optional feature by this library

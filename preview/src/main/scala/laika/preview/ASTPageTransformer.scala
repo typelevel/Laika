@@ -25,6 +25,7 @@ import laika.ast.{
   CodeBlock,
   Document,
   DocumentTreeRoot,
+  OutputContext,
   Path,
   RewritePhase,
   RootElement,
@@ -35,7 +36,6 @@ import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.format.{ AST, HTML }
 import laika.parse.{ Failure, Success }
 import laika.parse.code.languages.LaikaASTSyntax
-import laika.rewrite.OutputContext
 import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec

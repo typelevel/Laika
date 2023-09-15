@@ -29,7 +29,6 @@ import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
 import laika.format.{ AST, HTML, ReStructuredText }
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.rst.ast.{ Contents, Include, RstStyle }
 import munit.FunSuite
 

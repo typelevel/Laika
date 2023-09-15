@@ -21,14 +21,13 @@ import cats.effect.Async
 import fs2.io.file.Files
 import laika.api.config.Config
 import laika.ast.Path.Root
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
 import laika.ast.{
   Document,
   DocumentTreeBuilder,
   DocumentType,
   Path,
   StaticDocument,
-  StyleDeclaration,
-  StyleDeclarationSet,
   TemplateDocument,
   TextDocumentType
 }

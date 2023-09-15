@@ -23,7 +23,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.format.Formatter.Indentation
 import laika.api.format.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
-import laika.rewrite.OutputContext
+import laika.ast.styles.StyleDeclarationSet
 import laika.rewrite.nav.PathTranslator
 
 /** Performs a render operation from a document AST to a target format
