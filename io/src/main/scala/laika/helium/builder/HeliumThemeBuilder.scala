@@ -49,15 +49,15 @@ private[helium] class HeliumThemeBuilder(helium: Helium) extends ThemeProvider {
   }
 
   object directives extends DirectiveRegistry {
-    override def origin: BundleOrigin                         = BundleOrigin.Theme
-    override val description: String                          = "Directives for theme 'Helium'"
-    val spanDirectives: Seq[SpanDirectives.Directive]         = Nil
-    val blockDirectives: Seq[BlockDirectives.Directive]       = Nil
+    override def origin: BundleOrigin                   = BundleOrigin.Theme
+    override val description: String                    = "Directives for theme 'Helium'"
+    val spanDirectives: Seq[SpanDirectives.Directive]   = Nil
+    val blockDirectives: Seq[BlockDirectives.Directive] = Nil
 
     val templateDirectives: Seq[TemplateDirectives.Directive] =
       HeliumDirectives.all(heliumWithIncludes)
 
-    val linkDirectives: Seq[LinkDirectives.Directive]         = Nil
+    val linkDirectives: Seq[LinkDirectives.Directive] = Nil
   }
 
   def build[F[_]: Async]: Resource[F, Theme[F]] = {
