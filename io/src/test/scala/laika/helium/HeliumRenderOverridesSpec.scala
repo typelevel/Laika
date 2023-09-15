@@ -28,7 +28,6 @@ import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.markdown.github.GitHubFlavor
 import laika.theme.*
 import munit.CatsEffectSuite
 
@@ -43,7 +42,8 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       theme: ThemeProvider,
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
-    val builder = Transformer.from(Markdown).to(HTML).using(GitHubFlavor, SyntaxHighlighting)
+    val builder =
+      Transformer.from(Markdown).to(HTML).using(Markdown.GitHubFlavor, SyntaxHighlighting)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)

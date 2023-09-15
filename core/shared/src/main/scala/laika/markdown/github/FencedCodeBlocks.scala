@@ -29,7 +29,7 @@ import laika.parse.{ BlockSource, Failure, Parser, Success }
   *
   * @author Jens Halm
   */
-private[github] object FencedCodeBlocks {
+private[laika] object FencedCodeBlocks {
 
   private def reverse(offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
     p.parse(in.reverse.consume(offset)) match {

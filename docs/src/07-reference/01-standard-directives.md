@@ -229,12 +229,11 @@ import laika.ast._
 import laika.api._
 import laika.config.IconRegistry
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
   .build
 ```
@@ -384,12 +383,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(Selections(
     SelectionConfig("config",
       ChoiceConfig("sbt", "sbt Plugin"),
@@ -419,7 +417,7 @@ laikaConfig := LaikaConfig.defaults.strict
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .strict
   .build
 ```

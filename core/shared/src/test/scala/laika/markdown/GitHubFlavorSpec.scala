@@ -17,10 +17,9 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
-import laika.markdown.github.GitHubFlavor
 import laika.parse.Parser
 import laika.parse.markup.RootParser
 import munit.FunSuite
@@ -30,7 +29,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
   val rootParser = new RootParser(
     Markdown,
     new OperationConfig(Markdown.extensions)
-      .withBundles(Seq(GitHubFlavor)).markupExtensions
+      .withBundles(Seq(Markdown.GitHubFlavor)).markupExtensions
   )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement

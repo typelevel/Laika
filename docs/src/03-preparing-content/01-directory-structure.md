@@ -69,12 +69,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.config.LaikaKeys
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
   .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
   .build

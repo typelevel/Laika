@@ -75,12 +75,11 @@ import laika.api._
 import laika.ast.Path.Root
 import laika.config.LinkValidation
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
   .build
 ```
@@ -143,12 +142,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.config.{ LinkConfig, TargetDefinition }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkConfig.empty
     .addTargets(
       TargetDefinition.external("Example 1", "https://example1.com/"),
@@ -263,12 +261,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkConfig.empty
     .addApiLinks(ApiLinks(baseUri = "https://example.com/api"))
   )
@@ -297,12 +294,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkConfig.empty
     .addApiLinks(ApiLinks("https://example.com/api"))
     .addApiLinks(ApiLinks("https://somewhere-else/").withPackagePrefix("com.lib42"))
@@ -345,13 +341,12 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkConfig.empty
     .addSourceLinks(
       SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
@@ -387,13 +382,12 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LinkConfig.empty
     .addSourceLinks(SourceLinks(
       baseUri = "https://github.com/team/project", 
@@ -610,12 +604,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.config.AutonumberConfig
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
   .build
 ```

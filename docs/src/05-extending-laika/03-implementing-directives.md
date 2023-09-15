@@ -220,10 +220,10 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   MyDirectives
 )
 ```
@@ -232,12 +232,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(MyDirectives)
   .build
 ```
@@ -299,7 +298,7 @@ laikaConfig := LaikaConfig.defaults
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```

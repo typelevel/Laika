@@ -128,12 +128,10 @@ The instances are immutable and thread-safe.
 Example for creating a transformer for Markdown, including the GitHub-Flavor extensions:
 
 ```scala mdoc:silent
-import laika.markdown.github.GitHubFlavor
-
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .build
 ```
 
@@ -194,13 +192,12 @@ from cats.IO for initialization:
 ```scala mdoc
 import cats.effect.{ Async, Resource }
 import laika.io.api.TreeTransformer
-import laika.markdown.github.GitHubFlavor
 
 def createTransformer[F[_]: Async]: Resource[F, TreeTransformer[F]] =
   Transformer
     .from(Markdown)
     .to(HTML)
-    .using(GitHubFlavor)
+    .using(Markdown.GitHubFlavor)
     .parallel[F]
     .build
 ``` 
@@ -338,7 +335,7 @@ as well as copying static files over to the target directory.
 val transformerIO = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .parallel[IO]
   .build
 ```
@@ -366,7 +363,7 @@ merging all content from the input directories into a single, linearized e-book:
 val epubTransformer = Transformer
   .from(Markdown)
   .to(EPUB)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .parallel[IO]
   .build
   
@@ -511,7 +508,7 @@ First we set up a parser and its configuration.
 We create a parallel parser that is capable of reading from a directory:
 
 ```scala mdoc:silent
-val parserBuilder = MarkupParser.of(Markdown).using(GitHubFlavor)
+val parserBuilder = MarkupParser.of(Markdown).using(Markdown.GitHubFlavor)
 
 val parser = parserBuilder.parallel[IO].build
 
@@ -628,7 +625,7 @@ val theme = Helium.defaults
 val heliumTransformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .parallel[IO]
   .withTheme(theme)
   .build
@@ -697,7 +694,7 @@ import laika.preview.ServerBuilder
 
 val parser = MarkupParser
   .of(Markdown)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .parallel[IO]
   .build
 

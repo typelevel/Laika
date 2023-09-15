@@ -21,7 +21,6 @@ import laika.api.errors.ParserError
 import laika.ast.*
 import laika.config.{ LaikaKeys, SyntaxHighlighting }
 import laika.format.Markdown
-import laika.markdown.github.GitHubFlavor
 import laika.parse.code.CodeCategory
 import laika.parse.code.CodeCategory.*
 import munit.FunSuite
@@ -32,7 +31,7 @@ class LanguageSpec extends FunSuite {
 
   private val parser = MarkupParser
     .of(Markdown)
-    .using(GitHubFlavor, SyntaxHighlighting)
+    .using(Markdown.GitHubFlavor, SyntaxHighlighting)
     .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
     .build
 

@@ -135,10 +135,10 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   TicketSyntax
 )
 ```
@@ -147,12 +147,11 @@ laikaExtensions := Seq(
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(TicketSyntax)
   .build
 ```
@@ -225,12 +224,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```
@@ -408,10 +406,10 @@ Finally you can register your extension together with any built-in extensions yo
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   QuotedBlocks
 )
 ```
@@ -420,12 +418,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val extendedTransformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(QuotedBlocks)
   .build
 ```

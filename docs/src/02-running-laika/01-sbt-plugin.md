@@ -285,10 +285,10 @@ Register implementations of the `ExtensionBundle` API, either provided by the li
 Example:
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 import laika.config.SyntaxHighlighting
 
-laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
+laikaExtensions := Seq(Markdown.GitHubFlavor, SyntaxHighlighting)
 ``` 
 
 - [Overriding Renderers]: adjust the rendered output for specific AST node types.

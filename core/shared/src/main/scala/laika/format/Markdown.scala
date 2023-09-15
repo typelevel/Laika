@@ -16,10 +16,17 @@
 
 package laika.format
 
-import laika.api.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.api.bundle.{
+  BlockParserBuilder,
+  BundleOrigin,
+  ExtensionBundle,
+  ParserBundle,
+  SpanParserBuilder
+}
 import laika.api.format.MarkupFormat
 import laika.ast.Block
 import laika.markdown.bundle.VerbatimHTML
+import laika.markdown.github.*
 import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
 import laika.parse.Parser
 import laika.parse.text.{ CharGroup, TextParsers }
@@ -169,6 +176,48 @@ case object Markdown extends MarkupFormat {
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
   val extensions: Seq[ExtensionBundle] = Seq(VerbatimHTML)
+
+  /** Extension bundle that enables GitHub-Flavored Markdown on top of standard Markdown.
+    *
+    * The extension can be added to a transformer like any other extension:
+    *
+    * {{{
+    *   val transformer = Transformer
+    *     .from(Markdown)
+    *     .to(HTML)
+    *     .using(GitHubFlavor)
+    *     .build
+    * }}}
+    *
+    * These are the parsers this extension adds to standard Markdown:
+    *
+    * - strikethrough
+    * - auto-links (urls and email addresses)
+    * - fenced code blocks
+    * - tables
+    *
+    * @author Jens Halm
+    */
+  object GitHubFlavor extends ExtensionBundle {
+
+    val description: String = "Github-flavored Markdown"
+
+    override val origin: BundleOrigin = BundleOrigin.Parser
+
+    override def parsers: ParserBundle = new ParserBundle(
+      blockParsers = Seq(
+        Tables.parser
+      ) ++ FencedCodeBlocks.parsers,
+      spanParsers = Seq(
+        Strikethrough.parser,
+        AutoLinks.parsers.www,
+        AutoLinks.parsers.http,
+        AutoLinks.parsers.email
+      )
+    )
+
+    override def forStrictMode: Option[ExtensionBundle] = None
+  }
 
   override def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)

@@ -30,7 +30,7 @@ import laika.parse.implicits._
   *
   * @author Jens Halm
   */
-private[github] object Tables {
+private[laika] object Tables {
 
   val parser: BlockParserBuilder = BlockParserBuilder.withSpans { spanParsers =>
     def cell(textParser: Parser[LineSource], cellType: CellType): Parser[Cell] =
