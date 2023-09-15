@@ -54,7 +54,7 @@ The contract a markup implementation has to adhere to is captured in the followi
 
 ```scala mdoc
 import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
-import laika.factory.MarkupFormat.MarkupParsers
+import laika.api.format.MarkupFormat.MarkupParsers
 
 trait MarkupFormat {
 
@@ -174,7 +174,7 @@ A renderer has to implement the following trait:
 
 ```scala mdoc
 import laika.ast.Element
-import laika.factory.RenderContext
+import laika.api.format.RenderContext
 
 trait RenderFormat[FMT] {
   
@@ -233,7 +233,7 @@ Let's look at a minimal excerpt of a hypothetical HTML render function:
 
 ```scala mdoc
 import laika.ast._
-import laika.render.TagFormatter
+import laika.api.format.TagFormatter
 
 def renderElement (fmt: TagFormatter, elem: Element): String = {
 

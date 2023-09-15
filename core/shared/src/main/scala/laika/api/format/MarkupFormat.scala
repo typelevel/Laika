@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package laika.factory
+package laika.api.format
 
+import laika.api.format.MarkupFormat.MarkupParsers
 import laika.ast.Block
 import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
-import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.text.TextParsers

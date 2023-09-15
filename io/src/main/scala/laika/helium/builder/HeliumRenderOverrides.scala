@@ -16,11 +16,11 @@
 
 package laika.helium.builder
 
+import laika.api.format.TagFormatter
 import laika.ast.RelativePath.CurrentDocument
 import laika.ast.*
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.format.XSLFO.formatterSyntax.*
-import laika.render.TagFormatter
 
 /** @author Jens Halm
   */

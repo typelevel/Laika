@@ -20,17 +20,17 @@ import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
-import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.{ Config, Key }
-import laika.factory.{
+import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
   RenderFormat,
+  TagFormatter,
   TwoPhaseRenderFormat
 }
+import laika.ast.{ DocumentTreeRoot, TemplateRoot }
+import laika.config.{ Config, Key }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
-import laika.render.TagFormatter
 import laika.render.FOFormatter.Preamble
 import laika.render.pdf.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
 import laika.theme.config.BookConfig

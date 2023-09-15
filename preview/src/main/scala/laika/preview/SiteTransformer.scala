@@ -17,21 +17,21 @@
 package laika.preview
 
 import cats.effect.{ Async, Resource }
-import cats.syntax.all._
-import cats.effect.syntax.all._
+import cats.syntax.all.*
+import cats.effect.syntax.all.*
 import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
+import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.ast.{ MessageFilter, Path }
 import laika.config.Config.ConfigResult
 import laika.config.LaikaKeys
-import laika.factory.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.config.SiteConfig
 import laika.io.errors.ConfigException
-import laika.io.implicits._
-import laika.io.model._
+import laika.io.implicits.*
+import laika.io.model.*
 import laika.preview.SiteTransformer.ResultMap
 import laika.rewrite.nav.{ Selections, TargetFormats }
 import laika.theme.Theme

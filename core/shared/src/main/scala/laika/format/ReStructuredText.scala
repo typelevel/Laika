@@ -16,6 +16,7 @@
 
 package laika.format
 
+import laika.api.format.MarkupFormat
 import laika.ast.Block
 import laika.bundle.{
   BlockParserBuilder,
@@ -25,8 +26,6 @@ import laika.bundle.{
   ParserHooks,
   SpanParserBuilder
 }
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
 import laika.rst.*
@@ -56,7 +55,7 @@ case object ReStructuredText extends MarkupFormat { self =>
 
   val fileSuffixes: Set[String] = Set("rest", "rst")
 
-  object blockParsers extends MarkupParsers[BlockParserBuilder] {
+  object blockParsers extends MarkupFormat.MarkupParsers[BlockParserBuilder] {
 
     /** Parses a bullet list with any of the supported bullet characters.
       *
@@ -178,7 +177,7 @@ case object ReStructuredText extends MarkupFormat { self =>
 
   }
 
-  object spanParsers extends MarkupParsers[SpanParserBuilder] {
+  object spanParsers extends MarkupFormat.MarkupParsers[SpanParserBuilder] {
 
     /** Parses a span of text with strong emphasis.
       *

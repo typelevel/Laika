@@ -17,6 +17,7 @@
 package laika.render
 
 import cats.data.NonEmptySet
+import laika.api.format.TagFormatter
 import laika.ast.*
 import laika.rst.ast.{ Line, LineBlock }
 

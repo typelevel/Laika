@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.format.TagFormatter
 import laika.ast.*
 
 /** Default renderer implementation for the HTML output format.

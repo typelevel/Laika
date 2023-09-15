@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package laika.factory
+package laika.api.format
 
 import laika.ast.{ Element, MessageFilter, Path, StyleDeclarationSet }
 import laika.bundle.RenderOverrides
-import laika.render.Formatter
 import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.

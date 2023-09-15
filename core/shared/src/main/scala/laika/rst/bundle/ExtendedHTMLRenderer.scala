@@ -16,8 +16,8 @@
 
 package laika.rst.bundle
 
+import laika.api.format.TagFormatter
 import laika.ast.*
-import laika.render.TagFormatter
 import laika.rst.ast.*
 
 /** HTML renderer for special reStructuredText tree elements not part of the default document tree model.

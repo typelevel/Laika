@@ -17,10 +17,10 @@
 package laika.ast
 
 import cats.syntax.all.*
+import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.config.Config.ConfigResult
 import laika.config.ConfigError.ConfigErrors
-import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.rewrite.{ OutputContext, TemplateFormatter, UnresolvedNodeDetector }
 import laika.rewrite.link.LinkResolver
 import laika.rewrite.nav.{ SectionBuilder, Selections }

@@ -18,12 +18,12 @@ package laika.render.epub
 
 import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
+import laika.api.format.TagFormatter
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.EPUB
 import laika.io.errors.ConfigException
 import laika.io.model.*
-import laika.render.TagFormatter
 import laika.theme.config.BookConfig
 
 /** Creates the EPUB container based on a document tree and the HTML result

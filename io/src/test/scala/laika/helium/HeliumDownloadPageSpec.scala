@@ -20,13 +20,13 @@ import java.util.Locale
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
+import laika.api.format.TagFormatter
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.render.TagFormatter
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.theme.*
 import munit.CatsEffectSuite

@@ -18,15 +18,22 @@ package laika.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.format.{
+  BinaryPostProcessor,
+  BinaryPostProcessorBuilder,
+  RenderContext,
+  RenderFormat,
+  TagFormatter,
+  TwoPhaseRenderFormat
+}
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.*
 import laika.config.ConfigError.ValidationError
-import laika.factory.*
 import laika.io.errors.ConfigException
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
-import laika.render.{ HTMLFormatter, TagFormatter }
+import laika.render.HTMLFormatter
 import laika.theme.config.BookConfig
 import laika.theme.Theme
 

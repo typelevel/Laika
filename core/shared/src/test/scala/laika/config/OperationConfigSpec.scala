@@ -17,6 +17,7 @@
 package laika.config
 
 import laika.api.builder.OperationConfig
+import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
@@ -29,8 +30,7 @@ import laika.bundle.{
   ExtensionBundle,
   SpanParserBuilder
 }
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
+import MarkupFormat.MarkupParsers
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
 import munit.FunSuite

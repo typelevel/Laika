@@ -19,7 +19,7 @@ package laika.io.helper
 import cats.effect.Async
 import laika.ast.Document
 import laika.bundle.ExtensionBundle
-import laika.factory.Format
+import laika.api.format.Format
 import laika.io.model.InputTreeBuilder
 import laika.theme.{ ThemeBuilder, ThemeProvider, TreeProcessorBuilder }
 

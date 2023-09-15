@@ -17,9 +17,9 @@
 package laika.parse.markup
 
 import cats.data.NonEmptySet
+import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.bundle.*
-import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
 import laika.parse.builders.*

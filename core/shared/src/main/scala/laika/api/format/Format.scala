@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.factory
+package laika.api.format
 
 /** Base trait for all types of input and output formats.
   *

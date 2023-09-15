@@ -18,6 +18,7 @@ package laika.helium.generate
 
 import cats.data.Kleisli
 import cats.effect.Sync
+import laika.api.format.Format
 import laika.ast.Path.Root
 import laika.ast.{
   Document,
@@ -30,7 +31,6 @@ import laika.ast.{
   Styles,
   Title
 }
-import laika.factory.Format
 import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.config.TableOfContent

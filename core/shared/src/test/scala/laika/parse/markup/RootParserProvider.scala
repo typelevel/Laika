@@ -16,9 +16,9 @@
 
 package laika.parse.markup
 
+import laika.api.format.MarkupFormat
 import laika.bundle.{ BlockParserBuilder, MarkupExtensions, ParserBundle, SpanParserBuilder }
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
+import MarkupFormat.MarkupParsers
 
 /** @author Jens Halm
   */

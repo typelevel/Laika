@@ -16,8 +16,8 @@
 
 package laika.render
 
+import laika.api.format.{ Formatter, RenderContext, TagFormatter }
 import laika.ast.*
-import laika.factory.RenderContext
 
 private[laika] class HTMLFormatter(
     closeEmptyTags: Boolean,

@@ -23,8 +23,8 @@ import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.*
 import ConfigError.ConfigParserError
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
+import laika.api.format.MarkupFormat
+import MarkupFormat.MarkupParsers
 import laika.parse.*
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers

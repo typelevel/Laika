@@ -16,6 +16,7 @@
 
 package laika.api.builder
 
+import laika.api.format.{ MarkupFormat, RenderFormat }
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
 import laika.config.ConfigError.ValidationError
@@ -31,7 +32,6 @@ import laika.bundle.{
 import laika.config.Config.ConfigResult
 import laika.directive.DirectiveSupport
 import laika.directive.std.StandardDirectives
-import laika.factory.{ MarkupFormat, RenderFormat }
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.rewrite.OutputContext

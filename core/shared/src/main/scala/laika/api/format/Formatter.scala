@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.api.format
 
 import laika.ast.*
-import laika.factory.RenderContext
 import laika.rewrite.nav.PathTranslator
 
 /** API basis for renderers that produce character output.

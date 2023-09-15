@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.factory
+package laika.api.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig

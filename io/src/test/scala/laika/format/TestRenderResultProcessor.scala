@@ -18,16 +18,16 @@ package laika.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentTreeRoot
-import laika.config.Config
-import laika.factory.{
+import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
+  Formatter,
   RenderFormat,
   TwoPhaseRenderFormat
 }
+import laika.ast.DocumentTreeRoot
+import laika.config.Config
 import laika.io.model.{ BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot }
-import laika.render.Formatter
 import laika.theme.Theme
 
 object TestRenderResultProcessor

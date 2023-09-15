@@ -19,8 +19,8 @@ package laika.io.api
 import cats.effect.{ Async, Resource }
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, RendererBuilder }
+import laika.api.format.{ BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.ast.DocumentTreeRoot
-import laika.factory.{ BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
 import laika.io.model.{ BinaryInput, BinaryOutput, ParsedTree }

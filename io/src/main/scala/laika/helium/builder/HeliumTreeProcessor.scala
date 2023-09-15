@@ -21,7 +21,7 @@ import cats.effect.Sync
 import cats.syntax.all.*
 import laika.ast.Path.Root
 import laika.config.LaikaKeys
-import laika.factory.Format
+import laika.api.format.Format
 import laika.helium.Helium
 import laika.helium.generate.{ DownloadPageGenerator, LandingPageGenerator, TocPageGenerator }
 import laika.io.errors.ConfigException

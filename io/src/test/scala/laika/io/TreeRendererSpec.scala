@@ -22,6 +22,7 @@ import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
+import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{

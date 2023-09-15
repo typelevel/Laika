@@ -20,10 +20,10 @@ import cats.effect.{ Async, IO, Resource }
 import cats.effect.unsafe.implicits.global
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.MarkupParser
+import laika.api.format.MarkupFormat
 import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.config.Config.ConfigResult
 import laika.config.{ Config, ConfigBuilder, LaikaKeys }
-import laika.factory.MarkupFormat
 import laika.format.{ Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.config.SiteConfig

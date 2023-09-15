@@ -19,7 +19,7 @@ package laika.io
 import cats.data.{ Kleisli, NonEmptyList }
 import cats.effect.{ Async, Sync }
 import laika.api.builder._
-import laika.factory.BinaryPostProcessorBuilder
+import laika.api.format.BinaryPostProcessorBuilder
 import laika.helium.Helium
 import laika.io.api._
 import laika.io.ops.IOBuilderOps

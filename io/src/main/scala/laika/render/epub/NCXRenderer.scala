@@ -16,9 +16,9 @@
 
 package laika.render.epub
 
+import laika.api.format.TagFormatter
 import laika.ast.{ NavigationItem, NavigationLink }
 import laika.io.model.RenderedTreeRoot
-import laika.render.TagFormatter
 
 /** Renders the entire content of an NCX navigation file.
   * These files will be ignored by EPUB 3 readers and are only

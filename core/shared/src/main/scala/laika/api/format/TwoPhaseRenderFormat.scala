@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.factory
+package laika.api.format
 
 import laika.ast.DocumentTreeRoot
 
