@@ -16,7 +16,7 @@
 
 package laika.rst
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.bundle.ParserBundle
 import laika.format.ReStructuredText

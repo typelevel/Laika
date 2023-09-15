@@ -134,7 +134,8 @@ private[nav] object Scope {
     case "sections"  => Right(Sections)
     case "all"       => Right(All)
     case "none"      => Right(None)
-    case other       => Left(ValidationError(s"Invalid value for autonumbering.scope: $other"))
+    case other       =>
+      Left(ConfigError.ValidationError(s"Invalid value for autonumbering.scope: $other"))
   }
 
 }

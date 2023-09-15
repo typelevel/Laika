@@ -16,150 +16,28 @@
 
 package laika.parse.markup
 
-import cats.implicits._
-import cats.data.{ Chain, NonEmptyChain }
-import laika.ast._
+import laika.api.errors.ParserError
+import laika.ast.*
 import laika.bundle.{ ConfigProvider, MarkupExtensions }
-import laika.config.{ ConfigError, ConfigParser, TreeConfigErrors }
+import laika.config.ConfigParser
 import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{ Parser, SourceCursor }
-import laika.parse.implicits._
+import laika.parse.implicits.*
 
 /** Responsible for creating the top level parsers for text markup and template documents,
-  * by combining the parser for the root element with a parser for an (optional) configuration
-  * header.
+  * by combining the parser for the root element with a parser for an (optional) configuration header.
   *
   * @author Jens Halm
   */
-object DocumentParser {
+private[laika] object DocumentParser {
 
-  case class DocumentInput(path: Path, source: SourceCursor)
+  private[laika] case class DocumentInput(path: Path, source: SourceCursor)
 
-  object DocumentInput {
+  private[laika] object DocumentInput {
 
     def apply(path: Path, input: String): DocumentInput =
       new DocumentInput(path, SourceCursor(input, path))
-
-  }
-
-  sealed trait TransformationError extends RuntimeException {
-    def message: String
-  }
-
-  case class RendererError(message: String, path: Path) extends RuntimeException(
-        s"Error rendering document '$path': $message"
-      ) with TransformationError
-
-  object RendererError {
-
-    def apply(configError: ConfigError, path: Path): RendererError =
-      RendererError(s"Configuration Error: ${configError.message}", path)
-
-  }
-
-  case class ParserError(message: String, path: Path) extends RuntimeException(
-        s"Error parsing document '$path': $message"
-      ) with TransformationError
-
-  object ParserError {
-
-    def apply(configError: ConfigError, path: Path): ParserError =
-      ParserError(s"Configuration Error: ${configError.message}", path)
-
-    def apply(document: InvalidDocument): ParserError = ParserError(
-      s"One or more error nodes in result:\n${InvalidDocument.format(document)}".trim,
-      document.path
-    )
-
-  }
-
-  case class InvalidDocuments(documents: NonEmptyChain[InvalidDocument]) extends RuntimeException(
-        s"One or more invalid documents:\n${InvalidDocuments.format(documents)}"
-      )
-
-  object InvalidDocuments {
-
-    def format(documents: NonEmptyChain[InvalidDocument]): String = {
-
-      def formatDoc(doc: InvalidDocument): String =
-        s"""${doc.path}
-           |
-           |${InvalidDocument.format(doc)}""".stripMargin
-
-      documents.map(formatDoc).mkString_("").trim
-    }
-
-    def from(
-        result: Either[TreeConfigErrors, DocumentTreeRoot],
-        failOn: MessageFilter
-    ): Either[InvalidDocuments, DocumentTreeRoot] = {
-      result.fold(
-        errors =>
-          Left(
-            InvalidDocuments(
-              errors.failures.map(err => InvalidDocument(Left(err.failures), err.path))
-            )
-          ),
-        root => from(root, failOn).toLeft(root)
-      )
-    }
-
-    def from(root: DocumentTreeRoot, failOn: MessageFilter): Option[InvalidDocuments] = {
-      val invalidDocs = root.allDocuments
-        .flatMap(InvalidDocument.from(_, failOn))
-      NonEmptyChain.fromSeq(invalidDocs)
-        .map(InvalidDocuments(_))
-    }
-
-  }
-
-  case class InvalidDocument(
-      errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]],
-      path: Path
-  ) extends RuntimeException(
-        s"One or more errors processing document '$path': ${InvalidDocument.format(errors, path)}"
-      )
-
-  object InvalidDocument {
-
-    def apply(path: Path, error: ConfigError, errors: ConfigError*): InvalidDocument =
-      new InvalidDocument(Left(NonEmptyChain.fromChainPrepend(error, Chain.fromSeq(errors))), path)
-
-    def apply(path: Path, error: Invalid, errors: Invalid*): InvalidDocument =
-      new InvalidDocument(Right(NonEmptyChain.fromChainPrepend(error, Chain.fromSeq(errors))), path)
-
-    def indent(lineContent: String): String = {
-      val lines = lineContent.split('\n')
-      lines.head + "\n  " + lines.last
-    }
-
-    def format(
-        errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]],
-        path: Path
-    ): String =
-      errors.fold(
-        configErrors => configErrors.map(_.message).mkString_("\n"),
-        invalidElems => invalidElems.map(InvalidDocument.formatElement(path)).toList.mkString
-      )
-
-    def format(doc: InvalidDocument): String = format(doc.errors, doc.path)
-
-    def formatElement(docPath: Path)(element: Invalid): String = {
-      val pathStr = element.source.path.fold("") { srcPath =>
-        if (srcPath == docPath) "" else srcPath.toString + ":"
-      }
-      s"""  [$pathStr${element.source.position.line}]: ${element.message.content}
-         |
-         |  ${indent(element.source.position.lineContentWithCaret)}
-         |
-         |""".stripMargin
-    }
-
-    def from(document: Document, failOn: MessageFilter): Option[InvalidDocument] = {
-      val invalidElements = document.invalidElements(failOn)
-      NonEmptyChain.fromSeq(invalidElements).map(inv => InvalidDocument(Right(inv), document.path))
-    }
 
   }
 
@@ -177,7 +55,7 @@ object DocumentParser {
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  private[laika] def forMarkup(
+  def forMarkup(
       markupParser: MarkupFormat,
       markupExtensions: MarkupExtensions,
       configProvider: ConfigProvider
@@ -185,7 +63,13 @@ object DocumentParser {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
-    markupExtensions.parserHooks.preProcessInput andThen
+    val preProcess: DocumentInput => DocumentInput = input => {
+      val raw          = input.source.input
+      val preprocessed = markupExtensions.parserHooks.preProcessInput(raw)
+      input.copy(source = SourceCursor(preprocessed, input.path))
+    }
+
+    preProcess andThen
       forMarkup(rootParser, configProvider) andThen {
         _.map(markupExtensions.parserHooks.postProcessDocument)
       }
@@ -194,7 +78,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  private[laika] def forMarkup(
+  def forMarkup(
       rootParser: Parser[RootElement],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, UnresolvedDocument] =
@@ -206,7 +90,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  private[laika] def forTemplate(
+  def forTemplate(
       rootParser: Parser[TemplateRoot],
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, TemplateDocument] =
@@ -216,7 +100,7 @@ object DocumentParser {
 
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
-  private[laika] def forStyleSheets(
+  def forStyleSheets(
       parser: Parser[Set[StyleDeclaration]]
   ): DocumentInput => Either[ParserError, StyleDeclarationSet] =
     forParser { path => parser.map(res => StyleDeclarationSet.forPath(path, res)) }
@@ -227,13 +111,12 @@ object DocumentParser {
     * The specified function is invoked for each parsed document, so that a parser
     * dependent on the input path can be created.
     */
-  private[laika] def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = {
-    in =>
-      Parsers
-        .consumeAll(p(in.path))
-        .parse(in.source)
-        .toEither
-        .left.map(ParserError(_, in.path))
+  def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = { in =>
+    Parsers
+      .consumeAll(p(in.path))
+      .parse(in.source)
+      .toEither
+      .left.map(ParserError(_))
   }
 
 }

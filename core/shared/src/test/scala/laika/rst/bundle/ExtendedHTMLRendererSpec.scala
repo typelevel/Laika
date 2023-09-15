@@ -17,11 +17,11 @@
 package laika.rst.bundle
 
 import laika.api.Renderer
-import laika.ast._
+import laika.api.errors.RendererError
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ HTML, ReStructuredText }
-import laika.parse.markup.DocumentParser.RendererError
-import laika.rst.ast._
+import laika.rst.ast.*
 import munit.FunSuite
 
 class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts {

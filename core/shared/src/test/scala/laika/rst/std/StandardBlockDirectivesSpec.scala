@@ -21,9 +21,10 @@ import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees }
-import laika.config.{ ConfigValue, Field, LaikaKeys, ObjectValue, StringValue }
+import laika.config.{ ConfigValue, Field, LaikaKeys }
+import laika.config.ConfigValue.{ ObjectValue, StringValue }
 import laika.format.{ AST, HTML, ReStructuredText }
 import laika.parse.GeneratedSource
 import laika.rewrite.ReferenceResolver.CursorKeys

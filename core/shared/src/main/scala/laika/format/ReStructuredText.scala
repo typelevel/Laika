@@ -281,7 +281,7 @@ case object ReStructuredText extends MarkupFormat { self =>
     override val parsers: ParserBundle = new ParserBundle(
       markupParserHooks = Some(
         new ParserHooks(
-          preProcessInput = WhitespacePreprocessor.forInput,
+          preProcessInput = WhitespacePreprocessor.forString,
           postProcessDocument = DocInfoExtractor,
           postProcessBlocks = LinkTargetProcessor
         )

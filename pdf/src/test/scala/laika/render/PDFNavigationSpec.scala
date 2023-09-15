@@ -21,7 +21,7 @@ import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.{ Config, ConfigException }
+import laika.config.Config
 import laika.factory.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
@@ -31,6 +31,7 @@ import laika.factory.{
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
+import laika.io.errors.ConfigException
 import laika.io.helper.RenderResult
 import laika.io.implicits.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }

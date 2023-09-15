@@ -34,9 +34,9 @@ import laika.ast.{
 import laika.bundle.{ DocumentTypeMatcher, Precedence }
 import laika.config.Config
 import laika.io.descriptor.TreeInputDescriptor
+import laika.io.errors.*
 import laika.io.model.InputTree.{ BuilderContext, BuilderStep }
 import laika.io.runtime.DirectoryScanner
-import laika.io.runtime.ParserRuntime.{ MissingDirectory, ParserErrors }
 
 import java.io.InputStream
 import scala.io.Codec

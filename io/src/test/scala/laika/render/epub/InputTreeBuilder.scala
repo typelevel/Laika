@@ -24,7 +24,7 @@ import laika.format.EPUB
 import laika.io.model.*
 import laika.io.helper.InputBuilder
 import laika.rewrite.OutputContext
-import laika.rewrite.nav.NoOpPathTranslator
+import laika.rewrite.nav.PathTranslator
 
 trait InputTreeBuilder extends InputBuilder {
 
@@ -76,7 +76,7 @@ trait InputTreeBuilder extends InputBuilder {
       TemplateRoot.empty,
       Config.empty,
       outputContext,
-      NoOpPathTranslator, // not reflecting real result, but not part of any assertions
+      PathTranslator.noOp, // not reflecting real result, but not part of any assertions
       coverDocument = cover
     )
   }

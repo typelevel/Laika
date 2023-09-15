@@ -21,6 +21,7 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{
@@ -35,18 +36,17 @@ import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
 import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
+import laika.io.errors.{ DuplicatePath, RendererErrors }
 import laika.io.helper.{ InputBuilder, RenderResult, TestThemeBuilder }
 import laika.io.implicits.*
 import laika.io.model.*
-import laika.io.runtime.RendererRuntime.{ DuplicatePath, RendererErrors }
 import laika.io.runtime.VersionInfoGenerator
 import laika.parse.GeneratedSource
-import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
 import laika.render.*
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{ NoOpPathTranslator, PrettyURLs, TargetFormats }
+import laika.rewrite.nav.{ PathTranslator, PrettyURLs, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import munit.CatsEffectSuite
 
@@ -141,7 +141,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateRoot.fallback,
       Config.empty,
       outputContext,
-      NoOpPathTranslator,
+      PathTranslator.noOp,
       coverDocument = coverDocument,
       staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )
@@ -209,7 +209,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
 
@@ -364,7 +364,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -398,7 +398,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -840,7 +840,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(Seq(Inputs.ByteInput("...", Root / "static1.txt")))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -870,7 +870,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(treeRoot)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -938,7 +938,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1002,7 +1002,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1179,7 +1179,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(versionedInput())
           .copying(Seq(versionInfoInput))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .flatMap(tree =>

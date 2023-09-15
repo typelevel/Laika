@@ -16,7 +16,7 @@
 
 package laika.directive.std
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.ast.{
   Block,
   BlockScope,
@@ -28,7 +28,8 @@ import laika.ast.{
   TemplateSpan,
   TemplateSpanSequence
 }
-import laika.config.{ ASTValue, Config, Field, ObjectConfig, ObjectValue, Origin }
+import laika.config.ConfigValue.{ ASTValue, ObjectValue }
+import laika.config.{ Config, Field, ObjectConfig, Origin }
 import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
 

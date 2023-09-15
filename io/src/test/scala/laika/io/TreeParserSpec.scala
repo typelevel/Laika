@@ -21,20 +21,20 @@ import cats.data.{ Chain, NonEmptyChain }
 import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.ast.DocumentType.*
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
 import laika.bundle.*
-import laika.config.{ ConfigBuilder, ConfigException, LaikaKeys }
+import laika.config.{ ConfigBuilder, LaikaKeys }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
+import laika.io.errors.{ ConfigException, DuplicatePath, ParserErrors }
 import laika.io.helper.InputBuilder
 import laika.io.implicits.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
-import laika.io.runtime.ParserRuntime.{ DuplicatePath, ParserErrors }
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
 import laika.parse.text.TextParsers
 import laika.rewrite.nav.TargetFormats
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }

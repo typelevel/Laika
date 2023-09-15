@@ -16,7 +16,8 @@
 
 package laika.parse.hocon
 
-import laika.config.{ Key, SimpleConfigValue }
+import laika.config.ConfigValue.SimpleValue
+import laika.config.Key
 import laika.parse.Failure
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).
@@ -84,7 +85,7 @@ private[laika] case class InvalidBuilderValue(value: ConfigBuilderValue, failure
     extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
-private[laika] case class ResolvedBuilderValue(value: SimpleConfigValue) extends ConfigBuilderValue
+private[laika] case class ResolvedBuilderValue(value: SimpleValue) extends ConfigBuilderValue
 
 /** Description of a resource to be included in the current configuration. */
 private[laika] sealed trait IncludeResource {

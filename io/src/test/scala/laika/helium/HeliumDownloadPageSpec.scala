@@ -26,7 +26,6 @@ import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
 import laika.render.TagFormatter
 import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.theme.*
@@ -63,7 +62,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
   ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(Root / "downloads.html", start, end)
             .toRight(new RuntimeException("Missing document under test"))

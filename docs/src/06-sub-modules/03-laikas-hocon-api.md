@@ -156,6 +156,7 @@ You can then flatMap on the string decoder to obtain a Color decoder:
 
 ```scala mdoc:silent
 import laika.config._
+import laika.config.ConfigError.DecodingError
 
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>

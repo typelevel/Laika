@@ -18,10 +18,9 @@ package laika.bundle
 
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.config.{ Config, ConfigParser }
-import laika.ast._
+import laika.ast.*
 import laika.directive.{ DirectiveRegistry, Templates }
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.DocumentInput
 import laika.rewrite.nav.PathTranslator
 
 /** @author Jens Halm
@@ -49,7 +48,7 @@ object BundleProvider {
   def forParserHooks(
       postProcessBlocks: Seq[Block] => Seq[Block] = identity,
       postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-      preProcessInput: DocumentInput => DocumentInput = identity,
+      preProcessInput: String => String = identity,
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 

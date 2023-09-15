@@ -21,9 +21,9 @@ import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.ConfigException
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeParser
+import laika.io.errors.ConfigException
 import laika.io.helper.InputBuilder
 import laika.io.implicits._
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }

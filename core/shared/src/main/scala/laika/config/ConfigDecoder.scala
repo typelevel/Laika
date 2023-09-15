@@ -17,10 +17,12 @@
 package laika.config
 
 import cats.data.NonEmptyChain
-import cats.implicits._
+import cats.syntax.all.*
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast.{ ExternalTarget, InternalTarget, Path, VirtualPath, RelativePath, Target }
+import laika.ast.{ ExternalTarget, InternalTarget, Path, RelativePath, Target, VirtualPath }
 import laika.time.PlatformDateTime
+import ConfigError.{ DecodingError, InvalidType }
+import ConfigValue.*
 
 import java.net.URI
 import scala.util.Try
@@ -65,8 +67,8 @@ object ConfigDecoder {
   implicit val string: ConfigDecoder[String] = new ConfigDecoder[String] {
 
     def apply(value: Traced[ConfigValue]) = value.value match {
-      case s: SimpleConfigValue => Right(s.render)
-      case invalid              => Left(InvalidType("String", invalid))
+      case s: SimpleValue => Right(s.render)
+      case invalid        => Left(InvalidType("String", invalid))
     }
 
   }

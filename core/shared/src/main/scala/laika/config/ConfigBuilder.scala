@@ -16,6 +16,8 @@
 
 package laika.config
 
+import ConfigValue.ObjectValue
+
 import laika.collection.TransitionalCollectionOps._
 
 /** A builder for creating a Config instance programmatically.

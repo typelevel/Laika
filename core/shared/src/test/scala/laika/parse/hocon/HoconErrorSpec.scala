@@ -16,7 +16,8 @@
 
 package laika.parse.hocon
 
-import laika.config.{ ConfigParser, ConfigParserErrors }
+import laika.config.ConfigParser
+import laika.config.ConfigError.ConfigParserErrors
 import munit.FunSuite
 
 /** @author Jens Halm

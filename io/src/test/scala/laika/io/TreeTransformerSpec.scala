@@ -38,8 +38,7 @@ import laika.io.model.{
   RenderContent,
   RenderedDocument,
   RenderedTree,
-  RenderedTreeRoot,
-  StringTreeOutput
+  RenderedTreeRoot
 }
 import laika.parse.Parser
 import laika.parse.code.SyntaxHighlighting
@@ -47,7 +46,7 @@ import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
 import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.NoOpPathTranslator
+import laika.rewrite.nav.PathTranslator
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -115,7 +114,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     .use(
       _
         .fromInput(inputs)
-        .toOutput(StringTreeOutput)
+        .toMemory
         .describe
     )
 
@@ -128,7 +127,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     transformer.use(
       _
         .fromInput(build(inputs))
-        .toOutput(StringTreeOutput)
+        .toMemory
         .transform
     )
 
@@ -186,7 +185,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     TemplateRoot.fallback,
     Config.empty,
     outputContext,
-    NoOpPathTranslator,
+    PathTranslator.noOp,
     coverDocument = coverDocument,
     staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
@@ -408,7 +407,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       .use(
         _
           .fromInput(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .transform
       )
     renderResult.assertEquals(

@@ -17,8 +17,9 @@
 package laika.api.builder
 
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key, ValidationError }
-import laika.ast._
+import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
+import laika.config.ConfigError.ValidationError
+import laika.ast.*
 import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.bundle.{
   BundleOrigin,

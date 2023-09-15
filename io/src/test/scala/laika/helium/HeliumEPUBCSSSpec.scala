@@ -26,7 +26,6 @@ import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -51,7 +50,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- resultTree.extractStaticContent(
         Root / "helium" / "epub" / "laika-helium.css",
         start,
@@ -63,7 +62,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] =
     transformer(helium.build).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- resultTree.extractStaticContent(Root / "helium" / "epub" / "laika-helium.css")
       } yield res
     }

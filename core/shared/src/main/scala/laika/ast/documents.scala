@@ -21,6 +21,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.config.Config.IncludeMap
+import laika.config.ConfigError.TreeConfigErrors
 import laika.config.*
 import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
 import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }

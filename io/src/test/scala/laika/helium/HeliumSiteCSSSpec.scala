@@ -26,7 +26,6 @@ import laika.helium.config.{ AnchorPlacement, ColorQuintet }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits._
-import laika.io.model.StringTreeOutput
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -51,7 +50,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- resultTree.extractStaticContent(
         Root / "helium" / "site" / "laika-helium.css",
         start,

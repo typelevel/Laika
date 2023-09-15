@@ -26,7 +26,6 @@ import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
 import laika.markdown.github.GitHubFlavor
 import laika.parse.code.SyntaxHighlighting
 import laika.render.TagFormatter
@@ -61,7 +60,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
   ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(Root / "doc.html", start, end)
             .toRight(new RuntimeException("Missing document under test"))

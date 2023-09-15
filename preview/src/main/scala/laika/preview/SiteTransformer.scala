@@ -23,11 +23,12 @@ import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.{ MessageFilter, Path }
 import laika.config.Config.ConfigResult
-import laika.config.{ ConfigException, LaikaKeys }
+import laika.config.LaikaKeys
 import laika.factory.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.config.SiteConfig
+import laika.io.errors.ConfigException
 import laika.io.implicits._
 import laika.io.model._
 import laika.preview.SiteTransformer.ResultMap
@@ -81,7 +82,7 @@ private[preview] class SiteTransformer[F[_]: Async](
   def transformHTML(tree: ParsedTree[F], renderer: TreeRenderer[F]): F[ResultMap[F]] = {
     renderer
       .from(tree)
-      .toOutput(StringTreeOutput)
+      .toMemory
       .render
       .map { root =>
         val map   = root.allDocuments.map { doc =>
