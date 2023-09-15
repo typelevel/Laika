@@ -17,6 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all._
+import laika.api.bundle.{ Blocks, Spans }
 import laika.ast.{
   BlockSequence,
   Image,
@@ -26,7 +27,6 @@ import laika.ast.{
   SpanSequence,
   Styles
 }
-import laika.directive.{ Blocks, Spans }
 
 /** Provides the implementation for the image directives included in Laika.
   *

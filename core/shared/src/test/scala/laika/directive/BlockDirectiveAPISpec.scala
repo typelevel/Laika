@@ -16,17 +16,17 @@
 
 package laika.directive
 
-import cats.implicits._
+import cats.implicits.*
 import laika.api.RenderPhaseRewrite
+import laika.api.bundle.{ BlockParserBuilder, Blocks, ParserBundle }
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.bundle.{ BlockParserBuilder, ParserBundle }
 import laika.directive.std.StandardDirectives
 import laika.format.HTML
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.combinator.Parsers
-import laika.parse.implicits._
+import laika.parse.implicits.*
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ BlockSource, Parser, SourceFragment }
 import munit.FunSuite
@@ -36,7 +36,7 @@ class BlockDirectiveAPISpec extends FunSuite
     with TestSourceBuilders {
 
   object DirectiveSetup {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     trait Empty {
       val directive = Blocks.create("dir")(Blocks.dsl.empty(p("foo")))

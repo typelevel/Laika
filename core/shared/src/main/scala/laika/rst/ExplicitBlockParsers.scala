@@ -17,13 +17,13 @@
 package laika.rst
 
 import laika.ast._
-import laika.bundle.BlockParserBuilder
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.{ Failure, LineSource, Parser, Success }
 import laika.rst.ast._
 import BaseParsers._
+import laika.api.bundle.BlockParserBuilder
 import laika.parse.text.PrefixedParser
 
 /** Provides the parsers for all types of explicit block elements.

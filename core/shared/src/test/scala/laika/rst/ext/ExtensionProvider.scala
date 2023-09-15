@@ -16,8 +16,8 @@
 
 package laika.rst.ext
 
+import laika.api.bundle.{ ExtensionBundle, MarkupExtensions, ParserHooks }
 import laika.ast.{ Block, Span }
-import laika.bundle.{ ExtensionBundle, MarkupExtensions, ParserHooks }
 import laika.format.ReStructuredText
 import laika.parse.markup.RootParserProvider.RootParserWrapper
 import laika.rst.bundle.{ LinkTargetProcessor, RstExtensionRegistry, RstExtensionSupport }

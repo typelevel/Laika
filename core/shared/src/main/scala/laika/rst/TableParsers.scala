@@ -17,8 +17,8 @@
 package laika.rst
 
 import cats.data.NonEmptyChain
+import laika.api.bundle.BlockParserBuilder
 import laika.ast._
-import laika.bundle.BlockParserBuilder
 import laika.collection.Stack
 import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.parse.builders._

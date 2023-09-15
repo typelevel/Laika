@@ -16,9 +16,9 @@
 
 package laika.format
 
+import laika.api.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.api.format.MarkupFormat
 import laika.ast.Block
-import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
 import laika.parse.Parser

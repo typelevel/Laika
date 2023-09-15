@@ -22,15 +22,10 @@ import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.bundle.BundleProvider.TestExtensionBundle
-import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{
-  BlockParserBuilder,
-  BundleOrigin,
-  BundleProvider,
-  ExtensionBundle,
-  SpanParserBuilder
-}
+import laika.api.bundle.ExtensionBundle.LaikaDefaults
+import laika.bundle.BundleProvider
 import MarkupFormat.MarkupParsers
+import laika.api.bundle.{ BlockParserBuilder, BundleOrigin, ExtensionBundle, SpanParserBuilder }
 import laika.markdown.bundle.VerbatimHTML
 import laika.markdown.github.GitHubFlavor
 import munit.FunSuite

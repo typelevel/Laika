@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
 import laika.ast.{ DocumentType, Path }
 import laika.config.TargetFormats

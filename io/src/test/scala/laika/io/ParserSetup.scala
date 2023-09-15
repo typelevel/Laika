@@ -19,7 +19,7 @@ package laika.io
 import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.ParserBuilder
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 import laika.format.Markdown
 import laika.io.api.TreeParser
 import laika.io.helper.TestThemeBuilder

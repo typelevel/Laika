@@ -16,12 +16,12 @@
 
 package laika.parse.markup
 
+import laika.api.bundle.{ ConfigProvider, MarkupExtensions }
 import laika.api.config.ConfigParser
 import laika.api.errors.ParserError
 import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
-import laika.bundle.{ ConfigProvider, MarkupExtensions }
 import laika.parse.combinator.Parsers
 import laika.parse.{ Parser, SourceCursor }
 import laika.parse.implicits.*

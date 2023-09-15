@@ -53,7 +53,7 @@ while the parsers for a new format need to be registered in a `MarkupFormat`.
 The contract a markup implementation has to adhere to is captured in the following trait:
 
 ```scala mdoc
-import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.api.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
 import laika.api.format.MarkupFormat.MarkupParsers
 
 trait MarkupFormat {

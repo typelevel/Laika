@@ -18,6 +18,12 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
+import laika.api.bundle.{
+  ConfigurablePathTranslator,
+  PathTranslator,
+  TargetLookup,
+  TranslatorConfig
+}
 import laika.api.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, Origin }
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
@@ -28,12 +34,7 @@ import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, T
 import laika.parse.SourceFragment
 import laika.rewrite.*
 import laika.rewrite.link.LinkValidator
-import laika.rewrite.nav.{
-  ConfigurablePathTranslator,
-  NavigationOrder,
-  PathTranslator,
-  TranslatorConfig
-}
+import laika.rewrite.nav.NavigationOrder
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -97,7 +98,7 @@ class RootCursor private (
     */
   lazy val pathTranslator: Option[PathTranslator] = renderContext.map {
     case (outputContext, translatorConfig) =>
-      val lookup = new nav.TargetLookup(this)
+      val lookup = new TargetLookup(this)
       ConfigurablePathTranslator(
         translatorConfig,
         outputContext,

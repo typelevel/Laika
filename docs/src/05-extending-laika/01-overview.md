@@ -52,7 +52,7 @@ The trait comes with empty default implementations for most of its properties,
 so that you only need to override the ones you intend to use.
 
 ```scala mdoc
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 
 object MyExtensions extends ExtensionBundle {
 

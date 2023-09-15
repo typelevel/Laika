@@ -16,10 +16,10 @@
 
 package laika.render
 
+import laika.api.bundle.PathTranslator
 import laika.api.format.{ Formatter, RenderContext, TagFormatter }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.rewrite.nav.PathTranslator
 
 private[laika] class FOFormatter private (
     protected val context: RenderContext[TagFormatter]

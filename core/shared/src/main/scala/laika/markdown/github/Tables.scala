@@ -16,8 +16,8 @@
 
 package laika.markdown.github
 
+import laika.api.bundle.BlockParserBuilder
 import laika.ast._
-import laika.bundle.BlockParserBuilder
 import laika.markdown.BlockParsers._
 import laika.parse.{ LineSource, Parser }
 import laika.parse.text.PrefixedParser

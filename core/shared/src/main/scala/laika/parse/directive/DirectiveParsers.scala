@@ -17,10 +17,9 @@
 package laika.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
+import laika.api.bundle.{ AttributeKey, BlockParserBuilder, SpanParserBuilder }
 import laika.api.config.Key
 import laika.ast.*
-import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
-import laika.directive.*
 import laika.parse.builders.*
 import laika.parse.hocon.*
 import laika.parse.implicits.*
@@ -163,7 +162,7 @@ private[laika] object DirectiveParsers {
 private[laika] object SpanDirectiveParsers {
 
   import DirectiveParsers._
-  import laika.directive.Spans
+  import laika.api.bundle.Spans
 
   val contextRef: SpanParserBuilder =
     SpanParserBuilder.standalone(hoconReference(MarkupContextReference(_, _, _), identity))
@@ -200,7 +199,7 @@ private[laika] object SpanDirectiveParsers {
 private[laika] object BlockDirectiveParsers {
 
   import DirectiveParsers._
-  import laika.directive.Blocks
+  import laika.api.bundle.Blocks
 
   def blockDirective(directives: Map[String, Blocks.Directive]): BlockParserBuilder =
     BlockParserBuilder.recursive(blockDirectiveParser(directives))

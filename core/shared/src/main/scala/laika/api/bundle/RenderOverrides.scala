@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
-import laika.ast._
+import laika.ast.*
 
 /** Collects custom render functions that adjust the rendered output of one or more AST nodes.
   *

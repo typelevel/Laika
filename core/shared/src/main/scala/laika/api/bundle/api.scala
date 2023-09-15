@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package laika.directive
+package laika.api.bundle
 
 import cats.{ Functor, Semigroupal }
-import laika.api.config.{
-  Config,
-  ConfigDecoder,
-  ConfigError,
-  ConfigValue,
-  ObjectConfig,
-  Origin,
-  Traced
-}
+import laika.api.config.*
+import laika.api.config.ConfigError.DecodingError
+import laika.api.config.Origin.DirectiveScope
 import laika.ast.*
 import laika.collection.TransitionalCollectionOps.*
-import laika.api.config.Origin.DirectiveScope
-import laika.api.config.ConfigError.DecodingError
 import laika.parse.SourceFragment
 import laika.parse.directive.DirectiveParsers.ParsedDirective
 import laika.parse.hocon.ConfigResolver
@@ -97,9 +89,9 @@ trait BuilderContext[E <: Element] {
   }
 
   /** The content of a directive part, either an attribute or the body. */
-  private[directive] sealed trait BodyContent
+  private[bundle] sealed trait BodyContent
 
-  private[directive] object BodyContent {
+  private[bundle] object BodyContent {
 
     /** The content of a directive part in its raw, unparsed form. */
     case class Source(value: SourceFragment) extends BodyContent
@@ -110,11 +102,11 @@ trait BuilderContext[E <: Element] {
 
   /** The content of a parsed directive with the HOCON attributes captured in a `Config` instance.
     */
-  private[directive] case class DirectiveContent(attributes: Config, body: Option[BodyContent])
+  private[bundle] case class DirectiveContent(attributes: Config, body: Option[BodyContent])
 
   /** The context of a directive during execution.
     */
-  private[directive] class DirectiveContext(
+  private[bundle] class DirectiveContext(
       val content: DirectiveContent,
       val parser: Parser,
       val cursor: DocumentCursor,
@@ -151,7 +143,7 @@ trait BuilderContext[E <: Element] {
     */
   abstract class DirectivePart[+A] { self =>
 
-    private[directive] def apply(context: DirectiveContext): Result[A]
+    private[bundle] def apply(context: DirectiveContext): Result[A]
 
     def map[B](f: A => B): DirectivePart[B] = new DirectivePart[B] {
       def apply(p: DirectiveContext) = self(p) map f
@@ -221,7 +213,7 @@ trait BuilderContext[E <: Element] {
 
     def name: String = parsedResult.name
 
-    private[directive] def process[T](
+    private[bundle] def process[T](
         cursor: DocumentCursor,
         factory: Option[DirectiveContent => Result[T]]
     ): Result[T] = {
@@ -287,7 +279,7 @@ trait BuilderContext[E <: Element] {
 
     val typeName: String = "separator"
 
-    private[directive] def resolve[T](
+    private[bundle] def resolve[T](
         context: DirectiveContext,
         body: Seq[E],
         directive: Option[SeparatorDirective[T]]
@@ -344,7 +336,7 @@ trait BuilderContext[E <: Element] {
 
     class PositionalAttributes[T](decoder: ConfigDecoder[T]) extends DirectivePart[Seq[T]] {
 
-      private[directive] def apply(context: DirectiveContext): Result[Seq[T]] =
+      private[bundle] def apply(context: DirectiveContext): Result[Seq[T]] =
         context.attribute(AttributeKey.Positional, ConfigDecoder.seq(decoder), inherit = false).map(
           _.getOrElse(Nil)
         )
@@ -358,14 +350,14 @@ trait BuilderContext[E <: Element] {
       def widen: DirectivePart[Seq[T]] = this
     }
 
-    class AttributePart[T] private[directive] (
+    class AttributePart[T] private[bundle] (
         key: AttributeKey,
         decoder: ConfigDecoder[T],
         isInherited: Boolean,
         requiredMsg: => String
     ) extends DirectivePart[T] {
 
-      private[directive] def apply(context: DirectiveContext): Result[T] =
+      private[bundle] def apply(context: DirectiveContext): Result[T] =
         context.attribute(key, decoder, isInherited).flatMap(_.toRight(Seq(requiredMsg)))
 
       def as[U](implicit decoder: ConfigDecoder[U]): AttributePart[U] =
@@ -392,7 +384,7 @@ trait BuilderContext[E <: Element] {
     private class SeparatedBodyPart[T](directives: Seq[SeparatorDirective[T]])
         extends DirectivePart[Multipart[T]] {
 
-      private[directive] def apply(context: DirectiveContext): Result[Multipart[T]] =
+      private[bundle] def apply(context: DirectiveContext): Result[Multipart[T]] =
         getParsedBody(context).getOrElse(Left(Seq(s"required body is missing"))).flatMap(
           toMultipart(context)
         )
@@ -402,7 +394,7 @@ trait BuilderContext[E <: Element] {
 
       override def separators: Set[String] = directives.map(_.name).toSet
 
-      private[directive] def toMultipart(
+      private[bundle] def toMultipart(
           context: DirectiveContext
       )(elements: Seq[E]): Result[Multipart[T]] = {
 
@@ -578,10 +570,10 @@ trait BuilderContext[E <: Element] {
 
   /** Represents a directive, its name and its (combined) parts.
     */
-  class Directive private[directive] (val name: String, part: DirectivePart[E]) {
-    private[directive] def apply(context: DirectiveContext): Result[E] = part(context)
-    def hasBody: Boolean                                               = part.hasBody
-    def separators: Set[String]                                        = part.separators
+  class Directive private[bundle] (val name: String, part: DirectivePart[E]) {
+    private[bundle] def apply(context: DirectiveContext): Result[E] = part(context)
+    def hasBody: Boolean                                            = part.hasBody
+    def separators: Set[String]                                     = part.separators
 
     def runsIn(phase: RewritePhase): Boolean = phase match {
       case RewritePhase.Render(_) => true
@@ -594,13 +586,13 @@ trait BuilderContext[E <: Element] {
     * It also allows to specify requirements for the minimum and maximum number of occurrences allowed for this directive.
     * The default is unbounded, with 0 or more instances allowed.
     */
-  class SeparatorDirective[+T] private[directive] (
+  class SeparatorDirective[+T] private[bundle] (
       val name: String,
       part: DirectivePart[T],
       val min: Int = 0,
       val max: Int = Int.MaxValue
   ) {
-    private[directive] def apply(context: DirectiveContext): Result[T] = part(context)
+    private[bundle] def apply(context: DirectiveContext): Result[T] = part(context)
   }
 
   /** Creates a new directive with the specified name and part specification.
@@ -929,8 +921,8 @@ object Links {
 
     /** Turns the link directive into a regular span directive. */
     def asSpanDirective: Spans.Directive = Spans.eval(name) {
-      import Spans.dsl._
-      import cats.implicits._
+      import Spans.dsl.*
+      import cats.implicits.*
       (attribute(0).as[String], cursor).mapN(apply)
     }
 

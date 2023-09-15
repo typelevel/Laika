@@ -19,6 +19,7 @@ package laika.io.model
 import cats.data.Kleisli
 import cats.effect.Async
 import fs2.io.file.Files
+import laika.api.bundle.{ DocumentTypeMatcher, Precedence }
 import laika.api.config.Config
 import laika.ast.Path.Root
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
@@ -31,7 +32,6 @@ import laika.ast.{
   TemplateDocument,
   TextDocumentType
 }
-import laika.bundle.{ DocumentTypeMatcher, Precedence }
 import laika.io.descriptor.TreeInputDescriptor
 import laika.io.errors.*
 import laika.io.model.InputTree.{ BuilderContext, BuilderStep }

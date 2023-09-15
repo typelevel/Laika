@@ -356,7 +356,7 @@ First you have to assemble all the parsers in a `SyntaxHighlighter` implementati
 
 ```scala mdoc:silent
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeSpanParser
 
 object FooHighlighter extends SyntaxHighlighter {
@@ -373,7 +373,7 @@ object FooHighlighter extends SyntaxHighlighter {
 Finally, like all other types of extensions, the highlighter needs to be registered with an `ExtensionBundle`:
 
 ```scala mdoc:silent
-import laika.bundle.{ ExtensionBundle, ParserBundle }
+import laika.api.bundle.{ ExtensionBundle, ParserBundle }
 
 case object MyExtensions extends ExtensionBundle {
   

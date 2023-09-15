@@ -22,14 +22,13 @@ import laika.api.builder.TransformerBuilder
 import laika.api.format.TagFormatter
 import laika.ast.{ Icon, IconGlyph, Path }
 import laika.ast.Path.Root
-import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections, SyntaxHighlighting }
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
 import laika.io.implicits.*
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
 import laika.theme.*
 import munit.CatsEffectSuite
 

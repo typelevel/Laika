@@ -16,13 +16,13 @@
 
 package laika.rewrite
 
+import laika.api.bundle.{ ConfigurablePathTranslator, TargetLookup, TranslatorConfig }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ SampleConfig, SampleTrees }
 import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
 import laika.format.{ HTML, XSLFO }
-import laika.rewrite.nav.{ ConfigurablePathTranslator, TargetLookup, TranslatorConfig }
 import munit.FunSuite
 
 class PathTranslatorSpec extends FunSuite {

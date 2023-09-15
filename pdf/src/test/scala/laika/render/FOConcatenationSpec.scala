@@ -18,6 +18,7 @@ package laika.render
 
 import cats.effect.IO
 import laika.api.builder.OperationConfig
+import laika.api.bundle.PathTranslator
 import laika.api.config.Config
 import laika.api.errors.InvalidDocument
 import laika.ast.Path.Root
@@ -27,7 +28,6 @@ import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
-import laika.rewrite.nav.PathTranslator
 import laika.theme.config.BookConfig
 import munit.FunSuite
 

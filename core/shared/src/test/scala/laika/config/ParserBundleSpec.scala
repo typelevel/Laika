@@ -25,13 +25,19 @@ import laika.bundle.*
 import laika.api.config.ConfigError.ConfigParserError
 import laika.api.format.MarkupFormat
 import MarkupFormat.MarkupParsers
+import laika.api.bundle.{
+  BlockParserBuilder,
+  ConfigHeaderParser,
+  ConfigProvider,
+  ExtensionBundle,
+  SpanParserBuilder
+}
 import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Origin }
 import laika.ast.styles.{ StyleDeclaration, StylePredicate }
 import laika.parse.*
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
-import laika.parse.directive.ConfigHeaderParser
 import laika.parse.implicits.*
 import laika.parse.text.TextParsers
 import laika.rewrite.ReferenceResolver.CursorKeys

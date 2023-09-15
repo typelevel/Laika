@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
 /** Indicates whether an extension bundle is a built-in default provided by the library,
   * a collection of extensions installed by a markup format or user-defined.

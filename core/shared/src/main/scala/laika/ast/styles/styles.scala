@@ -16,8 +16,8 @@
 
 package laika.ast.styles
 
+import laika.api.bundle.Precedence
 import laika.ast.{ Element, Path }
-import laika.bundle.Precedence
 
 /** Represents a single predicate which is
   * part of the selector for a style declaration.

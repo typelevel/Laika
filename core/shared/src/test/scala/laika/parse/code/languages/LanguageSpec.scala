@@ -19,10 +19,10 @@ package laika.parse.code.languages
 import laika.api.MarkupParser
 import laika.api.errors.ParserError
 import laika.ast.*
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, SyntaxHighlighting }
 import laika.format.Markdown
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.{ CodeCategory, SyntaxHighlighting }
+import laika.parse.code.CodeCategory
 import laika.parse.code.CodeCategory.*
 import munit.FunSuite
 

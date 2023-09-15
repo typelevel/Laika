@@ -1,6 +1,6 @@
 package laika.helium
 
-import laika.bundle.ExtensionBundle.LaikaDefaults
+import laika.api.bundle.ExtensionBundle.LaikaDefaults
 
 object LaikaVersion {
 

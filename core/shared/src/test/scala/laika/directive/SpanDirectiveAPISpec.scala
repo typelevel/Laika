@@ -19,11 +19,11 @@ package laika.directive
 import cats.syntax.all.*
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ Blocks, DirectiveRegistry, Links, ParserBundle, Spans, Templates }
 import laika.api.errors.TransformationError
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.bundle.ParserBundle
 import laika.format.{ HTML, Markdown }
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ Parser, SourceFragment }
@@ -34,7 +34,7 @@ import scala.util.Try
 class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderPhaseRewrite {
 
   object DirectiveSetup {
-    import Spans.dsl._
+    import laika.api.bundle.Spans.dsl._
 
     trait Empty {
       val directive = Spans.create("dir")(Spans.dsl.empty(Text("foo")))

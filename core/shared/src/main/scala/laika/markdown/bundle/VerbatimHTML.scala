@@ -16,7 +16,7 @@
 
 package laika.markdown.bundle
 
-import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, RenderOverrides }
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, RenderOverrides }
 import laika.format.HTML
 import laika.markdown.HTMLParsers
 

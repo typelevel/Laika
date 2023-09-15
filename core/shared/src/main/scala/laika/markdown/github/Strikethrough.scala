@@ -16,8 +16,8 @@
 
 package laika.markdown.github
 
+import laika.api.bundle.SpanParserBuilder
 import laika.ast.Deleted
-import laika.bundle.SpanParserBuilder
 import laika.markdown.InlineParsers.enclosedByDoubleChar
 
 /** Parser for spans with strike-through markup.

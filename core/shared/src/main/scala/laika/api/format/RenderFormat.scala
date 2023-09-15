@@ -16,10 +16,9 @@
 
 package laika.api.format
 
+import laika.api.bundle.{ PathTranslator, RenderOverrides }
 import laika.ast.styles.StyleDeclarationSet
 import laika.ast.{ Element, MessageFilter, Path }
-import laika.bundle.RenderOverrides
-import laika.rewrite.nav.PathTranslator
 
 /** Provides the context for a single render operation.
   *

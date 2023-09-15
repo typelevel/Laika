@@ -17,8 +17,8 @@
 package laika.directive.std
 
 import cats.syntax.all._
+import laika.api.bundle.{ Blocks, Templates }
 import laika.ast._
-import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
 import scala.annotation.tailrec
 

@@ -20,6 +20,7 @@ import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.bundle.PathTranslator
 import laika.api.config.ConfigError
 import laika.api.errors.InvalidDocuments
 import laika.ast.Path.Root

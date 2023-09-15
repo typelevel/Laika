@@ -17,8 +17,8 @@
 package laika.parse.code.common
 
 import cats.data.NonEmptyList
+import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
-import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.builders.*
 import laika.parse.code.common.Identifier.IdParser

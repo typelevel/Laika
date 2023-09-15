@@ -20,14 +20,14 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.io.implicits.*
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
+import laika.bundle.BundleProvider
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
-import laika.rewrite.nav.PathTranslator
 import munit.FunSuite
 
 /** @author Jens Halm

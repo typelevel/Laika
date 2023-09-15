@@ -17,8 +17,8 @@
 package laika.markdown.github
 
 import cats.data.NonEmptyChain
+import laika.api.bundle.BlockParserBuilder
 import laika.ast.{ CodeBlock, LiteralBlock, Span, Text }
-import laika.bundle.BlockParserBuilder
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.{ BlockSource, Failure, Parser, Success }

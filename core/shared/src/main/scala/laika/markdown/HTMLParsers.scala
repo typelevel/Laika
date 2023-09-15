@@ -17,9 +17,9 @@
 package laika.markdown
 
 import cats.data.NonEmptySet
+import laika.api.bundle.{ BlockParserBuilder, SpanParserBuilder }
 import laika.ast.*
 import laika.ast.html.*
-import laika.bundle.{ BlockParserBuilder, SpanParserBuilder }
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers.spans
 import laika.parse.markup.RecursiveSpanParsers

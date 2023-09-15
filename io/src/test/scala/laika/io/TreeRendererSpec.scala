@@ -21,6 +21,7 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.api.config.{ Config, ConfigBuilder, Origin }
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.api.format.{ Formatter, TagFormatter }
@@ -35,8 +36,8 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
+import laika.bundle.BundleProvider
+import laika.config.{ LaikaKeys, PrettyURLs, TargetFormats, Version, Versions }
 import laika.format.*
 import laika.helium.generate.FOStyles
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
@@ -50,7 +51,6 @@ import laika.render.*
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
 import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{ PathTranslator, PrettyURLs }
 import munit.CatsEffectSuite
 
 import scala.io.Codec

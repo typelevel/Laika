@@ -18,6 +18,12 @@ package laika.render.fo
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.bundle.{
+  ConfigurablePathTranslator,
+  PathAttributes,
+  PathTranslator,
+  TranslatorConfig
+}
 import laika.api.config.ConfigBuilder
 import laika.api.errors.RendererError
 import laika.ast.Path.Root
@@ -29,12 +35,6 @@ import laika.config.{ LaikaKeys, TargetFormats }
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.nav.{
-  ConfigurablePathTranslator,
-  PathAttributes,
-  PathTranslator,
-  TranslatorConfig
-}
 import munit.FunSuite
 
 class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {

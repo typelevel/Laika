@@ -161,7 +161,7 @@ Let's walk through the implementation of our little ticket directive:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.directive.Spans
+import laika.api.bundle.Spans
 import Spans.dsl._
 
 val ticketDirective = Spans.create("ticket") {
@@ -200,7 +200,7 @@ This is a sub-trait of `ExtensionBundle`.
 For our case we only need to register our ticket directive, which is a span directive: 
 
 ```scala mdoc
-import laika.directive.DirectiveRegistry
+import laika.api.bundle.DirectiveRegistry
 
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq(ticketDirective)
@@ -256,7 +256,7 @@ provided alongside the expected attribute value:
 ```scala mdoc:silent
 import cats.syntax.all._
 import laika.ast._
-import laika.directive.Spans
+import laika.api.bundle.Spans
 import Spans.dsl._
 
 val spanDirective = Spans.create("ticket") {
@@ -547,7 +547,7 @@ The directive implementation you need to provide is then merely a simple functio
 Example:
 
 ```scala mdoc:compile-only
-import laika.directive.Links
+import laika.api.bundle.Links
 
 val directive = Links.create("github") { (path, _) =>
   val url = s"https://github.com/our-project/$path"

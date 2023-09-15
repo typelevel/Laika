@@ -16,8 +16,8 @@
 
 package laika.parse.code.common
 
+import laika.api.bundle.SyntaxHighlighter
 import laika.ast.{ CodeSpan, CodeSpans, Span }
-import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.markup.InlineParsers

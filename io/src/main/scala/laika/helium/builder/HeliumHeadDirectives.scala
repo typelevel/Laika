@@ -17,9 +17,9 @@
 package laika.helium.builder
 
 import cats.syntax.all._
+import laika.api.bundle.Templates
 import laika.ast.Path.Root
 import laika.ast._
-import laika.directive.Templates
 import laika.helium.config.{ InlineCSS, InlineJS, ScriptIncludes, StyleIncludes }
 import laika.theme.config.{ CrossOrigin, ScriptAttributes, StyleAttributes }
 

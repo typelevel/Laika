@@ -18,6 +18,7 @@ package laika.directive.std
 
 import cats.syntax.all._
 import cats.data.ValidatedNec
+import laika.api.bundle.{ Blocks, Templates }
 import laika.api.config.{ ConfigDecoder, ConfigError, Key }
 import laika.ast.{
   Block,
@@ -38,7 +39,6 @@ import laika.ast.{
   TemplateElement,
   VirtualPath
 }
-import laika.directive.{ Blocks, Templates }
 import laika.parse.{ GeneratedSource, SourceFragment }
 
 /** Implementation of the navigationTree directive for templates and markup blocks.

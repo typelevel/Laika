@@ -17,9 +17,9 @@
 package laika.directive.std
 
 import cats.syntax.all._
+import laika.api.bundle.Blocks
 import laika.ast.{ Choice, Selection }
 import laika.config.Selections
-import laika.directive.Blocks
 
 /** Implementation of the `select` directive for block elements in markup documents.
   *

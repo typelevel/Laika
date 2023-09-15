@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.api.bundle
 
 import laika.api.config.Config
-import laika.ast.Path.Root
-import laika.ast.{
-  AbsoluteInternalTarget,
-  ExternalTarget,
-  OutputContext,
-  Path,
-  RelativeInternalTarget,
-  RelativePath,
-  ResolvedInternalTarget,
-  RootCursor,
-  Target
-}
 import laika.api.config.Config.ConfigResult
+import laika.ast.*
+import laika.ast.Path.Root
 import laika.config.{ LaikaKeys, Versions }
+import laika.rewrite.nav.TitleDocumentConfig
 
 /** Translates paths of input documents to the corresponding output path.
   * The minimum translation that usually has to happen is to replace the suffix from the input document the path

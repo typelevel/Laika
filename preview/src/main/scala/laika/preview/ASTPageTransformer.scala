@@ -18,6 +18,7 @@ package laika.preview
 
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.{
   Block,
   BlockContainer,
@@ -32,11 +33,9 @@ import laika.ast.{
   Section,
   Title
 }
-import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.format.{ AST, HTML }
 import laika.parse.{ Failure, Success }
 import laika.parse.code.languages.LaikaASTSyntax
-import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec
 

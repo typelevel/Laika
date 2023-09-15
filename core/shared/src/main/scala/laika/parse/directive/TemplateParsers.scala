@@ -16,8 +16,8 @@
 
 package laika.parse.directive
 
+import laika.api.bundle.Templates
 import laika.ast._
-import laika.directive.Templates
 import laika.parse.{ LineSource, Parser }
 import laika.parse.markup.{ DefaultRecursiveSpanParsers, RecursiveSpanParser }
 import laika.parse.text.PrefixedParser

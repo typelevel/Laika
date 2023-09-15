@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
 import laika.api.config.ConfigParser
 import laika.parse.Parser

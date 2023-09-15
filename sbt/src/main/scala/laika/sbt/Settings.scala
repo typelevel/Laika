@@ -20,9 +20,9 @@ import cats.effect.{ Async, IO, Resource }
 import cats.effect.unsafe.implicits.global
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.MarkupParser
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.api.format.MarkupFormat
-import laika.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.format.{ Markdown, ReStructuredText }

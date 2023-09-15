@@ -17,6 +17,7 @@
 package laika.directive.std
 
 import cats.syntax.all.*
+import laika.api.bundle.{ Blocks, Templates }
 import laika.api.config.{ Config, Field, ObjectConfig, Origin }
 import laika.ast.{
   Block,
@@ -30,7 +31,6 @@ import laika.ast.{
   TemplateSpanSequence
 }
 import laika.api.config.ConfigValue.{ ASTValue, ObjectValue }
-import laika.directive.{ Blocks, Templates }
 import laika.parse.SourceFragment
 
 /** Provides the implementation for the standard include and embed directives.

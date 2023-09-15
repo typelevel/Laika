@@ -7,19 +7,19 @@ version := "0.1"
 
 scalaVersion := "2.12.6"
 
-val TestDirectives = new DirectiveRegistry {
+val TestDirectives = new bundle.DirectiveRegistry {
 
-  val spanDirectives = Seq(Spans.create("span") {
+  val spanDirectives = Seq(bundle.Spans.create("span") {
     import Spans.dsl._
     attribute(0).as[String] map (Literal(_))
   })
 
-  val blockDirectives = Seq(Blocks.create("block") {
+  val blockDirectives = Seq(bundle.Blocks.create("block") {
     import Blocks.dsl._
     attribute(0).as[String] map (LiteralBlock(_))
   })
 
-  val templateDirectives = Seq(Templates.create("directive") {
+  val templateDirectives = Seq(bundle.Templates.create("directive") {
     import Templates.dsl._
     attribute(0).as[String] map { TemplateString(_) }
   })

@@ -18,9 +18,9 @@ package laika.rst
 
 import cats.implicits._
 import laika.api._
+import laika.api.bundle.{ Blocks, DirectiveRegistry, Spans }
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.directive.{ Blocks, DirectiveRegistry, Spans }
 import laika.format.{ AST, ReStructuredText }
 import laika.parse.builders.~
 import laika.rst.ext.Directives.Parts._

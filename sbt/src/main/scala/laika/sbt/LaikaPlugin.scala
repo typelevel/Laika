@@ -17,7 +17,7 @@
 package laika.sbt
 
 import cats.effect.IO
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 import laika.helium.Helium
 import laika.theme.ThemeProvider
 import sbt.Keys.*
@@ -45,7 +45,7 @@ import sbt.*
   *   context info
   *
   * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
-  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[laika.bundle.ExtensionBundle]].
+  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[ExtensionBundle]].
   *
   * - `laikaConfig`: allows to specify additional flags and settings through instances of `LaikaConfig`:
   *     - `encoding`: specifies the character encoding (default `UTF-8`)

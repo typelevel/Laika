@@ -109,7 +109,7 @@ In our case we only need to override the `parsers` property
 and leave everything else at the empty default implementations.
 
 ```scala mdoc:silent
-import laika.bundle._
+import laika.api.bundle._
 
 object TicketSyntax extends ExtensionBundle {
 
@@ -349,7 +349,7 @@ Let's look at the implementation and examine it line by line:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.bundle.BlockParserBuilder
+import laika.api.bundle.BlockParserBuilder
 import laika.parse.implicits._
 import laika.parse.markup.BlockParsers
 import laika.parse.text.TextParsers.ws

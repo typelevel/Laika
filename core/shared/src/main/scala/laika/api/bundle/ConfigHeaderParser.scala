@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package laika.parse.directive
+package laika.api.bundle
 
 import laika.api.config.ConfigParser
 import laika.parse.Parser
-import laika.parse.builders._
+import laika.parse.builders.*
 
 /** Provides parser implementation for configuration header sections
   * in text markup files, which are expected to be in HOCON format.

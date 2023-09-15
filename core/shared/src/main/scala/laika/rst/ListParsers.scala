@@ -16,8 +16,8 @@
 
 package laika.rst
 
+import laika.api.bundle.BlockParserBuilder
 import laika.ast._
-import laika.bundle.BlockParserBuilder
 import laika.collection.Stack
 import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers

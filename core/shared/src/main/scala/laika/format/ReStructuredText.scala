@@ -16,9 +16,7 @@
 
 package laika.format
 
-import laika.api.format.MarkupFormat
-import laika.ast.Block
-import laika.bundle.{
+import laika.api.bundle.{
   BlockParserBuilder,
   BundleOrigin,
   ExtensionBundle,
@@ -26,6 +24,8 @@ import laika.bundle.{
   ParserHooks,
   SpanParserBuilder
 }
+import laika.api.format.MarkupFormat
+import laika.ast.Block
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
 import laika.rst.*
@@ -45,7 +45,7 @@ import laika.rst.bundle.*
   * They represent a library-wide extension mechanism and allow you to implement
   * tags which can be used in any of the supported markup formats or in templates.
   *
-  * Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
+  * Laika directives can be registered with the [[laika.api.bundle.DirectiveRegistry]] extension bundle.
   *
   * @author Jens Halm
   */

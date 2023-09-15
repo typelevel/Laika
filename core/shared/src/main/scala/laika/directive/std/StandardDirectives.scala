@@ -18,13 +18,12 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import cats.syntax.all.*
+import laika.api.bundle.{ Blocks, BundleOrigin, DirectiveRegistry, Links, Spans, Templates }
 import laika.ast.*
-import laika.bundle.BundleOrigin
 import laika.config.{ LaikaKeys, PlatformDateTime }
 import laika.api.config.ConfigValue.SimpleValue
 import laika.api.config.Key
 import laika.ast.TargetValidation.*
-import laika.directive.*
 
 import scala.collection.immutable.TreeSet
 
@@ -114,7 +113,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     * passed to the directive (e.g. `@:callout(info)`).
     */
   lazy val callout: Blocks.Directive = Blocks.create("callout") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     (attribute(0).as[String].widen, parsedBody).mapN { (style, body) =>
       BlockSequence(body, Styles("callout", style))
@@ -122,7 +121,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   }
 
   lazy val target: Templates.Directive = Templates.eval("target") {
-    import Templates.dsl._
+    import laika.api.bundle.Templates.dsl._
 
     (attribute(0).as[Target], attribute(0).as[String], cursor).mapN {
       (literalTarget, pathKey, cursor) =>
@@ -144,7 +143,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   }
 
   lazy val date: Templates.Directive = Templates.eval("date") {
-    import Templates.dsl._
+    import laika.api.bundle.Templates.dsl._
 
     (
       attribute(0).as[String],
@@ -165,7 +164,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   }
 
   lazy val attr: Templates.Directive = Templates.eval("attribute") {
-    import Templates.dsl._
+    import laika.api.bundle.Templates.dsl._
 
     (attribute(0).as[String], attribute(1).as[String], cursor).mapN { (name, ref, cursor) =>
       cursor.resolveReference(Key.parse(ref)).leftMap(_.message).flatMap {
@@ -184,7 +183,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
     *  output format (e.g. `pdf` or `html`).
     */
   lazy val format: Blocks.Directive = Blocks.eval("format") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     (positionalAttributes.as[String].widen, parsedBody.map(asBlock(_))).mapN { (formats, body) =>
       NonEmptySet
@@ -198,7 +197,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `style` directive for block elements in markup documents.
     */
   lazy val blockStyle: Blocks.Directive = Blocks.create("style") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asBlock)
   }
@@ -206,7 +205,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `style` directive for span elements in markup documents.
     */
   lazy val spanStyle: Spans.Directive = Spans.create("style") {
-    import Spans.dsl._
+    import laika.api.bundle.Spans.dsl._
 
     (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asSpan)
   }
@@ -230,7 +229,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `fragment` directive for block elements in markup documents.
     */
   lazy val blockFragment: Blocks.Directive = Blocks.create("fragment") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       DocumentFragment(name, asBlock(content, Styles(name)))
@@ -240,7 +239,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `fragment` directive for templates.
     */
   lazy val templateFragment: Templates.Directive = Templates.create("fragment") {
-    import Templates.dsl._
+    import laika.api.bundle.Templates.dsl._
 
     (attribute(0).as[String], parsedBody).mapN { (name, content) =>
       TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
@@ -250,7 +249,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `pageBreak` directive.
     */
   lazy val pageBreak: Blocks.Directive = Blocks.create("pageBreak") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
 
     empty(PageBreak())
   }
@@ -258,14 +257,14 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `todo` directive for inline elements.
     */
   val todoSpan: Spans.Directive = Spans.create("todo") {
-    import Spans.dsl._
+    import laika.api.bundle.Spans.dsl._
     attribute(0).map { _ => SpanSequence(Nil) }
   }
 
   /** Implementation of the `todo` directive for block elements.
     */
   val todoBlock: Blocks.Directive = Blocks.create("todo") {
-    import Blocks.dsl._
+    import laika.api.bundle.Blocks.dsl._
     attribute(0).map { _ => BlockSequence(Nil) }
   }
 

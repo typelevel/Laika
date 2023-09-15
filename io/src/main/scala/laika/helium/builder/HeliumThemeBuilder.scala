@@ -17,10 +17,9 @@
 package laika.helium.builder
 
 import cats.effect.{ Async, Resource }
+import laika.api.bundle.{ Blocks, BundleOrigin, DirectiveRegistry, Links, Spans, Templates }
 import laika.ast.Document
 import laika.ast.Path.Root
-import laika.bundle.BundleOrigin
-import laika.directive.{ Blocks, DirectiveRegistry, Links, Spans, Templates }
 import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.generate.*

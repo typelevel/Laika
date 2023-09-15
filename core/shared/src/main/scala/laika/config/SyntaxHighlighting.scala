@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package laika.parse.code
+package laika.config
 
 import cats.data.NonEmptyList
-import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter }
-import laika.parse.code.languages._
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, SyntaxHighlighter }
+import laika.parse.code.languages.*
 
 /** Extension that registers all code syntax highlighters provided out of the box.
   *

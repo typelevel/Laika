@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.rewrite.nav
+package laika.config
 
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.Path
-import laika.bundle.{ BundleOrigin, ExtensionBundle }
 
 /** Extension specific to site rendering that translates the output path,
   * producing "pretty URLs" that do not contain the `html` file suffix.

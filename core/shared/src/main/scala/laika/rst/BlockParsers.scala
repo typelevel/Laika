@@ -18,7 +18,6 @@ package laika.rst
 
 import cats.data.NonEmptyChain
 import laika.ast._
-import laika.bundle.BlockParserBuilder
 import laika.parse.builders._
 import laika.parse.implicits._
 import laika.parse.text.Characters
@@ -33,6 +32,7 @@ import laika.parse.{
 }
 import laika.rst.ast.{ DoctestBlock, OverlineAndUnderline, Underline }
 import BaseParsers._
+import laika.api.bundle.BlockParserBuilder
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

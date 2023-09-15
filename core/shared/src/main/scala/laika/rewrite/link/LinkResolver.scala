@@ -16,11 +16,11 @@
 
 package laika.rewrite.link
 
+import laika.api.bundle.Blocks
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast._
 import laika.api.config.Config.ConfigResult
-import laika.directive.Blocks
 import laika.parse.GeneratedSource
 
 import scala.annotation.tailrec

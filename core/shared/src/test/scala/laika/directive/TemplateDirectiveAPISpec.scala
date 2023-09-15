@@ -16,10 +16,11 @@
 
 package laika.directive
 
-import cats.implicits._
+import cats.implicits.*
 import laika.api.builder.OperationConfig
+import laika.api.bundle.Templates
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.format.HTML
 import laika.parse.Parser
@@ -35,7 +36,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   )
 
   object DirectiveSetup {
-    import Templates.dsl._
+    import laika.api.bundle.Templates.dsl._
 
     trait Empty {
       val directive = Templates.create("dir")(Templates.dsl.empty(TemplateString("foo")))

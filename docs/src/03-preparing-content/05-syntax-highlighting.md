@@ -27,7 +27,7 @@ When using the sbt plugin it can be added to the `laikaExtensions` setting:
 
 ```scala mdoc:compile-only
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.config.SyntaxHighlighting
 
 laikaExtensions ++= Seq(GitHubFlavor, SyntaxHighlighting)  
 ```
@@ -41,7 +41,7 @@ When using the Library API highlighting can be activated like all other extensio
 import laika.api._
 import laika.format._
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.config.SyntaxHighlighting
 
 val transformer = Transformer
   .from(Markdown)
@@ -149,8 +149,9 @@ as a starting point.
 Once you have implemented and tested your highlighter you can add it to the built-in ones like this:
 
 ```scala mdoc:compile-only
-import laika.parse.code.{SyntaxHighlighting, CodeSpanParser }
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
+import laika.config.SyntaxHighlighting
+import laika.parse.code.CodeSpanParser
 import cats.data.NonEmptyList
 
 object MyHighlighter extends SyntaxHighlighter {

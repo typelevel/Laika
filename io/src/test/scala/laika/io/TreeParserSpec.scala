@@ -21,6 +21,7 @@ import cats.data.{ Chain, NonEmptyChain }
 import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, SpanParserBuilder }
 import laika.api.config.ConfigBuilder
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.ast.DocumentType.*
@@ -497,8 +498,7 @@ class TreeParserSpec
   }
 
   test("template directive") {
-
-    import laika.directive.Templates
+    import laika.api.bundle.Templates
     import Templates.dsl._
 
     val directive = Templates.create("foo") {

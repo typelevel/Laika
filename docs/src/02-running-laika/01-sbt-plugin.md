@@ -286,7 +286,7 @@ Example:
 
 ```scala mdoc:compile-only
 import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.config.SyntaxHighlighting
 
 laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
 ``` 

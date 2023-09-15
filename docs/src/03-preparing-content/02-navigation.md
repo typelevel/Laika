@@ -650,7 +650,7 @@ It can be enabled like any other extension:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.nav.PrettyURLs
+import laika.config.PrettyURLs
 
 laikaExtensions += PrettyURLs
 ```
@@ -658,8 +658,8 @@ laikaExtensions += PrettyURLs
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
+import laika.config.PrettyURLs
 import laika.format._
-import laika.rewrite.nav.PrettyURLs
 
 val transformer = Transformer
   .from(Markdown)

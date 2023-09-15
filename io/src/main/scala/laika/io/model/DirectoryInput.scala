@@ -18,9 +18,9 @@ package laika.io.model
 
 import cats.effect.Async
 import fs2.io.file.Files
+import laika.api.bundle.DocumentTypeMatcher
 import laika.ast.{ DocumentType, Path }
 import laika.ast.Path.Root
-import laika.bundle.DocumentTypeMatcher
 
 import scala.io.Codec
 

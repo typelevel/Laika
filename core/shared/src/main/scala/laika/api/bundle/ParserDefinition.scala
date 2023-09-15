@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
 import cats.data.NonEmptySet
 import laika.ast.{ Block, Element, Span }

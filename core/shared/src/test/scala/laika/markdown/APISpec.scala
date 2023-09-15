@@ -17,10 +17,10 @@
 package laika.markdown
 
 import cats.implicits._
+import laika.api.bundle.DirectiveRegistry
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{ Block, RootElement, Text }
-import laika.directive.DirectiveRegistry
 import laika.format.{ HTML, Markdown }
 import munit.FunSuite
 
@@ -28,7 +28,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
 
   object BlockDirectives {
 
-    import laika.directive.Blocks
+    import laika.api.bundle.Blocks
     import Blocks.dsl._
 
     object Registry extends DirectiveRegistry {
@@ -70,7 +70,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
 
   object SpanDirectives {
 
-    import laika.directive.Spans
+    import laika.api.bundle.Spans
     import Spans.dsl._
 
     object Registry extends DirectiveRegistry {

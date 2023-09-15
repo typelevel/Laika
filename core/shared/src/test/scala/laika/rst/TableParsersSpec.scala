@@ -16,9 +16,9 @@
 
 package laika.rst
 
+import laika.api.bundle.ParserBundle
 import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.bundle.ParserBundle
 import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.markup.RootParser

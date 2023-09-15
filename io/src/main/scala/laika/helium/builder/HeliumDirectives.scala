@@ -17,11 +17,10 @@
 package laika.helium.builder
 
 import cats.syntax.all._
+import laika.api.bundle.{ PathTranslator, Templates }
 import laika.ast.{ TemplateSpanSequence, TemplateString }
 import laika.config.{ LaikaKeys, Versions }
-import laika.directive.Templates
 import laika.helium.Helium
-import laika.rewrite.nav.PathTranslator
 
 /** @author Jens Halm
   */

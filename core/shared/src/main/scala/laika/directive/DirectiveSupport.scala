@@ -16,6 +16,17 @@
 
 package laika.directive
 
+import laika.api.bundle.{
+  Blocks,
+  BundleOrigin,
+  ConfigHeaderParser,
+  ConfigProvider,
+  ExtensionBundle,
+  Links,
+  ParserBundle,
+  Spans,
+  Templates
+}
 import laika.api.config.ConfigParser
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.{
@@ -31,14 +42,12 @@ import laika.ast.{
   Span,
   SpanResolver
 }
-import laika.bundle.{ BundleOrigin, ConfigProvider, ExtensionBundle, ParserBundle }
 import laika.parse.{ Parser, SourceFragment }
 import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers
-import laika.parse.implicits._
+import laika.parse.implicits.*
 import laika.parse.directive.{
   BlockDirectiveParsers,
-  ConfigHeaderParser,
   DirectiveParsers,
   SpanDirectiveParsers,
   TemplateParsers

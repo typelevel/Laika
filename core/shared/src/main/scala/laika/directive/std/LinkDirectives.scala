@@ -17,9 +17,9 @@
 package laika.directive.std
 
 import cats.syntax.all._
+import laika.api.bundle.Links
 import laika.ast.{ DocumentCursor, SpanLink, Target }
 import laika.config.LinkConfig
-import laika.directive.Links
 
 /** Provides the implementation for the link directives included in Laika.
   *

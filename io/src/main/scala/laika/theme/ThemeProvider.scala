@@ -17,7 +17,7 @@
 package laika.theme
 
 import cats.effect.{ Async, Resource }
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 import laika.api.format.Format
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.InputTree

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.bundle
+package laika.api.bundle
 
 import laika.ast.*
 import laika.ast.styles.StyleDeclaration

@@ -17,6 +17,7 @@
 package laika.render.epub
 
 import cats.effect.IO
+import laika.api.bundle.PathTranslator
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.config.LaikaKeys
 import laika.ast.Path.Root
@@ -24,7 +25,6 @@ import laika.ast.*
 import laika.format.EPUB
 import laika.io.model.*
 import laika.io.helper.InputBuilder
-import laika.rewrite.nav.PathTranslator
 
 trait InputTreeBuilder extends InputBuilder {
 

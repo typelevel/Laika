@@ -17,8 +17,8 @@
 package laika.rst
 
 import cats.data.NonEmptySet
+import laika.api.bundle.SpanParserBuilder
 import laika.ast._
-import laika.bundle.SpanParserBuilder
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.PrefixedParser

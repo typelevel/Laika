@@ -18,7 +18,7 @@ package laika.io.runtime
 
 import cats.effect.Async
 import cats.implicits.*
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 import laika.api.format.Format
 import laika.io.api.{
   BinaryTreeRenderer,

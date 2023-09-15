@@ -16,8 +16,8 @@
 
 package laika.markdown
 
+import laika.api.bundle.SpanParserBuilder
 import laika.ast.*
-import laika.bundle.SpanParserBuilder
 import laika.parse.{ LineSource, Parser, SourceFragment }
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers

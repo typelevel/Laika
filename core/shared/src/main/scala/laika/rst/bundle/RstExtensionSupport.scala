@@ -16,9 +16,9 @@
 
 package laika.rst.bundle
 
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle }
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.ast.{ Block, RewritePhase, Span }
-import laika.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle }
 import laika.parse.markup.RecursiveParsers
 import laika.rst.InlineParsers
 import laika.rst.ext.Directives.Directive
