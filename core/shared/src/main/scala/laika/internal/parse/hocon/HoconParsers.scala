@@ -23,7 +23,7 @@ import laika.api.config.Key
 import laika.parse.code.common.NumberLiteral.digits
 import laika.parse.text.{ CharGroup, Characters }
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.{ Failure, Message, Parser, SourceCursor }
 
 import scala.annotation.nowarn

@@ -22,7 +22,7 @@ import laika.api.config.Key
 import laika.ast.*
 import laika.parse.builders.*
 import laika.parse.hocon.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.{

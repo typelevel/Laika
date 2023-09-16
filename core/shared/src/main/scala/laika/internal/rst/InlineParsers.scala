@@ -23,7 +23,7 @@ import laika.internal.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.{ Failure, LineSource, Parser, Success }
 import BaseParsers._
 import laika.internal.parse.uri.AutoLinkParsers

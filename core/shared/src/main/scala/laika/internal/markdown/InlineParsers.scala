@@ -22,7 +22,7 @@ import laika.parse.{ LineSource, Parser, SourceFragment }
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.text.{ DelimitedText, PrefixedParser }
 
 import scala.util.Try

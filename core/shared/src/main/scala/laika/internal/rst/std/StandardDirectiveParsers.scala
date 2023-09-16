@@ -23,7 +23,7 @@ import laika.parse.{ BlockSource, Parser, SourceFragment }
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParser }
 import laika.parse.text.CharGroup
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.internal.rst.BaseParsers.simpleRefName
 
 /** Defines the custom argument and body parsers for the standard directives.

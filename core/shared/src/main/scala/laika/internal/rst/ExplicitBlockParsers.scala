@@ -19,7 +19,7 @@ package laika.internal.rst
 import laika.ast.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.{ Failure, LineSource, Parser, Success }
 import BaseParsers.*
 import laika.api.bundle.BlockParserBuilder

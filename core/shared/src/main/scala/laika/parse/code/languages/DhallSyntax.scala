@@ -24,7 +24,7 @@ import laika.parse.code.common._
 import laika.parse.code.implicits._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.builders.~
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.text.TextParsers._
 

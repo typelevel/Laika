@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.

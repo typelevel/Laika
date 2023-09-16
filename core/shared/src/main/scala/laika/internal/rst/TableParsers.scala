@@ -19,10 +19,10 @@ package laika.internal.rst
 import cats.data.NonEmptyChain
 import laika.api.bundle.BlockParserBuilder
 import laika.ast._
-import laika.internal.collection.{ Stack }
+import laika.internal.collection.Stack
 import laika.internal.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse._
 import laika.parse.markup.RecursiveParsers
 

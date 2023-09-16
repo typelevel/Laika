@@ -19,7 +19,7 @@ package laika.internal.rst.std
 import laika.ast.*
 import laika.internal.rst.ext.Directives.DirectivePartBuilder
 import laika.parse.builders.~
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, TextParsers }
 import laika.parse.{ GeneratedSource, SourceFragment }

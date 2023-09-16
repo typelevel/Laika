@@ -21,7 +21,7 @@ import laika.ast.{ Reverse, Span, SpanLink, Text }
 import laika.parse.text.PrefixedParser
 import laika.parse.{ Failure, Parser, Success }
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import URIParsers.{ fragment, path, query, regName }
 
 /** Parser for inline auto-links, which are urls or email addresses that are recognized and

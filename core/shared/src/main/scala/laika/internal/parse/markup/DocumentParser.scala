@@ -23,7 +23,7 @@ import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
 import laika.parse.combinator.Parsers
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.{ Parser, SourceCursor }
 
 /** Responsible for creating the top level parsers for text markup and template documents,

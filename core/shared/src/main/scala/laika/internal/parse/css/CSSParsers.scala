@@ -20,7 +20,7 @@ import laika.ast.styles.{ ParentSelector, StyleDeclaration, StylePredicate, Styl
 import laika.parse.Parser
 import laika.parse.markup.InlineParsers
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 
 /** Parsers for the subset of CSS supported by Laika.
   *

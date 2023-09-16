@@ -26,7 +26,7 @@ import laika.format.HTML
 import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ BlockSource, Parser, SourceFragment }
 import munit.FunSuite
@@ -129,7 +129,7 @@ class BlockDirectiveAPISpec extends FunSuite
     trait DirectiveWithCustomBodyParser {
 
       import laika.parse.builders._
-      import laika.parse.implicits._
+      import laika.parse.syntax._
 
       val directive = BlockDirectives.create("dir") {
         parsedBody(recParsers =>

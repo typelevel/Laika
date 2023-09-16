@@ -135,7 +135,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     trait DirectiveWithCustomBodyParser {
 
       import laika.parse.builders._
-      import laika.parse.implicits._
+      import laika.parse.syntax._
 
       val directive = SpanDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))

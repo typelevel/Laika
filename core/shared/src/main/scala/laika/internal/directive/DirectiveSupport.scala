@@ -46,7 +46,7 @@ import laika.internal.parse.directive.TemplateParsers
 import laika.parse.{ Parser, SourceFragment }
 import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.directive.{ BlockDirectiveParsers, DirectiveParsers, SpanDirectiveParsers }
 import laika.parse.text.TextParsers
 

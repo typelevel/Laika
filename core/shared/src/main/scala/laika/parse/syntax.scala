@@ -28,7 +28,7 @@ import laika.parse.text.{ PrefixedParser, TextParsers }
   *
   * @author Jens Halm
   */
-object implicits {
+object syntax {
 
   implicit class PrependParserOps[T](val p: Parser[T ~ Seq[T]]) extends AnyVal {
     def concat: Parser[Seq[T]] = p.map { case x ~ xs => x +: xs }

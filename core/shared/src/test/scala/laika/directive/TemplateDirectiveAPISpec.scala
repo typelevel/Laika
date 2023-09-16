@@ -144,7 +144,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
     trait DirectiveWithCustomBodyParser {
 
       import laika.parse.builders._
-      import laika.parse.implicits._
+      import laika.parse.syntax._
 
       val directive = TemplateDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))

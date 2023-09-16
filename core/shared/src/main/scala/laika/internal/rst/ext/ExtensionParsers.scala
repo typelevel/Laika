@@ -21,7 +21,7 @@ import laika.ast.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ DelimitedText, PrefixedParser }
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.{ BlockSource, Failure, LineSource, Parser, SourceFragment, Success }
 import laika.internal.rst.ast.{ CustomizedTextRole, SubstitutionDefinition }
 import laika.internal.rst.BaseParsers.*

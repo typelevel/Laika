@@ -17,7 +17,7 @@
 package laika.internal.parse.markup
 
 import laika.parse.Parser
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.markup.{ EscapedTextParsers, InlineParsers }
 import laika.parse.text.{ DelimitedText, PrefixedParser, TextParsers }
 

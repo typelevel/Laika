@@ -24,7 +24,7 @@ import laika.parse.builders.*
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.common.NumberLiteral.NumericParser
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.text.CharGroup
 import munit.FunSuite
 

@@ -30,7 +30,7 @@ import laika.parse.code.common.{
 }
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.implicits._
 

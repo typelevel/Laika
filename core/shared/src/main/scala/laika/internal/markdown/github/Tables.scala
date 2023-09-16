@@ -22,7 +22,7 @@ import laika.internal.markdown.BlockParsers._
 import laika.parse.{ LineSource, Parser }
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *

@@ -38,7 +38,7 @@ import laika.internal.parse.css.CSSParsers
 import laika.parse.*
 import laika.parse.builders.*
 import laika.parse.combinator.Parsers
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.text.TextParsers
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import munit.FunSuite

@@ -610,7 +610,7 @@ class TreeParserSpec
   object CustomSpanParsers {
 
     import TextParsers._
-    import laika.parse.implicits._
+    import laika.parse.syntax._
 
     case class DecoratedSpan(deco: Char, text: String) extends Span {
       val options: Options = NoOpt

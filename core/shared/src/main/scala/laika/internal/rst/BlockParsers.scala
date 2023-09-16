@@ -19,7 +19,7 @@ package laika.internal.rst
 import cats.data.NonEmptyChain
 import laika.ast._
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.Characters
 import laika.parse.{
   BlockSource,

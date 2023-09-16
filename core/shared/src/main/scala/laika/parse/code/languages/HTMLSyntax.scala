@@ -22,7 +22,7 @@ import laika.parse.code.common.TagFormats.TagParser
 import laika.parse.code.common.{ Keywords, TagFormats }
 import laika.parse.code.common.TagFormats.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 
 /** @author Jens Halm
   */

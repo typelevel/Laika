@@ -23,7 +23,7 @@ import laika.parse.{ LineSource, Parser }
 import laika.parse.markup.RecursiveSpanParser
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 
 /** Provides the parsers for directives and context references in templates.
   *

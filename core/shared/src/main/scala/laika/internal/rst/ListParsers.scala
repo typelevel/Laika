@@ -24,7 +24,7 @@ import laika.parse.Parser
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.CharGroup
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

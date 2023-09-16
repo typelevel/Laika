@@ -21,7 +21,7 @@ import laika.ast.*
 import laika.parse.{ BlockSource, LineSource, Parser }
 import laika.parse.markup.RecursiveParsers
 import laika.parse.builders.*
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.text.{ PrefixedParser, WhitespacePreprocessor }
 
 /** Provides all block parsers for Markdown text except for lists
