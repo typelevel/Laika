@@ -17,7 +17,7 @@
 package laika.api.bundle
 
 import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
-import laika.api.config.{ Config, ConfigBuilder }
+import laika.api.config.Config
 import laika.ast.*
 import laika.ast.RewriteRules.RewritePhaseBuilder
 import laika.internal.parse.css.CSSParsers
@@ -276,8 +276,7 @@ object ExtensionBundle {
 
     override val slugBuilder: Option[String => String] = Some(SlugBuilder.default)
 
-    override val baseConfig: Config =
-      ConfigBuilder.empty.withValue("laika.version", "0.19.3").build
+    override val baseConfig: Config = Config.empty
 
     override val parsers: ParserBundle = new ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
