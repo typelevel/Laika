@@ -31,7 +31,6 @@ import laika.internal.rst.ext.TextRoles.{
   RoleDirectivePartBuilder,
   TextRole
 }
-import laika.internal.rst.ext.TextRoles.*
 import laika.internal.rst.ext.Directives.*
 import laika.internal.rst.ext.Directives.DirectivePartBuilder
 import ExtensionParsers.Result

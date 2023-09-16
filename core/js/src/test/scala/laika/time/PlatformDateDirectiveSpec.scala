@@ -3,6 +3,7 @@ package laika.time
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.{ Replace, RewriteRules, RootElement, TemplateRoot, TemplateSpan, TemplateString }
 import laika.config.PlatformDateTime
+import laika.directive.std.{ MarkupParserSetup, TemplateParserSetup }
 import munit.FunSuite
 
 import scala.scalajs.js

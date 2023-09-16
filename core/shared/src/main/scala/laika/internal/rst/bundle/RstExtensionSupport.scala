@@ -24,8 +24,6 @@ import laika.internal.rst.ext.Directives.Directive
 import laika.internal.rst.ext.ExtensionParsers
 import laika.internal.rst.ext.TextRoles.TextRole
 import laika.parse.markup.RecursiveParsers
-import laika.internal.rst.ext.Directives.Directive
-import laika.internal.rst.ext.TextRoles.TextRole
 
 /** Internal API that processes all extensions defined
   * by one or more RstExtensionRegistries. This extension

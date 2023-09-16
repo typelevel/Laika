@@ -24,7 +24,6 @@ import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, TextParsers }
 import laika.parse.{ GeneratedSource, SourceFragment }
 import laika.internal.rst.BaseParsers.sizeAndUnit
-import laika.internal.rst.ext.Directives.DirectivePartBuilder
 import laika.internal.rst.ext.Directives.Parts.*
 
 /** @author Jens Halm

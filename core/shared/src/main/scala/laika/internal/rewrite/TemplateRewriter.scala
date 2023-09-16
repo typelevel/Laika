@@ -24,7 +24,6 @@ import laika.config.LaikaKeys
 import laika.api.config.ConfigError.ValidationError
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.parse.{ LineSource, SourceCursor }
-import ReferenceResolver.CursorKeys
 
 import scala.annotation.tailrec
 
