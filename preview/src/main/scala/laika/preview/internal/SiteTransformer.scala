@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package laika.preview
+package laika.preview.internal
 
-import cats.effect.{ Async, Resource }
-import cats.syntax.all.*
 import cats.effect.syntax.all.*
+import cats.effect.{Async, Resource}
+import cats.syntax.all.*
 import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
-import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
-import laika.ast.{ MessageFilter, Path }
 import laika.api.config.Config.ConfigResult
-import laika.config.{ LaikaKeys, Selections, TargetFormats }
+import laika.api.format.{BinaryPostProcessorBuilder, TwoPhaseRenderFormat}
+import laika.ast.{MessageFilter, Path}
+import laika.config.{LaikaKeys, Selections, TargetFormats}
 import laika.format.HTML
-import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
+import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.internal.config.SiteConfig
 import laika.io.internal.errors.ConfigException
-import laika.io.syntax.*
 import laika.io.model.*
-import laika.preview.SiteTransformer.ResultMap
+import laika.io.syntax.*
+import laika.preview.internal.SiteTransformer.ResultMap
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream

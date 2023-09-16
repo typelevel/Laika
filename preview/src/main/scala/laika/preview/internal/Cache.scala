@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package laika.preview
+package laika.preview.internal
 
-import cats.effect.{ Concurrent, Ref }
-import cats.syntax.all._
-import laika.preview.Cache.Result
+import cats.effect.{Concurrent, Ref}
+import cats.syntax.all.*
+import laika.preview.internal.Cache.Result
 
 private[preview] class Cache[F[_]: Concurrent, V](factory: F[V], ref: Ref[F, Result[V]]) {
 

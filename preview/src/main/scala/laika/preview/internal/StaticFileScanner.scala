@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.preview
+package laika.preview.internal
 
-import cats.syntax.all._
 import cats.effect.Async
+import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.builder.OperationConfig
 import laika.ast.Path
@@ -26,7 +26,7 @@ import laika.config.Versions
 import laika.io.internal.config.SiteConfig
 import laika.io.internal.errors.ConfigException
 import laika.io.internal.runtime.DirectoryScanner
-import laika.io.model.{ BinaryInput, FilePath }
+import laika.io.model.{BinaryInput, FilePath}
 
 private[preview] object StaticFileScanner {
 

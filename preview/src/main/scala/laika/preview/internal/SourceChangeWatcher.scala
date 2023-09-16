@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package laika.preview
+package laika.preview.internal
 
-import java.nio.file.{ FileSystems, WatchEvent, WatchKey, WatchService }
-import java.nio.file.StandardWatchEventKinds._
-import laika.ast.{ DocumentType, Path }
-import cats.syntax.all._
-
-import scala.concurrent.duration._
-import cats.effect.{ Async, Ref, Resource, Temporal }
+import cats.effect.{Async, Ref, Resource, Temporal}
+import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.ast.DocumentType.Static
-import laika.internal.collection.TransitionalCollectionOps.{ JIteratorWrapper, TransitionalMapOps }
+import laika.ast.{DocumentType, Path}
+import laika.internal.collection.TransitionalCollectionOps.{JIteratorWrapper, TransitionalMapOps}
 import laika.io.internal.runtime.DirectoryScanner
-import laika.io.model.{ FileFilter, FilePath }
-import laika.preview.SourceChangeWatcher.{ ObservedDirectory, ObservedFiles, ObservedTarget }
+import laika.io.model.{FileFilter, FilePath}
+import laika.preview.internal.SourceChangeWatcher.{ObservedDirectory, ObservedFiles, ObservedTarget}
 
+import java.nio.file.StandardWatchEventKinds.*
+import java.nio.file.{FileSystems, WatchEvent, WatchKey, WatchService}
 import scala.annotation.tailrec
+import scala.concurrent.duration.*
 
 private[preview] class SourceChangeWatcher[F[_]: Async](
     service: WatchService,
