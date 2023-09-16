@@ -24,7 +24,7 @@ import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.bundle.BundleProvider
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder

@@ -21,8 +21,7 @@ import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
 import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.format.*
-import laika.io.config.SiteConfig
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.*
 import laika.sbt.LaikaPlugin.autoImport.*
 import sbt.Keys.*
@@ -38,6 +37,7 @@ import laika.api.format.{
   TwoPhaseRenderFormat
 }
 import laika.config.{ Selections, Versions }
+import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 

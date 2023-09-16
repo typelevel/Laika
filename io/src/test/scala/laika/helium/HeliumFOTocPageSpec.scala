@@ -23,7 +23,7 @@ import laika.ast.Path.Root
 import laika.format.{ Markdown, XSLFO }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme._
 import munit.CatsEffectSuite
 

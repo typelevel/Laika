@@ -23,9 +23,9 @@ import laika.api.format.{ BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPh
 import laika.ast.DocumentTreeRoot
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
+import laika.io.internal.runtime.{ Batch, RendererRuntime }
 import laika.io.model.{ BinaryInput, BinaryOutput, ParsedTree }
 import laika.io.ops.BinaryOutputOps
-import laika.io.runtime.{ Batch, RendererRuntime }
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Renderer that merges a tree of input documents to a single binary output document.

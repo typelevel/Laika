@@ -18,7 +18,7 @@ package laika.helium
 
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.format.{ AST, Markdown }
-import laika.helium.builder.HeliumRewriteRules
+import laika.helium.internal.builder.HeliumRewriteRules
 import munit.FunSuite
 
 /** @author Jens Halm

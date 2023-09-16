@@ -22,9 +22,10 @@ import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.{ MarkupParser, Renderer }
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
-import laika.io.model.{ InputTreeBuilder, ParsedTree, RenderedTreeRoot, TreeOutput }
+import laika.io.internal.model.TreeOutput
+import laika.io.internal.runtime.{Batch, TransformerRuntime}
+import laika.io.model.{ InputTreeBuilder, ParsedTree, RenderedTreeRoot }
 import laika.io.ops.{ InputOps, TextOutputOps, TreeMapperOps }
-import laika.io.runtime.{ Batch, TransformerRuntime }
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Transformer for a tree of input and output documents.

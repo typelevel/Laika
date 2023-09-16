@@ -18,8 +18,9 @@ package laika.helium.config
 
 import cats.data.NonEmptyList
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast._
+import laika.ast.*
 import laika.config.{ LaikaKeys, Versions }
+import laika.helium.internal.config.HeliumStyles
 import laika.parse.{ GeneratedSource, SourceFragment }
 
 /** A Helium link type available for navigation bars and the landing page.

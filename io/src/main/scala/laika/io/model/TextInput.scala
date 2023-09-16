@@ -16,7 +16,7 @@
 
 package laika.io.model
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.{ Applicative, Functor }
 import cats.effect.{ Async, Concurrent }
 import fs2.io.file.Files

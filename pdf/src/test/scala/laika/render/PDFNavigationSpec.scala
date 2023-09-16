@@ -32,11 +32,11 @@ import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
-import laika.io.errors.ConfigException
 import laika.io.helper.RenderResult
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.internal.render.FOFormatter.Preamble
+import laika.io.internal.errors.ConfigException
 import laika.render.fo.TestTheme
 import laika.render.pdf.FOConcatenation
 import laika.theme.Theme

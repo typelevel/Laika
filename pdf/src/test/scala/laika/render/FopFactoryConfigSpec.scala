@@ -18,7 +18,7 @@ package laika.render
 
 import laika.format.PDF
 import laika.helium.Helium
-import laika.helium.generate.ConfigGenerator
+import laika.helium.internal.generate.ConfigGenerator
 import laika.render.pdf.FopFactoryBuilder
 import laika.theme.config.{ BookConfig, Font, FontDefinition, FontStyle, FontWeight }
 import munit.FunSuite

@@ -27,8 +27,8 @@ import laika.internal.parse.markup.DocumentParser
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{ InputTreeBuilder, ParsedTree }
 import laika.io.ops.InputOps
-import laika.io.runtime.{ Batch, ParserRuntime }
 import DocumentParser.DocumentInput
+import laika.io.internal.runtime.{Batch, ParserRuntime}
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Parser for a tree of input documents.

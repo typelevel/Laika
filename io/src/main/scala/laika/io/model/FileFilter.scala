@@ -17,7 +17,7 @@
 package laika.io.model
 
 import cats.effect.Async
-import cats.syntax.all._
+import cats.syntax.all.*
 
 /** File filter that defines the filter function in `[F[_]]` to allow for effectful filter logic.
   */

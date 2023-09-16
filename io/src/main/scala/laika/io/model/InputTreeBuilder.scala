@@ -33,9 +33,10 @@ import laika.ast.{
   TextDocumentType
 }
 import laika.io.descriptor.TreeInputDescriptor
-import laika.io.errors.*
+import laika.io.internal.errors.{ MissingDirectory, ParserErrors }
+import laika.io.internal.model.DirectoryInput
+import laika.io.internal.runtime.DirectoryScanner
 import laika.io.model.InputTree.{ BuilderContext, BuilderStep }
-import laika.io.runtime.DirectoryScanner
 
 import java.io.InputStream
 import scala.io.Codec

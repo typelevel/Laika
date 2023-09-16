@@ -27,7 +27,7 @@ import laika.config.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.theme.*
 import munit.CatsEffectSuite
 

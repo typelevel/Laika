@@ -27,8 +27,8 @@ import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.format.{ Markdown, ReStructuredText }
 import laika.io.api.TreeParser
-import laika.io.config.SiteConfig
-import laika.io.implicits.*
+import laika.io.internal.config.SiteConfig
+import laika.io.syntax.*
 import laika.io.model.{ FilePath, InputTree, InputTreeBuilder }
 import laika.sbt.LaikaPlugin.autoImport.*
 import sbt.Keys.*

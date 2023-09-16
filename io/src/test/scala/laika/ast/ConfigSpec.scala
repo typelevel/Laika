@@ -28,9 +28,9 @@ import laika.api.config.Origin.{ DocumentScope, TreeScope }
 import laika.api.config.ConfigValue.{ LongValue, ObjectValue }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.FileIO
-import laika.io.errors.ConfigException
 import laika.io.helper.{ InputBuilder, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.internal.errors.ConfigException
+import laika.io.syntax.*
 import laika.io.model.{ FilePath, InputTreeBuilder, ParsedTree }
 import munit.CatsEffectSuite
 

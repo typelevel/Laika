@@ -23,10 +23,10 @@ import laika.api.builder.OperationConfig
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.Versions
-import laika.io.config.SiteConfig
-import laika.io.errors.ConfigException
+import laika.io.internal.config.SiteConfig
+import laika.io.internal.errors.ConfigException
+import laika.io.internal.runtime.DirectoryScanner
 import laika.io.model.{ BinaryInput, FilePath }
-import laika.io.runtime.DirectoryScanner
 
 private[preview] object StaticFileScanner {
 

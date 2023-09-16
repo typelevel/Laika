@@ -22,7 +22,7 @@ import laika.api.{ MarkupParser, Renderer }
 import laika.ast.{ DefaultTemplatePath, DocumentTree, DocumentTreeRoot }
 import laika.format.{ Markdown, PDF }
 import laika.io.FileIO
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.{ InputTree, ParsedTree }
 import munit.CatsEffectSuite
 

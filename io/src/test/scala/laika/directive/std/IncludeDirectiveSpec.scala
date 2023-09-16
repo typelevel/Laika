@@ -23,9 +23,9 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeParser
-import laika.io.errors.ConfigException
 import laika.io.helper.InputBuilder
-import laika.io.implicits._
+import laika.io.internal.errors.ConfigException
+import laika.io.syntax._
 import laika.theme.Theme
 import munit.CatsEffectSuite
 

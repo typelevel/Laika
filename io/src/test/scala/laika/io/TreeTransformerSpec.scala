@@ -31,7 +31,7 @@ import laika.format.*
 import laika.io.api.{ BinaryTreeTransformer, TreeTransformer }
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{ InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.{
   FileFilter,
   FilePath,

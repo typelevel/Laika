@@ -25,7 +25,7 @@ import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.InputTree
 import laika.theme.ThemeProvider
 import laika.theme.config.{

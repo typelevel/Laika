@@ -28,9 +28,9 @@ import laika.api.config.Config.ConfigResult
 import laika.config.{ LaikaKeys, Selections, TargetFormats }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
-import laika.io.config.SiteConfig
-import laika.io.errors.ConfigException
-import laika.io.implicits.*
+import laika.io.internal.config.SiteConfig
+import laika.io.internal.errors.ConfigException
+import laika.io.syntax.*
 import laika.io.model.*
 import laika.preview.SiteTransformer.ResultMap
 import laika.theme.Theme
