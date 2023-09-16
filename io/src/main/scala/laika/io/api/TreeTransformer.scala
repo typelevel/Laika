@@ -23,7 +23,7 @@ import laika.api.{ MarkupParser, Renderer }
 import laika.io.api.BinaryTreeTransformer.TreeMapper
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.internal.model.TreeOutput
-import laika.io.internal.runtime.{Batch, TransformerRuntime}
+import laika.io.internal.runtime.{ Batch, TransformerRuntime }
 import laika.io.model.{ InputTreeBuilder, ParsedTree, RenderedTreeRoot }
 import laika.io.ops.{ InputOps, TextOutputOps, TreeMapperOps }
 import laika.theme.{ Theme, ThemeProvider }

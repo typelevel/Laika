@@ -45,7 +45,7 @@ laikaTheme := Helium.defaults.build
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.helium.Helium
 
 val transformer = Transformer

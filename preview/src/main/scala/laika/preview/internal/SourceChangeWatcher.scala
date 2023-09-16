@@ -16,18 +16,22 @@
 
 package laika.preview.internal
 
-import cats.effect.{Async, Ref, Resource, Temporal}
+import cats.effect.{ Async, Ref, Resource, Temporal }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.ast.DocumentType.Static
-import laika.ast.{DocumentType, Path}
-import laika.internal.collection.TransitionalCollectionOps.{JIteratorWrapper, TransitionalMapOps}
+import laika.ast.{ DocumentType, Path }
+import laika.internal.collection.TransitionalCollectionOps.{ JIteratorWrapper, TransitionalMapOps }
 import laika.io.internal.runtime.DirectoryScanner
-import laika.io.model.{FileFilter, FilePath}
-import laika.preview.internal.SourceChangeWatcher.{ObservedDirectory, ObservedFiles, ObservedTarget}
+import laika.io.model.{ FileFilter, FilePath }
+import laika.preview.internal.SourceChangeWatcher.{
+  ObservedDirectory,
+  ObservedFiles,
+  ObservedTarget
+}
 
 import java.nio.file.StandardWatchEventKinds.*
-import java.nio.file.{FileSystems, WatchEvent, WatchKey, WatchService}
+import java.nio.file.{ FileSystems, WatchEvent, WatchKey, WatchService }
 import scala.annotation.tailrec
 import scala.concurrent.duration.*
 

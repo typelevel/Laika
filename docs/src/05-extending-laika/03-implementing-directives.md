@@ -490,7 +490,7 @@ You can request access to the parser of the host language with all extensions th
 with an overload of the `parsedBody` combinator:
 
 ```scala mdoc:compile-only
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.TextParsers._
 
 val bodyPart = parsedBody { recParsers =>

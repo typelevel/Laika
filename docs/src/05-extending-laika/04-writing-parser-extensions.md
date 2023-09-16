@@ -78,7 +78,7 @@ We require a mandatory `#` symbol followed by one or more digits.
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text._
 import TextParsers.someOf
 
@@ -299,7 +299,7 @@ In cases where your parser needs access to the parser of the host language for r
 we need to use the `SpanParserBuilder.recursive` entry point instead:
 
 ```scala mdoc:silent
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.TextParsers.delimitedBy
 
 SpanParserBuilder.recursive { recParsers =>
@@ -348,7 +348,7 @@ Let's look at the implementation and examine it line by line:
 ```scala mdoc:silent
 import laika.ast._
 import laika.api.bundle.BlockParserBuilder
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.markup.BlockParsers
 import laika.parse.text.TextParsers.ws
 

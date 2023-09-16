@@ -34,7 +34,7 @@ import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
-import laika.io.internal.errors.{ConfigException, DuplicatePath, ParserErrors}
+import laika.io.internal.errors.{ ConfigException, DuplicatePath, ParserErrors }
 import laika.io.syntax.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
 import laika.parse.Parser

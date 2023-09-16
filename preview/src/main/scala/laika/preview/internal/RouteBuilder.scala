@@ -16,14 +16,22 @@
 
 package laika.preview.internal
 
-import cats.effect.{Async, Resource, Sync}
+import cats.effect.{ Async, Resource, Sync }
 import cats.syntax.all.*
 import fs2.concurrent.Topic
 import fs2.io.readInputStream
 import laika.preview.ServerBuilder.Logger
 import org.http4s.dsl.Http4sDsl
-import org.http4s.headers.{`Cache-Control`, `Content-Type`}
-import org.http4s.{CacheDirective, EntityEncoder, Headers, HttpRoutes, MediaType, Response, ServerSentEvent}
+import org.http4s.headers.{ `Cache-Control`, `Content-Type` }
+import org.http4s.{
+  CacheDirective,
+  EntityEncoder,
+  Headers,
+  HttpRoutes,
+  MediaType,
+  Response,
+  ServerSentEvent
+}
 
 import java.io.InputStream
 import scala.concurrent.duration.DurationInt

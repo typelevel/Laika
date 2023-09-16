@@ -22,7 +22,7 @@ import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.descriptor.RendererDescriptor
 import laika.io.internal.model.TreeOutput
-import laika.io.internal.runtime.{Batch, RendererRuntime}
+import laika.io.internal.runtime.{ Batch, RendererRuntime }
 import laika.io.model.{ BinaryInput, ParsedTree, RenderedTreeRoot }
 import laika.io.ops.TextOutputOps
 import laika.theme.{ Theme, ThemeProvider }

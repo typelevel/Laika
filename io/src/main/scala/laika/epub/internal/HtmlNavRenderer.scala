@@ -17,7 +17,7 @@
 package laika.epub.internal
 
 import laika.api.format.TagFormatter
-import laika.ast.{NavigationItem, NavigationLink}
+import laika.ast.{ NavigationItem, NavigationLink }
 import laika.epub.internal.StyleSupport.collectStylePaths
 import laika.io.model.RenderedTreeRoot
 

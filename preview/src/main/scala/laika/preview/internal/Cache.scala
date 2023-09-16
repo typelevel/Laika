@@ -16,7 +16,7 @@
 
 package laika.preview.internal
 
-import cats.effect.{Concurrent, Ref}
+import cats.effect.{ Concurrent, Ref }
 import cats.syntax.all.*
 import laika.preview.internal.Cache.Result
 

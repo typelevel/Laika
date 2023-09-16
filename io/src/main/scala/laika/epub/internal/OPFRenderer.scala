@@ -19,7 +19,7 @@ package laika.epub.internal
 import laika.api.bundle.SlugBuilder
 import laika.ast.*
 import laika.format.EPUB.ScriptedTemplate
-import laika.io.model.{RenderedDocument, RenderedTreeRoot}
+import laika.io.model.{ RenderedDocument, RenderedTreeRoot }
 import laika.theme.config.BookConfig
 
 /** Renders the content of an EPUB Package document (OPF).

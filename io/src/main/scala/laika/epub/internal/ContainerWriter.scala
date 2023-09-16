@@ -16,7 +16,7 @@
 
 package laika.epub.internal
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
 import laika.api.format.TagFormatter
 import laika.ast.Path

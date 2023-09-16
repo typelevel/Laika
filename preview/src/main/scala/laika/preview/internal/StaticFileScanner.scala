@@ -26,7 +26,7 @@ import laika.config.Versions
 import laika.io.internal.config.SiteConfig
 import laika.io.internal.errors.ConfigException
 import laika.io.internal.runtime.DirectoryScanner
-import laika.io.model.{BinaryInput, FilePath}
+import laika.io.model.{ BinaryInput, FilePath }
 
 private[preview] object StaticFileScanner {
 

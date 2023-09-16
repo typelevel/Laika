@@ -17,12 +17,12 @@
 package laika.epub.internal
 
 import laika.api.config.Config.ConfigResult
-import laika.api.config.{Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key}
+import laika.api.config.{ Config, ConfigBuilder, ConfigDecoder, ConfigParser, Key }
 import laika.ast.Path.Root
 import laika.config.PlatformDateTime
 import laika.format.EPUB
 import laika.render.fo.TestTheme
-import laika.theme.config.{BookConfig, DocumentMetadata}
+import laika.theme.config.{ BookConfig, DocumentMetadata }
 import munit.FunSuite
 
 /** @author Jens Halm

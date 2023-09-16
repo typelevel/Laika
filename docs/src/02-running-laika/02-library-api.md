@@ -90,7 +90,7 @@ the `laika-io` module expands on the core API to add this functionality:
 }
 
 The blue elements of the API are identical to the pure transformer.
-The new `parallel` method used above becomes available with `import laika.io.implicits._`.
+The new `parallel` method used above becomes available with `import laika.io.syntax._`.
 
 This API introduces a dependency on `cats-effect` which is used to model the effectful computations.
 You can use it with any effect that supports the `cats-effect` type classes, such as `cats.IO`.
@@ -171,7 +171,7 @@ With the dependency in place you also need to add a third import to those you us
 ```scala mdoc:reset
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 ```
 
 The remainder of the setup depends on whether you are [Using cats-effect]

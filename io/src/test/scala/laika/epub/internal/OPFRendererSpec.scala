@@ -22,7 +22,7 @@ import laika.ast.*
 import laika.ast.Path.Root
 import laika.format.EPUB.ScriptedTemplate
 import laika.io.model.RenderedTreeRoot
-import laika.theme.config.{BookConfig, DocumentMetadata}
+import laika.theme.config.{ BookConfig, DocumentMetadata }
 import munit.FunSuite
 
 import java.time.OffsetDateTime

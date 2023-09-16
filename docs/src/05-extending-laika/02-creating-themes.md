@@ -32,7 +32,7 @@ laikaTheme := Theme.empty
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 
 val transformer = Transformer

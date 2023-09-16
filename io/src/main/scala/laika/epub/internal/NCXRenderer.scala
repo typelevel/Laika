@@ -17,7 +17,7 @@
 package laika.epub.internal
 
 import laika.api.format.TagFormatter
-import laika.ast.{NavigationItem, NavigationLink}
+import laika.ast.{ NavigationItem, NavigationLink }
 import laika.io.model.RenderedTreeRoot
 
 /** Renders the entire content of an NCX navigation file.

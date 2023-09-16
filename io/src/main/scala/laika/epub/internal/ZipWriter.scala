@@ -16,12 +16,12 @@
 
 package laika.epub.internal
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.implicits.*
-import laika.io.model.{BinaryInput, BinaryOutput}
+import laika.io.model.{ BinaryInput, BinaryOutput }
 
 import java.io.OutputStream
-import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
+import java.util.zip.{ CRC32, ZipEntry, ZipOutputStream }
 
 /** @author Jens Halm
   */

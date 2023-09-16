@@ -20,8 +20,8 @@ import cats.effect.Async
 import fs2.io.file.Files
 import laika.api.bundle.DocumentTypeMatcher
 import laika.ast.Path.Root
-import laika.ast.{DocumentType, Path}
-import laika.io.model.{FileFilter, FilePath}
+import laika.ast.{ DocumentType, Path }
+import laika.io.model.{ FileFilter, FilePath }
 
 import scala.io.Codec
 

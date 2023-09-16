@@ -18,11 +18,11 @@ package laika.preview.internal
 
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
-import laika.api.bundle.{BundleOrigin, ExtensionBundle, PathTranslator}
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.*
-import laika.format.{AST, HTML}
+import laika.format.{ AST, HTML }
 import laika.parse.code.languages.LaikaASTSyntax
-import laika.parse.{Failure, Success}
+import laika.parse.{ Failure, Success }
 
 import scala.annotation.tailrec
 

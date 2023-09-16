@@ -17,13 +17,13 @@
 package laika.epub.internal
 
 import laika.api.Renderer
-import laika.api.bundle.{ConfigurablePathTranslator, PathAttributes, TranslatorConfig}
+import laika.api.bundle.{ ConfigurablePathTranslator, PathAttributes, TranslatorConfig }
 import laika.api.config.ConfigBuilder
 import laika.ast.*
 import laika.ast.Path.Root
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.styles.StyleDeclarationSet
-import laika.config.{LaikaKeys, TargetFormats}
+import laika.config.{ LaikaKeys, TargetFormats }
 import laika.format.EPUB
 import munit.CatsEffectSuite
 

@@ -18,7 +18,7 @@ package laika.epub.internal
 
 import cats.effect.IO
 import laika.api.bundle.PathTranslator
-import laika.api.config.{Config, ConfigBuilder}
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.*
 import laika.ast.Path.Root
 import laika.config.LaikaKeys

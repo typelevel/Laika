@@ -47,7 +47,7 @@ import laika.io.syntax.*
 import laika.io.model.*
 import laika.parse.GeneratedSource
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
-import laika.io.internal.errors.{DuplicatePath, RendererErrors}
+import laika.io.internal.errors.{ DuplicatePath, RendererErrors }
 import laika.io.internal.runtime.VersionInfoGenerator
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths

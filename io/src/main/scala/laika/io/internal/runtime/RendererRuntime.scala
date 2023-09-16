@@ -16,7 +16,7 @@
 
 package laika.io.internal.runtime
 
-import cats.effect.{Async, Sync}
+import cats.effect.{ Async, Sync }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
@@ -26,11 +26,16 @@ import laika.api.errors.InvalidDocuments
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.styles.StyleDeclarationSet
-import laika.config.{LaikaKeys, TargetFormats, Versions}
+import laika.config.{ LaikaKeys, TargetFormats, Versions }
 import laika.internal.nav.TitleDocumentConfig
-import laika.io.api.{BinaryTreeRenderer, TreeRenderer}
-import laika.io.internal.errors.{ConfigException, DocumentRendererError, DuplicatePath, RendererErrors}
-import laika.io.internal.model.{DirectoryOutput, InMemoryOutput}
+import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
+import laika.io.internal.errors.{
+  ConfigException,
+  DocumentRendererError,
+  DuplicatePath,
+  RendererErrors
+}
+import laika.io.internal.model.{ DirectoryOutput, InMemoryOutput }
 import laika.io.model.*
 
 /** Internal runtime for renderer operations, for text and binary output as well

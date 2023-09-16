@@ -28,12 +28,8 @@ import laika.io.api.{
   TreeTransformer
 }
 import laika.io.descriptor.ThemeDescriptor
-import laika.io.internal.model.{DirectoryInput, DirectoryOutput, TreeOutput}
-import laika.io.model.{
-  FileFilter,
-  InputTree,
-  RenderedTreeRoot
-}
+import laika.io.internal.model.{ DirectoryInput, DirectoryOutput, TreeOutput }
+import laika.io.model.{ FileFilter, InputTree, RenderedTreeRoot }
 import laika.theme.Theme
 import laika.theme.Theme.TreeProcessor
 

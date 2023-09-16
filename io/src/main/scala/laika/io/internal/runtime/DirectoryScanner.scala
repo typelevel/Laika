@@ -21,7 +21,7 @@ import cats.effect.kernel.Async
 import cats.implicits.*
 import fs2.io.file.Files
 import laika.ast.DocumentType.Static
-import laika.ast.{Path, TextDocumentType}
+import laika.ast.{ Path, TextDocumentType }
 import laika.io.internal.model.DirectoryInput
 import laika.io.model.*
 
