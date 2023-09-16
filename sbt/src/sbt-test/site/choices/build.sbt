@@ -1,4 +1,4 @@
-import laika.rewrite.nav._
+import laika.config._
 import cats.data.NonEmptyChain
 
 name := "site-epub"
@@ -11,11 +11,11 @@ enablePlugins(LaikaPlugin)
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(
-    config.Selections(
-      config.SelectionConfig(
+    Selections(
+      SelectionConfig(
         "config",
-        config.ChoiceConfig("sbt", "sbt Plugin"),
-        config.ChoiceConfig("library", "Library API")
+        ChoiceConfig("sbt", "sbt Plugin"),
+        ChoiceConfig("library", "Library API")
       ).withSeparateEbooks
     )
   )
