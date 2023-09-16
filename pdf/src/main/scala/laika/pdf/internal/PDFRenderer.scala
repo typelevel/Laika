@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package laika.render.pdf
-
-import java.io.{ OutputStream, StringReader }
+package laika.pdf.internal
 
 import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Sync }
-import cats.implicits._
-import javax.xml.transform.sax.SAXResult
-import javax.xml.transform.stream.StreamSource
-import javax.xml.transform.{ Transformer, TransformerFactory }
+import cats.implicits.*
 import laika.io.model.{ BinaryInput, BinaryOutput }
 import laika.theme.config.DocumentMetadata
 import org.apache.fop.apps.{ FOUserAgent, FOUserAgentFactory, FopFactory }
 import org.apache.xmlgraphics.util.MimeConstants
+
+import java.io.{ OutputStream, StringReader }
+import javax.xml.transform.sax.SAXResult
+import javax.xml.transform.stream.StreamSource
+import javax.xml.transform.{ Transformer, TransformerFactory }
 
 /** Responsible for the final step in producing the binary PDF format from a single XSL-FO input stream
   * that represents the entire document and its navigation elements.

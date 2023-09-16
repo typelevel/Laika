@@ -32,7 +32,7 @@ import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
 import laika.internal.render.FOFormatter.Preamble
-import laika.render.pdf.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
+import laika.pdf.internal.{ FOConcatenation, FopFactoryBuilder, PDFRenderer }
 import laika.theme.config.BookConfig
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer.

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package laika.render.pdf
+package laika.pdf.internal
 
-import java.io.{ ByteArrayInputStream, File }
 import cats.effect.Async
 import cats.effect.std.Dispatcher
 import laika.io.model.BinaryInput
 import laika.theme.config.BookConfig
 import org.apache.fop.apps.{ FopConfParser, FopFactory }
+
+import java.io.{ ByteArrayInputStream, File }
 
 /** Creates a FopFactory instance based on user configuration, registering all fonts to be embedded into the PDF.
   *

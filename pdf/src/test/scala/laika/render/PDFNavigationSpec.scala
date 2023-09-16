@@ -37,8 +37,8 @@ import laika.io.syntax.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.internal.render.FOFormatter.Preamble
 import laika.io.internal.errors.ConfigException
+import laika.pdf.internal.FOConcatenation
 import laika.render.fo.TestTheme
-import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
 import laika.theme.config.BookConfig
 import munit.CatsEffectSuite

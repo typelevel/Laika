@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package laika.render.pdf
+package laika.pdf.internal
 
-import laika.ast._
+import laika.ast.*
 import laika.io.model.RenderedTreeRoot
 
 /** Prepares a document tree for the PDF rendering step by inserting PDF bookmark elements.

@@ -26,8 +26,8 @@ import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
+import laika.pdf.internal.FOConcatenation
 import laika.render.fo.TestTheme
-import laika.render.pdf.FOConcatenation
 import laika.theme.config.BookConfig
 import munit.FunSuite
 

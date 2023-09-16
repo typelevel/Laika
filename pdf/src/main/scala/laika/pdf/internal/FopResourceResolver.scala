@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package laika.render.pdf
+package laika.pdf.internal
 
-import java.io.OutputStream
-import java.net.URI
-
-import cats.syntax.all._
 import cats.effect.Async
 import cats.effect.std.Dispatcher
+import cats.syntax.all.*
 import laika.ast.Path
 import laika.io.model.BinaryInput
 import org.apache.fop.apps.io.ResourceResolverFactory
 import org.apache.xmlgraphics.io.{ Resource, ResourceResolver }
+
+import java.io.OutputStream
+import java.net.URI
 
 /** Adapter for the ResourceResolver API of Apache FOP, allowing Laika to serve any kind of InputStream
   * from its static input documents, including in-memory content or classpath resources,
