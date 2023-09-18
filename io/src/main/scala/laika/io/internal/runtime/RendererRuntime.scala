@@ -208,7 +208,7 @@ private[io] object RendererRuntime {
         new RenderedTreeRoot[F](
           resultRoot,
           template,
-          finalRoot.config,
+          finalRoot,
           context,
           pathTranslator,
           finalRoot.styles(fileSuffix),

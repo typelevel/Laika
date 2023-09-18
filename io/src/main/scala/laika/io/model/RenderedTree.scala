@@ -117,7 +117,7 @@ class RenderedDocument(
   *
   * @param tree the recursive structure of documents, usually obtained from parsing text markup
   * @param defaultTemplate the default template configured for the output format, which may be used by a post-processor
-  * @param config the root configuration of the rendered tree
+  * @param input the document AST that had been passed to the renderer
   * @param outputContext the context for the output format used in rendering (file suffix and format selector)
   * @param pathTranslator the path translator specific to the output format produced by the renderer
   * @param styles the styles that had been applied to the rendered output (only applies to formats like FO where styles are not just pass-through)
@@ -128,13 +128,16 @@ class RenderedDocument(
 class RenderedTreeRoot[F[_]](
     val tree: RenderedTree,
     val defaultTemplate: TemplateRoot,
-    val config: Config,
+    val input: DocumentTreeRoot,
     val outputContext: OutputContext,
     val pathTranslator: PathTranslator,
     val styles: StyleDeclarationSet = StyleDeclarationSet.empty,
     val coverDocument: Option[RenderedDocument] = None,
     val staticDocuments: Seq[BinaryInput[F]] = Nil
 ) {
+
+  /** The configuration of the document AST used as input to the renderer. */
+  val config: Config = input.config
 
   /** The title of the tree, either obtained from the title document or configuration
     */
@@ -152,7 +155,7 @@ class RenderedTreeRoot[F[_]](
     new RenderedTreeRoot(
       tree,
       template,
-      config,
+      input,
       outputContext,
       pathTranslator,
       styles,
@@ -164,7 +167,7 @@ class RenderedTreeRoot[F[_]](
     new RenderedTreeRoot(
       tree,
       defaultTemplate,
-      config,
+      input,
       outputContext,
       pathTranslator,
       styles,

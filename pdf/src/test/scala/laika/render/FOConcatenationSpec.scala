@@ -44,7 +44,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
       Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
     ),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
-    config = Config.empty,
+    input = DocumentTreeRoot(DocumentTree.empty),
     outputContext = OutputContext(XSLFO),
     pathTranslator = PathTranslator.noOp,
     styles = TestTheme.foStyles

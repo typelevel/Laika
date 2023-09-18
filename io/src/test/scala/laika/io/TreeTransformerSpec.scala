@@ -181,7 +181,7 @@ class TreeTransformerSpec extends CatsEffectSuite
   ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
     new RenderedTree(Root, None, content, titleDocument),
     TemplateRoot.fallback,
-    Config.empty,
+    DocumentTreeRoot(DocumentTree.empty),
     outputContext,
     PathTranslator.noOp,
     coverDocument = coverDocument,
