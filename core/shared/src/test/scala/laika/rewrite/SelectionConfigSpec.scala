@@ -18,11 +18,11 @@ package laika.rewrite
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
-import laika.rewrite.nav.{ ChoiceConfig, Classifiers, CoverImage, SelectionConfig, Selections }
+import laika.api.config.Config.ConfigResult
+import laika.config.{ ChoiceConfig, CoverImage, LaikaKeys, SelectionConfig, Selections }
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -64,7 +64,7 @@ class SelectionConfigSpec extends FunSuite {
     val result   = Selections.createCombinations(Config.empty).map { result =>
       (result.length, result.head._1.get[Selections], result.head._2)
     }
-    val expected = (1L, Right(Selections.empty), Classifiers(Nil))
+    val expected = (1L, Right(Selections.empty), Selections.Classifiers(Nil))
     assertEquals(result, Right(expected))
   }
 

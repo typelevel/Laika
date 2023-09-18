@@ -17,12 +17,12 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
+import laika.ast.html.{ HTMLAttribute, HTMLBlock, HTMLScriptElement }
 import laika.ast.sample.ParagraphCompanionShortcuts
-import laika.ast.{ Block, RootElement, Text }
+import laika.ast.{ Block, RootElement, Text, html }
 import laika.format.Markdown
-import laika.markdown.ast.{ HTMLAttribute, HTMLBlock, HTMLScriptElement }
+import laika.internal.parse.markup.RootParser
 import laika.parse.Parser
-import laika.parse.markup.RootParser
 import munit.FunSuite
 
 class HTMLBlockParserSpec extends FunSuite
@@ -79,7 +79,7 @@ class HTMLBlockParserSpec extends FunSuite
                   |bbb""".stripMargin
     val inner = HTMLScriptElement(Nil, "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  ")
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
+    run(input, p("aaa"), html.HTMLBlock(outer), p("bbb"))
   }
 
   test("recognize a script tag with attributes inside a block level HTML element") {
@@ -101,7 +101,7 @@ class HTMLBlockParserSpec extends FunSuite
       "\n    var x = [1, 2, 3];\n    var y = 'foo';\n  "
     )
     val outer = element("div", Text("\n  "), inner, Text("\n"))
-    run(input, p("aaa"), HTMLBlock(outer), p("bbb"))
+    run(input, p("aaa"), html.HTMLBlock(outer), p("bbb"))
   }
 
   test("ignore elements which are not listed as block-level elements") {

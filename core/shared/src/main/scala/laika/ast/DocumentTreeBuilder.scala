@@ -16,12 +16,13 @@
 
 package laika.ast
 
-import laika.config.{ Config, ConfigError, ConfigParser, Origin }
 import cats.implicits.*
+import laika.api.config.{ Config, ConfigError, ConfigParser, Origin }
 import laika.ast.Path.Root
-import laika.config.Config.IncludeMap
-import laika.config.Origin.{ DocumentScope, TreeScope }
-import laika.rewrite.nav.TitleDocumentConfig
+import laika.api.config.Config.IncludeMap
+import laika.api.config.Origin.{ DocumentScope, TreeScope }
+import laika.ast.styles.StyleDeclarationSet
+import laika.internal.nav.TitleDocumentConfig
 
 import scala.collection.mutable
 
@@ -35,7 +36,7 @@ import scala.collection.mutable
   */
 class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.BuilderPart] = Nil) {
 
-  import laika.collection.TransitionalCollectionOps.*
+  import laika.internal.collection.TransitionalCollectionOps.*
   import DocumentTreeBuilder.*
 
   private[laika] lazy val distinctParts: List[BuilderPart] = {

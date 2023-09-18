@@ -18,8 +18,7 @@ package laika.helium
 
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.format.{ AST, Markdown }
-import laika.helium.builder.HeliumRewriteRules
-import laika.markdown.github.GitHubFlavor
+import laika.helium.internal.builder.HeliumRewriteRules
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -28,7 +27,7 @@ class LineEstimatesSpec extends FunSuite with RenderPhaseRewrite {
 
   private val parser = MarkupParser
     .of(Markdown)
-    .using(GitHubFlavor)
+    .using(Markdown.GitHubFlavor)
     .build
 
   def run(input: String, expected: Int)(implicit loc: munit.Location): Unit = {

@@ -17,23 +17,21 @@
 package laika.config
 
 import cats.data.NonEmptyChain
-import laika.ast.{ DocumentMetadata, IconGlyph, IconStyle }
+import laika.api.config.{
+  ConfigBuilder,
+  ConfigDecoder,
+  ConfigEncoder,
+  ConfigParser,
+  ConfigValue,
+  DefaultKey,
+  Key
+}
+import laika.ast.{ IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.rewrite.{ Version, Versions }
-import laika.rewrite.link.{
-  ApiLinks,
-  IconRegistry,
-  LinkConfig,
-  LinkValidation,
-  SourceLinks,
-  TargetDefinition
-}
-import laika.rewrite.nav.{ AutonumberConfig, ChoiceConfig, SelectionConfig, Selections }
-import laika.time.PlatformDateTime
+import laika.api.config.ConfigError.{ ConfigErrors, DecodingError, ValidationError }
+import laika.api.config.ConfigValue.ASTValue
 import munit.FunSuite
-
-import java.net.URI
 
 /** @author Jens Halm
   */
@@ -72,101 +70,6 @@ class ConfigCodecSpec extends FunSuite {
       .get[T](testKey)
       .map(modifyResult)
     assertEquals(result, Right(value))
-  }
-
-  test("DocumentMetadata - decode an instance with all fields populated") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  title = "Monkey Gone To Heaven"
-        |  description = "It's indescribable"
-        |  identifier = XX-33-FF-01
-        |  authors = [ "Helen North", "Maria South" ]
-        |  language = en
-        |  datePublished = "2002-10-10T12:00:00"
-        |  dateModified = "2002-12-12T12:00:00"
-        |  version = 125
-        |  canonicalLink = "http://foo.bar/baz"
-        |}}
-      """.stripMargin
-    decode[DocumentMetadata](
-      input,
-      DocumentMetadata.empty
-        .withTitle("Monkey Gone To Heaven")
-        .withDescription("It's indescribable")
-        .withIdentifier("XX-33-FF-01")
-        .addAuthors("Helen North", "Maria South")
-        .withLanguage("en")
-        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-        .withDateModified(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get)
-        .withVersion("125")
-        .withCanonicalLink(new URI("http://foo.bar/baz"))
-    )
-  }
-
-  test("DocumentMetadata - decode an instance with a single author") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  datePublished = "2002-10-10T12:00:00"
-        |}}
-      """.stripMargin
-    decode[DocumentMetadata](
-      input,
-      DocumentMetadata.empty
-        .withIdentifier("XX-33-FF-01")
-        .addAuthors("Dorothea West")
-        .withLanguage("en")
-        .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-    )
-  }
-
-  test("DocumentMetadata - round-trip encode and decode") {
-    val input = DocumentMetadata.empty
-      .withTitle("Monkey Gone To Heaven")
-      .withDescription("Rhubarb, Rhubarb, Rhubarb")
-      .withIdentifier("XX-33-FF-01")
-      .addAuthors("Helen North", "Maria South")
-      .withLanguage("en")
-      .withDatePublished(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get)
-      .withDateModified(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-      .withVersion("125")
-      .withCanonicalLink(new URI("http://foo.bar/baz"))
-    roundTrip(input)
-  }
-
-  test("DocumentMetadata - fail with an invalid date") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  dateModified = "2000-XX-01T00:00:00Z"
-        |}}
-      """.stripMargin
-    failDecode[DocumentMetadata](
-      input,
-      "Error decoding 'laika.metadata.dateModified': Invalid date format"
-    )
-  }
-
-  test("DocumentMetadata - fail with an invalid URI") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  canonicalLink = "?#?@!#"
-        |}}
-      """.stripMargin
-    val msg   =
-      "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
-    failDecode[DocumentMetadata](input, msg)
   }
 
   object links {

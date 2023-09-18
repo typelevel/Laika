@@ -17,8 +17,8 @@
 package laika.helium.config
 
 import laika.ast.{ Icon, IconGlyph, InlineSVGIcon, Styles }
-import laika.helium.builder.SVGIcons
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
+import laika.helium.internal.builder.SVGIcons
 
 /** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
   *

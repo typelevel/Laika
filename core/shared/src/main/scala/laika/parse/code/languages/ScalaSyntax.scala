@@ -17,7 +17,7 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{
@@ -30,7 +30,7 @@ import laika.parse.code.common.{
 }
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.implicits._
 

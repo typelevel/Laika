@@ -16,7 +16,9 @@
 
 package laika.io.ops
 
-import laika.io.model.{ DirectoryOutput, FilePath, TreeOutput }
+import laika.io.internal.model
+import laika.io.internal.model.{ InMemoryOutput, TreeOutput }
+import laika.io.model.FilePath
 
 import scala.io.Codec
 
@@ -52,8 +54,13 @@ private[io] trait TextOutputOps[F[_]] {
     * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def toDirectory(dir: FilePath)(implicit codec: Codec): Result = toOutput(
-    DirectoryOutput(dir, codec)
+    model.DirectoryOutput(dir, codec)
   )
+
+  /** Builder step that instructs the renderer to only produce an in - memory representation of the
+    * tree of rendered outputs.
+    */
+  def toMemory: Result = toOutput(InMemoryOutput)
 
   /** Builder step that instructs the runtime to render
     * to the specified tree output.
@@ -61,6 +68,6 @@ private[io] trait TextOutputOps[F[_]] {
     * This is a generic method based on Laika's IO model that concrete
     * methods delegate to.
     */
-  def toOutput(tree: TreeOutput): Result
+  private[io] def toOutput(tree: TreeOutput): Result
 
 }

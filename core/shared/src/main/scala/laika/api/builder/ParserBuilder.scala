@@ -17,7 +17,7 @@
 package laika.api.builder
 
 import laika.api.MarkupParser
-import laika.factory.MarkupFormat
+import laika.api.format.MarkupFormat
 
 /** Builder API for Parser instances.
   *

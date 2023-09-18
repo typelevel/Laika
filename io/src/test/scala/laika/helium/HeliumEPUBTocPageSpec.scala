@@ -24,8 +24,7 @@ import laika.ast.Path.Root
 import laika.format.{ EPUB, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.syntax._
 import laika.theme._
 import munit.CatsEffectSuite
 
@@ -53,7 +52,7 @@ class HeliumEPUBTocPageSpec extends CatsEffectSuite with InputBuilder with Resul
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "table-of-content.xhtml", start, end)
           .toRight(new RuntimeException("Missing document under test"))

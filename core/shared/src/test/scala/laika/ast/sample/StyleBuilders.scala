@@ -16,7 +16,7 @@
 
 package laika.ast.sample
 
-import laika.ast.{ ParentSelector, StyleDeclaration, StylePredicate, StyleSelector }
+import laika.ast.styles.{ ParentSelector, StyleDeclaration, StylePredicate, StyleSelector }
 
 trait StyleBuilders {
 

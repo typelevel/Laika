@@ -205,7 +205,3 @@ trait GlobalLink extends Link {
   *  of `LinkTarget` implementations.
   */
 trait LinkTarget extends Block { type Self <: LinkTarget }
-
-/** A wrapper for two result values.
-  */
-case class ~[+A, +B](_1: A, _2: B)

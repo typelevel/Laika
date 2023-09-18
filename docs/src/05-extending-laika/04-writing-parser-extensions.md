@@ -78,7 +78,7 @@ We require a mandatory `#` symbol followed by one or more digits.
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text._
 import TextParsers.someOf
 
@@ -109,7 +109,7 @@ In our case we only need to override the `parsers` property
 and leave everything else at the empty default implementations.
 
 ```scala mdoc:silent
-import laika.bundle._
+import laika.api.bundle._
 
 object TicketSyntax extends ExtensionBundle {
 
@@ -135,10 +135,10 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   TicketSyntax
 )
 ```
@@ -147,12 +147,11 @@ laikaExtensions := Seq(
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(TicketSyntax)
   .build
 ```
@@ -225,12 +224,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```
@@ -301,7 +299,7 @@ In cases where your parser needs access to the parser of the host language for r
 we need to use the `SpanParserBuilder.recursive` entry point instead:
 
 ```scala mdoc:silent
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.TextParsers.delimitedBy
 
 SpanParserBuilder.recursive { recParsers =>
@@ -349,8 +347,8 @@ Let's look at the implementation and examine it line by line:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.bundle.BlockParserBuilder
-import laika.parse.implicits._
+import laika.api.bundle.BlockParserBuilder
+import laika.parse.syntax._
 import laika.parse.markup.BlockParsers
 import laika.parse.text.TextParsers.ws
 
@@ -408,10 +406,10 @@ Finally you can register your extension together with any built-in extensions yo
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   QuotedBlocks
 )
 ```
@@ -420,12 +418,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val extendedTransformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(QuotedBlocks)
   .build
 ```

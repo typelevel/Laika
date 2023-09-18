@@ -16,8 +16,8 @@
 
 package laika.parse.markup
 
+import laika.api.bundle.BlockPosition
 import laika.ast.{ Block, Span }
-import laika.bundle.BlockPosition
 import laika.parse.text.{ DelimitedText, PrefixedParser }
 import laika.parse.{ BlockSource, Parsed, Parser, SourceFragment }
 

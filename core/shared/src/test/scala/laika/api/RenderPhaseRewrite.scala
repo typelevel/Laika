@@ -1,10 +1,10 @@
 package laika.api
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
+import laika.api.errors.RendererError
+import laika.api.format.RenderFormat
 import laika.ast.{ Document, RewritePhase }
-import laika.factory.RenderFormat
-import laika.parse.markup.DocumentParser.RendererError
 
 trait RenderPhaseRewrite {
 
@@ -22,7 +22,7 @@ trait RenderPhaseRewrite {
     config
       .rewriteRulesFor(doc, RewritePhase.Render(format))
       .flatMap(doc.rewrite)
-      .leftMap(RendererError(_, doc.path))
+      .leftMap(RendererError(_))
   }
 
 }

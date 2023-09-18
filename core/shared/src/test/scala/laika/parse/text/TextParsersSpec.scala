@@ -495,12 +495,12 @@ class TextParsersSpec extends FunSuite {
   }
 
   test("delimitedBy - succeed when the specified post condition is met") {
-    import laika.parse.implicits._
+    import laika.parse.syntax._
     run(delimitedBy(">>>" <~ ws.min(1)), "123>>> ", "123")
   }
 
   test("delimitedBy - fail when the specified post condition is not met") {
-    import laika.parse.implicits._
+    import laika.parse.syntax._
     expectFailure(delimitedBy(">>>" <~ ws.min(1)), "123>>>A")
   }
 

@@ -17,7 +17,7 @@
 package laika.parse.text
 
 import cats.data.NonEmptySet
-import laika.ast.~
+import laika.parse.builders.~
 import laika.parse.{ Parsed, Parser, SourceCursor, SourceFragment }
 
 /** A parser that is associated with a non-empty set of trigger

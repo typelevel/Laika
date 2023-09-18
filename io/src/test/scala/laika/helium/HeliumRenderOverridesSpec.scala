@@ -19,18 +19,15 @@ package laika.helium
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
+import laika.api.format.TagFormatter
 import laika.ast.{ Icon, IconGlyph, Path }
 import laika.ast.Path.Root
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections, SyntaxHighlighting }
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
-import laika.render.TagFormatter
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
+import laika.io.syntax.*
 import laika.theme.*
 import munit.CatsEffectSuite
 
@@ -45,7 +42,8 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       theme: ThemeProvider,
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
-    val builder = Transformer.from(Markdown).to(HTML).using(GitHubFlavor, SyntaxHighlighting)
+    val builder =
+      Transformer.from(Markdown).to(HTML).using(Markdown.GitHubFlavor, SyntaxHighlighting)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)
@@ -61,7 +59,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
   ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(Root / "doc.html", start, end)
             .toRight(new RuntimeException("Missing document under test"))

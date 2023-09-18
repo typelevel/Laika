@@ -16,6 +16,7 @@
 
 package laika.time
 
+import laika.config.PlatformDateTime
 import munit.FunSuite
 
 import scala.scalajs.js

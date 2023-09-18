@@ -23,8 +23,7 @@ import laika.ast.Path.Root
 import laika.format.{ EPUB, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
+import laika.io.syntax.*
 import laika.theme.*
 import munit.CatsEffectSuite
 
@@ -55,7 +54,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformAndExtractHead(inputs: Seq[(Path, String)], helium: Helium): IO[String] =
     transformer(helium.build).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedTagContent((Root / "name").withSuffix("xhtml"), "head")
             .toRight(new RuntimeException("Missing document under test"))
@@ -70,7 +69,7 @@ class HeliumEPUBHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "name.xhtml", start, end)
           .toRight(new RuntimeException("Missing document under test"))

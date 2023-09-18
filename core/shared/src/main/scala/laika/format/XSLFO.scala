@@ -16,9 +16,9 @@
 
 package laika.format
 
+import laika.api.format.{ RenderContext, RenderFormat, TagFormatter }
 import laika.ast.Element
-import laika.factory.{ RenderContext, RenderFormat }
-import laika.render._
+import laika.internal.render.{ FOFormatter, FORenderer }
 
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
   *

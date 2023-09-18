@@ -17,12 +17,12 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.builders._
 import laika.parse.code.CodeCategory.BooleanLiteral
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Comment, Keywords, NumberLiteral, StringLiteral }
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.CharGroup
 
 object ShellSyntax extends SyntaxHighlighter {

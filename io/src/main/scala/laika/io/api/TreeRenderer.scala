@@ -21,9 +21,10 @@ import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
 import laika.io.descriptor.RendererDescriptor
-import laika.io.model.{ BinaryInput, ParsedTree, RenderedTreeRoot, TreeOutput }
+import laika.io.internal.model.TreeOutput
+import laika.io.internal.runtime.{ Batch, RendererRuntime }
+import laika.io.model.{ BinaryInput, ParsedTree, RenderedTreeRoot }
 import laika.io.ops.TextOutputOps
-import laika.io.runtime.{ Batch, RendererRuntime }
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Renderer for a tree of output documents.
@@ -84,7 +85,7 @@ object TreeRenderer {
     def copying(toCopy: Seq[BinaryInput[F]]): OutputOps[F] =
       new OutputOps(renderer, theme, input, staticDocuments ++ toCopy)
 
-    def toOutput(output: TreeOutput): Op[F] =
+    private[io] def toOutput(output: TreeOutput): Op[F] =
       new Op[F](renderer, theme, input, output, staticDocuments)
 
   }

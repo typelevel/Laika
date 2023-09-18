@@ -17,10 +17,10 @@
 package laika.api
 
 import laika.api.builder.{ OperationConfig, TransformerBuilder, TwoPhaseTransformerBuilder }
+import laika.api.errors.TransformationError
+import laika.api.format.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.factory.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
-import laika.parse.markup.DocumentParser.TransformationError
 
 /** Performs a transformation from text markup like Markdown or reStructuredText
   * to a target format like HTML as a String.

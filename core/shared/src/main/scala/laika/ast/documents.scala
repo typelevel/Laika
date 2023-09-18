@@ -17,13 +17,15 @@
 package laika.ast
 
 import cats.data.NonEmptySet
+import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Origin, Traced }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.Config.IncludeMap
+import laika.api.config.Config.IncludeMap
+import laika.api.config.ConfigError.TreeConfigErrors
+import laika.ast.styles.StyleDeclarationSet
 import laika.config.*
-import laika.rewrite.nav.{ AutonumberConfig, TargetFormats }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, TemplateRewriter }
+import laika.internal.rewrite.TemplateRewriter
 
 import scala.annotation.tailrec
 

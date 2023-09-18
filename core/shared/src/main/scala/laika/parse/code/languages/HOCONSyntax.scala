@@ -17,8 +17,9 @@
 package laika.parse.code.languages
 
 import cats.data.{ NonEmptyList, NonEmptySet }
-import laika.ast.{ CodeSpan, ~ }
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
+import laika.ast.CodeSpan
+import laika.parse.builders.~
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.common.StringLiteral.StringParser
 import laika.parse.code.common.{
@@ -31,7 +32,7 @@ import laika.parse.code.common.{
 import laika.parse.code.implicits._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
-import laika.parse.text.TextParsers.{ lookAhead, ws, _ }
+import laika.parse.text.TextParsers.*
 
 import scala.collection.immutable.SortedSet
 

@@ -17,8 +17,9 @@
 package laika.ast
 
 import laika.ast.Path.Root
-import laika.ast.StylePredicate._
+import laika.ast.styles.StylePredicate.*
 import laika.ast.sample.StyleBuilders
+import laika.ast.styles.{ StyleDeclarationSet, StylePredicate }
 import munit.FunSuite
 
 class StyleMatchingSpec extends FunSuite with StyleBuilders {

@@ -16,8 +16,10 @@
 
 package laika.ast
 
+import laika.api.config.ConfigValue
 import laika.ast
-import laika.config.{ ASTValue, ConfigValue, LaikaKeys }
+import laika.config.LaikaKeys
+import laika.api.config.ConfigValue.ASTValue
 import laika.parse.SourceFragment
 
 /** An internal or external link target that can be referenced by id, usually only part of the raw document tree and then

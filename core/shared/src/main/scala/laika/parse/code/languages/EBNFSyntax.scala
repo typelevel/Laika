@@ -17,12 +17,12 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Identifier, StringLiteral }
 import laika.parse.code.implicits._
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 
 /** This highlighter is very loosely defined with the aim to work for most of
   * the dozens of flavors of EBNF that are widely used.

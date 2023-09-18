@@ -16,6 +16,7 @@
 
 package laika.time
 
+import laika.config.PlatformDateTime
 import munit.FunSuite
 
 import java.time.{ Instant, OffsetDateTime, ZoneId }

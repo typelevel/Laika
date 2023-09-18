@@ -1,15 +1,6 @@
 import cats.data.NonEmptySet
 import laika.ast.Path.Root
-import laika.ast.{
-  Block,
-  BlockContainer,
-  BlockSequence,
-  Image,
-  Paragraph,
-  RawContent,
-  ResolvedInternalTarget,
-  Styles
-}
+import laika.ast.*
 import laika.bundle.RenderOverrides
 import laika.directive.{ Blocks, DirectiveRegistry }
 import laika.format.{ HTML, XSLFO }

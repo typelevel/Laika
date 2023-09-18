@@ -18,13 +18,14 @@ package laika.api
 
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.config.{ Config, ConfigBuilder, ConfigValue, Origin }
+import laika.api.errors.{ InvalidDocument, ParserError }
+import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
-import laika.config.Origin.DocumentScope
-import laika.config.{ Config, ConfigBuilder, ConfigValue, Origin }
-import laika.factory.MarkupFormat
-import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocument, ParserError }
+import laika.api.config.Origin.DocumentScope
+import laika.internal.parse.markup.DocumentParser
+import DocumentParser.DocumentInput
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation.
@@ -92,16 +93,20 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
     }
 
     def rewritePhase(doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {
-      rules  <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_, doc.path))
-      result <- doc.rewrite(rules).leftMap(ParserError.apply(_, doc.path))
+      rules  <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_))
+      result <- doc.rewrite(rules).leftMap(ParserError(_))
     } yield result
+
+    def asParserError(document: InvalidDocument): ParserError = new ParserError(
+      s"One or more error nodes in result:\n${InvalidDocument.format(document)}".trim
+    )
 
     def rewriteDocument(resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
         .from(phase2, config.failOnMessages)
-        .map(ParserError(_))
+        .map(asParserError)
         .toLeft(phase2)
     } yield result
 
@@ -109,7 +114,7 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
       unresolved     <- docParser(input)
       resolvedConfig <- unresolved.config
         .resolve(Origin(DocumentScope, input.path), config.baseConfig)
-        .left.map(ParserError(_, input.path))
+        .left.map(ParserError(_))
       resolvedDoc = resolveDocument(unresolved, resolvedConfig)
       result <- rewriteDocument(resolvedDoc)
     } yield result

@@ -20,8 +20,8 @@ import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.format.{ HTML, Markdown }
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import munit.FunSuite
 
 class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts

@@ -26,10 +26,10 @@ so that you can still choose other existing solutions if you prefer.
 When using the sbt plugin it can be added to the `laikaExtensions` setting:
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.format.Markdown
+import laika.config.SyntaxHighlighting
 
-laikaExtensions ++= Seq(GitHubFlavor, SyntaxHighlighting)  
+laikaExtensions ++= Seq(Markdown.GitHubFlavor, SyntaxHighlighting)  
 ```
 
 Note that you also have to add the `GitHubFlavor` extension so that you get the support for fenced code blocks.
@@ -40,13 +40,12 @@ When using the Library API highlighting can be activated like all other extensio
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.config.SyntaxHighlighting
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor, SyntaxHighlighting)
+  .using(Markdown.GitHubFlavor, SyntaxHighlighting)
   .build
 ```
 
@@ -149,8 +148,9 @@ as a starting point.
 Once you have implemented and tested your highlighter you can add it to the built-in ones like this:
 
 ```scala mdoc:compile-only
-import laika.parse.code.{SyntaxHighlighting, CodeSpanParser }
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
+import laika.config.SyntaxHighlighting
+import laika.parse.code.CodeSpanParser
 import cats.data.NonEmptyList
 
 object MyHighlighter extends SyntaxHighlighter {
@@ -159,7 +159,7 @@ object MyHighlighter extends SyntaxHighlighter {
 }
 
 laikaExtensions ++= Seq(
-  GitHubFlavor, 
+  Markdown.GitHubFlavor, 
   SyntaxHighlighting.withSyntax(MyHighlighter)
 )  
 ```

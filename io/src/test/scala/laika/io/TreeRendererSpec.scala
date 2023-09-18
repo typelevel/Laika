@@ -21,6 +21,11 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
+import laika.api.config.{ Config, ConfigBuilder, Origin }
+import laika.api.errors.{ InvalidDocument, InvalidDocuments }
+import laika.api.format.{ Formatter, TagFormatter }
+import laika.ast
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{
@@ -30,24 +35,22 @@ import laika.ast.sample.{
   SampleTrees,
   TestSourceBuilders
 }
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
+import laika.bundle.BundleProvider
+import laika.config.{ LaikaKeys, PrettyURLs, TargetFormats, Version, Versions }
 import laika.format.*
-import laika.helium.generate.FOStyles
+import laika.helium.internal.generate.FOStyles
+import laika.internal.render.FOFormatter
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.helper.{ InputBuilder, RenderResult, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.*
-import laika.io.runtime.RendererRuntime.{ DuplicatePath, RendererErrors }
-import laika.io.runtime.VersionInfoGenerator
 import laika.parse.GeneratedSource
-import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
-import laika.render.*
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
+import laika.io.internal.errors.{ DuplicatePath, RendererErrors }
+import laika.io.internal.runtime.VersionInfoGenerator
 import laika.render.fo.TestTheme
 import laika.render.fo.TestTheme.staticHTMLPaths
-import laika.rewrite.ReferenceResolver.CursorKeys
-import laika.rewrite.nav.{ NoOpPathTranslator, PrettyURLs, TargetFormats }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext, Version, Versions }
 import munit.CatsEffectSuite
 
 import scala.io.Codec
@@ -141,7 +144,7 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateRoot.fallback,
       Config.empty,
       outputContext,
-      NoOpPathTranslator,
+      PathTranslator.noOp,
       coverDocument = coverDocument,
       staticDocuments = staticDocuments.map(Inputs.ByteInput.empty(_))
     )
@@ -209,7 +212,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
 
@@ -364,7 +367,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -398,7 +401,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(HTMLRenderer.defaultRoot(input))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .attempt
@@ -801,7 +804,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
     val input                                      = Inputs.twoDocs(defaultContent, subElem)
     val foStyles: Map[String, StyleDeclarationSet] =
-      Map("fo" -> (styles ++ StyleDeclarationSet(FOStyles.defaultPath, customStyle)))
+      Map("fo" -> (styles ++ ast.styles.StyleDeclarationSet(FOStyles.defaultPath, customStyle)))
     val expectedRoot                               = RenderResult.fo.withFallbackTemplate(
       s"""${title("_doc_title", "Title")}
          |<fo:block $overriddenParagraphStyles>bbb</fo:block>""".stripMargin
@@ -840,7 +843,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(Seq(Inputs.ByteInput("...", Root / "static1.txt")))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -870,7 +873,7 @@ class TreeRendererSpec extends CatsEffectSuite
       .use(
         _
           .from(treeRoot)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(
@@ -938,7 +941,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1002,7 +1005,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(treeRoot)
           .copying(staticDocs)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .assertEquals(expectedRendered)
@@ -1179,7 +1182,7 @@ class TreeRendererSpec extends CatsEffectSuite
         _
           .from(versionedInput())
           .copying(Seq(versionInfoInput))
-          .toOutput(StringTreeOutput)
+          .toMemory
           .render
       )
       .flatMap(tree =>

@@ -20,13 +20,15 @@ import cats.data.NonEmptyList
 import cats.effect.{ Async, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.{ OperationConfig, ParserBuilder }
-import laika.ast.{ StyleDeclarationSet, TemplateDocument }
+import laika.api.errors.ParserError
+import laika.ast.TemplateDocument
+import laika.ast.styles.StyleDeclarationSet
+import laika.internal.parse.markup.DocumentParser
 import laika.io.descriptor.ParserDescriptor
 import laika.io.model.{ InputTreeBuilder, ParsedTree }
 import laika.io.ops.InputOps
-import laika.io.runtime.{ Batch, ParserRuntime }
-import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{ DocumentInput, ParserError }
+import DocumentParser.DocumentInput
+import laika.io.internal.runtime.{ Batch, ParserRuntime }
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Parser for a tree of input documents.

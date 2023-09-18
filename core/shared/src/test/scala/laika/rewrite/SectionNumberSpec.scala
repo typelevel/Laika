@@ -20,8 +20,8 @@ import laika.api.builder.OperationConfig
 import laika.ast.*
 import laika.ast.Path.Root
 import laika.ast.sample.{ BuilderKey, DocumentTreeAssertions, SampleTrees }
-import laika.config.Config.ConfigResult
-import laika.config.{ ConfigParser, Origin }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.{ ConfigParser, Origin }
 import laika.parse.GeneratedSource
 import munit.FunSuite
 

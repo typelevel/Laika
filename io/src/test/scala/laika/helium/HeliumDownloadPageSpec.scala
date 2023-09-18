@@ -20,15 +20,14 @@ import java.util.Locale
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
+import laika.api.format.TagFormatter
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits.*
-import laika.io.model.StringTreeOutput
-import laika.render.TagFormatter
-import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
+import laika.io.syntax.*
 import laika.theme.*
 import munit.CatsEffectSuite
 
@@ -63,7 +62,7 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
   ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(Root / "downloads.html", start, end)
             .toRight(new RuntimeException("Missing document under test"))

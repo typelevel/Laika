@@ -52,7 +52,7 @@ The trait comes with empty default implementations for most of its properties,
 so that you only need to override the ones you intend to use.
 
 ```scala mdoc
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 
 object MyExtensions extends ExtensionBundle {
 
@@ -72,10 +72,10 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   MyExtensions
 )
 ```
@@ -84,12 +84,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(MyExtensions)
   .build
 ```

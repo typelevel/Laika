@@ -16,9 +16,9 @@
 
 package laika.api.builder
 
+import laika.api.bundle.ExtensionBundle
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.ast._
-import laika.bundle.ExtensionBundle
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain both, a parsing and a rendering step (only Transform API).

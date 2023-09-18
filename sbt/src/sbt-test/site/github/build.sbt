@@ -6,4 +6,4 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaExtensions += laika.markdown.github.GitHubFlavor
+laikaExtensions += laika.format.Markdown.GitHubFlavor

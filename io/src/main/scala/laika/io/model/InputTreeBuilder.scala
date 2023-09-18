@@ -19,24 +19,24 @@ package laika.io.model
 import cats.data.Kleisli
 import cats.effect.Async
 import fs2.io.file.Files
+import laika.api.bundle.{ DocumentTypeMatcher, Precedence }
+import laika.api.config.Config
 import laika.ast.Path.Root
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
 import laika.ast.{
   Document,
   DocumentTreeBuilder,
   DocumentType,
   Path,
   StaticDocument,
-  StyleDeclaration,
-  StyleDeclarationSet,
   TemplateDocument,
   TextDocumentType
 }
-import laika.bundle.{ DocumentTypeMatcher, Precedence }
-import laika.config.Config
 import laika.io.descriptor.TreeInputDescriptor
+import laika.io.internal.errors.{ MissingDirectory, ParserErrors }
+import laika.io.internal.model.DirectoryInput
+import laika.io.internal.runtime.DirectoryScanner
 import laika.io.model.InputTree.{ BuilderContext, BuilderStep }
-import laika.io.runtime.DirectoryScanner
-import laika.io.runtime.ParserRuntime.{ MissingDirectory, ParserErrors }
 
 import java.io.InputStream
 import scala.io.Codec

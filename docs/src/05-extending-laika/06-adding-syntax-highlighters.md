@@ -356,7 +356,7 @@ First you have to assemble all the parsers in a `SyntaxHighlighter` implementati
 
 ```scala mdoc:silent
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeSpanParser
 
 object FooHighlighter extends SyntaxHighlighter {
@@ -373,7 +373,7 @@ object FooHighlighter extends SyntaxHighlighter {
 Finally, like all other types of extensions, the highlighter needs to be registered with an `ExtensionBundle`:
 
 ```scala mdoc:silent
-import laika.bundle.{ ExtensionBundle, ParserBundle }
+import laika.api.bundle.{ ExtensionBundle, ParserBundle }
 
 case object MyExtensions extends ExtensionBundle {
   
@@ -399,10 +399,10 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   MyExtensions
 )
 ```
@@ -411,12 +411,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(MyExtensions)
   .build
 ```

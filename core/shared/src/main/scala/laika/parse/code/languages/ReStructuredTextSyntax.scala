@@ -17,16 +17,16 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.ast.{ CodeSpan, ~ }
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
+import laika.ast.CodeSpan
+import laika.internal.rst.BaseParsers
 import laika.parse.Parser
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.code.implicits._
 import laika.parse.code.common.StringLiteral
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.rst.BaseParsers
-import laika.rst.InlineParsers.{ markupEnd, markupStart }
+import laika.internal.rst.InlineParsers.{ markupEnd, markupStart }
 
 /** @author Jens Halm
   */

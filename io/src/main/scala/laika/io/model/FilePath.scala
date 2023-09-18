@@ -19,7 +19,7 @@ package laika.io.model
 import cats.data.NonEmptyChain
 import laika.ast.Path.Root
 import laika.ast.{ GenericPath, Path, RelativePath, SegmentedPath }
-import laika.collection.TransitionalCollectionOps.JIteratorWrapper
+import laika.internal.collection.TransitionalCollectionOps.JIteratorWrapper
 
 import java.nio.file.Paths
 

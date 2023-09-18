@@ -21,7 +21,7 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.format.Markdown
 import laika.io.helper.InputBuilder
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 import munit.CatsEffectSuite
 import org.http4s.headers.`Content-Type`

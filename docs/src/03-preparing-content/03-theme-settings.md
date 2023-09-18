@@ -45,7 +45,7 @@ laikaTheme := Helium.defaults.build
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.helium.Helium
 
 val transformer = Transformer
@@ -922,7 +922,7 @@ They will also be used to display little thumbnails on the download page.
 
 ```scala mdoc:silent
 import laika.ast.Path.Root
-import laika.rewrite.nav.CoverImage
+import laika.config.CoverImage
 
 Helium.defaults
   .epub.coverImages(CoverImage(Root / "cover.png"))

@@ -18,15 +18,10 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
-import laika.config.{
-  ArrayValue,
-  Config,
-  ConfigParser,
+import laika.api.config.{ Config, ConfigParser, Key, Origin }
+import laika.api.config.ConfigError.{
   DocumentConfigErrors,
   InvalidType,
-  Key,
-  LongValue,
-  Origin,
   TreeConfigErrors,
   ValidationError
 }
@@ -39,11 +34,12 @@ import laika.ast.sample.{
   SampleTrees,
   TestSourceBuilders
 }
-import laika.config.Config.ConfigResult
-import laika.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
+import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
 import laika.format.HTML
+import laika.internal.rewrite.TemplateRewriter
 import laika.parse.GeneratedSource
-import laika.rewrite.{ OutputContext, TemplateRewriter }
 import munit.FunSuite
 
 class DocumentTreeAPISpec extends FunSuite

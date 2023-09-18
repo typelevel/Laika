@@ -16,8 +16,8 @@
 
 package laika.api.builder
 
+import laika.api.format.{ MarkupFormat, RenderFormat }
 import laika.api.{ MarkupParser, Transformer }
-import laika.factory.{ MarkupFormat, RenderFormat }
 
 /** Builder API for Transformer instances.
   *

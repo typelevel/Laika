@@ -18,11 +18,10 @@ package laika.ast
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
+import laika.api.errors.ParserError
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.LaikaKeys
 import laika.format.Markdown
-import laika.parse.markup.DocumentParser.ParserError
 import munit.FunSuite
 
 class DocumentAPISpec extends FunSuite
@@ -78,7 +77,7 @@ class DocumentAPISpec extends FunSuite
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .parse(markup)
-      .flatMap(_.title.toRight(ParserError("no title", Root)))
+      .flatMap(_.title.toRight(ParserError("no title")))
 
     assertEquals(res, Right(SpanSequence("Title")))
   }

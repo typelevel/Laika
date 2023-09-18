@@ -18,32 +18,24 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
-import laika.ast.Path.Root
-import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.collection.TransitionalCollectionOps.*
-import laika.config.Config.ConfigResult
-import laika.config.{
-  Config,
-  ConfigEncoder,
-  ConfigError,
-  ConfigValue,
-  DocumentConfigErrors,
-  Key,
-  LaikaKeys,
-  Origin,
-  TreeConfigErrors
-}
-import laika.parse.SourceFragment
-import laika.rewrite.{ OutputContext, ReferenceResolver }
-import laika.rewrite.link.{ LinkConfig, LinkValidation, LinkValidator, TargetValidation }
-import laika.rewrite.nav.{
-  AutonumberConfig,
+import laika.api.bundle.{
   ConfigurablePathTranslator,
-  NavigationOrder,
   PathTranslator,
-  TargetFormats,
+  TargetLookup,
   TranslatorConfig
 }
+import laika.api.config.{ Config, ConfigEncoder, ConfigError, ConfigValue, Key, Origin }
+import laika.ast.Path.Root
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.internal.collection.TransitionalCollectionOps.*
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
+import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, TargetFormats }
+import laika.internal.link
+import laika.internal.link.LinkValidator
+import laika.internal.nav.NavigationOrder
+import laika.internal.rewrite.ReferenceResolver
+import laika.parse.SourceFragment
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -92,7 +84,7 @@ class RootCursor private (
 
   type Target = DocumentTreeRoot
 
-  private[ast] lazy val targetLookup = new laika.rewrite.link.TargetLookup(this)
+  private[ast] lazy val targetLookup = new link.TargetLookup(this)
 
   /** The context for the output format when the cursor has been created for the final rewrite
     *  phase for a specific output format or empty in earlier rewrite phases that apply to all formats.
@@ -107,7 +99,7 @@ class RootCursor private (
     */
   lazy val pathTranslator: Option[PathTranslator] = renderContext.map {
     case (outputContext, translatorConfig) =>
-      val lookup = new laika.rewrite.nav.TargetLookup(this)
+      val lookup = new TargetLookup(this)
       ConfigurablePathTranslator(
         translatorConfig,
         outputContext,
@@ -356,7 +348,7 @@ class DocumentCursor private (
       case b              => target.content.withContent(Seq(b))
     }
 
-    val rewrittenFragments = target.fragments mapValuesStrict {
+    val rewrittenFragments = target.fragments.mapValuesStrict {
       case r: RewritableContainer with Block => r.rewriteChildren(rules).asInstanceOf[Block]
       case block                             => block
     }

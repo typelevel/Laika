@@ -18,18 +18,20 @@ package laika.io
 
 import cats.effect.{ IO, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ ExtensionBundle, PathTranslator, SlugBuilder, TemplateDirectives }
+import laika.api.config.Config
 import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.bundle.{ BundleProvider, ExtensionBundle }
-import laika.config.Config
-import laika.directive.Templates
+import laika.ast.styles.{ StyleDeclaration, StylePredicate }
+import laika.bundle.BundleProvider
+import laika.config.SyntaxHighlighting
 import laika.format.*
 import laika.io.api.{ BinaryTreeTransformer, TreeTransformer }
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{ InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.{
   FileFilter,
   FilePath,
@@ -38,16 +40,11 @@ import laika.io.model.{
   RenderContent,
   RenderedDocument,
   RenderedTree,
-  RenderedTreeRoot,
-  StringTreeOutput
+  RenderedTreeRoot
 }
 import laika.parse.Parser
-import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
-import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.NoOpPathTranslator
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -95,7 +92,7 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   def transformWithDirective(
       inputs: Seq[(Path, String)],
-      directive: Templates.Directive
+      directive: TemplateDirectives.Directive
   ): IO[RenderedTreeRoot[IO]] =
     transformWithBundle(inputs, BundleProvider.forTemplateDirective(directive))
 
@@ -115,7 +112,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     .use(
       _
         .fromInput(inputs)
-        .toOutput(StringTreeOutput)
+        .toMemory
         .describe
     )
 
@@ -128,7 +125,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     transformer.use(
       _
         .fromInput(build(inputs))
-        .toOutput(StringTreeOutput)
+        .toMemory
         .transform
     )
 
@@ -186,7 +183,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     TemplateRoot.fallback,
     Config.empty,
     outputContext,
-    NoOpPathTranslator,
+    PathTranslator.noOp,
     coverDocument = coverDocument,
     staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
@@ -408,7 +405,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       .use(
         _
           .fromInput(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .transform
       )
     renderResult.assertEquals(
@@ -424,9 +421,9 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a template directive") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
-    val directive = Templates.create("foo") {
+    val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
         TemplateString(_)
       }

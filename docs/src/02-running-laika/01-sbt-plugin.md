@@ -285,10 +285,10 @@ Register implementations of the `ExtensionBundle` API, either provided by the li
 Example:
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.format.Markdown
+import laika.config.SyntaxHighlighting
 
-laikaExtensions := Seq(GitHubFlavor, SyntaxHighlighting)
+laikaExtensions := Seq(Markdown.GitHubFlavor, SyntaxHighlighting)
 ``` 
 
 - [Overriding Renderers]: adjust the rendered output for specific AST node types.
@@ -343,8 +343,8 @@ This setting completely overrides any value set with `Laika / sourceDirectories`
 ```scala mdoc:compile-only
 import cats.effect.IO
 import laika.io.model._ 
+import laika.ast.DefaultTemplatePath
 import laika.ast.Path.Root
-import laika.rewrite.DefaultTemplatePath
 
 def generateStyles: String = "<... custom CSS ...>"
 

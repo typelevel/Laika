@@ -16,13 +16,24 @@
 
 package laika.bundle
 
+import laika.api.bundle.{
+  BlockParserBuilder,
+  BundleOrigin,
+  ConfigProvider,
+  DirectiveRegistry,
+  ExtensionBundle,
+  ParserBundle,
+  ParserHooks,
+  PathTranslator,
+  RenderOverrides,
+  SpanParserBuilder,
+  TemplateDirectives
+}
+import laika.api.config.{ Config, ConfigParser }
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.config.{ Config, ConfigParser }
-import laika.ast._
-import laika.directive.{ DirectiveRegistry, Templates }
+import laika.ast.*
+import laika.ast.styles.StyleDeclaration
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.DocumentInput
-import laika.rewrite.nav.PathTranslator
 
 /** @author Jens Halm
   */
@@ -49,7 +60,7 @@ object BundleProvider {
   def forParserHooks(
       postProcessBlocks: Seq[Block] => Seq[Block] = identity,
       postProcessDocument: UnresolvedDocument => UnresolvedDocument = identity,
-      preProcessInput: DocumentInput => DocumentInput = identity,
+      preProcessInput: String => String = identity,
       origin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new TestExtensionBundle(origin) {
 
@@ -149,7 +160,7 @@ object BundleProvider {
   }
 
   def forTemplateDirective(
-      directive: Templates.Directive,
+      directive: TemplateDirectives.Directive,
       bundleOrigin: BundleOrigin = BundleOrigin.User
   ): ExtensionBundle = new DirectiveRegistry {
 

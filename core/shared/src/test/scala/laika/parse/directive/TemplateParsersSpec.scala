@@ -16,15 +16,16 @@
 
 package laika.parse.directive
 
-import laika.ast._
+import laika.api.config.Key
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.config.Key
 import laika.parse.Parser
 import munit.FunSuite
 
 class TemplateParsersSpec extends FunSuite with TestSourceBuilders {
 
-  val defaultParser: Parser[List[Span]] = new TemplateParsers(Map()).templateSpans
+  val defaultParser: Parser[List[Span]] =
+    new laika.internal.parse.directive.TemplateParsers(Map()).templateSpans
 
   def parse(input: String): Either[String, List[Span]] = defaultParser.parse(input).toEither
 

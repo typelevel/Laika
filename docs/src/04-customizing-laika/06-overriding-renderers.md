@@ -45,7 +45,7 @@ adding a specific style class:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.render.TagFormatter
+import laika.api.format.TagFormatter
 
 val renderer: PartialFunction[(TagFormatter, Element), String] = {
   case (fmt, e: Emphasized) => 

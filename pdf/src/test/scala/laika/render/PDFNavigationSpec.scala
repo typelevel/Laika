@@ -20,23 +20,25 @@ import cats.effect.{ Async, IO, Resource }
 import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
-import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.{ Config, ConfigException }
-import laika.factory.{
+import laika.api.config.Config
+import laika.api.format.{
   BinaryPostProcessor,
   BinaryPostProcessorBuilder,
   RenderFormat,
+  TagFormatter,
   TwoPhaseRenderFormat
 }
+import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
-import laika.render.FOFormatter.Preamble
+import laika.internal.render.FOFormatter.Preamble
+import laika.io.internal.errors.ConfigException
+import laika.pdf.internal.FOConcatenation
 import laika.render.fo.TestTheme
-import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
 import laika.theme.config.BookConfig
 import munit.CatsEffectSuite

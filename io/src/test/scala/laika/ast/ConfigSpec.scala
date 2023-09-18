@@ -16,21 +16,22 @@
 
 package laika.ast
 
-import cats.effect._
-import cats.syntax.all._
+import cats.effect.*
+import cats.syntax.all.*
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
+import laika.api.config.{ ConfigError, ConfigValue, Field, Origin }
 import laika.ast.Path.Root
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.BundleProvider
-import laika.config.Origin.{ DocumentScope, TreeScope }
-import laika.config._
+import laika.api.config.Origin.{ DocumentScope, TreeScope }
+import laika.api.config.ConfigValue.{ LongValue, ObjectValue }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.FileIO
 import laika.io.helper.{ InputBuilder, TestThemeBuilder }
-import laika.io.implicits._
+import laika.io.internal.errors.ConfigException
+import laika.io.syntax.*
 import laika.io.model.{ FilePath, InputTreeBuilder, ParsedTree }
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import munit.CatsEffectSuite
 
 class ConfigSpec extends CatsEffectSuite

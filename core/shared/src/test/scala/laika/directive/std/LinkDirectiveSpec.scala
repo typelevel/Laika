@@ -16,12 +16,12 @@
 
 package laika.directive.std
 
+import laika.api.errors.TransformationError
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.format.{ HTML, Markdown }
-import laika.parse.markup.DocumentParser.TransformationError
 import munit.FunSuite
 
 class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders

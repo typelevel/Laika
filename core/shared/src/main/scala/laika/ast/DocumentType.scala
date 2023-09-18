@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** Base type for all document type descriptors.
   */

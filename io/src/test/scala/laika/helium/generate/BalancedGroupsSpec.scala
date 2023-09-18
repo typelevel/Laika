@@ -17,6 +17,7 @@
 package laika.helium.generate
 
 import cats.effect.IO
+import laika.helium.internal.generate.BalancedGroups
 import munit.FunSuite
 
 class BalancedGroupsSpec extends FunSuite {

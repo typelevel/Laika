@@ -101,7 +101,7 @@ or by [Creating a Config Instance] yourself, reading from it is quite straightfo
 You have to provide the key you want to read and the type you expect:
 
 ```scala mdoc:compile-only
-import laika.config.Config
+import laika.api.config.Config
 
 def config: Config = ???
 
@@ -155,7 +155,8 @@ object Color {
 You can then flatMap on the string decoder to obtain a Color decoder:
 
 ```scala mdoc:silent
-import laika.config._
+import laika.api.config._
+import laika.api.config.ConfigError.DecodingError
 
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>
@@ -174,7 +175,7 @@ For mapping a HOCON object to a Scala case class you would usually build on top 
 which decodes a nested object into an instance that has the same API for querying values as the root.
 
 ```scala mdoc:silent
-import laika.config._
+import laika.api.config._
 
 implicit val decoder: ConfigDecoder[Person] = 
   ConfigDecoder.config.flatMap { config =>

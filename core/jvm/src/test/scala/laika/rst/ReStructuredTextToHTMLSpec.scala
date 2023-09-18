@@ -18,13 +18,13 @@ package laika.rst
 
 import cats.data.NonEmptySet
 import laika.api.Transformer
+import laika.api.format.TagFormatter
 import laika.ast.Path.Root
-import laika.ast.{ InternalTarget, * }
+import laika.ast.*
 import laika.config.LaikaKeys
 import laika.file.FileIO
 import laika.format.{ HTML, ReStructuredText }
 import laika.html.TidyHTML
-import laika.render.TagFormatter
 import munit.FunSuite
 
 import scala.io.Codec

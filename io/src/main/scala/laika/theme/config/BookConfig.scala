@@ -16,9 +16,11 @@
 
 package laika.theme.config
 
-import laika.ast.{ DocumentMetadata, Path }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigDecoder, ConfigEncoder, Key, LaikaKeys }
+import laika.api.config
+import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, Key }
+import laika.ast.Path
+import laika.api.config.Config.ConfigResult
+import laika.config.LaikaKeys
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -117,7 +119,7 @@ object BookConfig {
     }
   }
 
-  implicit val encoder: ConfigEncoder[BookConfig] = ConfigEncoder[BookConfig] { bc =>
+  implicit val encoder: ConfigEncoder[BookConfig] = config.ConfigEncoder[BookConfig] { bc =>
     ConfigEncoder.ObjectBuilder.empty
       .withValue(LaikaKeys.metadata.local, bc.metadata)
       .withValue("navigationDepth", bc.navigationDepth)

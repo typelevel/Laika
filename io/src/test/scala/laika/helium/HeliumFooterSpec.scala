@@ -23,8 +23,7 @@ import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.syntax._
 import laika.theme._
 import munit.CatsEffectSuite
 
@@ -45,7 +44,7 @@ class HeliumFooterSpec extends CatsEffectSuite with InputBuilder with ResultExtr
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] =
     transformer(helium.build).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(
             Root / "doc-1.html",
