@@ -139,11 +139,7 @@ class RootCursor private (
     * or its nearest parent if that path does not have a configuration assigned.
     * Always succeeds as recursing upwards will eventually lead to this root cursor and return its configuration.
     */
-  def treeConfig(path: Path): Config = tree.target.selectSubtree(path.relative) match {
-    case Some(subTree)        => subTree.config
-    case None if path == Root => config
-    case _                    => treeConfig(path.parent)
-  }
+  def selectTreeConfig(path: Path): Config = target.selectTreeConfig(path)
 
 }
 
