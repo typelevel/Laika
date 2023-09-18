@@ -131,7 +131,6 @@ class RenderedTreeRoot[F[_]](
     val input: DocumentTreeRoot,
     val outputContext: OutputContext,
     val pathTranslator: PathTranslator,
-    val styles: StyleDeclarationSet = StyleDeclarationSet.empty,
     val coverDocument: Option[RenderedDocument] = None,
     val staticDocuments: Seq[BinaryInput[F]] = Nil
 ) {
@@ -151,6 +150,11 @@ class RenderedTreeRoot[F[_]](
     */
   lazy val allDocuments: Seq[RenderedDocument] = coverDocument.toSeq ++ tree.allDocuments
 
+  /** The styles that had been applied to the rendered output
+    * (only applies to formats like FO where styles are not just pass-through).
+    */
+  lazy val styles: StyleDeclarationSet = input.styles(outputContext.fileSuffix)
+
   def withDefaultTemplate(template: TemplateRoot): RenderedTreeRoot[F] =
     new RenderedTreeRoot(
       tree,
@@ -158,7 +162,6 @@ class RenderedTreeRoot[F[_]](
       input,
       outputContext,
       pathTranslator,
-      styles,
       coverDocument,
       staticDocuments
     )
@@ -170,7 +173,6 @@ class RenderedTreeRoot[F[_]](
       input,
       outputContext,
       pathTranslator,
-      styles,
       coverDocument,
       docs
     )

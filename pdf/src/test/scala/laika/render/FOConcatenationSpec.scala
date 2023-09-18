@@ -44,10 +44,9 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
       Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
     ),
     defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
-    input = DocumentTreeRoot(DocumentTree.empty),
+    input = DocumentTreeRoot(DocumentTree.empty).addStyles(Map("fo" -> TestTheme.foStyles)),
     outputContext = OutputContext(XSLFO),
-    pathTranslator = PathTranslator.noOp,
-    styles = TestTheme.foStyles
+    pathTranslator = PathTranslator.noOp
   )
 
   test("fail when there are invalid elements in the template result") {

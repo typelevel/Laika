@@ -211,7 +211,6 @@ private[io] object RendererRuntime {
           finalRoot,
           context,
           pathTranslator,
-          finalRoot.styles(fileSuffix),
           coverDoc,
           staticDocs
         )
