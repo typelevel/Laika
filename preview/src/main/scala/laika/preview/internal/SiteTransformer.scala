@@ -214,12 +214,12 @@ private[preview] class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 }
 
 @nowarn
-private[preview] sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
+private[preview] sealed abstract class SiteResult[F[_]] extends Product with Serializable
 
-private[preview] case class RenderedResult[F[_]: Async](content: String) extends SiteResult[F]
+private[preview] case class RenderedResult[F[_]](content: String) extends SiteResult[F]
 
-private[preview] case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte])
+private[preview] case class StaticResult[F[_]](content: fs2.Stream[F, Byte])
     extends SiteResult[F]
 
-private[preview] case class LazyResult[F[_]: Async](result: F[Option[SiteResult[F]]])
+private[preview] case class LazyResult[F[_]](result: F[Option[SiteResult[F]]])
     extends SiteResult[F]
