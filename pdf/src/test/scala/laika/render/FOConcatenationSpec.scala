@@ -37,17 +37,19 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   private val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
 
-  private val result = new RenderedTreeRoot[IO](
-    tree = new RenderedTree(
-      Root,
-      None,
-      Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
-    ),
-    defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
-    input = DocumentTreeRoot(DocumentTree.empty).addStyles(Map("fo" -> TestTheme.foStyles)),
-    outputContext = OutputContext(XSLFO),
-    pathTranslator = PathTranslator.noOp
-  )
+  private val result = {
+    val tree = new RenderedTreeRoot[IO](
+      tree = new RenderedTree(
+        Root,
+        None,
+        Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
+      ),
+      input = DocumentTreeRoot(DocumentTree.empty).addStyles(Map("fo" -> TestTheme.foStyles)),
+      outputContext = OutputContext(XSLFO),
+      pathTranslator = PathTranslator.noOp
+    )
+    tree.withDefaultTemplate(TemplateRoot(TemplateElement(invalidElement)))
+  }
 
   test("fail when there are invalid elements in the template result") {
     val actual   = FOConcatenation(result, BookConfig.empty, OperationConfig.default)

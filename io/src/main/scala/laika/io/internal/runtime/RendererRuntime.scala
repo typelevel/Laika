@@ -200,14 +200,9 @@ private[io] object RendererRuntime {
           renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)),
           buildNode
         )
-        val template   =
-          finalRoot.tree
-            .getDefaultTemplate(context.fileSuffix)
-            .fold(TemplateRoot.fallback)(_.content)
 
         new RenderedTreeRoot[F](
           resultRoot,
-          template,
           finalRoot,
           context,
           pathTranslator,

@@ -116,18 +116,15 @@ class RenderedDocument(
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
   *
   * @param tree the recursive structure of documents, usually obtained from parsing text markup
-  * @param defaultTemplate the default template configured for the output format, which may be used by a post-processor
   * @param input the document AST that had been passed to the renderer
   * @param outputContext the context for the output format used in rendering (file suffix and format selector)
   * @param pathTranslator the path translator specific to the output format produced by the renderer
-  * @param styles the styles that had been applied to the rendered output (only applies to formats like FO where styles are not just pass-through)
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates,
   *                        and will potentially be embedded or copied as is to the final output, depending on the output format
   */
 class RenderedTreeRoot[F[_]](
     val tree: RenderedTree,
-    val defaultTemplate: TemplateRoot,
     val input: DocumentTreeRoot,
     val outputContext: OutputContext,
     val pathTranslator: PathTranslator,
@@ -150,26 +147,33 @@ class RenderedTreeRoot[F[_]](
     */
   lazy val allDocuments: Seq[RenderedDocument] = coverDocument.toSeq ++ tree.allDocuments
 
+  /** The default template configured for the output format, which may be used by a post-processor. */
+  lazy val defaultTemplate: TemplateRoot = input.tree
+    .getDefaultTemplate(outputContext.fileSuffix)
+    .fold(TemplateRoot.fallback)(_.content)
+
   /** The styles that had been applied to the rendered output
     * (only applies to formats like FO where styles are not just pass-through).
     */
   lazy val styles: StyleDeclarationSet = input.styles(outputContext.fileSuffix)
 
-  def withDefaultTemplate(template: TemplateRoot): RenderedTreeRoot[F] =
+  private[laika] def withDefaultTemplate(template: TemplateRoot): RenderedTreeRoot[F] = {
+    val newInput = input.modifyTree(
+      _.withDefaultTemplate(template, outputContext.fileSuffix)
+    )
     new RenderedTreeRoot(
       tree,
-      template,
-      input,
+      newInput,
       outputContext,
       pathTranslator,
       coverDocument,
       staticDocuments
     )
+  }
 
   def withStaticDocuments(docs: Seq[BinaryInput[F]]): RenderedTreeRoot[F] =
     new RenderedTreeRoot(
       tree,
-      defaultTemplate,
       input,
       outputContext,
       pathTranslator,

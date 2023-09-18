@@ -73,7 +73,6 @@ trait InputTreeBuilder extends InputBuilder {
     val outputContext = OutputContext(EPUB) // ignored
     new RenderedTreeRoot(
       tree(path, titleNum, docs *),
-      TemplateRoot.empty,
       DocumentTreeRoot(DocumentTree.empty),
       outputContext,
       PathTranslator.noOp, // not reflecting real result, but not part of any assertions

@@ -180,7 +180,6 @@ class TreeTransformerSpec extends CatsEffectSuite
       outputContext: OutputContext = OutputContext(AST)
   ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
     new RenderedTree(Root, None, content, titleDocument),
-    TemplateRoot.fallback,
     DocumentTreeRoot(DocumentTree.empty),
     outputContext,
     PathTranslator.noOp,
