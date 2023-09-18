@@ -55,7 +55,7 @@ to get an idea of what a theme represents in technical terms.
 ```scala mdoc:compile-only
 import cats.data.Kleisli
 import laika.api.bundle.ExtensionBundle
-import laika.api.format.Format
+import laika.ast.OutputContext
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, ParsedTree }
 import laika.theme.Theme.TreeProcessor
@@ -68,7 +68,7 @@ trait Theme[F[_]] {
   
   def extensions: Seq[ExtensionBundle]
   
-  def treeProcessor: Format => TreeProcessor[F]
+  def treeProcessor: OutputContext => TreeProcessor[F]
   
 }
 

@@ -23,7 +23,11 @@ import laika.ast.Path.Root
 import laika.config.LaikaKeys
 import laika.ast.OutputContext
 import laika.helium.Helium
-import laika.helium.internal.generate.{DownloadPageGenerator, LandingPageGenerator, TocPageGenerator}
+import laika.helium.internal.generate.{
+  DownloadPageGenerator,
+  LandingPageGenerator,
+  TocPageGenerator
+}
 import laika.io.internal.errors.ConfigException
 import laika.io.model.ParsedTree
 import laika.theme.Theme.TreeProcessor

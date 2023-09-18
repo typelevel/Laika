@@ -25,7 +25,11 @@ import laika.ast.DocumentTreeRoot
   *
   *  @author Jens Halm
   */
-trait TwoPhaseRenderFormat[FMT, PP] extends Format {
+trait TwoPhaseRenderFormat[FMT, PP] {
+
+  /** Short string describing the markup or output format for tooling and logging.
+    */
+  def description: String = toString
 
   /** The render format for the interim result, the first phase of this renderer.
     */

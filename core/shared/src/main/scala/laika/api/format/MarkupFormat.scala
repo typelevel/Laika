@@ -28,7 +28,11 @@ import laika.parse.text.TextParsers
   *
   *  @author Jens Halm
   */
-trait MarkupFormat extends Format {
+trait MarkupFormat {
+
+  /** Short string describing the markup or output format for tooling and logging.
+    */
+  def description: String = toString
 
   /** The file suffixes recognized by this parser.
     *  When transforming entire directories only files with

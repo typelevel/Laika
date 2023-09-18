@@ -27,7 +27,11 @@ import laika.ast.Element
   *
   *  @author Jens Halm
   */
-trait RenderFormat[FMT] extends Format {
+trait RenderFormat[FMT] {
+
+  /** Short string describing the markup or output format for tooling and logging.
+    */
+  def description: String = toString
 
   /** The file suffix to use when rendering the output
     *  to a file. When transforming entire directories

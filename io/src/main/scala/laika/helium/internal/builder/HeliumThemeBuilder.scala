@@ -16,14 +16,14 @@
 
 package laika.helium.internal.builder
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import laika.api.bundle.*
-import laika.ast.{Document, OutputContext}
+import laika.ast.{ Document, OutputContext }
 import laika.ast.Path.Root
-import laika.format.{EPUB, HTML, XSLFO}
+import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.internal.generate.ConfigGenerator
-import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
+import laika.theme.{ Theme, ThemeBuilder, ThemeProvider }
 
 /** @author Jens Halm
   */
