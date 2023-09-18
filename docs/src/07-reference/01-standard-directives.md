@@ -217,7 +217,7 @@ import laika.sbt.LaikaPlugin.autoImport._
 ```
 ```scala mdoc:compile-only
 import laika.ast._
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
@@ -227,14 +227,13 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.ast._
 import laika.api._
+import laika.config.IconRegistry
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.IconRegistry
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
   .build
 ```
@@ -367,7 +366,7 @@ This is how the settings for Laika's manual look:
 @:choice(sbt)
 
 ```scala mdoc:compile-only
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(Selections(
@@ -382,14 +381,13 @@ laikaConfig := LaikaConfig.defaults
 
 ```scala mdoc:compile-only
 import laika.api._
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(Selections(
     SelectionConfig("config",
       ChoiceConfig("sbt", "sbt Plugin"),
@@ -419,7 +417,7 @@ laikaConfig := LaikaConfig.defaults.strict
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .strict
   .build
 ```

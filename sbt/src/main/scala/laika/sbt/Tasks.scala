@@ -20,25 +20,24 @@ import cats.effect.{ IO, Resource }
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
 import laika.api.{ MarkupParser, Renderer, Transformer }
-import laika.factory.{
-  BinaryPostProcessorBuilder,
-  MarkupFormat,
-  RenderFormat,
-  TwoPhaseRenderFormat
-}
 import laika.format.*
-import laika.io.config.SiteConfig
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.*
-import laika.rewrite.Versions
-import laika.rewrite.nav.Selections
 import laika.sbt.LaikaPlugin.autoImport.*
 import sbt.Keys.*
 import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
 import laika.api.builder.{ OperationConfig, ParserBuilder }
-import laika.config.Config
+import laika.api.config.Config
+import laika.api.format.{
+  BinaryPostProcessorBuilder,
+  MarkupFormat,
+  RenderFormat,
+  TwoPhaseRenderFormat
+}
+import laika.config.{ Selections, Versions }
+import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 

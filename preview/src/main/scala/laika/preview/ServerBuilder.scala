@@ -29,6 +29,13 @@ import laika.format.{ EPUB, PDF }
 import laika.io.api.TreeParser
 import laika.io.model.{ FilePath, InputTreeBuilder }
 import laika.preview.ServerBuilder.Logger
+import laika.preview.internal.{
+  Cache,
+  RouteBuilder,
+  SiteResults,
+  SiteTransformer,
+  SourceChangeWatcher
+}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{ HttpApp, HttpRoutes, Request, Response }
 import org.http4s.implicits.*

@@ -20,8 +20,8 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
+import laika.internal.parse.markup.RootParser
 import laika.parse.Parser
-import laika.parse.markup.RootParser
 import munit.FunSuite
 
 class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {

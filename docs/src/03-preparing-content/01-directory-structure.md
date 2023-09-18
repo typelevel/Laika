@@ -69,12 +69,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.config.LaikaKeys
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
   .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
   .build
@@ -317,7 +316,7 @@ Therefore, configuration for versioned documentation involves two steps:
 This is a global configuration artifact that you can define with the Helium configuration API:
 
 ```scala mdoc:silent
-import laika.rewrite.{ Version, Versions }
+import laika.config.{ Version, Versions }
 
 val versions = Versions
   .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)

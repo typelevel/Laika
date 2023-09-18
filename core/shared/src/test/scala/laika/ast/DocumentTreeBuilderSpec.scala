@@ -1,9 +1,9 @@
 package laika.ast
 
+import laika.api.config.{ ConfigBuilder, Origin }
 import laika.ast.Path.Root
 import laika.ast.sample.DocumentTreeAssertions
-import laika.config.Origin.TreeScope
-import laika.config.{ ConfigBuilder, Origin }
+import Origin.TreeScope
 import munit.FunSuite
 
 class DocumentTreeBuilderSpec extends FunSuite with DocumentTreeAssertions {

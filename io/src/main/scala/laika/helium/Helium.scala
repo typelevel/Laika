@@ -16,10 +16,11 @@
 
 package laika.helium
 
-import laika.helium.builder.HeliumThemeBuilder
-import laika.helium.config._
-import laika.helium.generate.MermaidInitializer
-import laika.theme._
+import laika.helium.config.{ AllFormatsOps, EPUBOps, PDFOps, SiteOps }
+import laika.helium.internal.builder.HeliumThemeBuilder
+import laika.helium.internal.config.{ EPUBSettings, HeliumDefaults, PDFSettings, SiteSettings }
+import laika.helium.internal.generate.MermaidInitializer
+import laika.theme.ThemeProvider
 
 /** Configuration API for the Helium theme settings.
   *

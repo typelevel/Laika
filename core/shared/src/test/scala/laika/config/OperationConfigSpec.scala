@@ -17,22 +17,17 @@
 package laika.config
 
 import laika.api.builder.OperationConfig
+import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
 import laika.bundle.BundleProvider.TestExtensionBundle
-import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{
-  BlockParserBuilder,
-  BundleOrigin,
-  BundleProvider,
-  ExtensionBundle,
-  SpanParserBuilder
-}
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
-import laika.markdown.bundle.VerbatimHTML
-import laika.markdown.github.GitHubFlavor
+import laika.api.bundle.ExtensionBundle.LaikaDefaults
+import laika.bundle.BundleProvider
+import MarkupFormat.MarkupParsers
+import laika.api.bundle.{ BlockParserBuilder, BundleOrigin, ExtensionBundle, SpanParserBuilder }
+import laika.format.Markdown.GitHubFlavor
+import laika.internal.markdown.bundle.VerbatimHTML
 import munit.FunSuite
 
 /** @author Jens Halm

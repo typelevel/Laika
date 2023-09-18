@@ -17,9 +17,9 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
+import laika.ast.html.HTMLAttribute
 import laika.ast.{ Emphasized, Span, Text }
 import laika.format.Markdown
-import laika.markdown.ast.HTMLAttribute
 import laika.parse.Parser
 import laika.parse.markup.RootParserProvider.RootParserWrapper
 import munit.FunSuite

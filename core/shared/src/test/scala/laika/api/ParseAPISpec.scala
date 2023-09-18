@@ -21,7 +21,6 @@ import laika.api.errors.ParserError
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.format.{ HTML, Markdown }
-import laika.rewrite.OutputContext
 import munit.FunSuite
 
 class ParseAPISpec extends FunSuite

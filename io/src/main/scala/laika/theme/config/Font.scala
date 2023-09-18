@@ -16,10 +16,11 @@
 
 package laika.theme.config
 
+import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.Path.Root
 import laika.ast.{ Path, VirtualPath }
 import laika.config.*
-import laika.config.ConfigError.DecodingError
+import laika.api.config.ConfigError.DecodingError
 import laika.io.model.FilePath
 
 /** Represents a font resource, either based on a local classpath or file system resource,

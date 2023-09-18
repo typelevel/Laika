@@ -16,12 +16,18 @@
 
 package laika.format
 
+import laika.api.bundle.{
+  BlockParserBuilder,
+  BundleOrigin,
+  ExtensionBundle,
+  ParserBundle,
+  SpanParserBuilder
+}
+import laika.api.format.MarkupFormat
 import laika.ast.Block
-import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
-import laika.markdown.bundle.VerbatimHTML
-import laika.markdown.{ BlockParsers, InlineParsers, ListParsers }
+import laika.internal.markdown.{ BlockParsers, InlineParsers, ListParsers }
+import laika.internal.markdown.bundle.VerbatimHTML
+import laika.internal.markdown.github.{ AutoLinks, FencedCodeBlocks, Strikethrough, Tables }
 import laika.parse.Parser
 import laika.parse.text.{ CharGroup, TextParsers }
 
@@ -58,7 +64,7 @@ case object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
 
-  object blockParsers extends MarkupParsers[BlockParserBuilder] {
+  object blockParsers extends MarkupFormat.MarkupParsers[BlockParserBuilder] {
 
     /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,
       * with the number of hash characters corresponding to the level of the header.
@@ -122,7 +128,7 @@ case object Markdown extends MarkupFormat {
 
   }
 
-  object spanParsers extends MarkupParsers[SpanParserBuilder] {
+  object spanParsers extends MarkupFormat.MarkupParsers[SpanParserBuilder] {
 
     /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
       */
@@ -170,6 +176,48 @@ case object Markdown extends MarkupFormat {
   override lazy val escapedChar: Parser[String] = InlineParsers.escapedChar
 
   val extensions: Seq[ExtensionBundle] = Seq(VerbatimHTML)
+
+  /** Extension bundle that enables GitHub-Flavored Markdown on top of standard Markdown.
+    *
+    * The extension can be added to a transformer like any other extension:
+    *
+    * {{{
+    *   val transformer = Transformer
+    *     .from(Markdown)
+    *     .to(HTML)
+    *     .using(GitHubFlavor)
+    *     .build
+    * }}}
+    *
+    * These are the parsers this extension adds to standard Markdown:
+    *
+    * - strikethrough
+    * - auto-links (urls and email addresses)
+    * - fenced code blocks
+    * - tables
+    *
+    * @author Jens Halm
+    */
+  object GitHubFlavor extends ExtensionBundle {
+
+    val description: String = "Github-flavored Markdown"
+
+    override val origin: BundleOrigin = BundleOrigin.Parser
+
+    override def parsers: ParserBundle = new ParserBundle(
+      blockParsers = Seq(
+        Tables.parser
+      ) ++ FencedCodeBlocks.parsers,
+      spanParsers = Seq(
+        Strikethrough.parser,
+        AutoLinks.parsers.www,
+        AutoLinks.parsers.http,
+        AutoLinks.parsers.email
+      )
+    )
+
+    override def forStrictMode: Option[ExtensionBundle] = None
+  }
 
   override def createBlockListParser(parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)

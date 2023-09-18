@@ -18,15 +18,15 @@ package laika.directive.std
 
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigParser }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.{ Config, ConfigParser }
-import laika.config.ConfigError.ValidationError
-import laika.directive.DirectiveSupport
+import laika.api.config.ConfigError.ValidationError
 import laika.format.HTML
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
+import laika.internal.rewrite.TemplateRewriter
 import laika.parse.SourceCursor
 import laika.parse.combinator.Parsers
-import laika.rewrite.TemplateRewriter
 
 /** @author Jens Halm
   */

@@ -16,11 +16,11 @@
 
 package laika.sbt
 
+import laika.api.bundle.{ ExtensionBundle, RenderOverrides }
+import laika.api.format.TagFormatter
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.ast.*
-import laika.bundle.{ ExtensionBundle, RenderOverrides }
 import laika.format.*
-import laika.render.TagFormatter
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed

@@ -18,7 +18,8 @@ package laika.io.descriptor
 
 import cats.Applicative
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
-import laika.io.model.{ BinaryOutput, DirectoryOutput, TreeOutput }
+import laika.io.internal.model.{ DirectoryOutput, TreeOutput }
+import laika.io.model.BinaryOutput
 
 /** Provides a description of a render operation, including the renderers
   * and extension bundles used, as well as the output target.

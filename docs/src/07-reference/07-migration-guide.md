@@ -35,7 +35,7 @@ val blocker = Blocker.liftExecutionContext(
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .io(blocker)
   .parallel[IO]
   .build
@@ -47,13 +47,12 @@ After:
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
-import laika.markdown.github.GitHubFlavor
+import laika.io.syntax._
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .parallel[IO]
   .build
 ```

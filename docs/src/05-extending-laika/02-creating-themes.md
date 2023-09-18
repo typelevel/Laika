@@ -32,7 +32,7 @@ laikaTheme := Theme.empty
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 
 val transformer = Transformer
@@ -54,8 +54,8 @@ to get an idea of what a theme represents in technical terms.
 
 ```scala mdoc:compile-only
 import cats.data.Kleisli
-import laika.bundle.ExtensionBundle
-import laika.factory.Format
+import laika.api.bundle.ExtensionBundle
+import laika.api.format.Format
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, ParsedTree }
 import laika.theme.Theme.TreeProcessor
@@ -239,9 +239,9 @@ The below example shows how the `ThemeBuilder` API can be used to pre-populate t
 
 ```scala mdoc:silent
 import cats.effect.IO
+import laika.api.config.ConfigBuilder
 import laika.ast.Image
 import laika.ast.Path.Root
-import laika.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 
 val logo = Image.internal(
@@ -310,7 +310,7 @@ user configuration):
 
 ```scala mdoc:compile-only
 import cats.effect.IO
-import laika.config.ConfigBuilder
+import laika.api.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 import laika.theme.config.FontDefinition
 

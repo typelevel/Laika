@@ -1,8 +1,8 @@
 package laika.ast
 
-import laika.config.{ ConfigError, ConfigValue, Key }
-import ConfigError.InvalidType
-import laika.config.ConfigValue.{ ASTValue, SimpleValue }
+import laika.api.config.ConfigError.InvalidType
+import laika.api.config.{ ConfigError, ConfigValue, Key }
+import laika.api.config.ConfigValue.{ ASTValue, SimpleValue }
 
 /** Represents a placeholder inline element that needs
   *  to be resolved in a rewrite step.

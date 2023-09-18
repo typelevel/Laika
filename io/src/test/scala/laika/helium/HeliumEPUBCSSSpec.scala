@@ -25,7 +25,7 @@ import laika.format.{ EPUB, Markdown }
 import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 

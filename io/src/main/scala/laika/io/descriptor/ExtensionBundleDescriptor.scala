@@ -16,7 +16,7 @@
 
 package laika.io.descriptor
 
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 
 /** Provides a short description of an extension bundle for tooling or logging.
   *

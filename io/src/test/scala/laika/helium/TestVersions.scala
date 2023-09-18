@@ -1,6 +1,6 @@
 package laika.helium
 
-import laika.rewrite.{ Version, Versions }
+import laika.config.{ Version, Versions }
 
 trait TestVersions {
 

@@ -108,12 +108,11 @@ laikaConfig := LaikaConfig.defaults.strict
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .strict
   .build
 ```
@@ -151,12 +150,11 @@ laikaConfig := LaikaConfig.defaults.withRawContent
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withRawContent
   .build
 ```
@@ -254,12 +252,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.api._
 import laika.format._
 import laika.ast.MessageFilter
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .failOnMessages(MessageFilter.None)
   .renderMessages(MessageFilter.Error)
   .build
@@ -347,12 +344,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("version.latest", "2.4.6")
   .withConfigValue("license", "Apache 2.0")
   .build

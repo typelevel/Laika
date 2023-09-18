@@ -17,6 +17,7 @@
 package laika.io
 
 import cats.effect.{ Async, IO, Resource, Sync }
+import laika.api.config.{ ConfigBuilder, Origin }
 import laika.ast.DocumentType.Ignored
 import laika.ast.{
   /,
@@ -34,8 +35,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees }
 import laika.bundle.BundleProvider
-import laika.config.{ ConfigBuilder, Origin }
-import laika.config.Origin.TreeScope
+import Origin.TreeScope
 import laika.io.api.TreeParser
 import laika.io.helper.TestThemeBuilder
 import laika.io.model.{ FileFilter, FilePath, InputTree, InputTreeBuilder }

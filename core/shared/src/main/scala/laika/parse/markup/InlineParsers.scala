@@ -16,8 +16,9 @@
 
 package laika.parse.markup
 
-import laika.ast._
-import laika.parse._
+import laika.ast.*
+import laika.internal.parse.markup.{ EndDelimiter, InlineDelimiter, NestedDelimiter }
+import laika.parse.*
 import laika.parse.text.{ DelimitedParser, DelimitedText, Delimiter, PrefixedParser }
 
 import scala.annotation.tailrec

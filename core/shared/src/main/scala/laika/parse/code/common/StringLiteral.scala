@@ -21,7 +21,7 @@ import laika.parse.Parser
 import laika.parse.builders._
 import laika.parse.code.implicits._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.{ PrefixedParser, TextParsers }
 
 /** Configurable base parsers for string literals.

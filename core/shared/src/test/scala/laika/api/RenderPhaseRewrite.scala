@@ -3,8 +3,8 @@ package laika.api
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
 import laika.api.errors.RendererError
+import laika.api.format.RenderFormat
 import laika.ast.{ Document, RewritePhase }
-import laika.factory.RenderFormat
 
 trait RenderPhaseRewrite {
 

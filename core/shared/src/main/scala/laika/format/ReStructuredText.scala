@@ -16,8 +16,7 @@
 
 package laika.format
 
-import laika.ast.Block
-import laika.bundle.{
+import laika.api.bundle.{
   BlockParserBuilder,
   BundleOrigin,
   ExtensionBundle,
@@ -25,12 +24,25 @@ import laika.bundle.{
   ParserHooks,
   SpanParserBuilder
 }
-import laika.factory.MarkupFormat
-import laika.factory.MarkupFormat.MarkupParsers
+import laika.api.format.MarkupFormat
+import laika.ast.Block
+import laika.internal.rst.{
+  BlockParsers,
+  ExplicitBlockParsers,
+  InlineParsers,
+  ListParsers,
+  TableParsers
+}
+import laika.internal.rst.bundle.{
+  DocInfoExtractor,
+  ExtendedHTMLRenderer,
+  LinkTargetProcessor,
+  RawContentExtensions,
+  RstExtensionSupport,
+  StandardExtensions
+}
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
-import laika.rst.*
-import laika.rst.bundle.*
 
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
   * to the `Parseer` or `Transformer` APIs:
@@ -46,7 +58,7 @@ import laika.rst.bundle.*
   * They represent a library-wide extension mechanism and allow you to implement
   * tags which can be used in any of the supported markup formats or in templates.
   *
-  * Laika directives can be registered with the [[laika.directive.DirectiveRegistry]] extension bundle.
+  * Laika directives can be registered with the [[laika.api.bundle.DirectiveRegistry]] extension bundle.
   *
   * @author Jens Halm
   */
@@ -56,7 +68,7 @@ case object ReStructuredText extends MarkupFormat { self =>
 
   val fileSuffixes: Set[String] = Set("rest", "rst")
 
-  object blockParsers extends MarkupParsers[BlockParserBuilder] {
+  object blockParsers extends MarkupFormat.MarkupParsers[BlockParserBuilder] {
 
     /** Parses a bullet list with any of the supported bullet characters.
       *
@@ -178,7 +190,7 @@ case object ReStructuredText extends MarkupFormat { self =>
 
   }
 
-  object spanParsers extends MarkupParsers[SpanParserBuilder] {
+  object spanParsers extends MarkupFormat.MarkupParsers[SpanParserBuilder] {
 
     /** Parses a span of text with strong emphasis.
       *

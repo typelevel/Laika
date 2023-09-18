@@ -16,6 +16,8 @@
 
 package laika.config
 
+import laika.api.config.Key
+
 /** Constants for configuration keys for the library's core configuration entries.
   *
   * @author Jens Halm

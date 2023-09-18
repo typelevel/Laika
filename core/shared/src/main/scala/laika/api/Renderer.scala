@@ -18,13 +18,13 @@ package laika.api
 
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
+import laika.api.bundle.PathTranslator
 import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
-import laika.render.Formatter.Indentation
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.PathTranslator
+import laika.api.format.Formatter.Indentation
+import laika.api.format.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
+import laika.ast.styles.StyleDeclarationSet
 
 /** Performs a render operation from a document AST to a target format
   * as a string. The document AST may be obtained by a preceding parse

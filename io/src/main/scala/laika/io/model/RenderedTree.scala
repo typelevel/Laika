@@ -16,10 +16,11 @@
 
 package laika.io.model
 
-import laika.ast._
-import laika.config.Config
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ PathTranslator, TargetFormats }
+import laika.api.bundle.PathTranslator
+import laika.api.config.Config
+import laika.ast.*
+import laika.ast.styles.StyleDeclarationSet
+import laika.config.TargetFormats
 
 /** A titled, positional element in the tree of rendered documents.
   */

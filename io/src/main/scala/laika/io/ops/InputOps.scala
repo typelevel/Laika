@@ -18,7 +18,8 @@ package laika.io.ops
 
 import cats.effect.Async
 import laika.api.builder.OperationConfig
-import laika.io.model.{ DirectoryInput, FileFilter, FilePath, InputTree, InputTreeBuilder }
+import laika.io.internal.model.DirectoryInput
+import laika.io.model.{ FileFilter, FilePath, InputTree, InputTreeBuilder }
 
 import scala.io.Codec
 

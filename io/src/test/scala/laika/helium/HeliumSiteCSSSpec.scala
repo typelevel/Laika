@@ -25,7 +25,7 @@ import laika.format.{ HTML, Markdown }
 import laika.helium.config.{ AnchorPlacement, ColorQuintet }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 

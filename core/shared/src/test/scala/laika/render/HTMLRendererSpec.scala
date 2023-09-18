@@ -18,21 +18,21 @@ package laika.render
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.bundle.{
+  ConfigurablePathTranslator,
+  PathAttributes,
+  PathTranslator,
+  TranslatorConfig
+}
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.MessageFilter
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.ast.styles.StyleDeclarationSet
+import laika.config.{ TargetFormats, Version, Versions }
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
-import laika.rewrite.{ OutputContext, Version, Versions }
-import laika.rewrite.nav.{
-  ConfigurablePathTranslator,
-  PathAttributes,
-  PathTranslator,
-  TargetFormats,
-  TranslatorConfig
-}
 import munit.FunSuite
 
 class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {

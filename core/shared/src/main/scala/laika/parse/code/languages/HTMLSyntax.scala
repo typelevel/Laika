@@ -17,12 +17,12 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.common.TagFormats.TagParser
 import laika.parse.code.common.{ Keywords, TagFormats }
 import laika.parse.code.common.TagFormats.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 
 /** @author Jens Halm
   */

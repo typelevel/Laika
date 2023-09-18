@@ -17,7 +17,7 @@
 package laika.api.builder
 
 import laika.api.Renderer
-import laika.factory.RenderFormat
+import laika.api.format.RenderFormat
 
 /** Builder API for Renderer instances.
   *
@@ -25,7 +25,6 @@ import laika.factory.RenderFormat
   * and other options.
   *
   * @tparam FMT the formatter API to use which varies depending on the renderer
-  *
   * @author Jens Halm
   */
 class RendererBuilder[FMT] private[laika] (

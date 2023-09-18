@@ -19,6 +19,7 @@ package laika.io.model
 import cats.data.Kleisli
 import cats.effect.Async
 import laika.ast.{ DocumentTree, DocumentTreeBuilder, DocumentType, Path, StaticDocument }
+import laika.io.internal.model.DirectoryInput
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or
   * constructed programmatically (or a mix of both).

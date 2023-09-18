@@ -27,7 +27,7 @@ import laika.io.api.{
   TreeRenderer,
   TreeTransformer
 }
-import laika.io.runtime.Batch
+import laika.io.internal.runtime.Batch
 
 /** Provides a description of a transform operation, including the parsers, renderers and extension bundles used,
   * as well as the sources and output target.

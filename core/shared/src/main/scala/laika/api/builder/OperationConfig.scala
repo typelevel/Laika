@@ -16,28 +16,27 @@
 
 package laika.api.builder
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
-import laika.config.ConfigError.ValidationError
-import laika.ast.*
-import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
-import laika.bundle.{
+import laika.api.bundle.{
   BundleOrigin,
   ConfigProvider,
   DocumentTypeMatcher,
   ExtensionBundle,
-  MarkupExtensions
+  MarkupExtensions,
+  PathTranslator,
+  SlugBuilder
 }
-import laika.config.Config.ConfigResult
-import laika.directive.DirectiveSupport
-import laika.directive.std.StandardDirectives
-import laika.factory.{ MarkupFormat, RenderFormat }
+import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
+import laika.api.format.{ MarkupFormat, RenderFormat }
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.api.config.ConfigError.ValidationError
+import laika.ast.*
+import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
+import laika.api.config.Config.ConfigResult
+import laika.ast.styles.StyleDeclaration
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
+import laika.internal.rewrite.RecursiveResolverRules
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.OutputContext
-import laika.rewrite.RecursiveResolverRules
-import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec
 

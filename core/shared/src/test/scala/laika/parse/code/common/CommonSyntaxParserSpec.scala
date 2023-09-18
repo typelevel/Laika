@@ -17,14 +17,14 @@
 package laika.parse.code.common
 
 import cats.data.NonEmptyList
+import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
-import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
 import laika.parse.builders.*
 import laika.parse.code.common.Identifier.IdParser
 import laika.parse.code.common.NumberLiteral.NumericParser
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits.*
+import laika.parse.syntax.*
 import laika.parse.text.CharGroup
 import munit.FunSuite
 

@@ -16,11 +16,11 @@
 
 package laika.ast.sample
 
+import laika.api.config.{ Config, ConfigBuilder, Origin }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.ConfigError.TreeConfigErrors
-import laika.config.{ Config, ConfigBuilder, LaikaKeys, Origin }
-import laika.rewrite.link.LinkValidation
+import laika.api.config.ConfigError.TreeConfigErrors
+import laika.config.{ LaikaKeys, LinkValidation }
 
 object SampleTrees {
 

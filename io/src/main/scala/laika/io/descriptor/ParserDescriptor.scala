@@ -18,7 +18,7 @@ package laika.io.descriptor
 
 import cats.data.NonEmptyList
 import cats.effect.Sync
-import cats.implicits._
+import cats.syntax.all.*
 import laika.io.api.TreeParser
 
 /** Provides a description of a parsing operation, including the parsers

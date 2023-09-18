@@ -20,14 +20,13 @@ import cats.effect.{ Async, IO, Resource }
 import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.LinkValidation
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
-import laika.io.implicits.*
+import laika.io.syntax.*
 import laika.io.model.InputTree
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.LinkValidation
 import laika.theme.ThemeProvider
 import laika.theme.config.{
   CrossOrigin,
@@ -46,7 +45,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .using(GitHubFlavor)
+    .using(Markdown.GitHubFlavor)
     .parallel[IO]
     .build
 
@@ -67,7 +66,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .using(GitHubFlavor)
+    .using(Markdown.GitHubFlavor)
     .withConfigValue(LinkValidation.Local)
     .parallel[IO]
     .withTheme(theme)

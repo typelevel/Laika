@@ -17,6 +17,7 @@
 package laika.rewrite
 
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
 import laika.ast.*
@@ -27,11 +28,9 @@ import laika.ast.sample.{
   SampleTrees,
   TestSourceBuilders
 }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigBuilder, LaikaKeys }
+import laika.api.config.Config.ConfigResult
+import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
 import laika.parse.GeneratedSource
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
-import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
