@@ -65,8 +65,6 @@ private[io] object RendererRuntime {
       else Sync[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))
     }
 
-    val fileSuffix = op.renderer.format.fileSuffix
-
     type RenderResult = Either[BinaryInput[F], RenderedDocument]
     case class RenderOps(mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
 
@@ -148,7 +146,7 @@ private[io] object RendererRuntime {
         staticDocs: Seq[BinaryInput[F]]
     ): RenderOps = {
 
-      val styles          = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.treeBuilder)
+      val styles = finalRoot.styles(context.fileSuffix) ++ getThemeStyles(themeInputs.treeBuilder)
       val pathTranslatorF = pathTranslator.translate(_: Path)
 
       def createDirectory(file: FilePath): F[Unit] =
@@ -203,7 +201,9 @@ private[io] object RendererRuntime {
           buildNode
         )
         val template   =
-          finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
+          finalRoot.tree
+            .getDefaultTemplate(context.fileSuffix)
+            .fold(TemplateRoot.fallback)(_.content)
 
         new RenderedTreeRoot[F](
           resultRoot,
