@@ -36,7 +36,6 @@ import laika.preview.internal.SiteTransformer.ResultMap
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream
-import scala.annotation.nowarn
 
 private[preview] class SiteTransformer[F[_]: Async](
     val parser: TreeParser[F],
@@ -213,7 +212,6 @@ private[preview] class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 
 }
 
-@nowarn
 private[preview] sealed abstract class SiteResult[F[_]] extends Product with Serializable
 
 private[preview] case class RenderedResult[F[_]](content: String) extends SiteResult[F]
