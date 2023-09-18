@@ -307,14 +307,14 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a document mapper from a theme specific to the output format") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(AST)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(AST))(TreeProcessors.mapperFunction),
       mappedResult
     )
   }
 
   test("ignore the document mapper from a theme if the format does not match") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(HTML)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(HTML))(TreeProcessors.mapperFunction),
       simpleResult
     )
   }

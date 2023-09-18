@@ -18,8 +18,7 @@ package laika.io.helper
 
 import cats.effect.Async
 import laika.api.bundle.ExtensionBundle
-import laika.ast.Document
-import laika.api.format.Format
+import laika.ast.{ Document, OutputContext }
 import laika.io.model.InputTreeBuilder
 import laika.theme.{ ThemeBuilder, ThemeProvider, TreeProcessorBuilder }
 
@@ -49,12 +48,12 @@ object TestThemeBuilder {
 
   }
 
-  def forDocumentMapper(format: Format)(f: Document => Document): ThemeProvider =
+  def forDocumentMapper(context: OutputContext)(f: Document => Document): ThemeProvider =
     new ThemeProvider {
 
       def build[F[_]: Async] = {
         ThemeBuilder("test")
-          .processTree(TreeProcessorBuilder[F].mapDocuments(f), format)
+          .processTree(TreeProcessorBuilder[F].mapDocuments(f), context)
           .build
       }
 

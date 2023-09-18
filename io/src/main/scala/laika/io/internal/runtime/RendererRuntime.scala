@@ -287,7 +287,7 @@ private[io] object RendererRuntime {
     val tree        = ParsedTree(op.input).addStaticDocuments(staticDocs)
 
     for {
-      mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
+      mappedTree  <- op.theme.treeProcessor(context).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
       versions    <- Sync[F].fromEither(mapError(finalRoot.config.getOpt[Versions]))
       pTranslator <- Sync[F].fromEither(mapError(op.config.pathTranslatorFor(finalRoot, context)))

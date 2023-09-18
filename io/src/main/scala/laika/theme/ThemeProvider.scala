@@ -18,7 +18,7 @@ package laika.theme
 
 import cats.effect.{ Async, Resource }
 import laika.api.bundle.ExtensionBundle
-import laika.api.format.Format
+import laika.ast.OutputContext
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.InputTree
 
@@ -63,7 +63,7 @@ trait ThemeProvider { self =>
         override def descriptor: ThemeDescriptor      = base.descriptor.extendWith(ext.descriptor)
         override def inputs: InputTree[F]             = base.inputs.overrideWith(ext.inputs)
         override def extensions: Seq[ExtensionBundle] = base.extensions ++ ext.extensions
-        override def treeProcessor: Format => Theme.TreeProcessor[F] = fmt =>
+        override def treeProcessor: OutputContext => Theme.TreeProcessor[F] = fmt =>
           base.treeProcessor(fmt).andThen(ext.treeProcessor(fmt))
       }
     }

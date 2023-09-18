@@ -16,14 +16,14 @@
 
 package laika.helium.internal.builder
 
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import laika.api.bundle.*
-import laika.ast.Document
+import laika.ast.{Document, OutputContext}
 import laika.ast.Path.Root
-import laika.format.{ EPUB, HTML, XSLFO }
+import laika.format.{EPUB, HTML, XSLFO}
 import laika.helium.Helium
 import laika.helium.internal.generate.ConfigGenerator
-import laika.theme.{ Theme, ThemeBuilder, ThemeProvider }
+import laika.theme.{Theme, ThemeBuilder, ThemeProvider}
 
 /** @author Jens Halm
   */
@@ -69,7 +69,7 @@ private[helium] class HeliumThemeBuilder(helium: Helium) extends ThemeProvider {
       .addRenderOverrides(EPUB.XHTML.Overrides(HeliumRenderOverrides.forEPUB))
       .addRenderOverrides(XSLFO.Overrides(HeliumRenderOverrides.forPDF))
       .addExtensions(directives)
-      .processTree(treeProcessor.forHTML, HTML)
+      .processTree(treeProcessor.forHTML, OutputContext(HTML))
       .processTree(treeProcessor.forAllFormats)
       .build
 

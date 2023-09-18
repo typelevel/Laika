@@ -22,9 +22,8 @@ import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import laika.api.bundle.{ BundleOrigin, ExtensionBundle, RenderOverrides }
 import laika.api.config.Config
-import laika.ast.{ RewritePhase, RewriteRules }
+import laika.ast.{ OutputContext, RewritePhase, RewriteRules }
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
-import laika.api.format.Format
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
 import laika.theme.Theme.TreeProcessor
@@ -44,7 +43,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
     inputs: F[InputTreeBuilder[F]],
     extensions: Seq[ExtensionBundle],
     bundleBuilder: BundleBuilder,
-    treeProcessors: Seq[Format => TreeProcessor[F]]
+    treeProcessors: Seq[OutputContext => TreeProcessor[F]]
 ) { self =>
 
   private val noOp: TreeProcessor[F] = Kleisli.ask[F, ParsedTree[F]]
@@ -132,7 +131,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
     * The [[laika.theme.TreeProcessorBuilder]] provides several shortcuts for constructing
     * a `TreeProcessor` (which is just a type alias for a plain `Kleisli`).
     */
-  def processTree(f: Format => TreeProcessor[F]): ThemeBuilder[F] =
+  def processTree(f: OutputContext => TreeProcessor[F]): ThemeBuilder[F] =
     new ThemeBuilder[F](themeName, inputs, extensions, bundleBuilder, treeProcessors :+ f)
 
   /** Adds a function that processes the document tree between parsing and rendering,
@@ -150,14 +149,14 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
     * The [[laika.theme.TreeProcessorBuilder]] provides several shortcuts for constructing
     * a `TreeProcessor` (which is just a type alias for a plain `Kleisli`).
     */
-  def processTree(f: TreeProcessor[F], format: Format): ThemeBuilder[F] =
+  def processTree(f: TreeProcessor[F], context: OutputContext): ThemeBuilder[F] =
     new ThemeBuilder[F](
       themeName,
       inputs,
       extensions,
       bundleBuilder,
-      treeProcessors :+ { (fmt: Format) =>
-        if (fmt == format) f else noOp
+      treeProcessors :+ { (fmt: OutputContext) =>
+        if (fmt == context) f else noOp
       }
     )
 
@@ -171,7 +170,7 @@ class ThemeBuilder[F[_]: Monad] private[laika] (
           def inputs: InputTree[F]             = in
           def extensions: Seq[ExtensionBundle] = self.extensions ++ bundleBuilder.build.toSeq
 
-          def treeProcessor: Format => TreeProcessor[F] = { format =>
+          def treeProcessor: OutputContext => TreeProcessor[F] = { format =>
             treeProcessors.map(_(format)).reduceLeftOption(_ andThen _).getOrElse(noOp)
           }
 
