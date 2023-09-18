@@ -16,12 +16,12 @@
 
 package laika.internal.render
 
-import laika.api.format.{ Formatter, RenderContext, TagFormatter }
+import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast.*
 
 private[laika] class HTMLFormatter(
     closeEmptyTags: Boolean,
-    protected val context: RenderContext[TagFormatter]
+    protected val context: Formatter.Context[TagFormatter]
 ) extends TagFormatter {
 
   protected def withChild(element: Element): Rep =

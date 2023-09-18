@@ -16,58 +16,8 @@
 
 package laika.api.format
 
-import laika.api.bundle.{ PathTranslator, RenderOverrides }
-import laika.ast.styles.StyleDeclarationSet
-import laika.ast.{ Element, MessageFilter, Path }
-
-/** Provides the context for a single render operation.
-  *
-  * @param renderChild a render function to use for rendering the children of an element
-  * @param currentElement the element currently being rendered
-  * @param parents the stack of parent elements of this formatter in recursive rendering,
-  *                with the root element being the last in the list
-  * @param styles the styles the new renderer should apply to the rendered elements
-  * @param path the (virtual) path the output will be rendered to
-  * @param pathTranslator translates paths of input documents to the corresponding output path
-  * @param indentation the indentation mechanism to use for rendering
-  * @param messageFilter the filter to apply before rendering runtime messages
-  */
-class RenderContext[FMT] private[laika] (
-    val renderChild: (FMT, Element) => String,
-    val currentElement: Element,
-    val parents: List[Element],
-    val styles: StyleDeclarationSet,
-    val path: Path,
-    val pathTranslator: PathTranslator,
-    val indentation: Formatter.Indentation,
-    val messageFilter: MessageFilter
-) {
-
-  def forChildElement(child: Element): RenderContext[FMT] =
-    new RenderContext[FMT](
-      renderChild,
-      child,
-      currentElement :: parents,
-      styles,
-      path,
-      pathTranslator,
-      indentation,
-      messageFilter
-    )
-
-  def withIndentation(newValue: Formatter.Indentation): RenderContext[FMT] =
-    new RenderContext[FMT](
-      renderChild,
-      currentElement,
-      parents,
-      styles,
-      path,
-      pathTranslator,
-      newValue,
-      messageFilter
-    )
-
-}
+import laika.api.bundle.RenderOverrides
+import laika.ast.Element
 
 /** Responsible for creating renderer instances for a specific output format.
   *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition
@@ -102,7 +52,7 @@ trait RenderFormat[FMT] extends Format {
     * The formatter created by this function (or copies created from it)
     * will be used when invoking the default renderer.
     */
-  def formatterFactory: RenderContext[FMT] => FMT
+  def formatterFactory: Formatter.Context[FMT] => FMT
 
   case class Overrides(value: PartialFunction[(FMT, Element), String] = PartialFunction.empty)
       extends RenderOverrides {

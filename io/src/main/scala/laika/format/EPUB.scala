@@ -21,7 +21,7 @@ import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{
   BinaryPostProcessor,
-  RenderContext,
+  Formatter,
   RenderFormat,
   TagFormatter,
   TwoPhaseRenderFormat
@@ -78,7 +78,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.
 
     val defaultRenderer: (TagFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext[TagFormatter] => TagFormatter =
+    val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter =
       context => new HTMLFormatter(closeEmptyTags = true, context)
 
   }

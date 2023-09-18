@@ -16,7 +16,7 @@
 
 package laika.format
 
-import laika.api.format.{ Formatter, RenderContext, RenderFormat }
+import laika.api.format.{ Formatter, RenderFormat }
 import laika.ast.Element
 import laika.api.format.Formatter.Indentation
 import laika.internal.render.ASTRenderer
@@ -38,7 +38,7 @@ case object AST extends RenderFormat[Formatter] {
 
   val defaultRenderer: (Formatter, Element) => String = ASTRenderer
 
-  val formatterFactory: RenderContext[Formatter] => Formatter = context => {
+  val formatterFactory: Formatter.Context[Formatter] => Formatter = context => {
     Formatter.defaultFactory(context.withIndentation(Indentation.dotted))
   }
 

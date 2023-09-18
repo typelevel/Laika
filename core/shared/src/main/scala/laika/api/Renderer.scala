@@ -23,7 +23,7 @@ import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.format.Formatter.Indentation
-import laika.api.format.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
+import laika.api.format.{ Formatter, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.styles.StyleDeclarationSet
 
 /** Performs a render operation from a document AST to a target format
@@ -138,7 +138,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
 
     (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
       val renderContext =
-        new RenderContext[Formatter](
+        new Formatter.Context[Formatter](
           renderFunction,
           elementToRender,
           Nil,
