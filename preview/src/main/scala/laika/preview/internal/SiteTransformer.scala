@@ -85,13 +85,13 @@ private[preview] class SiteTransformer[F[_]: Async](
       .toMemory
       .render
       .map { root =>
-        val map   = root.allDocuments.map { doc =>
+        val map: Map[Path, SiteResult[F]]   = root.allDocuments.map { doc =>
           (doc.path, RenderedResult[F](doc.content))
         }.toMap ++
           root.staticDocuments.map { doc =>
             (doc.path, StaticResult(doc.input))
           }.toMap
-        val roots = map.flatMap { case (path, result) =>
+        val roots: Map[Path, SiteResult[F]] = map.flatMap { case (path, result) =>
           if (path.name == "index.html") Some((path.parent, result)) else None
         }
         map ++ roots
