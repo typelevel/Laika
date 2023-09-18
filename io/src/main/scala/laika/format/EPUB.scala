@@ -21,7 +21,6 @@ import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{
   BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
   RenderContext,
   RenderFormat,
   TagFormatter,
@@ -60,7 +59,7 @@ import laika.theme.Theme
   *
   *  @author Jens Halm
   */
-case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
+case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
   override val description: String = "EPUB"
 
@@ -151,7 +150,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorB
     *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
     *    and the configuration of this instance.
     */
-  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+  def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {

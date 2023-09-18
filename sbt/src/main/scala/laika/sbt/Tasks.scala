@@ -30,12 +30,7 @@ import sbt.util.CacheStore
 import Settings.validated
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
-import laika.api.format.{
-  BinaryPostProcessorBuilder,
-  MarkupFormat,
-  RenderFormat,
-  TwoPhaseRenderFormat
-}
+import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.config.{ Selections, Versions }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
@@ -141,7 +136,7 @@ object Tasks {
     }
 
     def renderWithProcessor[FMT](
-        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
         formatDesc: String
     ): Set[File] = {
 

@@ -17,17 +17,17 @@
 package laika.preview.internal
 
 import cats.effect.syntax.all.*
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import cats.syntax.all.*
 import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.api.config.Config.ConfigResult
-import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
-import laika.ast.{ MessageFilter, Path }
-import laika.config.{ LaikaKeys, Selections, TargetFormats }
+import laika.api.format.{BinaryPostProcessor, TwoPhaseRenderFormat}
+import laika.ast.{MessageFilter, Path}
+import laika.config.{LaikaKeys, Selections, TargetFormats}
 import laika.format.HTML
-import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
+import laika.io.api.{BinaryTreeRenderer, TreeParser, TreeRenderer}
 import laika.io.internal.config.SiteConfig
 import laika.io.internal.errors.ConfigException
 import laika.io.model.*
@@ -148,7 +148,7 @@ private[preview] object SiteTransformer {
       .build
 
   def binaryRenderer[F[_]: Async, FMT](
-      format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+      format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
       config: OperationConfig,
       theme: Theme[F]
   ): Resource[F, BinaryTreeRenderer[F]] = {
@@ -164,7 +164,7 @@ private[preview] object SiteTransformer {
   def create[F[_]: Async](
       parser: Resource[F, TreeParser[F]],
       inputs: InputTreeBuilder[F],
-      renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
+      renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]],
       apiDir: Option[FilePath],
       artifactBasename: String
   ): Resource[F, SiteTransformer[F]] = {

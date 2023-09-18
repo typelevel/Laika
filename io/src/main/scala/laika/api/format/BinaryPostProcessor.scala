@@ -44,8 +44,12 @@ trait BinaryPostProcessor[F[_]] {
 
 }
 
-trait BinaryPostProcessorBuilder {
+object BinaryPostProcessor {
 
-  def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]]
+  trait Builder {
+
+    def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]]
+
+  }
 
 }
