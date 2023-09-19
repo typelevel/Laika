@@ -21,7 +21,7 @@ import laika.api.config.ConfigError
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
 import laika.config.LaikaKeys
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.parse.{ LineSource, SourceCursor }
 
@@ -129,7 +129,7 @@ private[laika] trait TemplateRewriter {
         cursor.root.target.tree
           .selectTemplate(path.relative)
           .map(Some(_))
-          .toRight(ValidationError(s"Template with path '$path' not found"))
+          .toRight(ValidationFailed(s"Template with path '$path' not found"))
 
       case None =>
         val templatePath = DefaultTemplatePath.forSuffix(format).relative

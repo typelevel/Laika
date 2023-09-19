@@ -136,7 +136,7 @@ private[config] object Scope {
     case "all"       => Right(All)
     case "none"      => Right(None)
     case other       =>
-      Left(ConfigError.ValidationError(s"Invalid value for autonumbering.scope: $other"))
+      Left(ConfigError.ValidationFailed(s"Invalid value for autonumbering.scope: $other"))
   }
 
 }

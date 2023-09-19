@@ -29,7 +29,7 @@ import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.internal.collection.TransitionalCollectionOps.*
 import laika.api.config.Config.ConfigResult
-import laika.api.config.ConfigError.{ DocumentConfigErrors, TreeConfigErrors }
+import laika.api.config.ConfigError.{ DocumentErrors, TreeErrors }
 import laika.config.{ AutonumberConfig, LaikaKeys, LinkConfig, LinkValidation, TargetFormats }
 import laika.internal.link
 import laika.internal.link.LinkValidator
@@ -127,12 +127,12 @@ class RootCursor private (
   /** Returns a new tree root, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
-  def rewriteTarget(rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] = {
+  def rewriteTarget(rules: RewriteRulesBuilder): Either[TreeErrors, DocumentTreeRoot] = {
     val result = for {
       rewrittenCover <- coverDocument.traverse(_.rewriteTarget(rules).toEitherNec)
       rewrittenTree  <- tree.rewriteTarget(rules).leftMap(_.failures)
     } yield target.withCoverDocument(rewrittenCover).modifyTree(_ => rewrittenTree)
-    result.leftMap(TreeConfigErrors.apply)
+    result.leftMap(TreeErrors.apply)
   }
 
   /** Selects the tree configuration for the specified path,
@@ -150,35 +150,33 @@ object RootCursor {
   def apply(
       target: DocumentTreeRoot,
       outputContext: Option[OutputContext] = None
-  ): Either[TreeConfigErrors, RootCursor] = {
+  ): Either[TreeErrors, RootCursor] = {
 
     /* Configuration values used by rewrite rules are validated in the respective builders for those rules.
        Here we only validate configuration used by the cursor implementation itself.
        We fail early here, as the actual access of these values happens in a lazily created, recursive structure,
        where it would not be beneficial to expose error handling in every step. */
 
-    def validate(doc: Document): Option[DocumentConfigErrors] = List(
+    def validate(doc: Document): Option[DocumentErrors] = List(
       doc.config.getOpt[Boolean](LaikaKeys.versioned).toEitherNec,
       doc.config.getOpt[String](LaikaKeys.title).toEitherNec,
       doc.config.getOpt[TargetFormats].toEitherNec
-    ).parSequence.left.toOption.map(DocumentConfigErrors.apply(doc.path, _))
+    ).parSequence.left.toOption.map(DocumentErrors.apply(doc.path, _))
 
-    def validateRoot: Seq[DocumentConfigErrors] = List(
+    def validateRoot: Seq[DocumentErrors] = List(
       target.config.getOpt[String](LaikaKeys.siteBaseURL).toEitherNec,
       target.config.getOpt[LinkConfig].toEitherNec,
       target.config.getOpt[LinkValidation].toEitherNec
-    ).parSequence.fold(errs => Seq(DocumentConfigErrors(Root, errs)), _ => Nil)
+    ).parSequence.fold(errs => Seq(DocumentErrors(Root, errs)), _ => Nil)
 
     val validations = NonEmptyChain
       .fromSeq(target.allDocuments.flatMap(validate) ++ validateRoot)
-      .map(TreeConfigErrors.apply)
+      .map(TreeErrors.apply)
       .toLeft(())
 
     def translatorConfig =
       TranslatorConfig.readFrom(target.config)
-        .leftMap(err =>
-          TreeConfigErrors(NonEmptyChain.one(DocumentConfigErrors(Root, NonEmptyChain.one(err))))
-        )
+        .leftMap(err => TreeErrors(NonEmptyChain.one(DocumentErrors(Root, NonEmptyChain.one(err)))))
 
     for {
       _             <- validations
@@ -252,11 +250,11 @@ class TreeCursor private (
   /** Returns a new tree, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
-  def rewriteTarget(rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] = {
+  def rewriteTarget(rules: RewriteRulesBuilder): Either[TreeErrors, DocumentTree] = {
 
     val sortedContent = NavigationOrder
       .applyTo(children, config)
-      .leftMap(err => NonEmptyChain.one(DocumentConfigErrors(path, err)))
+      .leftMap(err => NonEmptyChain.one(DocumentErrors(path, err)))
 
     val rewrittenTitle = titleDocument
       .traverse { doc =>
@@ -265,7 +263,7 @@ class TreeCursor private (
           .toEitherNec
       }
 
-    val rewrittenContent: Either[NonEmptyChain[DocumentConfigErrors], Seq[TreeContent]] =
+    val rewrittenContent: Either[NonEmptyChain[DocumentErrors], Seq[TreeContent]] =
       sortedContent.flatMap(
         _.toList
           .map {
@@ -278,7 +276,7 @@ class TreeCursor private (
     (rewrittenTitle, rewrittenContent).parMapN { (title, content) =>
       target.replaceContent(content).withTitleDocument(title)
     }
-      .leftMap(TreeConfigErrors.apply)
+      .leftMap(TreeErrors.apply)
   }
 
 }
@@ -293,7 +291,7 @@ object TreeCursor {
   def apply(
       root: DocumentTree,
       outputContext: Option[OutputContext] = None
-  ): Either[TreeConfigErrors, TreeCursor] =
+  ): Either[TreeErrors, TreeCursor] =
     RootCursor(DocumentTreeRoot(root), outputContext).map(apply)
 
 }
@@ -332,8 +330,8 @@ class DocumentCursor private (
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
     */
-  def rewriteTarget(rules: RewriteRulesBuilder): Either[DocumentConfigErrors, Document] =
-    rules(this).map(rewriteTarget).leftMap(DocumentConfigErrors(path, _))
+  def rewriteTarget(rules: RewriteRulesBuilder): Either[DocumentErrors, Document] =
+    rules(this).map(rewriteTarget).leftMap(DocumentErrors(path, _))
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
     */
@@ -491,7 +489,7 @@ object DocumentCursor {
   def apply(
       document: Document,
       outputContext: Option[OutputContext] = None
-  ): Either[TreeConfigErrors, DocumentCursor] = {
+  ): Either[TreeErrors, DocumentCursor] = {
     val orphanDoc = document.modifyConfig(_.withValue(LaikaKeys.orphan, true))
     TreeCursor(DocumentTree.builder.addDocument(orphanDoc).build, outputContext)
       .map(apply(orphanDoc, _))

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.parse.hocon
+package laika.internal.parse.hocon
 
 import laika.api.config.ConfigValue.SimpleValue
 import laika.api.config.Key

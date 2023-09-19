@@ -156,12 +156,12 @@ You can then flatMap on the string decoder to obtain a Color decoder:
 
 ```scala mdoc:silent
 import laika.api.config._
-import laika.api.config.ConfigError.DecodingError
+import laika.api.config.ConfigError.DecodingFailed
 
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>
     Color.fromString(str)
-      .toRight(DecodingError(s"Unsupported color name: $str"))
+      .toRight(DecodingFailed(s"Unsupported color name: $str"))
   }
 ```
 

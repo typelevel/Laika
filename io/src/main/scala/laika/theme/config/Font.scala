@@ -20,7 +20,7 @@ import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.Path.Root
 import laika.ast.{ Path, VirtualPath }
 import laika.config.*
-import laika.api.config.ConfigError.DecodingError
+import laika.api.config.ConfigError.DecodingFailed
 import laika.io.model.FilePath
 
 /** Represents a font resource, either based on a local classpath or file system resource,
@@ -235,17 +235,19 @@ object FontDefinition {
       family    <- config.get[String]("family")
       weightStr <- config.get[String]("weight")
       weight    <- FontWeight.fromString(weightStr).toRight(
-        DecodingError(s"Invalid value for fontWeight: '$weightStr'")
+        DecodingFailed(s"Invalid value for fontWeight: '$weightStr'")
       )
       styleStr  <- config.get[String]("style")
       style     <- FontStyle.fromString(styleStr).toRight(
-        DecodingError(s"Invalid value for fontStyle: '$styleStr'")
+        DecodingFailed(s"Invalid value for fontStyle: '$styleStr'")
       )
       embedRes  <- config.getOpt[String]("embedResource")
       embedFile <- config.getOpt[String]("embedFile")
       webCSS    <- config.getOpt[String]("webCSS")
       font      <- Font.create(embedRes, embedFile, webCSS).toRight(
-        DecodingError("At least one of embedFile, embedResource or webCSS must be defined for Font")
+        DecodingFailed(
+          "At least one of embedFile, embedResource or webCSS must be defined for Font"
+        )
       )
     } yield {
       Impl(font, family, weight, style)

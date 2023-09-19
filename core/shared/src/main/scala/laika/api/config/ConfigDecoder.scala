@@ -18,7 +18,7 @@ package laika.api.config
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
-import laika.api.config.ConfigError.{ DecodingError, InvalidType }
+import laika.api.config.ConfigError.{ DecodingFailed, InvalidType }
 import laika.api.config.ConfigValue.*
 import laika.ast.*
 import laika.ast.RelativePath.CurrentDocument
@@ -77,11 +77,11 @@ object ConfigDecoder {
 
     def apply(value: Traced[ConfigValue]) = value.value match {
       case LongValue(n)   =>
-        Either.cond(n.isValidInt, n.toInt, DecodingError(s"not a valid integer: $n"))
+        Either.cond(n.isValidInt, n.toInt, DecodingFailed(s"not a valid integer: $n"))
       case DoubleValue(n) =>
-        Either.cond(n.isValidInt, n.toInt, DecodingError(s"not a valid integer: $n"))
+        Either.cond(n.isValidInt, n.toInt, DecodingFailed(s"not a valid integer: $n"))
       case StringValue(s) =>
-        Try(s.toInt).toEither.left.map(_ => DecodingError(s"not an integer: $s"))
+        Try(s.toInt).toEither.left.map(_ => DecodingFailed(s"not an integer: $s"))
       case invalid        => Left(InvalidType("Number", invalid))
     }
 
@@ -93,7 +93,7 @@ object ConfigDecoder {
       case LongValue(n)   => Right(n.toDouble)
       case DoubleValue(n) => Right(n)
       case StringValue(s) =>
-        Try(s.toDouble).toEither.left.map(_ => DecodingError(s"not a double: $s"))
+        Try(s.toDouble).toEither.left.map(_ => DecodingFailed(s"not a double: $s"))
       case invalid        => Left(InvalidType("Number", invalid))
     }
 
@@ -135,11 +135,11 @@ object ConfigDecoder {
   }
 
   implicit lazy val date: ConfigDecoder[PlatformDateTime.Type] = string.flatMap { dateString =>
-    PlatformDateTime.parse(dateString).left.map(err => DecodingError(s"Invalid date format: $err"))
+    PlatformDateTime.parse(dateString).left.map(err => DecodingFailed(s"Invalid date format: $err"))
   }
 
   implicit lazy val uri: ConfigDecoder[URI] = string.flatMap { uriString =>
-    Try(new URI(uriString)).toEither.left.map(err => DecodingError(s"Invalid URI format: $err"))
+    Try(new URI(uriString)).toEither.left.map(err => DecodingFailed(s"Invalid URI format: $err"))
   }
 
   implicit def seq[T](implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[Seq[T]] =
@@ -151,7 +151,7 @@ object ConfigDecoder {
             values.toList.map(v => elementDecoder(Traced(v, value.origin))).separate
           if (errors.nonEmpty)
             Left(
-              DecodingError(
+              DecodingFailed(
                 s"One or more errors decoding array elements: ${errors.map(_.message).mkString(", ")}"
               )
             )
@@ -163,7 +163,7 @@ object ConfigDecoder {
 
   implicit def nec[T](implicit elementDecoder: ConfigDecoder[T]): ConfigDecoder[NonEmptyChain[T]] =
     seq[T].flatMap { seq =>
-      NonEmptyChain.fromSeq(seq).toRight(DecodingError("Sequence must not be empty"))
+      NonEmptyChain.fromSeq(seq).toRight(DecodingFailed("Sequence must not be empty"))
     }
 
   implicit def map[T](implicit valueDecoder: ConfigDecoder[T]): ConfigDecoder[Map[String, T]] = {
@@ -172,7 +172,7 @@ object ConfigDecoder {
         valueDecoder(Traced(field.value, origin)).map((field.key, _))
       }.separate
       if (errors.nonEmpty)
-        Left(DecodingError(s"One or more errors decoding map values: ${errors.mkString(", ")}"))
+        Left(DecodingFailed(s"One or more errors decoding map values: ${errors.mkString(", ")}"))
       else Right(results.toMap)
     case Traced(invalid: ConfigValue, _) => Left(InvalidType("Object", invalid))
   }

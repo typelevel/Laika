@@ -21,7 +21,7 @@ import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, ConfigParser }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.format.HTML
 import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
 import laika.internal.rewrite.TemplateRewriter
@@ -60,7 +60,7 @@ trait TemplateParserSetup {
       val res      = for {
         cursor <- RootCursor(root).flatMap(
           _.allDocuments.find(_.path == docPath).toRight(
-            ValidationError("cursor under test missing")
+            ValidationFailed("cursor under test missing")
           )
         )
         result <- TemplateRewriter.applyTemplate(cursor, rules, template)

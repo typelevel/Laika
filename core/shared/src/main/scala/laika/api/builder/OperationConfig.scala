@@ -28,7 +28,7 @@ import laika.api.bundle.{
 import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{ MarkupFormat, RenderFormat }
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.ast.*
 import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.api.config.Config.ConfigResult
@@ -194,7 +194,7 @@ class OperationConfig private[laika] (
   ): ConfigResult[PathTranslator] = for {
     cursor         <- RootCursor(root, Some(outputContext))
     baseTranslator <- cursor.pathTranslator.toRight(
-      ValidationError("Internal error: path translator should not be empty")
+      ValidationFailed("Internal error: path translator should not be empty")
     )
   } yield {
     val context = new PathTranslatorExtensionContext(baseTranslator, outputContext, cursor.config)

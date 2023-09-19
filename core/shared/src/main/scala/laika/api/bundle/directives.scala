@@ -18,13 +18,13 @@ package laika.api.bundle
 
 import cats.{ Functor, Semigroupal }
 import laika.api.config.*
-import laika.api.config.ConfigError.DecodingError
+import laika.api.config.ConfigError.DecodingFailed
 import laika.api.config.Origin.DirectiveScope
 import laika.ast.*
 import laika.internal.collection.TransitionalCollectionOps.*
+import laika.internal.parse.directive.DirectiveParsers.ParsedDirective
+import laika.internal.parse.hocon.ConfigResolver
 import laika.parse.SourceFragment
-import laika.parse.directive.DirectiveParsers.ParsedDirective
-import laika.parse.hocon.ConfigResolver
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
 import org.typelevel.scalaccompat.annotation.unused
 
@@ -116,8 +116,8 @@ trait DirectiveBuilderContext[E <: Element] {
     val body: Option[BodyContent] = content.body
 
     def message(error: ConfigError): String = error match {
-      case de: DecodingError => de.error // do not include key in message
-      case other             => other.message
+      case de: DecodingFailed => de.error // do not include key in message
+      case other              => other.message
     }
 
     def withContent(newContent: DirectiveContent): DirectiveContext =

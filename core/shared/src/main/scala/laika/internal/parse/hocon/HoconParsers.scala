@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.parse.hocon
+package laika.internal.parse.hocon
 
 import cats.syntax.all.*
 import cats.data.NonEmptySet

@@ -17,6 +17,7 @@
 package laika.parse.hocon
 
 import laika.api.config.ConfigValue.*
+import laika.internal.parse.hocon.*
 
 /** @author Jens Halm
   */

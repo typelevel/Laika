@@ -17,7 +17,8 @@
 package laika.parse.hocon
 
 import laika.api.config.{ ConfigParser, Key }
-import laika.parse.hocon.HoconParsers._
+import laika.internal.parse.hocon.*
+import laika.internal.parse.hocon.HoconParsers.*
 import munit.FunSuite
 
 /** @author Jens Halm

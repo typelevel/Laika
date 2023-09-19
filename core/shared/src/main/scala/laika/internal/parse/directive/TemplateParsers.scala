@@ -17,13 +17,14 @@
 package laika.internal.parse.directive
 
 import laika.api.bundle.TemplateDirectives
-import laika.ast._
+import laika.ast.*
+import DirectiveParsers.*
 import laika.internal.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.{ LineSource, Parser }
 import laika.parse.markup.RecursiveSpanParser
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 
 /** Provides the parsers for directives and context references in templates.
   *
@@ -31,8 +32,6 @@ import laika.parse.syntax._
   */
 private[laika] class TemplateParsers(directives: Map[String, TemplateDirectives.Directive])
     extends DefaultRecursiveSpanParsers {
-
-  import laika.parse.directive.DirectiveParsers._
 
   lazy val spanParsers: Seq[PrefixedParser[Span]] = Seq(
     hoconReference(TemplateContextReference(_, _, _), TemplateElement(_)),

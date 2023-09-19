@@ -29,7 +29,7 @@ import laika.api.config.{
 import laika.ast.{ IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.api.config.ConfigError.{ ConfigErrors, DecodingError, ValidationError }
+import laika.api.config.ConfigError.{ ConfigErrors, DecodingFailed, ValidationFailed }
 import laika.api.config.ConfigValue.ASTValue
 import munit.FunSuite
 
@@ -42,8 +42,8 @@ class ConfigCodecSpec extends FunSuite {
   def failDecode[T: ConfigDecoder: DefaultKey](input: String, messageStart: String): Unit = {
     val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
     res match {
-      case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
-      case Left(err: DecodingError)                                         =>
+      case Left(err: DecodingFailed) if err.message.startsWith(messageStart) => ()
+      case Left(err: DecodingFailed)                                         =>
         fail(s"message '${err.message}' did not start with '$messageStart''")
       case Left(err) => fail(s"Expected DecodingError, but got $err")
       case _         => fail("decoding did not fail as expected")
@@ -294,8 +294,8 @@ class ConfigCodecSpec extends FunSuite {
     val res      = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
     val expected = ConfigErrors(
       NonEmptyChain(
-        ValidationError("Path segments used for more than one version: 0.41"),
-        ValidationError("More than one version marked as canonical: 0.41.x, 0.42.x")
+        ValidationFailed("Path segments used for more than one version: 0.41"),
+        ValidationFailed("More than one version marked as canonical: 0.41.x, 0.42.x")
       )
     )
     assertEquals(res, Left(expected))

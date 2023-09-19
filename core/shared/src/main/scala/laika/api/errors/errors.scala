@@ -4,7 +4,7 @@ import cats.syntax.all.*
 import cats.data.{ Chain, NonEmptyChain }
 import laika.api.config.ConfigError
 import laika.ast.{ Document, DocumentTreeRoot, Invalid, Path }
-import ConfigError.TreeConfigErrors
+import ConfigError.TreeErrors
 import laika.config.MessageFilter
 
 sealed trait TransformationError {
@@ -106,7 +106,7 @@ private[laika] object InvalidDocuments {
   }
 
   def from(
-      result: Either[TreeConfigErrors, DocumentTreeRoot],
+      result: Either[TreeErrors, DocumentTreeRoot],
       failOn: MessageFilter
   ): Either[InvalidDocuments, DocumentTreeRoot] = {
     result.fold(

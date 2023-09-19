@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package laika.parse.directive
+package laika.internal.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
 import laika.api.bundle.{ AttributeKey, BlockParserBuilder, SpanParserBuilder }
 import laika.api.config.Key
 import laika.ast.*
+import laika.internal.parse.hocon.*
 import laika.parse.builders.*
-import laika.parse.hocon.*
 import laika.parse.syntax.*
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
 import laika.parse.text.{ CharGroup, PrefixedParser }

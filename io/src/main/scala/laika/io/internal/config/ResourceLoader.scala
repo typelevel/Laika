@@ -21,7 +21,7 @@ import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.ast.DocumentType
 import laika.ast.Path.Root
-import laika.api.config.ConfigError.ConfigResourceError
+import laika.api.config.ConfigError.ResourceLoadingFailed
 import laika.io.model.{ FilePath, TextInput }
 
 import java.io.{ FileNotFoundException, InputStream }
@@ -39,7 +39,7 @@ private[io] object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Async](file: String): F[Option[Either[ConfigResourceError, String]]] =
+  def loadFile[F[_]: Async](file: String): F[Option[Either[ResourceLoadingFailed, String]]] =
     loadFile(FilePath.parse(file))
 
   /** Load the specified file (which may be a file on the file system or a classpath resource).
@@ -48,13 +48,13 @@ private[io] object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadFile[F[_]: Async](file: FilePath): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadFile[F[_]: Async](file: FilePath): F[Option[Either[ResourceLoadingFailed, String]]] = {
 
-    def load: F[Either[ConfigResourceError, String]] = {
+    def load: F[Either[ResourceLoadingFailed, String]] = {
       val input = TextInput.fromFile[F](file, Root, DocumentType.Config)
       input.asDocumentInput.attempt.map(
         _.bimap(
-          t => ConfigResourceError(s"Unable to load file '${file.toString}': ${t.getMessage}"),
+          t => ResourceLoadingFailed(s"Unable to load file '${file.toString}': ${t.getMessage}"),
           _.source.input
         )
       )
@@ -76,7 +76,7 @@ private[io] object ResourceLoader {
     */
   def loadClasspathResource[F[_]: Async](
       resource: String
-  ): F[Option[Either[ConfigResourceError, String]]] =
+  ): F[Option[Either[ResourceLoadingFailed, String]]] =
     Option(getClass.getClassLoader.getResource(resource)) match {
       case Some(url) => loadFile(url.getFile)
       case None      => Sync[F].pure(None)
@@ -88,7 +88,7 @@ private[io] object ResourceLoader {
     * If it does exist, but fails to load or parse correctly the result will be `Some(Left(...))`,
     * successfully parsed resources will be returned as `Some(Right(...))`.
     */
-  def loadUrl[F[_]: Async](url: URL): F[Option[Either[ConfigResourceError, String]]] = {
+  def loadUrl[F[_]: Async](url: URL): F[Option[Either[ResourceLoadingFailed, String]]] = {
 
     val stream: F[InputStream] = for {
       con <- Sync[F].delay(url.openConnection())
@@ -103,7 +103,7 @@ private[io] object ResourceLoader {
       case Left(t)                        =>
         Some(
           Left(
-            ConfigResourceError(
+            ResourceLoadingFailed(
               s"Unable to load config from URL '${url.toString}': ${t.getMessage}"
             )
           )

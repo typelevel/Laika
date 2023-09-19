@@ -30,7 +30,7 @@ import laika.io.api.TreeParser
 import laika.io.internal.config.IncludeHandler
 import laika.io.internal.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
-import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
+import laika.internal.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
 import laika.internal.parse.markup.DocumentParser.DocumentInput
 import laika.io.internal.errors.{
   DocumentParserError,

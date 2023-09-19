@@ -17,8 +17,8 @@
 package laika.api.config
 
 import laika.api.config.Config.IncludeMap
-import ConfigError.{ ConfigParserError, ConfigResourceError }
-import laika.parse.hocon.*
+import ConfigError.{ ParsingFailed, ResourceLoadingFailed }
+import laika.internal.parse.hocon.*
 import laika.parse.{ Failure, Success }
 
 /** A parser for obtaining a Config instance from a HOCON string.
@@ -88,7 +88,7 @@ object ConfigParser {
   private[laika] val includesNotSupported: IncludeMap =
     Map.empty.withDefaultValue(
       Left(
-        ConfigResourceError(
+        ResourceLoadingFailed(
           "Loading of includes is not supported in pure mode, use parsers or transformers in laika-io for this purpose."
         )
       )
@@ -101,7 +101,7 @@ object ConfigParser {
     lazy val unresolved: Either[ConfigError, ObjectBuilderValue] =
       HoconParsers.rootObject.parse(input) match {
         case Success(builderRoot, _) => Right(builderRoot)
-        case f: Failure              => Left(ConfigParserError(f))
+        case f: Failure              => Left(ParsingFailed(f))
       }
 
     private[laika] lazy val includes: Seq[IncludeResource] = {

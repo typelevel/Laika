@@ -335,7 +335,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name="foo bar } bb"""
       val msg   =
-        s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing '"'
+        s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.30] failure: Expected closing '"'
            |
            |$input
            |                             ^""".stripMargin
@@ -349,7 +349,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name = foo ? bar } bb"""
       val msg   =
-        s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
+        s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
            |
            |$input
            |                      ^""".stripMargin

@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.IncludeMap
-import laika.api.config.ConfigError.TreeConfigErrors
+import laika.api.config.ConfigError.TreeErrors
 import laika.ast.styles.StyleDeclarationSet
 import laika.config.*
 import laika.internal.rewrite.TemplateRewriter
@@ -723,7 +723,7 @@ final class DocumentTree private[ast] (
     *  The specified factory function will be invoked for each document contained in this
     *  tree and must return the rewrite rules for that particular document.
     */
-  def rewrite(rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTree] =
+  def rewrite(rules: RewriteRulesBuilder): Either[TreeErrors, DocumentTree] =
     TreeCursor(this).flatMap(_.rewriteTarget(rules))
 
   protected val configScope: Origin.Scope = Origin.TreeScope
@@ -874,7 +874,7 @@ final class DocumentTreeRoot private (
     * The specified factory function will be invoked for each document contained in this tree
     * and must return the rewrite rules for that particular document.
     */
-  def rewrite(rules: RewriteRulesBuilder): Either[TreeConfigErrors, DocumentTreeRoot] =
+  def rewrite(rules: RewriteRulesBuilder): Either[TreeErrors, DocumentTreeRoot] =
     RootCursor(this).flatMap(_.rewriteTarget(rules))
 
   /** Selects and applies the templates contained in this document tree for the specified output format to all documents

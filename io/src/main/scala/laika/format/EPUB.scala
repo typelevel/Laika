@@ -29,7 +29,7 @@ import laika.api.format.{
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.*
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.epub.internal.{ ContainerWriter, XHTMLRenderer }
 import laika.internal.render.HTMLFormatter
 import laika.io.internal.errors.ConfigException
@@ -108,7 +108,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.
       case "always" => Right(Always)
       case "never"  => Right(Never)
       case "auto"   => Right(Auto)
-      case other    => Left(ValidationError(s"Invalid value: $other"))
+      case other    => Left(ValidationFailed(s"Invalid value: $other"))
     }
 
     implicit val encoder: ConfigEncoder[ScriptedTemplate] =

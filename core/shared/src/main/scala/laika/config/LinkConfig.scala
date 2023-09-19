@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.{ ExternalTarget, InternalTarget, Path, Target, VirtualPath }
 
@@ -146,8 +146,8 @@ object LinkValidation {
       case (Some("global"), excluded) => Right(Global(excluded))
       case (Some("local"), _)         => Right(Local)
       case (Some("off"), _)           => Right(Off)
-      case (None, _)                  => Left(ValidationError(s"scope not specified"))
-      case (Some(unknown), _) => Left(ValidationError(s"Unsupported value for scope: $unknown"))
+      case (None, _)                  => Left(ValidationFailed(s"scope not specified"))
+      case (Some(unknown), _) => Left(ValidationFailed(s"Unsupported value for scope: $unknown"))
     }
   }
 
