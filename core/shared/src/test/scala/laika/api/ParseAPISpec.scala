@@ -16,8 +16,8 @@
 
 package laika.api
 
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
-import laika.api.errors.ParserError
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.format.{ HTML, Markdown }
@@ -101,7 +101,7 @@ class ParseAPISpec extends FunSuite
                 |
                 |  [invalid2]
                 |  ^""".stripMargin
-    assertEquals(MarkupParser.of(Markdown).build.parse(input), Left(new ParserError(msg)))
+    assertEquals(MarkupParser.of(Markdown).build.parse(input).leftMap(_.message), Left(msg))
   }
 
   test("replace unresolved nodes with invalid elements") {

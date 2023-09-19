@@ -19,7 +19,7 @@ package laika.api
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
 import laika.api.bundle.PathTranslator
-import laika.api.errors.RendererError
+import laika.api.errors.{ InvalidConfig, RendererError }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.format.Formatter.Indentation
@@ -133,7 +133,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
       config
         .rewriteRulesFor(doc, RewritePhase.Render(OutputContext(format)))
         .map(_.rewriteElement(targetElement))
-        .leftMap(RendererError(_))
+        .leftMap(InvalidConfig(_))
     }
 
     (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>

@@ -6,36 +6,34 @@ import laika.api.config.ConfigError
 import laika.ast.{ Document, DocumentTreeRoot, Invalid, Path }
 import ConfigError.TreeErrors
 import laika.config.MessageFilter
+import laika.parse.Failure
 
 sealed trait TransformationError {
   def message: String
 }
 
-case class RendererError(message: String) extends TransformationError {
-  override def toString: String = message
+sealed trait ParserError extends TransformationError
+
+sealed trait RendererError extends TransformationError
+
+case class InvalidConfig(error: ConfigError) extends ParserError with RendererError {
+  val message: String = s"Configuration Error: ${error.message}"
 }
 
-object RendererError {
-
-  def apply(message: String): RendererError =
-    new RendererError(s"Rendering Error: $message")
-
-  def apply(configError: ConfigError): RendererError =
-    RendererError(s"Configuration Error: ${configError.message}")
-
+case class InvalidInput(error: Failure) extends ParserError {
+  val message: String = s"Error parsing input: ${error.message}"
 }
 
-case class ParserError(message: String) extends TransformationError {
-  override def toString: String = message
-}
+case class InvalidElements(errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]])
+    extends ParserError {
 
-object ParserError {
-
-  def apply(message: String): ParserError =
-    new ParserError(s"Error parsing input: $message")
-
-  def apply(configError: ConfigError): ParserError =
-    ParserError(s"Configuration Error: ${configError.message}")
+  val message: String = {
+    val formatted = errors.fold(
+      configErrors => configErrors.map(_.message).mkString_("\n"),
+      invalidElems => invalidElems.map(InvalidDocument.formatElement("", _)).toList.mkString
+    )
+    s"One or more error nodes in result:\n$formatted".trim
+  }
 
 }
 
@@ -70,15 +68,18 @@ private[laika] object InvalidDocument {
 
   def format(doc: InvalidDocument): String = format(doc.errors, doc.path)
 
-  def formatElement(docPath: Path)(element: Invalid): String = {
-    val pathStr = element.source.path.fold("") { srcPath =>
-      if (srcPath == docPath) "" else srcPath.toString + ":"
-    }
-    s"""  [$pathStr${element.source.position.line}]: ${element.message.content}
+  private[laika] def formatElement(pathInfo: String, element: Invalid): String =
+    s"""  [$pathInfo${element.source.position.line}]: ${element.message.content}
        |
        |  ${indent(element.source.position.lineContentWithCaret)}
        |
        |""".stripMargin
+
+  private def formatElement(docPath: Path)(element: Invalid): String = {
+    val pathStr = element.source.path.fold("") { srcPath =>
+      if (srcPath == docPath) "" else srcPath.toString + ":"
+    }
+    formatElement(pathStr, element)
   }
 
   def from(document: Document, failOn: MessageFilter): Option[InvalidDocument] = {

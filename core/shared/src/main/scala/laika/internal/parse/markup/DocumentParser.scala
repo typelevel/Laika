@@ -18,13 +18,13 @@ package laika.internal.parse.markup
 
 import laika.api.bundle.{ ConfigProvider, MarkupExtensions }
 import laika.api.config.ConfigParser
-import laika.api.errors.ParserError
+import laika.api.errors.{ InvalidInput, ParserError }
 import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet }
 import laika.parse.combinator.Parsers
 import laika.parse.syntax.*
-import laika.parse.{ Parser, SourceCursor }
+import laika.parse.{ Failure, Parser, SourceCursor, Success }
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration header.
@@ -115,9 +115,11 @@ private[laika] object DocumentParser {
   def forParser[T](p: Path => Parser[T]): DocumentInput => Either[ParserError, T] = { in =>
     Parsers
       .consumeAll(p(in.path))
-      .parse(in.source)
-      .toEither
-      .left.map(ParserError(_))
+      .parse(in.source) match {
+        case Success(result, _) => Right(result)
+        case f: Failure         => Left(InvalidInput(f))
+      }
+
   }
 
 }
