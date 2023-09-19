@@ -1,4 +1,4 @@
-import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 name := "site-renderMessageLevel"
 
@@ -9,5 +9,4 @@ scalaVersion := "2.12.6"
 enablePlugins(LaikaPlugin)
 
 laikaConfig := LaikaConfig.defaults
-  .renderMessages(MessageFilter.Warning)
-  .failOnMessages(MessageFilter.None)
+  .withMessageFilters(MessageFilters.forVisualDebugging)

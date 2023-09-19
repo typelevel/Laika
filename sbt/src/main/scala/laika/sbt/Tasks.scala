@@ -31,7 +31,7 @@ import Settings.validated
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
-import laika.config.{ MessageFilters, Selections, Versions }
+import laika.config.{ Selections, Versions }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
@@ -101,7 +101,7 @@ object Tasks {
       }
       val tree    = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
-      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
+      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logLevel)
 
       tree
     }
@@ -282,12 +282,7 @@ object Tasks {
 
     def mergedConfig(config: OperationConfig): OperationConfig = {
       config
-        .withMessageFilters(
-          MessageFilters.custom(
-            failOn = userConfig.failOnMessages,
-            render = userConfig.renderMessages
-          )
-        )
+        .withMessageFilters(userConfig.messageFilters)
         .withBundleFilter(userConfig.bundleFilter)
     }
 

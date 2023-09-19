@@ -24,7 +24,7 @@ import laika.api.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.api.format.MarkupFormat
 import laika.api.config.Config.ConfigResult
-import laika.config.{ LaikaKeys, MessageFilters }
+import laika.config.LaikaKeys
 import laika.format.{ Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.internal.config.SiteConfig
@@ -40,7 +40,7 @@ import sbt.*
   */
 object Settings {
 
-  import Def._
+  import Def.*
 
   private def asLaikaFileFilter(jFilter: java.io.FileFilter): laika.io.model.FileFilter =
     new laika.io.model.FileFilter {
@@ -81,10 +81,7 @@ object Settings {
       val mergedConfig = new OperationConfig(
         bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
-        messageFilters = MessageFilters.custom(
-          failOn = userConfig.failOnMessages,
-          render = userConfig.renderMessages
-        ),
+        messageFilters = userConfig.messageFilters,
         configBuilder = userConfig.configBuilder,
         compactRendering = parser.config.compactRendering
       )

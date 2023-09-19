@@ -19,6 +19,7 @@ package laika.sbt
 import laika.api.builder.BundleFilter
 import laika.api.config.{ ConfigBuilder, ConfigEncoder, DefaultKey, Key }
 import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 import scala.io.Codec
 
@@ -52,23 +53,17 @@ sealed abstract class LaikaConfig private {
     */
   def configBuilder: ConfigBuilder
 
-  /** Indicates the filter to apply to runtime messages that should cause a transformation to fail.
+  /** Indicates how to handle runtime messages embedded in the document AST.
     *
-    * The default is to fail transformations on messages of level `Error` or higher.
+    * See `withMessageFilters` for details.
     */
-  def failOnMessages: MessageFilter
-
-  /** Indicates the filter to apply to runtime messages that should get rendered to the output.
-    *
-    * The default is not to render any messages to the output.
-    */
-  def renderMessages: MessageFilter
+  def messageFilters: MessageFilters
 
   /** Indicates the filter to apply to runtime messages that should be logged to the console when running transformation tasks.
     *
     * The default is to log messages of level `Warning` or higher.
     */
-  def logMessages: MessageFilter
+  def logLevel: MessageFilter
 
   /** The file encoding to use for input and output files.
     */
@@ -86,23 +81,20 @@ sealed abstract class LaikaConfig private {
     */
   def withRawContent: LaikaConfig
 
-  /** Specifies the filter to apply to runtime messages that should cause a transformation to fail.
+  /** Specifies the message filters to apply to the operation.
     *
-    * The default is to fail transformations on messages of level `Error` or higher.
+    * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
     */
-  def failOnMessages(filter: MessageFilter): LaikaConfig
-
-  /** Specifies the filter to apply to runtime messages that should get rendered to the output.
-    *
-    * The default is not to render any messages to the output.
-    */
-  def renderMessages(filter: MessageFilter): LaikaConfig
+  def withMessageFilters(filters: MessageFilters): LaikaConfig
 
   /** Specifies the filter to apply to runtime messages that should be logged to the console when running transformation tasks.
     *
     * The default is to log messages of level `Warning` or higher.
     */
-  def logMessages(filter: MessageFilter): LaikaConfig
+  def withLogLevel(filter: MessageFilter): LaikaConfig
 
   /** Returns a new instance with the specified configuration value added.
     *
@@ -138,9 +130,8 @@ object LaikaConfig {
       encoding: Codec,
       private[sbt] val bundleFilter: BundleFilter,
       configBuilder: ConfigBuilder,
-      failOnMessages: MessageFilter,
-      renderMessages: MessageFilter,
-      logMessages: MessageFilter
+      messageFilters: MessageFilters,
+      logLevel: MessageFilter
   ) extends LaikaConfig {
     override def productPrefix = "LaikaConfig"
 
@@ -148,15 +139,13 @@ object LaikaConfig {
         newEncoding: Codec = encoding,
         newBundleFilter: BundleFilter = bundleFilter,
         newConfigBuilder: ConfigBuilder = configBuilder,
-        newFailOnMessages: MessageFilter = failOnMessages,
-        newRenderMessages: MessageFilter = renderMessages,
-        newLogMessages: MessageFilter = logMessages
+        newMessageFilters: MessageFilters = messageFilters,
+        newLogMessages: MessageFilter = logLevel
     ): LaikaConfig = Impl(
       newEncoding,
       newBundleFilter,
       newConfigBuilder,
-      newFailOnMessages,
-      newRenderMessages,
+      newMessageFilters,
       newLogMessages
     )
 
@@ -169,11 +158,9 @@ object LaikaConfig {
     def withRawContent: LaikaConfig =
       copy(newBundleFilter = bundleFilter.copy(acceptRawContent = true))
 
-    def failOnMessages(filter: MessageFilter): LaikaConfig = copy(newFailOnMessages = filter)
+    def withMessageFilters(filters: MessageFilters): LaikaConfig = copy(newMessageFilters = filters)
 
-    def renderMessages(filter: MessageFilter): LaikaConfig = copy(newRenderMessages = filter)
-
-    def logMessages(filter: MessageFilter): LaikaConfig = copy(newLogMessages = filter)
+    def withLogLevel(filter: MessageFilter): LaikaConfig = copy(newLogMessages = filter)
 
     def withConfigValue[T: ConfigEncoder: DefaultKey](value: T): LaikaConfig =
       copy(newConfigBuilder = configBuilder.withValue(value))
@@ -192,9 +179,8 @@ object LaikaConfig {
     encoding = Codec.UTF8,
     bundleFilter = BundleFilter(),
     configBuilder = ConfigBuilder.empty,
-    failOnMessages = MessageFilter.Error,
-    renderMessages = MessageFilter.None,
-    logMessages = MessageFilter.Warning
+    messageFilters = MessageFilters.defaults,
+    logLevel = MessageFilter.Warning
   )
 
   private def unapply(conf: LaikaConfig) = conf

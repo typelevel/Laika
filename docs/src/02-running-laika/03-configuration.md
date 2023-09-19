@@ -240,11 +240,10 @@ You can achieve this by basically flipping the two default values in the configu
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 laikaConfig := LaikaConfig.defaults
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
 ```
 
 @:choice(library)
