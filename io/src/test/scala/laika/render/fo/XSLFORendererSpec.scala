@@ -18,6 +18,7 @@ package laika.render.fo
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.builder.MessageFilters
 import laika.api.bundle.{
   ConfigurablePathTranslator,
   PathAttributes,
@@ -69,7 +70,11 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   def run(elem: Element, messageFilter: MessageFilter, expectedFO: String)(implicit
       loc: munit.Location
   ): Unit = {
-    val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(
+    val filters = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = messageFilter
+    )
+    val res     = Renderer.of(XSLFO).withMessageFilters(filters).build.render(
       elem,
       Root / "doc",
       PathTranslator.noOp,
@@ -79,7 +84,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   def runUnformatted(input: Element, expectedFO: String): Unit = {
-    val res = Renderer.of(XSLFO).unformatted.build.render(
+    val res = Renderer.of(XSLFO).withCompactRendering.build.render(
       input,
       Root / "doc",
       PathTranslator.noOp,

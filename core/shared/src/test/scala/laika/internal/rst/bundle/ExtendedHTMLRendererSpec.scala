@@ -39,11 +39,6 @@ class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts
   def render(elem: Element): Either[RendererError, String] =
     Renderer.of(HTML).using(ReStructuredText.extensions: _*).build.render(elem)
 
-  def render(elem: Element, messageFilter: MessageFilter): Either[RendererError, String] =
-    Renderer.of(HTML).renderMessages(messageFilter).using(
-      ReStructuredText.extensions: _*
-    ).build.render(elem)
-
   test("render a doctest block") {
     val elem = DoctestBlock("some text")
     val html = """<pre class="doctest-block">&gt;&gt;&gt; some text</pre>"""

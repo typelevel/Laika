@@ -18,6 +18,7 @@ package laika.rst
 
 import cats.data.NonEmptySet
 import laika.api.Transformer
+import laika.api.builder.MessageFilters
 import laika.api.format.TagFormatter
 import laika.ast.Path.Root
 import laika.ast.*
@@ -158,7 +159,9 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
         case (fmt, InternalLinkTarget(opt)) => fmt.textElement("span", Text("").withOptions(opt))
         case (_, _: InvalidBlock)           => ""
       }
-      .failOnMessages(MessageFilter.None)
+      .withMessageFilters(
+        MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)
+      )
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .transform(input, Root / "doc")

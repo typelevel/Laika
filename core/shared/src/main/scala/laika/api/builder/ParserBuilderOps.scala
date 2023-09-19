@@ -17,7 +17,6 @@
 package laika.api.builder
 
 import laika.api.config.{ ConfigEncoder, DefaultKey, Key }
-import laika.ast.MessageFilter
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a parsing step (Parser and Transformer).
@@ -40,16 +39,6 @@ private[api] trait ParserBuilderOps extends CommonBuilderOps {
     *  the markup document is tied to a specific output format.
     */
   def withRawContent: ThisType = withConfig(config.forRawContent)
-
-  /** Specifies the filter to apply to runtime messages that should cause a transformation to fail.
-    *
-    * The default is to fail transformations on messages of level `Error` or higher.
-    */
-  def failOnMessages(filter: MessageFilter): ThisType = withConfig(
-    config.withMessageFilters(
-      MessageFilters.custom(failOn = filter, render = config.messageFilters.render)
-    )
-  )
 
   /** Returns a new instance with the specified configuration value added.
     *

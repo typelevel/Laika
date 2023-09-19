@@ -251,14 +251,13 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.ast.MessageFilter
+import laika.api.builder.MessageFilters
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(Markdown.GitHubFlavor)
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
   .build
 ```
 

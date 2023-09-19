@@ -18,6 +18,7 @@ package laika.render
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
+import laika.api.builder.MessageFilters
 import laika.api.bundle.{
   ConfigurablePathTranslator,
   PathAttributes,
@@ -55,7 +56,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     assertEquals(defaultRenderer.render(elem), Right(expected))
 
   def runWithFilter(elem: Element, filter: MessageFilter, expected: String): Unit = {
-    val renderer = Renderer.of(HTML).renderMessages(filter).build
+    val filters  = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = filter
+    )
+    val renderer = Renderer.of(HTML).withMessageFilters(filters).build
     assertEquals(renderer.render(elem), Right(expected))
   }
 
@@ -75,7 +80,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   def runUnformatted(elem: Element, expected: String): Unit = {
-    val res = Renderer.of(HTML).unformatted.build.render(elem)
+    val res = Renderer.of(HTML).withCompactRendering.build.render(elem)
     assertEquals(res, Right(expected))
   }
 

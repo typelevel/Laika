@@ -24,7 +24,7 @@ import laika.api.Renderer
 import laika.api.builder.{ MessageFilters, OperationConfig }
 import laika.api.config.Config.ConfigResult
 import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
-import laika.ast.{ MessageFilter, Path }
+import laika.ast.Path
 import laika.config.{ LaikaKeys, Selections, TargetFormats }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
@@ -141,7 +141,6 @@ private[preview] object SiteTransformer {
     Renderer
       .of(HTML)
       .withConfig(config)
-      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build
@@ -154,7 +153,6 @@ private[preview] object SiteTransformer {
     Renderer
       .of(format)
       .withConfig(config)
-      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build

@@ -51,17 +51,19 @@ private[api] trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     }
   )
 
-  /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
+  /** Specifies the message filters to apply to the operation.
+    *
+    * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
     */
-  def renderMessages(filter: MessageFilter): ThisType = withConfig(
-    config.withMessageFilters(
-      MessageFilters.custom(failOn = config.messageFilters.failOn, render = filter)
-    )
-  )
+  def withMessageFilters(filters: MessageFilters): ThisType =
+    withConfig(config.withMessageFilters(filters))
 
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.
     */
-  def unformatted: ThisType = withConfig(config.withCompactRendering)
+  def withCompactRendering: ThisType = withConfig(config.withCompactRendering)
 
 }
