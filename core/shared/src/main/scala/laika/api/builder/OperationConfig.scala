@@ -49,14 +49,14 @@ import scala.annotation.tailrec
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param configBuilder a builder for assembling values for the base configuration as
   * @param messageFilters indicates how to handle runtime messages embedded in the document AST
-  * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
+  * @param compactRendering indicates whether rendering should exclude any formatting (line breaks or indentation)
   */
 class OperationConfig private[laika] (
     val bundles: Seq[ExtensionBundle] = Nil,
     private[laika] val bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
     val messageFilters: MessageFilters = MessageFilters.defaults,
-    val renderFormatted: Boolean = true
+    val compactRendering: Boolean = false
 ) {
 
   private def copy(
@@ -64,13 +64,13 @@ class OperationConfig private[laika] (
       bundleFilter: BundleFilter = this.bundleFilter,
       configBuilder: ConfigBuilder = this.configBuilder,
       messageFilters: MessageFilters = this.messageFilters,
-      renderFormatted: Boolean = this.renderFormatted
+      compactRendering: Boolean = this.compactRendering
   ): OperationConfig = new OperationConfig(
     bundles,
     bundleFilter,
     configBuilder,
     messageFilters,
-    renderFormatted
+    compactRendering
   )
 
   private[laika] def withBundleFilter(filter: BundleFilter): OperationConfig =
@@ -232,7 +232,7 @@ class OperationConfig private[laika] (
   /** Renders without any formatting (line breaks or indentation).
     * Useful when storing the output in a database for example.
     */
-  def renderUnformatted: OperationConfig = copy(renderFormatted = false)
+  def withCompactRendering: OperationConfig = copy(compactRendering = true)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher

@@ -676,7 +676,7 @@ class TreeTransformerSpec extends CatsEffectSuite
                      |Settings:
                      |  Strict Mode: false
                      |  Accept Raw Content: false
-                     |  Render Formatted: true
+                     |  Compact Rendering: false
                      |Sources:
                      |  Markup File(s)
                      |    /dir1/doc3.md: in-memory string or stream

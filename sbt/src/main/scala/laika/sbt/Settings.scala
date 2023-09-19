@@ -86,7 +86,7 @@ object Settings {
           render = userConfig.renderMessages
         ),
         configBuilder = userConfig.configBuilder,
-        renderFormatted = parser.config.renderFormatted
+        compactRendering = parser.config.compactRendering
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }

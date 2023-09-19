@@ -145,7 +145,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
           styles,
           doc.path,
           pathTranslator,
-          if (config.renderFormatted) Indentation.default else Indentation.none,
+          if (config.compactRendering) Indentation.none else Indentation.default,
           config.messageFilters.render
         )
 

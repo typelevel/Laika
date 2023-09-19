@@ -44,7 +44,7 @@ class TransformerDescriptor private (
     val output: String,
     val strict: Boolean,
     val acceptRawContent: Boolean,
-    val renderFormatted: Boolean
+    val compactRendering: Boolean
 ) {
 
   def formatted: String = {
@@ -59,7 +59,7 @@ class TransformerDescriptor private (
        |Settings:
        |  Strict Mode: $strict
        |  Accept Raw Content: $acceptRawContent
-       |  Render Formatted: $renderFormatted
+       |  Compact Rendering: $compactRendering
        |Sources:
        |  ${inputs.formatted}
        |Target:
@@ -76,7 +76,7 @@ class TransformerDescriptor private (
       output,
       strict,
       acceptRawContent,
-      renderFormatted
+      compactRendering
     )
 
 }
@@ -93,7 +93,7 @@ object TransformerDescriptor {
       renderer.output,
       parser.strict,
       parser.acceptRawContent,
-      renderer.renderFormatted
+      renderer.compactRendering
     )
 
   private[io] def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] =

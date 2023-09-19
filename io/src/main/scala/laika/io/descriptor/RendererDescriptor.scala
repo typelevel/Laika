@@ -32,7 +32,7 @@ class RendererDescriptor(
     val bundles: Seq[ExtensionBundleDescriptor],
     val theme: ThemeDescriptor,
     val output: String,
-    val renderFormatted: Boolean
+    val compactRendering: Boolean
 ) {
 
   def formatted: String = {
@@ -43,7 +43,7 @@ class RendererDescriptor(
        |Theme:
        |  ${theme.formatted}
        |Settings:
-       |  Render Formatted: $renderFormatted
+       |  Compact Rendering: $compactRendering
        |Target:
        |  $output""".stripMargin
   }
@@ -68,7 +68,7 @@ private[io] object RendererDescriptor {
         op.renderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
-        op.renderer.config.renderFormatted
+        op.renderer.config.compactRendering
       )
     )
 
@@ -79,7 +79,7 @@ private[io] object RendererDescriptor {
         op.renderer.interimRenderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
-        op.renderer.interimRenderer.config.renderFormatted
+        op.renderer.interimRenderer.config.compactRendering
       )
     )
 

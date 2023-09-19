@@ -62,6 +62,6 @@ private[api] trait RendererBuilderOps[FMT] extends CommonBuilderOps {
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.
     */
-  def unformatted: ThisType = withConfig(config.renderUnformatted)
+  def unformatted: ThisType = withConfig(config.withCompactRendering)
 
 }
