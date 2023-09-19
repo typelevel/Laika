@@ -48,16 +48,14 @@ import scala.annotation.tailrec
   * @param bundles all extension bundles defined by this operation
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param configBuilder a builder for assembling values for the base configuration as
-  * @param failOnMessages the filter to apply to runtime messages that should cause the transformation to fail
-  * @param renderMessages the filter to apply to runtime messages that should be rendered in the output
+  * @param messageFilters indicates how to handle runtime messages embedded in the document AST
   * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
   */
 class OperationConfig private[laika] (
     val bundles: Seq[ExtensionBundle] = Nil,
     private[laika] val bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
-    val failOnMessages: MessageFilter = MessageFilter.Error,
-    val renderMessages: MessageFilter = MessageFilter.None,
+    val messageFilters: MessageFilters = MessageFilters.defaults,
     val renderFormatted: Boolean = true
 ) {
 
@@ -65,15 +63,13 @@ class OperationConfig private[laika] (
       bundles: Seq[ExtensionBundle] = this.bundles,
       bundleFilter: BundleFilter = this.bundleFilter,
       configBuilder: ConfigBuilder = this.configBuilder,
-      failOnMessages: MessageFilter = this.failOnMessages,
-      renderMessages: MessageFilter = this.renderMessages,
+      messageFilters: MessageFilters = this.messageFilters,
       renderFormatted: Boolean = this.renderFormatted
   ): OperationConfig = new OperationConfig(
     bundles,
     bundleFilter,
     configBuilder,
-    failOnMessages,
-    renderMessages,
+    messageFilters,
     renderFormatted
   )
 
@@ -92,19 +88,11 @@ class OperationConfig private[laika] (
   /** Specifies the message filters to apply to the operation.
     *
     * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
-    * When switching to visual debugging, both filters are usually changed together.
-    * For example, when setting `failOn` to `None` and `render` to `Warning`,
-    * the transformation will always succeed (unless an error occurs that cannot be recovered from),
-    * and messages in the AST with level `Warning` or higher will be rendered in the position they occurred.
-    *
-    * @param failOn the minimum message level that should cause the transformation to fail (default `Error`).
-    * @param render the minimum message level that should be rendered in the output (default `None`).
-    * @return
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
     */
-  def withMessageFilters(
-      failOn: MessageFilter = this.failOnMessages,
-      render: MessageFilter = this.renderMessages
-  ): OperationConfig = copy(failOnMessages = failOn, renderMessages = render)
+  def withMessageFilters(filters: MessageFilters): OperationConfig = copy(messageFilters = filters)
 
   /** Returns a new instance with the specified configuration value added.
     *

@@ -21,7 +21,7 @@ import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import fs2.Chunk
 import laika.api.Renderer
-import laika.api.builder.OperationConfig
+import laika.api.builder.{ MessageFilters, OperationConfig }
 import laika.api.config.Config.ConfigResult
 import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.{ MessageFilter, Path }
@@ -170,7 +170,7 @@ private[preview] object SiteTransformer {
 
     def adjustConfig(p: TreeParser[F]): TreeParser[F] = p.modifyConfig {
       _
-        .withMessageFilters(failOn = MessageFilter.None)
+        .withMessageFilters(MessageFilters.forVisualDebugging)
         .withConfigValue(LaikaKeys.preview.enabled, true)
     }
 

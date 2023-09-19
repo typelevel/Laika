@@ -17,7 +17,7 @@
 package laika.render
 
 import cats.effect.IO
-import laika.api.builder.OperationConfig
+import laika.api.builder.{ MessageFilters, OperationConfig }
 import laika.api.bundle.PathTranslator
 import laika.api.config.Config
 import laika.api.errors.InvalidDocument
@@ -59,10 +59,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   test("succeed when there are errors in the template result, but the filter is None") {
     val config   = OperationConfig.default
-      .withMessageFilters(
-        render = MessageFilter.Warning,
-        failOn = MessageFilter.None
-      )
+      .withMessageFilters(MessageFilters.forVisualDebugging)
     val expected =
       """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
     assertEquals(FOConcatenation(result, BookConfig.empty, config), Right(expected))

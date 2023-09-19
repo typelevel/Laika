@@ -223,7 +223,7 @@ private[io] object RendererRuntime {
       }
       val rules       = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
       mapError(rootWithTpl.applyTemplates(rules, context))
-        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
+        .flatMap(root => InvalidDocuments.from(root, op.config.messageFilters.failOn).toLeft(root))
     }
 
     def getThemeStyles(themeInputs: DocumentTreeBuilder): StyleDeclarationSet =

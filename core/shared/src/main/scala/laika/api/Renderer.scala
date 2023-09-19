@@ -146,7 +146,7 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
           doc.path,
           pathTranslator,
           if (config.renderFormatted) Indentation.default else Indentation.none,
-          config.renderMessages
+          config.messageFilters.render
         )
 
       val formatter = format.formatterFactory(renderContext)

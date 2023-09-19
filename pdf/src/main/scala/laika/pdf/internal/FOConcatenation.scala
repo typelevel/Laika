@@ -73,7 +73,7 @@ private[laika] object FOConcatenation {
       templateApplied
         .leftMap(err => ConfigException(err))
         .flatMap(templatedDoc =>
-          InvalidDocument.from(templatedDoc, opConfig.failOnMessages).toLeft(templatedDoc)
+          InvalidDocument.from(templatedDoc, opConfig.messageFilters.failOn).toLeft(templatedDoc)
         )
         .flatMap(
           renderer

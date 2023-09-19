@@ -105,7 +105,7 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
-        .from(phase2, config.failOnMessages)
+        .from(phase2, config.messageFilters.failOn)
         .map(asParserError)
         .toLeft(phase2)
     } yield result

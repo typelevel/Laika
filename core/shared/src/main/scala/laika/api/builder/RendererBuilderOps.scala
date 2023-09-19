@@ -54,7 +54,9 @@ private[api] trait RendererBuilderOps[FMT] extends CommonBuilderOps {
   /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
     */
   def renderMessages(filter: MessageFilter): ThisType = withConfig(
-    config.withMessageFilters(render = filter)
+    config.withMessageFilters(
+      MessageFilters.custom(failOn = config.messageFilters.failOn, render = filter)
+    )
   )
 
   /**  Renders without any formatting (line breaks or indentation).

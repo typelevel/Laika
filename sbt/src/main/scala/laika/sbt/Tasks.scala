@@ -28,7 +28,7 @@ import sbt.Keys.*
 import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
-import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.builder.{ MessageFilters, OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.config.{ Selections, Versions }
@@ -283,8 +283,10 @@ object Tasks {
     def mergedConfig(config: OperationConfig): OperationConfig = {
       config
         .withMessageFilters(
-          render = userConfig.renderMessages,
-          failOn = userConfig.failOnMessages
+          MessageFilters.custom(
+            failOn = userConfig.failOnMessages,
+            render = userConfig.renderMessages
+          )
         )
         .withBundleFilter(userConfig.bundleFilter)
     }

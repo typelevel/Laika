@@ -18,7 +18,7 @@ package laika.sbt
 
 import cats.effect.{ Async, IO, Resource }
 import cats.effect.unsafe.implicits.global
-import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.builder.{ MessageFilters, OperationConfig, ParserBuilder }
 import laika.api.MarkupParser
 import laika.api.bundle.{ BundleOrigin, ExtensionBundle }
 import laika.api.config.{ Config, ConfigBuilder }
@@ -81,8 +81,10 @@ object Settings {
       val mergedConfig = new OperationConfig(
         bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
-        failOnMessages = userConfig.failOnMessages,
-        renderMessages = userConfig.renderMessages,
+        messageFilters = MessageFilters.custom(
+          failOn = userConfig.failOnMessages,
+          render = userConfig.renderMessages
+        ),
         configBuilder = userConfig.configBuilder,
         renderFormatted = parser.config.renderFormatted
       )

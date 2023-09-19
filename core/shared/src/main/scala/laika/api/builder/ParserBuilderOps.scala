@@ -46,7 +46,9 @@ private[api] trait ParserBuilderOps extends CommonBuilderOps {
     * The default is to fail transformations on messages of level `Error` or higher.
     */
   def failOnMessages(filter: MessageFilter): ThisType = withConfig(
-    config.withMessageFilters(failOn = filter)
+    config.withMessageFilters(
+      MessageFilters.custom(failOn = filter, render = config.messageFilters.render)
+    )
   )
 
   /** Returns a new instance with the specified configuration value added.

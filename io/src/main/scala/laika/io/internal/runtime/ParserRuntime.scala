@@ -132,7 +132,7 @@ private[io] object ParserRuntime {
           result <- phase1.rewrite(op.config.rewriteRulesFor(phase1, RewritePhase.Resolve))
         } yield result
         InvalidDocuments
-          .from(finalTree, op.config.failOnMessages)
+          .from(finalTree, op.config.messageFilters.failOn)
           .map(tree => parsedTree.modifyRoot(_ => tree))
       }
 
