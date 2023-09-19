@@ -76,9 +76,9 @@ class DocumentAPISpec extends FunSuite
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .parse(markup)
-      .flatMap(_.title.toRight("no title"))
+      .map(_.title)
 
-    assertEquals(res, Right(SpanSequence("Title")))
+    assertEquals(res, Right(Some(SpanSequence("Title"))))
   }
 
   test(
