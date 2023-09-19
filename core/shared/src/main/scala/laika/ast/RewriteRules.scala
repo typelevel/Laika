@@ -20,7 +20,7 @@ import cats.syntax.all.*
 import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.api.config.Config.ConfigResult
-import laika.api.config.ConfigError.ConfigErrors
+import laika.api.config.ConfigError.MultipleErrors
 import laika.config.Selections
 import laika.internal.link.LinkResolver
 import laika.internal.nav.SectionBuilder
@@ -284,7 +284,7 @@ object RewriteRules {
         .map(_(cursor).toEitherNec)
         .parSequence
         .map(_.reduceOption(_ ++ _).getOrElse(RewriteRules.empty))
-        .leftMap(ConfigErrors.apply)
+        .leftMap(MultipleErrors.apply)
 
   /** The default built-in rewrite rules, dealing with section building and link resolution.
     * These are not installed as part of any default extension bundle as they have specific

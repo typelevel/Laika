@@ -18,7 +18,7 @@ package laika.config
 
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
-import laika.api.config.ConfigError.{ ConfigErrors, ValidationFailed }
+import laika.api.config.ConfigError.{ MultipleErrors, ValidationFailed }
 import laika.api.config.{ ConfigDecoder, ConfigEncoder, DefaultKey }
 import laika.ast.Path
 
@@ -210,7 +210,7 @@ object Versions {
         renderUnversioned,
         versionScanner
       )
-        .validated.leftMap(err => ConfigErrors(err.map(ValidationFailed(_))))
+        .validated.leftMap(err => MultipleErrors(err.map(ValidationFailed(_))))
     } yield result
   }
 

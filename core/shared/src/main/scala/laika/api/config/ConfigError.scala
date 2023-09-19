@@ -79,7 +79,7 @@ object ConfigError {
   }
 
   /** Multiple errors that occurred when processing configuration. */
-  case class ConfigErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
+  case class MultipleErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
 
     val message =
       failures.map(_.toString).mkString_("Multiple errors processing configuration: ", ", ", "")
@@ -101,8 +101,8 @@ object ConfigError {
   object DocumentErrors {
 
     def apply(path: Path, error: ConfigError): DocumentErrors = error match {
-      case ConfigErrors(errors) => new DocumentErrors(path, errors)
-      case other                => new DocumentErrors(path, NonEmptyChain.one(other))
+      case MultipleErrors(errors) => new DocumentErrors(path, errors)
+      case other                  => new DocumentErrors(path, NonEmptyChain.one(other))
     }
 
   }

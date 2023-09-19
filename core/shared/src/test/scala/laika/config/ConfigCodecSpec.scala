@@ -29,7 +29,7 @@ import laika.api.config.{
 import laika.ast.{ IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.api.config.ConfigError.{ ConfigErrors, DecodingFailed, ValidationFailed }
+import laika.api.config.ConfigError.{ MultipleErrors, DecodingFailed, ValidationFailed }
 import laika.api.config.ConfigValue.ASTValue
 import munit.FunSuite
 
@@ -292,7 +292,7 @@ class ConfigCodecSpec extends FunSuite {
         |}
        """.stripMargin
     val res      = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
-    val expected = ConfigErrors(
+    val expected = MultipleErrors(
       NonEmptyChain(
         ValidationFailed("Path segments used for more than one version: 0.41"),
         ValidationFailed("More than one version marked as canonical: 0.41.x, 0.42.x")
