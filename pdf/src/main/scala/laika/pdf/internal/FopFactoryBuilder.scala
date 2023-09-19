@@ -33,7 +33,7 @@ private[laika] object FopFactoryBuilder {
   def generateXMLConfig(config: BookConfig): String = {
     // since there is no API to define fonts for Apache FOP we have to generate configuration XML here
     val fontDefs = config.fonts.flatMap { font =>
-      font.resource.embedResource.map { res =>
+      font.resource.embeddedResource.map { res =>
         s"""        <font kerning="yes" embed-url="${res.path}" embedding-mode="subset">
            |          <font-triplet name="${font.family}" style="${font.style.value}" weight="${
             font.weight.value

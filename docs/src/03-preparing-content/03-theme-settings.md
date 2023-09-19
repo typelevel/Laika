@@ -156,25 +156,25 @@ val firaURL = "https://fonts.googleapis.com/css?family=Fira+Mono:500"
 Helium.defaults.all.addFontResources(
   FontDefinition(
     Font
-      .embedResource(fontPath + "Lato/Lato-Regular.ttf")
-      .webCSS(latoURL),
+      .withEmbeddedResource(fontPath + "Lato/Lato-Regular.ttf")
+      .withWebCSS(latoURL),
     "Lato", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
     Font
-      .embedResource(fontPath + "Lato/Lato-Bold.ttf"),
+      .withEmbeddedResource(fontPath + "Lato/Lato-Bold.ttf"),
     "Lato", FontWeight.Bold, FontStyle.Normal
   ),
   FontDefinition(
     Font
-      .embedResource(fontPath + "FiraCode/FiraCode-Medium.otf")
-      .webCSS(firaURL),
+      .withEmbeddedResource(fontPath + "FiraCode/FiraCode-Medium.otf")
+      .withWebCSS(firaURL),
     "Fira Code", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
     Font
-      .embedResource(fontPath + "icofont/icofont.ttf")
-      .webCSS("../icons/icofont.min.css"),
+      .withEmbeddedResource(fontPath + "icofont/icofont.ttf")
+      .withWebCSS("../icons/icofont.min.css"),
     "IcoFont", FontWeight.Normal, FontStyle.Normal
   )
 )

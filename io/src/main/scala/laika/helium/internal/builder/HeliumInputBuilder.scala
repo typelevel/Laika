@@ -49,7 +49,7 @@ private[helium] object HeliumInputBuilder {
 
     val fontResources =
       (siteSettings.fontResources ++ epubSettings.bookConfig.fonts ++ pdfSettings.bookConfig.fonts)
-        .flatMap(_.resource.embedResource).distinct
+        .flatMap(_.resource.embeddedResource).distinct
 
     val fontInputs = fontResources.foldLeft(InputTree[F]) { case (tree, embedResource) =>
       embedResource match {

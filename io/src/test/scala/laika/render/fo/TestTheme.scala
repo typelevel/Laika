@@ -65,19 +65,19 @@ object TestTheme {
 
   val fonts = Seq(
     FontDefinition(
-      Font.embedFile("/path/to/font-a.tff"),
+      Font.withEmbeddedFile("/path/to/font-a.tff"),
       "Font-A",
       FontWeight.Normal,
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource("/path/to/font-b.tff"),
+      Font.withEmbeddedResource("/path/to/font-b.tff"),
       "Font-B",
       FontWeight.Bold,
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.webCSS("http://fonts.com/font-c.css"),
+      Font.withWebCSS("http://fonts.com/font-c.css"),
       "Font-C",
       FontWeight.Normal,
       FontStyle.Italic
