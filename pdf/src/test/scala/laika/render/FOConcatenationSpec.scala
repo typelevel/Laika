@@ -17,13 +17,14 @@
 package laika.render
 
 import cats.effect.IO
-import laika.api.builder.{ MessageFilters, OperationConfig }
+import laika.api.builder.OperationConfig
 import laika.api.bundle.PathTranslator
 import laika.api.config.Config
 import laika.api.errors.InvalidDocument
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
+import laika.config.MessageFilters
 import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.pdf.internal.FOConcatenation

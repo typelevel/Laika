@@ -28,10 +28,10 @@ import sbt.Keys.*
 import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
-import laika.api.builder.{ MessageFilters, OperationConfig, ParserBuilder }
+import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
-import laika.config.{ Selections, Versions }
+import laika.config.{ MessageFilters, Selections, Versions }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server

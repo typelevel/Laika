@@ -251,7 +251,7 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.api.builder.MessageFilters
+import laika.config.MessageFilters
 
 val transformer = Transformer
   .from(Markdown)

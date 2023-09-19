@@ -21,11 +21,11 @@ import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import fs2.Chunk
 import laika.api.Renderer
-import laika.api.builder.{ MessageFilters, OperationConfig }
+import laika.api.builder.OperationConfig
 import laika.api.config.Config.ConfigResult
 import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.Path
-import laika.config.{ LaikaKeys, Selections, TargetFormats }
+import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.internal.config.SiteConfig

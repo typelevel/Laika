@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.api.builder.MessageFilters
 import laika.ast.*
+import laika.config.MessageFilters
 import laika.file.FileIO
 import laika.format.{ HTML, Markdown }
 import laika.html.TidyHTML

@@ -18,7 +18,6 @@ package laika.render
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
-import laika.api.builder.MessageFilters
 import laika.api.bundle.{
   ConfigurablePathTranslator,
   PathAttributes,
@@ -30,7 +29,7 @@ import laika.ast.*
 import laika.ast.MessageFilter
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.StyleDeclarationSet
-import laika.config.{ TargetFormats, Version, Versions }
+import laika.config.{ MessageFilters, TargetFormats, Version, Versions }
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory

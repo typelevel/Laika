@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.api.builder
+package laika.config
 
 import laika.ast.MessageFilter
 

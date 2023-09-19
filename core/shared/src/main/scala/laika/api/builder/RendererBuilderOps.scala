@@ -18,7 +18,8 @@ package laika.api.builder
 
 import laika.api.bundle.ExtensionBundle
 import laika.api.format.RenderFormat
-import laika.ast.{ Element, MessageFilter }
+import laika.ast.Element
+import laika.config.MessageFilters
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a rendering step (Renderer and Transformer).

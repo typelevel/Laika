@@ -19,6 +19,7 @@ package laika.api.builder
 import laika.api.MarkupParser
 import laika.api.format.MarkupFormat
 import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 /** Builder API for Parser instances.
   *

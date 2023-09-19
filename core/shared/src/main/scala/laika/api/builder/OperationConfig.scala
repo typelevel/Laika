@@ -33,6 +33,7 @@ import laika.ast.*
 import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.api.config.Config.ConfigResult
 import laika.ast.styles.StyleDeclaration
+import laika.config.MessageFilters
 import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
 import laika.internal.rewrite.RecursiveResolverRules
 import laika.parse.Parser
