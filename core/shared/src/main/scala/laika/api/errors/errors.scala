@@ -3,8 +3,9 @@ package laika.api.errors
 import cats.syntax.all.*
 import cats.data.{ Chain, NonEmptyChain }
 import laika.api.config.ConfigError
-import laika.ast.{ Document, DocumentTreeRoot, Invalid, MessageFilter, Path }
+import laika.ast.{ Document, DocumentTreeRoot, Invalid, Path }
 import ConfigError.TreeConfigErrors
+import laika.config.MessageFilter
 
 sealed trait TransformationError {
   def message: String

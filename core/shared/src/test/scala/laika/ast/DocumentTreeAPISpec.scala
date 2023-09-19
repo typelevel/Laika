@@ -37,6 +37,7 @@ import laika.ast.sample.{
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
 import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.config.MessageFilter
 import laika.format.HTML
 import laika.internal.rewrite.TemplateRewriter
 import laika.parse.GeneratedSource

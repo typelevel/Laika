@@ -31,6 +31,7 @@ import laika.api.errors.TransformationError
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
+import laika.config.MessageFilter
 import laika.format.{ HTML, Markdown }
 import laika.internal.directive.DirectiveSupport
 import laika.parse.markup.RootParserProvider

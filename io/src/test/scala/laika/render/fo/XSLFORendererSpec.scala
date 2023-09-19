@@ -31,7 +31,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector }
-import laika.config.{ LaikaKeys, MessageFilters, TargetFormats }
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters, TargetFormats }
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory

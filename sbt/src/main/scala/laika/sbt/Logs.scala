@@ -18,7 +18,8 @@ package laika.sbt
 
 import cats.effect.IO
 import laika.ast.DocumentType.{ Config, Markup, StyleSheet, Template }
-import laika.ast._
+import laika.ast.*
+import laika.config.MessageFilter
 import laika.io.model.InputTree
 import sbt.Logger
 

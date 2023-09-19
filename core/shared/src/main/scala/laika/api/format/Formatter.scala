@@ -19,6 +19,7 @@ package laika.api.format
 import laika.api.bundle.PathTranslator
 import laika.ast.*
 import laika.ast.styles.StyleDeclarationSet
+import laika.config.MessageFilter
 
 /** API basis for renderers that produce character output.
   *

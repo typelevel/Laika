@@ -16,8 +16,6 @@
 
 package laika.config
 
-import laika.ast.MessageFilter
-
 /** Configuration that specify which levels of message severity
   * will cause a transformation to fail and which will be rendered to the output.
   *

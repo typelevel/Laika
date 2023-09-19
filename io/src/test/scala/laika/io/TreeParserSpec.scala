@@ -30,7 +30,7 @@ import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
 import laika.bundle.*
-import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
+import laika.config.{ LaikaKeys, MessageFilter, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder

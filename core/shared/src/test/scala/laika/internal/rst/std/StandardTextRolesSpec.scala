@@ -18,8 +18,9 @@ package laika.internal.rst.std
 
 import cats.data.NonEmptySet
 import laika.api.MarkupParser
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.config.MessageFilter
 import laika.format.ReStructuredText
 import laika.internal.rst.ast.RstStyle
 import laika.internal.rst.ext.ExtensionProvider

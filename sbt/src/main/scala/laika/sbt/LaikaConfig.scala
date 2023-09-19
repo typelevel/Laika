@@ -18,8 +18,7 @@ package laika.sbt
 
 import laika.api.builder.BundleFilter
 import laika.api.config.{ ConfigBuilder, ConfigEncoder, DefaultKey, Key }
-import laika.ast.MessageFilter
-import laika.config.MessageFilters
+import laika.config.{ MessageFilter, MessageFilters }
 
 import scala.io.Codec
 

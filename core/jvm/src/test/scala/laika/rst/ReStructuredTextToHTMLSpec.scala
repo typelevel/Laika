@@ -21,7 +21,7 @@ import laika.api.Transformer
 import laika.api.format.TagFormatter
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.{ LaikaKeys, MessageFilters }
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters }
 import laika.file.FileIO
 import laika.format.{ HTML, ReStructuredText }
 import laika.html.TidyHTML
