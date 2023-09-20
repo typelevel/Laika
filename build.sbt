@@ -70,7 +70,7 @@ val http4s = Seq(
 )
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, pdf, io, preview, api)
+  .aggregate(core, pdf, io, preview)
   .configureRoot { root =>
     root.aggregate(plugin, api) // don't include the plugin in rootJVM, only in root
       .settings(
