@@ -30,7 +30,7 @@ jobs:
         os: [ubuntu-latest]
         scala: [2.12, 2.13, 3]
         java: [temurin@8, temurin@17]
-        project: [rootJS, rootJVM, plugin]
+        project: [rootJS, rootJVM, plugin, api]
         exclude:
           - scala: 2.13
             java: temurin@17
@@ -43,6 +43,10 @@ jobs:
           - project: plugin
             scala: 2.13
           - project: plugin
+            scala: 3
+          - project: api
+            scala: 2.13
+          - project: api
             scala: 3
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -190,6 +194,16 @@ jobs:
           name: target-${{ matrix.os }}-${{ matrix.java }}-2.12-plugin
 
       - name: Inflate target directories (2.12, plugin)
+        run: |
+          tar xf targets.tar
+          rm targets.tar
+
+      - name: Download target directories (2.12, api)
+        uses: actions/download-artifact@v3
+        with:
+          name: target-${{ matrix.os }}-${{ matrix.java }}-2.12-api
+
+      - name: Inflate target directories (2.12, api)
         run: |
           tar xf targets.tar
           rm targets.tar

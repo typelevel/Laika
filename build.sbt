@@ -20,11 +20,15 @@ inThisBuild(
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
-      matrix + ("project" -> (matrix("project") :+ "plugin"))
+      matrix +
+        ("project" -> (matrix("project") :+ "plugin" :+ "api"))
     },
     githubWorkflowBuildMatrixExclusions ++= {
       MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
-        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
+        List("2.13", "3").map(scala =>
+          MatrixExclude(Map("project" -> "plugin", "scala" -> scala))
+        ) ++:
+        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "api", "scala" -> scala)))
     },
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
@@ -68,7 +72,7 @@ val http4s = Seq(
 lazy val root = tlCrossRootProject
   .aggregate(core, pdf, io, preview, api)
   .configureRoot { root =>
-    root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
+    root.aggregate(plugin, api) // don't include the plugin in rootJVM, only in root
       .settings(
         crossScalaVersions := Nil,
         scalaVersion       := versions.scala2_12
