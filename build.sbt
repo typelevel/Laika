@@ -102,7 +102,7 @@ lazy val api = project
   .settings(
     name                                       := "laika-docs",
     crossScalaVersions                         := Seq(versions.scala2_12),
-    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(core.js),
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(core.js, plugin),
     Compile / packageDoc / mappings            :=
       ScaladocCleanup.removeUnwantedEntries(
         (ScalaUnidoc / packageDoc / mappings).value,
