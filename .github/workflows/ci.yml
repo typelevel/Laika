@@ -40,6 +40,8 @@ jobs:
             java: temurin@17
           - project: plugin
             java: temurin@17
+          - project: api
+            java: temurin@17
           - project: plugin
             scala: 2.13
           - project: plugin

@@ -25,6 +25,7 @@ inThisBuild(
     },
     githubWorkflowBuildMatrixExclusions ++= {
       MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
+        MatrixExclude(Map("project" -> "api", "java" -> JavaSpec.temurin("17").render)) ::
         List("2.13", "3").map(scala =>
           MatrixExclude(Map("project" -> "plugin", "scala" -> scala))
         ) ++:
