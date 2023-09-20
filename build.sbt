@@ -66,17 +66,12 @@ val http4s = Seq(
 )
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, pdf, io, preview)
+  .aggregate(core, pdf, io, preview, api)
   .configureRoot { root =>
     root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
-      .enablePlugins(ScalaUnidocPlugin)
       .settings(
-        crossScalaVersions                         := Nil,
-        scalaVersion                               := versions.scala2_12,
-        ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-          plugin,
-          core.js
-        )
+        crossScalaVersions := Nil,
+        scalaVersion       := versions.scala2_12
       )
   }
 
@@ -99,6 +94,19 @@ lazy val docs = project.in(file("docs"))
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene"),
     scalacOptions ~= disableUnusedWarningsForMdoc
+  )
+
+lazy val api = project
+  .in(file("unidoc"))
+  .enablePlugins(TypelevelUnidocPlugin)
+  .settings(
+    name                                       := "laika-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(core.js),
+    Compile / packageDoc / mappings            :=
+      ScaladocCleanup.removeUnwantedEntries(
+        (ScalaUnidoc / packageDoc / mappings).value,
+        (ThisBuild / baseDirectory).value
+      )
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
