@@ -19,7 +19,7 @@ package laika.api
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.{ Config, ConfigBuilder, ConfigValue, Origin }
-import laika.api.errors.{ InvalidDocument, ParserError }
+import laika.api.errors.{ InvalidConfig, InvalidDocument, InvalidElements, ParserError }
 import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
@@ -93,20 +93,16 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
     }
 
     def rewritePhase(doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {
-      rules  <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_))
-      result <- doc.rewrite(rules).leftMap(ParserError(_))
+      rules  <- config.rewriteRulesFor(doc, phase).leftMap(InvalidConfig(_))
+      result <- doc.rewrite(rules).leftMap(InvalidConfig(_))
     } yield result
-
-    def asParserError(document: InvalidDocument): ParserError = new ParserError(
-      s"One or more error nodes in result:\n${InvalidDocument.format(document)}".trim
-    )
 
     def rewriteDocument(resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
-        .from(phase2, config.failOnMessages)
-        .map(asParserError)
+        .from(phase2, config.messageFilters.failOn)
+        .map(doc => InvalidElements(doc.errors))
         .toLeft(phase2)
     } yield result
 
@@ -114,7 +110,7 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
       unresolved     <- docParser(input)
       resolvedConfig <- unresolved.config
         .resolve(Origin(DocumentScope, input.path), config.baseConfig)
-        .left.map(ParserError(_))
+        .left.map(InvalidConfig(_))
       resolvedDoc = resolveDocument(unresolved, resolvedConfig)
       result <- rewriteDocument(resolvedDoc)
     } yield result

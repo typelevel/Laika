@@ -21,7 +21,7 @@ import laika.api.Transformer
 import laika.api.format.TagFormatter
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.config.LaikaKeys
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters }
 import laika.file.FileIO
 import laika.format.{ HTML, ReStructuredText }
 import laika.html.TidyHTML
@@ -158,7 +158,9 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
         case (fmt, InternalLinkTarget(opt)) => fmt.textElement("span", Text("").withOptions(opt))
         case (_, _: InvalidBlock)           => ""
       }
-      .failOnMessages(MessageFilter.None)
+      .withMessageFilters(
+        MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)
+      )
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .transform(input, Root / "doc")

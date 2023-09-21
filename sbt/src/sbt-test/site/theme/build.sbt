@@ -11,7 +11,7 @@ enablePlugins(LaikaPlugin)
 
 laikaTheme := Helium.defaults.site.addFontResources(
   FontDefinition(
-    Font.webCSS("http://home.com/myFont.css"),
+    Font.withWebCSS("http://home.com/myFont.css"),
     "MyFont",
     FontWeight.Normal,
     FontStyle.Normal

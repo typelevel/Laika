@@ -19,7 +19,7 @@ package laika.io.internal.runtime
 import cats.effect.Async
 import cats.implicits.*
 import laika.api.bundle.ExtensionBundle
-import laika.api.format.Format
+import laika.ast.OutputContext
 import laika.io.api.{
   BinaryTreeRenderer,
   BinaryTreeTransformer,
@@ -41,10 +41,10 @@ import laika.theme.Theme.TreeProcessor
 private[io] object TransformerRuntime {
 
   private def themeWithoutInputs[F[_]](theme: Theme[F]): Theme[F] = new Theme[F] {
-    def descriptor: ThemeDescriptor               = theme.descriptor
-    def inputs: InputTree[F]                      = InputTree.empty
-    def extensions: Seq[ExtensionBundle]          = theme.extensions
-    def treeProcessor: Format => TreeProcessor[F] = theme.treeProcessor
+    def descriptor: ThemeDescriptor                      = theme.descriptor
+    def inputs: InputTree[F]                             = InputTree.empty
+    def extensions: Seq[ExtensionBundle]                 = theme.extensions
+    def treeProcessor: OutputContext => TreeProcessor[F] = theme.treeProcessor
   }
 
   private def fileFilterFor(output: TreeOutput): FileFilter = output match {

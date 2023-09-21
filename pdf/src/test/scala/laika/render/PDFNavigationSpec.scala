@@ -21,13 +21,7 @@ import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
 import laika.api.config.Config
-import laika.api.format.{
-  BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
-  RenderFormat,
-  TagFormatter,
-  TwoPhaseRenderFormat
-}
+import laika.api.format.{ BinaryPostProcessor, RenderFormat, TagFormatter, TwoPhaseRenderFormat }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
@@ -45,7 +39,7 @@ import munit.CatsEffectSuite
 
 class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
-  object FOTest extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
+  object FOTest extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
     val interimFormat: RenderFormat[TagFormatter] = XSLFO
 
@@ -58,7 +52,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
         }
     )
 
-    def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+    def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
       def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
         Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {

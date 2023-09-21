@@ -180,8 +180,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       outputContext: OutputContext = OutputContext(AST)
   ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
     new RenderedTree(Root, None, content, titleDocument),
-    TemplateRoot.fallback,
-    Config.empty,
+    DocumentTreeRoot(DocumentTree.empty),
     outputContext,
     PathTranslator.noOp,
     coverDocument = coverDocument,
@@ -307,14 +306,14 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a document mapper from a theme specific to the output format") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(AST)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(AST))(TreeProcessors.mapperFunction),
       mappedResult
     )
   }
 
   test("ignore the document mapper from a theme if the format does not match") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(HTML)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(HTML))(TreeProcessors.mapperFunction),
       simpleResult
     )
   }
@@ -677,7 +676,7 @@ class TreeTransformerSpec extends CatsEffectSuite
                      |Settings:
                      |  Strict Mode: false
                      |  Accept Raw Content: false
-                     |  Render Formatted: true
+                     |  Compact Rendering: false
                      |Sources:
                      |  Markup File(s)
                      |    /dir1/doc3.md: in-memory string or stream

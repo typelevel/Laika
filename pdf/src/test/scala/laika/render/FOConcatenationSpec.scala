@@ -24,6 +24,7 @@ import laika.api.errors.InvalidDocument
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
+import laika.config.MessageFilters
 import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
 import laika.pdf.internal.FOConcatenation
@@ -37,18 +38,19 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   private val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
 
-  private val result = new RenderedTreeRoot[IO](
-    tree = new RenderedTree(
-      Root,
-      None,
-      Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
-    ),
-    defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
-    config = Config.empty,
-    outputContext = OutputContext(XSLFO),
-    pathTranslator = PathTranslator.noOp,
-    styles = TestTheme.foStyles
-  )
+  private val result = {
+    val tree = new RenderedTreeRoot[IO](
+      tree = new RenderedTree(
+        Root,
+        None,
+        Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
+      ),
+      input = DocumentTreeRoot(DocumentTree.empty).addStyles(Map("fo" -> TestTheme.foStyles)),
+      outputContext = OutputContext(XSLFO),
+      pathTranslator = PathTranslator.noOp
+    )
+    tree.withDefaultTemplate(TemplateRoot(TemplateElement(invalidElement)))
+  }
 
   test("fail when there are invalid elements in the template result") {
     val actual   = FOConcatenation(result, BookConfig.empty, OperationConfig.default)
@@ -58,10 +60,7 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   test("succeed when there are errors in the template result, but the filter is None") {
     val config   = OperationConfig.default
-      .withMessageFilters(
-        render = MessageFilter.Warning,
-        failOn = MessageFilter.None
-      )
+      .withMessageFilters(MessageFilters.forVisualDebugging)
     val expected =
       """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
     assertEquals(FOConcatenation(result, BookConfig.empty, config), Right(expected))

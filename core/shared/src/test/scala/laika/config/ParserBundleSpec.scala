@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
 import laika.bundle.*
-import laika.api.config.ConfigError.ConfigParserError
+import laika.api.config.ConfigError.ParsingFailed
 import laika.api.format.MarkupFormat
 import MarkupFormat.MarkupParsers
 import laika.api.bundle.{
@@ -410,7 +410,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
     .parse(input) match {
       case Success(builderRoot, _) =>
         builderRoot.resolve(Origin.root, Config.empty, Map.empty)
-      case f: Failure              => Left(ConfigParserError(f))
+      case f: Failure              => Left(ParsingFailed(f))
     }
 
   private val expectedConfig = ConfigBuilder.empty.withValue("foo", 7).build
@@ -446,7 +446,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
     val input = "[[\nfoo: 7\n]]"
 
     parseWith(createConfig(createParser()), input) match {
-      case Left(ConfigParserError(f)) =>
+      case Left(ParsingFailed(f)) =>
         assertEquals(
           f.toString,
           """[1.1] failure: `{%' expected but `[[` found
@@ -454,7 +454,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
             |[[
             |^""".stripMargin
         )
-      case other                      => fail(s"Unexpected result: $other")
+      case other                  => fail(s"Unexpected result: $other")
     }
   }
 

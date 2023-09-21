@@ -43,27 +43,43 @@ object ConfigError {
   }
 
   /** An error that occurred when decoding a configuration value to a target type. */
-  case class DecodingError(error: String, key: Option[Key] = None) extends ConfigError {
+  case class DecodingFailed(error: String, key: Option[Key] = None) extends ConfigError {
     val message: String = key.fold("")(k => s"Error decoding '${k.toString}': ") + error
 
-    def withKey(key: Key): DecodingError = copy(key = Some(key))
+    def withKey(key: Key): DecodingFailed = copy(key = Some(key))
   }
 
   /** A generic error for invalid values. */
-  case class ValidationError(message: String) extends ConfigError
+  case class ValidationFailed(message: String) extends ConfigError
 
-  /** An error that occurred when parsing HOCON input. */
-  case class ConfigParserError(failure: Failure) extends ConfigError {
+  /** An unrecoverable error that occurred when parsing HOCON input.
+    * Recoverable errors are accumulated in `InvalidFields` instead.
+    */
+  case class ParsingFailed(failure: Failure) extends ConfigError {
     val message = failure.toString
   }
 
-  /** Multiple errors that occurred when parsing HOCON input. */
-  case class ConfigParserErrors(failures: Seq[Failure]) extends ConfigError {
-    val message = failures.map(_.toString).mkString("Multiple errors parsing HOCON: ", ", ", "")
+  /** One or more invalid fields occurred in HOCON input. */
+  case class InvalidFields(fields: NonEmptyChain[InvalidField]) extends ConfigError {
+
+    val message =
+      fields.map(_.toString).mkString_("Multiple invalid fields in HOCON source: ", ", ", "")
+
+  }
+
+  /** Represents a single invalid field in HOCON input.
+    */
+  case class InvalidField(name: String, failure: Failure) {
+
+    override def toString: String = {
+      val prefix = if (name == "<invalid>" || name == "<RootKey>") "" else s"'$name': "
+      prefix + failure.toString
+    }
+
   }
 
   /** Multiple errors that occurred when processing configuration. */
-  case class ConfigErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
+  case class MultipleErrors(failures: NonEmptyChain[ConfigError]) extends ConfigError {
 
     val message =
       failures.map(_.toString).mkString_("Multiple errors processing configuration: ", ", ", "")
@@ -71,7 +87,7 @@ object ConfigError {
   }
 
   /** Multiple errors that occurred when processing configuration for a document. */
-  case class DocumentConfigErrors(path: Path, failures: NonEmptyChain[ConfigError])
+  case class DocumentErrors(path: Path, failures: NonEmptyChain[ConfigError])
       extends ConfigError {
 
     val message = failures.map(_.toString).mkString_(
@@ -82,17 +98,17 @@ object ConfigError {
 
   }
 
-  object DocumentConfigErrors {
+  object DocumentErrors {
 
-    def apply(path: Path, error: ConfigError): DocumentConfigErrors = error match {
-      case ConfigErrors(errors) => new DocumentConfigErrors(path, errors)
-      case other                => new DocumentConfigErrors(path, NonEmptyChain.one(other))
+    def apply(path: Path, error: ConfigError): DocumentErrors = error match {
+      case MultipleErrors(errors) => new DocumentErrors(path, errors)
+      case other                  => new DocumentErrors(path, NonEmptyChain.one(other))
     }
 
   }
 
   /** Multiple errors that occurred when processing configuration for a document tree. */
-  case class TreeConfigErrors(failures: NonEmptyChain[DocumentConfigErrors]) extends ConfigError {
+  case class TreeErrors(failures: NonEmptyChain[DocumentErrors]) extends ConfigError {
 
     val message = failures.map(_.toString).mkString_(
       s"Multiple errors processing configuration for document tree: ",
@@ -103,10 +119,10 @@ object ConfigError {
   }
 
   /** An error that occurred when resolving the interim result of a parsing operation. */
-  case class ConfigResolverError(message: String) extends ConfigError
+  case class ResolverFailed(message: String) extends ConfigError
 
   /** An error that occurred when loading a resource, before parsing could start. */
-  case class ConfigResourceError(message: String) extends ConfigError
+  case class ResourceLoadingFailed(message: String) extends ConfigError
 
   /** A required value that could not be found. */
   case class NotFound(key: Key) extends ConfigError {

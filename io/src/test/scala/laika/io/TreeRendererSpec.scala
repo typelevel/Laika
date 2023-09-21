@@ -141,8 +141,7 @@ class TreeRendererSpec extends CatsEffectSuite
         staticDocuments: Seq[Path] = Nil
     ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
       new RenderedTree(Root, title, content, titleDocument),
-      TemplateRoot.fallback,
-      Config.empty,
+      DocumentTreeRoot(DocumentTree.empty),
       outputContext,
       PathTranslator.noOp,
       coverDocument = coverDocument,

@@ -174,7 +174,7 @@ A renderer has to implement the following trait:
 
 ```scala mdoc
 import laika.ast.Element
-import laika.api.format.RenderContext
+import laika.api.format.Formatter
 
 trait RenderFormat[FMT] {
   
@@ -182,7 +182,7 @@ trait RenderFormat[FMT] {
   
   def defaultRenderer: (FMT, Element) => String
   
-  def formatterFactory: RenderContext[FMT] => FMT
+  def formatterFactory: Formatter.Context[FMT] => FMT
 
 }
 ```
@@ -196,7 +196,7 @@ trait RenderFormat[FMT] {
 * `formatterFactory` is the formatter instance for the target format. 
   A new instance of this formatter gets created for each render operation. 
   
-* The `RenderContext` passed to the factory function contains the root element of the AST
+* The `Formatter.Context` passed to the factory function contains the root element of the AST
   and the delegate render function which your formatter is supposed to use for rendering children.
   You need to use this indirection as the provided delegate contains the render overrides the user might
   have installed which your default render implementation cannot be aware of.

@@ -21,8 +21,7 @@ import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{
   BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
-  RenderContext,
+  Formatter,
   RenderFormat,
   TagFormatter,
   TwoPhaseRenderFormat
@@ -30,7 +29,7 @@ import laika.api.format.{
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.config.*
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.epub.internal.{ ContainerWriter, XHTMLRenderer }
 import laika.internal.render.HTMLFormatter
 import laika.io.internal.errors.ConfigException
@@ -60,7 +59,7 @@ import laika.theme.Theme
   *
   *  @author Jens Halm
   */
-case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
+case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
   override val description: String = "EPUB"
 
@@ -79,7 +78,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorB
 
     val defaultRenderer: (TagFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext[TagFormatter] => TagFormatter =
+    val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter =
       context => new HTMLFormatter(closeEmptyTags = true, context)
 
   }
@@ -109,7 +108,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorB
       case "always" => Right(Always)
       case "never"  => Right(Never)
       case "auto"   => Right(Auto)
-      case other    => Left(ValidationError(s"Invalid value: $other"))
+      case other    => Left(ValidationFailed(s"Invalid value: $other"))
     }
 
     implicit val encoder: ConfigEncoder[ScriptedTemplate] =
@@ -151,7 +150,7 @@ case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorB
     *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
     *    and the configuration of this instance.
     */
-  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+  def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {

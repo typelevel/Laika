@@ -17,12 +17,12 @@
 package laika.internal.render
 
 import laika.api.bundle.PathTranslator
-import laika.api.format.{ Formatter, RenderContext, TagFormatter }
+import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast.Path.Root
 import laika.ast.*
 
 private[laika] class FOFormatter private (
-    protected val context: RenderContext[TagFormatter]
+    protected val context: Formatter.Context[TagFormatter]
 ) extends TagFormatter with FOProperties {
 
   protected def withChild(element: Element): Rep =
@@ -47,7 +47,7 @@ private[laika] class FOFormatter private (
   * These are usually not part of the document AST produced by a parser,
   * but only inserted dynamically during the render process to drive features specific to FO output.
   */
-private[laika] object FOFormatter extends (RenderContext[TagFormatter] => TagFormatter) {
+private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => TagFormatter) {
 
   def localId(path: Path, ref: String, translator: PathTranslator): String = {
     val basePath = {
@@ -229,7 +229,7 @@ private[laika] object FOFormatter extends (RenderContext[TagFormatter] => TagFor
 
   /** Creates a new formatter instance based on the specified render context.
     */
-  def apply(context: RenderContext[TagFormatter]): TagFormatter =
+  def apply(context: Formatter.Context[TagFormatter]): TagFormatter =
     new FOFormatter(context)
 
 }

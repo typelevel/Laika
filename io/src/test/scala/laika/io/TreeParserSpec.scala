@@ -30,7 +30,7 @@ import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
 import laika.bundle.*
-import laika.config.{ LaikaKeys, TargetFormats, Version, Versions }
+import laika.config.{ LaikaKeys, MessageFilter, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
@@ -384,7 +384,7 @@ class TreeParserSpec
       Root / "forAll" / "nested" / "foo-2.jpg"  -> Contents.name
     )
     val htmlOnly   = TargetFormats.Selected("html")
-    val epubOnly   = TargetFormats.Selected("epub")
+    val epubOnly   = TargetFormats.Selected("epub", "xhtml")
     val staticDocs = Seq(
       StaticDocument(Root / "forHTML" / "foo-1.jpg", htmlOnly),
       StaticDocument(Root / "forHTML" / "nested" / "foo-2.jpg", htmlOnly),

@@ -19,6 +19,7 @@ package laika.api.format
 import laika.api.bundle.PathTranslator
 import laika.ast.*
 import laika.ast.styles.StyleDeclarationSet
+import laika.config.MessageFilter
 
 /** API basis for renderers that produce character output.
   *
@@ -30,7 +31,7 @@ abstract class Formatter protected {
 
   protected def self: Rep
 
-  protected def context: RenderContext[Rep]
+  protected def context: Formatter.Context[Rep]
 
   protected def withChild(element: Element): Rep
 
@@ -137,11 +138,11 @@ object Formatter {
     *
     * Use `TagFormatter` for all outputs with angle brackets (e.g. HTML).
     */
-  def defaultFactory: RenderContext[Formatter] => Formatter = ctx =>
+  def defaultFactory: Context[Formatter] => Formatter = ctx =>
     new Formatter {
       type Rep = Formatter
-      protected def self: Rep                         = this
-      protected def context: RenderContext[Formatter] = ctx
+      protected def self: Rep                   = this
+      protected def context: Context[Formatter] = ctx
 
       protected def withChild(element: Element): Rep =
         defaultFactory(ctx.forChildElement(element))
@@ -150,6 +151,55 @@ object Formatter {
         defaultFactory(ctx.withIndentation(newIndentation))
 
     }
+
+  /** Provides the context for a single render operation.
+    *
+    * @param renderChild    a render function to use for rendering the children of an element
+    * @param currentElement the element currently being rendered
+    * @param parents        the stack of parent elements of this formatter in recursive rendering,
+    *                       with the root element being the last in the list
+    * @param styles         the styles the new renderer should apply to the rendered elements
+    * @param path           the (virtual) path the output will be rendered to
+    * @param pathTranslator translates paths of input documents to the corresponding output path
+    * @param indentation    the indentation mechanism to use for rendering
+    * @param messageFilter  the filter to apply before rendering runtime messages
+    */
+  class Context[FMT] private[laika] (
+      val renderChild: (FMT, Element) => String,
+      val currentElement: Element,
+      val parents: List[Element],
+      val styles: StyleDeclarationSet,
+      val path: Path,
+      val pathTranslator: PathTranslator,
+      val indentation: Formatter.Indentation,
+      val messageFilter: MessageFilter
+  ) {
+
+    def forChildElement(child: Element): Context[FMT] =
+      new Context[FMT](
+        renderChild,
+        child,
+        currentElement :: parents,
+        styles,
+        path,
+        pathTranslator,
+        indentation,
+        messageFilter
+      )
+
+    def withIndentation(newValue: Formatter.Indentation): Context[FMT] =
+      new Context[FMT](
+        renderChild,
+        currentElement,
+        parents,
+        styles,
+        path,
+        pathTranslator,
+        newValue,
+        messageFilter
+      )
+
+  }
 
   /** Represents the current indentation level of a formatter instance.
     *

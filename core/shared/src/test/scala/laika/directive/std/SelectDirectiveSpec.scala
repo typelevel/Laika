@@ -20,7 +20,7 @@ import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
+import laika.config.{ ChoiceConfig, MessageFilter, SelectionConfig, Selections }
 import laika.format.{ HTML, Markdown }
 import munit.FunSuite
 

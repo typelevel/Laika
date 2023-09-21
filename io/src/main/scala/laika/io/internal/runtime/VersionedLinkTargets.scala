@@ -18,7 +18,7 @@ package laika.io.internal.runtime
 
 import cats.data.NonEmptyChain
 import cats.effect.kernel.Concurrent
-import cats.effect.{ Async, Sync }
+import cats.effect.Async
 import cats.syntax.all.*
 import laika.internal.collection.TransitionalCollectionOps.*
 import laika.ast.DocumentType.{ Ignored, Static }
@@ -109,7 +109,7 @@ private[runtime] object VersionedLinkTargets {
     (staticDocs.find(_.path == VersionInfoGenerator.path), versions.scannerConfig) match {
       case (Some(info), _)   => loadVersionInfo(info)
       case (_, Some(config)) => scanTargetDirectory(versions, config)
-      case _                 => Sync[F].pure(Map.empty)
+      case _                 => Concurrent[F].pure(Map.empty)
     }
 
   def groupLinkTargets(

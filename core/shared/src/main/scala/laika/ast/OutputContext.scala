@@ -51,7 +51,6 @@ object OutputContext {
   def apply(format: RenderFormat[_]): OutputContext =
     Impl(format.fileSuffix, format.description.toLowerCase)
 
-  def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext =
-    Impl(format.interimFormat.fileSuffix, format.description.toLowerCase)
+  def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext = apply(format.interimFormat)
 
 }

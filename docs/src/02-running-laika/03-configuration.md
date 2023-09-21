@@ -240,25 +240,23 @@ You can achieve this by basically flipping the two default values in the configu
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 laikaConfig := LaikaConfig.defaults
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
 ```
 
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(Markdown.GitHubFlavor)
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
   .build
 ```
 

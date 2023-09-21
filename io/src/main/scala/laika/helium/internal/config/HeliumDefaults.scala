@@ -29,7 +29,7 @@ private[helium] object HeliumDefaults {
 
   private val defaultFonts = Seq(
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Regular.ttf").webCSS(
+      Font.withEmbeddedResource(fontPath + "Lato/Lato-Regular.ttf").withWebCSS(
         "https://fonts.googleapis.com/css?family=Lato:400,700"
       ),
       "Lato",
@@ -37,25 +37,25 @@ private[helium] object HeliumDefaults {
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Italic.ttf"),
+      Font.withEmbeddedResource(fontPath + "Lato/Lato-Italic.ttf"),
       "Lato",
       FontWeight.Normal,
       FontStyle.Italic
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-Bold.ttf"),
+      Font.withEmbeddedResource(fontPath + "Lato/Lato-Bold.ttf"),
       "Lato",
       FontWeight.Bold,
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "Lato/Lato-BoldItalic.ttf"),
+      Font.withEmbeddedResource(fontPath + "Lato/Lato-BoldItalic.ttf"),
       "Lato",
       FontWeight.Bold,
       FontStyle.Italic
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "FiraMono/FiraMono-Medium.otf").webCSS(
+      Font.withEmbeddedResource(fontPath + "FiraMono/FiraMono-Medium.otf").withWebCSS(
         "https://fonts.googleapis.com/css?family=Fira+Mono:500"
       ),
       "Fira Mono",
@@ -63,7 +63,7 @@ private[helium] object HeliumDefaults {
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource(fontPath + "icofont/fonts/icofont.ttf"),
+      Font.withEmbeddedResource(fontPath + "icofont/fonts/icofont.ttf"),
       "IcoFont",
       FontWeight.Normal,
       FontStyle.Normal

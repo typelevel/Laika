@@ -16,7 +16,7 @@
 
 package laika.format
 
-import laika.api.format.{ RenderContext, RenderFormat, TagFormatter }
+import laika.api.format.{ Formatter, RenderFormat, TagFormatter }
 import laika.ast.Element
 import laika.internal.render.{ HTMLFormatter, HTMLRenderer }
 
@@ -36,7 +36,7 @@ case object HTML extends RenderFormat[TagFormatter] {
 
   val defaultRenderer: (TagFormatter, Element) => String = HTMLRenderer
 
-  val formatterFactory: RenderContext[TagFormatter] => TagFormatter =
+  val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter =
     context => new HTMLFormatter(closeEmptyTags = false, context)
 
 }

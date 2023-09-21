@@ -18,7 +18,8 @@ package laika.api.builder
 
 import laika.api.bundle.ExtensionBundle
 import laika.api.format.RenderFormat
-import laika.ast.{ Element, MessageFilter }
+import laika.ast.Element
+import laika.config.MessageFilters
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a rendering step (Renderer and Transformer).
@@ -51,15 +52,19 @@ private[api] trait RendererBuilderOps[FMT] extends CommonBuilderOps {
     }
   )
 
-  /**  Specifies the minimum required level for a runtime message to get included into the output by this renderer.
+  /** Specifies the message filters to apply to the operation.
+    *
+    * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
     */
-  def renderMessages(filter: MessageFilter): ThisType = withConfig(
-    config.withMessageFilters(render = filter)
-  )
+  def withMessageFilters(filters: MessageFilters): ThisType =
+    withConfig(config.withMessageFilters(filters))
 
   /**  Renders without any formatting (line breaks or indentation).
     *  Useful when storing the output in a database for example.
     */
-  def unformatted: ThisType = withConfig(config.renderUnformatted)
+  def withCompactRendering: ThisType = withConfig(config.withCompactRendering)
 
 }

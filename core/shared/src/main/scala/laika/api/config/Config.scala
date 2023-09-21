@@ -17,9 +17,9 @@
 package laika.api.config
 
 import laika.api.config.Config.ConfigResult
-import ConfigError.{ DecodingError, NotFound }
+import ConfigError.{ DecodingFailed, NotFound }
 import ConfigValue.{ ArrayValue, ObjectValue }
-import laika.parse.hocon.{ IncludeResource, ObjectBuilderValue }
+import laika.internal.parse.hocon.{ IncludeResource, ObjectBuilderValue }
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -219,8 +219,8 @@ private[laika] class ObjectConfig(
         case _                            => field.value
       }
       decoder(Traced(res, field.origin)).left.map {
-        case de @ DecodingError(_, child) => de.withKey(child.fold(key)(key.child))
-        case other                        => other
+        case de @ DecodingFailed(_, child) => de.withKey(child.fold(key)(key.child))
+        case other                         => other
       }
     }
   }

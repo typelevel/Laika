@@ -2,7 +2,7 @@ package laika.api
 
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
-import laika.api.errors.RendererError
+import laika.api.errors.{ InvalidConfig, RendererError }
 import laika.api.format.RenderFormat
 import laika.ast.{ Document, RewritePhase }
 
@@ -22,7 +22,7 @@ trait RenderPhaseRewrite {
     config
       .rewriteRulesFor(doc, RewritePhase.Render(format))
       .flatMap(doc.rewrite)
-      .leftMap(RendererError(_))
+      .leftMap(InvalidConfig(_))
   }
 
 }

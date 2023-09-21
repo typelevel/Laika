@@ -21,13 +21,7 @@ import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
 import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, Key }
-import laika.api.format.{
-  BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
-  RenderFormat,
-  TagFormatter,
-  TwoPhaseRenderFormat
-}
+import laika.api.format.{ BinaryPostProcessor, RenderFormat, TagFormatter, TwoPhaseRenderFormat }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
 import laika.theme.Theme
@@ -57,7 +51,7 @@ import laika.theme.config.BookConfig
   *
   *  @author Jens Halm
   */
-object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder] {
+object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
   override val description: String = "PDF"
 
@@ -83,7 +77,7 @@ object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessorBuilder
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes it to the specified final output.
     */
-  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+  def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Dispatcher.parallel[F].evalMap { dispatcher =>

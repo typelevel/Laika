@@ -31,7 +31,7 @@ import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector }
-import laika.config.{ LaikaKeys, TargetFormats }
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters, TargetFormats }
 import laika.format.XSLFO
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
@@ -69,7 +69,11 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   def run(elem: Element, messageFilter: MessageFilter, expectedFO: String)(implicit
       loc: munit.Location
   ): Unit = {
-    val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(
+    val filters = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = messageFilter
+    )
+    val res     = Renderer.of(XSLFO).withMessageFilters(filters).build.render(
       elem,
       Root / "doc",
       PathTranslator.noOp,
@@ -79,7 +83,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   def runUnformatted(input: Element, expectedFO: String): Unit = {
-    val res = Renderer.of(XSLFO).unformatted.build.render(
+    val res = Renderer.of(XSLFO).withCompactRendering.build.render(
       input,
       Root / "doc",
       PathTranslator.noOp,

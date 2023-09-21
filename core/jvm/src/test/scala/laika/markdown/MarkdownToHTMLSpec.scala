@@ -17,7 +17,8 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast._
+import laika.ast.*
+import laika.config.{ MessageFilter, MessageFilters }
 import laika.file.FileIO
 import laika.format.{ HTML, Markdown }
 import laika.html.TidyHTML
@@ -75,7 +76,9 @@ class MarkdownToHTMLSpec extends FunSuite {
         case (fmt, t @ Title(_, Id("unordered")))            => fmt.child(Header(2, t.content))
         case (fmt, t @ Title(_, Id(_)))                      => fmt.child(t.withOptions(NoOpt))
       }
-      .failOnMessages(MessageFilter.None)
+      .withMessageFilters(
+        MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)
+      )
       .build
       .transform(input)
       .map(tidyAndAdjust)

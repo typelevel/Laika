@@ -69,8 +69,8 @@ object CSSSyntax extends SyntaxHighlighter {
   private val string: CodeSpanParser = StringLiteral.singleLine('"').embed(escape) ++
     StringLiteral.singleLine('\'').embed(escape)
 
-  private val number: CodeSpanParser = NumberLiteral.decimalFloat.allowFollowingLetter ++
-    NumberLiteral.decimalInt.allowFollowingLetter
+  private val number: CodeSpanParser = NumberLiteral.decimalFloat.allowLetterAfterEnd ++
+    NumberLiteral.decimalInt.allowLetterAfterEnd
 
   private val declaration: CodeSpanParser = {
 

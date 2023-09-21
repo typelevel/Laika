@@ -242,10 +242,13 @@ private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[Pa
 
   private val lookup: Map[Path, PathAttributes] = {
 
-    val treeConfigs = cursor.target.staticDocuments.map(doc => doc.path.parent).toSet[Path].map {
-      path =>
-        (path, cursor.treeConfig(path))
-    }.toMap
+    val treeConfigs = cursor.target.staticDocuments
+      .map(doc => doc.path.parent)
+      .toSet[Path]
+      .map { path =>
+        (path, cursor.selectTreeConfig(path))
+      }
+      .toMap
 
     val markupDocs = cursor.target.allDocuments.map { doc =>
       (
@@ -273,7 +276,10 @@ private[laika] class TargetLookup(cursor: RootCursor) extends (Path => Option[Pa
     lookup.get(path.withoutFragment)
       .orElse(
         Some(
-          PathAttributes(isStatic = true, isVersioned = isVersioned(cursor.treeConfig(path.parent)))
+          PathAttributes(
+            isStatic = true,
+            isVersioned = isVersioned(cursor.selectTreeConfig(path.parent))
+          )
         )
       )
   // paths which have validation disabled might not appear in the lookup, we treat them as static and

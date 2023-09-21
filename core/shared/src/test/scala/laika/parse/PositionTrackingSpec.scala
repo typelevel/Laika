@@ -28,8 +28,8 @@ class PositionTrackingSpec extends FunSuite {
   private val parser = MarkupParser.of(Markdown).using(Markdown.GitHubFlavor).build
 
   def parseAndExtractMessage(input: String): String = parser.parse(input) match {
-    case Left(ParserError(message)) => message
-    case Right(doc)                 => s"Unexpected success: $doc"
+    case Left(e: ParserError) => e.message
+    case Right(doc)           => s"Unexpected success: $doc"
   }
 
   def run(input: String, expectedMessage: String)(implicit loc: munit.Location): Unit =

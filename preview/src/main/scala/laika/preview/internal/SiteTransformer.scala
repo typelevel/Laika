@@ -23,9 +23,9 @@ import fs2.Chunk
 import laika.api.Renderer
 import laika.api.builder.OperationConfig
 import laika.api.config.Config.ConfigResult
-import laika.api.format.{ BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
-import laika.ast.{ MessageFilter, Path }
-import laika.config.{ LaikaKeys, Selections, TargetFormats }
+import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
+import laika.ast.Path
+import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.internal.config.SiteConfig
@@ -36,7 +36,6 @@ import laika.preview.internal.SiteTransformer.ResultMap
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream
-import scala.annotation.nowarn
 
 private[preview] class SiteTransformer[F[_]: Async](
     val parser: TreeParser[F],
@@ -85,13 +84,13 @@ private[preview] class SiteTransformer[F[_]: Async](
       .toMemory
       .render
       .map { root =>
-        val map   = root.allDocuments.map { doc =>
+        val map: Map[Path, SiteResult[F]]   = root.allDocuments.map { doc =>
           (doc.path, RenderedResult[F](doc.content))
         }.toMap ++
           root.staticDocuments.map { doc =>
             (doc.path, StaticResult(doc.input))
           }.toMap
-        val roots = map.flatMap { case (path, result) =>
+        val roots: Map[Path, SiteResult[F]] = map.flatMap { case (path, result) =>
           if (path.name == "index.html") Some((path.parent, result)) else None
         }
         map ++ roots
@@ -142,20 +141,18 @@ private[preview] object SiteTransformer {
     Renderer
       .of(HTML)
       .withConfig(config)
-      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build
 
   def binaryRenderer[F[_]: Async, FMT](
-      format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+      format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
       config: OperationConfig,
       theme: Theme[F]
   ): Resource[F, BinaryTreeRenderer[F]] = {
     Renderer
       .of(format)
       .withConfig(config)
-      .renderMessages(MessageFilter.Info)
       .parallel[F]
       .withTheme(theme)
       .build
@@ -164,14 +161,14 @@ private[preview] object SiteTransformer {
   def create[F[_]: Async](
       parser: Resource[F, TreeParser[F]],
       inputs: InputTreeBuilder[F],
-      renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]],
+      renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]],
       apiDir: Option[FilePath],
       artifactBasename: String
   ): Resource[F, SiteTransformer[F]] = {
 
     def adjustConfig(p: TreeParser[F]): TreeParser[F] = p.modifyConfig {
       _
-        .withMessageFilters(failOn = MessageFilter.None)
+        .withMessageFilters(MessageFilters.forVisualDebugging)
         .withConfigValue(LaikaKeys.preview.enabled, true)
     }
 
@@ -213,13 +210,12 @@ private[preview] class SiteResults[F[_]](map: Map[Path, SiteResult[F]]) {
 
 }
 
-@nowarn
-private[preview] sealed abstract class SiteResult[F[_]: Async] extends Product with Serializable
+private[preview] sealed abstract class SiteResult[F[_]] extends Product with Serializable
 
-private[preview] case class RenderedResult[F[_]: Async](content: String) extends SiteResult[F]
+private[preview] case class RenderedResult[F[_]](content: String) extends SiteResult[F]
 
-private[preview] case class StaticResult[F[_]: Async](content: fs2.Stream[F, Byte])
+private[preview] case class StaticResult[F[_]](content: fs2.Stream[F, Byte])
     extends SiteResult[F]
 
-private[preview] case class LazyResult[F[_]: Async](result: F[Option[SiteResult[F]]])
+private[preview] case class LazyResult[F[_]](result: F[Option[SiteResult[F]]])
     extends SiteResult[F]

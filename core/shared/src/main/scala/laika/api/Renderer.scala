@@ -19,11 +19,11 @@ package laika.api
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
 import laika.api.bundle.PathTranslator
-import laika.api.errors.RendererError
+import laika.api.errors.{ InvalidConfig, RendererError }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.format.Formatter.Indentation
-import laika.api.format.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
+import laika.api.format.{ Formatter, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.styles.StyleDeclarationSet
 
 /** Performs a render operation from a document AST to a target format
@@ -133,20 +133,20 @@ abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite
       config
         .rewriteRulesFor(doc, RewritePhase.Render(OutputContext(format)))
         .map(_.rewriteElement(targetElement))
-        .leftMap(RendererError(_))
+        .leftMap(InvalidConfig(_))
     }
 
     (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
       val renderContext =
-        new RenderContext[Formatter](
+        new Formatter.Context[Formatter](
           renderFunction,
           elementToRender,
           Nil,
           styles,
           doc.path,
           pathTranslator,
-          if (config.renderFormatted) Indentation.default else Indentation.none,
-          config.renderMessages
+          if (config.compactRendering) Indentation.none else Indentation.default,
+          config.messageFilters.render
         )
 
       val formatter = format.formatterFactory(renderContext)

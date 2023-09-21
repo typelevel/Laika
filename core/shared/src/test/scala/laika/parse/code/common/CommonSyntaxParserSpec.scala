@@ -233,7 +233,7 @@ class CommonSyntaxParserSpec extends FunSuite {
     "recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)"
   ) {
     assertEquals(
-      createParser(_.allowFollowingLetter, _.allowDigitBeforeStart).parse(
+      createParser(_.allowLetterAfterEnd, _.allowDigitBeforeStart).parse(
         s"one1 123bb three3"
       ).toEither,
       Right(

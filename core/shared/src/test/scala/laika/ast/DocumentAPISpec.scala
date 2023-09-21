@@ -18,7 +18,6 @@ package laika.ast
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.api.errors.ParserError
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.LaikaKeys
 import laika.format.Markdown
@@ -77,9 +76,9 @@ class DocumentAPISpec extends FunSuite
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .parse(markup)
-      .flatMap(_.title.toRight(ParserError("no title")))
+      .map(_.title)
 
-    assertEquals(res, Right(SpanSequence("Title")))
+    assertEquals(res, Right(Some(SpanSequence("Title"))))
   }
 
   test(

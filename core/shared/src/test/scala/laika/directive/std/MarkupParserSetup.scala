@@ -19,7 +19,8 @@ package laika.directive.std
 import laika.api.MarkupParser
 import laika.api.errors.ParserError
 import laika.ast.Path.Root
-import laika.ast.{ Document, MessageFilter, Path }
+import laika.ast.{ Document, Path }
+import laika.config.MessageFilter
 import laika.format.Markdown
 
 /** @author Jens Halm

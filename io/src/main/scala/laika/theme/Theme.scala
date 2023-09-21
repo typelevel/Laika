@@ -19,7 +19,7 @@ package laika.theme
 import cats.data.Kleisli
 import cats.effect.Async
 import laika.api.bundle.ExtensionBundle
-import laika.api.format.Format
+import laika.ast.OutputContext
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, ParsedTree }
 import laika.theme.Theme.TreeProcessor
@@ -74,7 +74,7 @@ trait Theme[F[_]] {
     * The provided function accepts a `Format` instance as parameter which can be used to provide
     * different processor per output format.
     */
-  def treeProcessor: Format => TreeProcessor[F]
+  def treeProcessor: OutputContext => TreeProcessor[F]
 
 }
 

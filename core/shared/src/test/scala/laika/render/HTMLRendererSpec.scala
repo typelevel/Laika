@@ -26,10 +26,9 @@ import laika.api.bundle.{
 }
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.ast.MessageFilter
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.StyleDeclarationSet
-import laika.config.{ TargetFormats, Version, Versions }
+import laika.config.{ MessageFilter, MessageFilters, TargetFormats, Version, Versions }
 import laika.format.HTML
 import laika.parse.GeneratedSource
 import laika.parse.code.CodeCategory
@@ -55,7 +54,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     assertEquals(defaultRenderer.render(elem), Right(expected))
 
   def runWithFilter(elem: Element, filter: MessageFilter, expected: String): Unit = {
-    val renderer = Renderer.of(HTML).renderMessages(filter).build
+    val filters  = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = filter
+    )
+    val renderer = Renderer.of(HTML).withMessageFilters(filters).build
     assertEquals(renderer.render(elem), Right(expected))
   }
 
@@ -75,7 +78,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   def runUnformatted(elem: Element, expected: String): Unit = {
-    val res = Renderer.of(HTML).unformatted.build.render(elem)
+    val res = Renderer.of(HTML).withCompactRendering.build.render(elem)
     assertEquals(res, Right(expected))
   }
 

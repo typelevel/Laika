@@ -65,8 +65,6 @@ private[io] object RendererRuntime {
       else Sync[F].raiseError(RendererErrors(duplicates.toSeq.sortBy(_.path.toString)))
     }
 
-    val fileSuffix = op.renderer.format.fileSuffix
-
     type RenderResult = Either[BinaryInput[F], RenderedDocument]
     case class RenderOps(mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
 
@@ -148,7 +146,7 @@ private[io] object RendererRuntime {
         staticDocs: Seq[BinaryInput[F]]
     ): RenderOps = {
 
-      val styles          = finalRoot.styles(fileSuffix) ++ getThemeStyles(themeInputs.treeBuilder)
+      val styles = finalRoot.styles(context.fileSuffix) ++ getThemeStyles(themeInputs.treeBuilder)
       val pathTranslatorF = pathTranslator.translate(_: Path)
 
       def createDirectory(file: FilePath): F[Unit] =
@@ -202,16 +200,12 @@ private[io] object RendererRuntime {
           renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)),
           buildNode
         )
-        val template   =
-          finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
 
         new RenderedTreeRoot[F](
           resultRoot,
-          template,
-          finalRoot.config,
+          finalRoot,
           context,
           pathTranslator,
-          finalRoot.styles(fileSuffix),
           coverDoc,
           staticDocs
         )
@@ -229,7 +223,7 @@ private[io] object RendererRuntime {
       }
       val rules       = op.config.rewriteRulesFor(rootWithTpl, RewritePhase.Render(context))
       mapError(rootWithTpl.applyTemplates(rules, context))
-        .flatMap(root => InvalidDocuments.from(root, op.config.failOnMessages).toLeft(root))
+        .flatMap(root => InvalidDocuments.from(root, op.config.messageFilters.failOn).toLeft(root))
     }
 
     def getThemeStyles(themeInputs: DocumentTreeBuilder): StyleDeclarationSet =
@@ -287,7 +281,7 @@ private[io] object RendererRuntime {
     val tree        = ParsedTree(op.input).addStaticDocuments(staticDocs)
 
     for {
-      mappedTree  <- op.theme.treeProcessor(op.renderer.format).run(tree)
+      mappedTree  <- op.theme.treeProcessor(context).run(tree)
       finalRoot   <- Sync[F].fromEither(applyTemplate(mappedTree.root))
       versions    <- Sync[F].fromEither(mapError(finalRoot.config.getOpt[Versions]))
       pTranslator <- Sync[F].fromEither(mapError(op.config.pathTranslatorFor(finalRoot, context)))

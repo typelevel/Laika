@@ -22,16 +22,9 @@ import cats.effect.{ Async, Sync }
 import cats.implicits.*
 import laika.api.config.Config.IncludeMap
 import laika.api.config.ConfigParser
-import laika.api.config.ConfigError.ConfigResourceError
+import laika.api.config.ConfigError.ResourceLoadingFailed
+import laika.internal.parse.hocon.*
 import laika.io.internal.runtime.Batch
-import laika.parse.hocon.{
-  IncludeAny,
-  IncludeClassPath,
-  IncludeFile,
-  IncludeResource,
-  IncludeUrl,
-  ValidStringValue
-}
 
 /** Internal utility that provides configuration files requested by include statements in other
   * configuration instances.
@@ -45,7 +38,7 @@ private[io] object IncludeHandler {
   case class LoadedInclude(
       requestedResource: IncludeResource,
       resolvedResource: IncludeResource,
-      result: Either[ConfigResourceError, String]
+      result: Either[ResourceLoadingFailed, String]
   )
 
   /** Loads the requested resources and maps them to the request instance for later lookup.
@@ -148,7 +141,7 @@ private[io] object IncludeHandler {
       def result(
           requestedResource: IncludeResource,
           resolvedResource: IncludeResource,
-          result: F[Option[Either[ConfigResourceError, String]]]
+          result: F[Option[Either[ResourceLoadingFailed, String]]]
       ): F[Option[LoadedInclude]] =
         result.map(_.map(res => LoadedInclude(requestedResource, resolvedResource, res)))
 

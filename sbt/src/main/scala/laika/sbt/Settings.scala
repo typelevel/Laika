@@ -40,7 +40,7 @@ import sbt.*
   */
 object Settings {
 
-  import Def._
+  import Def.*
 
   private def asLaikaFileFilter(jFilter: java.io.FileFilter): laika.io.model.FileFilter =
     new laika.io.model.FileFilter {
@@ -81,10 +81,9 @@ object Settings {
       val mergedConfig = new OperationConfig(
         bundles = parser.config.bundles :+ configFallbacks,
         bundleFilter = userConfig.bundleFilter,
-        failOnMessages = userConfig.failOnMessages,
-        renderMessages = userConfig.renderMessages,
+        messageFilters = userConfig.messageFilters,
         configBuilder = userConfig.configBuilder,
-        renderFormatted = parser.config.renderFormatted
+        compactRendering = parser.config.compactRendering
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }

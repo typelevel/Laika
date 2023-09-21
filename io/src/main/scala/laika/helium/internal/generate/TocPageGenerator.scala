@@ -16,11 +16,10 @@
 
 package laika.helium.internal.generate
 
+import cats.Monad
 import cats.data.Kleisli
-import cats.effect.Sync
-import laika.api.format.Format
 import laika.ast.Path.Root
-import laika.ast.*
+import laika.ast.{ OutputContext, * }
 import laika.format.{ EPUB, HTML, XSLFO }
 import laika.helium.Helium
 import laika.helium.internal.config.TableOfContent
@@ -29,17 +28,17 @@ import laika.theme.Theme.TreeProcessor
 
 private[helium] object TocPageGenerator {
 
-  def generate[F[_]: Sync](helium: Helium, format: Format): TreeProcessor[F] = {
-    val tocConfig = (format match {
-      case HTML       => helium.siteSettings.content.tableOfContent
-      case EPUB.XHTML => helium.epubSettings.layout.tableOfContent
-      case XSLFO      => helium.pdfSettings.layout.tableOfContent
-      case _          => None
-    }).filter(_.depth > 0)
-    tocConfig.fold[TreeProcessor[F]](Kleisli(Sync[F].pure))(generate(_))
+  def generate[F[_]: Monad](helium: Helium, context: OutputContext): TreeProcessor[F] = {
+    val tocConfig = {
+      if (context == OutputContext(HTML)) helium.siteSettings.content.tableOfContent
+      else if (context == OutputContext(EPUB.XHTML)) helium.epubSettings.layout.tableOfContent
+      else if (context == OutputContext(XSLFO)) helium.pdfSettings.layout.tableOfContent
+      else None
+    }
+    tocConfig.filter(_.depth > 0).fold[TreeProcessor[F]](Kleisli(Monad[F].pure))(generate(_))
   }
 
-  def generate[F[_]: Sync](tocConfig: TableOfContent): TreeProcessor[F] = Kleisli { tree =>
+  def generate[F[_]: Monad](tocConfig: TableOfContent): TreeProcessor[F] = Kleisli { tree =>
     val result =
       if (tocConfig.depth < 1) tree
       else {
@@ -67,7 +66,7 @@ private[helium] object TocPageGenerator {
           .modifyConfig(_.withValue("helium.site.pageNavigation.enabled", false))
         tree.modifyTree(_.prependContent(doc))
       }
-    Sync[F].pure(result)
+    Monad[F].pure(result)
   }
 
 }

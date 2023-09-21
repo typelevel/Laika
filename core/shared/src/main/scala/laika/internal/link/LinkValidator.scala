@@ -125,7 +125,7 @@ private[laika] class LinkValidator(
       findTargetFormats(resolvedTarget.absolutePath) match {
         case None if isExcluded(resolvedTarget.absolutePath, explicitExclusions) =>
           val formats = cursor.root
-            .treeConfig(resolvedTarget.absolutePath.parent)
+            .selectTreeConfig(resolvedTarget.absolutePath.parent)
             .get[TargetFormats]
             .getOrElse(TargetFormats.All)
           validateFormats(formats)

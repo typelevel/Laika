@@ -27,7 +27,7 @@ import laika.api.config.{
 }
 import laika.ast.Path.Root
 import laika.api.config.Config.ConfigResult
-import laika.api.config.ConfigError.DecodingError
+import laika.api.config.ConfigError.DecodingFailed
 import laika.config.*
 import laika.render.fo.TestTheme
 import laika.theme.config.{ BookConfig, DocumentMetadata }
@@ -72,8 +72,8 @@ class ThemeConfigCodecSpec extends FunSuite {
   def failDecode[T: ConfigDecoder: DefaultKey](input: String, messageStart: String): Unit = {
     val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
     res match {
-      case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
-      case Left(err: DecodingError)                                         =>
+      case Left(err: DecodingFailed) if err.message.startsWith(messageStart) => ()
+      case Left(err: DecodingFailed)                                         =>
         fail(s"message '${err.message}' did not start with '$messageStart''")
       case Left(err) => fail(s"Expected DecodingError, but got $err")
       case _         => fail("decoding did not fail as expected")

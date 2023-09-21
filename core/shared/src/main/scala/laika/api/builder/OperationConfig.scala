@@ -28,11 +28,12 @@ import laika.api.bundle.{
 import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
 import laika.api.format.{ MarkupFormat, RenderFormat }
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.api.config.ConfigError.ValidationError
+import laika.api.config.ConfigError.ValidationFailed
 import laika.ast.*
 import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
 import laika.api.config.Config.ConfigResult
 import laika.ast.styles.StyleDeclaration
+import laika.config.MessageFilters
 import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
 import laika.internal.rewrite.RecursiveResolverRules
 import laika.parse.Parser
@@ -48,33 +49,29 @@ import scala.annotation.tailrec
   * @param bundles all extension bundles defined by this operation
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param configBuilder a builder for assembling values for the base configuration as
-  * @param failOnMessages the filter to apply to runtime messages that should cause the transformation to fail
-  * @param renderMessages the filter to apply to runtime messages that should be rendered in the output
-  * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
+  * @param messageFilters indicates how to handle runtime messages embedded in the document AST
+  * @param compactRendering indicates whether rendering should exclude any formatting (line breaks or indentation)
   */
 class OperationConfig private[laika] (
     val bundles: Seq[ExtensionBundle] = Nil,
     private[laika] val bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
-    val failOnMessages: MessageFilter = MessageFilter.Error,
-    val renderMessages: MessageFilter = MessageFilter.None,
-    val renderFormatted: Boolean = true
+    val messageFilters: MessageFilters = MessageFilters.defaults,
+    val compactRendering: Boolean = false
 ) {
 
   private def copy(
       bundles: Seq[ExtensionBundle] = this.bundles,
       bundleFilter: BundleFilter = this.bundleFilter,
       configBuilder: ConfigBuilder = this.configBuilder,
-      failOnMessages: MessageFilter = this.failOnMessages,
-      renderMessages: MessageFilter = this.renderMessages,
-      renderFormatted: Boolean = this.renderFormatted
+      messageFilters: MessageFilters = this.messageFilters,
+      compactRendering: Boolean = this.compactRendering
   ): OperationConfig = new OperationConfig(
     bundles,
     bundleFilter,
     configBuilder,
-    failOnMessages,
-    renderMessages,
-    renderFormatted
+    messageFilters,
+    compactRendering
   )
 
   private[laika] def withBundleFilter(filter: BundleFilter): OperationConfig =
@@ -92,19 +89,11 @@ class OperationConfig private[laika] (
   /** Specifies the message filters to apply to the operation.
     *
     * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
-    * When switching to visual debugging, both filters are usually changed together.
-    * For example, when setting `failOn` to `None` and `render` to `Warning`,
-    * the transformation will always succeed (unless an error occurs that cannot be recovered from),
-    * and messages in the AST with level `Warning` or higher will be rendered in the position they occurred.
-    *
-    * @param failOn the minimum message level that should cause the transformation to fail (default `Error`).
-    * @param render the minimum message level that should be rendered in the output (default `None`).
-    * @return
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
     */
-  def withMessageFilters(
-      failOn: MessageFilter = this.failOnMessages,
-      render: MessageFilter = this.renderMessages
-  ): OperationConfig = copy(failOnMessages = failOn, renderMessages = render)
+  def withMessageFilters(filters: MessageFilters): OperationConfig = copy(messageFilters = filters)
 
   /** Returns a new instance with the specified configuration value added.
     *
@@ -205,7 +194,7 @@ class OperationConfig private[laika] (
   ): ConfigResult[PathTranslator] = for {
     cursor         <- RootCursor(root, Some(outputContext))
     baseTranslator <- cursor.pathTranslator.toRight(
-      ValidationError("Internal error: path translator should not be empty")
+      ValidationFailed("Internal error: path translator should not be empty")
     )
   } yield {
     val context = new PathTranslatorExtensionContext(baseTranslator, outputContext, cursor.config)
@@ -244,7 +233,7 @@ class OperationConfig private[laika] (
   /** Renders without any formatting (line breaks or indentation).
     * Useful when storing the output in a database for example.
     */
-  def renderUnformatted: OperationConfig = copy(renderFormatted = false)
+  def withCompactRendering: OperationConfig = copy(compactRendering = true)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher

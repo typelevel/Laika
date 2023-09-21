@@ -30,12 +30,7 @@ import sbt.util.CacheStore
 import Settings.validated
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
-import laika.api.format.{
-  BinaryPostProcessorBuilder,
-  MarkupFormat,
-  RenderFormat,
-  TwoPhaseRenderFormat
-}
+import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 import laika.config.{ Selections, Versions }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
@@ -106,7 +101,7 @@ object Tasks {
       }
       val tree    = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
-      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
+      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logLevel)
 
       tree
     }
@@ -141,7 +136,7 @@ object Tasks {
     }
 
     def renderWithProcessor[FMT](
-        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
         formatDesc: String
     ): Set[File] = {
 
@@ -287,10 +282,7 @@ object Tasks {
 
     def mergedConfig(config: OperationConfig): OperationConfig = {
       config
-        .withMessageFilters(
-          render = userConfig.renderMessages,
-          failOn = userConfig.failOnMessages
-        )
+        .withMessageFilters(userConfig.messageFilters)
         .withBundleFilter(userConfig.bundleFilter)
     }
 

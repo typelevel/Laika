@@ -70,33 +70,33 @@ object NumberLiteral {
       underscores: Boolean = false,
       exponent: Option[Parser[String]] = None,
       suffix: Option[Parser[String]] = None,
-      withFollowingLetter: Boolean = false
+      letterAfterEnd: Boolean = false
   ) extends CodeParserBase {
 
     private val emptyString: Parser[String] = success("")
 
     /** Accepts underscores as visual separators in a number literal, as in `12_045`. */
     def withUnderscores: NumericParser =
-      new NumericParser(digits, prefix, underscores = true, exponent, suffix, withFollowingLetter)
+      new NumericParser(digits, prefix, underscores = true, exponent, suffix, letterAfterEnd)
 
     /** Accepts a prefix before a number literal, e.g. the `0x` preceding hex numbers in many languages. */
     def withPrefix(parser: PrefixedParser[String]): NumericParser =
-      new NumericParser(digits, Some(parser), underscores, exponent, suffix, withFollowingLetter)
+      new NumericParser(digits, Some(parser), underscores, exponent, suffix, letterAfterEnd)
 
     /** Accepts a suffix after a number literal, usually to denote a concrete number type as in `123L`. */
     def withSuffix(parser: Parser[String]): NumericParser =
-      new NumericParser(digits, prefix, underscores, exponent, Some(parser), withFollowingLetter)
+      new NumericParser(digits, prefix, underscores, exponent, Some(parser), letterAfterEnd)
 
     /** Parses the exponent part of the number literal, e.g. e+1.5. */
     def withExponent(parser: Parser[String]): NumericParser =
-      new NumericParser(digits, prefix, underscores, Some(parser), suffix, withFollowingLetter)
+      new NumericParser(digits, prefix, underscores, Some(parser), suffix, letterAfterEnd)
 
     /** Allows a letter to follow immediately after the number literal,
-      * but without being parsed as part of the literal itself.
+      * but without being parsed as part of the literal itself like a number suffix would.
       * This allows to support use cases like CSS length values: `1.2em`.
       */
-    def allowFollowingLetter: NumericParser =
-      new NumericParser(digits, prefix, underscores, exponent, suffix, withFollowingLetter = true)
+    def allowLetterAfterEnd: NumericParser =
+      new NumericParser(digits, prefix, underscores, exponent, suffix, letterAfterEnd = true)
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
@@ -123,7 +123,7 @@ object NumberLiteral {
 
         val optSuffix     = suffix.fold(emptyString)(opt(_).source)
         val postCondition =
-          if (withFollowingLetter) success(()) else nextNot(java.lang.Character.isLetter(_))
+          if (letterAfterEnd) success(()) else nextNot(java.lang.Character.isLetter(_))
 
         (number ~ optSuffix <~ postCondition).source.map { rest =>
           Seq(CodeSpan(prefixOrFirstDigit + rest, CodeCategory.NumberLiteral))

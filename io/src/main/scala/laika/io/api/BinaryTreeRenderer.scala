@@ -19,7 +19,7 @@ package laika.io.api
 import cats.effect.{ Async, Resource }
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, RendererBuilder }
-import laika.api.format.{ BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
+import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.DocumentTreeRoot
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
@@ -76,7 +76,7 @@ object BinaryTreeRenderer {
       private[io] val description: String
   )
 
-  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
+  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]
 
   private[laika] def buildRenderer[F[_]: Async](
       format: BinaryRenderFormat,

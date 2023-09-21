@@ -19,12 +19,7 @@ package laika.ast
 import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
 import laika.api.config.{ Config, ConfigParser, Key, Origin }
-import laika.api.config.ConfigError.{
-  DocumentConfigErrors,
-  InvalidType,
-  TreeConfigErrors,
-  ValidationError
-}
+import laika.api.config.ConfigError.{ DocumentErrors, InvalidType, TreeErrors, ValidationFailed }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.sample.{
@@ -37,6 +32,7 @@ import laika.ast.sample.{
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
 import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.config.MessageFilter
 import laika.format.HTML
 import laika.internal.rewrite.TemplateRewriter
 import laika.parse.GeneratedSource
@@ -289,7 +285,7 @@ class DocumentTreeAPISpec extends FunSuite
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(
       result,
-      Left(ValidationError("Template with path '/missing.template.html' not found"))
+      Left(ValidationFailed("Template with path '/missing.template.html' not found"))
     )
   }
 
@@ -430,9 +426,9 @@ class DocumentTreeAPISpec extends FunSuite
   test("fail if cursor creation fails due to invalid configuration entries") {
     val tree          =
       treeWithSubtree(Root, "sub", "doc", rootElement(p("a")), Some("laika.versioned: [1,2,3]"))
-    val expectedError = TreeConfigErrors(
+    val expectedError = TreeErrors(
       NonEmptyChain(
-        DocumentConfigErrors(
+        DocumentErrors(
           Root / "sub" / "doc",
           NonEmptyChain(
             InvalidType("Boolean", ArrayValue(List(LongValue(1), LongValue(2), LongValue(3))))

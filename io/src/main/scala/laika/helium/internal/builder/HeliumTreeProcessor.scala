@@ -21,7 +21,7 @@ import cats.effect.Sync
 import cats.syntax.all.*
 import laika.ast.Path.Root
 import laika.config.LaikaKeys
-import laika.api.format.Format
+import laika.ast.OutputContext
 import laika.helium.Helium
 import laika.helium.internal.generate.{
   DownloadPageGenerator,
@@ -63,7 +63,7 @@ private[helium] class HeliumTreeProcessor[F[_]: Sync](helium: Helium) {
   val forHTML: TreeProcessor[F] = addDownloadPage
     .andThen(addLandingPage)
 
-  def forAllFormats(format: Format): TreeProcessor[F] =
-    TocPageGenerator.generate(helium, format).andThen(removePreviewJS)
+  def forAllFormats(context: OutputContext): TreeProcessor[F] =
+    TocPageGenerator.generate(helium, context).andThen(removePreviewJS)
 
 }

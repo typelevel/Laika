@@ -21,6 +21,7 @@ import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.config.MessageFilter
 import laika.format.{ HTML, Markdown }
 import munit.FunSuite
 

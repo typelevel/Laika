@@ -126,26 +126,3 @@ object MessageLevel {
     */
   case object Fatal extends MessageLevel(4)
 }
-
-/** A filter for runtime messages that meet a specified minimum message level.
-  */
-sealed trait MessageFilter {
-  def apply(message: RuntimeMessage): Boolean
-}
-
-object MessageFilter {
-
-  case object None extends MessageFilter {
-    def apply(message: RuntimeMessage) = false
-  }
-
-  private def forLevel(level: MessageLevel) = new MessageFilter {
-    def apply(message: RuntimeMessage) = message.level >= level
-  }
-
-  val Debug: MessageFilter   = forLevel(MessageLevel.Debug)
-  val Info: MessageFilter    = forLevel(MessageLevel.Info)
-  val Warning: MessageFilter = forLevel(MessageLevel.Warning)
-  val Error: MessageFilter   = forLevel(MessageLevel.Error)
-  val Fatal: MessageFilter   = forLevel(MessageLevel.Fatal)
-}

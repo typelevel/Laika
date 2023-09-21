@@ -16,7 +16,7 @@
 
 package laika.format
 
-import laika.api.format.{ RenderContext, RenderFormat, TagFormatter }
+import laika.api.format.{ Formatter, RenderFormat, TagFormatter }
 import laika.ast.Element
 import laika.internal.render.{ FOFormatter, FORenderer }
 
@@ -42,7 +42,7 @@ object XSLFO extends RenderFormat[TagFormatter] {
 
   val defaultRenderer: (TagFormatter, Element) => String = FORenderer
 
-  val formatterFactory: RenderContext[TagFormatter] => TagFormatter = FOFormatter
+  val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter = FOFormatter
 
   /** Expands the `TagFormatter` API with convenient shortcuts
     * specifically tailored for rendering XSL-FO elements.

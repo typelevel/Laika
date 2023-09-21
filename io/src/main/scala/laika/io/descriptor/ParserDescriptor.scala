@@ -16,8 +16,8 @@
 
 package laika.io.descriptor
 
+import cats.Functor
 import cats.data.NonEmptyList
-import cats.effect.Sync
 import cats.syntax.all.*
 import laika.io.api.TreeParser
 
@@ -54,7 +54,7 @@ class ParserDescriptor(
 
 private[io] object ParserDescriptor {
 
-  def create[F[_]: Sync](op: TreeParser.Op[F]): F[ParserDescriptor] =
+  def create[F[_]: Functor](op: TreeParser.Op[F]): F[ParserDescriptor] =
     op.input.describe(op.config.docTypeMatcher)
       .map { inputDesc =>
         new ParserDescriptor(

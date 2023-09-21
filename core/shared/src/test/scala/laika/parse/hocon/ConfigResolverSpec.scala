@@ -18,9 +18,10 @@ package laika.parse.hocon
 
 import laika.api.config.Config.IncludeMap
 import munit.FunSuite
-import laika.api.config.ConfigError.{ ConfigResolverError, ValidationError }
+import laika.api.config.ConfigError.{ ResolverFailed, ValidationFailed }
 import laika.api.config.ConfigValue.*
 import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Field, Key, Origin }
+import laika.internal.parse.hocon.*
 
 /** @author Jens Halm
   */
@@ -55,9 +56,9 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
       adjustMsg: String => String = identity
   )(implicit loc: munit.Location): Unit = {
     val res = parseAndResolve(input, includes = includes).left.map(e =>
-      ConfigResolverError(adjustMsg(e.message))
+      ResolverFailed(adjustMsg(e.message))
     )
-    assertEquals(res, Left(ConfigResolverError(adjustMsg(expectedMessage))))
+    assertEquals(res, Left(ResolverFailed(adjustMsg(expectedMessage))))
   }
 
   test("resolve a simple object") {
@@ -818,7 +819,7 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
 
   test("fail when an include failed to load") {
     val includes: IncludeMap = Map(
-      IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationError("This include is faulty"))
+      IncludeFile(ValidStringValue("foo.conf")) -> Left(ValidationFailed("This include is faulty"))
     )
     val input                = {
       """

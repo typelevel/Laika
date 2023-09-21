@@ -42,12 +42,16 @@ import laika.ast.{
   Span,
   SpanResolver
 }
-import laika.internal.parse.directive.TemplateParsers
+import laika.internal.parse.directive.{
+  BlockDirectiveParsers,
+  DirectiveParsers,
+  SpanDirectiveParsers,
+  TemplateParsers
+}
 import laika.parse.{ Parser, SourceFragment }
 import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers
 import laika.parse.syntax.*
-import laika.parse.directive.{ BlockDirectiveParsers, DirectiveParsers, SpanDirectiveParsers }
 import laika.parse.text.TextParsers
 
 /** Internal API that processes all directives defined

@@ -19,7 +19,7 @@ package laika.io
 import cats.data.{ Kleisli, NonEmptyList }
 import cats.effect.{ Async, Sync }
 import laika.api.builder.*
-import laika.api.format.BinaryPostProcessorBuilder
+import laika.api.format.BinaryPostProcessor
 import laika.helium.Helium
 import laika.io.api.*
 import laika.io.internal.runtime.Batch
@@ -101,7 +101,7 @@ object syntax {
   }
 
   implicit class ImplicitBinaryRendererOps(
-      builder: TwoPhaseRendererBuilder[_, BinaryPostProcessorBuilder]
+      builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeRenderer.Builder[F] = {
@@ -115,7 +115,7 @@ object syntax {
   }
 
   implicit class ImplicitBinaryTransformerOps(
-      builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessorBuilder]
+      builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeTransformer.Builder[F] = {

@@ -83,13 +83,13 @@ class FopFactoryConfigSpec extends FunSuite {
   test("custom fonts via 'pdf' selector - removing default theme fonts") {
     val helium = Helium.defaults.pdf.clearFontResources.pdf.addFontResources(
       FontDefinition(
-        Font.embedFile("/projects/fonts/font-1.tff"),
+        Font.withEmbeddedFile("/projects/fonts/font-1.tff"),
         "Font-1",
         FontWeight.Normal,
         FontStyle.Normal
       ),
       FontDefinition(
-        Font.embedFile("/projects/fonts/font-2.tff"),
+        Font.withEmbeddedFile("/projects/fonts/font-2.tff"),
         "Font-2",
         FontWeight.Bold,
         FontStyle.Italic
@@ -101,13 +101,13 @@ class FopFactoryConfigSpec extends FunSuite {
   test("custom fonts via 'all' selector - removing default theme fonts") {
     val helium = Helium.defaults.all.clearFontResources.all.addFontResources(
       FontDefinition(
-        Font.embedFile("/projects/fonts/font-1.tff"),
+        Font.withEmbeddedFile("/projects/fonts/font-1.tff"),
         "Font-1",
         FontWeight.Normal,
         FontStyle.Normal
       ),
       FontDefinition(
-        Font.embedFile("/projects/fonts/font-2.tff"),
+        Font.withEmbeddedFile("/projects/fonts/font-2.tff"),
         "Font-2",
         FontWeight.Bold,
         FontStyle.Italic

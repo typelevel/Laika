@@ -30,7 +30,7 @@ import laika.io.api.TreeParser
 import laika.io.internal.config.IncludeHandler
 import laika.io.internal.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
-import laika.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
+import laika.internal.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
 import laika.internal.parse.markup.DocumentParser.DocumentInput
 import laika.io.internal.errors.{
   DocumentParserError,
@@ -132,7 +132,7 @@ private[io] object ParserRuntime {
           result <- phase1.rewrite(op.config.rewriteRulesFor(phase1, RewritePhase.Resolve))
         } yield result
         InvalidDocuments
-          .from(finalTree, op.config.failOnMessages)
+          .from(finalTree, op.config.messageFilters.failOn)
           .map(tree => parsedTree.modifyRoot(_ => tree))
       }
 
