@@ -106,7 +106,12 @@ lazy val api = project
   .enablePlugins(TypelevelUnidocPlugin)
   .settings(
     name                                       := "laika-docs",
-    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(core.js, plugin),
+    ScalaUnidoc / unidoc / unidocProjectFilter := {
+      if (scalaBinaryVersion.value == "2.12")
+        inProjects(core.jvm, io, pdf, preview)
+      else
+        inProjects()
+    },
     Compile / packageDoc / mappings            :=
       ScaladocCleanup.removeUnwantedEntries(
         (ScalaUnidoc / packageDoc / mappings).value,
