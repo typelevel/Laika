@@ -20,11 +20,16 @@ inThisBuild(
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
-      matrix + ("project" -> (matrix("project") :+ "plugin"))
+      matrix +
+        ("project" -> (matrix("project") :+ "plugin" :+ "api"))
     },
     githubWorkflowBuildMatrixExclusions ++= {
       MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
-        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
+        MatrixExclude(Map("project" -> "api", "java" -> JavaSpec.temurin("17").render)) ::
+        List("2.13", "3").map(scala =>
+          MatrixExclude(Map("project" -> "plugin", "scala" -> scala))
+        ) ++:
+        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "api", "scala" -> scala)))
     },
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
@@ -68,15 +73,10 @@ val http4s = Seq(
 lazy val root = tlCrossRootProject
   .aggregate(core, pdf, io, preview)
   .configureRoot { root =>
-    root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
-      .enablePlugins(ScalaUnidocPlugin)
+    root.aggregate(plugin, api) // don't include the plugin in rootJVM, only in root
       .settings(
-        crossScalaVersions                         := Nil,
-        scalaVersion                               := versions.scala2_12,
-        ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-          plugin,
-          core.js
-        )
+        crossScalaVersions := Nil,
+        scalaVersion       := versions.scala2_12
       )
   }
 
@@ -99,6 +99,19 @@ lazy val docs = project.in(file("docs"))
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene"),
     scalacOptions ~= disableUnusedWarningsForMdoc
+  )
+
+lazy val api = project
+  .in(file("unidoc"))
+  .enablePlugins(TypelevelUnidocPlugin)
+  .settings(
+    name                                       := "laika-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(core.js, plugin),
+    Compile / packageDoc / mappings            :=
+      ScaladocCleanup.removeUnwantedEntries(
+        (ScalaUnidoc / packageDoc / mappings).value,
+        (ThisBuild / baseDirectory).value
+      )
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
