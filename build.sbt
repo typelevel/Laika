@@ -20,16 +20,11 @@ inThisBuild(
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
-      matrix +
-        ("project" -> (matrix("project") :+ "plugin" :+ "api"))
+      matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
     githubWorkflowBuildMatrixExclusions ++= {
       MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
-        MatrixExclude(Map("project" -> "api", "java" -> JavaSpec.temurin("17").render)) ::
-        List("2.13", "3").map(scala =>
-          MatrixExclude(Map("project" -> "plugin", "scala" -> scala))
-        ) ++:
-        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "api", "scala" -> scala)))
+        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
     },
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
@@ -71,9 +66,9 @@ val http4s = Seq(
 )
 
 lazy val root = tlCrossRootProject
-  .aggregate(core, pdf, io, preview)
+  .aggregate(core, pdf, io, preview, api)
   .configureRoot { root =>
-    root.aggregate(plugin, api) // don't include the plugin in rootJVM, only in root
+    root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
       .settings(
         crossScalaVersions := Nil,
         scalaVersion       := versions.scala2_12
@@ -108,9 +103,9 @@ lazy val api = project
     name                                       := "laika-docs",
     ScalaUnidoc / unidoc / unidocProjectFilter := {
       if (scalaBinaryVersion.value == "2.12")
-        inProjects(core.jvm, io, pdf, preview)
+        inProjects(core.jvm, io, pdf, preview, plugin)
       else
-        inProjects()
+        inProjects(core.jvm, io, pdf, preview)
     },
     Compile / packageDoc / mappings            :=
       ScaladocCleanup.removeUnwantedEntries(
