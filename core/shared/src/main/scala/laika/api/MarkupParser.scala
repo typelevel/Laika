@@ -18,7 +18,7 @@ package laika.api
 
 import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
-import laika.api.config.{ Config, ConfigBuilder, ConfigValue, Origin }
+import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigValue, Origin }
 import laika.api.errors.{ InvalidConfig, InvalidDocument, InvalidElements, ParserError }
 import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
@@ -97,12 +97,17 @@ class MarkupParser private[laika] (val format: MarkupFormat, val config: Operati
       result <- doc.rewrite(rules).leftMap(InvalidConfig(_))
     } yield result
 
+    def createError(doc: InvalidDocument): ParserError = doc.errors match {
+      case Left(configErrors)  => InvalidConfig(ConfigError.MultipleErrors(configErrors))
+      case Right(invalidNodes) => InvalidElements(invalidNodes)
+    }
+
     def rewriteDocument(resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
         .from(phase2, config.messageFilters.failOn)
-        .map(doc => InvalidElements(doc.errors))
+        .map(createError)
         .toLeft(phase2)
     } yield result
 

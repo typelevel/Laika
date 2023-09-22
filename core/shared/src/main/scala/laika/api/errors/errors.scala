@@ -24,14 +24,11 @@ case class InvalidInput(error: Failure) extends ParserError {
   val message: String = s"Error parsing input: ${error.message}"
 }
 
-case class InvalidElements(errors: Either[NonEmptyChain[ConfigError], NonEmptyChain[Invalid]])
+case class InvalidElements(elements: NonEmptyChain[Invalid])
     extends ParserError {
 
   val message: String = {
-    val formatted = errors.fold(
-      configErrors => configErrors.map(_.message).mkString_("\n"),
-      invalidElems => invalidElems.map(InvalidDocument.formatElement("", _)).toList.mkString
-    )
+    val formatted = elements.map(InvalidDocument.formatElement("", _)).toList.mkString
     s"One or more error nodes in result:\n$formatted".trim
   }
 
