@@ -57,7 +57,7 @@ private[laika] class HTMLRenderer(format: String)
 
     def navigationToBulletList(navList: NavigationList): BulletList = {
 
-      val bullet = StringBullet("*")
+      val bullet = BulletFormat.StringBullet("*")
 
       def transformItems(items: Seq[NavigationItem]): Seq[BulletListItem] = {
         items.flatMap { item =>

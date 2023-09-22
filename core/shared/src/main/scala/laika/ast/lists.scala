@@ -37,7 +37,7 @@ case class BulletList(content: Seq[BulletListItem], format: BulletFormat, option
 /** Base trait for companions that create BulletList instances. */
 trait BulletListCompanion extends BlockContainerCompanion {
   type ContainerType = BulletList
-  def bullet: BulletFormat = StringBullet("*")
+  def bullet: BulletFormat = BulletFormat.StringBullet("*")
 
   override protected def createSpanContainer(spans: Seq[Span]): ContainerType =
     createBlockContainer(spans.map(Paragraph(_)))
@@ -131,9 +131,13 @@ object EnumList extends EnumListCompanion {
   */
 trait BulletFormat
 
-/** Bullet format based on a simple string.
-  */
-case class StringBullet(bullet: String) extends BulletFormat
+object BulletFormat {
+
+  /** Bullet format based on a simple string.
+    */
+  case class StringBullet(bullet: String) extends BulletFormat
+
+}
 
 /** The format of enumerated list items.
   */

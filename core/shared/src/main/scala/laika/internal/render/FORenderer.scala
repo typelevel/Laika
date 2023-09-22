@@ -100,8 +100,8 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
       }
 
       def bulletLabel(format: BulletFormat): Span = format match {
-        case StringBullet(_) => RawContent(NonEmptySet.one("fo"), "&#x2022;")
-        case other           => Text(other.toString)
+        case BulletFormat.StringBullet(_) => RawContent(NonEmptySet.one("fo"), "&#x2022;")
+        case other                        => Text(other.toString)
       }
 
       def listItemBody(body: ListItemBody): String = {

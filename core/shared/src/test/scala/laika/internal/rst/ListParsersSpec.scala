@@ -61,7 +61,7 @@ class BulletListSpec extends FunSuite with ListParserRunner {
       """+ aaa
         |+ bbb
         |+ ccc""".stripMargin
-    run(input, BulletList(StringBullet("+"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("+"))("aaa", "bbb", "ccc"))
   }
 
   test("list items starting with '-' treated the same way as those starting with a '*'") {
@@ -69,7 +69,7 @@ class BulletListSpec extends FunSuite with ListParserRunner {
       """- aaa
         |- bbb
         |- ccc""".stripMargin
-    run(input, BulletList(StringBullet("-"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("-"))("aaa", "bbb", "ccc"))
   }
 
   test("list items containing multiple paragraphs in a single item") {

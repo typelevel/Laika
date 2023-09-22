@@ -98,7 +98,7 @@ private[laika] object ListParsers {
     BlockParserBuilder.recursive { implicit recParsers =>
       PrefixedParser('+', '*', '-') {
         lookAhead(oneChar) >> { char =>
-          val bullet = StringBullet(char)
+          val bullet = BulletFormat.StringBullet(char)
           list(
             bulletChar,
             wsAfterItemStart,

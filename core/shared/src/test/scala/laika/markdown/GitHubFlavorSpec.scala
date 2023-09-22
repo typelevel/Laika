@@ -239,7 +239,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
         |    code
         |    ~~~
       """.stripMargin
-    val result = BulletList(StringBullet("-"))(
+    val result = BulletList(BulletFormat.StringBullet("-"))(
       Seq(
         Paragraph("list item:"),
         CodeBlock("foo", Seq(Text("code\n  indent\ncode")))
