@@ -1,7 +1,6 @@
 import laika.ast.LengthUnit.px
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.LaikaKeys
 import laika.helium.Helium
 import laika.helium.config.{
   Favicon,
@@ -12,9 +11,7 @@ import laika.helium.config.{
   TextLink,
   VersionMenu
 }
-import laika.rewrite.link.{ ApiLinks, LinkConfig, LinkValidation }
-import laika.rewrite.{ Version, Versions }
-import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
+import laika.config.*
 import laika.sbt.LaikaConfig
 import laika.theme.ThemeProvider
 
@@ -28,7 +25,9 @@ object ManualSettings {
         case "Stable" => ("latest", true)
         case "Dev"    => ("dev", false)
       }
-      Version(version, pathSegment, "/table-of-content.html", Some(label), canonical)
+      val v                        =
+        Version(version, pathSegment).withFallbackLink("/table-of-content.html").withLabel(label)
+      if (canonical) v.setCanonical else v
     }
 
     val v1      = version("1.x", "Dev")
@@ -39,11 +38,10 @@ object ManualSettings {
     val current = v1
     val all     = Seq(v1, v019, v018, v017, v016)
 
-    val config = Versions(
-      currentVersion = current,
-      olderVersions = all.dropWhile(_ != current).drop(1),
-      newerVersions = all.takeWhile(_ != current)
-    )
+    val config = Versions
+      .forCurrentVersion(current)
+      .withOlderVersions(all.dropWhile(_ != current).drop(1) *)
+      .withNewerVersions(all.takeWhile(_ != current) *)
 
   }
 
@@ -149,6 +147,8 @@ object ManualSettings {
       language = Some("en")
     )
     .all.tableOfContent("Table of Content", depth = 4)
+    .site.internalCSS(Root / "css" / "manual.css")
+    .epub.internalCSS(Root / "css" / "manual.epub.css")
     .site.topNavigationBar(
       navLinks = Seq(
         IconLink.external(paths.srcURL, HeliumIcon.github),

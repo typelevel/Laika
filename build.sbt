@@ -1,5 +1,5 @@
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.format.Markdown.GitHubFlavor
+import laika.config.SyntaxHighlighting
 import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
 import Dependencies._
