@@ -21,6 +21,7 @@ import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.api.config.Config.ConfigResult
 import laika.api.config.ConfigError.MultipleErrors
+import laika.ast.RewriteAction.*
 import laika.config.Selections
 import laika.internal.link.LinkResolver
 import laika.internal.nav.SectionBuilder
@@ -312,17 +313,21 @@ object RewriteRules {
   */
 sealed trait RewriteAction[+T]
 
-/** Indicates that the element a rewrite rule had been applied to should be replaced with this new value.
-  */
-case class Replace[T](newValue: T) extends RewriteAction[T]
+object RewriteAction {
 
-/** Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.
-  */
-case object Retain extends RewriteAction[Nothing]
+  /** Indicates that the element a rewrite rule had been applied to should be replaced with this new value.
+    */
+  case class Replace[T](newValue: T) extends RewriteAction[T]
 
-/** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
-  */
-case object Remove extends RewriteAction[Nothing]
+  /** Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.
+    */
+  case object Retain extends RewriteAction[Nothing]
+
+  /** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
+    */
+  case object Remove extends RewriteAction[Nothing]
+
+}
 
 /** Represents one of the rewrite phases for document AST transformations.
   *

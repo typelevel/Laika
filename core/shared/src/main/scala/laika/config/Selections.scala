@@ -248,7 +248,7 @@ object Selections {
         else
           RewriteRules.forBlocks {
             case sel: Selection if selections.contains(sel.name) =>
-              Replace(select(sel, selections(sel.name)))
+              RewriteAction.Replace(select(sel, selections(sel.name)))
           }
       }
     }

@@ -17,6 +17,7 @@
 package laika.internal.rewrite
 
 import laika.ast._
+import laika.ast.RewriteAction.Replace
 
 private[laika] object RecursiveResolverRules {
 

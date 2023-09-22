@@ -58,8 +58,9 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
           .document
           .content
           .rewriteBlocks({ case _: Hidden with Block =>
-            Remove
-          }) // removing the noise of rst TextRoles which are not the focus of this spec
+            RewriteAction.Remove
+          })
+          // removing the noise of rst TextRoles which are not the focus of this spec
       )
 
     assertEquals(res, Right(RootElement(expected)))

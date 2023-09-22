@@ -20,11 +20,11 @@ import laika.ast.{
   DocumentCursor,
   InvalidBlock,
   InvalidSpan,
-  Replace,
   RewriteRules,
   TemplateElement,
   Unresolved
 }
+import laika.ast.RewriteAction.Replace
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.ConfigResult
 

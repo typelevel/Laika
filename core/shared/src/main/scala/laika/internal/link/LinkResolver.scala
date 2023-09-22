@@ -67,9 +67,9 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
     def replaceBlock(block: Block, selector: Selector): RewriteAction[Block] =
       replace(block, selector) match {
-        case Some(b: Block) => Replace(b)
+        case Some(b: Block) => RewriteAction.Replace(b)
         case _              =>
-          Replace(
+          RewriteAction.Replace(
             InvalidBlock(describeUnknownTarget(block), GeneratedSource).copy(fallback =
               block.withoutId
             )
@@ -78,9 +78,9 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
     def replaceSpan(span: Span, selector: Selector): RewriteAction[Span] =
       replace(span, selector) match {
-        case Some(b: Span) => Replace(b)
+        case Some(b: Span) => RewriteAction.Replace(b)
         case _             =>
-          Replace(
+          RewriteAction.Replace(
             InvalidSpan(describeUnknownTarget(span), GeneratedSource).copy(fallback =
               span.withoutId
             )
@@ -106,7 +106,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
               InvalidSpan(msg, ref.source)
           }
       }
-      Replace(resolvedTarget)
+      RewriteAction.Replace(resolvedTarget)
     }
 
     def resolveLocal(ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
@@ -156,9 +156,9 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
       case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
 
       case d: BlockDirectives.DirectiveInstance if d.directive.exists(_.name == "fragment") =>
-        Replace(d.resolve(cursor))
+        RewriteAction.Replace(d.resolve(cursor))
 
-      case _: Hidden => Remove
+      case _: Hidden => RewriteAction.Remove
 
       case elem if elem.hasId =>
         replaceBlock(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
@@ -205,7 +205,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
       case elem if elem.hasId =>
         replaceSpan(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
 
-      case _: Hidden => Remove
+      case _: Hidden => RewriteAction.Remove
 
     })
 

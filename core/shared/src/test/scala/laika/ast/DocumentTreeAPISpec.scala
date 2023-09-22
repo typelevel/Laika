@@ -22,6 +22,7 @@ import laika.api.config.{ Config, ConfigParser, Key, Origin }
 import laika.api.config.ConfigError.{ DocumentErrors, InvalidType, TreeErrors, ValidationFailed }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
+import laika.ast.RewriteAction.Replace
 import laika.ast.sample.{
   BuilderKey,
   MunitDocumentTreeAssertions,

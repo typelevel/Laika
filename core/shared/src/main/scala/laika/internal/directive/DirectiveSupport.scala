@@ -16,38 +16,11 @@
 
 package laika.internal.directive
 
-import laika.api.bundle.{
-  BlockDirectives,
-  BundleOrigin,
-  ConfigHeaderParser,
-  ConfigProvider,
-  ExtensionBundle,
-  LinkDirectives,
-  ParserBundle,
-  SpanDirectives,
-  TemplateDirectives
-}
+import laika.api.bundle.*
 import laika.api.config.ConfigParser
 import laika.ast.RewriteRules.RewritePhaseBuilder
-import laika.ast.{
-  DocumentCursor,
-  InvalidSpan,
-  LinkIdReference,
-  LinkPathReference,
-  NoOpt,
-  Options,
-  Replace,
-  RewritePhase,
-  RewriteRules,
-  Span,
-  SpanResolver
-}
-import laika.internal.parse.directive.{
-  BlockDirectiveParsers,
-  DirectiveParsers,
-  SpanDirectiveParsers,
-  TemplateParsers
-}
+import laika.ast.*
+import laika.internal.parse.directive.*
 import laika.parse.{ Parser, SourceFragment }
 import laika.parse.builders.{ delimitedBy, text, ws }
 import laika.parse.combinator.Parsers
@@ -162,8 +135,11 @@ private[laika] class DirectiveSupport(
       Seq(RewriteRules.forSpans {
         case ref: LinkPathReference if ref.path.toString.startsWith("@:") =>
           linkParser.parse(ref.path.toString.drop(2)).toEither.fold(
-            err => Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
-            res => Replace(LinkDirectiveResolver2(ref, res._1, res._2, ref.source, ref.options))
+            err => RewriteAction.Replace(InvalidSpan(s"Invalid link directive: $err", ref.source)),
+            res =>
+              RewriteAction.Replace(
+                LinkDirectiveResolver2(ref, res._1, res._2, ref.source, ref.options)
+              )
           )
       }.asBuilder)
   }

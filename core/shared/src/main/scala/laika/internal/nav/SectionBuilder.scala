@@ -114,7 +114,7 @@ private[laika] object SectionBuilder extends RewriteRulesBuilder {
     }
 
     val rewrite: RewriteRules = RewriteRules.forBlocks { case root: RootElement =>
-      Replace(buildSections(root))
+      RewriteAction.Replace(buildSections(root))
     }
 
   }

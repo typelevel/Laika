@@ -158,7 +158,7 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
      */
     def stripMinutesAndSeconds(root: RootElement): RootElement =
       root.rewriteSpans { case Text(str, opt) =>
-        Replace(Text(str.replaceFirst("[:]\\d\\d:\\d\\d", ":00:00"), opt))
+        RewriteAction.Replace(Text(str.replaceFirst("[:]\\d\\d:\\d\\d", ":00:00"), opt))
       }
 
     val format = "yyyy-MM-dd HH:mm:ss"

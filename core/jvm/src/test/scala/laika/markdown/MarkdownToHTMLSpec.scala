@@ -61,7 +61,7 @@ class MarkdownToHTMLSpec extends FunSuite {
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .usingSpanRule { case LinkPathReference(content, relPath, _, title, opt) =>
-        Replace(
+        RewriteAction.Replace(
           SpanLink(content, renderPath(relPath), title, opt)
         ) // We do not validate cross-links in these tests
       }

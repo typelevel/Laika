@@ -17,6 +17,7 @@
 package laika.api
 
 import laika.ast._
+import laika.ast.RewriteAction.Replace
 import laika.config.LaikaKeys
 import laika.format._
 import munit.FunSuite
@@ -72,7 +73,7 @@ class TransformAPISpec extends FunSuite {
     val modifiedOutput  = output.replace("foo", "bar")
     val transformCustom = builder
       .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
-      .usingSpanRule { case Text(_, _) => Retain }
+      .usingSpanRule { case Text(_, _) => RewriteAction.Retain }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 

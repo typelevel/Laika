@@ -18,6 +18,7 @@ package laika.rewrite
 
 import laika.ast._
 import laika.ast.CellType.BodyCell
+import laika.ast.RewriteAction.Replace
 import laika.ast.sample.ParagraphCompanionShortcuts
 import munit.FunSuite
 
@@ -47,21 +48,27 @@ class RewriteSpec extends FunSuite with ParagraphCompanionShortcuts {
   test("remove the first element of the children in a container") {
     val input    = RootElement(p("a"), p("b"), p("c"))
     val expected = RootElement(p("b"), p("c"))
-    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("a", _)), _) => Remove }
+    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("a", _)), _) =>
+      RewriteAction.Remove
+    }
     assertEquals(actual, expected)
   }
 
   test("remove an element in the middle of the list of children in a container") {
     val input    = RootElement(p("a"), p("b"), p("c"))
     val expected = RootElement(p("a"), p("c"))
-    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("b", _)), _) => Remove }
+    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("b", _)), _) =>
+      RewriteAction.Remove
+    }
     assertEquals(actual, expected)
   }
 
   test("remove the last element of the children in a container") {
     val input    = RootElement(p("a"), p("b"), p("c"))
     val expected = RootElement(p("a"), p("b"))
-    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("c", _)), _) => Remove }
+    val actual   = input.rewriteBlocks { case Paragraph(Seq(Text("c", _)), _) =>
+      RewriteAction.Remove
+    }
     assertEquals(actual, expected)
   }
 
@@ -99,7 +106,7 @@ class RewriteSpec extends FunSuite with ParagraphCompanionShortcuts {
   test("rewrite main content and attribution in a QuotedBlock") {
     val before   = RootElement(QuotedBlock(Seq(p("a"), p("b")), Seq(Text("a"), Text("c"))))
     val expected = RootElement(QuotedBlock(Seq(Paragraph.empty, p("b")), Seq(Text("c"))))
-    val after    = before.rewriteSpans { case Text("a", _) => Remove }
+    val after    = before.rewriteSpans { case Text("a", _) => RewriteAction.Remove }
     assertEquals(after, expected)
   }
 

@@ -136,7 +136,7 @@ class DocumentAPISpec extends FunSuite
       _.withValue(LaikaKeys.orphan, false)
     )
     val testRule  = RewriteRules.forSpans { case Text("Some text", _) =>
-      Replace(Text("Swapped"))
+      RewriteAction.Replace(Text("Swapped"))
     }
     val rewritten = OperationConfig.default
       .rewriteRulesFor(raw, RewritePhase.Resolve)

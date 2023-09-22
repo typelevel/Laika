@@ -280,7 +280,9 @@ object NavigationList {
     def apply(cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
       RewriteRules.forBlocks {
         case nl: NavigationList if !nl.hasStyle("breadcrumb") =>
-          Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
+          RewriteAction.Replace(
+            cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector))
+          )
       }
     }
 

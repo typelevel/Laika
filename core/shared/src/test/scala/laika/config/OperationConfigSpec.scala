@@ -21,6 +21,7 @@ import laika.api.format.MarkupFormat
 import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
+import laika.ast.RewriteAction.Replace
 import laika.bundle.BundleProvider.TestExtensionBundle
 import laika.api.bundle.ExtensionBundle.LaikaDefaults
 import laika.bundle.BundleProvider
