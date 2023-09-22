@@ -71,9 +71,9 @@ private[link] object ReferenceResolver {
   }
 
   def resolveTarget(target: Target, refPath: Path): Target = target match {
-    case it: RelativeInternalTarget => resolveTarget(it.path, refPath)
-    case it: InternalTarget         => it.relativeTo(refPath)
-    case external                   => external
+    case it: InternalTarget.Relative => resolveTarget(it.path, refPath)
+    case it: InternalTarget          => it.relativeTo(refPath)
+    case external                    => external
   }
 
 }

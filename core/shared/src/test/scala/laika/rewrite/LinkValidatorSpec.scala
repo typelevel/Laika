@@ -120,7 +120,7 @@ class LinkValidatorSpec extends FunSuite {
     val relPath  = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
     val expected = RecoveredTarget(
       msg(relPath.toString),
-      ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
+      InternalTarget.Resolved(absPath, relPath, TargetFormats.Selected("html"))
     )
     val config   = LinkValidation.Global()
     assertEquals(testCursor(config).validate(testTarget("../tree-1/doc-4.md")), expected)
@@ -131,7 +131,7 @@ class LinkValidatorSpec extends FunSuite {
     val relPath  = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
     val expected = RecoveredTarget(
       msg(relPath.toString),
-      ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
+      InternalTarget.Resolved(absPath, relPath, TargetFormats.Selected("html"))
     )
     val config   = LinkValidation.Global()
     assertEquals(testCursor(config).validate(testTarget("../static-2/doc-8.txt")), expected)
@@ -156,7 +156,7 @@ class LinkValidatorSpec extends FunSuite {
     val absPath         = Path.parse("/tree-1/doc-4.md")
     val relPath         = absPath.relativeTo(Root / "tree-2" / "doc-6.md")
     val link            = SpanLink.internal(relPath)("text")
-    val recoveredTarget = ResolvedInternalTarget(absPath, relPath, TargetFormats.Selected("html"))
+    val recoveredTarget = InternalTarget.Resolved(absPath, relPath, TargetFormats.Selected("html"))
     assertEquals(testCursor(config).validate(link), Right(link.copy(target = recoveredTarget)))
   }
 

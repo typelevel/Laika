@@ -833,7 +833,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   test("translate to external URL when an internal link is not defined for PDF as a target") {
-    val target     = ResolvedInternalTarget(
+    val target     = InternalTarget.Resolved(
       Path.parse("/foo#ref"),
       RelativePath.parse("foo#ref"),
       TargetFormats.Selected("html")

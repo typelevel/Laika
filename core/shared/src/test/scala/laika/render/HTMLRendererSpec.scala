@@ -625,7 +625,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test(
     "render a paragraph containing an internal link while ignoring the restricted type parameter"
   ) {
-    val target = ResolvedInternalTarget(
+    val target = InternalTarget.Resolved(
       Path.parse("/doc.html#foo"),
       RelativePath.parse("#foo"),
       TargetFormats.Selected("html")
