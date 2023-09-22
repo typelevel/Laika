@@ -89,21 +89,25 @@ case class Footnote(label: String, content: Seq[Block], options: Options = NoOpt
   */
 sealed trait FootnoteLabel
 
-/** Label with automatic numbering.
-  */
-case object Autonumber extends FootnoteLabel
+object FootnoteLabel {
 
-/** Label with automatic symbol assignment.
-  */
-case object Autosymbol extends FootnoteLabel
+  /** Label with automatic numbering.
+    */
+  case object Autonumber extends FootnoteLabel
 
-/** Explicit numeric label.
-  */
-case class NumericLabel(number: Int) extends FootnoteLabel
+  /** Label with automatic symbol assignment.
+    */
+  case object Autosymbol extends FootnoteLabel
 
-/** Label using automatic numbering and explicit label names together.
-  */
-case class AutonumberLabel(label: String) extends FootnoteLabel
+  /** Explicit numeric label.
+    */
+  case class NumericLabel(number: Int) extends FootnoteLabel
+
+  /** Label using automatic numbering and explicit label names together.
+    */
+  case class AutonumberLabel(label: String) extends FootnoteLabel
+
+}
 
 /** A raw link element without associated content (text or image).
   *

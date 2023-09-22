@@ -145,10 +145,11 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
       case f: FootnoteDefinition =>
         f.label match {
-          case NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
-          case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(slugBuilder(id)))
-          case Autonumber          => replaceBlock(f, AutonumberSelector)
-          case Autosymbol          => replaceBlock(f, AutosymbolSelector)
+          case FootnoteLabel.NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
+          case FootnoteLabel.AutonumberLabel(id) =>
+            replaceBlock(f, TargetIdSelector(slugBuilder(id)))
+          case FootnoteLabel.Autonumber          => replaceBlock(f, AutonumberSelector)
+          case FootnoteLabel.Autosymbol          => replaceBlock(f, AutosymbolSelector)
         }
       case c: Citation           => replaceBlock(c, TargetIdSelector(slugBuilder(c.label)))
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
@@ -173,20 +174,22 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
       case ref: FootnoteReference =>
         ref.label match {
-          case NumericLabel(num)   =>
+          case FootnoteLabel.NumericLabel(num)   =>
             resolveLocal(
               ref,
               TargetIdSelector(num.toString),
               s"unresolved footnote reference: $num"
             )
-          case AutonumberLabel(id) =>
+          case FootnoteLabel.AutonumberLabel(id) =>
             resolveLocal(
               ref,
               TargetIdSelector(slugBuilder(id)),
               s"unresolved footnote reference: $id"
             )
-          case Autonumber => resolveLocal(ref, AutonumberSelector, "too many autonumber references")
-          case Autosymbol => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
+          case FootnoteLabel.Autonumber          =>
+            resolveLocal(ref, AutonumberSelector, "too many autonumber references")
+          case FootnoteLabel.Autosymbol          =>
+            resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
         }
 
       case ref: PathReference =>

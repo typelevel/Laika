@@ -200,23 +200,29 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
 
   test("footnote reference - enclosed between [ and ]_ with autonumber label") {
     val input = "some [#]_ here"
-    runEnclosed(input, FootnoteReference(Autonumber, source(toSource(Autonumber), input)))
+    runEnclosed(
+      input,
+      FootnoteReference(FootnoteLabel.Autonumber, source(toSource(FootnoteLabel.Autonumber), input))
+    )
   }
 
   test("footnote reference - enclosed between [ and ]_ with autosymbol label") {
     val input = "some [*]_ here"
-    runEnclosed(input, FootnoteReference(Autosymbol, source(toSource(Autosymbol), input)))
+    runEnclosed(
+      input,
+      FootnoteReference(FootnoteLabel.Autosymbol, source(toSource(FootnoteLabel.Autosymbol), input))
+    )
   }
 
   test("footnote reference - enclosed between [ and ]_ with an autonumber named label") {
     val input = "some [#foo]_ here"
-    val label = AutonumberLabel("foo")
+    val label = FootnoteLabel.AutonumberLabel("foo")
     runEnclosed(input, FootnoteReference(label, source(toSource(label), input)))
   }
 
   test("footnote reference - enclosed between [ and ]_ with a numeric label") {
     val input = "some [17]_ here"
-    val label = NumericLabel(17)
+    val label = FootnoteLabel.NumericLabel(17)
     runEnclosed(input, FootnoteReference(label, source(toSource(label), input)))
   }
 
