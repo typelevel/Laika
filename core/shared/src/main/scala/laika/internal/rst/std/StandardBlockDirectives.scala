@@ -278,7 +278,7 @@ private[rst] class StandardBlockDirectives {
       case caption ~ tableBlock ~ opt =>
         val table = tableBlock match {
           case t: Table => t
-          case block    => Table(TableHead(Nil), TableBody(Seq(Row(Seq(BodyCell(block))))))
+          case block    => Table(TableHead(Nil), TableBody(Seq(Row(Seq(CellType.BodyCell(block))))))
         }
         table.copy(caption = Caption(caption.toList.flatten), options = opt)
     }

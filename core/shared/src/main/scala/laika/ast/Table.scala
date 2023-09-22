@@ -155,18 +155,26 @@ case class Cell(
   */
 sealed abstract class CellType
 
-/** A cell in the head part of the table.
-  */
-case object HeadCell extends CellType with BlockContainerCompanion {
-  type ContainerType = Cell
-  def apply(blocks: Seq[Block]): Cell                    = Cell(this, blocks)
-  protected def createBlockContainer(blocks: Seq[Block]) = Cell(this, blocks)
-}
+object CellType {
 
-/** A cell in the body part of the table.
-  */
-case object BodyCell extends CellType with BlockContainerCompanion {
-  type ContainerType = Cell
-  def apply(blocks: Seq[Block]): Cell                    = Cell(this, blocks)
-  protected def createBlockContainer(blocks: Seq[Block]) = Cell(this, blocks)
+  /** A cell in the head part of the table.
+    */
+  case object HeadCell extends CellType with BlockContainerCompanion {
+    type ContainerType = Cell
+
+    def apply(blocks: Seq[Block]): Cell = Cell(this, blocks)
+
+    protected def createBlockContainer(blocks: Seq[Block]) = Cell(this, blocks)
+  }
+
+  /** A cell in the body part of the table.
+    */
+  case object BodyCell extends CellType with BlockContainerCompanion {
+    type ContainerType = Cell
+
+    def apply(blocks: Seq[Block]): Cell = Cell(this, blocks)
+
+    protected def createBlockContainer(blocks: Seq[Block]) = Cell(this, blocks)
+  }
+
 }

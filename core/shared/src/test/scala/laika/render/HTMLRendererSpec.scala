@@ -25,6 +25,7 @@ import laika.api.bundle.{
   TranslatorConfig
 }
 import laika.ast.Path.Root
+import laika.ast.CellType.BodyCell
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.StyleDeclarationSet

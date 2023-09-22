@@ -90,8 +90,8 @@ private[laika] class HTMLRenderer(format: String)
     def renderBlockContainer(con: BlockContainer): String = {
 
       def toTable(label: String, content: Seq[Block], options: Options): Table = {
-        val left  = BodyCell(SpanSequence(s"[$label]"))
-        val right = BodyCell(content)
+        val left  = CellType.BodyCell(SpanSequence(s"[$label]"))
+        val right = CellType.BodyCell(content)
         val row   = Row(List(left, right))
         Table(
           TableHead(Nil),
@@ -348,8 +348,8 @@ private[laika] class HTMLRenderer(format: String)
       case Column(opt)   => fmt.textElement("col", Text("").withOptions(opt))
       case c: Cell       =>
         val tagName    = c.cellType match {
-          case HeadCell => "th"
-          case BodyCell => "td"
+          case CellType.HeadCell => "th"
+          case CellType.BodyCell => "td"
         }
         val attributes = fmt.optAttributes(
           "colspan" -> noneIfDefault(c.colspan, 1),

@@ -29,6 +29,7 @@ import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
+import laika.ast.CellType.BodyCell
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector }
 import laika.config.{ LaikaKeys, MessageFilter, MessageFilters, TargetFormats }

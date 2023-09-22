@@ -17,6 +17,7 @@
 package laika.rewrite
 
 import laika.ast._
+import laika.ast.CellType.BodyCell
 import laika.ast.sample.ParagraphCompanionShortcuts
 import munit.FunSuite
 

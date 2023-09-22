@@ -29,10 +29,10 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
   val rootParser = new RootParser(ReStructuredText, new ParserBundle().markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
-  def textRow(cells: String*): Row = Row(cells.map(BodyCell(_)))
+  def textRow(cells: String*): Row = Row(cells.map(CellType.BodyCell(_)))
 
   def cell(content: String, colspan: Int, rowspan: Int): Cell =
-    Cell(BodyCell, List(p(Text(content))), colspan, rowspan)
+    Cell(CellType.BodyCell, List(p(Text(content))), colspan, rowspan)
 
   def run(input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
@@ -70,7 +70,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
                   |+ b +---+
                   || c | e |
                   |+---+---+""".stripMargin
-    run(input, Table(Row(cell("a\nb\nc", 1, 2), BodyCell("d")), textRow("e")))
+    run(input, Table(Row(cell("a\nb\nc", 1, 2), CellType.BodyCell("d")), textRow("e")))
   }
 
   test("grid table - vertically merged cells in the right column") {
@@ -79,7 +79,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
                   |+---+ c +
                   || e | d |
                   |+---+---+""".stripMargin
-    run(input, Table(Row(BodyCell("a"), cell("b\nc\nd", 1, 2)), textRow("e")))
+    run(input, Table(Row(CellType.BodyCell("a"), cell("b\nc\nd", 1, 2)), textRow("e")))
   }
 
   test("grid table - vertically and horizontally merged cells") {
@@ -94,7 +94,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
       input,
       Table(
         textRow("a", "b", "c"),
-        Row(cell("1-1\n2-2\n3-3", 2, 2), BodyCell("d")),
+        Row(cell("1-1\n2-2\n3-3", 2, 2), CellType.BodyCell("d")),
         textRow("e")
       )
     )
@@ -109,8 +109,8 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        Row(BodyCell.empty, BodyCell.empty),
-        Row(BodyCell.empty, BodyCell.empty)
+        Row(CellType.BodyCell.empty, CellType.BodyCell.empty),
+        Row(CellType.BodyCell.empty, CellType.BodyCell.empty)
       )
     )
   }
@@ -165,7 +165,10 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        Row(BodyCell("a"), BodyCell(p("Text"), BulletList("Line1\nLine2", "Line3"))),
+        Row(
+          CellType.BodyCell("a"),
+          CellType.BodyCell(p("Text"), BulletList("Line1\nLine2", "Line3"))
+        ),
         textRow("c", "d")
       )
     )
@@ -180,7 +183,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        TableHead(List(Row(HeadCell("a"), HeadCell("b")))),
+        TableHead(List(Row(CellType.HeadCell("a"), CellType.HeadCell("b")))),
         TableBody(List(textRow("c", "d")))
       )
     )
@@ -219,8 +222,8 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        Row(BodyCell("a"), BodyCell.empty),
-        Row(BodyCell("c"), BodyCell.empty)
+        Row(CellType.BodyCell("a"), CellType.BodyCell.empty),
+        Row(CellType.BodyCell("c"), CellType.BodyCell.empty)
       )
     )
   }
@@ -239,7 +242,10 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        Row(BodyCell("a"), BodyCell(p("Text"), BulletList("Line1\nLine2", "Line3"))),
+        Row(
+          CellType.BodyCell("a"),
+          CellType.BodyCell(p("Text"), BulletList("Line1\nLine2", "Line3"))
+        ),
         textRow("c", "d")
       )
     )
@@ -254,7 +260,7 @@ class TableParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     run(
       input,
       Table(
-        TableHead(List(Row(HeadCell("a"), HeadCell("b")))),
+        TableHead(List(Row(CellType.HeadCell("a"), CellType.HeadCell("b")))),
         TableBody(List(textRow("c", "d")))
       )
     )

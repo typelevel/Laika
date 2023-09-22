@@ -48,10 +48,10 @@ private[laika] class ExtendedHTMLRenderer {
       case one :: two :: rest => one :: sep :: intersperse(two :: rest, sep)
       case short              => short
     }
-    def options(value: Seq[ProgramOption])             = BodyCell(
+    def options(value: Seq[ProgramOption])             = CellType.BodyCell(
       ProgramOptions(intersperse(value.toList, Text(", ")))
     )
-    def body(value: Seq[Block])                        = BodyCell(value)
+    def body(value: Seq[Block])                        = CellType.BodyCell(value)
     val rows = ol.content map (o => Row(List(options(o.programOptions), body(o.content))))
     Table(
       TableHead(Nil),
@@ -65,8 +65,8 @@ private[laika] class ExtendedHTMLRenderer {
   /** Converts a `FieldList` to an interim table model for rendering.
     */
   private def toTable(fl: FieldList): Table = {
-    def name(value: Seq[Span])  = HeadCell(SpanSequence(value :+ Text(":")))
-    def body(value: Seq[Block]) = BodyCell(value)
+    def name(value: Seq[Span])  = CellType.HeadCell(SpanSequence(value :+ Text(":")))
+    def body(value: Seq[Block]) = CellType.BodyCell(value)
     val rows                    = fl.content map (f => Row(List(name(f.name), body(f.content))))
     Table(
       TableHead(Nil),

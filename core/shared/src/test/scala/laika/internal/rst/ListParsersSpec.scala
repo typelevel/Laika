@@ -392,7 +392,7 @@ class DefinitionListSpec extends FunSuite with ListParserRunner with TestSourceB
       DefinitionListItem("term 1", p("aaa")),
       DefinitionListItem("term 2", p("bbb"))
     )
-    run(input, list, Table(Row(BodyCell("a"), BodyCell("b"))))
+    run(input, list, Table(Row(CellType.BodyCell("a"), CellType.BodyCell("b"))))
   }
 
   test("ignore subsequent directives") {

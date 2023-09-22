@@ -35,18 +35,18 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   def headerRow(cells: String*): TableHead =
-    TableHead(Seq(Row(cells.map(c => HeadCell(c)))))
+    TableHead(Seq(Row(cells.map(c => CellType.HeadCell(c)))))
 
   def bodyRow(cells: String*): Row =
-    Row(cells.map(c => BodyCell(c)))
+    Row(cells.map(c => CellType.BodyCell(c)))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
-    val cellsWithText = bodyRow(cells: _*).content
-    Row(cellsWithText.padTo(count, BodyCell.empty))
+    val cellsWithText = bodyRow(cells *).content
+    Row(cellsWithText.padTo(count, CellType.BodyCell.empty))
   }
 
   def bodyRowSpans(cells: Seq[Span]*): Row =
-    Row(cells.map(c => BodyCell(Paragraph(c))))
+    Row(cells.map(c => CellType.BodyCell(Paragraph(c))))
 
   def runBlocks(input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))

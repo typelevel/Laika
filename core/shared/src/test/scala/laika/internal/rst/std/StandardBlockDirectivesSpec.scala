@@ -24,6 +24,7 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees }
+import laika.ast.CellType.BodyCell
 import laika.config.LaikaKeys
 import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
 import laika.format.{ AST, HTML, ReStructuredText }
