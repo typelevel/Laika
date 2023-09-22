@@ -63,11 +63,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     r <- renderer
   } yield (p, r)
 
-  def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
+  def transformer(
+      theme: ThemeProvider,
+      validation: LinkValidation = LinkValidation.Local
+  ): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
     .using(Markdown.GitHubFlavor)
-    .withConfigValue(LinkValidation.Local)
+    .withConfigValue(validation)
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -118,8 +121,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformAndExtractHead(
       inputs: Seq[(Path, String)],
       helium: Helium,
-      underTest: Path = Root / "name.html"
-  ): IO[String] = transformer(helium.build).use { t =>
+      underTest: Path = Root / "name.html",
+      validation: LinkValidation = LinkValidation.Local
+  ): IO[String] = transformer(helium.build, validation).use { t =>
     for {
       resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
@@ -354,6 +358,33 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("favicons with explicit target formats") {
+    val inputs   = Seq(
+      Root / "name.md"                 -> "text",
+      Root / "site" / "directory.conf" -> "laika.targetFormats = [html]",
+      Root / "site" / "icon-1.png"     -> "",
+      Root / "site" / "icon-2.png"     -> ""
+    )
+    val helium   = heliumBase.site.favIcons(
+      Favicon.internal(Root / "site" / "icon-1.png", "32x32"),
+      Favicon.internal(Root / "site" / "icon-2.png", "64x64")
+    )
+    val expected =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="icon" sizes="32x32" type="image/png" href="site/icon-1.png"/>
+          |<link rel="icon" sizes="64x64" type="image/png" href="site/icon-2.png"/>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium, validation = LinkValidation.Global())
+      .assertEquals(expected)
   }
 
   test("unversioned favicons in a versioned input tree") {
