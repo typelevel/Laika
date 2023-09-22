@@ -35,7 +35,8 @@ import laika.internal.rst.ast.*
   */
 private[laika] class ExtendedHTMLRenderer {
 
-  private case class ProgramOptions(content: Seq[Element], options: Options = NoOpt) extends Block
+  private case class ProgramOptions(content: Seq[Element], options: Options = Options.empty)
+      extends Block
       with ElementContainer[Element] {
     type Self = ProgramOptions
     def withOptions(options: Options): ProgramOptions = copy(options = options)

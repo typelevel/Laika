@@ -98,7 +98,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
   override val origin: BundleOrigin = BundleOrigin.Library
 
-  private def asBlock(blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
+  private def asBlock(blocks: Seq[Block], options: Options = Options.empty): Block = blocks match {
     case block :: Nil => block.mergeOptions(options)
     case multiple     => BlockSequence(multiple, options)
   }

@@ -210,7 +210,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
       hasTitleDocs: Boolean = false,
       maxLevels: Int = Int.MaxValue,
       excludeSections: Boolean = false,
-      itemStyles: Options = NoOpt,
+      itemStyles: Options = Options.empty,
       includeTargetFormatConfig: Boolean = false,
       additionalDocuments: Seq[Document] = Nil
   )

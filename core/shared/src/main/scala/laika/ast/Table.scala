@@ -23,7 +23,7 @@ case class Table(
     body: TableBody,
     caption: Caption = Caption(),
     columns: Columns = Columns(Nil),
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block
     with ElementTraversal with RewritableContainer {
   type Self = Table
@@ -59,7 +59,7 @@ sealed trait TableContainer extends TableElement with ElementContainer[TableElem
 
 /** Contains the header rows of a table.
   */
-case class TableHead(content: Seq[Row], options: Options = NoOpt) extends TableElement
+case class TableHead(content: Seq[Row], options: Options = Options.empty) extends TableElement
     with TableContainer with RewritableContainer {
   type Self = TableHead
 
@@ -71,7 +71,7 @@ case class TableHead(content: Seq[Row], options: Options = NoOpt) extends TableE
 
 /** Contains the body rows of a table.
   */
-case class TableBody(content: Seq[Row], options: Options = NoOpt) extends TableElement
+case class TableBody(content: Seq[Row], options: Options = Options.empty) extends TableElement
     with TableContainer with RewritableContainer {
   type Self = TableBody
 
@@ -83,7 +83,7 @@ case class TableBody(content: Seq[Row], options: Options = NoOpt) extends TableE
 
 /** The table caption.
   */
-case class Caption(content: Seq[Span] = Nil, options: Options = NoOpt) extends TableElement
+case class Caption(content: Seq[Span] = Nil, options: Options = Options.empty) extends TableElement
     with SpanContainer {
   type Self = Caption
   def withContent(newContent: Seq[Span]): Caption = copy(content = newContent)
@@ -97,7 +97,7 @@ object Caption extends SpanContainerCompanion {
 
 /** Contains the (optional) column specification of a table.
   */
-case class Columns(content: Seq[Column], options: Options = NoOpt) extends TableElement
+case class Columns(content: Seq[Column], options: Options = Options.empty) extends TableElement
     with TableContainer {
   type Self = Columns
   def withOptions(options: Options): Columns = copy(options = options)
@@ -112,7 +112,7 @@ object Columns {
 
 /** The options (like styles) for a column table.
   */
-case class Column(options: Options = NoOpt) extends TableElement {
+case class Column(options: Options = Options.empty) extends TableElement {
   type Self = Column
   def withOptions(options: Options): Column = copy(options = options)
 }
@@ -121,7 +121,7 @@ case class Column(options: Options = NoOpt) extends TableElement {
   *  cells with a colspan greater than 1, this row may contain
   *  fewer cells than the number of columns in the table.
   */
-case class Row(content: Seq[Cell], options: Options = NoOpt) extends TableElement
+case class Row(content: Seq[Cell], options: Options = Options.empty) extends TableElement
     with TableContainer with RewritableContainer {
   type Self = Row
 
@@ -143,7 +143,7 @@ case class Cell(
     content: Seq[Block],
     colspan: Int = 1,
     rowspan: Int = 1,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends TableElement
     with BlockContainer {
   type Self = Cell

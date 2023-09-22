@@ -47,7 +47,7 @@ class RenderAPISpec extends FunSuite
   }
 
   test("use Document's configuration for rewrite rules") {
-    case class TestResolver(options: Options = NoOpt) extends BlockResolver {
+    case class TestResolver(options: Options = Options.empty) extends BlockResolver {
       type Self = TestResolver
       def resolve(cursor: DocumentCursor): Block      = {
         cursor.config

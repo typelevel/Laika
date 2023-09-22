@@ -86,7 +86,7 @@ private[laika] class DirectiveSupport(
       directiveName: String,
       typeName: String,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends SpanResolver {
     type Self = LinkDirectiveResolver
 
@@ -110,7 +110,7 @@ private[laika] class DirectiveSupport(
       directiveName: String,
       typeName: String,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends SpanResolver {
     type Self = LinkDirectiveResolver2
 

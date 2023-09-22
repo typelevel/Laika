@@ -21,7 +21,8 @@ import laika.parse.SourceFragment
 
 /** A two-column table-like structure used for bibliographic fields or directive options.
   */
-private[rst] case class FieldList(content: Seq[Field], options: Options = NoOpt) extends Block
+private[rst] case class FieldList(content: Seq[Field], options: Options = Options.empty)
+    extends Block
     with ListContainer
     with RewritableContainer {
   type Self = FieldList
@@ -37,8 +38,11 @@ private[rst] case class FieldList(content: Seq[Field], options: Options = NoOpt)
 
 /** A single entry in a field list consisting of name and body.
   */
-private[rst] case class Field(name: Seq[Span], content: Seq[Block], options: Options = NoOpt)
-    extends ListItem
+private[rst] case class Field(
+    name: Seq[Span],
+    content: Seq[Block],
+    options: Options = Options.empty
+) extends ListItem
     with BlockContainer {
 
   type Self = Field
@@ -52,7 +56,8 @@ private[rst] case class Field(name: Seq[Span], content: Seq[Block], options: Opt
 
 /** A classifier for a term in a definition list.
   */
-private[rst] case class Classifier(content: Seq[Span], options: Options = NoOpt) extends Span
+private[rst] case class Classifier(content: Seq[Span], options: Options = Options.empty)
+    extends Span
     with SpanContainer {
   type Self = Classifier
   def withContent(newContent: Seq[Span]): Classifier = copy(content = newContent)
@@ -61,7 +66,7 @@ private[rst] case class Classifier(content: Seq[Span], options: Options = NoOpt)
 
 /** A list of command line options and descriptions.
   */
-private[rst] case class OptionList(content: Seq[OptionListItem], options: Options = NoOpt)
+private[rst] case class OptionList(content: Seq[OptionListItem], options: Options = Options.empty)
     extends Block
     with ListContainer
     with RewritableContainer {
@@ -78,7 +83,7 @@ private[rst] case class OptionList(content: Seq[OptionListItem], options: Option
 private[rst] case class OptionListItem(
     programOptions: Seq[ProgramOption],
     content: Seq[Block],
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ListItem
     with BlockContainer {
   type Self = OptionListItem
@@ -91,7 +96,7 @@ private[rst] case class OptionListItem(
 private[rst] case class ProgramOption(
     name: String,
     argument: Option[OptionArgument],
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Element {
   type Self = ProgramOption
   def withOptions(options: Options): ProgramOption = copy(options = options)
@@ -99,8 +104,11 @@ private[rst] case class ProgramOption(
 
 /** A single option argument.
   */
-private[rst] case class OptionArgument(value: String, delimiter: String, options: Options = NoOpt)
-    extends Span {
+private[rst] case class OptionArgument(
+    value: String,
+    delimiter: String,
+    options: Options = Options.empty
+) extends Span {
   type Self = OptionArgument
   def withOptions(options: Options): OptionArgument = copy(options = options)
 }
@@ -111,7 +119,7 @@ private[rst] case class OptionArgument(value: String, delimiter: String, options
 private[rst] case class SubstitutionDefinition(
     name: String,
     content: Span,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Definition with Hidden {
   type Self = SubstitutionDefinition
   def withOptions(options: Options): SubstitutionDefinition = copy(options = options)
@@ -124,7 +132,7 @@ private[rst] case class SubstitutionDefinition(
 private[rst] case class SubstitutionReference(
     name: String,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Reference {
   type Self = SubstitutionReference
   def withOptions(options: Options): SubstitutionReference = copy(options = options)
@@ -135,7 +143,8 @@ private[rst] case class SubstitutionReference(
   * Somewhat unlikely to be used in the context of this library,
   * but included for the sake of completeness.
   */
-private[rst] case class DoctestBlock(content: String, options: Options = NoOpt) extends Block
+private[rst] case class DoctestBlock(content: String, options: Options = Options.empty)
+    extends Block
     with TextContainer {
   type Self = DoctestBlock
   def withOptions(options: Options): DoctestBlock = copy(options = options)
@@ -157,7 +166,7 @@ private[rst] case class InterpretedText(
     role: String,
     content: String,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Reference with TextContainer {
   type Self = InterpretedText
   def withOptions(options: Options): InterpretedText = copy(options = options)
@@ -172,7 +181,7 @@ private[rst] case class InterpretedText(
 private[rst] case class CustomizedTextRole(
     name: String,
     apply: String => Span,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Definition with Hidden {
   type Self = CustomizedTextRole
   def withOptions(options: Options): CustomizedTextRole = copy(options = options)
@@ -181,8 +190,11 @@ private[rst] case class CustomizedTextRole(
 /** Temporary element representing a file inclusion.
   * The path is interpreted as relative to the path of the processed document if it is not an absolute path.
   */
-private[rst] case class Include(path: String, source: SourceFragment, options: Options = NoOpt)
-    extends Block
+private[rst] case class Include(
+    path: String,
+    source: SourceFragment,
+    options: Options = Options.empty
+) extends Block
     with BlockResolver {
 
   type Self = Include
@@ -205,7 +217,7 @@ private[rst] case class Contents(
     source: SourceFragment,
     depth: Int = Int.MaxValue,
     local: Boolean = false,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block with BlockResolver {
 
   type Self = Contents
@@ -233,7 +245,8 @@ private[rst] abstract class LineBlockItem extends Block with RewritableContainer
 
 /** A single line inside a line block.
   */
-private[laika] case class Line(content: Seq[Span], options: Options = NoOpt) extends LineBlockItem
+private[laika] case class Line(content: Seq[Span], options: Options = Options.empty)
+    extends LineBlockItem
     with SpanContainer {
   type Self = Line
   def withContent(newContent: Seq[Span]): Line = copy(content = newContent)
@@ -247,7 +260,7 @@ private[laika] object Line extends SpanContainerCompanion {
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
   */
-private[laika] case class LineBlock(content: Seq[LineBlockItem], options: Options = NoOpt)
+private[laika] case class LineBlock(content: Seq[LineBlockItem], options: Options = Options.empty)
     extends LineBlockItem
     with RewritableContainer with ElementContainer[LineBlockItem] {
   type Self = LineBlock

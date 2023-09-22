@@ -82,7 +82,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  Example:
     *
     *  {{{
-    *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt)
+    *  case class Note (title: String, content: Seq[Block], options: Options = Options.empty)
     *                                                       extends Block with BlockContainer[Note]
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(

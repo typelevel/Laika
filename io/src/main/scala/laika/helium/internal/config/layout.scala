@@ -128,7 +128,7 @@ private[helium] case class LandingPage(
 
 /** In contrast to the public `LinkGroup` this UI component allows all types of links as children, including menus.
   */
-private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Options = NoOpt)
+private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Options = Options.empty)
     extends BlockResolver {
   type Self = GenericLinkGroup
   val source: SourceFragment = GeneratedSource

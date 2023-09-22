@@ -150,7 +150,7 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
               Styles("align-center", "default-space")
             )
           )
-        case BlockSequence(content, NoOpt) => fmt.childPerLine(content)
+        case BlockSequence(content, Options.empty) => fmt.childPerLine(content)
 
         case unknown => fmt.blockContainer(unknown, unknown.content)
       }
@@ -201,9 +201,9 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
 
         case link: SpanLink => renderLink(link)
 
-        case WithFallback(fallback)           => fmt.child(fallback)
-        case SpanSequence(content, NoOpt)     => fmt.children(content)
-        case CodeSpanSequence(content, NoOpt) => fmt.children(content)
+        case WithFallback(fallback)                   => fmt.child(fallback)
+        case SpanSequence(content, Options.empty)     => fmt.children(content)
+        case CodeSpanSequence(content, Options.empty) => fmt.children(content)
 
         // TODO - needs to be inline if parent is not a block container
         case unknown: Block => fmt.block(unknown)
@@ -214,9 +214,9 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
 
     def renderTemplateSpanContainer(con: TemplateSpanContainer): String = {
       con match {
-        case TemplateRoot(content, NoOpt)         => fmt.children(content)
-        case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
-        case unknown                              => fmt.inline(unknown)
+        case TemplateRoot(content, Options.empty)         => fmt.children(content)
+        case TemplateSpanSequence(content, Options.empty) => fmt.children(content)
+        case unknown                                      => fmt.inline(unknown)
       }
     }
 
@@ -415,7 +415,7 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
             content = title.content :+ Leader() :+ PageNumberCitation(target),
             target = target
           )
-          val keep = if (content.isEmpty) NoOpt else keepWithNext
+          val keep = if (content.isEmpty) Options.empty else keepWithNext
           fmt.childPerLine(Paragraph(Seq(link), Style.nav + keep + opt) +: avoidOrphan(content))
         case NavigationItem(title, content, None, _, opt) =>
           fmt.childPerLine(

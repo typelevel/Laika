@@ -27,7 +27,7 @@ case class InvalidSpan(
     message: RuntimeMessage,
     source: SourceFragment,
     fallback: Span,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Span with Invalid {
   type Self            = InvalidSpan
   type FallbackElement = Span
@@ -51,7 +51,7 @@ case class InvalidBlock(
     message: RuntimeMessage,
     source: SourceFragment,
     fallback: Block,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block with Invalid {
   type Self            = InvalidBlock
   type FallbackElement = Block
@@ -79,7 +79,7 @@ object InvalidBlock {
   * the user has configured with the `renderErrors` method to debug in a visual mode
   * in which case the errors will get rendered in-place in the output.
   */
-case class RuntimeMessage(level: MessageLevel, content: String, options: Options = NoOpt)
+case class RuntimeMessage(level: MessageLevel, content: String, options: Options = Options.empty)
     extends Span
     with Block
     with TextContainer {

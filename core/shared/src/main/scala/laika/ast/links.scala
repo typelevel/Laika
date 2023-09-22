@@ -29,7 +29,7 @@ case class LinkDefinition(
     id: String,
     target: Target,
     title: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Definition with Hidden
     with Span {
   type Self = LinkDefinition
@@ -38,7 +38,8 @@ case class LinkDefinition(
 
 /** A link target pointing to another link target, acting like an alias.
   */
-case class LinkAlias(id: String, target: String, options: Options = NoOpt) extends Definition
+case class LinkAlias(id: String, target: String, options: Options = Options.empty)
+    extends Definition
     with Span with Hidden {
   type Self = LinkAlias
   def withOptions(options: Options): LinkAlias = copy(options = options)
@@ -50,7 +51,7 @@ case class FootnoteDefinition(
     label: FootnoteLabel,
     content: Seq[Block],
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Definition with BlockContainer with Unresolved {
   type Self = FootnoteDefinition
   def withContent(newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
@@ -60,14 +61,16 @@ case class FootnoteDefinition(
 
 /** Points to the following block or span element, making it a target for links.
   */
-case class InternalLinkTarget(options: Options = NoOpt) extends Block with Span with LinkTarget {
+case class InternalLinkTarget(options: Options = Options.empty) extends Block with Span
+    with LinkTarget {
   type Self = InternalLinkTarget
   def withOptions(options: Options): InternalLinkTarget = copy(options = options)
 }
 
 /** A citation that can be referred to by a `CitationLink` by id.
   */
-case class Citation(label: String, content: Seq[Block], options: Options = NoOpt) extends Block
+case class Citation(label: String, content: Seq[Block], options: Options = Options.empty)
+    extends Block
     with LinkTarget
     with BlockContainer {
   type Self = Citation
@@ -77,7 +80,8 @@ case class Citation(label: String, content: Seq[Block], options: Options = NoOpt
 
 /** A footnote with resolved id and label that can be referred to by a `FootnoteLink` by id.
   */
-case class Footnote(label: String, content: Seq[Block], options: Options = NoOpt) extends Block
+case class Footnote(label: String, content: Seq[Block], options: Options = Options.empty)
+    extends Block
     with LinkTarget
     with BlockContainer {
   type Self = Footnote
@@ -116,7 +120,7 @@ object FootnoteLabel {
   *
   * Raw links participate in path translation (e.g. for versioning) like all other link node types.
   */
-case class RawLink(target: Target, options: Options = NoOpt) extends GlobalLink {
+case class RawLink(target: Target, options: Options = Options.empty) extends GlobalLink {
   type Self = RawLink
   val supportsExternalTargets: Boolean       = true
   def withTarget(newTarget: Target): RawLink = copy(target = newTarget)
@@ -149,7 +153,7 @@ case class SpanLink(
     content: Seq[Span],
     target: Target,
     title: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends GlobalLink
     with SpanContainer {
   type Self = SpanLink
@@ -192,14 +196,16 @@ object SpanLink {
 
 /** A resolved link to a footnote.
   */
-case class FootnoteLink(refId: String, label: String, options: Options = NoOpt) extends LocalLink {
+case class FootnoteLink(refId: String, label: String, options: Options = Options.empty)
+    extends LocalLink {
   type Self = FootnoteLink
   def withOptions(options: Options): FootnoteLink = copy(options = options)
 }
 
 /** A resolved link to a citation.
   */
-case class CitationLink(refId: String, label: String, options: Options = NoOpt) extends LocalLink {
+case class CitationLink(refId: String, label: String, options: Options = Options.empty)
+    extends LocalLink {
   type Self = CitationLink
   def withOptions(options: Options): CitationLink = copy(options = options)
 }
@@ -212,7 +218,7 @@ case class Image(
     height: Option[Length] = None,
     alt: Option[String] = None,
     title: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends GlobalLink {
   type Self = Image
   val supportsExternalTargets: Boolean     = false // has to be embedded for EPUB or PDF
@@ -265,8 +271,11 @@ sealed trait Icon extends Span {
   * This approach would currently not work well with Laika's PDF support which is
   * not based on an interim HTML renderer.
   */
-case class IconGlyph(codePoint: Char, title: Option[String] = None, options: Options = NoOpt)
-    extends Icon {
+case class IconGlyph(
+    codePoint: Char,
+    title: Option[String] = None,
+    options: Options = Options.empty
+) extends Icon {
   def codePointAsEntity: String = s"&#x${Integer.toHexString(codePoint.toInt)};"
   type Self = IconGlyph
   def withOptions(newOptions: Options): IconGlyph = copy(options = newOptions)
@@ -275,16 +284,22 @@ case class IconGlyph(codePoint: Char, title: Option[String] = None, options: Opt
 /** An icon defined in a style sheet, usually defining a glyph from an icon font.
   * This icon type is not supported for PDF output, when using font icons with PDF use `IconGlyph` instead.
   */
-case class IconStyle(styleName: String, title: Option[String] = None, options: Options = NoOpt)
-    extends Icon {
+case class IconStyle(
+    styleName: String,
+    title: Option[String] = None,
+    options: Options = Options.empty
+) extends Icon {
   type Self = IconStyle
   def withOptions(newOptions: Options): IconStyle = copy(options = newOptions)
 }
 
 /** An SVG icon that will render inline, supported for all output formats.
   */
-case class InlineSVGIcon(content: String, title: Option[String] = None, options: Options = NoOpt)
-    extends Icon {
+case class InlineSVGIcon(
+    content: String,
+    title: Option[String] = None,
+    options: Options = Options.empty
+) extends Icon {
   type Self = InlineSVGIcon
   def withOptions(newOptions: Options): InlineSVGIcon = copy(options = newOptions)
 }
@@ -292,8 +307,11 @@ case class InlineSVGIcon(content: String, title: Option[String] = None, options:
 /** An icon referencing an SVG shape defined in an external file or embedded SVG element.
   * This icon type is not supported for PDF output, when using SVG icons with PDF use `InlineSVGIcon` instead.
   */
-case class SVGSymbolIcon(target: Target, title: Option[String] = None, options: Options = NoOpt)
-    extends Icon {
+case class SVGSymbolIcon(
+    target: Target,
+    title: Option[String] = None,
+    options: Options = Options.empty
+) extends Icon {
   type Self = SVGSymbolIcon
   def withOptions(newOptions: Options): SVGSymbolIcon = copy(options = newOptions)
   def withTitle(title: String): SVGSymbolIcon         = copy(title = Some(title))
@@ -325,7 +343,7 @@ object SVGSymbolIcon {
   * The icon must have been registered with the global configuration to be accessible by this node type.
   * The indirection provided by this key allows to more easily swap entire icon sets without touching any code.
   */
-case class IconReference(key: String, source: SourceFragment, options: Options = NoOpt)
+case class IconReference(key: String, source: SourceFragment, options: Options = Options.empty)
     extends SpanResolver with Reference {
   type Self = IconReference
 
@@ -410,7 +428,7 @@ case class LinkPathReference(
     path: VirtualPath,
     source: SourceFragment,
     title: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends PathReference with SpanContainer {
   type Self = LinkPathReference
   def withContent(newContent: Seq[Span]): LinkPathReference = copy(content = newContent)
@@ -431,7 +449,7 @@ case class ImagePathReference(
     height: Option[Length] = None,
     alt: Option[String] = None,
     title: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends PathReference {
   type Self = ImagePathReference
   def withOptions(options: Options): ImagePathReference = copy(options = options)
@@ -446,7 +464,7 @@ case class ImageIdReference(
     text: String,
     id: String,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Reference {
   type Self = ImageIdReference
   def withOptions(options: Options): ImageIdReference = copy(options = options)
@@ -456,8 +474,11 @@ case class ImageIdReference(
 /** A reference to a footnote with a matching label.  Only part of the
   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
   */
-case class FootnoteReference(label: FootnoteLabel, source: SourceFragment, options: Options = NoOpt)
-    extends Reference {
+case class FootnoteReference(
+    label: FootnoteLabel,
+    source: SourceFragment,
+    options: Options = Options.empty
+) extends Reference {
   type Self = FootnoteReference
   def withOptions(options: Options): FootnoteReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to footnote with label '$label'"
@@ -466,8 +487,11 @@ case class FootnoteReference(label: FootnoteLabel, source: SourceFragment, optio
 /** A reference to a citation with a matching label.  Only part of the
   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
   */
-case class CitationReference(label: String, source: SourceFragment, options: Options = NoOpt)
-    extends Reference {
+case class CitationReference(
+    label: String,
+    source: SourceFragment,
+    options: Options = Options.empty
+) extends Reference {
   type Self = CitationReference
   def withOptions(options: Options): CitationReference = copy(options = options)
   lazy val unresolvedMessage: String = s"Unresolved reference to citation with label '$label'"
@@ -484,7 +508,7 @@ case class LinkIdReference(
     content: Seq[Span],
     ref: String,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Reference
     with ast.SpanContainer {
   type Self = LinkIdReference

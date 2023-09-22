@@ -173,7 +173,7 @@ import laika.parse.SourceFragment
 
 case class TicketResolver (num: String, 
                            source: SourceFragment, 
-                           options: Options = NoOpt) extends SpanResolver {
+                           options: Options = Options.empty) extends SpanResolver {
 
   type Self = TicketResolver
 

@@ -157,7 +157,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait DirectiveProducingResolver {
 
-      case class DummyResolver(options: Options = NoOpt) extends SpanResolver {
+      case class DummyResolver(options: Options = Options.empty) extends SpanResolver {
         type Self = DummyResolver
         def resolve(cursor: DocumentCursor): Span = Text("foo")
         val source: SourceFragment                = generatedSource("@:dir")

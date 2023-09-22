@@ -59,7 +59,7 @@ private[laika] object NavigationTreeDirectives {
       excludeRoot: Boolean = false,
       excludeSections: Boolean = false,
       excludeSelf: Boolean = false,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends BlockResolver {
 
     type Self = NavigationBuilderConfig

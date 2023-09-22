@@ -41,7 +41,7 @@ private[laika] object BreadcrumbDirectives {
     *
     * Serves as the implementation for the breadcrumb directive, but can also be inserted into the AST manually.
     */
-  case class BreadcrumbBuilder(source: SourceFragment, options: Options = NoOpt)
+  case class BreadcrumbBuilder(source: SourceFragment, options: Options = Options.empty)
       extends BlockResolver {
 
     type Self = BreadcrumbBuilder

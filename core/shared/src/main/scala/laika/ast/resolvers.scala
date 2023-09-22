@@ -45,7 +45,7 @@ case class BlockScope(
     content: Block,
     context: ConfigValue,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ElementScope[Block] with Block {
   type Self = BlockScope
   def withOptions(options: Options): BlockScope = copy(options = options)
@@ -61,7 +61,7 @@ case class SpanScope(
     content: Span,
     context: ConfigValue,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ElementScope[Span] with Span {
   type Self = SpanScope
   def withOptions(options: Options): SpanScope = copy(options = options)
@@ -77,7 +77,7 @@ case class TemplateScope(
     content: TemplateSpan,
     context: ConfigValue,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ElementScope[TemplateSpan] with TemplateSpan {
   type Self = TemplateScope
   def withOptions(options: Options): TemplateScope = copy(options = options)
@@ -119,7 +119,7 @@ case class TemplateContextReference(
     ref: Key,
     required: Boolean,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ContextReference[TemplateSpan](ref, source) with TemplateSpan {
   type Self = TemplateContextReference
 
@@ -148,7 +148,7 @@ case class MarkupContextReference(
     ref: Key,
     required: Boolean,
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ContextReference[Span](ref, source) {
   type Self = MarkupContextReference
 

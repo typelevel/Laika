@@ -71,7 +71,7 @@ private[laika] object Tables {
           case Some(_) ~ Some(_) => Style.alignCenter
           case Some(_) ~ None    => Style.alignLeft
           case None ~ Some(_)    => Style.alignRight
-          case _                 => NoOpt
+          case _                 => Options.empty
         }
       }
     }

@@ -24,7 +24,7 @@ import laika.ast.*
   * as its root element.
   * It may contain other nested HTML elements and tags, but no spans produced by standard Markdown markup.
   */
-case class HTMLBlock(root: HTMLElement, options: Options = NoOpt) extends Block {
+case class HTMLBlock(root: HTMLElement, options: Options = Options.empty) extends Block {
   type Self = HTMLBlock
   def withOptions(options: Options): HTMLBlock = copy(options = options)
 }
@@ -37,7 +37,7 @@ abstract class HTMLSpan extends Span
   * The content of this span container may contain further nested HTML elements
   * and tags as well as simple text elements.
   */
-case class HTMLElement(startTag: HTMLStartTag, content: Seq[Span], options: Options = NoOpt)
+case class HTMLElement(startTag: HTMLStartTag, content: Seq[Span], options: Options = Options.empty)
     extends HTMLSpan with SpanContainer {
   type Self = HTMLElement
   def withContent(newContent: Seq[Span]): HTMLElement = copy(content = newContent)
@@ -52,8 +52,11 @@ case class HTMLElement(startTag: HTMLStartTag, content: Seq[Span], options: Opti
   * This library however does not implement the full logic of a proper HTML parser
   * to distinguish between legal and faulty occurrences of unmatched start tags.
   */
-case class HTMLStartTag(name: String, attributes: List[HTMLAttribute], options: Options = NoOpt)
-    extends HTMLSpan with Block {
+case class HTMLStartTag(
+    name: String,
+    attributes: List[HTMLAttribute],
+    options: Options = Options.empty
+) extends HTMLSpan with Block {
   type Self = HTMLStartTag
   def withOptions(options: Options): HTMLStartTag = copy(options = options)
 }
@@ -62,22 +65,26 @@ case class HTMLStartTag(name: String, attributes: List[HTMLAttribute], options: 
   * in case it contains the explicit slash to mark it as closed.
   * Otherwise it will be classified as a start tag.
   */
-case class HTMLEmptyElement(name: String, attributes: List[HTMLAttribute], options: Options = NoOpt)
-    extends HTMLSpan with Block {
+case class HTMLEmptyElement(
+    name: String,
+    attributes: List[HTMLAttribute],
+    options: Options = Options.empty
+) extends HTMLSpan with Block {
   type Self = HTMLEmptyElement
   def withOptions(options: Options): HTMLEmptyElement = copy(options = options)
 }
 
 /** Represents an orphaned end tag without matching start tag.
   */
-case class HTMLEndTag(name: String, options: Options = NoOpt) extends HTMLSpan {
+case class HTMLEndTag(name: String, options: Options = Options.empty) extends HTMLSpan {
   type Self = HTMLEndTag
   def withOptions(options: Options): HTMLEndTag = copy(options = options)
 }
 
 /** Represents a standard HTML comment.
   */
-case class HTMLComment(content: String, options: Options = NoOpt) extends HTMLSpan with Block
+case class HTMLComment(content: String, options: Options = Options.empty) extends HTMLSpan
+    with Block
     with TextContainer {
   type Self = HTMLComment
   def withOptions(options: Options): HTMLComment = copy(options = options)
@@ -88,7 +95,7 @@ case class HTMLComment(content: String, options: Options = NoOpt) extends HTMLSp
 case class HTMLScriptElement(
     attributes: List[HTMLAttribute],
     content: String,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends HTMLSpan with TextContainer {
   type Self = HTMLScriptElement
   def withOptions(options: Options): HTMLScriptElement = copy(options = options)
@@ -96,7 +103,8 @@ case class HTMLScriptElement(
 
 /** Represents a numerical or named character reference.
   */
-case class HTMLCharacterReference(content: String, options: Options = NoOpt) extends HTMLSpan
+case class HTMLCharacterReference(content: String, options: Options = Options.empty)
+    extends HTMLSpan
     with TextContainer {
   type Self = HTMLCharacterReference
   def withOptions(options: Options): HTMLCharacterReference = copy(options = options)

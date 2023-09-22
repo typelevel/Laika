@@ -62,7 +62,7 @@ trait InlineParsers {
     def fromString(str: String): Span = Text(str)
 
     def += (item: Span): Unit = (last, item) match {
-      case (Some(Text(text1, NoOpt)), Text(text2, NoOpt))                                =>
+      case (Some(Text(text1, Options.empty)), Text(text2, Options.empty))                =>
         last = Some(Text(text1 ++ text2))
       case (Some(Text(content, _)), Reverse(len, target, _, _)) if content.length >= len =>
         buffer += Text(content.dropRight(len))
