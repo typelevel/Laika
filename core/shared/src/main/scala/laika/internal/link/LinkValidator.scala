@@ -54,6 +54,8 @@ private[laika] class LinkValidator(
     findTargetFormats: Path => Option[TargetFormats]
 ) {
 
+  private val outputFormat = cursor.root.outputContext.map(_.formatSelector)
+
   private val siteBaseURL = cursor.config.getOpt[String](LaikaKeys.siteBaseURL).toOption.flatten
 
   private val versionRoots = cursor.config.getOpt[Versions].toOption.flatten
@@ -101,16 +103,22 @@ private[laika] class LinkValidator(
     def validateFormats(targetFormats: TargetFormats): TargetValidation = targetFormats match {
       case TargetFormats.All  => ValidTarget
       case TargetFormats.None => InvalidTarget(s"$invalidRefMsg as it is excluded from rendering")
-      case TargetFormats.Selected(_) =>
-        cursor.target.targetFormats match {
-          case TargetFormats.None              =>
+      case TargetFormats.Selected(selectedFormats) =>
+        (cursor.target.targetFormats, outputFormat) match {
+          case (TargetFormats.None, _)                               =>
             ValidTarget // to be validated at point of inclusion by a directive like @:include
-          case TargetFormats.All               =>
+          case (_, Some(output)) if selectedFormats.contains(output) => ValidTarget
+          case (_, Some(output))                                     =>
+            attemptRecovery(
+              s"document for output format $output $invalidRefMsg that does not support this format",
+              targetFormats
+            )
+          case (TargetFormats.All, _)                                =>
             attemptRecovery(
               s"document for all output formats $invalidRefMsg with restricted output formats",
               targetFormats
             )
-          case TargetFormats.Selected(formats) =>
+          case (TargetFormats.Selected(formats), _)                  =>
             val missingFormats = formats.filterNot(targetFormats.contains)
             if (missingFormats.isEmpty) ValidTarget
             else
