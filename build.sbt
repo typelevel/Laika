@@ -110,7 +110,8 @@ lazy val api = project
     Compile / packageDoc / mappings            :=
       ScaladocCleanup.removeUnwantedEntries(
         (ScalaUnidoc / packageDoc / mappings).value,
-        (ThisBuild / baseDirectory).value
+        (ThisBuild / baseDirectory).value,
+        scalaBinaryVersion.value
       )
   )
 
