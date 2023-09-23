@@ -71,7 +71,7 @@ trait SourceCursor {
 
   /** The source for the root input, positioned to match the offset of this (potentially nested) source.
     */
-  def root: RootSource
+  def root: SourceCursor
 
   /** The current position in the input string.
     */
@@ -151,7 +151,7 @@ private[parse] class RootSource(
     else this
   }
 
-  val root: RootSource = this
+  val root: SourceCursor = this
 
   lazy val position: Position =
     if (inputRef.isReverse) reverse.position else new Position(inputRef, offset)
@@ -219,7 +219,7 @@ class LineSource private (
 
   lazy val parent: SourceCursor = parentRef.consume(offset)
 
-  lazy val root: RootSource = parent.root
+  lazy val root: SourceCursor = parent.root
 
   lazy val position: Position = root.position
 
@@ -331,7 +331,7 @@ class BlockSource(
     lineSource.consume(lineOffset - lineSource.offset)
   }
 
-  lazy val root: RootSource = activeLine.root
+  lazy val root: SourceCursor = activeLine.root
 
   lazy val position: Position = activeLine.position
 
@@ -420,7 +420,7 @@ object SourceCursor {
 
     def consume(numChars: Int): this.type = this
 
-    def root: RootSource = new RootSource(InputString.empty, 0, 0)
+    def root: SourceCursor = new RootSource(InputString.empty, 0, 0)
 
     def position: Position = new Position(InputString.empty, 0)
 
