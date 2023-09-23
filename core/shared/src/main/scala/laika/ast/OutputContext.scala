@@ -45,9 +45,6 @@ object OutputContext {
     override def productPrefix: String = "OutputContext"
   }
 
-  private[laika] def apply(fileSuffix: String, formatSelector: String): OutputContext =
-    Impl(fileSuffix, formatSelector)
-
   def apply(format: RenderFormat[_]): OutputContext =
     Impl(format.fileSuffix, format.description.toLowerCase)
 

@@ -847,7 +847,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       val lookup: Path => Option[PathAttributes] = path =>
         if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false))
         else None
-      ConfigurablePathTranslator(tConfig, OutputContext("fo", "pdf"), Root / "doc", lookup)
+      ConfigurablePathTranslator(tConfig, OutputContext(XSLFO), Root / "doc", lookup)
     }
     assertEquals(
       defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles),

@@ -309,10 +309,7 @@ private[io] object RendererRuntime {
   /** Process the specified render operation for an entire input tree and a binary output format.
     */
   def run[F[_]: Async: Batch](op: BinaryTreeRenderer.Op[F]): F[Unit] = {
-    val context  = OutputContext(
-      op.renderer.interimRenderer.format.fileSuffix,
-      op.renderer.description.toLowerCase
-    )
+    val context  = OutputContext(op.renderer.interimRenderer.format)
     val template = op.input.tree.getDefaultTemplate(context.fileSuffix)
       .fold(getDefaultTemplate(op.theme.inputs, context.fileSuffix))(_.content)
     for {
