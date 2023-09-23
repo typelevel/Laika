@@ -69,7 +69,7 @@ import laika.io.ops.IOBuilderOps
   */
 object syntax {
 
-  implicit class ImplicitParserOps(builder: ParserBuilder)
+  implicit class ParserSyntax(builder: ParserBuilder)
       extends IOBuilderOps[TreeParser.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeParser.Builder[F] =
@@ -77,7 +77,7 @@ object syntax {
 
   }
 
-  implicit class ImplicitTextRendererOps(builder: RendererBuilder[_])
+  implicit class TextRendererSyntax(builder: RendererBuilder[_])
       extends IOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
@@ -85,7 +85,7 @@ object syntax {
 
   }
 
-  implicit class ImplicitTextTransformerOps(builder: TransformerBuilder[_])
+  implicit class TextTransformerSyntax(builder: TransformerBuilder[_])
       extends IOBuilderOps[TreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeTransformer.Builder[F] = {
@@ -100,7 +100,7 @@ object syntax {
 
   }
 
-  implicit class ImplicitBinaryRendererOps(
+  implicit class BinaryRendererSyntax(
       builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
@@ -114,7 +114,7 @@ object syntax {
 
   }
 
-  implicit class ImplicitBinaryTransformerOps(
+  implicit class BinaryTransformerSyntax(
       builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 

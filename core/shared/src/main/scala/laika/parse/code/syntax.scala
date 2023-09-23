@@ -22,7 +22,7 @@ import laika.parse.text.PrefixedParser
 
 /** @author Jens Halm
   */
-object implicits {
+object syntax {
 
   implicit class CodeParserOps[T](val p: Parser[String]) extends AnyVal {
     def asCode(categories: CodeCategory*): Parser[CodeSpan] = p.map(CodeSpan(_, categories.toSet))

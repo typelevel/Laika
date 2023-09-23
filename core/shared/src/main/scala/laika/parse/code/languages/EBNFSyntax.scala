@@ -20,7 +20,7 @@ import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Identifier, StringLiteral }
-import laika.parse.code.implicits._
+import laika.parse.code.syntax._
 import laika.parse.builders._
 import laika.parse.syntax._
 
