@@ -314,6 +314,12 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     runEnclosed(input, ref)
   }
 
+  test("link reference with an implicit id, preserving the case for the link text") {
+    val input = "some [Link] here"
+    val ref   = LinkIdReference("link", source("[Link]", input))("Link")
+    runEnclosed(input, ref)
+  }
+
   test("image reference with an explicit id") {
     val input = "some ![image][id] here"
     runEnclosed(input, ImageIdReference("image", "id", source("![image][id]", input)))

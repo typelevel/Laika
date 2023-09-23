@@ -329,6 +329,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     private val linkConfig = LinkConfig.empty
       .addTargets(
         TargetDefinition.internal("int", RelativePath.parse("../doc-1.md#ref")),
+        TargetDefinition.internal("CasE", RelativePath.parse("../doc-2.md#ref")),
         TargetDefinition.external("ext", "https://www.foo.com/"),
         TargetDefinition.internal("inv", RelativePath.parse("../doc-99.md#ref"))
       )
@@ -354,6 +355,12 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("global link defs - resolve internal link references to a target in the parent tree") {
     val target = InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1")
     IdRefs.run(linkIdRef("int"), p(SpanLink(target)("text")))
+  }
+
+  test("global link defs - resolve internal link references with case-insensitive comparison") {
+    val target = InternalTarget(RelativePath.parse("../doc-2.md#ref")).relativeTo(Root / "tree1")
+    val ref    = LinkIdReference(List(Text("Case")), "case", generatedSource(s"<<Case>>"))
+    IdRefs.run(ref, p(SpanLink(target)("Case")))
   }
 
   test("global link defs - resolve external link references") {

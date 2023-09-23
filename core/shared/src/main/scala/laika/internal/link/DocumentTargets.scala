@@ -204,7 +204,7 @@ private[link] class DocumentTargets(document: Document, slugBuilder: String => S
 
     val linkConfig        = document.config.get[LinkConfig].getOrElse(LinkConfig.empty)
     val targetsFromConfig = linkConfig.targets.map { defn =>
-      linkDefinitionResolver(LinkDefinitionSelector(defn.id), defn.target)
+      linkDefinitionResolver(LinkDefinitionSelector(defn.id.toLowerCase), defn.target)
     }
 
     val resolvedTargets = groupedTargets.toSeq.map {
