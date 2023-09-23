@@ -332,7 +332,7 @@ object OperationConfig {
     processBundles(Nil, sortBundles(bundles).toList)
       .reverse
       .reduceLeftOption(_ withBase _)
-      .getOrElse(ExtensionBundle.Empty)
+      .getOrElse(ExtensionBundle.empty)
   }
 
   /** A configuration instance with all the libraries default extension bundles.

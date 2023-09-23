@@ -257,8 +257,8 @@ object ExtensionBundle {
       val config: Config
   )
 
-  /** An empty bundle */
-  object Empty extends ExtensionBundle {
+  /** An empty bundle. */
+  val empty: ExtensionBundle = new ExtensionBundle {
     val description: String           = "Empty extension bundle"
     override val origin: BundleOrigin = BundleOrigin.Library
   }
