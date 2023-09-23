@@ -83,10 +83,10 @@ object Font {
     override def productPrefix = "Font"
 
     def withEmbeddedFile(file: FilePath): Font =
-      copy(embeddedResource = Some(EmbeddedFontFile(file)))
+      copy(embeddedResource = Some(EmbeddedFont.FontFile(file)))
 
     def withEmbeddedResource(name: String): Font =
-      copy(embeddedResource = Some(EmbeddedFontResource(name)))
+      copy(embeddedResource = Some(EmbeddedFont.FontResource(name)))
 
     def withWebCSS(url: String): Font = copy(webCSS = Some(url))
   }
@@ -101,12 +101,12 @@ object Font {
     * This is one of the few places in Laika where a real file-system path needs to be provided,
     * not a path from the library's virtual path.
     */
-  def withEmbeddedFile(file: FilePath): Font = Impl(Some(EmbeddedFontFile(file)), None)
+  def withEmbeddedFile(file: FilePath): Font = Impl(Some(EmbeddedFont.FontFile(file)), None)
 
   /** Specifies a font file as a classpath resource that can be used for embedding in EPUB or PDF.
     * For theme authors classpath resources are the recommended way of providing default fonts.
     */
-  def withEmbeddedResource(name: String): Font = Impl(Some(EmbeddedFontResource(name)), None)
+  def withEmbeddedResource(name: String): Font = Impl(Some(EmbeddedFont.FontResource(name)), None)
 
   /** Specifies a URL for a web font which can be auto-linked in a theme template.
     */
@@ -120,8 +120,8 @@ object Font {
     (embedResource, embedFile, webCSS) match {
       case (None, None, None) => None
       case (_, Some(file), _) =>
-        Some(Impl(Some(EmbeddedFontFile(FilePath.parse(file))), webCSS))
-      case (Some(res), _, _)  => Some(Impl(Some(EmbeddedFontResource(res)), webCSS))
+        Some(Impl(Some(EmbeddedFont.FontFile(FilePath.parse(file))), webCSS))
+      case (Some(res), _, _)  => Some(Impl(Some(EmbeddedFont.FontResource(res)), webCSS))
       case _                  => Some(Impl(None, webCSS))
     }
 
@@ -135,16 +135,20 @@ sealed trait EmbeddedFont {
   def path: Path
 }
 
-/** Represent a font resource from the file system.
-  */
-case class EmbeddedFontFile(file: FilePath) extends EmbeddedFont {
-  val path: Path = Root / "laika" / "fonts" / file.name
-}
+object EmbeddedFont {
 
-/** Represent a font file as a classpath resource.
-  */
-case class EmbeddedFontResource(name: String) extends EmbeddedFont {
-  val path: Path = Root / "laika" / "fonts" / VirtualPath.parse(name).name
+  /** Represent a font resource from the file system.
+    */
+  case class FontFile(file: FilePath) extends EmbeddedFont {
+    val path: Path = Root / "laika" / "fonts" / file.name
+  }
+
+  /** Represent a font file as a classpath resource.
+    */
+  case class FontResource(name: String) extends EmbeddedFont {
+    val path: Path = Root / "laika" / "fonts" / VirtualPath.parse(name).name
+  }
+
 }
 
 /** Enumeration for the valid font weights that can be assigned to a font resource, compatible with CSS properties.
@@ -261,11 +265,11 @@ object FontDefinition {
       .withValue("style", fd.style.value)
       .withValue(
         "embedResource",
-        fd.resource.embeddedResource.collect { case EmbeddedFontResource(r) => r }
+        fd.resource.embeddedResource.collect { case EmbeddedFont.FontResource(r) => r }
       )
       .withValue(
         "embedFile",
-        fd.resource.embeddedResource.collect { case EmbeddedFontFile(f) => f.toString }
+        fd.resource.embeddedResource.collect { case EmbeddedFont.FontFile(f) => f.toString }
       )
       .withValue("webCSS", fd.resource.webCSS)
       .build

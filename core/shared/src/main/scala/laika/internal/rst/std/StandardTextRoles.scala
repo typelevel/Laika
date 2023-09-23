@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import laika.ast.*
 import laika.internal.rst.ast.RstStyle
 import laika.internal.rst.ext.TextRoles.TextRole
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.parse.builders.~
 import laika.internal.rst.ext.TextRoles.Parts.*
 
@@ -153,7 +153,7 @@ private[rst] class StandardTextRoles {
     } { case ((formats, opt), content) =>
       NonEmptySet.fromSet(TreeSet(formats: _*)) match {
         case Some(set) => RawContent(set, content, opt)
-        case None      => InvalidSpan("no format specified", GeneratedSource)
+        case None      => InvalidSpan("no format specified", SourceCursor.Generated)
       }
     }
 

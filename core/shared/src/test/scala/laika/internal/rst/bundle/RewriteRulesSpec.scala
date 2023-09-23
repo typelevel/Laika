@@ -17,7 +17,7 @@
 package laika.internal.rst.bundle
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.api.config.Config.ConfigResult
 import laika.format.ReStructuredText
@@ -27,7 +27,7 @@ import laika.internal.rst.ast.{
   SubstitutionDefinition,
   SubstitutionReference
 }
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
@@ -41,14 +41,14 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
       .map(_.content)
   }
 
-  def invalidSpan(message: String): InvalidSpan = InvalidSpan(message, GeneratedSource)
+  def invalidSpan(message: String): InvalidSpan = InvalidSpan(message, SourceCursor.Generated)
 
   def run(input: RootElement, expected: RootElement)(implicit loc: munit.Location): Unit =
     assertEquals(rewritten(input), Right(expected))
 
   test("substitutions - replace a single reference with the target span") {
     val input    = RootElement(
-      p(SubstitutionReference("id", GeneratedSource)),
+      p(SubstitutionReference("id", SourceCursor.Generated)),
       SubstitutionDefinition("id", Text("subst"))
     )
     val expected = RootElement(p("subst"))
@@ -60,9 +60,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
   ) {
     val input    = RootElement(
       p(
-        SubstitutionReference("id", GeneratedSource),
+        SubstitutionReference("id", SourceCursor.Generated),
         Text(" foo "),
-        SubstitutionReference("id", GeneratedSource)
+        SubstitutionReference("id", SourceCursor.Generated)
       ),
       SubstitutionDefinition("id", Text("subst"))
     )
@@ -72,7 +72,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("substitutions - replace a reference with an unknown substitution id with an invalid span") {
     val input    = RootElement(
-      p(SubstitutionReference("id1", GeneratedSource)),
+      p(SubstitutionReference("id1", SourceCursor.Generated)),
       SubstitutionDefinition("id2", Text("subst"))
     )
     val expected = RootElement(p(invalidSpan("unknown substitution id: id1")))
@@ -83,7 +83,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
     "interpreted text roles - replace a single reference with the result of applying the role function"
   ) {
     val input    = RootElement(
-      p(InterpretedText("id", "foo", GeneratedSource)),
+      p(InterpretedText("id", "foo", SourceCursor.Generated)),
       CustomizedTextRole("id", s => Text(s":$s:"))
     )
     val expected = RootElement(p(":foo:"))
@@ -95,9 +95,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
   ) {
     val input    = RootElement(
       p(
-        InterpretedText("id1", "foo", GeneratedSource),
-        InterpretedText("id2", "bar", GeneratedSource),
-        InterpretedText("id1", "baz", GeneratedSource)
+        InterpretedText("id1", "foo", SourceCursor.Generated),
+        InterpretedText("id2", "bar", SourceCursor.Generated),
+        InterpretedText("id1", "baz", SourceCursor.Generated)
       ),
       CustomizedTextRole("id1", s => Text(":" + s + ":")),
       CustomizedTextRole("id2", s => Text(s".$s."))
@@ -108,7 +108,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("interpreted text roles - replace an unknown text role with an invalid span") {
     val input    = RootElement(
-      p(InterpretedText("id1", "foo", GeneratedSource)),
+      p(InterpretedText("id1", "foo", SourceCursor.Generated)),
       CustomizedTextRole("id2", s => Text(s".$s."))
     )
     val expected = RootElement(p(invalidSpan("unknown text role: id1")))

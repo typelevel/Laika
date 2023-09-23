@@ -21,7 +21,7 @@ import cats.syntax.all.*
 import laika.api.bundle.{ BlockDirectives, TemplateDirectives }
 import laika.api.config.{ ConfigDecoder, ConfigError, Key }
 import laika.ast.*
-import laika.parse.{ GeneratedSource, SourceFragment }
+import laika.parse.{ SourceCursor, SourceFragment }
 
 /** Implementation of the navigationTree directive for templates and markup blocks.
   *
@@ -150,7 +150,7 @@ private[laika] object NavigationTreeDirectives {
         } yield {
           NavigationBuilderConfig(
             entries,
-            GeneratedSource,
+            SourceCursor.Generated,
             defaultDepth,
             itemStyles.toSet,
             excludeRoot,

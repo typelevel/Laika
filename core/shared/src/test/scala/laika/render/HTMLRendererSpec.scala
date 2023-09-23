@@ -31,7 +31,7 @@ import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.StyleDeclarationSet
 import laika.config.{ MessageFilter, MessageFilters, TargetFormats, Version, Versions }
 import laika.format.HTML
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.parse.code.CodeCategory
 import munit.FunSuite
 
@@ -806,7 +806,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("render an invalid block without the runtime message in default mode") {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = "<p>fallback</p>"
@@ -818,7 +818,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = "<p>fallback</p>"
@@ -830,7 +830,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = """<p><span class="runtime-message warning">some message</span></p><p>fallback</p>"""
@@ -840,7 +840,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("render an invalid span without the runtime message in default mode") {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, "fallback")
@@ -851,7 +851,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     runWithFilter(elem, MessageFilter.Error, "fallback")
@@ -862,7 +862,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     val html = """<span class="runtime-message warning">some message</span> fallback"""

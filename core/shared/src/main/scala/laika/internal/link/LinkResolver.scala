@@ -19,9 +19,9 @@ package laika.internal.link
 import laika.api.bundle.BlockDirectives
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast._
+import laika.ast.*
 import laika.api.config.Config.ConfigResult
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 
 import scala.annotation.tailrec
 
@@ -70,7 +70,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
         case Some(b: Block) => RewriteAction.Replace(b)
         case _              =>
           RewriteAction.Replace(
-            InvalidBlock(describeUnknownTarget(block), GeneratedSource).copy(fallback =
+            InvalidBlock(describeUnknownTarget(block), SourceCursor.Generated).copy(fallback =
               block.withoutId
             )
           )
@@ -81,7 +81,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
         case Some(b: Span) => RewriteAction.Replace(b)
         case _             =>
           RewriteAction.Replace(
-            InvalidSpan(describeUnknownTarget(span), GeneratedSource).copy(fallback =
+            InvalidSpan(describeUnknownTarget(span), SourceCursor.Generated).copy(fallback =
               span.withoutId
             )
           )

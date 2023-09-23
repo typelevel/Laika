@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 
 /** The base type for all inline elements that
   *  can be found in a template.
@@ -149,7 +149,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
     * without any surrounding decoration.
     */
   val fallback: TemplateRoot = TemplateRoot(
-    TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
   )
 
 }

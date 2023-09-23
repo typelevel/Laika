@@ -23,7 +23,7 @@ import laika.api.config.{ Field, Origin }
 import laika.config.LaikaKeys
 import laika.internal.rst.ast.{ Contents, FieldList, Include, RstStyle }
 import laika.internal.rst.ext.Directives.{ BlockDirective, Directive, DirectivePartBuilder }
-import laika.parse.{ GeneratedSource, SourceFragment }
+import laika.parse.{ SourceCursor, SourceFragment }
 import laika.parse.builders.~
 import laika.parse.markup.RecursiveParsers
 import laika.internal.rst.ext.Directives.Parts.*
@@ -189,7 +189,7 @@ private[rst] class StandardBlockDirectives {
           MessageLevel.Error,
           "The meta directive expects a FieldList as its only block content"
         ),
-        GeneratedSource
+        SourceCursor.Generated
       )
   }
 
@@ -225,7 +225,7 @@ private[rst] class StandardBlockDirectives {
     )).map { case title ~ depth ~ local ~ style =>
       Contents(
         title.getOrElse("Contents"),
-        GeneratedSource,
+        SourceCursor.Generated,
         depth.getOrElse(Int.MaxValue),
         local.isDefined,
         toOptions(None, style)
@@ -243,7 +243,7 @@ private[rst] class StandardBlockDirectives {
     *  references the previously parsed node tree. This is both simpler and more efficient when the same
     *  file gets included in multiple places.
     */
-  lazy val include: DirectivePartBuilder[Block] = argument().map(Include(_, GeneratedSource))
+  lazy val include: DirectivePartBuilder[Block] = argument().map(Include(_, SourceCursor.Generated))
 
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
     *  parameter, see
@@ -329,9 +329,9 @@ private[rst] class StandardBlockDirectives {
     */
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))).map { case formats ~ content =>
-      NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq: _*)) match {
+      NonEmptySet.fromSet(TreeSet(formats.split(" ").toIndexedSeq *)) match {
         case Some(set) => RawContent(set, content.input)
-        case None      => InvalidBlock("no format specified", GeneratedSource)
+        case None      => InvalidBlock("no format specified", SourceCursor.Generated)
       }
     }
   }

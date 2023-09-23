@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.sample.{ BuilderKey, DocumentTreeAssertions, SampleTrees }
 import laika.api.config.Config.ConfigResult
 import laika.api.config.{ ConfigParser, Origin }
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
@@ -114,7 +114,7 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
   trait SectionsWithConfigError extends TreeModel {
 
     override def resultContent(docNum: List[Int]): List[Block] = List(
-      InvalidBlock("Invalid value for autonumbering.scope: xxx", GeneratedSource),
+      InvalidBlock("Invalid value for autonumbering.scope: xxx", SourceCursor.Generated),
       Title(numberedHeader(1, 1, docNum, "title").content, Id("title-1") + Style.title),
       numberedSection(2, 2, docNum :+ 1, numberedSection(3, 3, docNum :+ 1 :+ 1)),
       numberedSection(2, 4, docNum :+ 2, numberedSection(3, 5, docNum :+ 2 :+ 1))

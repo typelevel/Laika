@@ -21,13 +21,13 @@ import laika.ast.RelativePath.CurrentDocument
 import laika.ast.*
 import laika.config.{ LaikaKeys, Versions }
 import laika.helium.internal.config.HeliumStyles
-import laika.parse.{ GeneratedSource, SourceFragment }
+import laika.parse.{ SourceCursor, SourceFragment }
 
 /** A Helium link type available for navigation bars and the landing page.
   */
 sealed trait ThemeLink extends Unresolved {
 
-  val source: SourceFragment = GeneratedSource
+  val source: SourceFragment = SourceCursor.Generated
 
   type Self <: ThemeLink
 
@@ -214,7 +214,7 @@ final case class DynamicHomeLink(options: Options = Options.empty) extends Theme
       case None           =>
         val message =
           "No target for home link found - for options see 'Theme Settings / Top Navigation Bar' in the manual"
-        InvalidSpan(message, GeneratedSource)
+        InvalidSpan(message, SourceCursor.Generated)
     }
   }
 

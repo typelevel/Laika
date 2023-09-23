@@ -30,7 +30,7 @@ import laika.ast.sample.{
 }
 import laika.api.config.Config.ConfigResult
 import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -52,10 +52,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InvalidSpan(message, source(fallback, fallback))
 
   def invalidBlock(message: String, fallback: Block): InvalidBlock =
-    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def invalidSpan(message: String, fallback: Span): InvalidSpan =
-    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def fnRefs(labels: FootnoteLabel*): Paragraph = Paragraph(labels.map { label =>
     FootnoteReference(label, generatedSource(toSource(label)))
@@ -66,7 +66,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }: _*)
 
   def fn(label: FootnoteLabel, num: Any) =
-    FootnoteDefinition(label, List(p(s"footnote$num")), GeneratedSource)
+    FootnoteDefinition(label, List(p(s"footnote$num")), SourceCursor.Generated)
 
   def fn(id: String, label: String) = Footnote(label, List(p(s"footnote$label")), Id(id))
 
@@ -465,7 +465,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("internal links - resolve internal link references to an image") {
     val relPath    = Parent(1) / "images" / "frog.jpg"
     val absPath    = Root / "images" / "frog.jpg"
-    val imgPathRef = ImagePathReference(relPath, GeneratedSource, alt = Some("text"))
+    val imgPathRef = ImagePathReference(relPath, SourceCursor.Generated, alt = Some("text"))
     val target     = InternalTarget(relPath).relativeTo(refPath)
 
     InternalLinks.run(

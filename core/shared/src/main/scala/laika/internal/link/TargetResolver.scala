@@ -16,9 +16,9 @@
 
 package laika.internal.link
 
-import laika.ast._
+import laika.ast.*
 import laika.config.TargetFormats
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 
 /** Represents the source of a link, its document path
   * and the actual inline span that is representing the link.
@@ -137,8 +137,8 @@ private[link] object TargetResolver {
 
     override def replaceTarget(rewrittenOriginal: Element): Option[Element] =
       rewrittenOriginal match {
-        case b: Block => Some(InvalidBlock(sysMsg, GeneratedSource, b.withoutId))
-        case s: Span  => Some(InvalidSpan(sysMsg, GeneratedSource, s.withoutId))
+        case b: Block => Some(InvalidBlock(sysMsg, SourceCursor.Generated, b.withoutId))
+        case s: Span  => Some(InvalidSpan(sysMsg, SourceCursor.Generated, s.withoutId))
         case _        => None
       }
 

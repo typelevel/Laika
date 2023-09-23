@@ -381,24 +381,6 @@ object BlockSource {
 
 }
 
-/** Represents a generated source, where an AST node has been created programmatically and cannot be
-  * traced back to the corresponding input source.
-  */
-object GeneratedSource extends SourceFragment {
-  type Self = this.type
-  def input: String                     = ""
-  def offset: Int                       = 0
-  def remaining: Int                    = 0
-  def atEnd: Boolean                    = true
-  def capture(numChars: Int): String    = ""
-  def consume(numChars: Int): this.type = this
-  def root: RootSource                  = new RootSource(InputString.empty, 0, 0)
-  def position: Position                = new Position(InputString.empty, 0)
-  def nestLevel: Int                    = 0
-  def nextNestLevel: this.type          = this
-  def reverse: this.type                = this
-}
-
 /** Companion for creating new `SourceCursor` instances.
   * This type of constructor is only meant to be used for creating a root cursor for the input holding
   * the whole document (e.g. the entire markup document or the full template).
@@ -416,6 +398,35 @@ object SourceCursor {
     */
   def apply(input: String, path: Path): SourceCursor =
     new RootSource(InputString(input, Some(path)), 0, 0)
+
+  /** Represents a generated source, where an AST node has been created programmatically and cannot be
+    * traced back to the corresponding input source.
+    */
+  object Generated extends SourceFragment {
+    type Self = this.type
+
+    def input: String = ""
+
+    def offset: Int = 0
+
+    def remaining: Int = 0
+
+    def atEnd: Boolean = true
+
+    def capture(numChars: Int): String = ""
+
+    def consume(numChars: Int): this.type = this
+
+    def root: RootSource = new RootSource(InputString.empty, 0, 0)
+
+    def position: Position = new Position(InputString.empty, 0)
+
+    def nestLevel: Int = 0
+
+    def nextNestLevel: this.type = this
+
+    def reverse: this.type = this
+  }
 
 }
 
