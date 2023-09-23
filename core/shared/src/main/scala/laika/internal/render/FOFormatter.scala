@@ -163,7 +163,7 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
   /** A wrapper around pre-rendered content which can be used to set default
     * attributes that can be inherited by any node in the document.
     */
-  case class ContentWrapper(content: String, options: Options = NoOpt) extends Block {
+  case class ContentWrapper(content: String, options: Options = Options.empty) extends Block {
     type Self = ContentWrapper
 
     def withOptions(options: Options): ContentWrapper = copy(options = options)
@@ -172,14 +172,14 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
   /** A preamble for a document, only used in PDF output where multiple XSL-FO documents get concatenated
     * before being passed to the PDF renderer.
     */
-  case class Preamble(title: String, options: Options = NoOpt) extends Block {
+  case class Preamble(title: String, options: Options = Options.empty) extends Block {
     type Self = Preamble
     def withOptions(options: Options): Preamble = copy(options = options)
   }
 
   /** A leader element.
     */
-  case class Leader(options: Options = NoOpt) extends Span {
+  case class Leader(options: Options = Options.empty) extends Span {
     type Self = Leader
     def withOptions(options: Options): Leader = copy(options = options)
   }
@@ -189,21 +189,22 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
     *  @param target the path of the target document containing the local reference
     *  @param options optional render hints
     */
-  case class PageNumberCitation(target: InternalTarget, options: Options = NoOpt) extends Span {
+  case class PageNumberCitation(target: InternalTarget, options: Options = Options.empty)
+      extends Span {
     type Self = PageNumberCitation
     def withOptions(options: Options): PageNumberCitation = copy(options = options)
   }
 
   /** A label for a list item, represented by a single Block element.
     */
-  case class ListItemLabel(content: Block, options: Options = NoOpt) extends Block {
+  case class ListItemLabel(content: Block, options: Options = Options.empty) extends Block {
     type Self = ListItemLabel
     def withOptions(options: Options): ListItemLabel = copy(options = options)
   }
 
   /** The body of a list item containing a sequence of block elements.
     */
-  case class ListItemBody(content: Seq[Block], options: Options = NoOpt) extends Block
+  case class ListItemBody(content: Seq[Block], options: Options = Options.empty) extends Block
       with BlockContainer {
     type Self = ListItemBody
     def withContent(newContent: Seq[Block]): ListItemBody = copy(content = newContent)
@@ -212,7 +213,7 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
 
   /** The body of a footnote containing a sequence of block elements.
     */
-  case class FootnoteBody(content: Seq[Block], options: Options = NoOpt) extends Block
+  case class FootnoteBody(content: Seq[Block], options: Options = Options.empty) extends Block
       with BlockContainer {
     type Self = FootnoteBody
     def withContent(newContent: Seq[Block]): FootnoteBody = copy(content = newContent)
@@ -221,7 +222,7 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
 
   /** A bookmark title.
     */
-  case class BookmarkTitle(content: String, options: Options = NoOpt) extends Block
+  case class BookmarkTitle(content: String, options: Options = Options.empty) extends Block
       with TextContainer {
     type Self = BookmarkTitle
     def withOptions(options: Options): BookmarkTitle = copy(options = options)

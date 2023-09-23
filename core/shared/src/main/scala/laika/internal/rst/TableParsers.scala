@@ -286,12 +286,12 @@ private[laika] object TableParsers {
             case head ~ Some(body) =>
               validateLastRow(body);
               Table(
-                TableHead(buildRowList(head, HeadCell)),
-                TableBody(buildRowList(body.init, BodyCell))
+                TableHead(buildRowList(head, CellType.HeadCell)),
+                TableBody(buildRowList(body.init, CellType.BodyCell))
               )
             case body ~ None       =>
               validateLastRow(body);
-              Table(TableHead(Nil), TableBody(buildRowList(body.init, BodyCell)))
+              Table(TableHead(Nil), TableBody(buildRowList(body.init, CellType.BodyCell)))
           }
           Right(table)
         }
@@ -416,8 +416,11 @@ private[laika] object TableParsers {
 
       tablePart ~ opt(tablePart) ^^ {
         case head ~ Some(body) =>
-          Table(TableHead(buildRowList(head, HeadCell)), TableBody(buildRowList(body, BodyCell)))
-        case body ~ None       => Table(TableHead(Nil), TableBody(buildRowList(body, BodyCell)))
+          Table(
+            TableHead(buildRowList(head, CellType.HeadCell)),
+            TableBody(buildRowList(body, CellType.BodyCell))
+          )
+        case body ~ None => Table(TableHead(Nil), TableBody(buildRowList(body, CellType.BodyCell)))
       }
 
     }

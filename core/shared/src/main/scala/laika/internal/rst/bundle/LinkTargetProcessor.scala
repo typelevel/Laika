@@ -32,7 +32,7 @@ private[laika] object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
   def apply(blocks: Seq[Block]): Seq[Block] = {
 
     case object Mock extends Block {
-      val options: Options = NoOpt
+      val options: Options = Options.empty
       type Self = Mock.type
       def withOptions(options: Options): Mock.type = this
     }

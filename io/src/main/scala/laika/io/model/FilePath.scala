@@ -18,7 +18,7 @@ package laika.io.model
 
 import cats.data.NonEmptyChain
 import laika.ast.Path.Root
-import laika.ast.{ GenericPath, Path, RelativePath, SegmentedPath }
+import laika.ast.{ GenericPath, Path, RelativePath }
 import laika.internal.collection.TransitionalCollectionOps.JIteratorWrapper
 
 import java.nio.file.Paths
@@ -68,7 +68,7 @@ class FilePath private (private val root: Option[String], private[FilePath] val 
   ): FilePath =
     underlying match {
       case Root              => this
-      case sp: SegmentedPath =>
+      case sp: Path.Segments =>
         new FilePath(
           root,
           sp.copy(
@@ -93,7 +93,7 @@ class FilePath private (private val root: Option[String], private[FilePath] val 
     */
   def toNioPath: java.nio.file.Path = underlying match {
     case Root              => Paths.get(root.getOrElse(""))
-    case sp: SegmentedPath =>
+    case sp: Path.Segments =>
       val last     = sp.name + fragment.fold("")("#" + _)
       val segments = root.toList ++: sp.segments.init.append(last).toList
       Paths.get(segments.head, segments.tail: _*)

@@ -26,17 +26,18 @@ import laika.format.XSLFO.formatterSyntax.*
   */
 private[helium] object HeliumRenderOverrides {
 
-  case class Tabs(tabs: Seq[Tab], options: Options = NoOpt) extends Block {
+  case class Tabs(tabs: Seq[Tab], options: Options = Options.empty) extends Block {
     type Self = Tabs
     def withOptions(options: Options): Tabs = copy(options = options)
   }
 
-  case class Tab(name: String, label: String, options: Options = NoOpt) extends Span {
+  case class Tab(name: String, label: String, options: Options = Options.empty) extends Span {
     type Self = Tab
     def withOptions(options: Options): Tab = copy(options = options)
   }
 
-  case class TabContent(name: String, content: Seq[Block], options: Options = NoOpt) extends Block
+  case class TabContent(name: String, content: Seq[Block], options: Options = Options.empty)
+      extends Block
       with BlockContainer {
     type Self = TabContent
     def withOptions(options: Options): TabContent       = copy(options = options)

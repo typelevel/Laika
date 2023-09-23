@@ -17,6 +17,7 @@
 package laika.internal.rewrite
 
 import laika.ast._
+import laika.ast.RewriteAction.Replace
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.ConfigResult
 
@@ -28,10 +29,11 @@ private[laika] object TemplateFormatter extends RewriteRulesBuilder {
     if (spans.isEmpty) spans
     else
       spans.sliding(2).foldLeft(spans.take(1)) {
-        case (acc, Seq(Text(_, NoOpt), Text(txt2, NoOpt))) =>
+        case (acc, Seq(Text(_, Options.empty), Text(txt2, Options.empty))) =>
           acc.dropRight(1) :+ Text(acc.last.asInstanceOf[Text].content + txt2)
-        case (acc, Seq(_, other))                          => acc :+ other
-        case (acc, _)                                      => acc
+
+        case (acc, Seq(_, other)) => acc :+ other
+        case (acc, _)             => acc
       }
 
   private def format(spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
@@ -42,9 +44,9 @@ private[laika] object TemplateFormatter extends RewriteRulesBuilder {
     if (spans.isEmpty) spans
     else
       spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) {
-        case (buffer, Seq(TemplateString(text, NoOpt), TemplateElement(elem, 0, opt))) =>
+        case (buffer, Seq(TemplateString(text, Options.empty), TemplateElement(elem, 0, opt))) =>
           buffer += TemplateElement(elem, indentFor(text), opt)
-        case (buffer, Seq(TemplateString(text, NoOpt), EmbeddedRoot(elem, 0, opt)))    =>
+        case (buffer, Seq(TemplateString(text, Options.empty), EmbeddedRoot(elem, 0, opt)))    =>
           buffer += EmbeddedRoot(elem, indentFor(text), opt)
         case (buffer, Seq(_, elem)) => buffer += elem
         case (buffer, _)            => buffer

@@ -27,10 +27,10 @@ trait TestSourceBuilders {
   val defaultPath: Path = Root / "doc"
 
   def toSource(label: FootnoteLabel): String = label match {
-    case Autonumber             => "[#]_"
-    case Autosymbol             => "[*]_"
-    case AutonumberLabel(label) => s"[#$label]_"
-    case NumericLabel(label)    => s"[$label]_"
+    case FootnoteLabel.Autonumber             => "[#]_"
+    case FootnoteLabel.Autosymbol             => "[*]_"
+    case FootnoteLabel.AutonumberLabel(label) => s"[#$label]_"
+    case FootnoteLabel.NumericLabel(label)    => s"[$label]_"
   }
 
   def source(fragment: String, root: String): SourceFragment = {

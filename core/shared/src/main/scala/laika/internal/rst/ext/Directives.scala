@@ -90,7 +90,7 @@ import ExtensionParsers.Result
   * {{{
   *  case class Note (title: String,
   *                   content: Seq[Block],
-  *                   options: Options = NoOpt) extends Block
+  *                   options: Options = Options.empty) extends Block
   *                                             with BlockContainer[Note]
   *
   *  object MyDirectives extends RstExtensionRegistry {
@@ -137,7 +137,7 @@ import ExtensionParsers.Result
   *
   *  case class Message (severity: Int,
   *                      content: Seq[Block],
-  *                      options: Options = NoOpt) extends Block
+  *                      options: Options = Options.empty) extends Block
   *                                                with BlockContainer[Message]
   *
   *  object MyDirectives extends RstExtensionRegistry {
@@ -169,7 +169,7 @@ import ExtensionParsers.Result
   * {{{
   *  case class Message (severity: Option[Int],
   *                      content: Seq[Block],
-  *                      options: Options = NoOpt) extends Block
+  *                      options: Options = Options.empty) extends Block
   *                                                with BlockContainer[Message]
   *
   *  object MyDirectives extends RstExtensionRegistry {

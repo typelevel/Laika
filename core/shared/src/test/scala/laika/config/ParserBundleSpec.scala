@@ -94,7 +94,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
       |bbb
     """.stripMargin
 
-  case class DecoratedBlock(deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block
+  case class DecoratedBlock(deco: Char, content: Seq[Span], options: Options = Options.empty)
+      extends Block
       with SpanContainer {
     type Self = DecoratedBlock
     def withContent(newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
@@ -180,7 +181,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
   })
 
   case class DecoratedSpan(deco: Char, text: String) extends Span {
-    val options: Options = NoOpt
+    val options: Options = Options.empty
     type Self = DecoratedSpan
     def withOptions(options: Options): DecoratedSpan = this
   }

@@ -24,11 +24,12 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees }
+import laika.ast.CellType.BodyCell
 import laika.config.LaikaKeys
 import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
 import laika.format.{ AST, HTML, ReStructuredText }
 import laika.internal.rst.ast.{ Contents, Include, RstStyle }
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import munit.FunSuite
 
@@ -57,8 +58,9 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
           .document
           .content
           .rewriteBlocks({ case _: Hidden with Block =>
-            Remove
-          }) // removing the noise of rst TextRoles which are not the focus of this spec
+            RewriteAction.Remove
+          })
+          // removing the noise of rst TextRoles which are not the focus of this spec
       )
 
     assertEquals(res, Right(RootElement(expected)))
@@ -613,13 +615,14 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   test("include - creates a placeholder in the document") {
     val input = """.. include:: other.rst"""
-    runRaw(input, Include("other.rst", GeneratedSource))
+    runRaw(input, Include("other.rst", SourceCursor.Generated))
   }
 
   test("include rewriter replaces the node with the corresponding document") {
-    val ref = TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    val ref  =
+      TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     val tree = SampleTrees.twoDocuments
-      .doc1.content(Include("doc-2", GeneratedSource))
+      .doc1.content(Include("doc-2", SourceCursor.Generated))
       .doc2.content(p("text"))
       .root.template(DefaultTemplatePath.forHTML.name, ref)
       .build
@@ -686,7 +689,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
     val input = """.. contents:: This is the title
                   | :depth: 3
                   | :local: true""".stripMargin
-    val elem  = Contents("This is the title", GeneratedSource, depth = 3, local = true)
+    val elem  = Contents("This is the title", SourceCursor.Generated, depth = 3, local = true)
     runRaw(input, elem)
   }
 
@@ -706,7 +709,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
     val sectionsWithTitle = RootElement(
       header(1, 1, "title") ::
-        Contents("This is the title", GeneratedSource, 3) ::
+        Contents("This is the title", SourceCursor.Generated, 3) ::
         header(2, 2) ::
         header(3, 3) ::
         header(2, 4) ::
@@ -732,7 +735,11 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
     val template = TemplateDocument(
       DefaultTemplatePath.forHTML,
       TemplateRoot(
-        TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+        TemplateContextReference(
+          CursorKeys.documentContent,
+          required = true,
+          SourceCursor.Generated
+        )
       )
     )
     val tree     = DocumentTree.builder.addDocument(document).addTemplate(template).build

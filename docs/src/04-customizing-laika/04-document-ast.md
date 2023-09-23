@@ -345,7 +345,7 @@ If you create a custom element type you can use these base traits to get all the
 ```scala mdoc
 import laika.ast._
 
-case class MyElement(content: Seq[Block], options: Options = NoOpt) extends Block
+case class MyElement(content: Seq[Block], options: Options = Options.empty) extends Block
     with BlockContainer {
   type Self = MyElement
   def withContent(newContent: Seq[Block]): MyElement = copy(content = newContent)

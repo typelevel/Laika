@@ -94,7 +94,7 @@ private[laika] object ListParsers {
 
   lazy val bulletList: BlockParserBuilder = BlockParserBuilder.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ ws.min(1)) >> { symbol =>
-      val bullet = StringBullet(symbol)
+      val bullet = BulletFormat.StringBullet(symbol)
       listItem(literal(symbol), BulletListItem(_, bullet)).rep.min(1).map { items =>
         BulletList(
           rewriteListItems(items, (item: BulletListItem, content) => item.withContent(content)),

@@ -100,17 +100,18 @@ private[link] class DocumentTargets(document: Document, slugBuilder: String => S
 
       case f: FootnoteDefinition =>
         val (docId, displayId, selector) = f.label match {
-          case Autosymbol          =>
+          case FootnoteLabel.Autosymbol          =>
             (
               s"__fns-${symbolNumbers.next()}",
               symbols.next(),
               AutosymbolSelector
             ) // TODO - move these prefix definitions somewhere else
-          case Autonumber          =>
+          case FootnoteLabel.Autonumber          =>
             val num = numbers.next(); (s"__fn-$num", num.toString, AutonumberSelector)
-          case AutonumberLabel(id) =>
+          case FootnoteLabel.AutonumberLabel(id) =>
             (slugBuilder(id), numbers.next().toString, TargetIdSelector(slugBuilder(id)))
-          case NumericLabel(num)   => (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
+          case FootnoteLabel.NumericLabel(num)   =>
+            (s"__fnl-$num", num.toString, TargetIdSelector(num.toString))
         }
         val resolver = ReferenceResolver.lift { case LinkSource(FootnoteReference(_, _, opt), _) =>
           FootnoteLink(docId, displayId, opt)

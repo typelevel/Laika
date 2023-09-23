@@ -63,72 +63,71 @@ case class ExternalTarget(url: String) extends Target {
 /** Represents a target within the virtual tree that can be referred to by links.
   */
 sealed trait InternalTarget extends Target {
-  def relativeTo(refPath: Path): ResolvedInternalTarget
+  def relativeTo(refPath: Path): InternalTarget.Resolved
 
   /** The underlying path reference, which is either a relative or absolute path,
     * depending on the implementation of this trait.
     */
   def underlying: VirtualPath = this match {
-    case t: ResolvedInternalTarget => t.absolutePath
-    case t: AbsoluteInternalTarget => t.path
-    case t: RelativeInternalTarget => t.path
+    case t: InternalTarget.Resolved => t.absolutePath
+    case t: InternalTarget.Absolute => t.path
+    case t: InternalTarget.Relative => t.path
   }
 
 }
 
 object InternalTarget {
 
+  /** Represents a target defined by an absolute path.
+    */
+  case class Absolute(path: Path) extends InternalTarget {
+
+    def relativeTo(refPath: Path): Resolved = Resolved(path, path.relativeTo(refPath))
+
+    def render(internalTargetsAbsolute: Boolean = false): String = path.toString
+  }
+
+  /** Represents a target defined by a relative path;
+    * the absolute path of such a target needs to be resolved later in the context of the containing document and its path.
+    */
+  case class Relative(path: RelativePath) extends InternalTarget {
+
+    def relativeTo(refPath: Path): Resolved = path match {
+      case p: CurrentDocument => Resolved(refPath / p, p)
+      case p: RelativePath    => Resolved(refPath.parent / p, p)
+    }
+
+    def render(internalTargetsAbsolute: Boolean = false): String = path.toString
+  }
+
+  /** Represents a resolved internal target where both the absolute and relative path are known,
+    * the latter relative to the document that referred to the target.
+    *
+    * The `internalFormats` property describes which of the output formats treat this as an internal link.
+    * For other formats the link gets translated to an external target based on the `siteBaseURL` setting.
+    * This might be useful for cases where some pages get rendered to a site, but not included in an e-book
+    * format like EPUB and PDF.
+    */
+  case class Resolved(
+      absolutePath: Path,
+      relativePath: RelativePath,
+      internalFormats: TargetFormats = TargetFormats.All
+  ) extends InternalTarget {
+
+    def relativeTo(refPath: Path): Resolved =
+      Resolved(absolutePath, absolutePath.relativeTo(refPath))
+
+    def render(internalTargetsAbsolute: Boolean = false): String =
+      if (internalTargetsAbsolute) absolutePath.toString
+      else relativePath.toString
+
+  }
+
   /** Creates an internal target based on the specified relative or absolute path.
     */
   def apply(path: VirtualPath): InternalTarget = path match {
-    case p: RelativePath => RelativeInternalTarget(p)
-    case p: Path         => AbsoluteInternalTarget(p)
+    case p: RelativePath => InternalTarget.Relative(p)
+    case p: Path         => InternalTarget.Absolute(p)
   }
 
-}
-
-/** Represents a resolved internal target where both the absolute and relative path are known,
-  * the latter relative to the document that referred to the target.
-  *
-  * The `internalFormats` property describes which of the output formats treat this as an internal link.
-  * For other formats the link gets translated to an external target based on the `siteBaseURL` setting.
-  * This might be useful for cases where some pages get rendered to a site, but not included in an e-book
-  * format like EPUB and PDF.
-  */
-case class ResolvedInternalTarget(
-    absolutePath: Path,
-    relativePath: RelativePath,
-    internalFormats: TargetFormats = TargetFormats.All
-) extends InternalTarget {
-
-  def relativeTo(refPath: Path): ResolvedInternalTarget =
-    ResolvedInternalTarget(absolutePath, absolutePath.relativeTo(refPath))
-
-  def render(internalTargetsAbsolute: Boolean = false): String =
-    if (internalTargetsAbsolute) absolutePath.toString
-    else relativePath.toString
-
-}
-
-/** Represents a target defined by an absolute path.
-  */
-case class AbsoluteInternalTarget(path: Path) extends InternalTarget {
-
-  def relativeTo(refPath: Path): ResolvedInternalTarget =
-    ResolvedInternalTarget(path, path.relativeTo(refPath))
-
-  def render(internalTargetsAbsolute: Boolean = false): String = path.toString
-}
-
-/** Represents a target defined by a relative path;
-  * the absolute path of such a target needs to be resolved later in the context of the containing document and its path.
-  */
-case class RelativeInternalTarget(path: RelativePath) extends InternalTarget {
-
-  def relativeTo(refPath: Path): ResolvedInternalTarget = path match {
-    case p: CurrentDocument => ResolvedInternalTarget(refPath / p, p)
-    case p: RelativePath    => ResolvedInternalTarget(refPath.parent / p, p)
-  }
-
-  def render(internalTargetsAbsolute: Boolean = false): String = path.toString
 }

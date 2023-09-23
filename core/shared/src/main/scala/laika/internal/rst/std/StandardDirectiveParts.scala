@@ -22,7 +22,7 @@ import laika.parse.builders.~
 import laika.parse.syntax.*
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, TextParsers }
-import laika.parse.{ GeneratedSource, SourceFragment }
+import laika.parse.{ SourceCursor, SourceFragment }
 import laika.internal.rst.BaseParsers.sizeAndUnit
 import laika.internal.rst.ext.Directives.Parts.*
 
@@ -79,10 +79,10 @@ private[std] object StandardDirectiveParts {
       stdOpt).map { case uri ~ alt ~ width ~ height ~ scale ~ align ~ target ~ opt =>
       val actualWidth  = scale.fold(width)(s => width.map(_.scale(s.amount)))
       val actualHeight = scale.fold(height)(s => height.map(_.scale(s.amount)))
-      val alignOpt     = align.getOrElse(NoOpt)
+      val alignOpt     = align.getOrElse(Options.empty)
 
       val img      = Image(Target.parse(uri), width = actualWidth, height = actualHeight, alt = alt)
-      val resolver = ImageResolver(img, GeneratedSource)
+      val resolver = ImageResolver(img, SourceCursor.Generated)
 
       target
         .flatMap {

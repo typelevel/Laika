@@ -669,7 +669,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *  The implementation of this directive could look like this:
     *
     *  {{{
-    *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt)
+    *  case class Note (title: String, content: Seq[Block], options: Options = Options.empty)
     *                                                      extends Block with BlockContainer[Note]
     *
     *  object MyDirectives extends DirectiveRegistry {
@@ -701,7 +701,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *  {{{
     *  case class Message (severity: Int,
     *                      content: Seq[Block],
-    *                      options: Options = NoOpt) extends Block
+    *                      options: Options = Options.empty) extends Block
     *                                                with BlockContainer[Message]
     *
     *  val blockDirectives = Seq(
@@ -724,7 +724,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *  {{{
     *  case class Message (severity: Int,
     *                      content: Seq[Block],
-    *                      options: Options = NoOpt) extends Block
+    *                      options: Options = Options.empty) extends Block
     *                                                with BlockContainer[Message]
     *
     *  val blockDirectives = Seq(
@@ -758,7 +758,7 @@ object SpanDirectives extends DirectiveBuilderContext[Span] {
       parser: RecursiveSpanParsers,
       source: SourceFragment,
       rewriteRules: RewriteRules = RewriteRules.empty,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends SpanResolver with RewritableContainer with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String                                 = "span"
@@ -780,7 +780,7 @@ object SpanDirectives extends DirectiveBuilderContext[Span] {
   private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends Span with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions(options: Options): SeparatorInstance = copy(options = options)
@@ -810,7 +810,7 @@ object BlockDirectives extends DirectiveBuilderContext[Block] {
       parser: RecursiveParsers,
       source: SourceFragment,
       rewriteRules: RewriteRules = RewriteRules.empty,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends BlockResolver with RewritableContainer with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String                                 = "block"
@@ -832,7 +832,7 @@ object BlockDirectives extends DirectiveBuilderContext[Block] {
   private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends Block with SeparatorInstanceBase with BlockResolver {
     type Self = SeparatorInstance
     def withOptions(options: Options): SeparatorInstance = copy(options = options)
@@ -866,7 +866,7 @@ object TemplateDirectives extends DirectiveBuilderContext[TemplateSpan] {
       parsedResult: ParsedDirective,
       parser: RecursiveSpanParsers,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends SpanResolver with TemplateSpan with DirectiveInstanceBase {
     type Self = DirectiveInstance
     val typeName: String                                 = "template"
@@ -884,7 +884,7 @@ object TemplateDirectives extends DirectiveBuilderContext[TemplateSpan] {
   private[laika] case class SeparatorInstance(
       parsedResult: ParsedDirective,
       source: SourceFragment,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ) extends TemplateSpan with SeparatorInstanceBase with SpanResolver {
     type Self = SeparatorInstance
     def withOptions(options: Options): SeparatorInstance = copy(options = options)

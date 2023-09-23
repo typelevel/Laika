@@ -50,12 +50,12 @@ private[laika] object Tables {
       }
     }
 
-    val firstRow: PrefixedParser[Row] = "|" ~> rowRest(HeadCell)
+    val firstRow: PrefixedParser[Row] = "|" ~> rowRest(CellType.HeadCell)
 
     val bodyRow: Parser[Row] = {
       val rowStart =
         insignificantSpaces ~ not(oneOf('*', '+', '-', '>', '_', '#', '[', ' ', '\t')) ~ opt("|")
-      rowStart ~> rowRest(BodyCell)
+      rowStart ~> rowRest(CellType.BodyCell)
     }
 
     val sepRow: Parser[Seq[Options]] = {
@@ -71,7 +71,7 @@ private[laika] object Tables {
           case Some(_) ~ Some(_) => Style.alignCenter
           case Some(_) ~ None    => Style.alignLeft
           case None ~ Some(_)    => Style.alignRight
-          case _                 => NoOpt
+          case _                 => Options.empty
         }
       }
     }
@@ -88,7 +88,7 @@ private[laika] object Tables {
         row.copy(content =
           row.content
             .take(count)
-            .padTo(count, BodyCell.empty)
+            .padTo(count, CellType.BodyCell.empty)
             .zip(columnOptions)
             .map { case (cell, opt) =>
               cell.withOptions(opt)

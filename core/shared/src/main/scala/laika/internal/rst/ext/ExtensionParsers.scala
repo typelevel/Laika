@@ -125,8 +125,11 @@ private[rst] class ExtensionParsers(
     }
   }
 
-  private case class InvalidDirective(msg: String, source: SourceFragment, options: Options = NoOpt)
-      extends Block with Span {
+  private case class InvalidDirective(
+      msg: String,
+      source: SourceFragment,
+      options: Options = Options.empty
+  ) extends Block with Span {
     type Self = InvalidDirective
     def withOptions(options: Options): InvalidDirective = copy(options = options)
   }

@@ -23,7 +23,7 @@ import scala.util.Try
 
 /** @author Jens Halm
   */
-object PlatformDateTimeImpl extends PlatformDateTime {
+private[laika] object PlatformDateTimeImpl extends PlatformDateTime {
 
   type Type = js.Date
 

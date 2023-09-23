@@ -22,8 +22,11 @@ import laika.config.TargetFormats
 
 /** A bullet list that may contain nested lists.
   */
-case class BulletList(content: Seq[BulletListItem], format: BulletFormat, options: Options = NoOpt)
-    extends Block
+case class BulletList(
+    content: Seq[BulletListItem],
+    format: BulletFormat,
+    options: Options = Options.empty
+) extends Block
     with ListContainer
     with RewritableContainer {
   type Self = BulletList
@@ -37,7 +40,7 @@ case class BulletList(content: Seq[BulletListItem], format: BulletFormat, option
 /** Base trait for companions that create BulletList instances. */
 trait BulletListCompanion extends BlockContainerCompanion {
   type ContainerType = BulletList
-  def bullet: BulletFormat = StringBullet("*")
+  def bullet: BulletFormat = BulletFormat.StringBullet("*")
 
   override protected def createSpanContainer(spans: Seq[Span]): ContainerType =
     createBlockContainer(spans.map(Paragraph(_)))
@@ -71,7 +74,7 @@ case class EnumList(
     content: Seq[EnumListItem],
     format: EnumFormat,
     start: Int = 1,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block
     with ListContainer
     with RewritableContainer {
@@ -131,9 +134,13 @@ object EnumList extends EnumListCompanion {
   */
 trait BulletFormat
 
-/** Bullet format based on a simple string.
-  */
-case class StringBullet(bullet: String) extends BulletFormat
+object BulletFormat {
+
+  /** Bullet format based on a simple string.
+    */
+  case class StringBullet(bullet: String) extends BulletFormat
+
+}
 
 /** The format of enumerated list items.
   */
@@ -176,8 +183,11 @@ object EnumType {
 
 /** A single bullet list item consisting of one or more block elements.
   */
-case class BulletListItem(content: Seq[Block], format: BulletFormat, options: Options = NoOpt)
-    extends ListItem
+case class BulletListItem(
+    content: Seq[Block],
+    format: BulletFormat,
+    options: Options = Options.empty
+) extends ListItem
     with BlockContainer {
   type Self = BulletListItem
   def withContent(newContent: Seq[Block]): BulletListItem = copy(content = newContent)
@@ -190,7 +200,7 @@ case class EnumListItem(
     content: Seq[Block],
     format: EnumFormat,
     position: Int,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ListItem
     with BlockContainer {
   type Self = EnumListItem
@@ -201,7 +211,8 @@ case class EnumListItem(
 /** A list of terms and their definitions.
   *  Not related to the `Definition` base trait.
   */
-case class DefinitionList(content: Seq[DefinitionListItem], options: Options = NoOpt) extends Block
+case class DefinitionList(content: Seq[DefinitionListItem], options: Options = Options.empty)
+    extends Block
     with ListContainer
     with RewritableContainer {
   type Self = DefinitionList
@@ -221,8 +232,11 @@ object DefinitionList {
 
 /** A single definition item, containing the term and definition (as the content property).
   */
-case class DefinitionListItem(term: Seq[Span], content: Seq[Block], options: Options = NoOpt)
-    extends ListItem
+case class DefinitionListItem(
+    term: Seq[Span],
+    content: Seq[Block],
+    options: Options = Options.empty
+) extends ListItem
     with BlockContainer {
   type Self = DefinitionListItem
 
@@ -242,7 +256,8 @@ object DefinitionListItem {
 }
 
 /** The root node of a navigation structure */
-case class NavigationList(content: Seq[NavigationItem], options: Options = NoOpt) extends Block
+case class NavigationList(content: Seq[NavigationItem], options: Options = Options.empty)
+    extends Block
     with ListContainer with RewritableContainer {
 
   type Self = NavigationList
@@ -276,7 +291,9 @@ object NavigationList {
     def apply(cursor: DocumentCursor): ConfigResult[RewriteRules] = Right {
       RewriteRules.forBlocks {
         case nl: NavigationList if !nl.hasStyle("breadcrumb") =>
-          Replace(cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector)))
+          RewriteAction.Replace(
+            cursor.root.outputContext.fold(nl)(ctx => nl.forFormat(ctx.formatSelector))
+          )
       }
     }
 
@@ -292,7 +309,7 @@ case class NavigationItem(
     content: Seq[NavigationItem],
     link: Option[NavigationLink] = None,
     targetFormats: TargetFormats = TargetFormats.All,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block with ListItem with ElementContainer[NavigationItem] with RewritableContainer
     with ListContainer {
 

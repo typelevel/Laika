@@ -22,6 +22,7 @@ import laika.api.config.{ Config, ConfigParser, Key, Origin }
 import laika.api.config.ConfigError.{ DocumentErrors, InvalidType, TreeErrors, ValidationFailed }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
+import laika.ast.RewriteAction.Replace
 import laika.ast.sample.{
   BuilderKey,
   MunitDocumentTreeAssertions,
@@ -35,7 +36,7 @@ import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
 import laika.config.MessageFilter
 import laika.format.HTML
 import laika.internal.rewrite.TemplateRewriter
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class DocumentTreeAPISpec extends FunSuite
@@ -79,7 +80,7 @@ class DocumentTreeAPISpec extends FunSuite
       includeRuntimeMessage: Boolean = false
   ): DocumentTreeRoot = {
     val refNode                                 = contextRef.fold(Seq.empty[Span])(ref =>
-      Seq(MarkupContextReference(Key.parse(ref), required = false, GeneratedSource))
+      Seq(MarkupContextReference(Key.parse(ref), required = false, SourceCursor.Generated))
     )
     def targetRoot(key: BuilderKey): Seq[Block] = {
       val msgNode =

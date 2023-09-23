@@ -68,10 +68,10 @@ private[laika] object BaseParsers {
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
     */
   val footnoteLabel: Parser[FootnoteLabel] = {
-    val decimal         = someOf(CharGroup.digit).map(n => NumericLabel(n.toInt))
-    val autonumber      = literal("#").as(Autonumber)
-    val autosymbol      = literal("*").as(Autosymbol)
-    val autonumberLabel = "#" ~> simpleRefName.map(AutonumberLabel.apply)
+    val decimal         = someOf(CharGroup.digit).map(n => FootnoteLabel.NumericLabel(n.toInt))
+    val autonumber      = literal("#").as(FootnoteLabel.Autonumber)
+    val autosymbol      = literal("*").as(FootnoteLabel.Autosymbol)
+    val autonumberLabel = "#" ~> simpleRefName.map(FootnoteLabel.AutonumberLabel.apply)
 
     decimal | autonumberLabel | autonumber | autosymbol
   }

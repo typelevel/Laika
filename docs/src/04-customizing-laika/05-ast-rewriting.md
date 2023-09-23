@@ -60,7 +60,7 @@ import laika.sbt.LaikaPlugin.autoImport._
 import laika.ast._
 
 laikaExtensions += laikaSpanRewriteRule { 
-  case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
 }
 ```
 
@@ -82,7 +82,7 @@ val transformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
   .usingSpanRule {
-    case Emphasized(content, opts) => Replace(Strong(content, opts))
+    case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
   }.build
 ```
 
@@ -105,7 +105,7 @@ import laika.ast._
 def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forSpans {
-  case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
 })
 ```
 
@@ -118,8 +118,8 @@ import laika.ast._
 def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forBlocks {
-  case h: Header => Replace(h.rewriteSpans {
-    case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case h: Header => RewriteAction.Replace(h.rewriteSpans {
+    case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
   })
 })
 ```

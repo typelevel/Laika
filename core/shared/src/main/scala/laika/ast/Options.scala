@@ -17,73 +17,73 @@
 package laika.ast
 
 /** Options for customizable elements.
+  *
+  * For creating new instances you can use the various factory objects.
+  * Example for creating an instance with an id and two styles applied:
+  *
+  * {{{
+  *  val options = Id("myId") + Styles("style1","style2")
+  * }}}
+  *
+  * Likewise it is also often more convenient to use the corresponding extractors for pattern matching.
   */
 sealed abstract class Options {
 
-  /** The id of this element. Has to be unique
-    *  across all element types of a document,
-    *  including the ids of `LinkTarget` instances.
+  /** The id of this element.
+    * Has to be unique across all element types of a document,
+    * including the ids of `LinkTarget` instances.
     */
   def id: Option[String]
 
-  /** Style names that may have an influence
-    *  on rendering of this element.
+  /** Style names that may have an influence on rendering of this element.
     */
   def styles: Set[String]
 
-  /** Merges these options with the specified
-    *  options. If the id has been set in both
-    *  instances, the other instance overrides
-    *  this one.
+  /** Indicates whether this options instance is empty,
+    * meaning neither an id nor any styles are assigned to it.
+    */
+  def isEmpty: Boolean
+
+  /** Merges these options with the specified options.
+    * If the id has been set in both instances, the other instance overrides this one.
     */
   def + (other: Options): Options
-}
 
-/** `Options` implementation for non-empty instances.
-  *
-  *  For creating new instances it is usually more convenient to use the various factory objects.
-  *  Example for creating an instance with an id and two styles applied:
-  *
-  *  {{{
-  *  val options = Id("myId") + Styles("style1","style2")
-  *  }}}
-  *
-  *  Likewise it is also often more convenient to use the corresponding extractors for pattern matching.
-  */
-case class SomeOpt(id: Option[String] = None, styles: Set[String] = Set()) extends Options {
-  def + (other: Options): Options = SomeOpt(other.id.orElse(id), styles ++ other.styles)
-}
-
-/** Empty `Options` implementation.
-  */
-case object NoOpt extends Options {
-  val id: Option[String]          = None
-  val styles: Set[String]         = Set()
-  def + (other: Options): Options = other
 }
 
 /** Companion for the Options trait.
   */
 object Options {
 
+  private final case class Impl(id: Option[String], styles: Set[String])
+      extends Options {
+    override def productPrefix = "Options"
+
+    def isEmpty: Boolean = id.isEmpty && styles.isEmpty
+
+    def + (other: Options): Options = Impl(other.id.orElse(id), styles ++ other.styles)
+  }
+
+  val empty: Options = Impl(None, Set())
+
   def apply(id: Option[String] = None, styles: Set[String] = Set()): Options =
-    if (id.isEmpty && styles.isEmpty) NoOpt
-    else SomeOpt(id, styles)
+    if (id.isEmpty && styles.isEmpty) empty
+    else Impl(id, styles)
 
 }
 
 /** Factory and extractor for an `Options` instance with an id.
   */
 object Id {
-  def apply(value: String): Options           = SomeOpt(id = Some(value))
+  def apply(value: String): Options           = Options(id = Some(value))
   def unapply(value: Options): Option[String] = value.id
 }
 
 /** Factory and extractor for an `Options` instance with style names.
   */
 object Styles {
-  def apply(values: String*): Options                 = SomeOpt(styles = values.toSet)
-  def apply(values: Set[String]): Options             = SomeOpt(styles = values)
+  def apply(values: String*): Options                 = Options(styles = values.toSet)
+  def apply(values: Set[String]): Options             = Options(styles = values)
   def unapplySeq(value: Options): Option[Seq[String]] = Some(value.styles.toSeq)
 }
 

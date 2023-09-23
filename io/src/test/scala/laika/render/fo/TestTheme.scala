@@ -22,7 +22,7 @@ import laika.ast.{ TemplateContextReference, TemplateRoot, styles }
 import laika.helium.Helium
 import laika.helium.internal.generate.FOStyles
 import laika.internal.parse.css.CSSParsers
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 
@@ -36,8 +36,12 @@ object TestTheme {
     .getOrElse(StyleDeclarationSet.empty)
 
   lazy val foTemplate = TemplateRoot(
-    TemplateContextReference(CursorKeys.fragment("bookmarks"), required = false, GeneratedSource),
-    TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    TemplateContextReference(
+      CursorKeys.fragment("bookmarks"),
+      required = false,
+      SourceCursor.Generated
+    ),
+    TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
   )
 
   lazy val htmlTemplate = TemplateRoot.fallback

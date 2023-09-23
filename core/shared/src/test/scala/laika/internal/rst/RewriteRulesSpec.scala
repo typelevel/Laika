@@ -23,7 +23,7 @@ import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.internal.rst.ast.Underline
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -55,7 +55,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("link id refs - resolve references when some parent element also gets rewritten") {
     val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource),
+      DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), SourceCursor.Generated),
       LinkDefinition("name", ExternalTarget("http://foo/"))
     )
     val resolved =
@@ -65,9 +65,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("decorated headers - set the level of the header in a flat list of headers") {
     val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
+      DecoratedHeader(Underline('#'), List(Text("Title")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 1")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 2")), SourceCursor.Generated)
     )
     val expected = RootElement(
       Title(List(Text("Title")), Id("title") + Style.title),
@@ -79,10 +79,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("decorated headers - set the level of the header in a nested list of headers") {
     val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
+      DecoratedHeader(Underline('#'), List(Text("Title")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 1")), SourceCursor.Generated),
+      DecoratedHeader(Underline('-'), List(Text("Header 2")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 3")), SourceCursor.Generated)
     )
     val expected = RootElement(
       Title(List(Text("Title")), Id("title") + Style.title),
@@ -99,9 +99,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "decorated headers - do not create title nodes in the default configuration for orphan documents"
   ) {
     val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
+      DecoratedHeader(Underline('#'), List(Text("Title")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 1")), SourceCursor.Generated),
+      DecoratedHeader(Underline('#'), List(Text("Header 2")), SourceCursor.Generated)
     )
     val expected = RootElement(
       Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),

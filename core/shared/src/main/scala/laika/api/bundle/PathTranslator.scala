@@ -60,11 +60,11 @@ trait PathTranslator {
     * in case a `siteBaseURL` is configured.
     */
   def translate(target: Target): Target = target match {
-    case rt: ResolvedInternalTarget =>
+    case rt: InternalTarget.Resolved =>
       rt.copy(absolutePath = translate(rt.absolutePath), relativePath = translate(rt.relativePath))
-    case at: AbsoluteInternalTarget => at.copy(path = translate(at.path))
-    case rt: RelativeInternalTarget => rt.copy(path = translate(rt.path))
-    case et                         => et
+    case at: InternalTarget.Absolute => at.copy(path = translate(at.path))
+    case rt: InternalTarget.Relative => rt.copy(path = translate(rt.path))
+    case et                          => et
   }
 
   /** Creates a copy of this path translator that uses the specified reference path for resolving
@@ -140,7 +140,7 @@ private[laika] class PathTranslatorExtension(
   )
 
   def translate(input: RelativePath): RelativePath = {
-    val absolute   = RelativeInternalTarget(input).relativeTo(refPath).absolutePath
+    val absolute   = InternalTarget.Relative(input).relativeTo(refPath).absolutePath
     val translated = translate(absolute)
     translated.relativeTo(translatedRefPath)
   }
@@ -178,13 +178,13 @@ private[laika] case class ConfigurablePathTranslator(
   }
 
   def translate(input: RelativePath): RelativePath = {
-    val absolute   = RelativeInternalTarget(input).relativeTo(refPath).absolutePath
+    val absolute   = InternalTarget.Relative(input).relativeTo(refPath).absolutePath
     val translated = translate(absolute)
     translated.relativeTo(translatedRefPath)
   }
 
   override def translate(target: Target): Target = (target, config.siteBaseURL) match {
-    case (ResolvedInternalTarget(absolutePath, _, formats), Some(baseURL))
+    case (InternalTarget.Resolved(absolutePath, _, formats), Some(baseURL))
         if !formats.contains(outputContext.formatSelector) =>
       ExternalTarget(
         baseURL + translate(absolutePath.withSuffix("html"), isHTMLTarget = true).relative.toString

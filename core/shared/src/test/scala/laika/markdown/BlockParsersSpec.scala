@@ -84,7 +84,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     val input = """+ aaa
                   |+ bbb
                   |+ ccc""".stripMargin
-    run(input, BulletList(StringBullet("+"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("+"))("aaa", "bbb", "ccc"))
   }
 
   test(
@@ -93,7 +93,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     val input = """- aaa
                   |- bbb
                   |- ccc""".stripMargin
-    run(input, BulletList(StringBullet("-"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("-"))("aaa", "bbb", "ccc"))
   }
 
   test("bullet lists - items prefixed by numbers as items of an enumerated list") {

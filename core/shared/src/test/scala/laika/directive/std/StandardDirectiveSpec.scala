@@ -112,7 +112,7 @@ class StandardDirectiveSpec extends FunSuite
     run(input, p(Text("aa "), SpanSequence(Nil), Text(" bb")))
   }
 
-  private val resolvedTarget = ResolvedInternalTarget(
+  private val resolvedTarget = InternalTarget.Resolved(
     absolutePath = Path.parse("/theme/theme.css"),
     relativePath = RelativePath.parse("../theme/theme.css")
   )

@@ -20,7 +20,7 @@ import cats.data.NonEmptySet
 import laika.ast.*
 import laika.internal.rst.ast.RstStyle
 import laika.internal.rst.ext.TextRoles.TextRole
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.parse.builders.~
 import laika.internal.rst.ext.TextRoles.Parts.*
 
@@ -74,50 +74,48 @@ private[rst] class StandardTextRoles {
   private val classOption = optField(
     "class",
     opt => Right(Options(None, opt.input.split(" ").toSet))
-  ) map (_.getOrElse(NoOpt))
+  ) map (_.getOrElse(Options.empty))
 
   /** The standard emphasis text role.
     */
   lazy val emphasis: TextRole =
-    TextRole("emphasis", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("emphasis", Options.empty)(classOption)((opt, text) =>
       Emphasized(List(Text(text)), opt)
     )
 
   /** The standard strong text role.
     */
   lazy val strong: TextRole =
-    TextRole("strong", NoOpt: Options)(classOption)((opt, text) => Strong(List(Text(text)), opt))
+    TextRole("strong", Options.empty)(classOption)((opt, text) => Strong(List(Text(text)), opt))
 
   /** The standard literal text role.
     */
   lazy val literal: TextRole =
-    TextRole("literal", NoOpt: Options)(classOption)((opt, text) => Literal(text, opt))
+    TextRole("literal", Options.empty)(classOption)((opt, text) => Literal(text, opt))
 
   /** The standard subscript text role.
     */
   lazy val subscript: TextRole =
-    TextRole("subscript", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("subscript", Options.empty)(classOption)((opt, text) =>
       Text(text, opt + RstStyle.subscript)
     )
 
   /** The standard superscript text role.
     */
   lazy val superscript: TextRole =
-    TextRole("superscript", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("superscript", Options.empty)(classOption)((opt, text) =>
       Text(text, opt + RstStyle.superscript)
     )
 
   /** The sub text role, an alias for the subscript role.
     */
   lazy val sub: TextRole =
-    TextRole("sub", NoOpt: Options)(classOption)((opt, text) =>
-      Text(text, opt + RstStyle.subscript)
-    )
+    TextRole("sub", Options.empty)(classOption)((opt, text) => Text(text, opt + RstStyle.subscript))
 
   /** The sup text role, an alias for the superscript role.
     */
   lazy val sup: TextRole =
-    TextRole("sup", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("sup", Options.empty)(classOption)((opt, text) =>
       Text(text, opt + RstStyle.superscript)
     )
 
@@ -125,21 +123,21 @@ private[rst] class StandardTextRoles {
     *  with `RstExtensionRegistry.defaultTextRole`.
     */
   lazy val titleRef: TextRole =
-    TextRole("title-reference", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("title-reference", Options.empty)(classOption)((opt, text) =>
       Emphasized(List(Text(text)), opt + RstStyle.titleReference)
     )
 
   /** The title text role, an alias for the title-reference role.
     */
   lazy val title: TextRole =
-    TextRole("title", NoOpt: Options)(classOption)((opt, text) =>
+    TextRole("title", Options.empty)(classOption)((opt, text) =>
       Emphasized(List(Text(text)), opt + RstStyle.titleReference)
     )
 
   /** The standard code text role. The current implementation does not support syntax highlighting.
     */
   lazy val codeSpan: TextRole =
-    TextRole("code", ("", NoOpt: Options)) {
+    TextRole("code", ("", Options.empty)) {
       (optField("language") ~ classOption).map { case lang ~ opt => (lang.getOrElse(""), opt) }
     } { case ((lang, opt), text) =>
       InlineCode(lang, List(Text(text)), opt)
@@ -150,12 +148,12 @@ private[rst] class StandardTextRoles {
     *  It can be enabled with `Transformer.from(ReStructuredText).to(HTML).withRawContent`.
     */
   lazy val rawTextRole: TextRole =
-    TextRole("raw", (Nil: List[String], NoOpt: Options)) {
+    TextRole("raw", (Nil: List[String], Options.empty)) {
       (field("format") ~ classOption).map { case format ~ opt => (format.split(" ").toList, opt) }
     } { case ((formats, opt), content) =>
       NonEmptySet.fromSet(TreeSet(formats: _*)) match {
         case Some(set) => RawContent(set, content, opt)
-        case None      => InvalidSpan("no format specified", GeneratedSource)
+        case None      => InvalidSpan("no format specified", SourceCursor.Generated)
       }
     }
 

@@ -152,7 +152,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
     trait DirectiveProducingResolver {
 
-      case class DummyResolver(options: Options = NoOpt) extends BlockResolver {
+      case class DummyResolver(options: Options = Options.empty) extends BlockResolver {
         type Self = DummyResolver
         def resolve(cursor: DocumentCursor): Block = p("foo")
         val source: SourceFragment                 = generatedSource("@:dir")

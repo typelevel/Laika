@@ -25,7 +25,7 @@ import laika.config.{ LaikaKeys, TargetFormats }
 import laika.helium.Helium
 import laika.helium.internal.generate.{ CSSVarGenerator, FOStyles, MergedCSSGenerator }
 import laika.io.model.{ InputTree, InputTreeBuilder }
-import laika.theme.config.{ EmbeddedFontFile, EmbeddedFontResource }
+import laika.theme.config.EmbeddedFont
 
 /** @author Jens Halm
   */
@@ -53,8 +53,8 @@ private[helium] object HeliumInputBuilder {
 
     val fontInputs = fontResources.foldLeft(InputTree[F]) { case (tree, embedResource) =>
       embedResource match {
-        case res: EmbeddedFontFile     => tree.addFile(res.file, res.path)
-        case res: EmbeddedFontResource => tree.addClassLoaderResource(res.name, res.path)
+        case res: EmbeddedFont.FontFile     => tree.addFile(res.file, res.path)
+        case res: EmbeddedFont.FontResource => tree.addClassLoaderResource(res.name, res.path)
       }
     }
 

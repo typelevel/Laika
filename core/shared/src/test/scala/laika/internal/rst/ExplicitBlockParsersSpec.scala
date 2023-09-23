@@ -51,7 +51,11 @@ class ExplicitBlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts
     val input = ".. [#] This is a footnote"
     run(
       input,
-      FootnoteDefinition(Autonumber, List(p("This is a footnote")), generatedSource(input))
+      FootnoteDefinition(
+        FootnoteLabel.Autonumber,
+        List(p("This is a footnote")),
+        generatedSource(input)
+      )
     )
   }
 
@@ -59,7 +63,11 @@ class ExplicitBlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts
     val input = ".. [*] This is a footnote"
     run(
       input,
-      FootnoteDefinition(Autosymbol, List(p("This is a footnote")), generatedSource(input))
+      FootnoteDefinition(
+        FootnoteLabel.Autosymbol,
+        List(p("This is a footnote")),
+        generatedSource(input)
+      )
     )
   }
 
@@ -68,7 +76,7 @@ class ExplicitBlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts
     run(
       input,
       FootnoteDefinition(
-        AutonumberLabel("foo"),
+        FootnoteLabel.AutonumberLabel("foo"),
         List(p("This is a footnote")),
         generatedSource(input)
       )
@@ -79,7 +87,11 @@ class ExplicitBlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts
     val input = ".. [17] This is a footnote"
     run(
       input,
-      FootnoteDefinition(NumericLabel(17), List(p("This is a footnote")), generatedSource(input))
+      FootnoteDefinition(
+        FootnoteLabel.NumericLabel(17),
+        List(p("This is a footnote")),
+        generatedSource(input)
+      )
     )
   }
 

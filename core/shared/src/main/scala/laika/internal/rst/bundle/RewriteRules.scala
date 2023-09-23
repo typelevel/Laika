@@ -54,10 +54,12 @@ private[bundle] class RewriteRules(textRoles: Seq[TextRole]) extends RewriteRule
     val rewrite: laika.ast.RewriteRules = laika.ast.RewriteRules.forSpans {
 
       case SubstitutionReference(id, source, _) =>
-        Replace(substitutions.getOrElse(id, InvalidSpan(s"unknown substitution id: $id", source)))
+        RewriteAction.Replace(
+          substitutions.getOrElse(id, InvalidSpan(s"unknown substitution id: $id", source))
+        )
 
       case InterpretedText(role, text, source, _) =>
-        Replace(
+        RewriteAction.Replace(
           textRoles.get(role).fold[Span](InvalidSpan(s"unknown text role: $role", source))(_(text))
         )
 

@@ -126,10 +126,10 @@ class ThemeBundleSpec extends FunSuite {
 
   test("rewrite rules - merged from a markup extension and an app extension") {
     val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong =>
-      Replace(Literal(s.extractText))
+      RewriteAction.Replace(Literal(s.extractText))
     })
     val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
-      case s: Emphasized => Replace(Literal(s.extractText))
+      case s: Emphasized => RewriteAction.Replace(Literal(s.extractText))
     })
 
     val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
@@ -148,10 +148,10 @@ class ThemeBundleSpec extends FunSuite {
     "rewrite rules - apply a rule from an app config and a rule from a markup extension successively"
   ) {
     val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) {
-      case Literal(text, _) => Replace(Literal(text + "!"))
+      case Literal(text, _) => RewriteAction.Replace(Literal(text + "!"))
     })
     val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
-      case Literal(text, _) => Replace(Literal(text + "?"))
+      case Literal(text, _) => RewriteAction.Replace(Literal(text + "?"))
     })
 
     val doc      = Document(Root, RootElement(Literal("foo")))

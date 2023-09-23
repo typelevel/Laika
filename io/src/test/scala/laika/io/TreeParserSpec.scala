@@ -613,7 +613,7 @@ class TreeParserSpec
     import laika.parse.syntax._
 
     case class DecoratedSpan(deco: Char, text: String) extends Span {
-      val options: Options = NoOpt
+      val options: Options = Options.empty
       type Self = DecoratedSpan
       def withOptions(options: Options): DecoratedSpan = this
     }

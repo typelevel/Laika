@@ -154,7 +154,7 @@ case class SectionInfo(
     id: String,
     title: SpanSequence,
     content: Seq[SectionInfo],
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Element with ElementContainer[SectionInfo] {
 
   type Self = SectionInfo

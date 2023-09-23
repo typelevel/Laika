@@ -23,7 +23,7 @@ import cats.syntax.all.*
 import laika.internal.collection.TransitionalCollectionOps.*
 import laika.ast.DocumentType.{ Ignored, Static }
 import laika.ast.Path.Root
-import laika.ast.{ DocumentType, Path, SegmentedPath }
+import laika.ast.{ DocumentType, Path }
 import laika.api.config.Config.ConfigResult
 import laika.api.config.{ ConfigDecoder, ConfigParser }
 import laika.config.{ VersionScannerConfig, Versions }
@@ -52,17 +52,17 @@ private[runtime] object VersionedLinkTargets {
       !excluded.exists(ex => path.isSubPath(ex))
     }
     val docTypeMather: Path => DocumentType                            = {
-      case p @ SegmentedPath(segments, _, _) if included(p, segments) => Static()
+      case p @ Path.Segments(segments, _, _) if included(p, segments) => Static()
       case _                                                          => Ignored
     }
     val input = DirectoryInput(Seq(FilePath.parse(config.rootDirectory)), Codec.UTF8, docTypeMather)
     DirectoryScanner.scanDirectories(input).map { tree =>
       tree.binaryInputs.map(_.path)
         .collect {
-          case path: SegmentedPath if path.depth > 1 =>
+          case path: Path.Segments if path.depth > 1 =>
             (
               path.segments.head,
-              SegmentedPath(NonEmptyChain.fromChainUnsafe(path.segments.tail), path.suffix, None)
+              Path.Segments(NonEmptyChain.fromChainUnsafe(path.segments.tail), path.suffix, None)
             )
         }
         .groupBy(_._1)

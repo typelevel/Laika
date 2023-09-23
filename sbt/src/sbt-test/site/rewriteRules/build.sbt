@@ -1,6 +1,6 @@
 import laika.ast.Emphasized
 import laika.ast.Strong
-import laika.ast.Replace
+import laika.ast.RewriteAction.Replace
 
 name := "site-rewriteRules"
 

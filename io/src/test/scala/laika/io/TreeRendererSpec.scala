@@ -45,7 +45,7 @@ import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
 import laika.io.helper.{ InputBuilder, RenderResult, TestThemeBuilder }
 import laika.io.syntax.*
 import laika.io.model.*
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.io.internal.errors.{ DuplicatePath, RendererErrors }
 import laika.io.internal.runtime.VersionInfoGenerator
@@ -415,7 +415,11 @@ class TreeRendererSpec extends CatsEffectSuite
     val template = TemplateDocument(
       DefaultTemplatePath.forHTML,
       Results.betweenBrackets(
-        TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+        TemplateContextReference(
+          CursorKeys.documentContent,
+          required = true,
+          SourceCursor.Generated
+        )
       )
     )
     val input    = HTMLRenderer.defaultTree.addTemplate(template)
@@ -522,7 +526,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("tree with a single document to HTML using a custom template in an extension bundle") {
     val template = Results.betweenBrackets(
-      TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+      TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F]
@@ -649,7 +653,11 @@ class TreeRendererSpec extends CatsEffectSuite
     val template = TemplateDocument(
       DefaultTemplatePath.forEPUB,
       Results.betweenBrackets(
-        TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+        TemplateContextReference(
+          CursorKeys.documentContent,
+          required = true,
+          SourceCursor.Generated
+        )
       )
     )
     val input    = EPUB_XHTMLRenderer.defaultTree.addTemplate(template)
@@ -670,7 +678,7 @@ class TreeRendererSpec extends CatsEffectSuite
 
   test("tree with a single document to EPUB.XHTML using a custom template in a theme") {
     val template = Results.betweenBrackets(
-      TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+      TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F]
@@ -694,7 +702,7 @@ class TreeRendererSpec extends CatsEffectSuite
     "tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme"
   ) {
     val contentRef           =
-      TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+      TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     val baseThemeInputs      = new TestThemeBuilder.Inputs {
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(
@@ -742,7 +750,11 @@ class TreeRendererSpec extends CatsEffectSuite
     val template = TemplateDocument(
       DefaultTemplatePath.forFO,
       Results.betweenBrackets(
-        TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+        TemplateContextReference(
+          CursorKeys.documentContent,
+          required = true,
+          SourceCursor.Generated
+        )
       )
     )
     val input    = FORenderer.defaultTree.addTemplate(template)

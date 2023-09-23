@@ -29,11 +29,12 @@ import laika.api.errors.RendererError
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
+import laika.ast.CellType.BodyCell
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector }
 import laika.config.{ LaikaKeys, MessageFilter, MessageFilters, TargetFormats }
 import laika.format.XSLFO
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import laika.parse.code.CodeCategory
 import munit.FunSuite
 
@@ -832,7 +833,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   test("translate to external URL when an internal link is not defined for PDF as a target") {
-    val target     = ResolvedInternalTarget(
+    val target     = InternalTarget.Resolved(
       Path.parse("/foo#ref"),
       RelativePath.parse("foo#ref"),
       TargetFormats.Selected("html")
@@ -1011,7 +1012,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render an invalid block without the runtime message in default mode") {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>fallback</fo:block>"""
@@ -1023,7 +1024,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>fallback</fo:block>"""
@@ -1035,7 +1036,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>""" +
@@ -1047,7 +1048,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render an invalid span without the runtime message in default mode") {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, "fallback")
@@ -1058,7 +1059,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, MessageFilter.Error, "fallback")
@@ -1069,7 +1070,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     val fo   = s"""<fo:inline $warningProps>some message</fo:inline> fallback"""

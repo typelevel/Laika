@@ -30,7 +30,7 @@ import laika.ast.sample.{
 }
 import laika.api.config.Config.ConfigResult
 import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
@@ -52,10 +52,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InvalidSpan(message, source(fallback, fallback))
 
   def invalidBlock(message: String, fallback: Block): InvalidBlock =
-    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def invalidSpan(message: String, fallback: Span): InvalidSpan =
-    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def fnRefs(labels: FootnoteLabel*): Paragraph = Paragraph(labels.map { label =>
     FootnoteReference(label, generatedSource(toSource(label)))
@@ -66,7 +66,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }: _*)
 
   def fn(label: FootnoteLabel, num: Any) =
-    FootnoteDefinition(label, List(p(s"footnote$num")), GeneratedSource)
+    FootnoteDefinition(label, List(p(s"footnote$num")), SourceCursor.Generated)
 
   def fn(id: String, label: String) = Footnote(label, List(p(s"footnote$label")), Id(id))
 
@@ -150,10 +150,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - retain a group of footnotes with a mix of explicit numeric and autonumber labels"
   ) {
     val rootElem = RootElement(
-      fnRefs(Autonumber, NumericLabel(1), Autonumber),
-      fn(Autonumber, 1),
-      fn(NumericLabel(1), 1),
-      fn(Autonumber, 2)
+      fnRefs(FootnoteLabel.Autonumber, FootnoteLabel.NumericLabel(1), FootnoteLabel.Autonumber),
+      fn(FootnoteLabel.Autonumber, 1),
+      fn(FootnoteLabel.NumericLabel(1), 1),
+      fn(FootnoteLabel.Autonumber, 2)
     )
     val resolved = RootElement(
       fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
@@ -168,10 +168,14 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes"
   ) {
     val rootElem = RootElement(
-      fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")),
-      fn(NumericLabel(2), 2),
-      fn(AutonumberLabel("label"), 1),
-      fn(Autonumber, 2)
+      fnRefs(
+        FootnoteLabel.NumericLabel(2),
+        FootnoteLabel.Autonumber,
+        FootnoteLabel.AutonumberLabel("label")
+      ),
+      fn(FootnoteLabel.NumericLabel(2), 2),
+      fn(FootnoteLabel.AutonumberLabel("label"), 1),
+      fn(FootnoteLabel.Autonumber, 2)
     )
     val resolved = RootElement(
       fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
@@ -184,10 +188,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("footnote rules - retain a group of footnotes with autosymbol labels") {
     val rootElem = RootElement(
-      fnRefs(Autosymbol, Autosymbol, Autosymbol),
-      fn(Autosymbol, "*"),
-      fn(Autosymbol, "\u2020"),
-      fn(Autosymbol, "\u2021")
+      fnRefs(FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol),
+      fn(FootnoteLabel.Autosymbol, "*"),
+      fn(FootnoteLabel.Autosymbol, "\u2020"),
+      fn(FootnoteLabel.Autosymbol, "\u2021")
     )
     val resolved = RootElement(
       fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
@@ -202,9 +206,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - replace references with unresolvable autonumber or numeric labels with invalid spans"
   ) {
     val rootElem = RootElement(
-      fnRefs(NumericLabel(2), AutonumberLabel("labelA")),
-      fn(NumericLabel(3), 3),
-      fn(AutonumberLabel("labelB"), 1)
+      fnRefs(FootnoteLabel.NumericLabel(2), FootnoteLabel.AutonumberLabel("labelA")),
+      fn(FootnoteLabel.NumericLabel(3), 3),
+      fn(FootnoteLabel.AutonumberLabel("labelB"), 1)
     )
     val resolved = RootElement(
       p(
@@ -218,7 +222,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("footnote rules - replace surplus autonumber references with invalid spans") {
-    val rootElem = RootElement(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
+    val rootElem = RootElement(
+      fnRefs(FootnoteLabel.Autonumber, FootnoteLabel.Autonumber),
+      fn(FootnoteLabel.Autonumber, 1)
+    )
     val resolved = RootElement(
       p(FootnoteLink("__fn-1", "1"), invalidSpan("too many autonumber references", "[#]_")),
       fn("__fn-1", "1")
@@ -227,7 +234,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("footnote rules - replace surplus autosymbol references with invalid spans") {
-    val rootElem = RootElement(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
+    val rootElem = RootElement(
+      fnRefs(FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol),
+      fn(FootnoteLabel.Autosymbol, "*")
+    )
     val resolved = RootElement(
       p(FootnoteLink("__fns-1", "*"), invalidSpan("too many autosymbol references", "[*]_")),
       fn("__fns-1", "*")
@@ -455,7 +465,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("internal links - resolve internal link references to an image") {
     val relPath    = Parent(1) / "images" / "frog.jpg"
     val absPath    = Root / "images" / "frog.jpg"
-    val imgPathRef = ImagePathReference(relPath, GeneratedSource, alt = Some("text"))
+    val imgPathRef = ImagePathReference(relPath, SourceCursor.Generated, alt = Some("text"))
     val target     = InternalTarget(relPath).relativeTo(refPath)
 
     InternalLinks.run(

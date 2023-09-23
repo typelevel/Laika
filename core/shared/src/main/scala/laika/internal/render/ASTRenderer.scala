@@ -34,7 +34,7 @@ private[laika] object ASTRenderer extends ((Formatter, Element) => String) {
     */
   private val maxTextWidth = 50
 
-  private case class Content(content: Seq[Element], desc: String, options: Options = NoOpt)
+  private case class Content(content: Seq[Element], desc: String, options: Options = Options.empty)
       extends Element with ElementContainer[Element] {
     type Self = Content
     def withOptions(options: Options): Content = copy(options = options)
@@ -53,14 +53,14 @@ private[laika] object ASTRenderer extends ((Formatter, Element) => String) {
 
     def attributes(attr: Iterator[Any], exclude: AnyRef = NoRef): String = {
       def prep(value: Any) = value match {
-        case opt: Options              => options(opt)
-        case t: ResolvedInternalTarget => s"InternalTarget(${t.relativePath},${t.internalFormats})"
-        case other                     => other
+        case opt: Options               => options(opt)
+        case t: InternalTarget.Resolved => s"InternalTarget(${t.relativePath},${t.internalFormats})"
+        case other                      => other
       }
       val it               = attr.asInstanceOf[Iterator[AnyRef]]
       val res              = it
         .filter(_ ne exclude)
-        .filter(_ != NoOpt)
+        .filter(_ != Options.empty)
         .map(prep)
         .mkString("(", ",", ")")
       if (res == "()") "" else res

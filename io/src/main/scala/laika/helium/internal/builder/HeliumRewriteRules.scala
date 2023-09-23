@@ -48,8 +48,11 @@ private[helium] object HeliumRewriteRules {
       if (count <= helium.pdfSettings.layout.keepTogetherDecoratedLines) Some("pdf") else None
     val epub =
       if (count <= helium.epubSettings.layout.keepTogetherDecoratedLines) Some("epub") else None
-    if (pdf.isEmpty && epub.isEmpty) Retain
-    else Replace(block.mergeOptions(Style.keepTogether + Styles(pdf.toSet ++ epub.toSet)))
+    if (pdf.isEmpty && epub.isEmpty) RewriteAction.Retain
+    else
+      RewriteAction.Replace(
+        block.mergeOptions(Style.keepTogether + Styles(pdf.toSet ++ epub.toSet))
+      )
   }
 
   def build(helium: Helium): RewriteRules = RewriteRules.forBlocks {

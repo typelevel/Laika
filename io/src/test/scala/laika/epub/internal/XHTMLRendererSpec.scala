@@ -93,7 +93,7 @@ class XHTMLRendererSpec extends CatsEffectSuite with ParagraphCompanionShortcuts
   }
 
   test("translate to external URL when an internal link is not defined for EPUB as a target") {
-    val target     = ResolvedInternalTarget(
+    val target     = InternalTarget.Resolved(
       Path.parse("/foo#ref"),
       RelativePath.parse("foo#ref"),
       TargetFormats.Selected("html")

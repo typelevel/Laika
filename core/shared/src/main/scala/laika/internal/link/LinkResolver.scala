@@ -19,9 +19,9 @@ package laika.internal.link
 import laika.api.bundle.BlockDirectives
 import laika.ast.Path.Root
 import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.ast._
+import laika.ast.*
 import laika.api.config.Config.ConfigResult
-import laika.parse.GeneratedSource
+import laika.parse.SourceCursor
 
 import scala.annotation.tailrec
 
@@ -67,10 +67,10 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
     def replaceBlock(block: Block, selector: Selector): RewriteAction[Block] =
       replace(block, selector) match {
-        case Some(b: Block) => Replace(b)
+        case Some(b: Block) => RewriteAction.Replace(b)
         case _              =>
-          Replace(
-            InvalidBlock(describeUnknownTarget(block), GeneratedSource).copy(fallback =
+          RewriteAction.Replace(
+            InvalidBlock(describeUnknownTarget(block), SourceCursor.Generated).copy(fallback =
               block.withoutId
             )
           )
@@ -78,10 +78,10 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
     def replaceSpan(span: Span, selector: Selector): RewriteAction[Span] =
       replace(span, selector) match {
-        case Some(b: Span) => Replace(b)
+        case Some(b: Span) => RewriteAction.Replace(b)
         case _             =>
-          Replace(
-            InvalidSpan(describeUnknownTarget(span), GeneratedSource).copy(fallback =
+          RewriteAction.Replace(
+            InvalidSpan(describeUnknownTarget(span), SourceCursor.Generated).copy(fallback =
               span.withoutId
             )
           )
@@ -106,7 +106,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
               InvalidSpan(msg, ref.source)
           }
       }
-      Replace(resolvedTarget)
+      RewriteAction.Replace(resolvedTarget)
     }
 
     def resolveLocal(ref: Reference, selector: Selector, msg: => String): RewriteAction[Span] =
@@ -145,19 +145,20 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
       case f: FootnoteDefinition =>
         f.label match {
-          case NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
-          case AutonumberLabel(id) => replaceBlock(f, TargetIdSelector(slugBuilder(id)))
-          case Autonumber          => replaceBlock(f, AutonumberSelector)
-          case Autosymbol          => replaceBlock(f, AutosymbolSelector)
+          case FootnoteLabel.NumericLabel(num)   => replaceBlock(f, TargetIdSelector(num.toString))
+          case FootnoteLabel.AutonumberLabel(id) =>
+            replaceBlock(f, TargetIdSelector(slugBuilder(id)))
+          case FootnoteLabel.Autonumber          => replaceBlock(f, AutonumberSelector)
+          case FootnoteLabel.Autosymbol          => replaceBlock(f, AutosymbolSelector)
         }
       case c: Citation           => replaceBlock(c, TargetIdSelector(slugBuilder(c.label)))
       case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
       case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
 
       case d: BlockDirectives.DirectiveInstance if d.directive.exists(_.name == "fragment") =>
-        Replace(d.resolve(cursor))
+        RewriteAction.Replace(d.resolve(cursor))
 
-      case _: Hidden => Remove
+      case _: Hidden => RewriteAction.Remove
 
       case elem if elem.hasId =>
         replaceBlock(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
@@ -173,20 +174,22 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
 
       case ref: FootnoteReference =>
         ref.label match {
-          case NumericLabel(num)   =>
+          case FootnoteLabel.NumericLabel(num)   =>
             resolveLocal(
               ref,
               TargetIdSelector(num.toString),
               s"unresolved footnote reference: $num"
             )
-          case AutonumberLabel(id) =>
+          case FootnoteLabel.AutonumberLabel(id) =>
             resolveLocal(
               ref,
               TargetIdSelector(slugBuilder(id)),
               s"unresolved footnote reference: $id"
             )
-          case Autonumber => resolveLocal(ref, AutonumberSelector, "too many autonumber references")
-          case Autosymbol => resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
+          case FootnoteLabel.Autonumber          =>
+            resolveLocal(ref, AutonumberSelector, "too many autonumber references")
+          case FootnoteLabel.Autosymbol          =>
+            resolveLocal(ref, AutosymbolSelector, "too many autosymbol references")
         }
 
       case ref: PathReference =>
@@ -202,7 +205,7 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
       case elem if elem.hasId =>
         replaceSpan(elem, TargetIdSelector(slugBuilder(elem.options.id.get)))
 
-      case _: Hidden => Remove
+      case _: Hidden => RewriteAction.Remove
 
     })
 

@@ -3,7 +3,7 @@ package laika.helium.internal.config
 import laika.ast.Path.Root
 import laika.ast.*
 import laika.helium.config.*
-import laika.parse.{ GeneratedSource, SourceFragment }
+import laika.parse.{ SourceCursor, SourceFragment }
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -128,10 +128,10 @@ private[helium] case class LandingPage(
 
 /** In contrast to the public `LinkGroup` this UI component allows all types of links as children, including menus.
   */
-private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Options = NoOpt)
+private[helium] case class GenericLinkGroup(links: Seq[ThemeLink], options: Options = Options.empty)
     extends BlockResolver {
   type Self = GenericLinkGroup
-  val source: SourceFragment = GeneratedSource
+  val source: SourceFragment = SourceCursor.Generated
 
   def resolve(cursor: DocumentCursor): Block = {
     val resolvedLinks = links.map {

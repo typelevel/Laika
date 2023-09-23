@@ -585,7 +585,7 @@ class DirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with TestS
 
   val docWithTextRoles: Parser[RootElement] = defaultParser.map { root =>
     root.rewriteBlocks { case CustomizedTextRole(name, f, _) =>
-      Replace(p(f(name)))
+      RewriteAction.Replace(p(f(name)))
     }
   }
 

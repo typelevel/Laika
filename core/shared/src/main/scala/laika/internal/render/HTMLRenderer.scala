@@ -26,7 +26,7 @@ import laika.ast.*
 private[laika] class HTMLRenderer(format: String)
     extends ((TagFormatter, Element) => String) {
 
-  case class ElementSequence(content: Seq[Element], options: Options = NoOpt)
+  case class ElementSequence(content: Seq[Element], options: Options = Options.empty)
       extends ElementContainer[Element] {
     type Self = ElementSequence
     def withOptions(options: Options): ElementSequence = copy(options = options)
@@ -57,12 +57,12 @@ private[laika] class HTMLRenderer(format: String)
 
     def navigationToBulletList(navList: NavigationList): BulletList = {
 
-      val bullet = StringBullet("*")
+      val bullet = BulletFormat.StringBullet("*")
 
       def transformItems(items: Seq[NavigationItem]): Seq[BulletListItem] = {
         items.flatMap { item =>
           val target: BulletListItem = {
-            val linkStyles = if (item.link.exists(_.selfLink)) Style.active else NoOpt
+            val linkStyles = if (item.link.exists(_.selfLink)) Style.active else Options.empty
             val typeStyles =
               if (item.link.isEmpty) Style.navHeader
               else if (item.content.nonEmpty) Style.navNode
@@ -90,14 +90,14 @@ private[laika] class HTMLRenderer(format: String)
     def renderBlockContainer(con: BlockContainer): String = {
 
       def toTable(label: String, content: Seq[Block], options: Options): Table = {
-        val left  = BodyCell(SpanSequence(s"[$label]"))
-        val right = BodyCell(content)
+        val left  = CellType.BodyCell(SpanSequence(s"[$label]"))
+        val right = CellType.BodyCell(content)
         val row   = Row(List(left, right))
         Table(
           TableHead(Nil),
           TableBody(List(row)),
           Caption(),
-          Columns.options(Style.label, NoOpt),
+          Columns.options(Style.label, Options.empty),
           options
         )
       }
@@ -143,8 +143,8 @@ private[laika] class HTMLRenderer(format: String)
         case Citation(label, content, opt) =>
           renderTable(toTable(label, content, opt + Style.citation))
 
-        case WithFallback(fallback)        => fmt.child(fallback)
-        case BlockSequence(content, NoOpt) => fmt.childPerLine(content)
+        case WithFallback(fallback)                => fmt.child(fallback)
+        case BlockSequence(content, Options.empty) => fmt.childPerLine(content)
 
         case unknown => fmt.indentedElement("div", unknown)
       }
@@ -197,9 +197,9 @@ private[laika] class HTMLRenderer(format: String)
           val opt = codeStyles(ic.language, hasHighlighting = false)
           renderCode(ic.mergeOptions(opt))
 
-        case WithFallback(fallback)           => fmt.child(fallback)
-        case SpanSequence(content, NoOpt)     => fmt.children(content)
-        case CodeSpanSequence(content, NoOpt) => fmt.children(content)
+        case WithFallback(fallback)                   => fmt.child(fallback)
+        case SpanSequence(content, Options.empty)     => fmt.children(content)
+        case CodeSpanSequence(content, Options.empty) => fmt.children(content)
 
         case unknown => fmt.element("span", unknown)
       }
@@ -207,9 +207,9 @@ private[laika] class HTMLRenderer(format: String)
 
     def renderTemplateSpanContainer(con: TemplateSpanContainer): String = {
       con match {
-        case TemplateRoot(content, NoOpt)         => fmt.children(content)
-        case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
-        case unknown                              => fmt.element("span", unknown)
+        case TemplateRoot(content, Options.empty)         => fmt.children(content)
+        case TemplateSpanSequence(content, Options.empty) => fmt.children(content)
+        case unknown                                      => fmt.element("span", unknown)
       }
     }
 
@@ -233,21 +233,15 @@ private[laika] class HTMLRenderer(format: String)
 
     def renderTextContainer(con: TextContainer): String = con match {
       case t: Text                          =>
-        t.options match {
-          case NoOpt => fmt.text(t.content)
-          case _     => fmt.textElement("span", t)
-        }
+        if (t.options.isEmpty) fmt.text(t.content)
+        else fmt.textElement("span", t)
       case ts: TemplateString               =>
-        ts.options match {
-          case NoOpt => ts.content
-          case _     => fmt.rawElement("span", ts, ts.content)
-        }
+        if (ts.options.isEmpty) ts.content
+        else fmt.rawElement("span", ts, ts.content)
       case rc @ RawContent(f, content, opt) =>
         if (f.contains(format)) {
-          opt match {
-            case NoOpt => content
-            case _     => fmt.rawElement("span", rc, content)
-          }
+          if (opt.isEmpty) content
+          else fmt.rawElement("span", rc, content)
         }
         else ""
       case cs: CodeSpan                     =>
@@ -348,8 +342,8 @@ private[laika] class HTMLRenderer(format: String)
       case Column(opt)   => fmt.textElement("col", Text("").withOptions(opt))
       case c: Cell       =>
         val tagName    = c.cellType match {
-          case HeadCell => "th"
-          case BodyCell => "td"
+          case CellType.HeadCell => "th"
+          case CellType.BodyCell => "td"
         }
         val attributes = fmt.optAttributes(
           "colspan" -> noneIfDefault(c.colspan, 1),
