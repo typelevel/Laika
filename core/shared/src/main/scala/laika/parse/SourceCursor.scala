@@ -124,8 +124,11 @@ trait SourceFragment extends SourceCursor {
   * For creating a cursor for a fragment of the input, either `BlockSource` or `LineSource` must be used
   * to preserve position tracking in relation to the root input.
   */
-class RootSource private[parse] (inputRef: InputString, val offset: Int, val nestLevel: Int)
-    extends SourceCursor {
+private[parse] class RootSource(
+    inputRef: InputString,
+    val offset: Int,
+    val nestLevel: Int
+) extends SourceCursor {
 
   type Self = RootSource
 
