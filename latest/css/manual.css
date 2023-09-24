@@ -1,0 +1,47 @@
+
+/* images =================================== */
+
+.medium-image, .small-image {
+  text-align: center;
+}
+.medium-image img {
+  width: 65%;
+  height: auto;
+}
+.small-image img {
+  width: 45%;
+  height: auto;
+}
+
+/* color samples ============================ */
+
+.color-block {
+  margin-bottom: 35px;
+}
+
+.color-row {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 20px 0;
+}
+
+.color-cell p {
+  font-weight: bold;
+}
+
+.color-box {
+  width: 100px;
+  height: 100px;
+}
+
+/* top entries in left nav ==================== */
+
+#sidebar .nav-list li.level1.nav-leaf {
+  margin-left: 10px;
+  margin-bottom: 2px;
+  font-size: 1em;
+}
+
+#sidebar .nav-list li.level1.nav-leaf a {
+  padding: 3px 15px 4px 15px;
+}

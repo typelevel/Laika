@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Navigation</title>
+  
+  
+  <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/site/laika-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+    <script src="../helium/site/laika-versions.js"></script>
+  <script>initVersions("../../", "/03-preparing-content/02-navigation.html", "latest", "https://typelevel.org/Laika/");</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 1.x</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+          <li class="level1 nav-leaf"><a href="../../olderVersions/">Older Versions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <a class="icon-link glyph-link" href="../../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../table-of-content.html">Table of Content</a></li>
+    <li class="level1 nav-leaf"><a href="../downloads.html">Documentation Downloads</a></li>
+    <li class="level1 nav-header">About Laika</li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/01-features.html">Features</a></li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+    <li class="level1 nav-header">Running Laika</li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+    <li class="level1 nav-header">Preparing Content</li>
+    <li class="level2 nav-leaf"><a href="01-directory-structure.html">Directory Structure</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="03-theme-settings.html">Theme Settings</a></li>
+    <li class="level2 nav-leaf"><a href="04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+    <li class="level2 nav-leaf"><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+    <li class="level1 nav-header">Customizing Laika</li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/01-overview.html">Customizing Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+    <li class="level1 nav-header">Extending Laika</li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/01-overview.html">Extending Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+    <li class="level1 nav-header">Sub-Modules</li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+    <li class="level1 nav-header">Reference</li>
+    <li class="level2 nav-leaf"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Navigation</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#validated-internal-links">Validated Internal Links</a></li>
+    <li class="level2 nav-leaf"><a href="#disabling-validation">Disabling Validation</a></li>
+    <li class="level1 nav-leaf"><a href="#global-link-definitions">Global Link Definitions</a></li>
+    <li class="level1 nav-leaf"><a href="#external-links">External Links</a></li>
+    <li class="level1 nav-node"><a href="#linking-by-section-headline">Linking by Section Headline</a></li>
+    <li class="level2 nav-leaf"><a href="#resolving-ambiguity">Resolving Ambiguity</a></li>
+    <li class="level1 nav-leaf"><a href="#linking-to-api-documentation">Linking to API Documentation</a></li>
+    <li class="level1 nav-leaf"><a href="#linking-to-source-code">Linking to Source Code</a></li>
+    <li class="level1 nav-node"><a href="#generating-navigation-trees">Generating Navigation Trees</a></li>
+    <li class="level2 nav-leaf"><a href="#websites">Websites</a></li>
+    <li class="level2 nav-leaf"><a href="#epub-pdf">EPUB &amp; PDF</a></li>
+    <li class="level2 nav-leaf"><a href="#the-navigationtree-directive">The navigationTree Directive</a></li>
+    <li class="level1 nav-leaf"><a href="#breadcrumbs">Breadcrumbs</a></li>
+    <li class="level1 nav-leaf"><a href="#auto-numbering">Auto-Numbering</a></li>
+    <li class="level1 nav-leaf"><a href="#pretty-urls">Pretty URLs</a></li>
+    <li class="level1 nav-leaf"><a href="#custom-link-directives">Custom Link Directives</a></li>
+  </ul>
+
+  <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/03-preparing-content/02-navigation.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="navigation" class="title">Navigation</h1>
+        <p>Laika&#39;s functionality for navigation can roughly be divided into four categories:</p>
+        <ul>
+          <li>
+            <p>Features added on top of the native link syntax of supported markup formats, 
+            like validated <a href="#validated-internal-links">Validated Internal Links</a> or <a href="#global-link-definitions">Global Link Definitions</a>.</p>
+          </li>
+          <li>
+            <p>Link directives for individual links that provide non-standard shortcuts for convenience, 
+            like <a href="#linking-by-section-headline">Linking by Section Headline</a> or <a href="#linking-to-api-documentation">Linking to API Documentation</a>.</p>
+          </li>
+          <li>
+            <p>Directives that produce larger navigation structures, 
+            like <a href="#breadcrumbs">Breadcrumbs</a> or <a href="#generating-navigation-trees">Generating Navigation Trees</a>.</p>
+          </li>
+          <li>
+            <p>If you want to create your own link shortcuts, you can create <a href="#custom-link-directives">Custom Link Directives</a>.</p>
+          </li>
+        </ul>
+        
+        <h2 id="validated-internal-links" class="section"><a class="anchor-link left" href="#validated-internal-links"><i class="icofont-laika link">&#xef71;</i></a>Validated Internal Links</h2>
+        <p>Internal Links in Laika are validated, as long as they use the source document&#39;s name (e.g. <code>target.md</code>)
+        and not the suffix of the output document.
+        First this ensures that the links work in all target formats, including e-books. 
+        Secondly it also means that they work on GitHub, which is convenient, when your project is hosted there.</p>
+        <p>For regular, internal links you can use the text markup&#39;s native link syntax.
+        You can express an internal link either with a relative path:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the </span><span class="markup-link-text">[Introduction]</span><span class="markup-link-target">(../basics/introduction.md)</span><span>.</span></code></pre>
+        <p>Or an absolute path from the root of the virtual input tree:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the </span><span class="markup-link-text">[Introduction]</span><span class="markup-link-target">(/basics/introduction.md)</span><span>.</span></code></pre>
+        <p>The paths do not have to be valid relative or absolute paths in the file system.
+        You can always work within the <a href="01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a>. </p>
+        <p>It means that a relative path like <code>../images/foo.jpg</code> can point to an <code>images</code> directory that
+        has been merged into the input tree in the project&#39;s configuration, 
+        and does not exist relative to the source document in the file system it is linked from.</p>
+        <p>Likewise, absolute paths like <code>/images/foo.jpg</code> always refer to the virtual root of the input tree,
+        not to the root of your file system or your website.</p>
+        
+        <h3 id="disabling-validation" class="section"><a class="anchor-link left" href="#disabling-validation"><i class="icofont-laika link">&#xef71;</i></a>Disabling Validation</h3>
+        <p>Transformations that contain internal links that cannot be resolved will fail in Laika&#39;s default run configuration.
+        If you work with input files that will be generated or copied by other tools and are not known to Laika, 
+        you can explicitly disable validation for certain paths within the virtual tree:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">LinkValidation</span><span>
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkValidation</span><span>.</span><span class="type-name">Global</span><span>(</span><span class="identifier">excluded</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">LinkValidation</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkValidation</span><span>.</span><span class="type-name">Global</span><span>(</span><span class="identifier">excluded</span><span> = </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;generated&quot;</span><span>)))
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>This disables validation for the specified directories and all their subdirectories.</p>
+        <p>In the unusual case you want to disable all validation you can alternatively use
+        <code>LinkValidation.Off</code> or <code>LinkValidation.Local</code>, where the latter will still validate all links
+        pointing to sections within the same document, but not those pointing elsewhere.</p>
+        
+        <h2 id="global-link-definitions" class="section"><a class="anchor-link left" href="#global-link-definitions"><i class="icofont-laika link">&#xef71;</i></a>Global Link Definitions</h2>
+        <p>Both supported markup formats support the use of link definitions in input files that can be referred to by
+        link references.</p>
+        <p>Example for Markdown:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the </span><span class="markup-link-text">[Introduction]</span><span class="markup-link-target">[intro]</span><span>. 
+(Or in the short form, just </span><span class="markup-link-target">[intro]</span><span>).
+
+</span><span class="identifier">[intro]:</span><span class="markup-link-target"> ../basics/introduction.md</span><span>
+</span></code></pre>
+        <p>Example for reStructuredText:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the intro_.
+
+.. </span><span class="markup-link-target">_intro:</span><span> ../basics/introduction.md</span></code></pre>
+        <p>This is a convenient mechanism within a single input file. 
+        But if you have a larger project and use the same link definition in multiple files you would still end up
+        with unnecessary repetition. 
+        You could use the <code>@:import</code> directive and define them in a separate markup file, 
+        but Laika has an even more convenient way to centrally define links. 
+        Simply add them to the project&#39;s configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">TargetDefinition</span><span> }
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addTargets</span><span>(
+      </span><span class="type-name">TargetDefinition</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;Example 1&quot;</span><span>, </span><span class="string-literal">&quot;https://example1.com/&quot;</span><span>),
+      </span><span class="type-name">TargetDefinition</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;Example 2&quot;</span><span>, </span><span class="string-literal">&quot;https://example2.com/&quot;</span><span>)
+    )
+  )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">TargetDefinition</span><span> }
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addTargets</span><span>(
+      </span><span class="type-name">TargetDefinition</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;Example 1&quot;</span><span>, </span><span class="string-literal">&quot;https://example1.com/&quot;</span><span>),
+      </span><span class="type-name">TargetDefinition</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;Example 2&quot;</span><span>, </span><span class="string-literal">&quot;https://example2.com/&quot;</span><span>)
+    )
+  )
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>They can then be used within text markup the same way as if they would be defined within the file:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please have a look at </span><span class="markup-link-target">[Example 1]</span><span> or </span><span class="markup-link-target">[Example 2]</span><span>. </span></code></pre>
+        
+        <h2 id="external-links" class="section"><a class="anchor-link left" href="#external-links"><i class="icofont-laika link">&#xef71;</i></a>External Links</h2>
+        <p>External links can also be expressed by the text markup&#39;s native syntax, but in contrast to internal links 
+        they are not validated during a transformation.</p>
+        <p>Example for an inline link in Markdown:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the </span><span class="markup-link-text">[Specification]</span><span class="markup-link-target">(https://markup/specification.html)</span><span>. </span></code></pre>
+        <p>Example for an indirect link via separate definition:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Please read the </span><span class="markup-link-text">[Specification]</span><span class="markup-link-target">[markup-spec]</span><span>.
+
+</span><span class="identifier">[markup-spec]:</span><span class="markup-link-target"> https://markup/specification.html</span><span>
+</span></code></pre>
+        <p>Like with internal links, <a href="#global-link-definitions">Global Link Definitions</a> can be used to avoid the repetition of
+        declaring the same link target in multiple files.</p>
+        
+        <h2 id="linking-by-section-headline" class="section"><a class="anchor-link left" href="#linking-by-section-headline"><i class="icofont-laika link">&#xef71;</i></a>Linking by Section Headline</h2>
+        <p>The native linking syntax provided by the supported text markup formats can be used to directly refer
+        to a section by its headline.</p>
+        <p>If you have the following headline in one of your documents:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="markup-headline">Monkey Gone To Heaven
+---------------------</span></code></pre>
+        <p>Then you can use this title with standard link syntax:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>Here are the lyrics for </span><span class="markup-link-target">[Monkey Gone To Heaven]</span><span>.</span></code></pre>
+        <p>In the example above, the section headline will also become the link title.
+        In cases where you want to use a link text that differs from the headline text,
+        you can also use the alternative syntax:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>You have to listen to this </span><span class="markup-link-text">[song]</span><span class="markup-link-target">[Monkey Gone To Heaven]</span><span>.</span></code></pre>
+        
+        <h3 id="resolving-ambiguity" class="section"><a class="anchor-link left" href="#resolving-ambiguity"><i class="icofont-laika link">&#xef71;</i></a>Resolving Ambiguity</h3>
+        <p>One convenient aspect of linking by section headline is that the headline you refer to does not even have to be
+        globally unique within your input tree. 
+        It will find the closest headline in the current scope.</p>
+        <p>For example, if you have a structure where every chapter has a page titled &quot;Introduction&quot;, 
+        any other page within that chapter (directory) can refer to this page simply by using <code>[Introduction]</code>.</p>
+        <p>Even if the headline is not unique within the current scope, it will further disambiguate based on the level
+        of the headline.
+        A level 1 headline with have precedence over a level 3 headline for example.</p>
+        <p>Only duplicate headlines within the same scope and with the same level will lead to an error and cause the
+        transformation to fail.</p>
+        
+        <h2 id="linking-to-api-documentation" class="section"><a class="anchor-link left" href="#linking-to-api-documentation"><i class="icofont-laika link">&#xef71;</i></a>Linking to API Documentation</h2>
+        <p>The <code>@:api</code> directive can be used to link to API documentation by providing just the fully qualified type name:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>See </span><span class="keyword">@:</span><span class="identifier">api</span><span>(</span><span class="string-literal">scala.collection.immutable.List</span><span>) for details.</span></code></pre>
+        <p>This directive requires the base URI to be defined in the project&#39;s configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>))
+  )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>))
+  )
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>If you use different APIs hosted on different servers, you can associate base URIs with package prefixes,
+        while keeping one base URI as a default for all packages that do not match any prefix:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>))
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="string-literal">&quot;https://somewhere-else/&quot;</span><span>).</span><span class="identifier">withPackagePrefix</span><span>(</span><span class="string-literal">&quot;com.lib42&quot;</span><span>))
+  )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">ApiLinks</span><span> }
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="string-literal">&quot;https://example.com/api&quot;</span><span>))
+    .</span><span class="identifier">addApiLinks</span><span>(</span><span class="type-name">ApiLinks</span><span>(</span><span class="string-literal">&quot;https://somewhere-else/&quot;</span><span>).</span><span class="identifier">withPackagePrefix</span><span>(</span><span class="string-literal">&quot;com.lib42&quot;</span><span>))
+  )
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>In cases where this simple mechanism is not sufficient, you can always define <a href="#custom-link-directives">Custom Link Directives</a>.</p>
+        
+        <h2 id="linking-to-source-code" class="section"><a class="anchor-link left" href="#linking-to-source-code"><i class="icofont-laika link">&#xef71;</i></a>Linking to Source Code</h2>
+        <p>The <code>@:source</code> directive can be used to link to the source code of types by providing just the fully qualified type name:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>You can examine the source code of </span><span class="keyword">@:</span><span class="identifier">source</span><span>(</span><span class="string-literal">laika.api.Transformer</span><span>) for inspiration.</span></code></pre>
+        <p>It is very similar to the <code>@:api</code> directive with only a few subtle differences in its configuration.
+        This directive requires the base URI and suffix to be defined in the project&#39;s configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addSourceLinks</span><span>(
+      </span><span class="type-name">SourceLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>)
+    )
+  )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addSourceLinks</span><span>(
+      </span><span class="type-name">SourceLinks</span><span>(</span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>)
+    )
+  )
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>If you use link to different sources hosted on different servers, you can associate base URIs with package prefixes,
+        while keeping one base URI as a default for all packages that do not match any prefix:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addSourceLinks</span><span>(</span><span class="type-name">SourceLinks</span><span>(
+      </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, 
+      </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
+    ))
+    .</span><span class="identifier">addSourceLinks</span><span>(</span><span class="type-name">SourceLinks</span><span>(
+      </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/elsewhere/project&quot;</span><span>, 
+      </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
+    ).</span><span class="identifier">withPackagePrefix</span><span>(</span><span class="string-literal">&quot;com.lib42&quot;</span><span>))
+  )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{ </span><span class="type-name">LinkConfig</span><span>, </span><span class="type-name">SourceLinks</span><span> }
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">LinkConfig</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">addSourceLinks</span><span>(</span><span class="type-name">SourceLinks</span><span>(
+      </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/team/project&quot;</span><span>, 
+      </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
+    ))
+    .</span><span class="identifier">addSourceLinks</span><span>(</span><span class="type-name">SourceLinks</span><span>(
+      </span><span class="identifier">baseUri</span><span> = </span><span class="string-literal">&quot;https://github.com/elsewhere/project&quot;</span><span>, 
+      </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;scala&quot;</span><span>
+    ).</span><span class="identifier">withPackagePrefix</span><span>(</span><span class="string-literal">&quot;com.lib42&quot;</span><span>))
+  )
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        
+        <h2 id="generating-navigation-trees" class="section"><a class="anchor-link left" href="#generating-navigation-trees"><i class="icofont-laika link">&#xef71;</i></a>Generating Navigation Trees</h2>
+        <p>Depending on the output formats you intend to generate, you have different options for producing
+        tables of contents and navigation bars.</p>
+        
+        <h3 id="websites" class="section"><a class="anchor-link left" href="#websites"><i class="icofont-laika link">&#xef71;</i></a>Websites</h3>
+        <p>The default Helium theme provides a main navigation tree in the left sidebar and page navigation on the 
+        right out of the box.</p>
+        <p>For minor customizations like changing the depth of the generated navigation tree or manually adding
+        entries to the auto-generated ones, you can use the Helium API as documented in <a href="03-theme-settings.html#main-navigation">Main Navigation</a>.</p>
+        <p>If you need more advanced customization and want to include your own templates, 
+        either for overriding the Helium templates or when not using a theme at all,
+        you can easily generate custom navigation structures with the <code>@:navigationTree</code> directive described below. </p>
+        <p>For more details on templating, see <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a>.</p>
+        
+        <h3 id="epub-pdf" class="section"><a class="anchor-link left" href="#epub-pdf"><i class="icofont-laika link">&#xef71;</i></a>EPUB &amp; PDF</h3>
+        <p>Laika&#39;s E-book support automatically generates navigation elements for EPUB and PDF readers.
+        These are not part of the templates for these output formats, therefore have to be configured separately
+        as shown in <a href="04-ebooks.html#e-books-epub-pdf">E-Books (EPUB &amp; PDF)</a>.</p>
+        <p>You can also additionally include a table of content in the rendered pages, by using the <code>@:navigationTree</code> 
+        directive described below in the templates for EPUB and PDF.</p>
+        
+        <h3 id="the-navigationtree-directive" class="section"><a class="anchor-link left" href="#the-navigationtree-directive"><i class="icofont-laika link">&#xef71;</i></a>The navigationTree Directive</h3>
+        <p>This flexible directive allows to freely combine auto-generated navigation trees based on your input tree&#39;s
+        structure with manual entries.</p>
+        <p>It inserts a <code>NavigationList</code> node into the tree - like all directives it does generate
+        an AST element as its result and does not directly produce string output in the target format. </p>
+        <p>A navigation bar for the content of the entire project can be generated by referring to the virtual root:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span> } ]
+}</span></code></pre>
+        <p>For generating a navigation tree for the current page with all its sections, you can refer to the current document
+        with <code>#</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;#&quot;</span><span> } ]
+}</span></code></pre>
+        <p>But you can also specify any absolute or relative path as the root of the entry:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ 
+    { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;../introduction&quot;</span><span> }
+    { target = &quot;../reference&quot; }
+  ]
+}</span></code></pre>
+        <p>These path references can either point to a directory or an individual document.</p>
+        
+        <h4 id="limiting-the-depth" class="section"><a class="anchor-link left" href="#limiting-the-depth"><i class="icofont-laika link">&#xef71;</i></a>Limiting the Depth</h4>
+        <p>By default the navigation tree will allow an arbitrary depth and not only reflect the hierarchy of directories
+        and document and their titles, but also include the individual sections within the documents.</p>
+        <p>If you want to restrict the tree to a particular navigation depth, you can do so with the <code>defaultDepth</code>
+        attribute on the root level, or the <code>depth</code> attribute on each individual entry:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span>, </span><span class="attribute-name">depth</span><span> = </span><span class="number-literal">3</span><span> } ]
+}</span></code></pre>
+        
+        <h4 id="excluding-document-sections" class="section"><a class="anchor-link left" href="#excluding-document-sections"><i class="icofont-laika link">&#xef71;</i></a>Excluding Document Sections</h4>
+        <p>If you want to generate a pure document-based navigation, which is quite common for the main navigation side bar,
+        you can also generally disable section links with:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span>, </span><span class="attribute-name">excludeSections</span><span> = </span><span class="boolean-literal">true</span><span> } ]
+}</span></code></pre>
+        <p>This way it will render documents as the leaf nodes and ignore their sections, even if the maximal depth has not been
+        reached yet. 
+        This attribute can be used on the root level where it applies to all entries,
+        or for each individual entry as shown in the example above.</p>
+        
+        <h4 id="excluding-the-root-node" class="section"><a class="anchor-link left" href="#excluding-the-root-node"><i class="icofont-laika link">&#xef71;</i></a>Excluding the Root Node</h4>
+        <p>By default each entry listed will be represented by its root node with its title, 
+        with all children nested one level below. 
+        Alternatively, when <code>excludeRoot</code> is set, 
+        the root can be skipped and its children inserted into the final structure directly.</p>
+        
+        <h4 id="specifying-additional-styles" class="section"><a class="anchor-link left" href="#specifying-additional-styles"><i class="icofont-laika link">&#xef71;</i></a>Specifying Additional Styles</h4>
+        <p>By default, all navigation items get the styles <code>nav</code> and <code>levelN</code> applied, with N being the level number. 
+        For HTML output these will then be rendered as class attributes.</p>
+        <p>If you generate different kinds of navigation trees and want additional class attributes for styling them
+        differently, you can set the <code>itemStyles</code> attribute:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">itemStyles</span><span> = [ </span><span class="string-literal">&quot;page-nav&quot;</span><span> ]
+  </span><span class="attribute-name">entries</span><span> = [ { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span>, </span><span class="attribute-name">depth</span><span> = </span><span class="number-literal">3</span><span> } ]
+}</span></code></pre>
+        
+        <h4 id="adding-manual-nodes" class="section"><a class="anchor-link left" href="#adding-manual-nodes"><i class="icofont-laika link">&#xef71;</i></a>Adding Manual Nodes</h4>
+        <p>Finally you can also include hard-coded link targets in addition to the auto-generated nodes:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
+  </span><span class="attribute-name">entries</span><span> = [ 
+    { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span>, </span><span class="attribute-name">depth</span><span> = </span><span class="number-literal">3</span><span>, </span><span class="attribute-name">excludeRoot</span><span> = </span><span class="boolean-literal">true</span><span> }
+    { target = &quot;http://twitter.com/me-me-me&quot;, title = &quot;Twitter&quot; }
+  ]
+}</span></code></pre>
+        <p>In this example an auto-generated navigation tree with depth 3 will be inserted, but an additional element
+        with an external link target will be added as the final node.</p>
+        <p>Manual nodes can also form a nested structure like this:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> { 
+  </span><span class="attribute-name">entries</span><span> = [
+    { </span><span class="attribute-name">title</span><span> = </span><span class="string-literal">Link 1</span><span>, </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;http://domain-1.com/&quot;</span><span>}
+    { title = Section, entries = [
+      { title = Link 2, target = &quot;http://domain-2.com/&quot;}
+      { title = Link 3, target = &quot;http://domain-3.com/&quot;}
+    ]}   
+  ] 
+}</span></code></pre>
+        <p>In this case the entry with the title &#39;Section&#39; does not have a target defined and only serves as a section
+        header without a link.</p>
+        
+        <h2 id="breadcrumbs" class="section"><a class="anchor-link left" href="#breadcrumbs"><i class="icofont-laika link">&#xef71;</i></a>Breadcrumbs</h2>
+        <p>The classic <code>@:breadcrumb</code> component generates a simple, flat list of links reflecting the directory structure
+        from the root to the current document:</p>
+        <div class="small-image">
+          <img src="../../img/breadcrumb.png" alt="Breadcrumb" width="321" height="88">
+        </div>
+        <p>This component works best in a directory structure that contains <a href="01-directory-structure.html#title-documents">Title Documents</a>, as otherwise the
+        segments which represent a directory level would have nowhere to link to and would render as plain text.</p>
+        
+        <h2 id="auto-numbering" class="section"><a class="anchor-link left" href="#auto-numbering"><i class="icofont-laika link">&#xef71;</i></a>Auto-Numbering</h2>
+        <p>Laika supports auto-numbering of documents or sections or both. 
+        The term sections in Laika refers to structure obtained from the headlines within documents.</p>
+        <p>If you enable both the section numbers will be added to the document number. 
+        E.g. in the document with the number <code>2.1</code> the number for the first section will be <code>2.1.1</code>.</p>
+        <p>Auto-numbering can be switched on per configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">AutonumberConfig</span><span>
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">AutonumberConfig</span><span>.</span><span class="identifier">allEnabled</span><span>.</span><span class="identifier">withMaxDepth</span><span>(</span><span class="number-literal">3</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">AutonumberConfig</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">AutonumberConfig</span><span>.</span><span class="identifier">allEnabled</span><span>.</span><span class="identifier">withMaxDepth</span><span>(</span><span class="number-literal">3</span><span>))
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>The configuration above will number both documents and sections within documents, but stop after the third level. 
+        The numbers will be added to the headers of the sections and also appear in tables of contents.</p>
+        <div class="default-image-block">
+          <img src="../../img/auto-numbering.png" alt="Auto-Numbering" width="680" height="405">
+        </div>
+        <p>The default setting for Laika has auto-numbering switched off completely.</p>
+        
+        <h2 id="pretty-urls" class="section"><a class="anchor-link left" href="#pretty-urls"><i class="icofont-laika link">&#xef71;</i></a>Pretty URLs</h2>
+        <p>The library contains an extension for publishing a site with so-called &quot;pretty URLs&quot;, 
+        where a path like <code>foo/bar.html</code> gets translated to <code>foo/bar/index.html</code> which in turns means
+        that links to that page can be expressed as <code>foo/bar/</code>, essentially stripping the <code>.html</code> suffix.</p>
+        <p>The extension changes both, the physical structure of files of the generated site as well as 
+        the rendering of internal links. It has no effect on other formats like EPUB or PDF.</p>
+        <p>In contrast to some other site generators, this extension is disabled by default.
+        It can be enabled like any other extension:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">PrettyURLs</span><span>
+
+</span><span class="identifier">laikaExtensions</span><span> += </span><span class="type-name">PrettyURLs</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">PrettyURLs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">PrettyURLs</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        
+        <h2 id="custom-link-directives" class="section"><a class="anchor-link left" href="#custom-link-directives"><i class="icofont-laika link">&#xef71;</i></a>Custom Link Directives</h2>
+        <p>The directives presented in this chapter are only a default selection of navigation features that hopefully
+        already cover most common scenarios.</p>
+        <p>If you have very specific requirements you can always fall back to implementing your own directives.
+        You can examine the implementation of Laika&#39;s default link directives as an example.</p>
+        <p>For details see <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

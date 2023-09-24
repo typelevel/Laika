@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Configuration</title>
+  
+  
+  <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/site/laika-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+    <script src="../helium/site/laika-versions.js"></script>
+  <script>initVersions("../../", "/02-running-laika/03-configuration.html", "latest", "https://typelevel.org/Laika/");</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 1.x</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+          <li class="level1 nav-leaf"><a href="../../olderVersions/">Older Versions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <a class="icon-link glyph-link" href="../../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../table-of-content.html">Table of Content</a></li>
+    <li class="level1 nav-leaf"><a href="../downloads.html">Documentation Downloads</a></li>
+    <li class="level1 nav-header">About Laika</li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/01-features.html">Features</a></li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+    <li class="level1 nav-header">Running Laika</li>
+    <li class="level2 nav-leaf"><a href="01-sbt-plugin.html">sbt Plugin</a></li>
+    <li class="level2 nav-leaf"><a href="02-library-api.html">Library API</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Configuration</a></li>
+    <li class="level1 nav-header">Preparing Content</li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+    <li class="level1 nav-header">Customizing Laika</li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/01-overview.html">Customizing Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+    <li class="level1 nav-header">Extending Laika</li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/01-overview.html">Extending Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+    <li class="level1 nav-header">Sub-Modules</li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+    <li class="level1 nav-header">Reference</li>
+    <li class="level2 nav-leaf"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Configuration</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#theme-settings">Theme Settings</a></li>
+    <li class="level1 nav-leaf"><a href="#navigation">Navigation</a></li>
+    <li class="level1 nav-node"><a href="#run-modes">Run Modes</a></li>
+    <li class="level2 nav-leaf"><a href="#strict-mode">Strict Mode</a></li>
+    <li class="level2 nav-leaf"><a href="#raw-content">Raw Content</a></li>
+    <li class="level2 nav-leaf"><a href="#character-encoding">Character Encoding</a></li>
+    <li class="level1 nav-node"><a href="#error-handling">Error Handling</a></li>
+    <li class="level2 nav-leaf"><a href="#error-types">Error Types</a></li>
+    <li class="level2 nav-leaf"><a href="#default-behaviour">Default Behaviour</a></li>
+    <li class="level2 nav-leaf"><a href="#visual-debugging">Visual Debugging</a></li>
+    <li class="level2 nav-leaf"><a href="#the-ast-renderer">The AST Renderer</a></li>
+    <li class="level1 nav-leaf"><a href="#user-defined-variables">User-Defined Variables</a></li>
+  </ul>
+
+  <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/02-running-laika/03-configuration.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="configuration" class="title">Configuration</h1>
+        <p>Laika has a rich set of features and keeps almost every module customizable or even replaceable, 
+        and as a consequence there is a lot to configure.</p>
+        <p>This chapter puts the focus on the basic configuration options that you are most likely to use
+        on a day-to-day basis.</p>
+        <p>If you want to dig deeper and tweak or extend the way Laika parses or renders,
+        see the intro sections to <a href="../04-customizing-laika/01-overview.html">Customizing Laika</a>
+        and <a href="../05-extending-laika/01-overview.html">Extending Laika</a> for an overview.</p>
+        
+        <h2 id="theme-settings" class="section"><a class="anchor-link left" href="#theme-settings"><i class="icofont-laika link">&#xef71;</i></a>Theme Settings</h2>
+        <p>Laika comes with a lightweight default theme called Helium.
+        Since the theme offers a lot of configuration options it has its own dedicated chapter <a href="#theme-settings">Theme Settings</a>.</p>
+        <p>To just give a brief overview, those settings allow you to configure:</p>
+        <ul>
+          <li>
+            <p>The <a href="../03-preparing-content/03-theme-settings.html#fonts">Fonts</a> to embed in EPUB and PDF files or to link in HTML files.</p>
+          </li>
+          <li>
+            <p>The <a href="../03-preparing-content/03-theme-settings.html#colors">Colors</a> for the main theme and for syntax highlighting.</p>
+          </li>
+          <li>
+            <p>Several aspects of the theme&#39;s <a href="../03-preparing-content/03-theme-settings.html#layout">Layout</a>, like column widths, block spacing or PDF page sizes.</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/03-theme-settings.html#metadata">Metadata</a> (title, authors, description, language, etc.) to include in the generated site or e-books.</p>
+          </li>
+          <li>
+            <p>Adding <a href="../03-preparing-content/03-theme-settings.html#favicons">Favicons</a> or custom links to the <a href="../03-preparing-content/03-theme-settings.html#top-navigation-bar">Top Navigation Bar</a></p>
+          </li>
+          <li>
+            <p>Adding an optional <a href="../03-preparing-content/03-theme-settings.html#download-page">Download Page</a> for the site&#39;s content as EPUB or PDF</p>
+          </li>
+          <li>
+            <p>Providing logos, text and links for an optional <a href="../03-preparing-content/03-theme-settings.html#website-landing-page">Website Landing Page</a>.</p>
+          </li>
+          <li>
+            <p>Configure <a href="../03-preparing-content/03-theme-settings.html#cover-images-for-e-books">Cover Images for E-books</a> or <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
+          </li>
+        </ul>
+        
+        <h2 id="navigation" class="section"><a class="anchor-link left" href="#navigation"><i class="icofont-laika link">&#xef71;</i></a>Navigation</h2>
+        <p>These settings also have their dedicated <a href="#navigation">Navigation</a> chapter, including configuration examples,
+        therefore we&#39;ll just give a brief overview of available configuration options here and link to the relevant sections.</p>
+        <ul>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#global-link-definitions">Global Link Definitions</a> help to avoid repetition by mapping URLs to an id in configuration and making
+            them available for use with &quot;native&quot; markup link syntax (e.g. <code>link to [my-globally-defined-id]</code> in Markdown).</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#linking-to-api-documentation">Linking to API Documentation</a> describes the <code>@:api</code> shortcut for defining links to API documentation,
+            which requires setting the relevant base URLs in the configuration.</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/02-navigation.html#disabling-validation">Disabling Validation</a> is a configuration option for excluding some directories/paths from
+            validation, e.g. in cases where you know that a directory will be populated by some external tool.
+            In its default setup, a Laika transformation fails when an internal link points to a document that does
+            not exist in the input directory.</p>
+          </li>
+          <li>
+            <p><a href="../03-preparing-content/01-directory-structure.html#versioned-documentation">Versioned Documentation</a> allows to use the built-in version switcher dropdown in the default Helium theme.</p>
+          </li>
+          <li>
+            <p>E-books (EPUB or PDF) have additional configuration options for navigation:</p>
+            <ul>
+              <li>
+                <p><a href="../03-preparing-content/04-ebooks.html#book-navigation">Book Navigation</a> allows to specify the depth of the auto-generated navigation.</p>
+              </li>
+              <li>
+                <p>The location of <a href="../03-preparing-content/03-theme-settings.html#cover-images-for-e-books">Cover Images for E-books</a> can be configured, too.</p>
+              </li>
+              <li>
+                <p>And <a href="../03-preparing-content/03-theme-settings.html#metadata">Metadata</a> can be specified so that it will be converted to a format
+                compatible with the corresponding readers.</p>
+              </li>
+              <li>
+                <p>Finally, <a href="../03-preparing-content/01-directory-structure.html#limiting-the-output-formats">Limiting the Output Formats</a> for some directories is possible, too.</p>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h2 id="run-modes" class="section"><a class="anchor-link left" href="#run-modes"><i class="icofont-laika link">&#xef71;</i></a>Run Modes</h2>
+        <p>These settings are available in the library API and the sbt plugin.</p>
+        
+        <h3 id="strict-mode" class="section"><a class="anchor-link left" href="#strict-mode"><i class="icofont-laika link">&#xef71;</i></a>Strict Mode</h3>
+        <p>Strict mode switches off all extensions and only uses features defined in the spec of the markup languages.</p>
+        <p>This might be useful if you develop applications with user input for example, and want to ensure that
+        only standard markup features are exposed to users.</p>
+        <p>Markup extensions enabled by default are:</p>
+        <ul>
+          <li>
+            <p>Custom Directives - either the built-in <a href="../07-reference/01-standard-directives.html#standard-directives">Standard Directives</a> 
+            or user-defined as shown in <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>.</p>
+          </li>
+          <li>
+            <p>Support for HOCON configuration headers in markup files.</p>
+          </li>
+          <li>
+            <p>Support for <a href="../07-reference/02-substitution-variables.html#substitution-variables">Substitution Variables</a> in markup in the form of <code>${some.key}</code>.</p>
+          </li>
+        </ul>
+        <p>To disable all these extensions you can use the <code>strict</code> flag:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">strict</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">strict</span><span>
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="raw-content" class="section"><a class="anchor-link left" href="#raw-content"><i class="icofont-laika link">&#xef71;</i></a>Raw Content</h3>
+        <p>Raw content is the term Laika uses for any markup syntax that allows the inclusion of content in the output format,
+        e.g. HTML.</p>
+        <p>This is disabled by default, even if it is part of the original text markup specification as in the 
+        case of Markdown.</p>
+        <p>This is to generally discourage to tie markup input to a concrete output format, 
+        as Laika supports multiple formats like HTML, EPUB and PDF and an API where users can easily add their own format.
+        Markup files containing raw HTML could not be used for those.</p>
+        <p>Secondly, when the markup originates from user input in a web application, 
+        it would not be safe to use without additional filtering. 
+        By default Laika does not filter any tags, not even <code>&lt;script&gt;</code> tags, 
+        but whitelist filtering can be added fairly easily through Laika&#39;s customization hooks like <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> 
+        or <a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a>.</p>
+        <p>You can enable verbatim HTML and other raw formats explicitly in the configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">withRawContent</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withRawContent</span><span>
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="character-encoding" class="section"><a class="anchor-link left" href="#character-encoding"><i class="icofont-laika link">&#xef71;</i></a>Character Encoding</h3>
+        <p>The default encoding in Laika is UTF-8. </p>
+        <p>When you need to work with different encodings you can override the default: </p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scala</span><span>.</span><span class="identifier">io</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">withEncoding</span><span>(</span><span class="type-name">Codec</span><span>.</span><span class="type-name">ISO8859</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scala</span><span>.</span><span class="identifier">io</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">codec</span><span>:</span><span class="type-name">Codec</span><span> = </span><span class="type-name">Codec</span><span>.</span><span class="type-name">ISO8859</span></code></pre>
+            <p>This has to be in scope where you specify the input and ouput files for your transformer</p>
+          </div>
+        </div>
+        
+        <h2 id="error-handling" class="section"><a class="anchor-link left" href="#error-handling"><i class="icofont-laika link">&#xef71;</i></a>Error Handling</h2>
+        <p>Text markup parsers are usually very resilient. 
+        For any input they cannot make sense of they fall back to rendering it back as raw text.
+        If, for example you start an emphasized span with an <code>&#39;*&#39;</code>, but then never close the span,
+        it will simply be treated as a literal and will not trigger an error. </p>
+        <p>But there are two groups of errors that do cause a transformation to fail.</p>
+        
+        <h3 id="error-types" class="section"><a class="anchor-link left" href="#error-types"><i class="icofont-laika link">&#xef71;</i></a>Error Types</h3>
+        <ul>
+          <li>
+            <p><strong>Unrecoverable errors</strong>: for example I/O errors where files cannot be read or directories cannot
+            be written to, or invalid configuration, e.g. in HOCON configuration headers, which is also treated as fatal,
+            since such a configuration section usually drives the behaviour or rendering of other nodes.</p>
+          </li>
+          <li>
+            <p><strong>Invalid nodes</strong>: these are &quot;local&quot; errors, which are confined to a single AST node.
+            This may be a reference to a section, document or footnote that does not exist or a directive with
+            invalid or missing attributes.</p>
+          </li>
+        </ul>
+        <p>The handling of the second kind of error can be controlled via configuration.</p>
+        
+        <h3 id="default-behaviour" class="section"><a class="anchor-link left" href="#default-behaviour"><i class="icofont-laika link">&#xef71;</i></a>Default Behaviour</h3>
+        <p>AST nodes that capture errors carry an error message, a severity
+        and a fallback node to use if configuration would allow to proceed with rendering.</p>
+        <p>Laika comes with two configuration options that control how these nodes are dealt with:</p>
+        <ul>
+          <li><code>failOnMessages</code> controls the minimum severity that causes a transformation to fail, the default is <code>Error</code>.</li>
+          <li><code>renderMessages</code> controls the minimum severity that causes a message to be included in the rendered output,
+          the default is <code>None</code>.</li>
+        </ul>
+        <p>This means, by default the presence of one or more invalid nodes in the AST of a document 
+        causes the transformation to fail, with all their message collected in the returned error type.</p>
+        
+        <h3 id="visual-debugging" class="section"><a class="anchor-link left" href="#visual-debugging"><i class="icofont-laika link">&#xef71;</i></a>Visual Debugging</h3>
+        <p>In some cases you may prefer to examine the errors in the rendered content, 
+        or you are processing user input where it is more helpful to display them in context than just as a list of
+        error messages.</p>
+        <p>You can achieve this by basically flipping the two default values in the configuration:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">MessageFilters</span><span>
+
+</span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withMessageFilters</span><span>(</span><span class="type-name">MessageFilters</span><span>.</span><span class="identifier">forVisualDebugging</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">MessageFilters</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withMessageFilters</span><span>(</span><span class="type-name">MessageFilters</span><span>.</span><span class="identifier">forVisualDebugging</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>Now rendering proceeds even with invalid nodes and they will be rendered in the location of the document
+        they occurred in.
+        In HTML output these node are rendered as a span with the class <code>runtime-message</code> and a second class for the level 
+        (<code>warning</code>, <code>error</code>, etc.), so that their display can be controlled via CSS.</p>
+        
+        <h3 id="the-ast-renderer" class="section"><a class="anchor-link left" href="#the-ast-renderer"><i class="icofont-laika link">&#xef71;</i></a>The AST Renderer</h3>
+        <p>If you need even more low-level insight, you can use the included AST renderer
+        to get a formatted output of the entire AST structure.</p>
+        <p>Longer plain text spans are truncated in this output format to put the emphasis on the structure of the document. </p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <p>Create a file with the content <code>some *text* example</code> in the input directory and run:</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaAST</span></code></pre>
+            <p>This task is a shortcut for <code>laikaGenerate ast</code></p>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">input</span><span> = </span><span class="string-literal">&quot;some *text* example&quot;</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">res</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">AST</span><span>)
+  .</span><span class="identifier">build</span><span>
+  .</span><span class="identifier">transform</span><span>(</span><span class="identifier">input</span><span>)</span></code></pre>
+          </div>
+        </div>
+        <p>The output for the small example above will have the following format:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">3</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;some &#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Emphasized</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+</span><span class="tag-punctuation">. . . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;text&#39;</span><span>
+</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39; example&#39;</span></code></pre>
+        
+        <h2 id="user-defined-variables" class="section"><a class="anchor-link left" href="#user-defined-variables"><i class="icofont-laika link">&#xef71;</i></a>User-Defined Variables</h2>
+        <p>Finally, the entire machinery for passing configuration around can be used by users, too.</p>
+        <p>You can define variables in any of the following scopes:</p>
+        <ul>
+          <li>
+            <p>Programmatically in global configuration</p>
+          </li>
+          <li>
+            <p>Per directory with HOCON in a file named <code>directory.conf</code></p>
+          </li>
+          <li>
+            <p>Per markup document in a HOCON configuration header</p>
+          </li>
+        </ul>
+        <p>This is an example for defining two variables globally: </p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;version.latest&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;license&quot;</span><span>, </span><span class="string-literal">&quot;Apache 2.0&quot;</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;version.latest&quot;</span><span>, </span><span class="string-literal">&quot;2.4.6&quot;</span><span>)
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="string-literal">&quot;license&quot;</span><span>, </span><span class="string-literal">&quot;Apache 2.0&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
+        <p>These values can then be accessed via <a href="../07-reference/02-substitution-variables.html#substitution-variables">Substitution Variables</a> in templates or in markup files:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>The latest release is </span><span class="substitution">${version.latest}</span><span>.
+It&#39;s released under the </span><span class="substitution">${license}</span><span> license.</span></code></pre>
+        <p>If you define them in a narrower scope and not globally, they won&#39;t be available outside of that scope.</p>
+        <p>There are three namespaces for variable keys which are used by the library, <code>laika.*</code>, <code>cursor.*</code> and <code>helium.*</code>.
+        As long as you avoid these three namespaces, you can freely use any configuration keys.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

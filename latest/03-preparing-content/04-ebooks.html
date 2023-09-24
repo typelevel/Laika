@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>E-Books (EPUB & PDF)</title>
+  
+  
+  <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/site/laika-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+    <script src="../helium/site/laika-versions.js"></script>
+  <script>initVersions("../../", "/03-preparing-content/04-ebooks.html", "latest", "https://typelevel.org/Laika/");</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 1.x</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+          <li class="level1 nav-leaf"><a href="../../olderVersions/">Older Versions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <a class="icon-link glyph-link" href="../../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../table-of-content.html">Table of Content</a></li>
+    <li class="level1 nav-leaf"><a href="../downloads.html">Documentation Downloads</a></li>
+    <li class="level1 nav-header">About Laika</li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/01-features.html">Features</a></li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+    <li class="level1 nav-header">Running Laika</li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+    <li class="level1 nav-header">Preparing Content</li>
+    <li class="level2 nav-leaf"><a href="01-directory-structure.html">Directory Structure</a></li>
+    <li class="level2 nav-leaf"><a href="02-navigation.html">Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="03-theme-settings.html">Theme Settings</a></li>
+    <li class="level2 active nav-leaf"><a href="#">E-Books (EPUB &amp; PDF)</a></li>
+    <li class="level2 nav-leaf"><a href="05-syntax-highlighting.html">Syntax Highlighting</a></li>
+    <li class="level1 nav-header">Customizing Laika</li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/01-overview.html">Customizing Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+    <li class="level1 nav-header">Extending Laika</li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/01-overview.html">Extending Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+    <li class="level1 nav-header">Sub-Modules</li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+    <li class="level2 nav-leaf"><a href="../06-sub-modules/03-laikas-hocon-api.html">Laika&#39;s HOCON API</a></li>
+    <li class="level1 nav-header">Reference</li>
+    <li class="level2 nav-leaf"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">E-Books (EPUB &amp; PDF)</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#generating-e-books">Generating E-Books</a></li>
+    <li class="level1 nav-leaf"><a href="#directory-structure">Directory Structure</a></li>
+    <li class="level1 nav-node"><a href="#configuration">Configuration</a></li>
+    <li class="level2 nav-leaf"><a href="#book-navigation">Book Navigation</a></li>
+    <li class="level1 nav-leaf"><a href="#supported-document-types">Supported Document Types</a></li>
+    <li class="level1 nav-leaf"><a href="#css-for-epub">CSS for EPUB</a></li>
+    <li class="level1 nav-leaf"><a href="#javascript-for-epub">JavaScript for EPUB</a></li>
+    <li class="level1 nav-leaf"><a href="#css-for-pdf">CSS for PDF</a></li>
+    <li class="level1 nav-node"><a href="#customized-output">Customized Output</a></li>
+    <li class="level2 nav-leaf"><a href="#templates">Templates</a></li>
+    <li class="level2 nav-leaf"><a href="#overriding-renderers">Overriding Renderers</a></li>
+  </ul>
+
+  <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/03-preparing-content/04-ebooks.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="e-books-epub-pdf" class="title">E-Books (EPUB &amp; PDF)</h1>
+        <p>Laika puts equal emphasis on the generation of e-books as on website generation.</p>
+        <p>Like all functionality, e-book generation does not require installation of external tools.
+        The EPUB format is supported by Laika&#39;s own Scala implementation, 
+        whereas PDF support is partially based on <a href="https://xmlgraphics.apache.org/fop/">Apache FOP</a>.</p>
+        <p>The latter is not based on LaTeX like many other PDF renderers, but uses XSL-FO as an interim format.
+        The generation of this interim format happens in Laika&#39;s own renderers, 
+        only the final transformation step to the binary PDF format is delegated to Apache FOP.</p>
+        
+        <h2 id="generating-e-books" class="section"><a class="anchor-link left" href="#generating-e-books"><i class="icofont-laika link">&#xef71;</i></a>Generating E-Books</h2>
+        <p>If you are using the sbt plugin you can use several of its task for generating e-books:</p>
+        <ul>
+          <li><code>laikaEPUB</code> or <code>laikaPDF</code> for transforming a directory of input files to a single output format</li>
+          <li><code>laikaGenerate epub pdf &lt;other formats&gt;</code> for transforming a directory of input files to EPUB and PDF
+          and other output formats with a single parse operation</li>
+          <li><code>laikaSite</code> for generating a site that also contains PDF and/or EPUB files for download
+          when setting the <code>laikaIncludeEPUB</code> and/or <code>laikaIncludePDF</code> settings to true.</li>
+        </ul>
+        <p>See <a href="../02-running-laika/01-sbt-plugin.html#sbt-plugin">sbt Plugin</a> for more details.</p>
+        <p>When using the library API, the <code>EPUB</code> and <code>PDF</code> renderers can be passed to the <code>Transformer</code> or <code>Renderer</code> APIs:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">EPUB</span><span>)
+  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">build</span><span>
+
+</span><span class="identifier">transformer</span><span>.</span><span class="identifier">use</span><span> {
+  </span><span class="identifier">_</span><span>.</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;src&quot;</span><span>)
+   .</span><span class="identifier">toFile</span><span>(</span><span class="string-literal">&quot;hello.epub&quot;</span><span>)
+   .</span><span class="identifier">transform</span><span>
+}</span></code></pre>
+        <p>See <a href="../02-running-laika/02-library-api.html#library-api">Library API</a> for more details on these APIs and ensure you have the necessary dependencies in place -
+        the <code>laika-pdf</code> module for PDF or the <code>laika-io</code> module for EPUB - see <a href="../02-running-laika/02-library-api.html#dependencies">Dependencies</a>.</p>
+        
+        <h2 id="directory-structure" class="section"><a class="anchor-link left" href="#directory-structure"><i class="icofont-laika link">&#xef71;</i></a>Directory Structure</h2>
+        <p>An e-book generated by Laika is always a single, binary file, even when the input is an entire directory of markup files.
+        But the directory structure will be reflected in the navigation elements inside the e-book.</p>
+        <p>Markup files from the input directory will form the content of the e-book 
+        while static files like images and fonts will be embedded into the output 
+        when they are referenced from within one or more markup files. </p>
+        <p>For EPUB specifically it is important to consider what file size to choose for your content.
+        The directory structure inside the generated EPUB container (which is essentially a glorified ZIP) 
+        will mirror exactly the structure of the input directory,
+        apart from the additional metadata files it needs to generate.
+        Therefore it is best to avoid very large markup files as they might slow down the experience in the e-book reader,
+        and instead distribute content over a higher number of smaller input files.</p>
+        <p>See <a href="01-directory-structure.html#document-types">Document Types</a> for general info about the various types of input files Laika supports,
+        and <a href="#supported-document-types">Supported Document Types</a> in this chapter for additional info specific to EPUB and PDF.</p>
+        
+        <h2 id="configuration" class="section"><a class="anchor-link left" href="#configuration"><i class="icofont-laika link">&#xef71;</i></a>Configuration</h2>
+        <p>The most convenient way to configure aspects like metadata, look &amp; feel and navigation for your e-books
+        is to use the built-in default theme called Helium and its settings.</p>
+        <p>There is a dedicated <a href="03-theme-settings.html#theme-settings">Theme Settings</a> chapter, so we&#39;ll just link the most relevant aspects that can be configured
+        for e-books from here.</p>
+        <ul>
+          <li>
+            <p>The <a href="03-theme-settings.html#fonts">Fonts</a> to embed in EPUB and PDF files in case you do not want to use Helium&#39;s default fonts.</p>
+          </li>
+          <li>
+            <p>The <a href="03-theme-settings.html#colors">Colors</a> for the main theme and for syntax highlighting.</p>
+          </li>
+          <li>
+            <p>Several aspects of the theme&#39;s <a href="03-theme-settings.html#layout">Layout</a>, like line height, block spacing or PDF page sizes.</p>
+          </li>
+          <li>
+            <p><a href="03-theme-settings.html#metadata">Metadata</a> (title, authors, description, language, etc.) to include in the generated e-books in a way that reader
+            software can expose.</p>
+          </li>
+          <li>
+            <p>Configure <a href="03-theme-settings.html#cover-images-for-e-books">Cover Images for E-books</a> or <a href="03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
+          </li>
+        </ul>
+        
+        <h3 id="book-navigation" class="section"><a class="anchor-link left" href="#book-navigation"><i class="icofont-laika link">&#xef71;</i></a>Book Navigation</h3>
+        <p>Laika supports a directory structure with sub-directories of any depth. 
+        Markup files from the input directory will form the content of the e-book, 
+        linearized in depth-first traversal and using your configured <a href="01-directory-structure.html#configuration-files">Navigation Order</a>.</p>
+        <p>Laika will generate navigation elements compatible with e-book readers, as shown in the images below:</p>
+        <p>PDF Navigation in Preview for Mac:</p>
+        <div class="small-image">
+          <img src="../../img/nav-pdf.png" alt="PDF Navigation" width="311" height="311">
+        </div>
+        <p>EPUB Navigation in iBooks:</p>
+        <div class="small-image">
+          <img src="../../img/nav-epub.png" alt="EPUB Navigation" width="473" height="470">
+        </div>
+        <p>The navigation depth can be configured with the Helium API:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="type-name">Helium</span><span>
+
+</span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)</span></code></pre>
+        <div class="callout info">
+          <i class="icofont-laika info">&#xef4e;</i>
+          <p>The default for EPUB is just 2 levels as some readers like iBooks mess with the hierarchy of navigation items
+          when using more than 2 levels.
+          If you increase this setting make sure you verify it&#39;s looking good in the targeted readers.</p>
+        </div>
+        <p>Note that this affects the navigation structure that will be generated for the navigation tools of the respective
+        EPUB or PDF readers.</p>
+        <p>You might additionally want to insert a table of content into the page flow, right after the cover image,
+        as this would be the only navigation structure that would be available when printing the document.
+        See <a href="03-theme-settings.html#table-of-contents">Table of Contents</a> how to configure such a structure which can also have a different navigation depth
+        than the tree generated for the readers.</p>
+        
+        <h2 id="supported-document-types" class="section"><a class="anchor-link left" href="#supported-document-types"><i class="icofont-laika link">&#xef71;</i></a>Supported Document Types</h2>
+        <p>You can also place images, fonts and other supported file types into the input directory.
+        Laika will embed these files in the generated EPUB container and/or PDF file.</p>
+        <p>The supported file types / suffixes are:</p>
+        <p><strong>For EPUB</strong></p>
+        <ul>
+          <li>Images: <code>jpg</code>, <code>jpeg</code>, <code>gif</code>, <code>png</code>, <code>svg</code></li>
+          <li>Audio: <code>mp3</code>, <code>mp4</code></li>
+          <li>HTML: <code>html</code>, <code>xhtml</code></li>
+          <li>JavaScript: <code>js</code></li>
+          <li>CSS: <code>css</code> <br></li>
+          <li>Fonts: <code>woff2</code>, <code>woff</code>, <code>ttf</code>, <code>otf</code> </li>
+        </ul>
+        <p><strong>For PDF</strong></p>
+        <ul>
+          <li>Images: <code>jpg</code>, <code>jpeg</code>, <code>gif</code>, <code>png</code>, <code>svg</code>, <code>bmp</code>, <code>tiff</code></li>
+          <li>Fonts: <code>pfb</code> (Type 1), <code>ttf</code>, <code>otf</code> </li>
+        </ul>
+        
+        <h2 id="css-for-epub" class="section"><a class="anchor-link left" href="#css-for-epub"><i class="icofont-laika link">&#xef71;</i></a>CSS for EPUB</h2>
+        <p>Since content files for EPUB are standard XHTML files (apart from optional EPUB-specific attributes), 
+        you can style your e-books with standard CSS. </p>
+        <p>The Helium API offers ways to register which CSS files you want to be linked from the EPUB documents
+        or alternatively which directories to scan for CSS files.
+        See <a href="03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a> for details.</p>
+        <p>When referencing images or fonts from your CSS files, you can use relative paths, 
+        as the directory layout will be retained inside the EPUB container.</p>
+        
+        <h2 id="javascript-for-epub" class="section"><a class="anchor-link left" href="#javascript-for-epub"><i class="icofont-laika link">&#xef71;</i></a>JavaScript for EPUB</h2>
+        <p>The scope of support for JavaScript may depend on the target reader, so early testing is recommended when
+        scripting EPUB documents.</p>
+        <p>The Helium API offers ways to register which JavaScript files you want to be linked from the EPUB documents
+        or alternatively which directories to scan for JavaScript files.
+        See <a href="03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a> for details.</p>
+        <p>In case you want to create a custom EPUB template you need to provide some indicator in the config header whether
+        the template needs scripting support, as each scripted document needs a flag in the OPF metadata for the EPUB container.
+        The key for the attribute is <code>laika.epub.scripted</code> and valid values are <code>always</code>, <code>never</code>, <code>auto</code>.
+        The <code>auto</code> value which is also used in Helium&#39;s default template sets the flag whenever there are any
+        documents in the input tree with the suffix <code>.epub.js</code> or <code>.shared.js</code>.</p>
+        
+        <h2 id="css-for-pdf" class="section"><a class="anchor-link left" href="#css-for-pdf"><i class="icofont-laika link">&#xef71;</i></a>CSS for PDF</h2>
+        <p>Laika offers the unusual, but convenient feature of CSS styling for PDF.
+        It allows for customization in a syntax familiar to most users. </p>
+        <p>The CSS files need to be placed into the root directory of your input tree with a name
+        in the format <code>&lt;name&gt;.fo.css</code>.</p>
+        <p>However, as PDF is a page-based format and in Laika&#39;s case expects <code>XSL-FO</code> as an interim format,
+        there are a few subtle differences:</p>
+        <ul>
+          <li>
+            <p>All CSS attributes must also be valid XSL-FO attributes. 
+            There is quite a big overlap, so you can use the familiar <code>font-family</code>, <code>font-weight</code>, <code>font-size</code>
+            attributes as well as most of the border, padding and margin attributes.
+            For an overview over the available attributes you can refer to the <a href="http://www.w3.org/TR/xsl11/#pr-section">Formatting Properties</a> chapter
+            in the XSL-FO specification.</p>
+          </li>
+          <li>
+            <p>While id selectors and class selectors function like in web CSS, the type selectors are quite different.
+            Since there is no interim HTML result, the types you can refer to are not HTML tag names like <code>div</code>,
+            but the class names of the Laika AST nodes, e.g. <code>Header</code> or <code>Paragraph</code>.
+            See <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> for details.</p>
+          </li>
+          <li>
+            <p>Some selector types of the CSS specification are not supported as most of them do not add much value
+            in the context of a Laika document tree:</p>
+            <ul>
+              <li>Pseudo-classes like <code>:hover</code></li>
+              <li>Attribute selectors like <code>[attribute~=value]</code> (since Laika nodes do not have many properties)</li>
+              <li><code>Element1+Element2</code> or <code>Element1~Element2</code> for selecting based on sibling elements</li>
+            </ul>
+          </li>
+        </ul>
+        <p>An example for styling a level-2 header:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">Header</span><span>.</span><span class="identifier">level2</span><span> {
+  </span><span class="attribute-name">font-family</span><span>: </span><span class="identifier">sans-serif</span><span>;
+  </span><span class="attribute-name">font-weight</span><span>: </span><span class="identifier">bold</span><span>;
+  </span><span class="attribute-name">font-size</span><span>: </span><span class="number-literal">14</span><span class="identifier">pt</span><span>;
+}</span></code></pre>
+        <p>The <code>Header</code> type selector refers to the name of the AST node Laika produces for headers.
+        The <code>level2</code> class is a style that gets rendered for each header node to be able to style levels differently</p>
+        <p>Only a few of Laika&#39;s nodes get rendered with class attributes. 
+        You can examine HTML output to get an overview over rendered attributes as they are largely identical to those
+        rendered for EPUB and PDF. </p>
+        <p>Likewise, out of the box only a subset of nodes get rendered with an auto-generated id: 
+        headers, footnotes or citations.</p>
+        
+        <h2 id="customized-output" class="section"><a class="anchor-link left" href="#customized-output"><i class="icofont-laika link">&#xef71;</i></a>Customized Output</h2>
+        <p>In cases where styling with CSS alone is not sufficient, there are additional,
+        lower-level hooks to customize the rendered output.</p>
+        
+        <h3 id="templates" class="section"><a class="anchor-link left" href="#templates"><i class="icofont-laika link">&#xef71;</i></a>Templates</h3>
+        <p>You can place custom default templates into the root directory of the input tree,
+        named <code>default.template.epub.xhtml</code> for EPUB and <code>default.template.fo</code> for PDF.</p>
+        <p>For EPUB the template will be applied to each rendered file individually,
+        for PDF the generated XSL-FO will first be concatenated and then the template will be applied 
+        to the single final FO document.</p>
+        <p>Customizing the PDF template would require knowledge of <code>XSL-FO</code>, but is hopefully rarely ever
+        necessary as PDFs can be styled by Laika&#39;s <a href="#css-for-pdf">CSS for PDF</a> feature.</p>
+        <p>See <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a> for general info about Laika&#39;s template engine.</p>
+        
+        <h3 id="overriding-renderers" class="section"><a class="anchor-link left" href="#overriding-renderers"><i class="icofont-laika link">&#xef71;</i></a>Overriding Renderers</h3>
+        <p>Apart from adjusting the surrounding template the AST nodes will be rendered into, 
+        you can also customize how each individual AST node itself is rendered. </p>
+        <p>This is a general customization hook in the library and not different from overriding renderers for site output.
+        See <a href="#overriding-renderers">Overriding Renderers</a> for more details.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

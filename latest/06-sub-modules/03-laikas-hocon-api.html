@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Laika's HOCON API</title>
+  
+  
+  <meta name="description" content="Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/site/laika-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../css/manual.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+    <script src="../helium/site/laika-versions.js"></script>
+  <script>initVersions("../../", "/06-sub-modules/03-laikas-hocon-api.html", "latest", "https://typelevel.org/Laika/");</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 1.x</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+          <li class="level1 nav-leaf"><a href="../../olderVersions/">Older Versions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <a class="icon-link glyph-link" href="../../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/Laika"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="../downloads.html"><i class="icofont-laika download" title="Download">&#xef08;</i></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../table-of-content.html">Table of Content</a></li>
+    <li class="level1 nav-leaf"><a href="../downloads.html">Documentation Downloads</a></li>
+    <li class="level1 nav-header">About Laika</li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/01-features.html">Features</a></li>
+    <li class="level2 nav-leaf"><a href="../01-about-laika/02-design-goals.html">Design Goals</a></li>
+    <li class="level1 nav-header">Running Laika</li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/01-sbt-plugin.html">sbt Plugin</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/02-library-api.html">Library API</a></li>
+    <li class="level2 nav-leaf"><a href="../02-running-laika/03-configuration.html">Configuration</a></li>
+    <li class="level1 nav-header">Preparing Content</li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/01-directory-structure.html">Directory Structure</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/02-navigation.html">Navigation</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/03-theme-settings.html">Theme Settings</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/04-ebooks.html">E-Books (EPUB &amp; PDF)</a></li>
+    <li class="level2 nav-leaf"><a href="../03-preparing-content/05-syntax-highlighting.html">Syntax Highlighting</a></li>
+    <li class="level1 nav-header">Customizing Laika</li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/01-overview.html">Customizing Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/03-creating-templates.html">Creating Templates</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/04-document-ast.html">The Document AST</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/05-ast-rewriting.html">AST Rewriting</a></li>
+    <li class="level2 nav-leaf"><a href="../04-customizing-laika/06-overriding-renderers.html">Overriding Renderers</a></li>
+    <li class="level1 nav-header">Extending Laika</li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/01-overview.html">Extending Laika - Overview</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/02-creating-themes.html">Creating Themes</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/03-implementing-directives.html">Implementing Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/04-writing-parser-extensions.html">Writing Parser Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/06-adding-syntax-highlighters.html">Adding Syntax Highlighters</a></li>
+    <li class="level2 nav-leaf"><a href="../05-extending-laika/07-new-markup-output-formats.html">New Markup or Output Formats</a></li>
+    <li class="level1 nav-header">Sub-Modules</li>
+    <li class="level2 nav-leaf"><a href="02-laikas-parser-combinators.html">Laika&#39;s Parser Combinators</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Laika&#39;s HOCON API</a></li>
+    <li class="level1 nav-header">Reference</li>
+    <li class="level2 nav-leaf"><a href="../07-reference/01-standard-directives.html">Standard Directives</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/02-substitution-variables.html">Substitution Variables</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/03-spec-compliance.html">Spec Compliance</a></li>
+    <li class="level2 nav-leaf"><a href="../07-reference/07-migration-guide.html">Migration Guide</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Laika&#39;s HOCON API</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#why-laika-uses-hocon">Why Laika Uses HOCON</a></li>
+    <li class="level2 nav-leaf"><a href="#problems-with-configuration-files">Problems with Configuration Files</a></li>
+    <li class="level2 nav-leaf"><a href="#laika-s-use-case-for-hocon">Laika&#39;s Use Case for HOCON</a></li>
+    <li class="level2 nav-leaf"><a href="#why-a-new-parser">Why a New Parser?</a></li>
+    <li class="level1 nav-leaf"><a href="#where-laika-uses-hocon">Where Laika Uses HOCON</a></li>
+    <li class="level1 nav-leaf"><a href="#reading-from-config-instances">Reading from Config Instances</a></li>
+    <li class="level1 nav-node"><a href="#creating-decoders-and-encoders">Creating Decoders and Encoders</a></li>
+    <li class="level2 nav-leaf"><a href="#configdecoder">ConfigDecoder</a></li>
+    <li class="level2 nav-leaf"><a href="#configencoder">ConfigEncoder</a></li>
+    <li class="level2 nav-leaf"><a href="#automatic-derivation">Automatic Derivation</a></li>
+    <li class="level1 nav-node"><a href="#creating-a-config-instance">Creating a Config Instance</a></li>
+    <li class="level2 nav-leaf"><a href="#programmatic-building">Programmatic Building</a></li>
+    <li class="level2 nav-leaf"><a href="#parsing-hocon">Parsing HOCON</a></li>
+  </ul>
+
+  <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/06-sub-modules/03-laikas-hocon-api.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="laika-s-hocon-api" class="title">Laika&#39;s HOCON API</h1>
+        <p>Laika comes with its own HOCON parser and the corresponding API is used throughout the document model.
+        It fully supports the <a href="https://github.com/lightbend/config/blob/master/HOCON.md">HOCON specification</a>, albeit based on its own parser implementation.</p>
+        
+        <h2 id="why-laika-uses-hocon" class="section"><a class="anchor-link left" href="#why-laika-uses-hocon"><i class="icofont-laika link">&#xef71;</i></a>Why Laika Uses HOCON</h2>
+        <p>There is a little irony in that Laika went the extra mile to introduce its own HOCON parser even though
+        this project actually does not recommend the use of external files for application configuration!</p>
+        
+        <h3 id="problems-with-configuration-files" class="section"><a class="anchor-link left" href="#problems-with-configuration-files"><i class="icofont-laika link">&#xef71;</i></a>Problems with Configuration Files</h3>
+        <p>File-based application configuration was usually introduced with the promise of being able to relaunch the
+        application with different configurations without rebuilding. 
+        However, most real-world deployment processes involve a git commit of any configuration changes and a subsequent
+        rebuild on a CI server.
+        This way this mechanism never delivers on its initial promise, but instead introduces several problems:
+        the indirection of defining values in one place and accessing them in code and the stringly nature
+        of the configuration which tends to be error-prone compared to a more type-safe approach.</p>
+        <p>For this reason newer configuration libraries like Ciris by-pass the file approach entirely.
+        The motivation and some use cases are introduced in this <a href="https://skillsmatter.com/skillscasts/12650-ciris-functional-configurations">presentation</a>.</p>
+        <p>Likewise Laika encourages programmatic configuration approaches for all its global configuration options,
+        and in fact none of the code examples in the manual for this type of configuration show any HOCON-based approaches.</p>
+        
+        <h3 id="laika-s-use-case-for-hocon" class="section"><a class="anchor-link left" href="#laika-s-use-case-for-hocon"><i class="icofont-laika link">&#xef71;</i></a>Laika&#39;s Use Case for HOCON</h3>
+        <p>So why is there are a custom HOCON parser in Laika then?
+        The reason is that its primary use case in the library is not around global configuration.
+        An input tree (usually obtained from one or more input directories in the file system) is a hierarchical
+        structure, and every sub-directory or individual document can override some configuration aspect,
+        as shown in <a href="#where-laika-uses-hocon">Where Laika Uses HOCON</a>.
+        On top of that, Laika has an extension mechanism called directives (see <a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a> for details)
+        and for its syntax which often allows to add attributes to a directive declaration HOCON is a natural fit.</p>
+        <p>On such a fine-grained level, programmatic configuration is not practical, and HOCON&#39;s format is an attractive solution
+        thanks to its concise and flexible syntax and its support for substitution definitions where a declaration in a document
+        or directive attribute section can directly refer to something defined globally or in a parent scope.</p>
+        
+        <h3 id="why-a-new-parser" class="section"><a class="anchor-link left" href="#why-a-new-parser"><i class="icofont-laika link">&#xef71;</i></a>Why a New Parser?</h3>
+        <p>After the question why HOCON has been chosen is answered, there is still a follow-up question about the need
+        to re-implement an entirely new parser.
+        One reason is that the original implementation (the <a href="https://github.com/lightbend/config">Typesafe Config</a> library) and the projects that wrap around it
+        or derive from it do not meet Laika&#39;s requirement for full referential transparency.
+        They might throw exceptions or perform side effects without exposing it in the method signature.
+        Another reason is that Laika extends the capability of what kind of data can be held in a configuration node.
+        It allows an AST node to be assigned to a key in a <code>Config</code> instance so that it can be referred to in markup or
+        templates.
+        One of the key features, the way how a template merges the content of its associated markup document,
+        is based on this extension, which allows the use of a substitution reference (<code>${cursor.currentDocument}</code>) for this task.</p>
+        <p>Finally, parsing is a central aspect of a lot of Laika&#39;s functionality anyway and it even comes with its own parser
+        combinators. 
+        If you examine the HOCON parser implementation you will notice that it&#39;s a very lightweight and small module
+        compared to the entire Laika code base.</p>
+        
+        <h2 id="where-laika-uses-hocon" class="section"><a class="anchor-link left" href="#where-laika-uses-hocon"><i class="icofont-laika link">&#xef71;</i></a>Where Laika Uses HOCON</h2>
+        <p>Multiple types in the document tree model have a <code>config</code> property holding the configuration for that scope:</p>
+        <ul>
+          <li>A <code>DocumentCursor</code> instance passed to directive implementations and custom rewrite rules.
+          Probably the most likely instance you access a <code>config</code> property through.</li>
+          <li>A <code>Document</code> instance, populated from the configuration header of the markup document</li>
+          <li>A <code>TemplateDocument</code> instance, populated from the configuration header of the template document</li>
+          <li>A <code>DocumentTree</code> instance, populated from the <code>directory.conf</code> file in the corresponding directory</li>
+          <li>Each directive can optionally have a HOCON attribute block</li>
+        </ul>
+        <p>Whenever the corresponding configuration header or file is missing, an empty <code>Config</code> instance will be used.</p>
+        <p>The <code>Config</code> instances will be populated with values supplied by the library in the <code>laika.*</code> and <code>cursor.*</code> namespaces.
+        The former holds configuration values and the latter navigation info for the current document.
+        An additional namespace <code>helium.*</code> will be used if you use the default theme, containing theme configuration
+        and some pre-built AST nodes.</p>
+        <p>Any user-supplied values will be available, too, and should live in any namespace other than the two reserved ones.</p>
+        
+        <h2 id="reading-from-config-instances" class="section"><a class="anchor-link left" href="#reading-from-config-instances"><i class="icofont-laika link">&#xef71;</i></a>Reading from Config Instances</h2>
+        <p>Once you obtained access to a <code>Config</code> instance, either through one of the objects listed above 
+        or by <a href="#creating-a-config-instance">Creating a Config Instance</a> yourself, reading from it is quite straightforward.
+        You have to provide the key you want to read and the type you expect:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">Config</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">config</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">version</span><span> = </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;project.version&quot;</span><span>)</span></code></pre>
+        <p>The type conversion is based on a matching <code>ConfigDecoder[T]</code> which must be in implicit scope.
+        It&#39;s a mechanism you might be familiar with from JSON libraries.</p>
+        <p>The returned value is of type <code>Either[ConfigError, T]</code>.
+        It will be a <code>Left</code> when either the type conversion fails or the key is not defined.</p>
+        <p>Laika comes with decoders for basic types like <code>Boolean</code>, <code>String</code>, <code>Int</code>, <code>Path</code> or <code>Date</code> 
+        and sequences and maps of them.
+        They are in the companion, therefore do not require any imports.</p>
+        <p>The <code>Path</code> decoder deals with the type representing Laika&#39;s virtual path.
+        It is convenient in that it resolves relative paths to absolute paths based on the origin of the definition.
+        See <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> for details.</p>
+        <p>There are variants of the <code>get</code> method shown above: there is an overload that allows to pass a default value
+        as the second argument that will be used when there is no value for the specified key.
+        There is a <code>getOpt</code> variant that turns the result into <code>Either[ConfigError, Option[T]]</code> 
+        and there is a <code>hasKey</code> method to check for the existence of a key.</p>
+        <p>See <a class="api" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/config/Config.html">Config</a> for the full API documentation.</p>
+        
+        <h2 id="creating-decoders-and-encoders" class="section"><a class="anchor-link left" href="#creating-decoders-and-encoders"><i class="icofont-laika link">&#xef71;</i></a>Creating Decoders and Encoders</h2>
+        <p>Decoders are required for reading from a <code>Config</code> instance as shown in the previous section, the most common scenario.
+        Encoders are needed when you populate a <code>Config</code> instance programmatically as shown in <a href="#programmatic-building">Programmatic Building</a>.</p>
+        
+        <h3 id="configdecoder" class="section"><a class="anchor-link left" href="#configdecoder"><i class="icofont-laika link">&#xef71;</i></a>ConfigDecoder</h3>
+        <p>A decoder for a simple type is quite straightforward, it usually piggy-backs on an existing decoder.
+        Let&#39;s assume you have a <code>Color</code> enum, with a constructor to create instances from a string:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">sealed</span><span> </span><span class="keyword">trait</span><span> </span><span class="type-name">Color</span><span> {
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">name</span><span>: </span><span class="type-name">String</span><span>
+}
+</span><span class="comment">// enum values omitted
+</span><span class="keyword">object</span><span> </span><span class="type-name">Color</span><span> {
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">fromString</span><span> (</span><span class="identifier">value</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Option</span><span>[</span><span class="type-name">Color</span><span>] = ???
+}</span></code></pre>
+        <p>You can then flatMap on the string decoder to obtain a Color decoder:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">ConfigError</span><span>.</span><span class="type-name">DecodingFailed</span><span>
+
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">colorDecoder</span><span>: </span><span class="type-name">ConfigDecoder</span><span>[</span><span class="type-name">Color</span><span>] = 
+  </span><span class="type-name">ConfigDecoder</span><span>.</span><span class="identifier">string</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">str</span><span> =&gt;
+    </span><span class="type-name">Color</span><span>.</span><span class="identifier">fromString</span><span>(</span><span class="identifier">str</span><span>)
+      .</span><span class="identifier">toRight</span><span>(</span><span class="type-name">DecodingFailed</span><span>(</span><span class="string-literal">s&quot;Unsupported color name: </span><span class="substitution">$str</span><span class="string-literal">&quot;</span><span>))
+  }</span></code></pre>
+        <p>Now let&#39;s assume you need a decoder for a case class with the following shape:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Person</span><span> (</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">age</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">city</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">String</span><span>])</span></code></pre>
+        <p>For mapping a HOCON object to a Scala case class you would usually build on top of the <code>config</code> decoder,
+        which decodes a nested object into an instance that has the same API for querying values as the root.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">decoder</span><span>: </span><span class="type-name">ConfigDecoder</span><span>[</span><span class="type-name">Person</span><span>] = 
+  </span><span class="type-name">ConfigDecoder</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">config</span><span> =&gt;
+    </span><span class="keyword">for</span><span> {
+      </span><span class="identifier">name</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;name&quot;</span><span>)
+      </span><span class="identifier">age</span><span>  &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">Int</span><span>](</span><span class="string-literal">&quot;age&quot;</span><span>)
+      </span><span class="identifier">city</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">getOpt</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;city&quot;</span><span>)
+    } </span><span class="keyword">yield</span><span> {
+      </span><span class="type-name">Person</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">age</span><span>, </span><span class="identifier">city</span><span>)
+    }
+}</span></code></pre>
+        
+        <h3 id="configencoder" class="section"><a class="anchor-link left" href="#configencoder"><i class="icofont-laika link">&#xef71;</i></a>ConfigEncoder</h3>
+        <p>We are going to demonstrate how to write encoders for the same objects we used for our decoder examples.</p>
+        <p>We can encode our <code>Color</code> enumeration, assuming it has a <code>name</code> property, like this:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">colorEncoder</span><span>: </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Color</span><span>] = </span><span class="type-name">ConfigEncoder</span><span>.</span><span class="identifier">string</span><span>.</span><span class="identifier">contramap</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">name</span><span>)</span></code></pre>
+        <p>For our Person case class we can use the convenient shortcuts in <code>ObjectBuilder</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">encoder</span><span>: </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Person</span><span>] = </span><span class="type-name">ConfigEncoder</span><span>[</span><span class="type-name">Person</span><span>] { </span><span class="identifier">person</span><span> =&gt;
+  </span><span class="type-name">ConfigEncoder</span><span>.</span><span class="type-name">ObjectBuilder</span><span>.</span><span class="identifier">empty</span><span>
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;name&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">name</span><span>)
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;age&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">age</span><span>)
+    .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;city&quot;</span><span>, </span><span class="identifier">person</span><span>.</span><span class="identifier">city</span><span>)
+    .</span><span class="identifier">build</span><span>
+}</span></code></pre>
+        <p>The builder deals with optional values by omitting the property altogether when it&#39;s empty.</p>
+        
+        <h3 id="automatic-derivation" class="section"><a class="anchor-link left" href="#automatic-derivation"><i class="icofont-laika link">&#xef71;</i></a>Automatic Derivation</h3>
+        <p>Laika currently does not contain functionality for automatically deriving encoders or decoders for case classes.
+        One reason is that in contrast to JSON libraries the likeliness you need to map larger structures is much smaller.
+        Therefore, the amount of boilerplate is usually tolerable.</p>
+        <p>Secondly we are so close to a Scala 3 release that will make automatic derivation much easier,
+        that the step of building something on top of shapeless for Scala 2 (and paying the compile time tax)
+        or writing a low-level Scala-2-style macro does seem very unattractive.</p>
+        <p>Automatic derivation will be supported once the Laika code base moves to Scala 3.</p>
+        
+        <h2 id="creating-a-config-instance" class="section"><a class="anchor-link left" href="#creating-a-config-instance"><i class="icofont-laika link">&#xef71;</i></a>Creating a Config Instance</h2>
+        <p>The most common use cases for <code>Config</code> instance in Laika are read access.
+        But there may be scenarios where you want to create new instances yourself.
+        One would be when you create an entire <code>DocumentTree</code> programmatically instead of parsing from sources.
+        It is entirely possible in Laika to feed renderers for EPUB, PDF and HTML solely with content generated in-memory.
+        The other use case would be if you want to use Laika&#39;s HOCON parser completely independently from its other features.</p>
+        <p>There are two ways to create a <code>Config</code> instance. 
+        One is based on parsing HOCON string input with a <code>ConfigParser</code>, the other is to assemble configuration values
+        programmatically with a <code>ConfigBuilder</code>.
+        The former mostly exists for scenarios where you need to work with files, 
+        whereas the latter should be preferred for creating configuration data in-memory.</p>
+        
+        <h3 id="programmatic-building" class="section"><a class="anchor-link left" href="#programmatic-building"><i class="icofont-laika link">&#xef71;</i></a>Programmatic Building</h3>
+        <p>A <code>ConfigBuilder</code> allows to assemble arbitrary values as long as they have a <code>ConfigEncoder</code> in scope.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">ConfigBuilder</span><span>.</span><span class="identifier">empty</span><span>
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>The first parameter is the key to assign to the value, 
+        the second is the actual value which will be converted based on an implicit <code>ConfigEncoder</code> in scope.</p>
+        <p>Laika comes with encoders for basic types like <code>Boolean</code>, <code>String</code>, <code>Int</code>, <code>Path</code> or <code>Date</code> 
+        and sequences and maps of them. 
+        They are in the companion, therefore do not require any imports.</p>
+        <p>You can alternatively create your own encoder as shown above.</p>
+        <p>If you have a fallback instance, you can pass it to the constructor:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">parentConfig</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">config</span><span> = </span><span class="type-name">ConfigBuilder</span><span>.</span><span class="identifier">withFallback</span><span>(</span><span class="identifier">parentConfig</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
+        <p>The fallback will be used for resolving any values not present in the current instance.</p>
+        <p>Finally, if you want to modify an existing <code>Config</code> instance of a particular <code>Document</code> instance
+        you can use the <code>modifyConfig</code> method:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Document</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">finalDoc</span><span> = </span><span class="identifier">doc</span><span>.</span><span class="identifier">modifyConfig</span><span>(</span><span class="identifier">_</span><span>
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.epub.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/epub-cover.jpg&quot;</span><span>)
+  .</span><span class="identifier">withValue</span><span>(</span><span class="string-literal">&quot;laika.pdf.coverImage&quot;</span><span>, </span><span class="string-literal">&quot;/images/pdf-cover.jpg&quot;</span><span>)
+)</span></code></pre>
+        <p>This is more efficient than replacing the config and preserves the origin info in the existing config property which is essential for resolving relative paths defined in that configuration correctly.</p>
+        
+        <h3 id="parsing-hocon" class="section"><a class="anchor-link left" href="#parsing-hocon"><i class="icofont-laika link">&#xef71;</i></a>Parsing HOCON</h3>
+        <p>The <code>ConfigParser</code> has a very simple API:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">result</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ConfigError</span><span>, </span><span class="type-name">Config</span><span>] = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>()</span></code></pre>
+        <p>The <code>parse</code> step creates an interim model of unresolved configuration values.
+        This is necessary because the HOCON format supports substitution references and the corresponding values do not need
+        to originate from the same instance.
+        The <code>resolve</code> step then finally creates a <code>Config</code> instance, resolving and validating all references.</p>
+        <p>If you have a fallback instance, you can pass it via <code>resolve</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">parentConfig</span><span>: </span><span class="type-name">Config</span><span> = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">result</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ConfigError</span><span>, </span><span class="type-name">Config</span><span>] = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>(</span><span class="identifier">fallback</span><span> = </span><span class="identifier">parentConfig</span><span>)</span></code></pre>
+        <p>The fallback will be used for resolving any values not present in the current instance.</p>
+        <p>Finally, if you are building a <code>Config</code> instance that you want to assign to a <code>Document</code> instance in cases
+        where you build an entire tree programmatically, you also have to provide a correct <code>Origin</code> instance:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Document</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">hoconInput</span><span>: </span><span class="type-name">String</span><span> = ???
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">doc</span><span>: </span><span class="type-name">Document</span><span> = ???
+</span><span class="keyword">val</span><span> </span><span class="identifier">docOrigin</span><span>: </span><span class="type-name">Origin</span><span> = </span><span class="type-name">Origin</span><span>(</span><span class="type-name">Origin</span><span>.</span><span class="type-name">DocumentScope</span><span>, </span><span class="identifier">doc</span><span>.</span><span class="identifier">path</span><span>)  
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">result</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">ConfigError</span><span>, </span><span class="type-name">Document</span><span>] = </span><span class="type-name">ConfigParser</span><span>
+  .</span><span class="identifier">parse</span><span>(</span><span class="identifier">hoconInput</span><span>)
+  .</span><span class="identifier">resolve</span><span>(</span><span class="identifier">origin</span><span> = </span><span class="identifier">docOrigin</span><span>)
+  .</span><span class="identifier">map</span><span> { </span><span class="identifier">config</span><span> =&gt;
+    </span><span class="identifier">doc</span><span>.</span><span class="identifier">withConfig</span><span>(</span><span class="identifier">config</span><span>)
+  }</span></code></pre>
+        <p>This is essential for resolving relative paths defined in that configuration correctly.</p>
+        <p>There is currently no API for conveniently reading HOCON from files.
+        You would need to do the file IO yourself before feeding the parser.
+        Should the HOCON parser become a standalone micro-lib, it would definitely get a <code>ConfigLoader</code>.
+        But within Laika&#39;s own usage all IO is performed by the logic in the <code>laika-io</code> module that also deals
+        with loading of markup files and templates.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>
