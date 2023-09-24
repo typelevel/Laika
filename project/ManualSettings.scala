@@ -73,14 +73,14 @@ object ManualSettings {
     }
 
     val latestVersion = Root / versions.current.pathSegment
-    val api           = Root / "api" / "laika" / "api" / "index.html"
     val downloads     = Root / "downloads.gen"
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
-    val docsURL       = "https://typelevel.org/Laika/"
+    val siteBaseURL   = "https://typelevel.org/Laika/"
+    val apiURL        = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/"
     val srcURL        = "https://github.com/typelevel/Laika"
-    val docsSrcURL    = "https://github.com/typelevel/Laika/tree/main/docs/src"
-    val demoURL       = "http://planet42.org"
+    val docsSrcURL    = s"$srcURL/tree/main/docs/src"
+    val chatURL       = "https://discord.gg/XF3CXcMzqD"
   }
 
   private object text {
@@ -121,9 +121,8 @@ object ManualSettings {
 
   }
 
-  // TODO - api links will not work on top level pages, but fine for now - change to absolute path
   val config: LaikaConfig = LaikaConfig.defaults
-    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks("../api/")))
+    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks(paths.apiURL)))
     .withConfigValue(LinkValidation.Global(Seq(Root / "api")))
     .withConfigValue(
       Selections(
@@ -150,9 +149,9 @@ object ManualSettings {
     .site.topNavigationBar(
       navLinks = Seq(
         IconLink.external(paths.srcURL, HeliumIcon.github),
-        IconLink.internal(paths.api, HeliumIcon.api),
+        IconLink.external(paths.apiURL + "laika/", HeliumIcon.api),
         IconLink.internal(paths.downloads, HeliumIcon.download),
-        IconLink.external(paths.demoURL, HeliumIcon.demo)
+        IconLink.external(paths.chatURL, HeliumIcon.chat)
       ),
       versionMenu = VersionMenu.create(
         "Version",
@@ -165,7 +164,7 @@ object ManualSettings {
     .site.pageNavigation(sourceBaseURL = Some(paths.docsSrcURL))
     .site.downloadPage("Documentation Downloads", Some(text.downloadDesc))
     .site.versions(versions.config)
-    .site.baseURL(paths.docsURL)
+    .site.baseURL(paths.siteBaseURL)
     .site.landingPage(
       logo = Some(
         Image.internal(
@@ -191,7 +190,7 @@ object ManualSettings {
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
-        TextLink.external(paths.demoURL, "Demo Application")
+        TextLink.external(paths.chatURL, "Typelevel Chat")
       ),
       teasers = text.teasers
     )
