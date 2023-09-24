@@ -46,18 +46,23 @@ object TestTheme {
 
   lazy val htmlTemplate = TemplateRoot.fallback
 
-  val staticASTPaths = Seq(
-    Root / "helium" / "fonts" / "icofont.woff",
-    Root / "helium" / "fonts" / "icofont.woff2"
-  )
-
-  val staticHTMLPaths = Seq(
+  val fontPaths = Seq(
     Root / "laika" / "fonts" / "Lato-Regular.ttf",
     Root / "laika" / "fonts" / "Lato-Italic.ttf",
     Root / "laika" / "fonts" / "Lato-Bold.ttf",
     Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
     Root / "laika" / "fonts" / "FiraMono-Medium.otf",
-    Root / "laika" / "fonts" / "icofont.ttf",
+    Root / "laika" / "fonts" / "icofont.ttf"
+  )
+
+  val staticASTPaths = Seq(
+    Root / "helium" / "fonts" / "icofont.woff",
+    Root / "helium" / "fonts" / "icofont.woff2"
+  )
+
+  val staticFoPaths = fontPaths ++ staticASTPaths
+
+  val staticHTMLPaths = fontPaths ++ Seq(
     Root / "helium" / "site" / "laika-helium.js",
     Root / "helium" / "site" / "landing-page.css",
     Root / "helium" / "site" / "icofont.min.css",

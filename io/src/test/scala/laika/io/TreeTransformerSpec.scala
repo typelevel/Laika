@@ -412,7 +412,7 @@ class TreeTransformerSpec extends CatsEffectSuite
         docs(
           (Root / "doc1.fo", result)
         ),
-        staticDocuments = TestTheme.staticASTPaths,
+        staticDocuments = TestTheme.staticFoPaths,
         outputContext = OutputContext(XSLFO)
       )
     )
