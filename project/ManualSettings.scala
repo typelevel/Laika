@@ -20,10 +20,9 @@ object ManualSettings {
   private object versions {
 
     private def version(version: String, label: String = "EOL"): Version = {
-      val (pathSegment, canonical) = label match {
-        case "EOL"    => (version, false)
-        case "Stable" => ("latest", true)
-        case "Dev"    => ("dev", false)
+      val (pathSegment, canonical) = version match {
+        case "1.x" => ("latest", true)
+        case _     => (version, false)
       }
       val v                        =
         Version(version, pathSegment).withFallbackLink("/table-of-content.html").withLabel(label)
@@ -34,9 +33,8 @@ object ManualSettings {
     val v019    = version("0.19", "Stable")
     val v018    = version("0.18")
     val v017    = version("0.17")
-    val v016    = version("0.16")
     val current = v1
-    val all     = Seq(v1, v019, v018, v017, v016)
+    val all     = Seq(v1, v019, v018, v017)
 
     val config = Versions
       .forCurrentVersion(current)
@@ -178,7 +176,10 @@ object ManualSettings {
         )
       ),
       subtitle = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.3")),
+      latestReleases = Seq(
+        ReleaseInfo("Latest Pre-Release", "1.0.0-M5"),
+        ReleaseInfo("Latest Stable Release", "0.19.5")
+      ),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),
