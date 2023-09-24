@@ -1,5 +1,5 @@
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
+import laika.format.Markdown.GitHubFlavor
+import laika.config.SyntaxHighlighting
 import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
 import Dependencies._
@@ -90,7 +90,7 @@ lazy val docs = project.in(file("docs"))
     Laika / target            := baseDirectory.value / "target",
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
-      "LAIKA_VERSION" -> "0.19.3"
+      "LAIKA_VERSION" -> "1.0.0-M5"
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene"),
     scalacOptions ~= disableUnusedWarningsForMdoc

@@ -1,15 +1,13 @@
 import cats.data.NonEmptySet
 import laika.ast.Path.Root
 import laika.ast.*
-import laika.bundle.RenderOverrides
-import laika.directive.{ Blocks, DirectiveRegistry }
+import laika.api.bundle.{ BlockDirectives, RenderOverrides, DirectiveRegistry }
 import laika.format.{ HTML, XSLFO }
 
 object ManualBundle extends DirectiveRegistry {
 
-  private val colorsDirective = Blocks.create("colors") {
-    import cats.implicits._
-    Blocks.dsl.rawBody.map { body =>
+  private val colorsDirective = BlockDirectives.create("colors") {
+    BlockDirectives.dsl.rawBody.map { body =>
       val lines = body.split('\n').map(_.trim)
 
       def createColorCell(line: String): Block = {
@@ -45,11 +43,11 @@ object ManualBundle extends DirectiveRegistry {
     },
     HTML.Overrides {
       // use low-res cover images as thumbnails for PDF downloads
-      case (fmt, Image(ResolvedInternalTarget(abs, rel, formats), _, _, alt, _, _))
+      case (fmt, Image(InternalTarget.Resolved(abs, rel, formats), _, _, alt, _, _))
           if abs.isSubPath(Root / "img" / "pdf") =>
         fmt.child(
           Image(
-            ResolvedInternalTarget(
+            InternalTarget.Resolved(
               abs.parent.parent / "cover" / abs.name,
               rel.parent.parent / "cover" / rel.name,
               formats
