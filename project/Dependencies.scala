@@ -15,8 +15,8 @@ object Dependencies {
     val munitCE3 = "1.0.7"
     val jTidy    = "r938"
     val fop      = "2.9"
-    val scalaJavaTime = "2.5.0" 
 
+    val scalaJavaTime = "2.5.0"
   }
 
 }

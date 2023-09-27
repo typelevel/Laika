@@ -135,6 +135,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       _.withModuleKind(ModuleKind.CommonJSModule).withESFeatures(_.withESVersion(ESVersion.ES2018))
     }
   )
+  .nativeSettings(
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % versions.scalaJavaTime
+  )
 
 lazy val io = project.in(file("io"))
   .dependsOn(core.jvm % "compile->compile;test->test")
