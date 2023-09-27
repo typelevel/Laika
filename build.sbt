@@ -56,7 +56,7 @@ val jTidy = "net.sf.jtidy"   % "jtidy" % versions.jTidy % "test"
 
 val catsEffect = "org.typelevel" %% "cats-effect"       % versions.catsEffect
 val fs2IO      = "co.fs2"        %% "fs2-io"            % versions.fs2
-val munitCE3   = "org.typelevel" %% "munit-cats-effect" % versions.munitCE3 % "test"
+val munitCE    = "org.typelevel" %% "munit-cats-effect" % versions.munitCE % "test"
 
 val fop = "org.apache.xmlgraphics" % "fop" % versions.fop
 
@@ -143,7 +143,7 @@ lazy val io = project.in(file("io"))
   .dependsOn(core.jvm % "compile->compile;test->test")
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE),
     Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
 

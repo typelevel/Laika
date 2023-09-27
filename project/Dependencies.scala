@@ -11,10 +11,10 @@ object Dependencies {
     val fs2        = "3.9.2"
     val http4s     = "0.23.23"
 
-    val munit    = "1.0.0-M10"
-    val munitCE3 = "2.0.0-M3"
-    val jTidy    = "r938"
-    val fop      = "2.9"
+    val munit   = "1.0.0-M10"
+    val munitCE = "2.0.0-M3"
+    val jTidy   = "r938"
+    val fop     = "2.9"
 
     val scalaJavaTime = "2.5.0"
   }
